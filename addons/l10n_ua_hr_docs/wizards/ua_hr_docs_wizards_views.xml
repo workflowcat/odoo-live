@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_staff_list_wizard" model="ir.ui.view">
+    <field name="name">ua.staff.list.wizard.form</field><field name="model">ua.staff.list.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Штатний розпис"><group><field name="company_id"/><field name="date"/><field name="order_ref"/></group>
+        <footer><button name="action_print" type="object" string="Друк" class="btn-primary"/><button string="Закрити" class="btn-secondary" special="cancel"/></footer></form>
+    </field>
+  </record>
+  <record id="action_ua_staff_list_wizard" model="ir.actions.act_window">
+    <field name="name">Штатний розпис</field><field name="res_model">ua.staff.list.wizard</field><field name="view_mode">form</field><field name="target">new</field>
+  </record>
+  <menuitem id="menu_ua_staff_list" name="Штатний розпис" parent="hr.menu_hr_root" action="action_ua_staff_list_wizard" sequence="46" groups="hr.group_hr_user"/>
+  <record id="view_ua_timesheet_wizard" model="ir.ui.view">
+    <field name="name">ua.timesheet.wizard.form</field><field name="model">ua.timesheet.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Табель обліку робочого часу"><group><field name="company_id"/><field name="year"/><field name="month"/><field name="department_id"/></group>
+        <footer><button name="action_print" type="object" string="Друк" class="btn-primary"/><button string="Закрити" class="btn-secondary" special="cancel"/></footer></form>
+    </field>
+  </record>
+  <record id="action_ua_timesheet_wizard" model="ir.actions.act_window">
+    <field name="name">Табель (П-5)</field><field name="res_model">ua.timesheet.wizard</field><field name="view_mode">form</field><field name="target">new</field>
+  </record>
+  <menuitem id="menu_ua_timesheet" name="Табель (П-5)" parent="hr.menu_hr_root" action="action_ua_timesheet_wizard" sequence="47" groups="hr.group_hr_user"/>
+</odoo>

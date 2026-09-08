@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_timesheet" model="ir.actions.report">
+    <field name="name">Табель обліку робочого часу (П-5)</field><field name="model">ua.timesheet.wizard</field><field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_hr_docs.report_ua_timesheet</field><field name="report_file">l10n_ua_hr_docs.report_ua_timesheet</field>
+    <field name="print_report_name">'Табель %02d.%d' % (object.month, object.year)</field><field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4_landscape"/>
+  </record>
+  <template id="report_ua_timesheet">
+    <t t-call="web.basic_layout"><t t-foreach="docs" t-as="w">
+      <t t-set="rows" t-value="w._rows()"/><t t-set="d1" t-value="w._period()[0]"/><t t-set="d2" t-value="w._period()[1]"/>
+      <div class="page" style="font-family: DejaVu Sans, sans-serif; font-size: 8px;">
+        <style>.tb td, .tb th { border:1px solid #999; padding:1px 2px; text-align:center; } .tb td.n { text-align:left; white-space:nowrap; } .tb td.we { background:#eee; }</style>
+        <div style="font-size:11px; font-weight:bold;">Табель обліку використання робочого часу (типова форма № П-5)</div>
+        <div><t t-out="w.company_id.name"/><t t-if="w.department_id"> · <t t-out="w.department_id.name"/></t> · <t t-out="d1.strftime('%d.%m.%Y')"/> - <t t-out="d2.strftime('%d.%m.%Y')"/></div>
+        <table class="tb" style="border-collapse:collapse; width:100%; margin-top:6px;">
+          <thead><tr><th>№</th><th>ПІБ, посада</th><th>Таб. №</th><t t-foreach="range(1, d2.day + 1)" t-as="dn"><th><t t-out="dn"/></th></t><th>Дні</th><th>Год.</th><th>В</th><th>ТН</th><th>НА</th><th>ВП</th></tr></thead>
+          <tbody>
+            <t t-foreach="rows" t-as="r">
+              <tr><td rowspan="2"><t t-out="r_index + 1"/></td><td class="n" rowspan="2"><t t-out="r['emp'].name"/><br/><span style="color:#555;"><t t-out="r['emp'].job_title or ''"/></span></td><td rowspan="2"><t t-out="r['emp'].id"/></td>
+                <t t-foreach="r['cells']" t-as="c"><td t-att-class="'we' if c['weekend'] else ''"><t t-out="c['code']"/></td></t>
+                <td rowspan="2"><t t-out="r['tot']['days']"/></td><td rowspan="2"><t t-out="'%g' % r['tot']['hours']"/></td><td rowspan="2"><t t-out="r['tot']['В']"/></td><td rowspan="2"><t t-out="r['tot']['ТН']"/></td><td rowspan="2"><t t-out="r['tot']['НА']"/></td><td rowspan="2"><t t-out="r['tot']['ВП']"/></td></tr>
+              <tr><t t-foreach="r['cells']" t-as="c"><td t-att-class="'we' if c['weekend'] else ''"><t t-out="('%g' % c['hours']) if c['hours'] else ''"/></td></t></tr>
+            </t>
+          </tbody>
+        </table>
+        <p style="margin-top:6px;">Умовні позначення: Р робота, ВХ вихідний, В щорічна відпустка, ТН тимчасова непрацездатність, НА без збереження зарплати, ВП відпустка у зв’язку з вагітністю та пологами, «-» не в штаті.</p>
+        <table style="width:100%; margin-top:10px; font-size:9px;"><tr><td>Відповідальна особа ____________________</td><td>Керівник підрозділу ____________________</td><td>Працівник кадрової служби ____________________</td></tr></table>
+      </div>
+    </t></t>
+  </template>
+</odoo>

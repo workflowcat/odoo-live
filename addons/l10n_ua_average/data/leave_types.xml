@@ -7,5 +7,7 @@
     <record id="lt_vac" model="hr.leave.type"><field name="name">Щорічна відпустка</field><field name="work_entry_type_id" ref="wet_vac"/><field name="requires_allocation">False</field><field name="request_unit">day</field><field name="time_type">leave</field></record>
     <record id="lt_sick" model="hr.leave.type"><field name="name">Тимчасова непрацездатність</field><field name="work_entry_type_id" ref="wet_sick"/><field name="requires_allocation">False</field><field name="request_unit">day</field><field name="time_type">leave</field></record>
     <record id="lt_unpaid" model="hr.leave.type"><field name="name">Відпустка без збереження зарплати</field><field name="work_entry_type_id" ref="wet_unpaid"/><field name="requires_allocation">False</field><field name="request_unit">day</field><field name="time_type">leave</field><field name="unpaid">True</field></record>
+    <record id="wet_mat" model="hr.work.entry.type"><field name="name">Відпустка у зв'язку з вагітністю та пологами</field><field name="code">MAT</field><field name="is_leave">True</field><field name="sequence">23</field></record>
+    <record id="lt_mat" model="hr.leave.type"><field name="name">Відпустка у зв'язку з вагітністю та пологами</field><field name="work_entry_type_id" ref="wet_mat"/><field name="requires_allocation">False</field><field name="request_unit">day</field><field name="leave_validation_type">hr</field></record>
   </data>
 </odoo>

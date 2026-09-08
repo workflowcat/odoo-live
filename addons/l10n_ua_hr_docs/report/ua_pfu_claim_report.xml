@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_pfu_claim" model="ir.actions.report">
+    <field name="name">Заява-розрахунок до ПФУ</field><field name="model">hr.payslip.run</field><field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_hr_docs.report_ua_pfu_claim</field><field name="report_file">l10n_ua_hr_docs.report_ua_pfu_claim</field>
+    <field name="print_report_name">'Заява-розрахунок ПФУ %s' % object.name</field>
+    <field name="binding_model_id" ref="payroll.model_hr_payslip_run"/><field name="binding_type">report</field><field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4_landscape"/>
+  </record>
+  <template id="report_ua_pfu_claim">
+    <t t-call="web.basic_layout"><t t-foreach="docs" t-as="run">
+      <t t-set="co" t-value="run.company_id"/>
+      <t t-set="bank" t-value="co.partner_id.bank_ids[:1]"/>
+      <div class="page" style="font-family: DejaVu Sans, sans-serif; font-size: 10px;">
+        <h3 style="margin-bottom:2px;">Заява-розрахунок</h3>
+        <div>про фінансування страхувальника для надання матеріального забезпечення застрахованим особам (Постанова ПФУ). Страхувальник: <b><t t-out="co.name"/></b>, ЄДРПОУ <t t-out="co.company_registry or '-'"/>,
+          рахунок для зарахування коштів <t t-out="bank.acc_number if bank else '____________________'"/>. Період: <t t-out="run.date_start.strftime('%d.%m.%Y')"/> - <t t-out="run.date_end.strftime('%d.%m.%Y')"/>.</div>
+        <table class="table table-sm" style="font-size:10px; margin-top:8px;">
+          <thead><tr><th>№</th><th>ПІБ</th><th>РНОКПП</th><th>Вид</th><th>№ е-ЛН</th><th>Період непрацездатності</th><th class="text-end">Днів за рахунок ПФУ</th><th class="text-end">Середньоденна, грн</th><th class="text-end">%</th><th class="text-end">Сума, грн</th></tr></thead>
+          <tbody>
+            <t t-set="n" t-value="0"/><t t-set="total" t-value="0.0"/>
+            <t t-foreach="run.slip_ids.sorted(lambda s: s.employee_id.name)" t-as="slip">
+              <t t-set="emp" t-value="slip.employee_id.sudo()"/>
+              <t t-foreach="[('SICK_PFU', 'SICK', 'Тимчасова непрацездатність'), ('MAT', 'MAT', 'Вагітність та пологи')]" t-as="kind">
+                <t t-set="amount" t-value="sum(slip.line_ids.filtered(lambda l: l.code == kind[0]).mapped('total'))"/>
+                <t t-if="amount">
+                  <t t-set="lv" t-value="slip.env['hr.leave'].sudo().search([('employee_id', '=', emp.id), ('state', '=', 'validate'), ('holiday_status_id.work_entry_type_id.code', '=', kind[1]), ('request_date_from', '&lt;=', slip.date_to), ('request_date_to', '&gt;=', slip.date_from)], limit=1)"/>
+                  <t t-set="days" t-value="slip._ua_leave_calendar_days()"/>
+                  <t t-set="nd" t-value="days.get('mat_days', 0) if kind[0] == 'MAT' else days.get('sick_pfu_days', 0)"/>
+                  <t t-set="n" t-value="n + 1"/><t t-set="total" t-value="total + amount"/>
+                  <tr><td><t t-out="n"/></td><td><t t-out="emp.name"/></td><td><t t-out="emp.ua_rnokpp or ''"/></td><td><t t-out="kind[2]"/></td><td><t t-out="lv.ua_sick_number if lv else ''"/></td>
+                    <td><t t-if="lv"><t t-out="lv.request_date_from.strftime('%d.%m.%Y')"/> - <t t-out="lv.request_date_to.strftime('%d.%m.%Y')"/></t></td>
+                    <td class="text-end"><t t-out="nd"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(amount / nd / ((100.0 if kind[0] == 'MAT' else (emp.ua_sick_percent or 100.0)) / 100.0) if nd else 0).replace(',', ' ')"/></td>
+                    <td class="text-end"><t t-out="'%g' % (100.0 if kind[0] == 'MAT' else (emp.ua_sick_percent or 100.0))"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(amount).replace(',', ' ')"/></td></tr>
+                </t>
+              </t>
+            </t>
+            <tr style="font-weight:bold;"><td></td><td>Разом</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="text-end"><t t-out="'{:,.2f}'.format(total).replace(',', ' ')"/></td></tr>
+          </tbody>
+        </table>
+        <table style="width:100%; margin-top:24px; font-size:10px;"><tr><td>Керівник ____________________ <t t-out="co.ua_director_name or ''"/></td><td>Головний бухгалтер ____________________ <t t-out="co.ua_accountant_name or ''"/></td></tr></table>
+        <p style="font-size:9px; color:#555; margin-top:8px;">Форма для перевірки бухгалтером: офіційна Заява-розрахунок подається через портал ПФУ; цей друк відтворює її зміст.</p>
+      </div>
+    </t></t>
+  </template>
+</odoo>

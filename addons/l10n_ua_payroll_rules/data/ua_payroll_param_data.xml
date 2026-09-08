@@ -10,6 +10,7 @@
     <record id="p_esv_2026" model="ua.payroll.param"><field name="key">esv_rate</field><field name="name">ЄСВ, %</field><field name="valid_from">2026-01-01</field><field name="value">22</field><field name="source">ч. 5 ст. 8 ЗУ про ЄСВ</field></record>
     <record id="p_esv_dis_2026" model="ua.payroll.param"><field name="key">esv_rate_disabled</field><field name="name">ЄСВ для працівників з інвалідністю, %</field><field name="valid_from">2026-01-01</field><field name="value">8.41</field><field name="source">ч. 13 ст. 8 ЗУ про ЄСВ</field></record>
     <record id="p_esv_max_2026" model="ua.payroll.param"><field name="key">esv_max_multiplier</field><field name="name">Максимальна база ЄСВ, кількість МЗП</field><field name="valid_from">2026-01-01</field><field name="value">20</field><field name="source">п. 4 ч. 1 ст. 1 ЗУ про ЄСВ</field></record>
+    <record id="p_reserve_2026" model="ua.payroll.param"><field name="key">reserve_rate</field><field name="name">Резерв відпусток, % від фонду оплати (0 = не нараховувати)</field><field name="valid_from">2026-01-01</field><field name="value">9.6</field><field name="source">п. 13-14 П(С)БО 11; коефіцієнт = планові відпускні / плановий фонд, типово 24/251</field></record>
     <record id="p_holidays_2026" model="ua.payroll.param"><field name="key">holidays_per_year</field><field name="name">Святкових днів на рік (0 під час воєнного стану)</field><field name="valid_from">2026-01-01</field><field name="value">0</field><field name="source">ст. 6 ЗУ 2136-IX</field></record>
   </data>
 </odoo>

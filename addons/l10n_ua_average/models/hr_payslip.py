@@ -34,7 +34,7 @@ class HrPayslip(models.Model):
 
     def _ua_leave_calendar_days(self):
         """Календарні дні відпусток і лікарняних у періоді листка, з поділом лікарняних на роботодавця (1-5) і ПФУ (6+)."""
-        out = {"vac_days": 0, "sick_emp_days": 0, "sick_pfu_days": 0, "unpaid_days": 0}
+        out = {"vac_days": 0, "sick_emp_days": 0, "sick_pfu_days": 0, "unpaid_days": 0, "mat_days": 0}
         leaves = self.env["hr.leave"].search([("employee_id", "=", self.employee_id.id), ("state", "=", "validate"),
                                               ("request_date_from", "<=", self.date_to), ("request_date_to", ">=", self.date_from)])
         for lv in leaves:
@@ -47,6 +47,10 @@ class HrPayslip(models.Model):
                 out["vac_days"] += (end - start).days + 1
             elif code == "UNPAID":
                 out["unpaid_days"] += (end - start).days + 1
+            elif code == "MAT":
+                # допомога нараховується одразу за весь період листка непрацездатності (126 к.д.) у місяці його надання
+                if self.date_from <= lv.request_date_from <= self.date_to:
+                    out["mat_days"] += (lv.request_date_to - lv.request_date_from).days + 1
             elif code == "SICK":
                 d = start
                 while d <= end:

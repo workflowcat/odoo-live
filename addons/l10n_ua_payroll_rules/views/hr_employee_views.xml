@@ -11,7 +11,10 @@
               <field name="ua_rnokpp"/><field name="ua_contract_kind"/><field name="ua_main_job"/><field name="ua_fte"/><field name="ua_esv_category"/>
             </group>
             <group string="Пільги">
-              <field name="ua_psp"/><field name="ua_psp_children" invisible="ua_psp not in ('child', 'child150')"/>
+              <field name="ua_psp"/><field name="ua_psp_children" invisible="ua_psp not in ('child', 'child150')"/><field name="ua_disability_group"/>
+            </group>
+            <group string="Відпустка">
+              <field name="ua_vacation_days_year"/><field name="ua_vacation_accrued"/><field name="ua_vacation_used"/><field name="ua_vacation_balance"/>
             </group>
           </group>
         </page>

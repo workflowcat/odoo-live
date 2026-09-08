@@ -7,6 +7,7 @@
     "license": "LGPL-3",
     "depends": ["l10n_ua_payroll_rules", "l10n_ua_average", "account"],
     "data": [
+        "views/hr_employee_views.xml",
         "security/ir.model.access.csv",
         "data/account_map_data.xml",
         "views/ua_payroll_account_map_views.xml",

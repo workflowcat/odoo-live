@@ -12,6 +12,7 @@
         "views/res_company_views.xml",
         "views/hr_version_views.xml",
         "wizards/ua_report_wizard_views.xml",
+        "wizards/ua_hire_notice_wizard_views.xml",
         "report/ua_payslip_report.xml",
     ],
     "installable": True,

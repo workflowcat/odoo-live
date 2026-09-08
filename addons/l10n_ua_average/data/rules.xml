@@ -20,6 +20,12 @@
       <field name="condition_python">result = payroll.ua.sick_pfu_days &gt; 0</field>
       <field name="amount_select">code</field><field name="amount_python_compute">result = round(payroll.ua.sick_pfu_days * payroll.ua.avg1266_day * payroll.ua.sick_percent / 100.0, 2)</field>
     </record>
+    <record id="rule_mat" model="hr.salary.rule">
+      <field name="name">Допомога по вагітності та пологах, 100 % (ПФУ)</field><field name="code">MAT</field><field name="sequence">25</field>
+      <field name="category_id" ref="l10n_ua_payroll_rules.cat_mat"/><field name="condition_select">python</field>
+      <field name="condition_python">result = payroll.ua.mat_days &gt; 0</field>
+      <field name="amount_select">code</field><field name="amount_python_compute">result = round(payroll.ua.mat_days * payroll.ua.avg1266_day, 2)</field>
+    </record>
     <record id="rule_comp_vac" model="hr.salary.rule">
       <field name="name">Компенсація за невикористану відпустку</field><field name="code">COMP_VAC</field><field name="sequence">24</field>
       <field name="category_id" ref="cat_avg"/><field name="condition_select">python</field>
@@ -28,7 +34,7 @@
     </record>
     <record id="input_comp_days" model="hr.rule.input"><field name="name">Невикористані дні відпустки</field><field name="code">COMP_DAYS</field><field name="input_id" ref="rule_comp_vac"/></record>
     <record id="l10n_ua_payroll_rules.struct_ua_salary" model="hr.payroll.structure">
-      <field name="rule_ids" eval="[(4, ref('rule_vac')), (4, ref('rule_sick_emp')), (4, ref('rule_sick_pfu')), (4, ref('rule_comp_vac'))]"/>
+      <field name="rule_ids" eval="[(4, ref('rule_vac')), (4, ref('rule_sick_emp')), (4, ref('rule_sick_pfu')), (4, ref('rule_comp_vac')), (4, ref('rule_mat'))]"/>
     </record>
   </data>
 </odoo>

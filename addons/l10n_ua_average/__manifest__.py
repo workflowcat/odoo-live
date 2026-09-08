@@ -7,6 +7,7 @@
     "license": "LGPL-3",
     "depends": ["l10n_ua_payroll_rules", "hr_holidays", "hr_work_entry_holidays"],
     "data": [
+        "views/hr_leave_views.xml",
         "security/ir.model.access.csv",
         "data/leave_types.xml",
         "data/rules.xml",

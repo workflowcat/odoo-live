@@ -51,7 +51,7 @@ CAL = call("resource.calendar", "search", [["name", "ilike", "40"]])[0]
 STRUCT = call("hr.payroll.structure", "search", [["code", "=", "UA_SALARY"]])[0]
 STRUCT_TYPE = call("hr.payroll.structure.type", "search", [["name", "=", "Employee"]])[0]
 CT = {n: call("hr.contract.type", "search", [["name", "=", n]])[0] for n in ["Permanent", "Part-Time", "Temporary", "Intern"]}
-LT = {c: call("hr.leave.type", "search", [["work_entry_type_id.code", "=", c]])[0] for c in ["VAC", "SICK", "UNPAID"]}
+LT = {c: call("hr.leave.type", "search", [["work_entry_type_id.code", "=", c]])[0] for c in ["VAC", "SICK", "UNPAID", "MAT"]}
 
 
 def upsert(model, domain, vals):
@@ -90,7 +90,7 @@ for name, dept in [("Директор", "Адміністрація"), ("Гол�
                    ("Столяр", "Виробництво"), ("Комірник", "Склад і логістика"), ("Водій автотранспортних засобів", "Склад і логістика"),
                    ("Інженер-технолог", "Виробництво"), ("Дизайнер меблів", "Виробництво"), ("Фахівець з маркетингу", "Відділ продажу"),
                    ("Прибиральник службових приміщень", "Адміністрація"), ("Пакувальник", "Склад і логістика"), ("Юрисконсульт", "Адміністрація"),
-                   ("Верстатник деревообробних верстатів", "Виробництво"), ("Комерційний директор", "Відділ продажу"), ("Технік-конструктор", "Виробництво")]:
+                   ("Верстатник деревообробних верстатів", "Виробництво"), ("Комерційний директор", "Відділ продажу"), ("Технік-конструктор", "Виробництво"), ("Монтажник меблів (ФОП)", "Виробництво")]:
     JOBS[name] = upsert("hr.job", [["name", "=", name]], {"name": name, "department_id": DEPTS[dept], "company_id": COMPANY})
 office_p = upsert("res.partner", [["name", "=", "Ясен Меблі, офіс"]], {"name": "Ясен Меблі, офіс", "street": "вул. Городоцька, 174", "city": "Львів", "zip": "79022", "country_id": UA, "parent_id": co_partner, "type": "other"})
 shop_p = upsert("res.partner", [["name", "=", "Ясен Меблі, цех"]], {"name": "Ясен Меблі, цех", "street": "вул. Промислова, 8", "city": "Сокільники", "zip": "81130", "country_id": UA, "parent_id": co_partner, "type": "other"})
@@ -119,6 +119,8 @@ P = [
  ("Гнатів", "Степан", "Миколайович", "male", date(1972, 4, 5), "Верстатник деревообробних верстатів", "Виробництво", 21000, "1", "employment", True, "standard", "none", 0, 30.0, "married", 2, date(2016, 3, 1), "shop", ("other", "Верстатник 4 розряду", "Львівське ВПУ деревообробки"), "Пустомити", "privat", {"kp": "8240", "end": date(2026, 8, 31), "dismissal": "п. 1 ст. 36 КЗпП (угода сторін)", "COMP_DAYS": 12}),
  ("Крамар", "Володимир", "Зіновійович", "male", date(1980, 11, 23), "Комерційний директор", "Відділ продажу", 180000, "1", "employment", True, "standard", "none", 0, 19.0, "married", 2, date(2018, 11, 5), "office", ("master", "Економіка підприємства", "КНЕУ"), "Львів", "privat", {"kp": "1233", "BONUS": 20000}),
  ("Ткачук", "Ігор", "Володимирович", "male", date(1984, 8, 30), "Столяр", "Виробництво", 22000, "1", "employment", True, "standard", "none", 0, 17.0, "married", 1, date(2026, 8, 17), "shop", ("other", "Столяр 5 розряду", "Львівське ВПУ деревообробки"), "Пустомити", "privat", {"kp": "7422", "rehire": (date(2021, 3, 1), date(2026, 5, 31)), "note": "звільнений 31.05.2026 за угодою сторін, прийнятий знову 17.08.2026: одна картка, дві версії"}),
+ ("Савчук", "Олег", "Васильович", "male", date(1986, 2, 11), "Монтажник меблів (ФОП)", "Виробництво", 0, "1", "fop", False, "standard", "none", 0, 0.0, "married", 1, date(2026, 1, 12), "shop", ("other", "Монтажник", "Львівське ВПУ деревообробки"), "Львів", "privat", {"kp": "7422", "FOP_PAY": 40000, "end": date(2026, 12, 31), "ct": "Temporary", "note": "ФОП 3 групи, договір підряду; 4ДФ ознака 157, без ПДФО/ВЗ/ЄСВ"}),
+ ("Гринів", "Оксана", "Романівна", "female", date(1994, 9, 3), "Менеджер із збуту", "Відділ продажу", 24000, "1", "employment", True, "standard", "none", 0, 7.0, "married", 1, date(2020, 2, 3), "office", ("bachelor", "Менеджмент", "ЛТЕУ"), "Львів", "mono", {"kp": "1475.4", "leaves": [("MAT", "2026-08-10", "2026-12-13")], "sick_number": "2026-0811-000123", "note": "декретна відпустка 126 к.д. з 10.08.2026, допомога 100 % за рахунок ПФУ"}),
  ("Панчишин", "Христина", "Олегівна", "female", date(2003, 5, 11), "Технік-конструктор", "Виробництво", 12000, "0.25", "employment", True, "standard", "base", 0, 1.0, "single", 0, date(2026, 6, 1), "shop", ("bachelor", "Дизайн меблів", "НЛТУ України"), "Львів", "mono", {"kp": "3118", "ct": "Intern", "trial": date(2026, 8, 31), "note": "студентка, 0,25 ставки"}),
 ]
 STREETS = ["вул. Личаківська", "вул. Наукова", "просп. Червоної Калини", "вул. Замарстинівська", "вул. Шевченка", "вул. Сихівська", "вул. Зелена", "вул. Стрийська"]
@@ -126,7 +128,7 @@ created = {}
 for i, (ln, fn, mn, sex, bd, job, dept, wage, fte, kind, main, esv, psp, pspk, years, marital, kids, hire, loc, edu, city, bank, extra) in enumerate(P, 1):
     code = rnokpp(bd, sex, 100 + sum(ord(c) for c in ln + fn) % 800)   # серійна частина стала для особи, не залежить від порядку в списку
     name = f"{ln} {fn} {mn}"
-    email_ln = ["havryliuk", "stefanyshyn", "kushnir", "dziuba", "kovalchuk", "melnychuk", "ivanychuk", "shevchuk", "prokopiv", "lozynskyi", "boichuk", "romaniuk", "fedoriv", "danyliuk", "hnativ", "kramar", "tkachuk", "panchyshyn"][i - 1]
+    email_ln = ["havryliuk", "stefanyshyn", "kushnir", "dziuba", "kovalchuk", "melnychuk", "ivanychuk", "shevchuk", "prokopiv", "lozynskyi", "boichuk", "romaniuk", "fedoriv", "danyliuk", "hnativ", "kramar", "tkachuk", "savchuk", "hryniv", "panchyshyn"][i - 1]
     vals = {
         "name": name, "sex": sex, "birthday": str(bd), "place_of_birth": city if city != "Львів" else "Львів", "country_of_birth": UA, "country_id": UA,
         "private_street": f"{random.choice(STREETS)}, {random.randint(2, 120)}, кв. {random.randint(1, 90)}", "private_city": city, "private_zip": f"79{random.randint(10, 69):03d}" if city == "Львів" else "81130",
@@ -137,7 +139,7 @@ for i, (ln, fn, mn, sex, bd, job, dept, wage, fte, kind, main, esv, psp, pspk, y
         "passport_id": f"FL{random.randint(100000, 999999)}" if i % 3 == 0 else False,
         "work_email": f"{email_ln}@yasen-mebli.example", "work_phone": "+380 32 245 10 20", "mobile_phone": f"+380 63 {random.randint(100, 999)} {random.randint(10, 99)} {random.randint(10, 99)}",
         "job_title": job, "job_id": JOBS[job], "department_id": DEPTS[dept], "work_location_id": LOC[loc], "resource_calendar_id": CAL, "company_id": COMPANY,
-        "employee_type": "contractor" if kind == "gph" else ("trainee" if extra.get("ct") == "Intern" else "employee"),
+        "employee_type": "contractor" if kind in ("gph", "fop") else ("trainee" if extra.get("ct") == "Intern" else "employee"),
         "certificate": edu[0], "study_field": edu[1], "study_school": edu[2], "distance_home_work": random.randint(2, 25), "lang": "uk_UA", "tz": "Europe/Kyiv",
         "ua_rnokpp": code, "ua_contract_kind": kind, "ua_main_job": main, "ua_esv_category": esv, "ua_psp": psp, "ua_psp_children": pspk, "ua_fte": fte,
         "ua_insurance_years": years, "ua_hire_date": str(hire), "ua_dismissal_date": str(extra["end"]) if extra.get("end") and kind == "employment" else False,
@@ -190,7 +192,7 @@ for i, (ln, fn, mn, sex, bd, job, dept, wage, fte, kind, main, esv, psp, pspk, y
         if extra.get("rehire"):
             if not (first < date(extra["rehire"][1].year, extra["rehire"][1].month, 1) + timedelta(days=31)):
                 continue
-        elif first < date(hire.year, hire.month, 1) or kind == "gph":
+        elif first < date(hire.year, hire.month, 1) or kind in ("gph", "fop"):
             continue
         gross = wage * float(fte)
         if extra.get("BONUS") and m in (3, 6, 9, 12):
@@ -201,7 +203,9 @@ for i, (ln, fn, mn, sex, bd, job, dept, wage, fte, kind, main, esv, psp, pspk, y
     # відпустки серпня
     for lcode, d1, d2 in extra.get("leaves", []):
         if not call("hr.leave", "search", [["employee_id", "=", eid], ["holiday_status_id", "=", LT[lcode]], ["request_date_from", "=", d1], ["state", "=", "validate"]]):
-            lid = call("hr.leave", "create", {"employee_id": eid, "holiday_status_id": LT[lcode], "request_date_from": d1, "request_date_to": d2})
+            lid = call("hr.leave", "create", {"employee_id": eid, "holiday_status_id": LT[lcode], "request_date_from": d1, "request_date_to": d2,
+                                              "ua_order_ref": f"Наказ № {30 + i}-в від {(date.fromisoformat(d1) - timedelta(days=3)).strftime('%d.%m.%Y')}" if lcode in ("VAC", "UNPAID") else False,
+                                              "ua_sick_number": extra.get("sick_number") or (f"2026-08{i:02d}-{random.randint(100000, 999999)}" if lcode in ("SICK", "MAT") else False)})
             call("hr.leave", "action_approve", [lid])
     print(f"{i:2d}. {name} ({code}) {job}, {dept}, оклад {wage}, ставка {fte}")
 
@@ -266,7 +270,7 @@ def month_batch(year, month, name, close=True, advance=True):
                                              "name": f"Розрахунковий листок: {name_e}, {MONTHS[month]} {year}"})
         call("hr.payslip", "onchange_employee", [slip])
         call("hr.payslip", "write", [slip], {"name": f"Розрахунковий листок: {name_e}, {MONTHS[month]} {year}"})
-        for code_in in ("BONUS", "GPH", "ALIM_PCT", "COMP_DAYS"):
+        for code_in in ("BONUS", "GPH", "FOP_PAY", "ALIM_PCT", "COMP_DAYS"):
             amount = extra.get(code_in)
             if code_in == "COMP_DAYS" and not (ce and d1 <= ce <= d2):
                 continue
@@ -323,7 +327,7 @@ for i, lines in aug.items():
     if net > 0:
         n += 1
         acc = call("res.partner.bank", "search_read", [["partner_id", "=", call("hr.employee", "read", [created[i][0]], ["work_contact_id"])[0]["work_contact_id"][0]]], fields=["acc_number"])[0]["acc_number"]
-        kind = "Винагорода за договором ЦПХ за серпень 2026" if created[i][3].get("GPH") else "Заробітна плата за серпень 2026, остаточний розрахунок"
+        kind = "Винагорода за договором ЦПХ за серпень 2026" if created[i][3].get("GPH") else ("Оплата за договором підряду № 7 від 12.01.2026, без ПДВ" if created[i][3].get("FOP_PAY") else "Заробітна плата за серпень 2026, остаточний розрахунок")
         rows.append(f"04.09.2026;{n};{created[i][1]};{acc};{kind};{money(net)};;UAH")
 alim = sum(-l.get("ALIM", 0.0) for l in aug.values())
 if alim:

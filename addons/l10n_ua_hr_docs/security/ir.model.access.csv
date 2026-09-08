@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_staff_list_wizard,ua.staff.list.wizard,model_ua_staff_list_wizard,hr.group_hr_user,1,1,1,1
+access_ua_timesheet_wizard,ua.timesheet.wizard,model_ua_timesheet_wizard,hr.group_hr_user,1,1,1,1

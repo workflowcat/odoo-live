@@ -47,6 +47,22 @@ class HrPayslip(models.Model):
                 out.append((debit, credit, amount, f"{m.name}: {line.name}"))
         return out
 
+    def _ua_partner_for(self, account):
+        """Партнер на рядку проводки за рахунком: 66 - працівник, 641/642/651 - ДПС, 378 - ПФУ, 685 - отримувач аліментів, інші - без партнера.
+        Так рядки 661/6411/651 закриваються звіркою банківської виписки за партнером."""
+        code = account.code or ""
+        emp = self.employee_id.sudo()
+        company = self.company_id
+        if code.startswith("66"):
+            return emp.work_contact_id.id or False
+        if code.startswith(("641", "642", "651", "652")):
+            return company.sudo()._ua_partner("dps").id
+        if code.startswith("378"):
+            return company.sudo()._ua_partner("pfu").id
+        if code.startswith("685"):
+            return (emp.ua_alimony_partner_id or emp.work_contact_id).id or False
+        return False
+
     def _ua_create_move(self):
         self.ensure_one()
         lines = self._ua_move_lines()
@@ -54,9 +70,9 @@ class HrPayslip(models.Model):
             return False
         vals = []
         for debit, credit, amount, name in lines:
-            base = {"name": f"{self.employee_id.name} · {name}", "partner_id": self.employee_id.work_contact_id.id or False}
-            vals.append((0, 0, {**base, "account_id": debit.id, "debit": amount, "credit": 0.0}))
-            vals.append((0, 0, {**base, "account_id": credit.id, "debit": 0.0, "credit": amount}))
+            base = {"name": f"{self.employee_id.name} · {name}"}
+            vals.append((0, 0, {**base, "account_id": debit.id, "debit": amount, "credit": 0.0, "partner_id": self._ua_partner_for(debit)}))
+            vals.append((0, 0, {**base, "account_id": credit.id, "debit": 0.0, "credit": amount, "partner_id": self._ua_partner_for(credit)}))
         move = self.env["account.move"].create({
             "journal_id": self._ua_journal().id, "date": self.date_to, "ref": self.number or self.name,
             "move_type": "entry", "line_ids": vals,

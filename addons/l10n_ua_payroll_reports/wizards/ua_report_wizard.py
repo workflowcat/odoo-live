@@ -3,13 +3,14 @@ import base64
 import calendar
 import io
 import zipfile
-from datetime import date
+from datetime import date, timedelta
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
 VER = "11"
-ESV_CAT = {"employment": "1", "disabled": "2", "gph": "26", "sick": "29"}
+ESV_CAT = {"employment": "1", "disabled": "2", "gph": "26", "sick": "29", "mat": "42"}
+INCOME_SIGN = {"employment": "101", "gph": "102", "fop": "157"}   # ознака доходу 4ДФ
 PSP_CODE = {"none": None, "base": "01", "child": "04", "child150": "04", "s150": "02", "s200": "03"}
 GENDER = {"male": "1", "female": "0"}   # схема допускає лише 0 або 1; трактування підтвердити (припущення: 1 = чоловік, 0 = жінка)
 
@@ -81,6 +82,23 @@ class UaPayrollReportWizard(models.TransientModel):
                   "G22": "1" if part_time else "0", "G23": "0", "G24": "0", "G26": "0", "G14": days_in, "G13": unpaid_days or None}
         rows.append({**common, "G8": cat, "G12": None, "G16": salary, "G17": base_main, "G18": min_diff or None, "G19": 0.0,
                      "G20": r2(esv_main + esv_diff), "rate": rate})
+        mat = r2(self._line(slip, "MAT"))
+        if mat:
+            # допомога по вагітності та пологах: категорія 42, у кожному місяці періоду відпустки своя частка (пропорційно календарним дням)
+            leaves = self.env["hr.leave"].sudo().search([("employee_id", "=", emp.id), ("state", "=", "validate"), ("holiday_status_id.work_entry_type_id.code", "=", "MAT"),
+                                                         ("request_date_from", ">=", d1), ("request_date_from", "<=", d2)])
+            for lv in leaves:
+                total_days = (lv.request_date_to - lv.request_date_from).days + 1
+                cur = lv.request_date_from
+                while cur <= lv.request_date_to:
+                    m_end = date(cur.year, cur.month, calendar.monthrange(cur.year, cur.month)[1])
+                    seg_end = min(m_end, lv.request_date_to)
+                    seg_days = (seg_end - cur).days + 1
+                    share = r2(mat * seg_days / total_days)
+                    base_mat = r2(min(share, params["min_wage"] * params["esv_max_multiplier"]))
+                    rows.append({**common, "G101": cur.month, "G102": cur.year, "G8": ESV_CAT["mat"], "G12": seg_days, "G16": share, "G17": base_mat, "G18": None,
+                                 "G19": 0.0, "G20": r2(base_mat * rate / 100.0), "rate": rate, "G14": None, "G13": None})
+                    cur = seg_end + timedelta(days=1)
         sick = r2(sick_emp + sick_pfu)
         if sick:
             base_sick = r2(min(sick, remaining)); remaining = r2(remaining - base_sick)
@@ -91,7 +109,9 @@ class UaPayrollReportWizard(models.TransientModel):
         delta = r2(esv_total - sum(r["G20"] for r in rows))
         if abs(delta) <= 0.05:
             rows[0]["G20"] = r2(rows[0]["G20"] + delta)
-        return rows, {"gross": gross, "salary": salary, "gph": salary if kind == "gph" else 0.0, "sick_emp": sick_emp, "sick_pfu": sick_pfu,
+        if kind == "fop":
+            rows = []   # ФОП-підрядник: без ЄСВ, у Д1 не потрапляє; лише 4ДФ з ознакою 157
+        return rows, {"gross": gross, "salary": salary, "gph": salary if kind == "gph" else 0.0, "sick_emp": sick_emp, "sick_pfu": sick_pfu, "mat": mat,
                       "pdfo": r2(-self._line(slip, "PDFO")), "vz": r2(-self._line(slip, "VZ")), "kind": kind, "cat": cat, "min_diff": min_diff,
                       "emp": emp, "hire": hire, "dism": dism}
 
@@ -139,10 +159,14 @@ class UaPayrollReportWizard(models.TransientModel):
         rows = []
         for p in persons:
             rows.append({"G02": p["emp"].ua_rnokpp or "", "G03A": p["gross"], "G03": p["gross"], "G04A": p["pdfo"], "G04": p["pdfo"],
-                         "G5A": p["vz"], "G5": p["vz"], "G05": "102" if p["kind"] == "gph" else "101",
+                         "G5A": p["vz"], "G5": p["vz"], "G05": INCOME_SIGN.get(p["kind"], "101"),
                          "G06D": p["hire"] if (p["hire"] and d1 <= p["hire"] <= d2) else None,
                          "G07D": p["dism"] if (p["dism"] and d1 <= p["dism"] <= d2) else None,
                          "G08": PSP_CODE.get(p["emp"].ua_psp or "none"), "G09": None})
+        for p in persons:
+            if p.get("mat"):
+                rows.append({"G02": p["emp"].ua_rnokpp or "", "G03A": p["mat"], "G03": p["mat"], "G04A": 0.0, "G04": 0.0, "G5A": 0.0, "G5": 0.0, "G05": "128",
+                             "G06D": None, "G07D": None, "G08": None, "G09": None})
         for col in ["G02", "G03A", "G03", "G04A", "G04", "G5A", "G5", "G05", "G06D", "G07D", "G08", "G09"]:
             for i, r in enumerate(rows, 1):
                 f.append((f"T1RXXXX{col}", r.get(col), {"ROWNUM": i}))
