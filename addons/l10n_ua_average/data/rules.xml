@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="0">
+    <record id="cat_avg" model="hr.salary.rule.category"><field name="name">Середній заробіток</field><field name="code">AVG</field></record>
+    <record id="rule_vac" model="hr.salary.rule">
+      <field name="name">Відпускні (Постанова 100)</field><field name="code">VAC</field><field name="sequence">20</field>
+      <field name="category_id" ref="cat_avg"/><field name="condition_select">python</field>
+      <field name="condition_python">result = payroll.ua.vac_days &gt; 0</field>
+      <field name="amount_select">code</field><field name="amount_python_compute">result = round(payroll.ua.vac_days * payroll.ua.avg100_day, 2)</field>
+    </record>
+    <record id="rule_sick_emp" model="hr.salary.rule">
+      <field name="name">Лікарняні за рахунок роботодавця, дні 1-5 (Постанова 1266)</field><field name="code">SICK_EMP</field><field name="sequence">22</field>
+      <field name="category_id" ref="cat_avg"/><field name="condition_select">python</field>
+      <field name="condition_python">result = payroll.ua.sick_emp_days &gt; 0</field>
+      <field name="amount_select">code</field><field name="amount_python_compute">result = round(payroll.ua.sick_emp_days * payroll.ua.avg1266_day * payroll.ua.sick_percent / 100.0, 2)</field>
+    </record>
+    <record id="rule_sick_pfu" model="hr.salary.rule">
+      <field name="name">Лікарняні за рахунок ПФУ, з 6-го дня (Постанова 1266)</field><field name="code">SICK_PFU</field><field name="sequence">23</field>
+      <field name="category_id" ref="cat_avg"/><field name="condition_select">python</field>
+      <field name="condition_python">result = payroll.ua.sick_pfu_days &gt; 0</field>
+      <field name="amount_select">code</field><field name="amount_python_compute">result = round(payroll.ua.sick_pfu_days * payroll.ua.avg1266_day * payroll.ua.sick_percent / 100.0, 2)</field>
+    </record>
+    <record id="rule_comp_vac" model="hr.salary.rule">
+      <field name="name">Компенсація за невикористану відпустку</field><field name="code">COMP_VAC</field><field name="sequence">24</field>
+      <field name="category_id" ref="cat_avg"/><field name="condition_select">python</field>
+      <field name="condition_python">result = bool(inputs.COMP_DAYS and inputs.COMP_DAYS.amount)</field>
+      <field name="amount_select">code</field><field name="amount_python_compute">result = round(inputs.COMP_DAYS.amount * payroll.ua.avg100_day, 2)</field>
+    </record>
+    <record id="input_comp_days" model="hr.rule.input"><field name="name">Невикористані дні відпустки</field><field name="code">COMP_DAYS</field><field name="input_id" ref="rule_comp_vac"/></record>
+    <record id="l10n_ua_payroll_rules.struct_ua_salary" model="hr.payroll.structure">
+      <field name="rule_ids" eval="[(4, ref('rule_vac')), (4, ref('rule_sick_emp')), (4, ref('rule_sick_pfu')), (4, ref('rule_comp_vac'))]"/>
+    </record>
+  </data>
+</odoo>

@@ -6,7 +6,7 @@
     <field name="arch" type="xml">
       <notebook position="inside">
         <page string="Україна" name="ua" groups="hr.group_hr_user">
-          <group>
+          <group name="ua">
             <group string="Облік">
               <field name="ua_rnokpp"/><field name="ua_contract_kind"/><field name="ua_main_job"/><field name="ua_esv_category"/>
             </group>

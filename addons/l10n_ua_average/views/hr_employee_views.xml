@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_employee_form_ua_average" model="ir.ui.view">
+    <field name="name">hr.employee.form.ua.average</field><field name="model">hr.employee</field>
+    <field name="inherit_id" ref="l10n_ua_payroll_rules.view_employee_form_ua"/>
+    <field name="arch" type="xml">
+      <group name="ua" position="inside">
+        <group string="Лікарняні">
+          <field name="ua_insurance_years"/><field name="ua_sick_full"/><field name="ua_sick_percent"/>
+        </group>
+      </group>
+    </field>
+  </record>
+</odoo>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_earnings_history_list" model="ir.ui.view">
+    <field name="name">ua.earnings.history.list</field><field name="model">ua.earnings.history</field>
+    <field name="arch" type="xml">
+      <list editable="bottom"><field name="employee_id"/><field name="month"/><field name="gross"/><field name="calendar_days"/><field name="excluded_days"/><field name="source"/><field name="payslip_id" optional="hide"/></list>
+    </field>
+  </record>
+  <record id="action_ua_earnings_history" model="ir.actions.act_window">
+    <field name="name">Історія заробітку</field><field name="res_model">ua.earnings.history</field><field name="view_mode">list</field>
+  </record>
+  <menuitem id="menu_ua_earnings_history" name="Історія заробітку (середня)" parent="hr.menu_human_resources_configuration" action="action_ua_earnings_history" sequence="91"/>
+</odoo>

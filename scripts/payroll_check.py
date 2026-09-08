@@ -23,19 +23,27 @@ STRUCT = call("hr.payroll.structure", "search", [["code", "=", "UA_SALARY"]])[0]
 CAL = call("res.company", "read", [1], ["resource_calendar_id"])[0]["resource_calendar_id"][0]
 PERIOD = ("2026-08-01", "2026-08-31")
 # сценарії: назва, поля працівника, оклад, входи, очікувані рядки; поле "start" - дата прийняття, якщо не 2026-01-01
+# додаткові ключі: "history" (12 місяців окладу для середньої), "leaves" [(тип, від, до)], "years" (страховий стаж)
 S = [
  ("1 Повний місяць, оклад", {"ua_main_job": True}, 30000, {}, {"PDFO": -5400.00, "VZ": -1500.00, "NET": 23100.00, "ESV": 6600.00}),
  ("2 Неповний місяць (з 17-го, 11 з 21 днів)", {"ua_main_job": True, "start": "2026-08-17"}, 30000, {}, {"BASIC": 15714.29, "PDFO": -2828.57, "VZ": -785.71, "NET": 12100.01, "ESV": 3457.14}),
  ("3 Сумісник", {"ua_main_job": False}, 5000, {}, {"PDFO": -900.00, "VZ": -250.00, "NET": 3850.00, "ESV": 1100.00}),
  ("4 ПСП базова", {"ua_main_job": True, "ua_psp": "base"}, 4500, {}, {"PDFO": -510.48, "VZ": -225.00, "NET": 3764.52, "ESV": 1902.34}),
  ("5 Інвалідність", {"ua_main_job": True, "ua_esv_category": "disabled"}, 20000, {}, {"PDFO": -3600.00, "VZ": -1000.00, "NET": 15400.00, "ESV": 1682.00}),
+ ("6 Відпустка 14 к.д. (3-16 серпня)", {"ua_main_job": True, "history": 30000, "leaves": [("VAC", "2026-08-03", "2026-08-16")]}, 30000, {},
+  {"BASIC": 15714.29, "VAC": 13808.22, "GROSS": 29522.51, "PDFO": -5314.05, "VZ": -1476.13, "NET": 22732.33, "ESV": 6494.95}),
+ ("7 Лікарняний 10 к.д. (10-19 серпня), стаж 6 років", {"ua_main_job": True, "history": 30000, "years": 6, "leaves": [("SICK", "2026-08-10", "2026-08-19")]}, 30000, {},
+  {"BASIC": 18571.43, "SICK_EMP": 3452.05, "SICK_PFU": 3452.05, "GROSS": 25475.53, "PDFO": -4585.60, "VZ": -1273.78, "NET": 19616.15, "ESV": 5604.62}),
+ ("8 Звільнення 31 серпня, 10 днів компенсації", {"ua_main_job": True, "history": 30000}, 30000, {"COMP_DAYS": 10},
+  {"BASIC": 30000.00, "COMP_VAC": 9863.01, "GROSS": 39863.01, "PDFO": -7175.34, "VZ": -1993.15, "NET": 30694.52, "ESV": 8769.86}),
  ("9 ЦПХ", {"ua_contract_kind": "gph", "ua_main_job": False}, 0, {"GPH": 20000}, {"PDFO": -3600.00, "VZ": -1000.00, "NET": 15400.00, "ESV": 4400.00}),
  ("10 Аліменти + макс. база", {"ua_main_job": True}, 200000, {"ALIM_PCT": 25}, {"PDFO": -36000.00, "VZ": -10000.00, "ALIM": -38500.00, "NET": 115500.00, "ESV": 38046.80}),
 ]
 ok = True
 for name, efields, wage, inputs, expect in S:
     ename = f"Еталон {name}"
-    start = efields.pop("start", "2026-01-01")
+    start = efields.pop("start", "2026-01-01"); history = efields.pop("history", None); leaves = efields.pop("leaves", []); years = efields.pop("years", 0)
+    efields["ua_insurance_years"] = years
     eid = call("hr.employee", "search", [["name", "=", ename]])
     if eid:
         old = call("hr.payslip", "search", [["employee_id", "in", eid]])
@@ -48,6 +56,20 @@ for name, efields, wage, inputs, expect in S:
         eid = call("hr.employee", "create", {"name": ename, **efields})
     ver = call("hr.employee", "read", [eid], ["version_id"])[0]["version_id"][0]
     call("hr.version", "write", [ver], {"wage": wage, "contract_date_start": start, "struct_id": STRUCT, "resource_calendar_id": CAL})
+    # історія заробітку за 12 місяців (серпень 2025 - липень 2026)
+    old_h = call("ua.earnings.history", "search", [["employee_id", "=", eid]])
+    if old_h:
+        call("ua.earnings.history", "unlink", old_h)
+    if history:
+        for k in range(12):
+            y, mo = (2025, 8 + k) if 8 + k <= 12 else (2026, 8 + k - 12)
+            call("ua.earnings.history", "create", {"employee_id": eid, "month": f"{y}-{mo:02d}-01", "gross": history})
+    # відпустки і лікарняні: створити і затвердити, якщо ще немає
+    for code, d1, d2 in leaves:
+        lt = call("hr.leave.type", "search", [["work_entry_type_id.code", "=", code]])[0]
+        if not call("hr.leave", "search", [["employee_id", "=", eid], ["holiday_status_id", "=", lt], ["request_date_from", "=", d1], ["state", "=", "validate"]]):
+            lid = call("hr.leave", "create", {"employee_id": eid, "holiday_status_id": lt, "request_date_from": d1, "request_date_to": d2})
+            call("hr.leave", "action_approve", [lid])
     slip = call("hr.payslip", "create", {"employee_id": eid, "date_from": PERIOD[0], "date_to": PERIOD[1], "struct_id": STRUCT, "name": ename})
     call("hr.payslip", "onchange_employee", [slip])   # кнопка OCA: контракт, відпрацьовані дні, рядки входів
     if inputs:

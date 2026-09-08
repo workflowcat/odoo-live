@@ -22,8 +22,8 @@ class HrPayslip(models.Model):
             d += timedelta(days=1)
         return n
 
-    def get_payroll_dict(self, contracts):
-        res = super().get_payroll_dict(contracts)
+    def _ua_payroll_values(self, contracts):
+        """Значення для правил під префіксом payroll.ua. Інші модулі (середні, табель) доповнюють цей словник."""
         Param = self.env["ua.payroll.param"]
         emp = self.employee_id.sudo()
         p = Param.get_all(self.date_to, self.company_id)
@@ -31,7 +31,7 @@ class HrPayslip(models.Model):
                     "child150": 1.5 * max(emp.ua_psp_children, 1), "s150": 1.5, "s200": 2.0}[emp.ua_psp or "none"]
         thr_mult = float(max(emp.ua_psp_children, 1)) if emp.ua_psp in ("child", "child150") else 1.0
         contract = contracts[:1]
-        res["ua"] = BaseBrowsableObject({
+        return {
             "min_wage": p["min_wage"], "living_wage": p["living_wage"],
             "pdfo_rate": p["pdfo_rate"], "vz_rate": p["vz_rate"],
             "esv_rate": p["esv_rate_disabled"] if emp.ua_esv_category == "disabled" else p["esv_rate"],
@@ -41,5 +41,10 @@ class HrPayslip(models.Model):
             "psp_threshold": p["psp_threshold"] * thr_mult,
             "month_workdays": self._ua_month_workdays(contract) if contract else 0,
             "contract_kind": emp.ua_contract_kind or "employment",
-        })
+            "holidays_per_year": p.get("holidays_per_year", 0.0),
+        }
+
+    def get_payroll_dict(self, contracts):
+        res = super().get_payroll_dict(contracts)
+        res["ua"] = BaseBrowsableObject(self._ua_payroll_values(contracts))
         return res

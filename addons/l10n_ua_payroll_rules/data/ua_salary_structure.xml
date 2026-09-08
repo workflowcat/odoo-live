@@ -12,8 +12,11 @@
       <field name="name">Оклад за відпрацьований час</field><field name="code">BASIC</field><field name="sequence">1</field>
       <field name="category_id" ref="cat_basic"/><field name="condition_select">none</field><field name="amount_select">code</field>
       <field name="amount_python_compute">days = worked_days.WORK100.number_of_days if worked_days.WORK100 else 0.0
+for line in (worked_days.VAC, worked_days.SICK, worked_days.UNPAID):
+    if line:
+        days -= abs(line.number_of_days)
 total = payroll.ua.month_workdays or days or 1.0
-result = round(contract.wage * min(days, total) / total, 2)</field>
+result = round(contract.wage * max(min(days, total), 0.0) / total, 2)</field>
     </record>
     <record id="rule_bonus" model="hr.salary.rule">
       <field name="name">Премія</field><field name="code">BONUS</field><field name="sequence">10</field>
@@ -30,7 +33,7 @@ result = round(contract.wage * min(days, total) / total, 2)</field>
     <record id="rule_gross" model="hr.salary.rule">
       <field name="name">Нараховано</field><field name="code">GROSS</field><field name="sequence">100</field>
       <field name="category_id" ref="cat_gross"/><field name="condition_select">none</field><field name="amount_select">code</field>
-      <field name="amount_python_compute">result = round(categories.BASIC + categories.ALW, 2)</field>
+      <field name="amount_python_compute">result = round(categories.BASIC + categories.ALW + categories.AVG, 2)</field>
     </record>
     <record id="rule_pdfo" model="hr.salary.rule">
       <field name="name">ПДФО</field><field name="code">PDFO</field><field name="sequence">110</field>
