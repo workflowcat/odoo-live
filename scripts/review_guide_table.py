@@ -30,7 +30,7 @@ for s in slips:
     if L.get("ALIM"): notes.append("аліменти 25 %")
     if L.get("COMP_VAC"): notes.append("звільнення 31.08, компенсація 12 дн.")
     if L.get("BONUS"): notes.append("премія")
-    if emp["contract_date_start"] and emp["contract_date_start"] >= "2026-08-01": notes.append("прийнято 17.08")
+    if emp["contract_date_start"] and emp["contract_date_start"] >= "2026-08-01": notes.append("прийнято " + ".".join(reversed(emp["contract_date_start"][5:].split("-"))))
     if L.get("ESV", 0) >= 38046.8: notes.append("макс. база ЄСВ")
     other = -(L.get("ALIM", 0))
     rows.append((emp["name"], emp["job_title"], "; ".join(notes) or "-", emp["wage"], L.get("GROSS", 0), -L.get("PDFO", 0), -L.get("VZ", 0), other, -L.get("ADV_PAID", 0), L.get("NET", 0), L.get("ESV", 0)))
