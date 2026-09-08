@@ -1,0 +1,2993 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:annotation>
+		<xs:documentation>Çàãàëüí³ òèïè äàíèõ</xs:documentation>
+	</xs:annotation>
+	<!--Ïðîñò³ òèïè-->
+	<!--òèï "Êîä òîâàðíî¿ ïðîäóêö³¿ ã³ðíè÷îãî ï³äïðèºìñòâà"-->
+	<xs:simpleType name="DGCodeResMinerals">
+		<xs:annotation>
+			<xs:documentation>
+				Êàòåãîð³ÿ çàïàñ³â êîðèñíèõ êîïàëèí (Äîäàòîê 12 äî Ïîäàòêîâî¿ äåêëàðàö³¿ ç ðåíòíî¿ ïëàòè) Íàêàç Ì³í³ñòåðñòâà ô³íàíñ³â Óêðà¿íè 17 ñåðïíÿ 2015 ðîêó ¹ 719 (ó ðåäàêö³¿ íàêàçó Ì³í³ñòåðñòâà ô³íàíñ³â Óêðà¿íè â³ä 07 ëèñòîïàäà 2016 ðîêó ¹ 927)</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="1.1"/>
+			<xs:enumeration value="1.2"/>
+			<xs:enumeration value="1.3"/>
+			<xs:enumeration value="1.4"/>
+			<xs:enumeration value="1.5"/>
+			<xs:enumeration value="2.1"/>
+			<xs:enumeration value="2.2"/>
+			<xs:enumeration value="3.1.1"/>
+			<xs:enumeration value="3.1.2"/>
+			<xs:enumeration value="3.2.1"/>
+			<xs:enumeration value="3.2.2"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òèï "Êîä êîðèñíèõ êîïàëèí"-->
+	<xs:simpleType name="DGCodeMinerals">
+		<xs:annotation>
+			<xs:documentation>
+				Êîä êîðèñíèõ êîïàëèí (Äîäàòîê 13 äî Ïîäàòêîâî¿ äåêëàðàö³¿ ç ðåíòíî¿ ïëàòè) Íàêàç Ì³í³ñòåðñòâà ô³íàíñ³â Óêðà¿íè 17 ñåðïíÿ 2015 ðîêó ¹ 719 (ó ðåäàêö³¿ íàêàçó Ì³í³ñòåðñòâà ô³íàíñ³â Óêðà¿íè â³ä 07 ëèñòîïàäà 2016 ðîêó ¹ 927)</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[12]\.[0-6]\.[0-9]{2}\.[0-9]{2}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òèï "Êîä òîâàðíî¿ ïðîäóêö³¿ ã³ðíè÷îãî ï³äïðèºìñòâà"-->
+	<xs:simpleType name="DGCodeMPMCo">
+		<xs:annotation>
+			<xs:documentation>
+				Êîä òîâàðíî¿ ïðîäóêö³¿ ã³ðíè÷îãî ï³äïðèºìñòâà (Äîäàòîê 14 äî Ïîäàòêîâî¿ äåêëàðàö³¿ ç ðåíòíî¿ ïëàòè) Íàêàç Ì³í³ñòåðñòâà ô³íàíñ³â Óêðà¿íè 17 ñåðïíÿ 2015 ðîêó ¹ 719 (ó ðåäàêö³¿ íàêàçó Ì³í³ñòåðñòâà ô³íàíñ³â Óêðà¿íè â³ä 07 ëèñòîïàäà 2016 ðîêó ¹ 927)</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="1.1.1"/>
+			<xs:enumeration value="1.1.2"/>
+			<xs:enumeration value="1.1.3"/>
+			<xs:enumeration value="1.1.4"/>
+			<xs:enumeration value="2.1.1"/>
+			<xs:enumeration value="2.1.2"/>
+			<xs:enumeration value="2.1.3"/>
+			<xs:enumeration value="2.1.4"/>
+			<xs:enumeration value="2.1.5"/>
+			<xs:enumeration value="2.2.1.1"/>
+			<xs:enumeration value="2.2.1.2"/>
+			<xs:enumeration value="2.2.2.1"/>
+			<xs:enumeration value="2.2.2.2"/>
+			<xs:enumeration value="2.2.3.1"/>
+			<xs:enumeration value="2.2.3.2"/>
+			<xs:enumeration value="2.2.3.3"/>
+			<xs:enumeration value="2.2.3.4"/>
+			<xs:enumeration value="2.2.3.5"/>
+			<xs:enumeration value="2.2.3.6"/>
+			<xs:enumeration value="3"/>
+			<xs:enumeration value="4"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òèï "Êîä âîäíîãî îá’ºêòà"-->
+	<xs:simpleType name="DGCodeWaterBody">
+		<xs:annotation>
+			<xs:documentation>
+				Êîä âîäíîãî îá’ºêòà çàçíà÷àºòüñÿ ïëàòíèêîì çã³äíî ç äîäàòêîì 16 äî Ïîäàòêîâî¿ äåêëàðàö³¿ ç ðåíòíî¿ ïëàòè (Íàêàç Ì³í³ñòåðñòâà ô³íàíñ³â Óêðà¿íè 17 ñåðïíÿ 2015 ðîêó ¹ 719). Îñòàíí³é ðîçðÿä êîäó ïîâèíåí áóòè â³äì³ííèì â³ä "0"
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="1.1.1"/>
+			<xs:enumeration value="1.2.1"/>
+			<xs:enumeration value="1.3.1"/>
+			<xs:enumeration value="1.3.2"/>
+			<xs:enumeration value="2.1.1"/>
+			<xs:enumeration value="2.2.1"/>
+			<xs:enumeration value="3.1.1"/>
+			<xs:enumeration value="3.2.1"/>
+			<xs:enumeration value="4.1.1"/>
+			<xs:enumeration value="4.2.1"/>
+			<xs:enumeration value="4.3.1"/>
+			<xs:enumeration value="4.3.2"/>
+			<xs:enumeration value="5.1.1"/>
+			<xs:enumeration value="5.2.1"/>
+			<xs:enumeration value="6.1.1"/>
+			<xs:enumeration value="6.2.1"/>
+			<xs:enumeration value="7.1.1"/>
+			<xs:enumeration value="7.2.1"/>
+			<xs:enumeration value="8.1.1"/>
+			<xs:enumeration value="8.2.1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òèï "Êîä âîäíîãî îá’ºêòà"-->
+	<xs:simpleType name="DGCodeWaterBody2">
+		<xs:annotation>
+			<xs:documentation>
+				Êîä âîäíîãî îá’ºêòà çàçíà÷àºòüñÿ ïëàòíèêîì çã³äíî ç äîäàòêîì 16 äî Ïîäàòêîâî¿ äåêëàðàö³¿ ç ðåíòíî¿ ïëàòè (Íàêàç Ì³í³ñòåðñòâà ô³íàíñ³â Óêðà¿íè 17 ñåðïíÿ 2015 ðîêó ¹ 719 (ó ðåäàêö³¿ íàêàçó Ì³í³ñòåðñòâà ô³íàíñ³â Óêðà¿íè â³ä 07 ëèñòîïàäà 2016 ðîêó ¹ 927)). Îñòàíí³é ðîçðÿä êîäó ïîâèíåí áóòè â³äì³ííèì â³ä "0"
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="1.1.1"/>
+			<xs:enumeration value="1.1.2"/>
+			<xs:enumeration value="1.1.3"/>
+			<xs:enumeration value="1.1.4"/>
+			<xs:enumeration value="1.2.1"/>
+			<xs:enumeration value="1.2.2"/>
+			<xs:enumeration value="1.2.3"/>
+			<xs:enumeration value="1.2.4"/>
+			<xs:enumeration value="2.1.1"/>
+			<xs:enumeration value="2.1.2"/>
+			<xs:enumeration value="2.1.3"/>
+			<xs:enumeration value="2.1.4"/>
+			<xs:enumeration value="2.2.1"/>
+			<xs:enumeration value="2.2.2"/>
+			<xs:enumeration value="2.2.3"/>
+			<xs:enumeration value="2.2.4"/>
+			<xs:enumeration value="3.1.1"/>
+			<xs:enumeration value="3.2.1"/>
+			<xs:enumeration value="4.1.1"/>
+			<xs:enumeration value="4.1.2"/>
+			<xs:enumeration value="4.1.3"/>
+			<xs:enumeration value="4.1.4"/>
+			<xs:enumeration value="4.2.1"/>
+			<xs:enumeration value="4.2.2"/>
+			<xs:enumeration value="4.2.3"/>
+			<xs:enumeration value="4.2.4"/>
+			<xs:enumeration value="5.1.1"/>
+			<xs:enumeration value="5.1.2"/>
+			<xs:enumeration value="5.2.1"/>
+			<xs:enumeration value="5.2.2"/>
+			<xs:enumeration value="6.1.1"/>
+			<xs:enumeration value="6.1.2"/>
+			<xs:enumeration value="7.1.1"/>
+			<xs:enumeration value="7.1.2"/>
+			<xs:enumeration value="8.1.1"/>
+			<xs:enumeration value="8.1.2"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òèï "Ñòðîêà, ùî ïîâèííà áóòè çàïîâíåíà,- ïîâèííà ìàòè 1 íåïóñòèé ñèìâîë"-->
+	<xs:simpleType name="DGstring">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="([\s]*[\S]+[\s]*)+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òèï "Îçíàêà íåïðèáóòêîâî¿ óñòàíîâè (îðãàí³çàö³¿) (Íàêàç Ì³íô³í Óêðà¿íè â³ä 24.01.2013 ¹ 37) (çíà÷åííÿ 0001-0019, òà 0031-0048)"-->
+	<xs:simpleType name="DGOZN_NPR">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="((000[1-9])|(001[0-9])|(003[1-9])|(004[0-8]))"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- òèï "Êîä êîíòðîëüîâàíî¿ îïåðàö³¿  3 çíàêè ÷èñëî ç âåäó÷èìè íóëÿìè -->
+	<xs:simpleType name="DGKod">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[0-9]{3}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- òèï "Êîä êîíòðîëüîâàíî¿ îïåðàö³¿  3 çíàêè ÷èñëî ç âåäó÷èìè íóëÿìè àáî 0 -->
+	<xs:simpleType name="DGKod0">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[0-9]{3}|([0])"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òèï "ñòàòóñ îñîáè - ñòîðîíè êîíòðîëüîâàíî¿ îïåðàö³¿ çàëåæíî â³ä êðà¿íè ðåºñòðàö³¿:
+	 "ðåçèäåíò" - ïîçíà÷êà "Ð", "íåðåçèäåíò" - ïîçíà÷êà "Í""-->
+	<xs:simpleType name="DGStatus">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Ð"/>
+			<xs:enumeration value="Í"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òèï "Òèï ï³äïèñó äëÿ Ïîâ³äîìëåííÿ ïðî ðåºñòðàö³þ åëåêòðîííîãî öèôðîâîãî ï³äïèñó"-->
+	<xs:simpleType name="DGSign">
+		<xs:annotation>
+			<xs:documentation>
+		       "Òèï ï³äïèñó äëÿ Ïîâ³äîìëåííÿ ïðî ðåºñòðàö³þ åëåêòðîííîãî öèôðîâîãî ï³äïèñó"
+		   </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Äèðåêòîð"/>
+			<xs:enumeration value="Áóõãàëòåð"/>
+			<xs:enumeration value="Ï³äïèñ ïîäàòêîâèõ íàêëàäíèõ"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òèï "Êîä "âèäó 1.2.3.1"-->
+	<xs:simpleType name="DGCodListMineDeposit">
+		<xs:annotation>
+			<xs:documentation>
+				Êîä "Ïåðåë³êó êàòåãîð³é çàïàñ³â êîðèñíèõ êîïàëèí ä³ëÿíîê íàäð, ùî âèçíà÷àþòü îá’ºêò îïîäàòêóâàííÿ ïëàòîþ çà êîðèñòóâàííÿ íàäðàìè äëÿ âèäîáóâàííÿ êîðèñíèõ êîïàëèí"
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="1.1.1"/>
+			<xs:enumeration value="1.1.2"/>
+			<xs:enumeration value="1.1.3"/>
+			<xs:enumeration value="1.2.1"/>
+			<xs:enumeration value="1.2.2"/>
+			<xs:enumeration value="1.3.1"/>
+			<xs:enumeration value="1.3.1.1"/>
+			<xs:enumeration value="1.3.1.2"/>
+			<xs:enumeration value="1.3.2"/>
+			<xs:enumeration value="1.3.2.1"/>
+			<xs:enumeration value="1.3.2.2"/>
+			<xs:enumeration value="2.1.1"/>
+			<xs:enumeration value="2.1.2"/>
+			<xs:enumeration value="2.1.3"/>
+			<xs:enumeration value="2.1.4"/>
+			<xs:enumeration value="2.1.5"/>
+			<xs:enumeration value="2.2.1"/>
+			<xs:enumeration value="2.2.2"/>
+			<xs:enumeration value="2.3.1"/>
+			<xs:enumeration value="2.3.1.1"/>
+			<xs:enumeration value="2.3.1.2"/>
+			<xs:enumeration value="2.3.2"/>
+			<xs:enumeration value="2.3.2.1"/>
+			<xs:enumeration value="2.3.2.2"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä ïðîäóêö³¿ ó Çâ³ò³ ïðî îáñÿãè ïðèäáàííÿ òà ðåàë³çàö³¿ àëêîãîëüíèõ íàïî¿â ó îïòîâ³é ìåðåæ³ (Ôîðìà N 1-ÎÀ) (E_AKCIZ_PRODUKC). ²íòåðâàëè çàïîâíåííÿ êîä³â: ç 29 ïî 34; 37; ç 40 ïî 43; ç 46 ïî 68; 83; 84"-->
+	<xs:simpleType name="DGFJ0208206Ind1">
+		<xs:restriction base="xs:integer">
+			<xs:pattern value="(29)|(3[0-4])|(37)|(4[0-3])|(4[6-9])|(5[0-9])|(6[0-8])|(83)|(84)"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òèï êîëîíêè òàáëèö³ "Êîä ïðîäóêö³¿ ó Çâ³ò³ ïðî îáñÿãè ïðèäáàííÿ òà ðåàë³çàö³¿ àëêîãîëüíèõ íàïî¿â ó îïòîâ³é ìåðåæ³ (Ôîðìà N 1-ÎÀ) (E_AKCIZ_PRODUKC). ²íòåðâàëè çàïîâíåííÿ êîä³â: ç 29 ïî 34; 37; ç 40 ïî 43; ç 46 ïî 68; 83; 84"-->
+	<xs:complexType name="FJ0208206Ind1Column">
+		<xs:simpleContent>
+			<xs:extension base="DGFJ0208206Ind1">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Êîä ïðîäóêö³¿ ó Çâ³ò³ ïðî îáñÿãè ïðèäáàííÿ òà ðåàë³çàö³¿ òþòþíîâèõ âèðîá³â ó îïòîâ³é ìåðåæ³ (Ôîðìà N 1-ÎÒ) (E_AKCIZ_PRODUKC). ²íòåðâàëè çàïîâíåííÿ êîä³â: ç 69 ïî 83"-->
+	<xs:simpleType name="DGFJ0208405Ind1">
+		<xs:restriction base="xs:integer">
+			<xs:pattern value="(69)|(7[0-9])|(8[0-3])"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òèï êîëîíêè òàáëèö³ "Êîä ïðîäóêö³¿ ó Çâ³ò³ ïðî îáñÿãè ïðèäáàííÿ òà ðåàë³çàö³¿ òþòþíîâèõ âèðîá³â ó îïòîâ³é ìåðåæ³ (Ôîðìà N 1-ÎÒ) (E_AKCIZ_PRODUKC). ²íòåðâàëè çàïîâíåííÿ êîä³â: ç 69 ïî 83"-->
+	<xs:complexType name="FJ0208405Ind1Column">
+		<xs:simpleContent>
+			<xs:extension base="DGFJ0208405Ind1">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--òèï "àêöèç êîä Ðîçä³ëó â äåêëàðàö³¿"-->
+	<xs:simpleType name="DGJ02095Ind1">
+		<xs:annotation>
+			<xs:documentation>
+				ðîçä³ë Äåêëàðàö³¿ (À,Á,Â,Ã)
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[ÀÁÂÃ]{1}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òèï "àêöèç êîä îïåðàö³ÿ â äåêëàðàö³¿"-->
+	<xs:simpleType name="DGJ02095Ind2">
+		<xs:annotation>
+			<xs:documentation>
+				îïåðàö³ÿ â Äåêëàðàö³¿ (À1-À99,Á1-Á99,Â...,Ã...)
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="([ÀÁÂÃ]([1-9]{1}[0-9]{0,1}){1}){1}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òèï "àêöèç êîä Ðîçä³ëó â äåêëàðàö³¿ äëÿ âåðñ³¿ 2"-->
+	<xs:simpleType name="DGJ02095Ind3">
+		<xs:annotation>
+			<xs:documentation>
+				ðîçä³ë Äåêëàðàö³¿ (À,Á,Â,Ã,¥,Ä) ðîçøèðåííÿ ïîïåðåäíüîãî òèïó DGJ02095Ind1 äëÿ íàñòóïíî¿ âåðñ³¿ äîêóìåíòà
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[ÀÁÂÃ¥Ä]{1}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òèï "àêöèç êîä îïåðàö³ÿ â äåêëàðàö³¿ äëÿ âåðñ³¿ 2"-->
+	<xs:simpleType name="DGJ02095Ind4">
+		<xs:annotation>
+			<xs:documentation>
+				êîä îïåðàö³¿ ðîçä³ëó â Äåêëàðàö³¿ àêöèçíîãî ïîäàòêó  äëÿ ðîçøèðåííÿ ïîïåðåäíüîãî òèïó DGJ02095Ind2 äëÿ íàñòóïíî¿ âåðñ³¿ äîêóìåíòà
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="À1"/>
+			<xs:enumeration value="À2"/>
+			<xs:enumeration value="À3"/>
+			<xs:enumeration value="À4"/>
+			<xs:enumeration value="À5"/>
+			<xs:enumeration value="À6"/>
+			<xs:enumeration value="À7"/>
+			<xs:enumeration value="À8"/>
+			<xs:enumeration value="À9"/>
+			<xs:enumeration value="À10"/>
+			<xs:enumeration value="À11.1"/>
+			<xs:enumeration value="À11.2"/>
+			<xs:enumeration value="À12.1"/>
+			<xs:enumeration value="À12.2"/>
+			<xs:enumeration value="À13"/>
+			<xs:enumeration value="À14"/>
+			<xs:enumeration value="À15"/>
+			<xs:enumeration value="Á1"/>
+			<xs:enumeration value="Á2"/>
+			<xs:enumeration value="Á3"/>
+			<xs:enumeration value="Á4"/>
+			<xs:enumeration value="Á5"/>
+			<xs:enumeration value="Á6"/>
+			<xs:enumeration value="Á7"/>
+			<xs:enumeration value="Á8"/>
+			<xs:enumeration value="Á9.1"/>
+			<xs:enumeration value="Á9.2"/>
+			<xs:enumeration value="Á10"/>
+			<xs:enumeration value="Á10.1"/>
+			<xs:enumeration value="Á10.2"/>
+			<xs:enumeration value="Á11"/>
+			<xs:enumeration value="Á12"/>
+			<xs:enumeration value="Â1"/>
+			<xs:enumeration value="Â2"/>
+			<xs:enumeration value="Â3"/>
+			<xs:enumeration value="Â4"/>
+			<xs:enumeration value="Â5"/>
+			<xs:enumeration value="Â6"/>
+			<xs:enumeration value="Â7"/>
+			<xs:enumeration value="Â8"/>
+			<xs:enumeration value="Â9"/>
+			<xs:enumeration value="Â10.1"/>
+			<xs:enumeration value="Â10.2"/>
+			<xs:enumeration value="Â11"/>
+			<xs:enumeration value="Â12"/>
+			<xs:enumeration value="Â13"/>
+			<xs:enumeration value="Â14"/>
+			<xs:enumeration value="Â15"/>
+			<xs:enumeration value="Ã1"/>
+			<xs:enumeration value="Ã2"/>
+			<xs:enumeration value="Ã3"/>
+			<xs:enumeration value="Ã4"/>
+			<xs:enumeration value="Ã5"/>
+			<xs:enumeration value="Ã6"/>
+			<xs:enumeration value="Ã7"/>
+			<xs:enumeration value="Ã8.1"/>
+			<xs:enumeration value="Ã8.2"/>
+			<xs:enumeration value="Ã9"/>
+			<xs:enumeration value="Ã10"/>
+			<xs:enumeration value="¥1"/>
+			<xs:enumeration value="Ä1.1"/>
+			<xs:enumeration value="Ä1.2"/>
+			<xs:enumeration value="Ä2.1"/>
+			<xs:enumeration value="Ä2.2"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òèï "Êîä Ðîçä³ëó â Äåêëàðàö³¿ àêöèçíîãî ïîäàòêó âåðñ³¿ 5"-->
+	<xs:simpleType name="DGJ02095Ind5">
+		<xs:annotation>
+			<xs:documentation>
+				ðîçä³ë Äåêëàðàö³¿ àêöèçíîãî ïîäàòêó âåðñ³¿ 5 (À, Á, Â, Ã, Ä, Å) 
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[ÀÁÂÃÄÅ]{1}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òèï "Êîä îïåðàö³¿ â Äåêëàðàö³¿ àêöèçíîãî ïîäàòêó âåðñ³¿ 5"-->
+	<xs:simpleType name="DGJ02095Ind6">
+		<xs:annotation>
+			<xs:documentation>
+				êîä îïåðàö³¿ â Äåêëàðàö³¿ àêöèçíîãî ïîäàòêó âåðñ³¿ 5
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="(À[1-9])|(À1\.1)|(À1[0-2]{1}([\.]{1}[12]{1}){0,1})|(À1[3-5])|(Á[1-9])|(Á[89]\.[12])|(Á10([\.]{1}[12]{1}){0,1})|(Á1[12])|(Â[1-9])|(Â1[0-9])|(Â20)|(Â10\.[1])|(Â11\.[123])|(Â14\.[123])|(Ã[1-7])|(Ã5\.[12])|(Ã8\.[12])|(Ã9)|(Ã9\.[12])|(Ã10)|(Ä1)|(Ä1\.[1-9])|(Ä1\.[1-9][0-9])|(Ä1\.[1-9][0-9][0-9])|(Ä2\.[1-2])|(Å[12])"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òèï "Ìîæëèâ³ âàð³àíòè Âèäó äîêóìåíòà" (ïîäàòêîâà íàêëàäíà)-->
+	<xs:simpleType name="DGJ13001TypeDoc">
+		<xs:annotation>
+			<xs:documentation>
+				Ìîæëèâ³ âàð³àíòè Âèäó äîêóìåíòà â çàïèò³:
+				ÏÍ - ïîäàòêîâà íàêëàäíà;
+				ÐÊ - ðîçðàõóíîê êîðèãóâàííÿ äî ïîäàòêîâî¿ íàêëàäíî¿ (äîäàòîê 2 äî ïîäàòêîâî¿ íàêëàäíî¿));
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="(ÏÍ)|(ÐÊ)"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òèï êîëîíêè òàáëèö³ "Ìîæëèâ³ âàð³àíòè Âèäó äîêóìåíòà" (ïîäàòêîâà íàêëàäíà)-->
+	<xs:complexType name="DGJ13001TypeDocColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGJ13001TypeDoc">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--òèï "Ìîæëèâ³ âàð³àíòè Âèäó äîêóìåíòà" (àêöèçíà íàêëàäíà)-->
+	<xs:simpleType name="DGJ13030TypeDoc">
+		<xs:annotation>
+			<xs:documentation>
+				Ìîæëèâ³ âàð³àíòè Âèäó äîêóìåíòà â çàïèò³:
+				ÀÍ - àêöèçíà íàêëàäíà;
+				ÐÊ - ðîçðàõóíîê êîðèãóâàííÿ äî àêöèçíî¿ íàêëàäíî¿;
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="(ÀÍ)|(ÐÊ)"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òèï êîëîíêè òàáëèö³ "Ìîæëèâ³ âàð³àíòè Âèäó äîêóìåíòà" (àêöèçíà íàêëàäíà)-->
+	<xs:complexType name="DGJ13030TypeDocColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGJ13030TypeDoc">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!-- Îñîáëèâèé ïîäàòîê íà îïåðàö³¿ ç â³ä÷óæåííÿ ö³ííèõ ïàïåð³â òà îïåðàö³é ç äåðèâàòèâàìè -->
+	<!--òèï "îçíàêà Ïåðåáóâàííÿ â á³ðæîâîìó ðåºñòð³ ("1" - òàê, "2" - í³)" -->
+	<xs:simpleType name="DGcpPBR">
+		<xs:annotation>
+			<xs:documentation>
+				îçíàêà Ïåðåáóâàííÿ â á³ðæîâîìó ðåºñòð³ ("1" - òàê, "2" - í³)
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:nonNegativeInteger">
+			<xs:enumeration value="1"/>
+			<xs:enumeration value="2"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òàáëè÷íèé òèï êîëîíêè òàáëèö³ "ïðèçíàê Ïåðåáóâàííÿ â á³ðæîâîìó ðåºñòð³"-->
+	<xs:complexType name="DGcpPBRColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGcpPBR">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!-- òèï "Êëàñèô³êàö³ÿ ô³íàíñîâèõ ³íñòðóìåíò³â" Âèä ö³ííîãî ïàïåðà/äåðèâàòèâà -->
+	<xs:simpleType name="DGcpCFI">
+		<xs:annotation>
+			<xs:documentation>
+				òèï, ùî îïèñóº êîä ïîêàçíèêà "Êëàñèô³êàòîðà ô³íàíñîâèõ ³íñòðóìåíò³â", ÷èñëî ç âåäó÷èìè íóëÿìè äîâæèíîþ 8 çíàê³â
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[0-9]{8}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òàáëè÷íèé òèï êîëîíêè òàáëèö³ "Êëàñèô³êàö³ÿ ô³íàíñîâèõ ³íñòðóìåíò³â" Âèä ö³ííîãî ïàïåðà/äåðèâàòèâà-->
+	<xs:complexType name="DGcpCFIColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGcpCFI">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!-- òèï "Âèäè äîãîâîð³â ó ä³ÿëüíîñò³ ç òîðã³âë³ ö³ííèìè ïàïåðàìè" Âèä äîãîâîðó/êîíòðàêòó -->
+	<xs:simpleType name="DGcpTDCP">
+		<xs:annotation>
+			<xs:documentation>
+				òèï, ùî îïèñóº êîä ïîêàçíèêà äîâ³äíèêà "Âèäè äîãîâîð³â ó ä³ÿëüíîñò³ ç òîðã³âë³ ö³ííèìè ïàïåðàìè", ÷èñëî ç âåäó÷èìè íóëÿìè äîâæèíîþ 4 çíàêè
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[0-9]{4}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òàáëè÷íèé òèï êîëîíêè òàáëèö³ "Âèäè äîãîâîð³â ó ä³ÿëüíîñò³ ç òîðã³âë³ ö³ííèìè ïàïåðàìè" -->
+	<xs:complexType name="DGcpTDCPColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGcpTDCP">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!-- òèï îïèñó Êîäó îïåðàö³é çã³äíî ç òàáëèöåþ "Âèäè îïåðàö³é"-->
+	<xs:simpleType name="DGcpVO">
+		<xs:annotation>
+			<xs:documentation>
+				òèï, ùî îïèñóº êîä ïîêàçíèêà äîâ³äíèêà " "Âèäè îïåðàö³é", ÷èñëî ç âåäó÷èìè íóëÿìè äîâæèíîþ 2 çíàêè
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[0-9]{2}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òàáëè÷íèé òèï êîëîíêè òàáëèö³ Êîäó îïåðàö³é çã³äíî ç òàáëèöåþ "Âèäè îïåðàö³é" -->
+	<xs:complexType name="DGcpVOColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGcpVO">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!-- òèï îïèñó Ôîðìà ïðîâåäåííÿ ðîçðàõóíêó çã³äíî ç òàáëèöåþ "Ôîðìè ïðîâåäåííÿ ðîçðàõóíêó"-->
+	<xs:simpleType name="DGcpFPR">
+		<xs:annotation>
+			<xs:documentation>
+				òèï, ùî îïèñóº êîä ïîêàçíèêà äîâ³äíèêà "Ôîðìè ïðîâåäåííÿ ðîçðàõóíêó", ÷èñëî ç âåäó÷èìè íóëÿìè äîâæèíîþ 2 çíàêè
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[0-9]{2}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òàáëè÷íèé òèï êîëîíêè òàáëèö³ Ôîðìà ïðîâåäåííÿ ðîçðàõóíêó çã³äíî ç òàáëèöåþ "Ôîðìè ïðîâåäåííÿ ðîçðàõóíêó" -->
+	<xs:complexType name="DGcpFPRColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGcpFPR">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!-- Íîâ³ òèïè íåîáõ³äí³ äëÿ ïðîåêòó -->
+	<!--Çàãàëüíèé òèï "Òèï çâ’ÿçêó ïîâ’ÿçàíèõ äîêóìåíò³â"-->
+	<xs:simpleType name="DGTypeLinkDoc">
+		<xs:restriction base="xs:nonNegativeInteger">
+			<xs:pattern value="[1-3]"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä äîêóìåíòà"-->
+	<xs:simpleType name="DGC_DOC">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="([JF]((0[1-9])|([1-9][0-9])))"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Ï³äòèï äîêóìåíòà"-->
+	<xs:simpleType name="DGC_DOC_SUB">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="(([0-9]{2}[1-9])|([0-9][1-9][0-9])|([1-9][0-9]{2}))"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Íîìåð âåðñ³¿ äîêóìåíòà"-->
+	<xs:simpleType name="DGC_DOC_VER">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="([1-9][0-9])|([1-9])"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä ÄÏ²"-->
+	<xs:simpleType name="DGc_dpi">
+		<xs:restriction base="xs:integer">
+			<xs:pattern value="((3070)|(3[1-5]00)|(9001)|(9191)|(9393)|(9494)|(9900)|(9911)|(9970)|(999[1-9])|(2[0-8][0-9]{2})|(1[0-9]{3})|([1-9][0-9]{2}))"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä ÄÏ²" â êîëîíö³-->
+	<xs:complexType name="C_dpiColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGc_dpi">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "²ì’ÿ ôàéëó, ùî ì³ñòèòü ïîâ'ÿçàíèé äîêóìåíò"-->
+	<xs:simpleType name="DGFilename">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="([0-9]){4}(([0-9]{10})|(00[ÀÁÂÃÄÅªÆÇÈ²ÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÞß]{2}[0-9]{6}))([JF]((0[1-9])|([1-9][0-9])))(([0-9]{2}[1-9])|([0-9][1-9][0-9])|([1-9][0-9]{2}))(([1-9][0-9])|(0[1-9]))[1-3]([0-9]{2})([0-9]{7})([1-5])((0[1-9])|(1[0-2]))(20[0-9]{2})([0-9]){4}\.[xX][mM][lL]"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëî â³ä 1 äî ..." âèêîðèñòîâóºòüñÿ äëÿ âêàçàííÿ ê³ëüêîñò³	íîìåðó (HEXPL, HPAGES, ¹ï/ï)-->
+	<xs:simpleType name="DGInom">
+		<xs:restriction base="xs:unsignedLong">
+			<xs:minInclusive value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "¹ àêöèçíî¿ íàêëàäíî¿" âèäó (÷èñëî â³ä 1 äî 9999999999)(÷èñëî â³ä 1 äî 10çíàê³â áåç âåäó÷èõ íîë³â)" -->
+	<xs:simpleType name="DGNAN">
+		<xs:annotation>
+			<xs:documentation>
+		¹ àêöèçíî¿ íàêëàäíî¿ ôîðìàò:
+		 nnnnnnN äå:
+		 - n íåîáîâÿçêîâå çíà÷åíí
+		 - N îáîâÿçêîâå çíà÷åíí
+		 (ïðèêëàäè çíà÷åíü: 1, 125, 1252, 125012, 1252012, 9999804899)
+	 </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:nonNegativeInteger">
+			<xs:pattern value="[1-9]{1}[0-9]{0,9}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "¹ ïîäàòêîâî¿ íàêëàäíî¿ âèäó (÷èñëî â³ä 1 äî 9999999)/(2,3,àáî4)(÷èñëî â³ä 1 äî 999)" -->
+	<xs:simpleType name="DGNPN">
+		<xs:annotation>
+			<xs:documentation>
+		¹ ïîäàòêîâî¿ íàêëàäíî¿ ôîðìàò:
+		 nnnnnnN/nnnnn	äå:
+		 - n íåîáîâÿçêîâå çíà÷åíí
+		 - N îáîâÿçêîâå çíà÷åíí
+		 (ïðèêëàäè çíà÷åíü: 125, 125/2, 125/012, 125/2012)
+	 </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="([1-9]{1}[0-9]{0,6}){1}(/{1}([2|3|4]){0,1}(([0]{2}[1-9]{1})|([0]{1}[1-9]{1}[0-9]{1})|([1-9]{1}[0-9]{2})){0,1}){0,1}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëî â³ä 1 äî ... 9999999" âèêîðèñòîâóºòüñÿ äëÿ âêàçàííÿ ê³ëüêîñò³, íîìåðà ðÿäêà-->
+	<xs:simpleType name="DGI7nom">
+		<xs:restriction base="xs:unsignedLong">
+			<xs:minInclusive value="1"/>
+			<xs:maxInclusive value="9999999"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëî â³ä 1 äî ... 9999" âèêîðèñòîâóºòüñÿ äëÿ âêàçàííÿ ê³ëüêîñò³, íîìåðà ðÿäêà-->
+	<xs:simpleType name="DGI4nom">
+		<xs:restriction base="xs:unsignedLong">
+			<xs:minInclusive value="1"/>
+			<xs:maxInclusive value="9999"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëî â³ä 1 äî ... 999" âèêîðèñòîâóºòüñÿ äëÿ âêàçàííÿ ê³ëüêîñò³, íîìåðà ðÿäêà-->
+	<xs:simpleType name="DGI3nom">
+		<xs:restriction base="xs:unsignedLong">
+			<xs:minInclusive value="1"/>
+			<xs:maxInclusive value="999"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëî â³ä 1 äî 99" âèêîðèñòîâóºòüñÿ äëÿ âêàçàííÿ íîìåðà-->
+	<xs:simpleType name="DGI2inom">
+		<xs:restriction base="xs:unsignedLong">
+			<xs:minInclusive value="1"/>
+			<xs:maxInclusive value="99"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëî â³ä 1 äî 9" âèêîðèñòîâóºòüñÿ äëÿ âêàçàííÿ íîìåðà-->
+	<xs:simpleType name="DGI1inom">
+		<xs:restriction base="xs:unsignedLong">
+			<xs:minInclusive value="1"/>
+			<xs:maxInclusive value="9"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëî 4 çíàêè ç ïî÷àòêîâèìè íóëÿìè â³ä 0000 äî 9999"-->
+	<xs:simpleType name="DGI4lz">
+		<xs:annotation>
+			<xs:documentation>
+			×èñëî 4 çíàêè ç ïî÷àòêîâèìè íóëÿìè â³ä 0000 äî 9999
+		 	âèêîðèñòîâóºòüñÿ äëÿ: 
+		 	 * êîä óìîâíîãî ïîçíà÷åííÿ îäèíèöü âèì³ðó ÏÍ
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[0-9]{4}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òèï êîëîíêè òàáëèö³ "×èñëî 4 çíàêè ç ïî÷àòêîâèìè íóëÿìè â³ä 0000 äî 9999"-->
+	<xs:complexType name="DGI4lzColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGI4lz">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "âèä(êîä) äîêóìåíòà" Ðîçä³ë I. Âèäàí³ ïîäàòêîâ³ íàêëàäí³" âåðñ³ÿ äîêóìåíòà 5-->
+	<xs:simpleType name="DGKodDocROVPD5_1">
+		<xs:annotation>
+			<xs:documentation>
+			Êîäè "Âèä äîêóìåíòà" (Ðîçä³ë I. Âèäàí³ ïîäàòêîâ³ íàêëàäí³):
+			ÏÍ, ÏÍ01, ..., ÏÍ14 - ïîäàòêîâà íàêëàäíà;
+			ÐÊ - ðîçðàõóíîê êîðèãóâàííÿ äî ïîäàòêîâî¿ íàêëàäíî¿ (äîäàòîê 2 äî ïîäàòêîâî¿ íàêëàäíî¿));
+			ÂÌÄ - âàíòàæíà ìèòíà äåêëàðàö³ÿ;
+			ÁÎ - äîêóìåíò áóõãàëòåðñüêîãî îáë³êó;
+			Ó ðàç³ ÿêùî äàí³ äîêóìåíòà âêëþ÷àþòüñÿ äî óòî÷íþþ÷èõ ðîçðàõóíê³â çà çâ³òíèé ïåð³îä, äî âèäó äîêóìåíòà äîäàºòüñÿ ë³òåðà "Ó"
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="(ÏÍ((0[1-9])|(1[0-4]))*[Ó]*)|(ÐÊ[Ó]*)|(ÂÌÄ[Ó]*)|(ÁÎ[Ó]*)"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "âèä(êîä) äîêóìåíòà" Ðîçä³ë I². Îòðèìàí³ ïîäàòêîâ³ íàêëàäí³" âåðñ³ÿ äîêóìåíòà 5-->
+	<xs:simpleType name="DGKodDocROVPD5_2">
+		<xs:annotation>
+			<xs:documentation>
+			Êîäè "Âèä äîêóìåíòà" (Ðîçä³ë I². Îòðèìàí³ ïîäàòêîâ³ íàêëàäí³):
+			ÏÍ - ïîäàòêîâà íàêëàäíà;
+			ÐÊ - ðîçðàõóíîê êîðèãóâàííÿ äî ïîäàòêîâî¿ íàêëàäíî¿ (äîäàòîê 2 äî ïîäàòêîâî¿ íàêëàäíî¿));
+			ÂÌÄ - âàíòàæíà ìèòíà äåêëàðàö³ÿ;
+			×Ê - êàñîâèé ÷åê;
+			ÒÊ - òðàíñïîðòíèé êâèòîê;
+			ÃÐ - ãîòåëüíèé ðàõóíîê;
+			ÏÇ - ðàõóíîê íà ïîñëóãè çâ'ÿçêó;
+			ÏÎ - ïîñëóãè, âàðò³ñòü ÿêèõ âèçíà÷àºòüñÿ çà ïîêàçíèêàìè ïðèëàä³â îáë³êó;
+			ÇÏ - çàÿâà ïëàòíèêà â³äïîâ³äíî äî ïóíêòó 201.10 ñòàòò³ 201 ðîçä³ëó V Êîäåêñó;
+			ÍÏ - äîêóìåíò, ùî çàñâ³ä÷óº ïðèäáàííÿ òîâàð³â/ïîñëóã íà ìèòí³é òåðèòîð³¿ Óêðà¿íè â îñ³á, ÿê³ íå çàðåºñòðîâàí³ ÿê ïëàòíèêè ÏÄÂ;
+			ÁÎ - äîêóìåíò áóõãàëòåðñüêîãî îáë³êó; Âíåñåíî çã³äíî ëèñòà _______
+			Äî âèäó äîêóìåíòà äîäàºòüñÿ ë³òåðà „Ð” - ÿêùî ïëàòíèêîì ïðîâîäèòüñÿ ðîçïîä³ë ñóì ïîäàòêîâîãî êðåäèòó â³äïîâ³äíî äî ïóíêòó 199.1 ñòàòò³ 199 òà/àáî àáçàöó òðåòüîãî ï³äïóíêòó 209.15.1 ïóíêòó 209.15 ñòàòò³ 209 ðîçä³ëó V Êîäåêñó;
+			Ó ðàç³ ÿêùî äàí³ äîêóìåíòà âêëþ÷àþòüñÿ äî óòî÷íþþ÷èõ ðîçðàõóíê³â çà çâ³òíèé ïåð³îä, äî âèäó äîêóìåíòà äîäàºòüñÿ ë³òåðà "Ó"
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="(ÏÍ[Ð]*[Ó]*)|(ÐÊ[Ð]*[Ó]*)|(ÂÌÄ[Ð]*[Ó]*)|(×Ê[Ð]*[Ó]*)|(ÒÊ[Ð]*[Ó]*)|(ÃÐ[Ð]*[Ó]*)|(ÏÇ[Ð]*[Ó]*)|(ÏÎ[Ð]*[Ó]*)|(ÇÏ[Ð]*[Ó]*)|(ÍÏ[Ð]*[Ó]*)|(ÁÎ[Ð]*[Ó]*)"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüí³ òèïè äëÿ "Ðåºñòðó âèäàíèõ òà îòðèìàíèõ ïîäàòêîâèõ íàêëàäíèõ " âåðñ³ÿ ðåºñòðó 6-->
+	<!--"Âèä(êîä) äîêóìåíòà "Ðîçä³ë I. Âèäàí³ ïîäàòêîâ³ íàêëàäí³" -->
+	<xs:simpleType name="DGKodTypeDoc6_1">
+		<xs:annotation>
+			<xs:documentation>
+			Âèäè äîêóìåíò³â äëÿ Ðîçä³ë I. Âèäàí³ ïîäàòêîâ³ íàêëàäí³
+			ÏÍÏ - ïîäàòêîâà íàêëàäíà, ñêëàäåíà íà ïàïåðîâèõ íîñ³ÿõ;
+			ÏÍÅ - ïîäàòêîâà íàêëàäíà, åëåêòðîííà;
+			ÐÊÏ – ðîçðàõóíîê êîðèãóâàííÿ ê³ëüê³ñíèõ ³ âàðò³ñíèõ ïîêàçíèê³â äî ïîäàòêîâî¿ íàêëàäíî¿ (äîäàòîê 2 äî ïîäàòêîâî¿ íàêëàäíî¿), ñêëàäåíà íà ïàïåðîâèõ íîñ³ÿõ; 
+			ÐÊÅ – ðîçðàõóíîê êîðèãóâàííÿ ê³ëüê³ñíèõ ³ âàðò³ñíèõ ïîêàçíèê³â äî ïîäàòêîâî¿ íàêëàäíî¿ (äîäàòîê 2 äî ïîäàòêîâî¿ íàêëàäíî¿), åëåêòðîííà; 
+			ÌÄÏ – ìèòíà äåêëàðàö³ÿ, ñêëàäåíà íà ïàïåðîâèõ íîñ³ÿõ;
+			ÌÄÅ – åëåêòðîííà ìèòíà äåêëàðàö³ÿ; 
+			ÁÎ – äîêóìåíò áóõãàëòåðñüêîãî îáë³êó.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="((ÏÍ(Ï|Å)+)|(ÐÊ(Ï|Å)+)|(ÌÄ(Ï|Å)+)|(ÁÎ))"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "âèä(êîä) äîêóìåíòà "Ðîçä³ë I². Îòðèìàí³ ïîäàòêîâ³ íàêëàäí³" âåðñ³ÿ äîêóìåíòà 6-->
+	<xs:simpleType name="DGKodDocROVPD6_2">
+		<xs:annotation>
+			<xs:documentation>
+			Âèäè äîêóìåíò³â äëÿ Ðîçä³ë ²² Ðåºñòðó
+			ÏÍÏ – ïîäàòêîâà íàêëàäíà, ñêëàäåíà íà ïàïåðîâèõ íîñ³ÿõ;
+			ÏÍÅ  – åëåêòðîííà ïîäàòêîâà íàêëàäíà; 
+			ÐÊÏ – ðîçðàõóíîê êîðèãóâàííÿ ê³ëüê³ñíèõ ³ âàðò³ñíèõ ïîêàçíèê³â äî ïîäàòêîâî¿ íàêëàäíî¿ (äîäàòîê 2 äî ïîäàòêîâî¿ íàêëàäíî¿), ñêëàäåíèé íà ïàïåðîâèõ íîñ³ÿõ; 
+			ÐÊÅ – åëåêòðîííèé ðîçðàõóíîê êîðèãóâàííÿ ê³ëüê³ñíèõ ³ âàðò³ñíèõ ïîêàçíèê³â äî ïîäàòêîâî¿ íàêëàäíî¿ (äîäàòîê 2 äî ïîäàòêîâî¿ íàêëàäíî¿); 
+			ÌÄÏ – ìèòíà äåêëàðàö³ÿ, ñêëàäåíà íà ïàïåðîâèõ íîñ³ÿõ;
+			ÌÄÅ – åëåêòðîííà ìèòíà äåêëàðàö³ÿ; 
+			×Ê – êàñîâèé ÷åê. 
+			ÒÊ – òðàíñïîðòíèé êâèòîê; 
+			ÃÐ – ãîòåëüíèé ðàõóíîê; 
+			ÏÇ – ðàõóíîê çà ïîñëóãè çâ'ÿçêó; 
+			ÏÎ – ïîñëóãè, âàðò³ñòü ÿêèõ âèçíà÷àºòüñÿ çà ïîêàçíèêàìè ïðèëàä³â îáë³êó; 
+			ÇÏ – çàÿâà ïëàòíèêà òà êîï³¿ òîâàðíèõ ÷åê³â àáî ³íøèõ ðîçðàõóíêîâèõ äîêóìåíò³â, ùî çàñâ³ä÷óþòü ôàêò ñïëàòè ïîäàòêó ó çâ'ÿçêó ç ïðèäáàííÿì òàêèõ òîâàð³â/ïîñëóã, àáî êîï³¿ ïåðâèííèõ äîêóìåíò³â, ñêëàäåíèõ â³äïîâ³äíî äî Çàêîíó Óêðà¿íè „Ïðî áóõãàëòåðñüêèé îáë³ê òà ô³íàíñîâó çâ³òí³ñòü â Óêðà¿í³”, ùî ï³äòâåðäæóþòü ôàêò îòðèìàííÿ òàêèõ òîâàð³â/ïîñëóã â³äïîâ³äíî äî		  ïóíêòó 201.10 ñòàòò³ 201 ðîçä³ëó V Êîäåêñó;
+			ÍÏ – äîêóìåíò, ùî çàñâ³ä÷óº ïðèäáàííÿ òîâàð³â/ïîñëóã íà ìèòí³é òåðèòîð³¿ Óêðà¿íè â îñ³á, ÿê³ íå çàðåºñòðîâàí³ ÿê ïëàòíèêè ïîäàòêó íà äîäàíó âàðò³ñòü;
+			ÁÎ – äîêóìåíò áóõãàëòåðñüêîãî îáë³êó, â òîìó ÷èñë³ áóõãàëòåðñüêà äîâ³äêà
+			
+			ÁÎÏÍÏ – äîêóìåíò áóõãàëòåðñüêîãî îáë³êó, ÿêèì ï³äòâåðäæóºòüñÿ îïåðàö³ÿ ç ïîñòà÷àííÿ íà îñíîâ³ ïîäàòêîâî¿ íàêëàäíî¿, ùî ñêëàäåíà íà ïàïåðîâèõ íîñ³ÿõ;
+			ÁÎÏÍÅ – äîêóìåíò áóõãàëòåðñüêîãî îáë³êó, ÿêèì ï³äòâåðäæóºòüñÿ îïåðàö³ÿ ç ïîñòà÷àííÿ íà îñíîâ³ åëåêòðîííî¿ ïîäàòêîâî¿ íàêëàäíî¿; 
+			ÁÎÐÊÏ – äîêóìåíò áóõãàëòåðñüêîãî îáë³êó, ÿêèì ï³äòâåðäæóºòüñÿ îïåðàö³ÿ ç ïîñòà÷àííÿ íà îñíîâ³ ðîçðàõóíêó êîðèãóâàííÿ ê³ëüê³ñíèõ ³ âàðò³ñíèõ ïîêàçíèê³â äî ïîäàòêîâî¿ íàêëàäíî¿ (äîäàòîê 2 äî ïîäàòêîâî¿ íàêëàäíî¿), ñêëàäåíèé íà ïàïåðîâèõ íîñ³ÿõ; 
+			ÁÎÐÊÅ – äîêóìåíò áóõãàëòåðñüêîãî îáë³êó, ÿêèì ï³äòâåðäæóºòüñÿ îïåðàö³ÿ ç ïîñòà÷àííÿ íà îñíîâ³ åëåêòðîííîãî ðîçðàõóíîêó êîðèãóâàííÿ ê³ëüê³ñíèõ ³ âàðò³ñíèõ ïîêàçíèê³â äî ïîäàòêîâî¿ íàêëàäíî¿ (äîäàòîê 2 äî ïîäàòêîâî¿ íàêëàäíî¿); 
+			ÁÎÌÄÏ – äîêóìåíò áóõãàëòåðñüêîãî îáë³êó, ÿêèì ï³äòâåðäæóºòüñÿ îïåðàö³ÿ ç ïîñòà÷àííÿ íà îñíîâ³ ìèòíî¿ äåêëàðàö³¿, ñêëàäåíî¿ íà ïàïåðîâèõ íîñ³ÿõ;
+			ÁÎÌÄÅ – äîêóìåíò áóõãàëòåðñüêîãî îáë³êó, ÿêèì ï³äòâåðäæóºòüñÿ îïåðàö³ÿ ç ïîñòà÷àííÿ íà îñíîâ³ åëåêòðîííî¿ ìèòíî¿ äåêëàðàö³¿; 
+			ÁÎ×Ê – äîêóìåíò áóõãàëòåðñüêîãî îáë³êó, ÿêèì ï³äòâåðäæóºòüñÿ îïåðàö³ÿ ç ïîñòà÷àííÿ íà îñíîâ³ êàñîâîãî ÷åêó. 
+			ÁÎÒÊ – äîêóìåíò áóõãàëòåðñüêîãî îáë³êó, ÿêèì ï³äòâåðäæóºòüñÿ îïåðàö³ÿ ç ïîñòà÷àííÿ íà îñíîâ³ òðàíñïîðòíîãî êâèòêà; 
+			ÁÎÃÐ – äîêóìåíò áóõãàëòåðñüêîãî îáë³êó, ÿêèì ï³äòâåðäæóºòüñÿ îïåðàö³ÿ ç ïîñòà÷àííÿ íà îñíîâ³ ãîòåëüíîãî ðàõóíêó; 
+			ÁÎÏÇ – äîêóìåíò áóõãàëòåðñüêîãî îáë³êó, ÿêèì ï³äòâåðäæóºòüñÿ îïåðàö³ÿ ç ïîñòà÷àííÿ íà îñíîâ³ ðàõóíêó çà ïîñëóãè çâ'ÿçêó; 
+			ÁÎÏÎ – äîêóìåíò áóõãàëòåðñüêîãî îáë³êó, ÿêèì ï³äòâåðäæóºòüñÿ îïåðàö³ÿ ç ïîñòà÷àííÿ íà îñíîâ³ ïîñëóãè, âàðò³ñòü ÿêèõ âèçíà÷àºòüñÿ çà ïîêàçíèêàìè ïðèëàä³â îáë³êó; 
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="ÏÍÏ"/>
+			<xs:enumeration value="ÏÍÅ"/>
+			<xs:enumeration value="ÐÊÏ"/>
+			<xs:enumeration value="ÐÊÅ"/>
+			<xs:enumeration value="ÌÄÏ"/>
+			<xs:enumeration value="ÌÄÅ"/>
+			<xs:enumeration value="×Ê"/>
+			<xs:enumeration value="ÒÊ"/>
+			<xs:enumeration value="ÃÐ"/>
+			<xs:enumeration value="ÏÇ"/>
+			<xs:enumeration value="ÏÎ"/>
+			<xs:enumeration value="ÇÏ"/>
+			<xs:enumeration value="ÍÏ"/>
+			<xs:enumeration value="ÁÎ"/>
+			<xs:enumeration value="ÁÎÏÍÏ"/>
+			<xs:enumeration value="ÁÎÏÍÅ"/>
+			<xs:enumeration value="ÁÎÐÊÏ"/>
+			<xs:enumeration value="ÁÎÐÊÅ"/>
+			<xs:enumeration value="ÁÎÌÄÏ"/>
+			<xs:enumeration value="ÁÎÌÄÅ"/>
+			<xs:enumeration value="ÁÎ×Ê"/>
+			<xs:enumeration value="ÁÎÒÊ"/>
+			<xs:enumeration value="ÁÎÃÐ"/>
+			<xs:enumeration value="ÁÎÏÇ"/>
+			<xs:enumeration value="ÁÎÏÎ"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Îçíàêà -  âèä äîêóìåíòà, ÿêèì ï³äòâåðäæóºòüñÿ çä³éñíåííÿ êîíòðîëüîâàíî¿ îïåðàö³¿ ç ïîñòà÷àííÿ „ÊÎ” ïîä.íàêë.8 -->
+	<xs:simpleType name="DGKodControlledOperationTB08">
+		<xs:annotation>
+			<xs:documentation>
+			Îçíàêà -  âèä äîêóìåíòà, ÿêèì ï³äòâåðäæóºòüñÿ çä³éñíåííÿ êîíòðîëüîâàíî¿ îïåðàö³¿ ç ïîñòà÷àííÿ „ÊÎ” 
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="ÊÎ"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Îçíàêà -  âèä äîêóìåíòà, ÿêèì ï³äòâåðäæóºòüñÿ çä³éñíåííÿ êîíòðîëüîâàíî¿ îïåðàö³¿ ç ïîñòà÷àííÿ „ÊÎ” ïîä.íàêë.8 òàáëè÷íå ïîëå -->
+	<xs:complexType name="DGKodControlledOperationTB08Column">
+		<xs:simpleContent>
+			<xs:extension base="DGKodControlledOperationTB08">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Òèï ïðè÷èíè, ç ÿêî¿ àêöèçíà íàêëàäíà íå âèäàºòüñÿ îòðèìóâà÷ó ïàëüíîãî-->
+	<xs:simpleType name="DGEItyper">
+		<xs:annotation>
+			<xs:documentation>
+			Òèï ïðè÷èíè:			
+			0 – íàêëàäíà âèäàºòüñÿ îòðèìóâà÷ó ïàëüíîãî
+			1 – îòðèìóâà÷ íå º ïëàòíèêîì àêöèçíîãî ïîäàòêó ç ðåàë³çàö³¿ ïàëüíîãî (ê³íöåâèé ñïîæèâà÷ òà ñóá’ºêòè ãîñïîäàðþâàííÿ â³äñóòí³ ó Ðåºñòð³ ïëàòíèê³â àêöèçíîãî ïîäàòêó ç ðåàë³çàö³¿  ïàëüíîãî)
+			2 – â³äâàíòàæåííÿ íà óìîâàõ, âñòàíîâëåíèõ ñòàòòåþ 229 ðîçä³ëó VI  Êîäåêñó
+			3 – âëàñíå ñïîæèâàííÿ
+			4 – âòðà÷åíå ïàëüíå (ïóíêò 216.3 ñòàòò³ 216 ðîçä³ëó VI Êîäåêñó)
+			5 – âòðà÷åíå ïàëüíå (ïóíêò 214.7 ñòàòò³ 214 ðîçä³ëó VI Êîäåêñó)
+			6 – âèðîáíèöòâî ïàëüíîãî â ñïîæèâ÷³é òàð³ ºìí³ñòþ äî äâîõ ë³òð³â (âêëþ÷íî)
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:nonNegativeInteger">
+			<xs:pattern value="[0-6]"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Ïðè÷èíè, ñêëàäàííÿ ïîäàòêîâî¿ íàêëàäíî¿ çà îêðåìèìè îïåðàö³ÿìè âåðñ³ÿ ðåºñòðó 6 (äóáëþºòüñÿ òèïîì DGPNtypr)-->
+	<xs:simpleType name="DGKodÑausesOperation6">
+		<xs:annotation>
+			<xs:documentation>
+			Ïðè÷èíè, ñêëàäàííÿ ïîäàòêîâî¿ íàêëàäíî¿ çà îêðåìèìè îïåðàö³ÿìè äëÿ Ðîçä³ë I òà äëÿ Ðîçä³ë II
+			01 – Ñêëàäåíà íà ñóìó ïåðåâèùåííÿ çâè÷àéíî¿ ö³íè íàä ôàêòè÷íîþ; 
+			02 – Ïîñòà÷àííÿ íåïëàòíèêó ïîäàòêó; 
+			03 – Ïîñòà÷àííÿ òîâàð³â/ïîñëóã ó ðàõóíîê îïëàòè ïðàö³ ô³çè÷íèì îñîáàì, ÿê³ ïåðåáóâàþòü ó òðóäîâèõ â³äíîñèíàõ ³ç ïëàòíèêîì ïîäàòêó; 
+			04 – Ïîñòà÷àííÿ ó ìåæàõ áàëàíñó äëÿ íåâèðîáíè÷îãî âèêîðèñòàííÿ; 
+			05 – Ë³êâ³äàö³ÿ îñíîâíèõ çàñîá³â çà ñàìîñò³éíèì ð³øåííÿì ïëàòíèêà ïîäàòêó;
+			06 – Ïåðåâåäåííÿ âèðîáíè÷èõ îñíîâíèõ çàñîá³â äî ñêëàäó íåâèðîáíè÷èõ;
+			07 – Åêñïîðòí³ ïîñòà÷àííÿ;
+			08 – Ïîñòà÷àííÿ äëÿ îïåðàö³é, ÿê³ íå º îá'ºêòîì îïîäàòêóâàííÿ ïîäàòêîì íà äîäàíó âàðò³ñòü;
+			09 – Ïîñòà÷àííÿ äëÿ îïåðàö³é, ÿê³ çâ³ëüíåí³ â³ä îïîäàòêóâàííÿ ïîäàòêîì íà äîäàíó âàðò³ñòü;
+			10 – Âèçíà÷åííÿ ïðè àíóëþâàíí³ ïëàòíèêà ïîäàòêó ïîäàòêîâèõ çîáîâ'ÿçàíü ïî òîâàðàõ/ïîñëóãàõ, íåîáîðîòíèõ àêòèâàõ, ñóìè ïîäàòêó ïî ÿêèõ áóëè âêëþ÷åí³ äî ñêëàäó ïîäàòêîâîãî êðåäèòó, íå áóëè âèêîðèñòàí³ â îïîäàòêîâóâàíèõ îïåðàö³ÿõ ó ìåæàõ ãîñïîäàðñüêî¿ ä³ÿëüíîñò³;
+			11 – Ñêëàäåíà çà ùîäåííèìè ï³äñóìêàìè îïåðàö³é;
+			12 – Ñêëàäåíà íà âàðò³ñòü áåçîïëàòíî ïîñòàâëåíèõ òîâàð³â/ïîñëóã, îá÷èñëåíó âèõîäÿ÷è ç ð³âíÿ çâè÷àéíèõ ö³í;
+			13 – Âèêîðèñòàííÿ âèðîáíè÷èõ àáî íåâèðîáíè÷èõ çàñîá³â, ³íøèõ òîâàð³â/ïîñëóã íå ó ãîñïîäàðñüê³é ä³ÿëüíîñò³;
+			14 – Ñêëàäåíà ïîêóïöåì (îòðèìóâà÷åì) ïîñëóã â³ä íåðåçèäåíòà.
+			15 – Ñêëàäåíà íà ñóìó ïåðåâèùåííÿ ìèòíî¿ âàðòîñò³ íàä ôàêòè÷íîþ ö³íîþ ïîñòà÷àííÿ.
+			16 – Ñêëàäåíà íà ñóìó ïåðåâèùåííÿ áàëàíñîâî¿ (çàëèøêîâî¿) âàðòîñò³ íåîáîðîòíèõ àêòèâ³â íàä ôàêòè÷íîþ ö³íîþ ¿õ ïîñòà÷àííÿ.
+			17 - ñêëàäåíà íà ñóìó ïåðåâèùåííÿ ñîá³âàðòîñò³ ñàìîñò³éíî âèãîòîâëåíèõ òîâàð³â/ïîñëóã íàä ôàêòè÷íîþ ö³íîþ ¿õ ïîñòà÷àííÿ.
+			20 - ÐÊ äî ÏÍ, çàéâî ñêëàäåíî¿ íà îïåðàö³þ, çà ÿêîþ â ªÐÏÍ âæå çàðåºñòðîâàíà ÏÍ
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="((0[1-9])|(1[0-7])|(20))"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Îçíàêà, - äàí³ äîêóìåíòà âêëþ÷àþòüñÿ äî óòî÷íþþ÷èõ ðîçðàõóíê³â çà çâ³òíèé (ïîäàòêîâèé) ïåð³îä „Ó” -->
+	<xs:simpleType name="DGKodRectification6">
+		<xs:annotation>
+			<xs:documentation>
+			Îçíàêà, ùî äàí³ äîêóìåíòà âêëþ÷àþòüñÿ äî óòî÷íþþ÷èõ ðîçðàõóíê³â çà çâ³òíèé (ïîäàòêîâèé) ïåð³îä „Ó” 
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="(Ó)"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Îçíàêà, - ïðîâåäåíî ðîçïîä³ë ñóìè ïîäàòêîâîãî êðåäèòó äîäàºòüñÿ ë³òåðà „Ð” -->
+	<xs:simpleType name="DGKodAssignment6">
+		<xs:annotation>
+			<xs:documentation>
+			Îçíàêà, ùî áóëî ïðîâåäåíî ðîçïîä³ë ñóìè ïîäàòêîâîãî êðåäèòó äîäàºòüñÿ ë³òåðà „Ð” 
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="(Ð)"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Îçíàêà Ïðåäìåò êîíòðîëüîâàíî¿ îïåðàö³¿" -->
+	<xs:simpleType name="DGKontrOp">
+		<xs:annotation>
+			<xs:documentation>çíà÷åííÿ: 1, 2, 3, 201-209</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:unsignedLong">
+			<xs:pattern value="([1-3]{1})|(20[1-9]{1})"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Îçíàêà ñïåö³àëüíî¿ ïîäàòêîâî¿ íàêëàäíî¿" -->
+	<xs:simpleType name="DGspecNom">
+		<xs:annotation>
+			<xs:documentation>çíà÷åííÿ: 2, 3, 4,  5, 6, 7</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:unsignedLong">
+			<xs:pattern value="(2)|(3)|(4)|(5)|(6)|(7)"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "âèä(êîä) äîêóìåíòà" Ðåºñòðó îòðèìàíèõ òà âèäàíèõ ïîäàòêîâèõ íàêëàäíèõ" âåðñ³ÿ 5 ðîçä³ë 1-->
+	<xs:complexType name="DGKodDocROVPD5_1Column">
+		<xs:simpleContent>
+			<xs:extension base="DGKodDocROVPD5_1">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "âèä(êîä) äîêóìåíòà" Ðåºñòðó îòðèìàíèõ òà âèäàíèõ ïîäàòêîâèõ íàêëàäíèõ" âåðñ³ÿ 5 ðîçä³ë 2-->
+	<xs:complexType name="DGKodDocROVPD5_2Column">
+		<xs:simpleContent>
+			<xs:extension base="DGKodDocROVPD5_2">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "âèä(êîä) äîêóìåíòà" Ðåºñòðó îòðèìàíèõ òà âèäàíèõ ïîäàòêîâèõ íàêëàäíèõ" âåðñ³ÿ 6 ðîçä³ë 1 ñòðîêà 1-->
+	<xs:complexType name="DGKodTypeDoc6_1Column">
+		<xs:simpleContent>
+			<xs:extension base="DGKodTypeDoc6_1">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "âèä(êîä) äîêóìåíòà" Ðåºñòðó îòðèìàíèõ òà âèäàíèõ ïîäàòêîâèõ íàêëàäíèõ" âåðñ³ÿ 6 ðîçä³ë 2 ñòðîêà 1-->
+	<xs:complexType name="DGKodDocROVPD6_2Column">
+		<xs:simpleContent>
+			<xs:extension base="DGKodDocROVPD6_2">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "âèä(êîä) äîêóìåíòà" Ðåºñòðó îòðèìàíèõ òà âèäàíèõ ïîäàòêîâèõ íàêëàäíèõ" âåðñ³ÿ 6 ðîçä³ë 1 ñòðîêà 2-->
+	<xs:complexType name="DGKodÑausesOperation6Column">
+		<xs:simpleContent>
+			<xs:extension base="DGKodÑausesOperation6">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "âèä(êîä) äîêóìåíòà" Ðåºñòðó îòðèìàíèõ òà âèäàíèõ ïîäàòêîâèõ íàêëàäíèõ" âåðñ³ÿ 6 ðîçä³ë 2 ñòðîêà 2-->
+	<xs:complexType name="DGKodAssignment6Column">
+		<xs:simpleContent>
+			<xs:extension base="DGKodAssignment6">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "âèä(êîä) äîêóìåíòà" Ðåºñòðó îòðèìàíèõ òà âèäàíèõ ïîäàòêîâèõ íàêëàäíèõ" âåðñ³ÿ 6 ðîçä³ë 1,2 ñòðîêà 3-->
+	<xs:complexType name="DGKodRectification6Column">
+		<xs:simpleContent>
+			<xs:extension base="DGKodRectification6">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "(òèï ïðè÷èíè) êîëè Îðèã³íàë ÏÎÄÀÒÊÎÂÀ ÍÀÊËÀÄÍÀ çàëèøàºòüñÿ ó ïðîäàâöÿ" (HTYPR) (äóáëþºòüñÿ òèïîì DGKodÑausesOperation6)-->
+	<xs:simpleType name="DGPNtypr">
+		<xs:annotation>
+			<xs:documentation>ÏÎÐßÄÎÊ çàïîâíåííÿ ïîäàòêîâî¿ íàêëàäíî¿ (Íàêàç Ì³í³ñòåðñòâà ô³íàíñ³â Óêðà¿íè â³ä 01.11.11 ¹ 1379)
+ï.8. Óñ³ ïðèì³ðíèêè ïîäàòêîâèõ íàêëàäíèõ, îêðåì³ îñîáëèâîñò³ çàïîâíåííÿ ÿêèõ âèêëàäåí³ â ï³äïóíêòàõ 8.1-8.4 öüîãî ïóíêòó, çàëèøàþòüñÿ â îñîáè, ùî ¿õ âèïèñàëà, ³ çáåð³ãàþòüñÿ â³äïîâ³äíî äî âèêëàäåíîãî â ï³äïóíêòàõ 6.1 òà 6.4 ïóíêòó 6 öüîãî Ïîðÿäêó.
+ Ìîæëèâ³ çíà÷åííÿ çíà÷åííÿ 01, 02, ..., 17, 20, 21</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="01">
+				<xs:annotation>
+					<xs:documentation>
+						Âèïèñàíà íà ñóìó ïåðåâèùåííÿ çâè÷àéíî¿ ö³íè íàä ôàêòè÷íîþ
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="02">
+				<xs:annotation>
+					<xs:documentation>
+						Ïîñòà÷àííÿ íåïëàòíèêó ïîäàòêó
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="03">
+				<xs:annotation>
+					<xs:documentation>
+						Íàòóðàëüíà âèïëàòà â ðàõóíîê îïëàòè ïðàö³ ô³çè÷íèì îñîáàì
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="04">
+				<xs:annotation>
+					<xs:documentation>
+						Ïîñòà÷àííÿ ó ìåæàõ áàëàíñó äëÿ íåâèðîáíè÷îãî âèêîðèñòàíí
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="05">
+				<xs:annotation>
+					<xs:documentation>
+						Ë³êâ³äàö³ÿ îñíîâíèõ çàñîá³â çà ñàìîñò³éíèì ð³øåííÿì ïëàòíèêà ïîäàòêó
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="06">
+				<xs:annotation>
+					<xs:documentation>
+						Ïåðåâåäåííÿ âèðîáíè÷èõ îñíîâíèõ çàñîá³â äî ñêëàäó íåâèðîáíè÷èõ
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="07">
+				<xs:annotation>
+					<xs:documentation>
+						Åêñïîðòí³ ïîñòà÷àííÿ
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="08">
+				<xs:annotation>
+					<xs:documentation>
+						Ïîñòà÷àííÿ äëÿ îïåðàö³é, ÿê³ íå º îá'ºêòîì îïîäàòêóâàííÿ ïîäàòêîì íà äîäàíó âàðò³ñòü
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="09">
+				<xs:annotation>
+					<xs:documentation>
+						Ïîñòà÷àííÿ äëÿ îïåðàö³é, ÿê³ çâ³ëüíåí³ â³ä îïîäàòêóâàííÿ ïîäàòêîì íà äîäàíó âàðò³ñòü
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="10">
+				<xs:annotation>
+					<xs:documentation>
+						Âèçíàííÿ óìîâíîãî ïîñòà÷àííÿ òîâàðíèõ çàëèøê³â òà/àáî íåîáîðîòíèõ àêòèâ³â, ùî ïåðåáóâàþòü â îáë³êó ïëàòíèêà ïîäàòêó íà äåíü àíóëþâàííÿ éîãî ðåºñòðàö³¿ ÿê ïëàòíèêà ïîäàòêó íà äîäàíó âàðò³ñòü, ùîäî ÿêèõ áóâ íàðàõîâàíèé ïîäàòêîâèé êðåäèò ó ìèíóëèõ àáî ïîòî÷íîìó ïîäàòêîâèõ ïåð³îäàõ ïðè àíóëþâàíí³ ðåºñòðàö³¿ ïëàòíèêà ïîäàòêó íà äîäàíó âàðò³ñòü
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="11">
+				<xs:annotation>
+					<xs:documentation>
+						 Âèïèñàíà çà ùîäåííèìè ï³äñóìêàìè îïåðàö³é
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="12">
+				<xs:annotation>
+					<xs:documentation>
+						Âèïèñàíà íà âàðò³ñòü áåçîïëàòíî ïîñòàâëåíèõ òîâàð³â/ïîñëóã, îá÷èñëåíó âèõîäÿ÷è ç ð³âíÿ çâè÷àéíèõ ö³í
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="13">
+				<xs:annotation>
+					<xs:documentation>
+						Âèêîðèñòàííÿ âèðîáíè÷èõ àáî íåâèðîáíè÷èõ çàñîá³â, ³íøèõ òîâàð³â/ïîñëóã íå ó ãîñïîäàðñüê³é ä³ÿëüíîñò³
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="14">
+				<xs:annotation>
+					<xs:documentation>
+						Âèïèñàíà ïîêóïöåì (îòðèìóâà÷åì) ïîñëóã â³ä íåðåçèäåíòà
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="15">
+				<xs:annotation>
+					<xs:documentation>
+						Ñêëàäåíà íà ñóìó ïåðåâèùåííÿ ö³íè ïðèäáàííÿ òîâàð³â/ïîñëóã íàä ôàêòè÷íîþ ö³íîþ ¿õ ïîñòà÷àííÿ
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="16">
+				<xs:annotation>
+					<xs:documentation>
+						Ñêëàäåíà íà ñóìó ïåðåâèùåííÿ áàëàíñîâî¿ (çàëèøêîâî¿) âàðòîñò³ íåîáîðîòíèõ àêòèâ³â íàä ôàêòè÷íîþ ö³íîþ ¿õ ïîñòà÷àííÿ
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="17">
+				<xs:annotation>
+					<xs:documentation>
+						Ñêëàäåíà íà ñóìó ïåðåâèùåííÿ ñîá³âàðòîñò³ ñàìîñò³éíî âèãîòîâëåíèõ òîâàð³â/ïîñëóã íàä ôàêòè÷íîþ ö³íîþ ¿õ ïîñòà÷àííÿ
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="20">
+				<xs:annotation>
+					<xs:documentation>
+						ÐÊ äî ÏÍ, çàéâî ñêëàäåíî¿ íà îïåðàö³þ, çà ÿêîþ â ªÐÏÍ âæå çàðåºñòðîâàíà ÏÍ
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="21">
+				<xs:annotation>
+					<xs:documentation>
+						Ñêëàäåíà íà ïîñòà÷àííÿ ïîñëóã îòðèìóâà÷ó (ïîêóïöþ) íåðåçèäåíòó, ì³ñöå ïîñòà÷àííÿ ÿêèõ ðîçòàøîâàíå íà ìèòí³é òåðèòîð³¿ Óêðà¿íè
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- Íîâ³ òèïè íåîáõ³äí³ äëÿ ïðîåêòó -->
+	<!--Çàãàëüíèé òèï "âèä(êîä) äîêóìåíòà" Ðåºñòðó îòðèìàíèõ òà âèäàíèõ ïîäàòêîâèõ íàêëàäíèõ" âåðñ³ÿ 3 ðîçä³ë 1-->
+	<xs:simpleType name="DGKodDocROVPD3_1">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="ÏÍ">
+				<xs:annotation>
+					<xs:documentation>
+				ÏÍ - ïîäàòêîâà íàêëàäíà
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÐÊ">
+				<xs:annotation>
+					<xs:documentation>
+				ÐÊ - ðîçðàõóíîê êîðèãóâàííÿ äî ïîäàòêîâî¿ íàêëàäíî¿ (ðîçðàõóíîê êîðèãóâàííÿ ê³ëüê³ñíèõ ³ âàðò³ñíèõ ïîêàçíèê³â (äîäàòîê 2 äî ïîäàòêîâî¿ íàêëàäíî¿))
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÂÌÄ">
+				<xs:annotation>
+					<xs:documentation>
+				ÂÌÄ - âàíòàæíà ìèòíà äåêëàðàö³
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="×Ê">
+				<xs:annotation>
+					<xs:documentation>
+				×Ê - òîâàðíèé (êàñîâèé) ÷åê
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÒÊ">
+				<xs:annotation>
+					<xs:documentation>
+				ÒÊ - òðàíñïîðòíèé êâèòîê
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÃÐ">
+				<xs:annotation>
+					<xs:documentation>
+				ÃÐ - ãîòåëüíèé ðàõóíîê
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÏÇ">
+				<xs:annotation>
+					<xs:documentation>
+				ÏÇ - ðàõóíîê çà ïîñëóãè çâ'ÿçêó
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÏÎ">
+				<xs:annotation>
+					<xs:documentation>
+				ÏÎ - ïîñëóãè, âàðò³ñòü ÿêèõ âèçíà÷àºòüñÿ çà ïîêàçíèêàìè ïðèëàä³â îáë³êó
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÇÏ">
+				<xs:annotation>
+					<xs:documentation>
+				ÇÏ - çàÿâà ïëàòíèêà â³äïîâ³äíî äî ï³äïóíêòó 7.2.6 ïóíêòó 7.2 ñòàòò³ 7 Çàêîíó
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÏÍÓ">
+				<xs:annotation>
+					<xs:documentation>
+				ÏÍÓ - ïîäàòêîâà íàêëàäíà [óòî÷íåííÿ]
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÐÊÓ">
+				<xs:annotation>
+					<xs:documentation>
+				ÐÊÓ - ðîçðàõóíîê êîðèãóâàííÿ äî ïîäàòêîâî¿ íàêëàäíî¿ (ðîçðàõóíîê êîðèãóâàííÿ ê³ëüê³ñíèõ ³ âàðò³ñíèõ ïîêàçíèê³â (äîäàòîê 2 äî ïîäàòêîâî¿ íàêëàäíî¿)) [óòî÷íåííÿ]
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÂÌÄÓ">
+				<xs:annotation>
+					<xs:documentation>
+				ÂÌÄÓ - âàíòàæíà ìèòíà äåêëàðàö³ÿ [óòî÷íåííÿ]
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="×ÊÓ">
+				<xs:annotation>
+					<xs:documentation>
+				×ÊÓ - òîâàðíèé (êàñîâèé) ÷åê [óòî÷íåííÿ]
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÒÊÓ">
+				<xs:annotation>
+					<xs:documentation>
+				ÒÊÓ - òðàíñïîðòíèé êâèòîê [óòî÷íåííÿ]
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÃÐÓ">
+				<xs:annotation>
+					<xs:documentation>
+				ÃÐÓ - ãîòåëüíèé ðàõóíîê [óòî÷íåííÿ]
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÏÇÓ">
+				<xs:annotation>
+					<xs:documentation>
+				ÏÇÓ - ðàõóíîê çà ïîñëóãè çâ'ÿçêó [óòî÷íåííÿ]
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÏÎÓ">
+				<xs:annotation>
+					<xs:documentation>
+				ÏÎÓ - ïîñëóãè, âàðò³ñòü ÿêèõ âèçíà÷àºòüñÿ çà ïîêàçíèêàìè ïðèëàä³â îáë³êó [óòî÷íåííÿ]
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÇÏÓ">
+				<xs:annotation>
+					<xs:documentation>
+				ÇÏÓ - çàÿâà ïëàòíèêà â³äïîâ³äíî äî ï³äïóíêòó 7.2.6 ïóíêòó 7.2 ñòàòò³ 7 Çàêîíó [óòî÷íåííÿ]
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "âèä(êîä) äîêóìåíòà" Ðåºñòðó îòðèìàíèõ òà âèäàíèõ ïîäàòêîâèõ íàêëàäíèõ" âåðñ³ÿ 3 ðîçä³ë 2-->
+	<xs:simpleType name="DGKodDocROVPD3_2">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="ÏÍ">
+				<xs:annotation>
+					<xs:documentation>
+				ÏÍ - ïîäàòêîâà íàêëàäíà
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÐÊ">
+				<xs:annotation>
+					<xs:documentation>
+				ÐÊ - ðîçðàõóíîê êîðèãóâàííÿ äî ïîäàòêîâî¿ íàêëàäíî¿ (ðîçðàõóíîê êîðèãóâàííÿ ê³ëüê³ñíèõ ³ âàðò³ñíèõ ïîêàçíèê³â (äîäàòîê 2 äî ïîäàòêîâî¿ íàêëàäíî¿))
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÂÌÄ">
+				<xs:annotation>
+					<xs:documentation>
+				ÂÌÄ - âàíòàæíà ìèòíà äåêëàðàö³
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÏÏ">
+				<xs:annotation>
+					<xs:documentation>
+				ÏÏ - ïîäàòêîâà íàêëàäíà çà ùîäåííèìè ï³äñóìêàìè îïåðàö³é
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÇÖ">
+				<xs:annotation>
+					<xs:documentation>
+				ÇÖ - ïîäàòêîâà íàêëàäíà, âèïèñàíà íà ñóìó ïåðåâèùåííÿ çâè÷àéíî¿ ö³íè íàä ôàêòè÷íîþ
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÏÍÓ">
+				<xs:annotation>
+					<xs:documentation>
+				ÏÍÓ - ïîäàòêîâà íàêëàäíà [óòî÷íåííÿ]
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÐÊÓ">
+				<xs:annotation>
+					<xs:documentation>
+				ÐÊÓ - ðîçðàõóíîê êîðèãóâàííÿ äî ïîäàòêîâî¿ íàêëàäíî¿ (ðîçðàõóíîê êîðèãóâàííÿ ê³ëüê³ñíèõ ³ âàðò³ñíèõ ïîêàçíèê³â (äîäàòîê 2 äî ïîäàòêîâî¿ íàêëàäíî¿)) [óòî÷íåííÿ]
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÂÌÄÓ">
+				<xs:annotation>
+					<xs:documentation>
+				ÂÌÄÓ - âàíòàæíà ìèòíà äåêëàðàö³ÿ [óòî÷íåííÿ]
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÏÏÓ">
+				<xs:annotation>
+					<xs:documentation>
+				ÏÏÓ - ïîäàòêîâà íàêëàäíà çà ùîäåííèìè ï³äñóìêàìè îïåðàö³é [óòî÷íåííÿ]
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ÇÖÓ">
+				<xs:annotation>
+					<xs:documentation>
+				ÇÖÓ - ïîäàòêîâà íàêëàäíà, âèïèñàíà íà ñóìó ïåðåâèùåííÿ çâè÷àéíî¿ ö³íè íàä ôàêòè÷íîþ [óòî÷íåííÿ]
+			</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Íîìåð äëÿ íàêëàäíî¿ - ÷èñëî, ñëåø ³ ë³òåðè çö"-->
+	<xs:simpleType name="DGHNUM_N">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[0-9]+(/{1}(([0-9]+)|(çö){1}|(ÇÖ){1}))*"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 2 çíàêè êðàïêà çíàê"-->
+	<xs:simpleType name="DGKODR">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="4"/>
+			<xs:minLength value="1"/>
+			<xs:pattern value="(([1-9])|([1-9][0-9])){1}(\.[0-9]){0,1}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 2 çíàêè êðàïêà 2 çíàêè"-->
+	<xs:simpleType name="DGN2pointN2">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[0-9]{2}\.[0-9]{2}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 2 çíàêè êðàïêà 2 çíàêè" â êîëîíö³-->
+	<xs:complexType name="N2pointN2Column">
+		<xs:simpleContent>
+			<xs:extension base="DGN2pointN2">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Ì³ñÿöü ç íîëåì íà ïî÷àòêó"-->
+	<xs:simpleType name="DG0Month">
+		<xs:restriction base="xs:string">
+			<xs:length value="2"/>
+			<xs:pattern value="((0[1-9])|(1[0-2]))"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Ì³ñÿöü ³ ð³ê"-->
+	<xs:simpleType name="DGMonthYear">
+		<xs:restriction base="xs:string">
+			<xs:length value="6"/>
+			<xs:pattern value="(((0[1-9])|(1[0-2]))((19)\d{2}|(20)\d{2}))"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Äàòà ê³íåöü êâàðòàëà ó ôîðìàò³ ääììðððð"-->
+	<xs:simpleType name="DGDateEndKv">
+		<xs:restriction base="DGDate">
+			<xs:length value="8"/>
+			<xs:pattern value="((31(03|12)|(30(06|09)))(20)\d{2})"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä Ñòàí äîêóìåíòà (1, 2, 3) (1-çâ³òíèé äîêóìåíò 2-íîâèé çâ³òíèé äîêóìåíò 3-óòî÷íþþ÷èé äîêóìåíò)"-->
+	<xs:simpleType name="DGSTAN">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="1"/>
+			<xs:maxInclusive value="3"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä ²äåíòèô³êàòîð îïåðàö³¿ çàçíà÷àºòüñÿ â³äïîâ³äíî äî âèäó îïåðàö³¿:
+	0 - âíóòð³øíÿ îïåðàö³ÿ
+	1 - ³ç ñòðóêòóðíèì ï³äðîçä³ëîì
+	2 - ³ç êîíòðàãåíòîì íà îñíîâ³ öèâ³ëüíî-ïðàâîâîãî äîãîâîðó
+	3 - ³ç ô³çè÷íîþ îñîáîþ íà ï³äñòàâ³ òðóäîâîãî äîãîâîðó
+	4 -  ñàëüäî íà ïî÷àòîê ïåðåâ³ðî÷íîãî ïåð³îäó ïî âñ³õ áóõãàëòåðñüêèõ ðàõóíêàõ.	(1-04-2014)	  "-->
+	<xs:simpleType name="DGId_0_3">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="0"/>
+			<xs:maxInclusive value="4"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "²äåíòèô³êàòîð âèäó ïåðâèííîãî äîêóìåíòà"-->
+	<xs:simpleType name="DGId_1_5">
+		<xs:restriction base="xs:integer">
+			<xs:enumeration value="1">
+				<xs:annotation>
+					<xs:documentation>íàêëàäíà</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="2">
+				<xs:annotation>
+					<xs:documentation>àêò ñïèñàííÿ</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="3">
+				<xs:annotation>
+					<xs:documentation>ïëàò³æíå äîðó÷åííÿ</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="4">
+				<xs:annotation>
+					<xs:documentation>àêò âèêíàíèõ ðîá³ò</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="5">
+				<xs:annotation>
+					<xs:documentation>ïîäàòêîâà íàêëàäíà</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- Çàãàëüíèé òèï "Êîä îðãàí³çàö³éíî-ïðàâîâî¿ ôîðìè ãîñïîäàðþâàííÿ (ÎÏÔÃ)" HKOPFG -->
+	<xs:simpleType name="DGHKOPFG">
+		<xs:restriction base="xs:unsignedLong">
+			<xs:minInclusive value="100"/>
+			<xs:maxInclusive value="995"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä ÊÎÀÒÓÓ (9-10 çíàê³â)" (HKOATUU)-->
+	<xs:simpleType name="DGKOATUU">
+		<xs:restriction base="xs:unsignedLong">
+			<xs:pattern value="[0-9]{9,10}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "ÊÀÒÎÒÒÃ - Êîäèô³êàòîð àäì³í³ñòðàòèâíî-òåðèòîð³àëüíèõ îäèíèöü òà òåðèòîð³é òåðèòîð³àëüíèõ ãðîìàä (UA17 öèôð)" (HKATOTTG)-->
+	<xs:simpleType name="DGKATOTTG">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="UA[0-9]{17}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "ÊÀÒÎÒÒÃ - Êîäèô³êàòîð àäì³í³ñòðàòèâíî-òåðèòîð³àëüíèõ îäèíèöü òà òåðèòîð³é òåðèòîð³àëüíèõ ãðîìàä (UA17 öèôð) â êîëîíö³"-->
+	<xs:complexType name="KATOTTGColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGKATOTTG">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Êàäàñòðîâèé íîìåð çåìåëüíî¿ ä³ëÿíêè" (HKNEA) ÕÕÕÕÕÕÕÕÕÕ:ÕÕ:ÕÕÕ:ÕÕÕÕ-->
+	<xs:simpleType name="DGKNEA">
+		<xs:annotation>
+			<xs:documentation>
+			Êàäàñòðîâèé íîìåð çåìåëüíî¿ ä³ëÿíêè ñêëàäàºòüñÿ ç òàêèõ ñòðóêòóðíèõ åëåìåíò³â:
+			ÍÊÇ : ÍÊÊ : ÍÇÄ,
+			äå ÍÊÇ - íîìåð êàäàñòðîâî¿ çîíè
+				ÍÊÊ - íîìåð êàäàñòðîâîãî êâàðòàëó
+			Íîìåð êàäàñòðîâîãî êâàðòàëó ñêëàäàºòüñÿ ç òàêèõ ñòðóêòóðíèõ åëåìåíò³â:
+			ÍÊÇ : ÍÊÊ,
+			äå ÍÊÇ - äâàíàäöÿòèçíà÷íèé íîìåð êàäàñòðîâî¿ çîíè (ìàêñèìàëüíà ê³ëüê³ñòü êàäàñòðîâèõ çîí ñòàíîâèòü 999999999999), â ÿêîìó îñòàíí³ äâ³ öèôðè â³äîêðåìëþþòüñÿ â³ä ïåðøèõ äåñÿòè äâîêðàïêîþ;
+			ÍÊÊ - òðèçíà÷íèé íîìåð êàäàñòðîâîãî êâàðòàëó â ìåæàõ êàäàñòðîâî¿ çîíè (ìàêñèìàëüíà ê³ëüê³ñòü êàäàñòðîâèõ êâàðòàë³â ó ìåæàõ êàäàñòðîâî¿ çîíè ñòàíîâèòü 999).
+			Äëÿ íóìåðàö³¿ êàäàñòðîâî¿ çîíè çà ìåæàìè àäì³í³ñòðàòèâíî-òåðèòîð³àëüíèõ îäèíèöü âèêîðèñòîâóºòüñÿ çíà÷åííÿ 9000000000 : 00.
+			ÍÇÄ - ÷îòèðèçíà÷íèé íîìåð çåìåëüíî¿ ä³ëÿíêè â ìåæàõ êàäàñòðîâîãî êâàðòàëó (ìàêñèìàëüíà ê³ëüê³ñòü çåìåëüíèõ ä³ëÿíîê ó ìåæàõ êàäàñòðîâîãî êâàðòàëó ñòàíîâèòü 9999)
+			Ñòðóêòóðí³ åëåìåíòè êàäàñòðîâîãî íîìåðà çåìåëüíî¿ ä³ëÿíêè â³äîêðåìëþþòüñÿ îäèí â³ä îäíîãî äâîêðàïêîþ (:).
+   </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[0-9]{10}:[0-9]{2}:[0-9]{3}:[0-9]{4}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä â³ä 1 äî 4 çíàê³â ÄÐÔÎ, îçíàêà òèïó äîêóìåíòà äëÿ Ðåºñòðà íàêëàäíèõ âåðñ³¿ 2"-->
+	<xs:simpleType name="DGOsp">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="1"/>
+			<xs:maxInclusive value="4"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä 0/1 äëÿ ÄÐÔÎ"-->
+	<xs:simpleType name="DGOzn">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="0"/>
+			<xs:maxInclusive value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä 1/2 äëÿ ÄÐÔÎ òà ÏÄÂ"-->
+	<xs:simpleType name="DGOzn12">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="1"/>
+			<xs:maxInclusive value="2"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Îçíàêà äîõîäó â³ä 1 äî 66 äëÿ ÄÐÔÎ"-->
+	<xs:simpleType name="DGOdoh">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="1"/>
+			<xs:maxInclusive value="66"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Îçíàêà äîõîäó 4 ÄÔ (1-ÄÔ)" ç 11.03.2014 
+(ç 01.01.2019 ç³ çì³íàìè, âíåñåíèìè çã³äíî ç íàêàçîì Ì³í³ñòåðñòâà ô³íàíñ³â Óêðà¿íè â³ä 31.10.2018 ð. ¹ 863,
+ç 01.07.2020 ç³ çì³íàìè, âíåñåíèìè çã³äíî ç íàêàçîì Ì³í³ñòåðñòâà ô³íàíñ³â Óêðà¿íè â³ä 26.05.2020 ð. ¹ 241 (+195-197),
+ç 01.01.2021 ç³ çì³íàìè, âíåñåíèìè çã³äíî ç íàêàçîì Ì³í³ñòåðñòâà ô³íàíñ³â Óêðà¿íè â³ä 15.12.2020 ð. ¹ 773 (+198-200),
+ç 01.04.2021 ç³ çì³íàìè, âíåñåíèìè çã³äíî ç íàêàçîì Ì³í³ñòåðñòâà ô³íàíñ³â Óêðà¿íè â³ä 19.05.2021 ð. ¹ 278 (+201-203))-->
+	<xs:simpleType name="DGOdoh1DF">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="101"/>
+			<xs:maxInclusive value="203"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Îçíàêà ï³ëüãè 1-ÄÔ ç 01.01.2011"-->
+	<xs:simpleType name="DGOplg1DF">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="0([1-4]{1})"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä ï³ëüãè (8 çíàê³â)"-->
+	<xs:simpleType name="DGCodPilg">
+		<xs:restriction base="xs:unsignedLong">
+			<xs:totalDigits value="8"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Ì³ñÿöü â³ä 0 äî 12"-->
+	<xs:simpleType name="DGMonth0">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="0"/>
+			<xs:maxInclusive value="12"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "IBAN (International Bank Account Number) — ì³æíàðîäíèé íîìåð áàíê³âñüêîãî ðàõóíêó (UA27 öèôð)"-->
+	<xs:simpleType name="DGIBAN">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="UA[0-9]{27}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "IBAN — ì³æíàðîäíèé íîìåð áàíê³âñüêîãî ðàõóíêó (UA27 öèôð) â êîëîíö³"-->
+	<xs:complexType name="IBANColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGIBAN">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Êîä ÌÔÎ (6 çíàê³â)"-->
+	<xs:simpleType name="DGmfo">
+		<xs:restriction base="xs:unsignedLong">
+			<xs:totalDigits value="6"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä òðàíñïîðòíîãî çàñîáó (10 çíàê³â) (11.12.2008)"-->
+	<xs:simpleType name="DGTn-Zed">
+		<xs:restriction base="xs:unsignedLong">
+			<xs:totalDigits value="10"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä íîìåðà îáëàñò³"-->
+	<xs:simpleType name="DGreg">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="1"/>
+			<xs:maxInclusive value="29"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä çîâí³øíüîåêîíîì³÷íî¿ ä³ÿëüíîñò³ àáî "0" ÷èñëîâèé"-->
+	<xs:simpleType name="DGUKTZED">
+		<xs:restriction base="xs:integer">
+			<xs:pattern value="([0-9]){10}|([0-9]){8}|([0-9]){6}|(00[0-9]{3})|([0-9]){4}|([0])"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä çîâí³øíüîåêîíîì³÷íî¿ ä³ÿëüíîñò³ àáî "0" àáî Êîä ïîñëóãè çã³äíî ç Äåðæàâíèì êëàñèô³êàòîðîì ïðîäóêö³¿ òà ïîñëóã (ÄÊÏÏ) ÄÊ 016:2010"-->
+	<xs:simpleType name="DGUKTZED_DKPP">
+		<xs:annotation>
+			<xs:documentation>òèï "Êîä çîâí³øíüîåêîíîì³÷íî¿ ä³ÿëüíîñò³ àáî "0" àáî Êîä ïîñëóãè çã³äíî ç Äåðæàâíèì êëàñèô³êàòîðîì ïðîäóêö³¿ òà ïîñëóã (ÄÊÏÏ) ÄÊ 016:2010"</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="([0-9]){10}|([0-9]){8}|([0-9]){6}|(00[0-9]{3})|([0-9]){4}|([0])|([\d]{2}\.[\d]{2}\.[\d]{2}-[\d]{2}(\.[\d]{1,2})*)|([\d]{2}\.[\d]{2}\.[\d]{2}(-[\d]{1,2})*)|([\d]{2}\.[\d]{2}(\.[\d]{1,2})*)"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëî â³ä 10000 äî 99999"-->
+	<xs:simpleType name="DGI5">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="10000"/>
+			<xs:maxInclusive value="99999"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëî â³ä 10000 äî 99999" Êîëîíêà-->
+	<xs:complexType name="I5Column">
+		<xs:simpleContent>
+			<xs:extension base="DGI5">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "×èñëî â³ä 100000 äî 999999"-->
+	<xs:simpleType name="DGI6">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="100000"/>
+			<xs:maxInclusive value="999999"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëî â³ä 100000 äî 999999" Êîëîíêà-->
+	<xs:complexType name="I6Column">
+		<xs:simpleContent>
+			<xs:extension base="DGI6">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "×èñëî â³ä 10000000 äî 99999999"-->
+	<xs:simpleType name="DGI8">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="10000000"/>
+			<xs:maxInclusive value="99999999"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëî â³ä 1000 äî 99999"-->
+	<xs:simpleType name="DGI5i">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="1000"/>
+			<xs:maxInclusive value="99999"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëî â³ä 0 äî 999"-->
+	<xs:simpleType name="DGI3i">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="0"/>
+			<xs:maxInclusive value="999"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëî â³ä 0 äî 99"-->
+	<xs:simpleType name="DGI2i">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="0"/>
+			<xs:maxInclusive value="99"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "10 çíà÷íå ö³ëå äîäàòíå ÷èñëî 10öèôð (âèêîðèñòàííÿ: ô³ñêàëüíèé íîìåð ÐÐÎ)"-->
+	<xs:simpleType name="DGI10">
+		<xs:restriction base="xs:unsignedLong">
+			<xs:minInclusive value="1000000000"/>
+			<xs:maxInclusive value="9999999999"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "10 çíà÷íå ö³ëå äîäàòíå ÷èñëî 10öèôð (âèêîðèñòàííÿ: ô³ñêàëüíèé íîìåð ÐÐÎ, 10 çíà÷íèé ÓÊÒÇÅÄ)" â êîëîíö³-->
+	<xs:complexType name="I10Column">
+		<xs:simpleContent>
+			<xs:extension base="DGI10">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "5 çíà÷íå ö³ëå äîäàòíå ÷èñëî"-->
+	<xs:simpleType name="DGint5">
+		<xs:restriction base="xs:unsignedLong">
+			<xs:totalDigits value="5"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "2 çíà÷íå ö³ëå äîäàòíå ÷èñëî"-->
+	<xs:simpleType name="DGint2">
+		<xs:restriction base="xs:unsignedLong">
+			<xs:totalDigits value="2"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "3 çíà÷íå ö³ëå äîäàòíå ÷èñëî"-->
+	<xs:simpleType name="DGint3">
+		<xs:restriction base="xs:unsignedLong">
+			<xs:totalDigits value="3"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï êîä ïîñëóãè  çã³äíî ç Êëàñèô³êàö³ºþ çîâí³øíüî-åêîíîì³÷íèõ ïîñëóã ÊÇÅÏ àáî 0-->
+	<xs:simpleType name="DGkzep0">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="([0-9]{2}\.[0-9]{2}[a-d]{0,1}(\.[0-9]{2}[a-d]{0,1}){0,1})|([0])"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï êîä çà Äåðæàâíèì êëàñèô³êàòîðîì ïðîäóêö³¿ òà ïîñëóã ÄÊÏÏ, àáî 0-->
+	<xs:simpleType name="DGdkpp0">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	<xs:complexType name="DKPP0Column">
+		<xs:simpleContent>
+			<xs:extension base="DGdkpp0">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Êîä ïîñëóãè çã³äíî ç Äåðæàâíèì êëàñèô³êàòîðîì ïðîäóêö³¿ òà ïîñëóã (ÄÊÏÏ)"-->
+	<xs:simpleType name="DGDKPP">
+		<xs:annotation>
+			<xs:documentation>
+				Çàãàëüíèé òèï "Êîä ïîñëóãè çã³äíî ç Äåðæàâíèì êëàñèô³êàòîðîì ïðîäóêö³¿ òà ïîñëóã" 
+                  ôîðìàò çíà÷åííÿ XX.XX.XX-XX.XX
+                  Ïðèêëàäè ïðàâèëüíèõ êîä³â:
+                    11.22  11.22.3  11.22.33  11.22.33-4  11.22.33-44  11.22.33-44.5 11.22.33-44.55
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="([\d]{2}\.[\d]{2}\.[\d]{2}-[\d]{2}(\.[\d]{1,2})*)|([\d]{2}\.[\d]{2}\.[\d]{2}(-[\d]{1,2})*)|([\d]{2}\.[\d]{2}(\.[\d]{1,2})*)"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="DKPPColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGDKPP">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "ÊÂÅÄ"-->
+	<xs:simpleType name="DGkved">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="7"/>
+			<xs:minLength value="4"/>
+			<xs:pattern value="([0-9]{2})(\.)((([0-9])|([0-9]{2}))|((([0-9]{2}))(\.[0-9])))"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Îçíàêà" â³äì³òêà-->
+	<xs:simpleType name="DGchk">
+		<xs:restriction base="xs:int">
+			<xs:enumeration value="1"/>
+			<!--<xs:maxLength value="1"/>-->
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Ì³ñÿöü"-->
+	<xs:simpleType name="DGMonth">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="1"/>
+			<xs:maxInclusive value="12"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Äåíü ì³ñÿöÿ"-->
+	<xs:simpleType name="DGDM">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="1"/>
+			<xs:maxInclusive value="31"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êâàðòàë"-->
+	<xs:simpleType name="DGKv">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="1"/>
+			<xs:maxInclusive value="4"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Òèï çâ³òíoãî ïåð³îäó"-->
+	<xs:simpleType name="DGPType">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="1"/>
+			<xs:maxInclusive value="5"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Ð³ê"-->
+	<xs:simpleType name="DGYear">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="1981"/>
+			<xs:maxInclusive value="2099"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Ð³ê íàðîäæåííÿ"-->
+	<xs:simpleType name="DGNYear">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="1900"/>
+			<xs:maxInclusive value="2099"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Ð³ê âèïóñêó, ñòâîðåííÿ, ..."-->
+	<xs:simpleType name="DGMadeYear">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="1800"/>
+			<xs:maxInclusive value="2099"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Íàçâà ï³äïðèºìñòâà"-->
+	<xs:simpleType name="DGHNAME">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Àäðåñà ï³äïðèºìñòâà"-->
+	<xs:simpleType name="DGHLOC">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä ì³ñòà"-->
+	<xs:simpleType name="DGHZIP">
+		<xs:restriction base="xs:unsignedLong">
+			<xs:pattern value="([0-9]{5,5})"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Åëåêòðîííà ïîøòà"-->
+	<xs:simpleType name="DGHEMAIL">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[^@]+@[^@]+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Íîìåð òåëåôîíà"-->
+	<xs:simpleType name="DGHTEL">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[0-9 ()\-+\.,;]{4,}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Íîìåð ôàêñà"-->
+	<xs:simpleType name="DGHFAX">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[0-9 ()\-+\.,;]{4,}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Íàçâà ÄÏ²"-->
+	<xs:simpleType name="DGHSTI">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Íàçâà ÄÏ², äî ÿêîãî ïîäàºòüñÿ êîï³ÿ ïîäàòêîâîãî äîêóìåíòà äî â³äîìà"-->
+	<xs:simpleType name="DGhSTI_copy">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëîâèé 0" 0, 0.0, àáî 0.00-->
+	<xs:simpleType name="DGdecimalZero">
+		<xs:restriction base="xs:decimal">
+			<xs:pattern value="0(\.0{1,2}){0,1}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "ïðîöåíòè ðîçïîä³ëó, ïèòîìà âàãà, ÷èñëîâ³ äàí³, ìîæëèâî ç 2 çíàêàìè ï³ñëÿ êîìè, â³ä 0 äî 100 âêëþ÷íî"-->
+	<xs:simpleType name="DGpercentAlloc">
+		<xs:restriction base="xs:decimal">
+			<xs:minInclusive value="0.00"/>
+			<xs:maxInclusive value="100.00"/>
+			<xs:pattern value="\-{0,1}[0-9]+\.[0-9]{2}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Ïðîöåíòè (÷èñëîâ³ äàí³ â³ä 0 äî 100 âêëþ÷íî ç 2 çíàêàìè ï³ñëÿ êîìè â êîëîíö³)"-->
+	<xs:complexType name="percentColumn">
+		<xs:annotation>
+			<xs:documentation>Ïðîöåíòè (÷èñëîâ³ äàí³ â³ä 0 äî 100 âêëþ÷íî ç 2 çíàêàìè ï³ñëÿ êîìè â êîëîíö³)</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="DGpercentAlloc">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 0 çíàêè ï³ñëÿ êîìè"-->
+	<xs:simpleType name="DGdecimal0">
+		<xs:restriction base="xs:decimal">
+			<xs:pattern value="\-{0,1}[0-9]+(\.0{1,2}){0,1}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 1 çíàêè ï³ñëÿ êîìè"-->
+	<xs:simpleType name="DGdecimal1">
+		<xs:restriction base="xs:decimal">
+			<xs:pattern value="\-{0,1}[0-9]+\.[0-9]{1,2}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 2 çíàêè ï³ñëÿ êîìè"-->
+	<xs:simpleType name="DGdecimal2">
+		<xs:restriction base="xs:decimal">
+			<xs:pattern value="\-{0,1}[0-9]+\.[0-9]{2}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Ïîçèòèâí³ ÷èñëîâ³ äàí³ 2 çíàêè ï³ñëÿ êîìè"-->
+	<xs:simpleType name="DGdecimal2_P">
+		<xs:restriction base="xs:decimal">
+			<xs:pattern value="[0-9]+\.[0-9]{2}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 3 çíàêè ï³ñëÿ êîìè"-->
+	<xs:simpleType name="DGdecimal3">
+		<xs:restriction base="xs:decimal">
+			<xs:pattern value="\-{0,1}[0-9]+\.[0-9]{3}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 4 çíàêè ï³ñëÿ êîìè"-->
+	<xs:simpleType name="DGdecimal4">
+		<xs:restriction base="xs:decimal">
+			<xs:pattern value="\-{0,1}[0-9]+\.[0-9]{4}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 5 çíàêè ï³ñëÿ êîìè"-->
+	<xs:simpleType name="DGdecimal5">
+		<xs:restriction base="xs:decimal">
+			<xs:pattern value="\-{0,1}[0-9]+\.[0-9]{5}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 6 çíàêè ï³ñëÿ êîìè"-->
+	<xs:simpleType name="DGdecimal6">
+		<xs:restriction base="xs:decimal">
+			<xs:pattern value="\-{0,1}[0-9]+\.[0-9]{6}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 8 çíàêè ï³ñëÿ êîìè"-->
+	<xs:simpleType name="DGdecimal8">
+		<xs:restriction base="xs:decimal">
+			<xs:pattern value="\-{0,1}[0-9]+(\.[0-9]{1,8}){0,1}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 6 çíàêè ï³ñëÿ êîìè ñïåö"-->
+	<xs:simpleType name="DGdecimal6_R">
+		<xs:restriction base="xs:decimal">
+			<xs:pattern value="\-{0,1}[0-9]+(\.[0-9]{1,6}){0,1}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 12 çíàêè ï³ñëÿ êîìè ñïåö"-->
+	<xs:simpleType name="DGdecimal12_R">
+		<xs:restriction base="xs:decimal">
+			<xs:pattern value="\-{0,1}[0-9]+(\.[0-9]{1,12}){0,1}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 13 çíàêè ï³ñëÿ êîìè ñïåö"-->
+	<xs:simpleType name="DGdecimal13_R">
+		<xs:restriction base="xs:decimal">
+			<xs:pattern value="\-{0,1}[0-9]+(\.[0-9]{1,13}){0,1}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "5-10-15 íåîïîäàòêîâóâàíèõ ì³í³ìóì³â "-->
+	<xs:simpleType name="DG5-10-15nmg">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="2"/>
+			<xs:enumeration value="5"/>
+			<xs:enumeration value="10"/>
+			<xs:enumeration value="15"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä ÄÐÔÎ ô³çè÷íî¿ îñîáè äîïóñêàºòüñÿ ÷èñëîâèé êîä, àáî ¹ ïàñïîðòà"-->
+	<xs:simpleType name="DGDrfo">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="10"/>
+			<xs:pattern value="([0-9]{5,10}|[ÀÁÂÃÄÅªÆÇÈ²ÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÞß]{2}[0-9]{6})"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Ðåºñòðàö³éíèé íîìåð îáë³êîâî¿ êàðòêè ïëàòíèêà ïîäàòê³â (10 öèôð ç ë³äèðóþ÷èì íóëåì) àáî ñåð³ÿ òà íîìåð ïàñïîðòà àáî íîìåð ïàñïîðòà ó âèãëÿä³ ID êàðòêè"-->
+	<xs:simpleType name="DGDRFO_10">
+		<xs:annotation>
+			<xs:documentation>Ðåºñòðàö³éíèé íîìåð îáë³êîâî¿ êàðòêè ïëàòíèêà ïîäàòê³â</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="10"/>
+			<xs:pattern value="([0-9]{10}|[ÀÁÂÃÄÅªÆÇÈ²ÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÞß]{2}[0-9]{6}|[0-9]{9})"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Íîìåð îáë³êîâî¿ êàðòêè çàñòðàõîâàíî¿ îñîáè (íîìåð ÇÎ)(Ïåíñ³éíèé Ôîíä Óêðà¿íè)"-->
+	<xs:simpleType name="DGNUMZO">
+		<xs:annotation>
+			<xs:documentation>Ðåºñòðàö³éíèé íîìåð îáë³êîâî¿ êàðòêè çàñòðàõîâàíî¿ îñîáè</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="([0-9]{10}|[ÀÁÂÃÄÅªÆÇÈ²ÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÞßàáâãäåºæçè³êëìíîïðñòóôõö÷øùþÿ]{3} [0-9]{6}|ÁÊ[ÀÁÂÃÄÅªÆÇÈ²ÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÞß]{2}[0-9]{6}|F[A-Za-zÀÁÂÃ¥ÄÅªÆÇÈ²¯ÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÞßÜÛÚ¨Ýàáâã´äåºæçè³¿êëìíîïðñòóôõö÷øùþÿüûú¸ý0-9]+|Ï[0-9]{9})"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "¹ äîãîâîðó ïðî äîáðîâ³ëüíó  ó÷àñòü  ó ñèñòåì³ çàãàëüíîîáîâ'ÿçêîâîãî äåðæàâíîãî ñîö³àëüíîãî ñòðàõóâàííÿ (Ïåíñ³éíèé Ôîíä Óêðà¿íè)"-->
+	<xs:simpleType name="DGNUMdduszss">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="([ÀÁÂÃÄÅªÆÇÈ²ÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÞßàáâãäåºæçè³êëìíîïðñòóôõö÷øùþÿ]{3} [0-9]{6})"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Îçíàêà ñåçîí (Ïåíñ³éíèé Ôîíä Óêðà¿íè)"-->
+	<xs:simpleType name="DGSEAZON">
+		<xs:restriction base="xs:integer">
+			<xs:enumeration value="1"/>
+			<xs:enumeration value="2"/>
+			<xs:enumeration value="3"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "ñåð³ÿ òà ¹ ïàñïîðòà" (HPASS)-->
+	<xs:simpleType name="DGPass">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="9"/>
+			<xs:pattern value="[ÀÁÂÃÄÅªÆÇÈ²ÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÞß]{2}[0-9]{6}|[0-9]{9}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "ñåð³ÿ ïàñïîðòà" (HPASSSER)-->
+	<xs:simpleType name="DGPassSer">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="2"/>
+			<xs:pattern value="[ÀÁÂÃÄÅªÆÇÈ²ÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÞß]{2}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "ñåð³ÿ ïàñïîðòà" â êîëîíö³-->
+	<xs:complexType name="PassSerColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGPassSer">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "¹ ïàñïîðòà" (HPASSNUM)-->
+	<xs:simpleType name="DGPassNum">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="9"/>
+			<xs:pattern value="[0-9]{6}|[0-9]{9}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "¹ ïàñïîðòà" â êîëîíö³-->
+	<xs:complexType name="PassNumColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGPassNum">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Îçíàêà äæåðåëà ïîäàòêîâîãî íîìåðà" - ×èñëî â³ä 1 äî 4-->
+	<xs:simpleType name="DGSourceTaxNum">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="1"/>
+			<xs:maxInclusive value="4"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï â êîëîíö³ "Îçíàêà äæåðåëà ïîäàòêîâîãî íîìåðà" - ×èñëî â³ä 1 äî 4-->
+	<xs:complexType name="SourceTaxNumColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGSourceTaxNum">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Êîä ªÄÐÏÎÓ (òiëüêè ÷èñëà-ïîðîäæåíèé â³ä string, ïîäàòêîâèé íîìåð)"-->
+	<xs:simpleType name="DGNLong">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="10"/>
+			<xs:pattern value="([0-9]{5,10})"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä ªÄÐÏÎÓ (ÄÐÔÎ ï³äïðèºìöÿ: ÷èñëà, àáî ¹ ïàñïîðòà)"-->
+	<xs:simpleType name="DGLong">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="10"/>
+			<xs:pattern value="([0-9]{5,10}|[ÀÁÂÃÄÅªÆÇÈ²ÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÞß]{2}[0-9]{6})"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä ªÄÐÏÎÓ (ÄÐÔÎ ï³äïðèºìöÿ: ÷èñëà, àáî ¹ ïàñïîðòà ç ÁÊ òà íîìåð ID êàðòè ç Ï) Äëÿ Ïåíñ³éíîãî ôîíäó"-->
+	<xs:simpleType name="DGLong_pfu">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="10"/>
+			<xs:pattern value="([0-9]{5,10}|ÁÊ[ÀÁÂÃÄÅªÆÇÈ²ÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÞß]{2}[0-9]{6}|Ï[0-9]{9})"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï " Êîä HTINJ (²äåíòèô³êàö³éíèé êîä ïëàòíèêà çã³äíî ç ªÄÐÏÎÓ)"-->
+	<xs:simpleType name="DGHTINJ">
+		<xs:annotation>
+			<xs:documentation>Êîä ïëàòíèêà çã³äíî ç ªÄÐÏÎÓ</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="DGNLong"/>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä HTINF (²äåíòèô³êàö³éíèé íîìåð ïëàòíèêà çã³äíî ç ÄÐÔÎ) (çì³íè 20180725)"-->
+	<xs:simpleType name="DGHTINF">
+		<xs:annotation>
+			<xs:documentation>Ðåºñòðàö³éíèé íîìåð îáë³êîâî¿ êàðòêè ïëàòíèêà ïîäàòê³â</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="DGDRFO_10"/>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä HTINF (²äåíòèô³êàö³éíèé íîìåð ïëàòíèêà çã³äíî ç ÄÐÔÎ, àáî ¹ïàñïîðòà ç ÁÊ) Äëÿ Ïåíñ³éíîãî ôîíäó"-->
+	<xs:simpleType name="DGHTINF_pfu">
+		<xs:restriction base="DGLong_pfu"/>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä HTINSD (Ðåºñòðàö³éíèé (îáë³êîâèé) íîìåð ïëàòíèêà )"-->
+	<xs:simpleType name="DGHTINSD">
+		<xs:restriction base="DGLong"/>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä HTINNR (²äåíòèô³êàö³éíèé êîä ïðåäñòàâíèöòâa íåðåçèäåíòà, ùî íå ìàº ñòàòóñó þðèäè÷íî¿ îñîáè)"-->
+	<xs:simpleType name="DGHTINNR">
+		<xs:restriction base="DGNLong"/>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "²íäèâ³äóàëüíèé ïîäàòêîâèé íîìåð "-->
+	<xs:simpleType name="DGLong12">
+		<xs:restriction base="xs:unsignedLong">
+			<xs:minInclusive value="1000"/>
+			<xs:maxInclusive value="999999999999"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä HNPDV (²íäèâ³äóàëüíèé ïîäàòêîâèé íîìåð ïëàòíèêà ÏÄÂ)"-->
+	<xs:simpleType name="DGHNPDV">
+		<xs:restriction base="DGLong12"/>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "²íäèâ³äóàëüíèé ïîäàòêîâèé íîìåð ïëàòíèêà ÏÄÂ" (20180706)-->
+	<xs:simpleType name="DGIpnPDV">
+		<xs:annotation>
+			<xs:documentation>²íäèâ³äóàëüíèé ïîäàòêîâèé íîìåð ïëàòíèêà ÏÄÂ</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:unsignedLong">
+			<xs:minInclusive value="100000000"/>
+			<xs:maxInclusive value="999999999999"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Êîìïëåêñíèé òèï "²íäèâ³äóàëüíèé ïîäàòêîâèé íîìåð ïëàòíèêà ÏÄÂ" â êîëîíö³ (20180706)-->
+	<xs:complexType name="IpnPDVColumn">
+		<xs:annotation>
+			<xs:documentation>²íäèâ³äóàëüíèé ïîäàòêîâèé íîìåð ïëàòíèêà ÏÄÂ â êîëîíö³</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="DGIpnPDV">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!-- Çàãàëüíèé òèï "Óí³êàëüíèé íîìåð çàïèñó â ªäèíîìó äåðæàâíîìó äåìîãðàô³÷íîìó ðåºñòð³" -->
+	<xs:simpleType name="DGUNZR">
+		<xs:annotation>
+			<xs:documentation>Óí³êàëüíèé íîìåð çàïèñó â ªäèíîìó äåðæàâíîìó äåìîãðàô³÷íîìó ðåºñòð³ (ÓÍÇÐ)</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:length value="14"/>
+			<xs:pattern value="(((\d{4}((0[13578]|1[02])(0[1-9]|[12]\d|3[01])|(0[13456789]|1[012])(0[1-9]|[12]\d|30)|02(0[1-9]|1\d|2[0-8])))|((([02468][048]|[13579][26])00|\d{2}([13579][26]|0[48]|[2468][048])))0229))\-(000[1-9]\d|00[1-9]\d\d|0[1-9]\d{2}\d|[1-9]\d{3}\d)"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- Çàãàëüíèé òèï "Óí³êàëüíèé íîìåð çàïèñó â ªäèíîìó äåðæàâíîìó äåìîãðàô³÷íîìó ðåºñòð³" äëÿ êîëîíêè" -->
+	<xs:complexType name="DGUNZR_Column">
+		<xs:annotation>
+			<xs:documentation>Óí³êàëüíèé íîìåð çàïèñó â ªäèíîìó äåðæàâíîìó äåìîãðàô³÷íîìó ðåºñòð³ (ÓÍÇÐ) â êîëîíö³ òàáëèö³</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="DGUNZR">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "²íäèâ³äóàëüíèé ïîäàòêîâèé íîìåð ïëàòíèêà"-->
+	<xs:simpleType name="DGHIPN">
+		<xs:restriction base="DGLong12"/>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "²íäèâ³äóàëüíèé ïîäàòêîâèé íîìåð ïëàòíèêà ç ìîæëèâ³ñòþ âíåñåííÿ 0(íóëÿ)"-->
+	<xs:simpleType name="DGHIPN0">
+		<xs:annotation>
+			<xs:documentation>
+			Â³äïîâ³äíî äî Ïîëîæåííÿ ïðî ðåºñòðàö³þ ïëàòíèê³â ïîäàòêó íà äîäàíó âàðò³ñòü, ï.6.3 íàêàç ÄÏÀÓ â³ä 22.12.2010 ¹ 978
+			²íäèâ³äóàëüíèé ïîäàòêîâèé íîìåð ïëàòíèêà, ìîæëèâ³ çíà÷åííÿ:
+			* 0 (íóëü)
+			* ÷èñëî â³ä 6 äî 12 ÷èñåë
+			* ¹ ïàñïîðòà
+		</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="(0)|([0-9]{6,12})|([ÀÁÂÃÄÅªÆÇÈ²ÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÞß]{2}[0-9]{6})"/>
+		</xs:restriction>
+		<!-- 17.02.2011 ìîäèô³êîâàíî â³äïîâ³äíî äî ëèñòà â³ä 17.02.11 ¹ 28-0517/61 -->
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä HNSPDV (íîìåð ñâ³äîöòâà ïðî ðåºñòðàö³þ ïëàòíèêà ÏÄÂ)"-->
+	<xs:simpleType name="DGHNSPDV">
+		<xs:restriction base="xs:unsignedLong">
+			<xs:minInclusive value="0"/>
+			<xs:maxInclusive value="9999999999"/>
+		</xs:restriction>
+		<!-- 30.12.2010 Âíåñåíî ìîæëèâ³ñòü âíîñèòè 0 â³äïîâ³äíî äî ï.8 íàêàçó ÄÏÀÓ â³ä 21.12.2010 N969 -->
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä HDDGVSD (Äàòà äîãîâîðó ïðî ñï³ëüíó (ñóì³ñíó) ä³ÿëüí³ñòü)"-->
+	<xs:simpleType name="DGHDDGVSD">
+		<xs:restriction base="DGDate"/>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä HNDGVSD (¹ äîãîâîðó ïðî ñï³ëüíó (ñóì³ñíó) ä³ÿëüí³ñòü)"-->
+	<xs:simpleType name="DGHNDGVSD">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä HTINUM (ïîäàòêîâèé íîìåð ïëàòíèêà, ùî ïðîâîäèòü óïðàâë³ííÿ ìàéíîì)"-->
+	<xs:simpleType name="DGHTINUM">
+		<xs:restriction base="xs:unsignedLong">
+			<xs:minInclusive value="1"/>
+			<xs:maxInclusive value="9999999999"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä HDDGVUM (Äàòà äîãîâîðó ïðî óïðàâë³ííÿ ìàéíîì )"-->
+	<xs:simpleType name="DGHDDGVUM">
+		<xs:restriction base="DGDate"/>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä HNDGVUM (¹ äîãîâîðó ïðî óïðàâë³ííÿ ìàéíîì)"-->
+	<xs:simpleType name="DGHNDGVUM">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä ÄÐÔÎ äèðåêòîðà"-->
+	<xs:simpleType name="DGHKBOS">
+		<xs:restriction base="DGDrfo"/>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Ï²Á äèðåêòîðà"-->
+	<xs:simpleType name="DGHBOS">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä ÄÐÔÎ áóõãàëòåðà"-->
+	<xs:simpleType name="DGHKBUH">
+		<xs:restriction base="DGDrfo"/>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Ï²Á áóõãàëòåðà"-->
+	<xs:simpleType name="DGHBUH">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Ï²Á ô³çè÷íî¿ îñîáè"-->
+	<xs:simpleType name="DGHFO">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä òåðèòîð³àëüíî¿ îäèíèö³ îáëàñíîãî àáî ðàéîííîãî ð³âíÿ"-->
+	<xs:simpleType name="DGsti">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="0"/>
+			<xs:maxInclusive value="99"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Äàòà ó ôîðìàò³ ääììðððð" ÐÅÄÀÃÓÂÀÍÍß 13.02.2008-->
+	<xs:simpleType name="DGDate">
+		<xs:restriction base="xs:string">
+			<xs:length value="8"/>
+			<xs:pattern value="((((0[1-9]|[1-2][0-9])(0(1|[3-9])|1[0-2]))|(30(0(1|[3-9])|1[0-2]))|(31(01|03|05|07|08|10|12)))(19|20)\d{2})|((0[1-9]|[1-2][0-9])02(19|20)(([0|2|4|6|8][0|4|8])|([1|3|5|7|9][2|6]))|(0[1-9]|[1-2][0-8]|19)02(19|20)(([0|2|4|6|8][1-3|5-7|9])|([1|3|5|7|9][0-1|3-5|7-9])))"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Êîä [ÍÀÇÂÈ, ÊËÀÑÓ ÍÅÁÅÇÏÅ×ÍÎÑÒ², ÃÐÀÍÈ×ÍÎÄÎÏÓÑÒÈÌÎ¯ ÊÎÍÖÅÍÒÐÀÖ²¯, ÎÐ²ªÍÒÎÂÍÎ ÁÅÇÏÅ×ÍÈÉ Ð²ÂÅÍÜ ÂÏËÈÂÓ - ÇÀÁÐÓÄÍÞÞ×Î¯ ÐÅ×ÎÂÈÍÈ, ÊËÀÑ ÍÅÁÅÇÏÅÊÈ ÒÀ Ð²ÂÅÍÜ ÍÅÁÅÇÏÅ×ÍÎÑÒ² Â²ÄÕÎÄ²Â]" -->
+	<xs:simpleType name="DGecoCodePollution">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[0-9]{3}\.[0-9]\.[0-9]{3}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï àòðèáóòó ROWNUM äëÿ âêàçàííÿ íîìåðó ñòðîêè â òàáëè÷íèõ äàíèõ-->
+	<xs:simpleType name="rowInt">
+		<xs:restriction base="xs:int">
+			<xs:minInclusive value="1"/>
+			<xs:maxInclusive value="999999"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüí³ ñïåöèô³÷í³ òèïè äëÿ åë.äîêóìåíò³â ñòðóêòóðíèõ ï³äðîçä³ë³â ç ïèòàíü ñîö³àëüíîãî çàõèñòó íàñåëåííÿ (structural divisions on social protection) - SDSP -->
+	<!--Çàãàëüíèé òèï "Òèï çàïèòó - ³íôîðìàö³¿ ç Äåðæàâíîãî ðåºñòðó ô³çè÷íèõ îñ³á - ïëàòíèê³â ïîäàòê³â ïðî äæåðåëà òà ñóìè îòðèìàíèõ äîõîä³â ô³çè÷íèõ îñ³á, 
+ÿê³ çâåðíóëèñü çà ïðèçíà÷åííÿì ñóáñèä³é àáî ÿê³ íàäàþòü ñîö³àëüí³ ïîñëóãè" -->
+	<xs:simpleType name="DGSDSPtypeQuest">
+		<xs:annotation>
+			<xs:documentation>
+			òèï çàïèòó,	ïðèéìàº çíà÷åííÿ:
+				1 - äëÿ íàðàõóâàííÿ ñóáñèä³é;
+				2 - äëÿ ïðîâåäåííÿ ïåðåâ³ðêè äîñòîâ³ðíîñò³ ïðèçíà÷åíèõ ñóáñèä³é;
+				81 - äëÿ ïðîâåäåííÿ ïåðåâ³ðêè ïðèçíà÷åííÿ äåðæàâíî¿ äîïîìîãè.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="1"/>
+			<xs:enumeration value="2"/>
+			<xs:enumeration value="81"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï "Ðåçóëüòàò îáðîáêè çàïèòó - â³äïîâ³äü ïðî äæåðåëà òà ñóìè îòðèìàíèõ äîõîä³â ô³çè÷íèõ îñ³á, ÿê³ çâåðíóëèñü çà ïðèçíà÷åííÿì ñóáñèä³é àáî ÿê³ íàäàþòü ñîö³àëüí³ ïîñëóãè" -->
+	<xs:simpleType name="DGSDSPresultProc">
+		<xs:annotation>
+			<xs:documentation>Ðåçóëüòàò îáðîáêè çàïèòó ìîæå ïðèéìàòè íàñòóïí³ çíà÷åííÿ: 
+				0 – ³íôîðìàö³þ íàäàíî ó ôàéë³ – â³äïîâ³ä³; 
+				Â³äïîâ³äü íå íàäàíî ç ïðè÷èíè: 
+				1, ...  (êîä ïðè÷èíè)
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[0-9]{1,2}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="SDSPresultProcColumn">
+		<xs:annotation>
+			<xs:documentation>
+			Òàáëè÷íå ïîëå, â³äïîâ³äíîãî ïðîñòîãî òèïó
+			</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="DGSDSPresultProc">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Ïî÷àòîê ïåð³îäó: ì³ñÿöü	Ìîæå ïðèéìàòè çíà÷åííÿ: 1,4,7,10" -->
+	<xs:simpleType name="DGSDSPperiodBeg">
+		<xs:annotation>
+			<xs:documentation>
+			Ïî÷àòîê ïåð³îäó: ì³ñÿöü	
+			Ìîæå ïðèéìàòè çíà÷åííÿ: 1,4,7,10
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:int">
+			<xs:enumeration value="1"/>
+			<xs:enumeration value="4"/>
+			<xs:enumeration value="7"/>
+			<xs:enumeration value="10"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="SDSPperiodBegColumn">
+		<xs:annotation>
+			<xs:documentation>
+			Òàáëè÷íå ïîëå, â³äïîâ³äíîãî ïðîñòîãî òèïó
+			</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="DGSDSPperiodBeg">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Ê³íåöü ïåð³îäó: ì³ñÿöü	Ìîæå ïðèéìàòè çíà÷åííÿ: 3,6,9,12" -->
+	<xs:simpleType name="DGSDSPperiodEnd">
+		<xs:annotation>
+			<xs:documentation>
+			Ïî÷àòîê ïåð³îäó: ì³ñÿöü	
+			Ìîæå ïðèéìàòè çíà÷åííÿ: 3,6,9,12
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:int">
+			<xs:enumeration value="3"/>
+			<xs:enumeration value="6"/>
+			<xs:enumeration value="9"/>
+			<xs:enumeration value="12"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="SDSPperiodEndColumn">
+		<xs:annotation>
+			<xs:documentation>
+			Òàáëè÷íå ïîëå, â³äïîâ³äíîãî ïðîñòîãî òèïó
+			</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="DGSDSPperiodEnd">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Îïèñ êîìïëåêñíèõ òèï³â ÿê³ âèêîðèñòîâóþòüñÿ äëÿ êîíòðîëþ òàáëè÷íèõ äàíèõ-->
+	<!--òèï "ñòàòóñ îñîáè - ñòîðîíè êîíòðîëüîâàíî¿ îïåðàö³¿ çàëåæíî â³ä êðà¿íè ðåºñòðàö³¿:
+	 "ðåçèäåíò" - ïîçíà÷êà "Ð", "íåðåçèäåíò" - ïîçíà÷êà "Í"" â êîëîíö³-->
+	<xs:complexType name="StatusColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGStatus">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Êîä ÅÄÐÏÎÓ(ÄÐÔÎ) â êîëîíö³"-->
+	<xs:complexType name="TinColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGLong">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Ðåºñòðàö³éíèé íîìåð îáë³êîâî¿ êàðòêè ïëàòíèêà ïîäàòê³â (10 öèôð ç ë³äèðóþ÷èì íóëåì) àáî ñåð³ÿ òà íîìåð ïàñïîðòà àáî íîìåð ïàñïîðòà ó âèãëÿä³ ID êàðòêè â êîëîíö³"-->
+	<xs:complexType name="DRFO_10Column">
+		<xs:simpleContent>
+			<xs:extension base="DGDRFO_10">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Êîä ÅÄÐÏÎÓ â êîëîíö³"-->
+	<xs:complexType name="EDRPOUColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGNLong">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "êîä ïîñëóãè çã³äíî ç Êëàñèô³êàö³ºþ çîâí³øíüîåêîíîì³÷íèõ ïîñëóã" ÊÇÅÏ, àáî 0 -->
+	<xs:complexType name="DGkzep0Column">
+		<xs:simpleContent>
+			<xs:extension base="DGkzep0">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³"-->
+	<xs:complexType name="DecimalColumn">
+		<xs:simpleContent>
+			<xs:extension base="xs:decimal">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 0 çíàêè ï³ñëÿ êîìè"-->
+	<xs:complexType name="Decimal0Column">
+		<xs:simpleContent>
+			<xs:extension base="DGdecimal0">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 1 çíàêè ï³ñëÿ êîìè"-->
+	<xs:complexType name="Decimal1Column">
+		<xs:simpleContent>
+			<xs:extension base="DGdecimal1">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 2 çíàêè ï³ñëÿ êîìè"-->
+	<xs:complexType name="Decimal2Column">
+		<xs:simpleContent>
+			<xs:extension base="DGdecimal2">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Ïîçèòèâí³ ÷èñëîâ³ äàí³ 2 çíàêè ï³ñëÿ êîìè â êîëîíö³"-->
+	<xs:complexType name="Decimal2Column_P">
+		<xs:simpleContent>
+			<xs:extension base="DGdecimal2_P">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 3 çíàêè ï³ñëÿ êîìè"-->
+	<xs:complexType name="Decimal3Column">
+		<xs:simpleContent>
+			<xs:extension base="DGdecimal3">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 4 çíàêè ï³ñëÿ êîìè"-->
+	<xs:complexType name="Decimal4Column">
+		<xs:simpleContent>
+			<xs:extension base="DGdecimal4">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 5 çíàêè ï³ñëÿ êîìè"-->
+	<xs:complexType name="Decimal5Column">
+		<xs:simpleContent>
+			<xs:extension base="DGdecimal5">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 6 çíàêè ï³ñëÿ êîìè"-->
+	<xs:complexType name="Decimal6Column">
+		<xs:simpleContent>
+			<xs:extension base="DGdecimal6">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 8 çíàêè ï³ñëÿ êîìè"-->
+	<xs:complexType name="Decimal8Column">
+		<xs:simpleContent>
+			<xs:extension base="DGdecimal8">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 6 çíàêè ï³ñëÿ êîìè ñïåö"-->
+	<xs:complexType name="Decimal6Column_R">
+		<xs:simpleContent>
+			<xs:extension base="DGdecimal6_R">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 12 çíàêè ï³ñëÿ êîìè ñïåö"-->
+	<xs:complexType name="Decimal12Column_R">
+		<xs:simpleContent>
+			<xs:extension base="DGdecimal12_R">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "×èñëîâ³ äàí³ 13 çíàêè ï³ñëÿ êîìè ñïåö"-->
+	<xs:complexType name="Decimal13Column_R">
+		<xs:simpleContent>
+			<xs:extension base="DGdecimal13_R">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Ì³ñÿöü ³ ð³ê â êîëîíö³"-->
+	<xs:complexType name="DGMonthYearColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGMonthYear">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Êîä êîíòðîëüîâàíî¿ îïåðàö³¿ â êîëîíö³"-->
+	<xs:complexType name="KodColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGKod">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Êîä êîíòðîëüîâàíî¿ îïåðàö³¿ â êîëîíö³ àáî 0"-->
+	<xs:complexType name="Kod0Column">
+		<xs:simpleContent>
+			<xs:extension base="DGKod0">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Ñòðîêîâ³ äàí³"-->
+	<xs:complexType name="StrColumn">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Ñòðîêîâ³ äàí³ äëÿ êâèòàíö³¿ ³ç âêàç³âíèêîì íà äîêóìåíò äî ÿêîãî âîíè â³äíîñÿòüñÿ"-->
+	<xs:complexType name="StrHandleColumn">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+				<xs:attribute name="LINKEDDOCNUM" type="xs:nonNegativeInteger"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Äàòà ÄÄÌÌÐÐÐÐ(DDMMYYYY)" â êîëîíö³ -->
+	<xs:complexType name="DateColumn">
+		<xs:annotation>
+			<xs:documentation>
+		Çàãàëüíèé òèï äëÿ âèçíà÷åííÿ ôîðìàòó ÄÀÒÀ â êîëîíö³, ùî ìàþòü âèãëÿä (ÄÄÌÌÐÐÐÐ (DDMMYYYY))
+		</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="DGDate">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï êîëîíêà "×àñ ÃÃ:ÕÕ:ÑÑ (HH:MM:SS)" â êîëîíö³ -->
+	<xs:complexType name="TimeColumn">
+		<xs:annotation>
+			<xs:documentation>
+		Çàãàëüíèé òèï äëÿ âèçíà÷åííÿ ôîðìàòó ×ÀÑ â êîëîíö³, ùî ìàþòü âèãëÿä (ÃÃ:ÕÕ:ÑÑ (HH:MM:SS))
+		</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="xs:time">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "²íäèâ³äóàëüíèé ïîäàòêîâèé ¹" â êîëîíö³ -->
+	<xs:complexType name="IndTaxNumColumn">
+		<xs:annotation>
+			<xs:documentation>
+		Çàãàëüíèé òèï äëÿ âèçíà÷åííÿ ôîðìàòó ²ÍÄÈÂ²ÄÓÀËÜÍÈÉ ÏÎÄÀÒÊÎÂÈÉ ÍÎÌÅÐ â êîëîíö³
+		</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="DGLong12">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "²íäèâ³äóàëüíèé ïîäàòêîâèé ¹ ç ìîæëèâ³ñòþ âíåñåííÿ 0(íóëÿ)"-->
+	<xs:complexType name="HIPNColumn0">
+		<xs:annotation>
+			<xs:documentation>
+		Çàãàëüíèé òèï äëÿ âèçíà÷åííÿ ôîðìàòó ²ÍÄÈÂ²ÄÓÀËÜÍÈÉ ÏÎÄÀÒÊÎÂÈÉ ÍÎÌÅÐ ç ìîæëèâ³ñòþ âíåñåííÿ 0(íóëÿ) â êîëîíö³
+		</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="DGHIPN0">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+		<!-- 17.02.2011 çì³íà áàçîâîãî òèïó -->
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Ö³ë³ äàí³"-->
+	<xs:complexType name="IntColumn">
+		<xs:simpleContent>
+			<xs:extension base="xs:integer">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Ö³ë³ äàí³ áåç çíàêó (ïîçèòèâí³ òà íóëü) â êîëîíö³"-->
+	<xs:complexType name="IntNegativeColumn">
+		<xs:simpleContent>
+			<xs:extension base="xs:nonNegativeInteger">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Ö³ë³ äàí³ áåç çíàêó (ïîçèòèâí³ áåç íóëÿ) â êîëîíö³"-->
+	<xs:complexType name="IntPositiveColumn">
+		<xs:simpleContent>
+			<xs:extension base="xs:positiveInteger">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Ì³ñÿöü â êîëîíö³"-->
+	<xs:complexType name="MonthColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGMonth">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Êâàðòàë â êîëîíö³"-->
+	<xs:complexType name="KvColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGKv">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Ð³ê â êîëîíö³"-->
+	<xs:complexType name="YearColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGYear">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Ð³ê íàðîäæåííÿ â êîëîíö³"-->
+	<xs:complexType name="YearNColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGNYear">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Ð³ê âèïóñêó, ñòâîðåííÿ, ... â êîëîíö³"-->
+	<xs:complexType name="MadeYearColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGMadeYear">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Êîä çîâí³øíüîåêîíîì³÷íî¿ ä³ÿëüíîñò³ àáî 0 ÷èñëîâèé â êîëîíö³"-->
+	<xs:complexType name="UKTZEDColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGUKTZED">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Êîä çîâí³øíüîåêîíîì³÷íî¿ ä³ÿëüíîñò³ àáî "0" àáî Êîä ïîñëóãè çã³äíî ç Äåðæàâíèì êëàñèô³êàòîðîì ïðîäóêö³¿ òà ïîñëóã (ÄÊÏÏ) ÄÊ 016:2010 â êîëîíö³"-->
+	<xs:complexType name="UKTZED_DKPPColumn">
+		<xs:annotation>
+			<xs:documentation>òèï "Êîä çîâí³øíüîåêîíîì³÷íî¿ ä³ÿëüíîñò³ àáî "0" àáî Êîä ïîñëóãè çã³äíî ç Äåðæàâíèì êëàñèô³êàòîðîì ïðîäóêö³¿ òà ïîñëóã (ÄÊÏÏ) ÄÊ 016:2010 â êîëîíö³"</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="DGUKTZED_DKPP">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "×èñëî â³ä 10000000 äî 99999999 â êîëîíö³"-->
+	<xs:complexType name="I8Column">
+		<xs:simpleContent>
+			<xs:extension base="DGI8">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Êîä îáëàñò³ â êîëîíö³"-->
+	<xs:complexType name="RegColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGreg">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "ÊÂÅÄ â êîëîíö³"-->
+	<xs:complexType name="DGkvedColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGkved">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "×èñëî â³ä 1000 äî 999999999999 â êîëîíö³"-->
+	<xs:complexType name="DGLong12Column">
+		<xs:simpleContent>
+			<xs:extension base="DGLong12">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Â³äì³òêà â êîëîíö³"-->
+	<xs:complexType name="ChkColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGchk">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Êîä òðàíñïîðòíîãî çàñîáó â êîëîíö³"-->
+	<xs:complexType name="Tn-ZedColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGTn-Zed">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Êîä ï³ëüãè â êîëîíö³"-->
+	<xs:complexType name="CodPilgColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGCodPilg">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Îçíàêà äîõîäó â êîëîíö³ ÄÐÔÎ"-->
+	<xs:complexType name="OdohColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGOdoh">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Êîëîíêà Îçíàêà äîõîäó 1-ÄÔ ç 01.01.2011"-->
+	<xs:complexType name="Odoh1DFColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGOdoh1DF">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Êîëîíêà Îçíàêà ï³ëüãè 1-ÄÔ ç 01.01.2011"-->
+	<xs:complexType name="Oplg1DFColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGOplg1DF">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "âèä(êîä) äîêóìåíòà" Ðåºñòðó îòðèìàíèõ òà âèäàíèõ ïîäàòêîâèõ íàêëàäíèõ" âåðñ³ÿ 3 ðîçä³ë 1-->
+	<xs:complexType name="KodDocROVPD3_1Column">
+		<xs:simpleContent>
+			<xs:extension base="DGKodDocROVPD3_1">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "âèä(êîä) äîêóìåíòà" Ðåºñòðó îòðèìàíèõ òà âèäàíèõ ïîäàòêîâèõ íàêëàäíèõ" âåðñ³ÿ 3 ðîçä³ë 2-->
+	<xs:complexType name="KodDocROVPD3_2Column">
+		<xs:simpleContent>
+			<xs:extension base="DGKodDocROVPD3_2">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Îçíàêà 1-4 â êîëîíö³ ÄÐÔÎ, îçíàêà òèïó äîêóìåíòà äëÿ Ðåºñòð íàêëàäíèõ" âåðñ³¿ 2-->
+	<xs:complexType name="OspColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGOsp">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Îçíàêà 0/1 â êîëîíö³ ÄÐÔÎ, îçíàêà êîðèãóâàííÿ, îçíàêà íåðåçèäåòíîñò³ â Ðåºñòð³ íàêëàäíèõ"-->
+	<xs:complexType name="OznColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGOzn">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Îçíàêà 1/2 â êîëîíö³ ÄÐÔÎ2 (10 êîëîíêà)"-->
+	<xs:complexType name="Ozn2Column">
+		<xs:simpleContent>
+			<xs:extension base="DGOzn12">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï êîëîíêè òàáëèö³ "¹ àêöèçíî¿ íàêëàäíî¿" âèäó (÷èñëî â³ä 1 äî 9999999999)(÷èñëî â³ä 1 äî 10çíàê³â áåç âåäó÷èõ íîë³â)-->
+	<xs:complexType name="DGNANColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGNAN">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï êîëîíêè òàáëèö³ "×èñëî â³ä 1 äî ... 9999999/(ñïåö.ðåæèì)(¹ ô³ë³¿)" [ïîâíèé íîìåð ïîäàòêîâî¿ íàêëàäíî¿]-->
+	<xs:complexType name="DGNPNColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGNPN">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï êîëîíêè òàáëèö³ êîíòðîëüîâàíî¿ îïåðàö³¿ 1,2 ,3-->
+	<xs:complexType name="KodOpColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGKontrOp">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï êîëîíêè òàáëèö³ "×èñëî â³ä 1 äî ... 9999999" [íîìåð ïîäàòêîâî¿ íàêëàäíî¿]-->
+	<xs:complexType name="DGI7nomColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGI7nom">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï êîëîíêè òàáëèö³ "Îçíàêà ñïåö³àëüíî¿ ïîäàòêîâî¿ íàêëàäíî¿" -->
+	<xs:complexType name="DGspecNomColumn">
+		<xs:annotation>
+			<xs:documentation>çíà÷åííÿ: 2, 3, 4</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="DGspecNom">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï êîëîíêè òàáëèö³ "×èñëî â³ä 1 äî ... 999" [íîìåð ô³ë³¿, ê³ëüê³ñòü, ¹ðÿäêà]-->
+	<xs:complexType name="DGI3nomColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGI3nom">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï êîëîíêè òàáëèö³ "×èñëî â³ä 1 äî ... 9" -->
+	<xs:complexType name="DGI1nomColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGI1inom">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï êîëîíêè òàáëèö³ "×èñëî â³ä 1 äî ... 9999" [íîìåð ô³ë³¿, ê³ëüê³ñòü, ¹ðÿäêà]-->
+	<xs:complexType name="DGI4nomColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGI4nom">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï êîëîíêè òàáëèö³ "×èñëî â³ä 1 äî ..." [ê³ëüê³ñòü,  íîìåð , ¹ðÿäêà]-->
+	<xs:complexType name="DGInomColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGInom">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï êîëîíêè òàáëèö³ "Òèï ï³äïèñó äëÿ Ïîâ³äîìëåííÿ ïðî ðåºñòðàö³þ åëåêòðîííîãî öèôðîâîãî ï³äïèñó"-->
+	<xs:complexType name="DGSignColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGSign">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï êîëîíêè "Ïîäàòêîâî¿ äåêëàðàö³¿ ç ïîäàòêó íà íåðóõîìå ìàéíî, â³äì³ííå	â³ä çåìåëüíî¿  ä³ëÿíêè"   Òèï îá'ºêòà æèòëîâî¿ íåðóõîìîñò³ 1 - êâàðòèðà; 2 - æèòëîâèé áóäèíîê; 3 - ³íøå. -->
+	<xs:complexType name="TOColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGSTAN">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï ÊÎÀÒÓÓ â êîëîíö³ -->
+	<xs:complexType name="KOATUUColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGKOATUU">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Êàäàñòðîâèé íîìåð çåìåëüíî¿ ä³ëÿíêè" â êîëîíö³ -->
+	<xs:complexType name="KNEAColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGKNEA">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï Îçíàêà ñåçîíó â êîëîíö³ (Ïåíñ³éíèé Ôîíä Óêðà¿íè)-->
+	<xs:complexType name="SeazonColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGSEAZON">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï Íîìåð îáë³êîâî¿ êàðòêè çàñòðàõîâàíî¿ îñîáè (íîìåð ÇÎ) â êîëîíö³ (Ïåíñ³éíèé Ôîíä Óêðà¿íè)-->
+	<xs:complexType name="NumZOColumn">
+		<xs:annotation>
+			<xs:documentation>Ðåºñòðàö³éíèé íîìåð îáë³êîâî¿ êàðòêè çàñòðàõîâàíî¿ îñîáè â êîëîíö³</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="DGNUMZO">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "×èñëî â³ä 1 äî 99" â êîëîíö³-->
+	<xs:complexType name="I2inomColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGI2inom">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "×èñëî â³ä 0 äî 999" â êîëîíö³-->
+	<xs:complexType name="I3iColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGI3i">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "×èñëî â³ä 0 äî 3" â êîëîíö³-->
+	<xs:complexType name="In_0_3Column">
+		<xs:simpleContent>
+			<xs:extension base="DGId_0_3">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "²äåíòèô³êàòîð âèäó ïåðâèííîãî äîêóìåíòà" â êîëîíö³-->
+	<xs:complexType name="In_1_5Column">
+		<xs:simpleContent>
+			<xs:extension base="DGId_1_5">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Äåíü ì³ñÿöÿ" â êîëîíö³-->
+	<xs:complexType name="DMColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGDM">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!-- Òèïè, ùî âèêîðèñòîâóþòüñÿ â äîêóìåíòàõ Ñòàòèñòèêè -->
+	<!-- òèï "Êîä îáëàñò³ ñòàòèñòèêà". ×èñëî, 2 çíàêè -->
+	<xs:simpleType name="STATOBL">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="01"/>
+			<xs:enumeration value="05"/>
+			<xs:enumeration value="07"/>
+			<xs:enumeration value="12"/>
+			<xs:enumeration value="14"/>
+			<xs:enumeration value="18"/>
+			<xs:enumeration value="21"/>
+			<xs:enumeration value="23"/>
+			<xs:enumeration value="26"/>
+			<xs:enumeration value="32"/>
+			<xs:enumeration value="35"/>
+			<xs:enumeration value="44"/>
+			<xs:enumeration value="46"/>
+			<xs:enumeration value="48"/>
+			<xs:enumeration value="51"/>
+			<xs:enumeration value="53"/>
+			<xs:enumeration value="56"/>
+			<xs:enumeration value="59"/>
+			<xs:enumeration value="61"/>
+			<xs:enumeration value="63"/>
+			<xs:enumeration value="65"/>
+			<xs:enumeration value="68"/>
+			<xs:enumeration value="71"/>
+			<xs:enumeration value="73"/>
+			<xs:enumeration value="74"/>
+			<xs:enumeration value="80"/>
+			<xs:enumeration value="85"/>
+			<xs:enumeration value="90"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- òèï "Êîä ðàéîíó". ×èñëî, 3 çíàêè, êð³ì êîìá³íàö³¿ '000' -->
+	<xs:simpleType name="STATRAY">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="3"/>
+			<xs:pattern value="([1-9]{3}|[1-9][0-9][0-9]|[0-9][1-9][0-9]|[0-9][0-9][1-9])"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--òèï "Òèï ïiäïèñó äëÿ Ïîâiäîìëåííÿ ïðî ðåºñòðàöiþ åëåêòðîííîãî öèôðîâîãî ïiäïèñó", äëÿ äîêóìåíòà ç êîäîì J1391101 -->
+	<xs:simpleType name="DGSignGKS">
+		<xs:annotation>
+			<xs:documentation>
+	  "Òèï ï³äïèñó äëÿ Ïîâ³äîìëåííÿ ïðî ðåºñòðàö³þ åëåêòðîííîãî öèôðîâîãî ï³äïèñó" 
+	  </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Äèðåêòîð"/>
+			<xs:enumeration value="Áóõãàëòåð"/>
+			<xs:enumeration value="Ïå÷àòêà óñòàíîâè"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Çàãàëüíèé òèï êîëîíêè òàáëèöi "Òèï ïiäïèñó äëÿ Ïîâiäîìëåííÿ ïðî ðåºñòðàöiþ åëåêòðîííîãî öèôðîâîãî ïiäïèñó", äëÿ äîêóìåíòà ç êîäîì J1391101 -->
+	<xs:complexType name="DGSignGKSColumn">
+		<xs:annotation>
+			<xs:documentation>
+		"Òèï ï³äïèñó äëÿ Ïîâ³äîìëåííÿ ïðî ðåºñòðàö³þ åëåêòðîííîãî öèôðîâîãî ï³äïèñó" - òàáëè÷íå ïîëå
+		</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="DGSignGKS">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï êîëîíêè òàáëèöi "Êîä [ÍÀÇÂÈ, ÊËÀÑÓ ÍÅÁÅÇÏÅ×ÍÎÑÒ², ÃÐÀÍÈ×ÍÎÄÎÏÓÑÒÈÌÎ¯ ÊÎÍÖÅÍÒÐÀÖ²¯, ÎÐ²ªÍÒÎÂÍÎ ÁÅÇÏÅ×ÍÈÉ Ð²ÂÅÍÜ ÂÏËÈÂÓ - ÇÀÁÐÓÄÍÞÞ×Î¯ ÐÅ×ÎÂÈÍÈ, ÊËÀÑ ÍÅÁÅÇÏÅÊÈ ÒÀ Ð²ÂÅÍÜ ÍÅÁÅÇÏÅ×ÍÎÑÒ² Â²ÄÕÎÄ²Â]" -->
+	<xs:complexType name="ecoCodePollutionColumn">
+		<xs:annotation>
+			<xs:documentation>
+		"Òèï ï³äïèñó äëÿ Ïîâ³äîìëåííÿ ïðî ðåºñòðàö³þ åëåêòðîííîãî öèôðîâîãî ï³äïèñó" - òàáëè÷íå ïîëå
+		</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="DGecoCodePollution">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Êîä ÌÔÎ (6 çíàê³â) â êîëîíö³"-->
+	<xs:complexType name="MfoColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGmfo">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Êîä ì³ñòà â êîëîíö³"-->
+	<xs:complexType name="ZipColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGHZIP">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!--Çàãàëüíèé òèï "Äâ³éêîâ³ äàí³, ÿê³ çàêîäîâàí³ â Base64" â êîëîíö³-->
+	<xs:complexType name="Base64Column">
+		<xs:simpleContent>
+			<xs:extension base="xs:base64Binary">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:schema>
+<!--Ðîçðîáíèê: â³ää³ë ïðîåêòóâàííÿ òà ðîçðîáêè À²Ñ ÃÓ ÄÏÑ ó ×åðêàñüê³é îáëàñò³-->

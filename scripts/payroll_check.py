@@ -21,7 +21,12 @@ if not uid:
 def call(model, method, *a, **kw): return rpc("object", "execute_kw", DB, uid, PW, model, method, list(a), kw)
 
 STRUCT = call("hr.payroll.structure", "search", [["code", "=", "UA_SALARY"]])[0]
+if "ua_sti_code" in call("res.company", "fields_get", [], attributes=["type"]):
+    call("res.company", "write", [1], {"company_registry": "12345678", "ua_sti_code": "2655", "ua_sti_name": "ГУ ДПС у м. Києві, ДПІ у Печерському районі (тест)",
+         "ua_reg": "26", "ua_raj": "55", "ua_katottg": "UA80000000000093317", "ua_kved": "62.01", "street": "вул. Тестова, 1", "zip": "01001", "city": "Київ",
+         "ua_director_name": "Тестовий Керівник", "ua_director_rnokpp": "1234567890", "ua_accountant_name": "Тестовий Бухгалтер", "ua_accountant_rnokpp": "1234567891"})
 CAL = call("res.company", "read", [1], ["resource_calendar_id"])[0]["resource_calendar_id"][0]
+EMP_FIELDS = call("hr.employee", "fields_get", [], attributes=["type"])
 PERIOD = ("2026-08-01", "2026-08-31")
 # сценарії: назва, поля працівника, оклад, входи, очікувані рядки; "start" - дата прийняття; "moves" - очікувані обороти проводки
 # додаткові ключі: "history" (12 місяців окладу для середньої), "leaves" [(тип, від, до)], "years" (страховий стаж)
@@ -47,6 +52,8 @@ for name, efields, wage, inputs, expect in S:
     ename = f"Еталон {name}"
     start = efields.pop("start", "2026-01-01"); history = efields.pop("history", None); leaves = efields.pop("leaves", []); years = efields.pop("years", 0)
     efields["ua_insurance_years"] = years
+    n = int(name.split()[0]); efields.update({"ua_rnokpp": f"30000000{n:02d}", "sex": "male" if n % 2 else "female"})
+    efields.update({"ua_hire_date": start} if "ua_hire_date" in EMP_FIELDS else {})
     eid = call("hr.employee", "search", [["name", "=", ename]])
     if eid:
         old = call("hr.payslip", "search", [["employee_id", "in", eid]])
@@ -114,4 +121,14 @@ for name, efields, wage, inputs, expect in S:
             mres.append(f"{side}{code} {g} {'==' if good else '!='} {exp}")
         bal = round(sum(l["debit"] for l in ml) - sum(l["credit"] for l in ml), 2); ok &= (bal == 0)
         print(("  PASS " if all("==" in r for r in mres) and bal == 0 else "  FAIL ") + f"проводка {mid[1] if mid else 'немає'} | " + "; ".join(mres) + f" | баланс {bal}")
-print("ALL PASS" if ok else "SOME FAIL"); sys.exit(0 if ok else 1)
+print("ALL PASS" if ok else "SOME FAIL")
+if ok and "ua.payroll.report.wizard" in [m["model"] for m in call("ir.model", "search_read", [["model", "=", "ua.payroll.report.wizard"]], fields=["model"])]:
+    wid = call("ua.payroll.report.wizard", "create", {"company_id": 1, "year": 2026, "month": 8, "doc_type": "HZ", "number": 1, "with_d1": True, "with_4df": True})
+    call("ua.payroll.report.wizard", "action_generate", [wid])
+    w = call("ua.payroll.report.wizard", "read", [wid], ["log", "result_ids"])[0]
+    print("=== об'єднана звітність за серпень 2026 ==="); print(w["log"])
+    out = os.path.join(ROOT, "demo-out"); os.makedirs(out, exist_ok=True)
+    import base64
+    for a in call("ir.attachment", "read", w["result_ids"], ["name", "datas"]):
+        open(os.path.join(out, a["name"]), "wb").write(base64.b64decode(a["datas"])); print("  saved", a["name"])
+sys.exit(0 if ok else 1)

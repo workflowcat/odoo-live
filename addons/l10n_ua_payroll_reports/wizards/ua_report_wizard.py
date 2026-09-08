@@ -1,0 +1,210 @@
+"""Об'єднана звітність (J0500111) з Д1 (J0510111) і 4ДФ (J0510411) за місяць, з проведених листків."""
+import base64
+import calendar
+import io
+import zipfile
+from datetime import date
+
+from odoo import api, fields, models
+from odoo.exceptions import UserError
+
+VER = "11"
+ESV_CAT = {"employment": "1", "disabled": "2", "gph": "26", "sick": "29"}
+PSP_CODE = {"none": None, "base": "01", "child": "04", "child150": "04", "s150": "02", "s200": "03"}
+GENDER = {"male": "1", "female": "0"}   # схема допускає лише 0 або 1; трактування підтвердити (припущення: 1 = чоловік, 0 = жінка)
+
+
+def r2(x):
+    return round(float(x or 0.0) + 1e-9, 2)
+
+
+class UaPayrollReportWizard(models.TransientModel):
+    _name = "ua.payroll.report.wizard"
+    _description = "Об'єднана звітність ПДФО/ВЗ/ЄСВ (XML для ДПС)"
+
+    company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
+    year = fields.Integer("Рік", default=lambda s: date.today().year, required=True)
+    month = fields.Integer("Місяць", default=lambda s: date.today().month, required=True)
+    doc_type = fields.Selection([("HZ", "Звітний"), ("HZN", "Звітний новий"), ("HZU", "Уточнюючий")], "Тип", default="HZ", required=True)
+    number = fields.Integer("Номер розрахунку за період", default=1, required=True)
+    with_d1 = fields.Boolean("Додаток 1 (Д1)", default=True)
+    with_4df = fields.Boolean("Додаток 4ДФ", default=True)
+    fill_date = fields.Date("Дата заповнення", default=fields.Date.context_today, required=True)
+    result_ids = fields.Many2many("ir.attachment", string="Файли")
+    log = fields.Text("Перевірка за схемою", readonly=True)
+
+    # ---- data collection ------------------------------------------------
+    def _period(self):
+        d1 = date(self.year, self.month, 1)
+        return d1, date(self.year, self.month, calendar.monthrange(self.year, self.month)[1])
+
+    def _payslips(self):
+        d1, d2 = self._period()
+        return self.env["hr.payslip"].search([("company_id", "=", self.company_id.id), ("state", "=", "done"),
+                                              ("date_from", ">=", d1), ("date_to", "<=", d2)], order="employee_id")
+
+    def _line(self, slip, code):
+        return sum(slip.line_ids.filtered(lambda l: l.code == code).mapped("total"))
+
+    def _person_rows(self, slip, params):
+        """Рядки Д1 для одного листка: основний рядок за категорією ЗО і окремий рядок 29 за лікарняні."""
+        emp = slip.employee_id.sudo()
+        d1, d2 = self._period()
+        hire, dism = emp.ua_hire_date, emp.ua_dismissal_date
+        start = max(d1, hire) if hire else d1
+        end = min(d2, dism) if dism else d2
+        days_in = max((end - start).days + 1, 0)
+        kind = emp.ua_contract_kind or "employment"
+        cat = ESV_CAT["gph"] if kind == "gph" else (ESV_CAT["disabled"] if emp.ua_esv_category == "disabled" else ESV_CAT["employment"])
+        rate = params["esv_rate_disabled"] if emp.ua_esv_category == "disabled" else params["esv_rate"]
+        sick_emp, sick_pfu = self._line(slip, "SICK_EMP"), self._line(slip, "SICK_PFU")
+        gross = self._line(slip, "GROSS")
+        salary = r2(gross - sick_emp - sick_pfu)
+        esv_total = r2(self._line(slip, "ESV"))
+        max_base = params["min_wage"] * params["esv_max_multiplier"]
+        remaining = max_base
+        rows = []
+        # мінімальна доплата ЄСВ: різниця між МЗП і фактичним нарахуванням (лише основне місце, повний місяць)
+        min_diff = 0.0
+        if kind == "employment" and emp.ua_main_job and gross < params["min_wage"] and days_in >= (d2 - d1).days + 1:
+            min_diff = r2(params["min_wage"] - gross)
+        base_main = r2(min(salary, remaining)); remaining = r2(remaining - base_main)
+        esv_main = r2(base_main * rate / 100.0)
+        esv_diff = r2(min_diff * 22.0 / 100.0)
+        leaves = slip._ua_leave_calendar_days() if hasattr(slip, "_ua_leave_calendar_days") else {}
+        sick_days = (leaves.get("sick_emp_days", 0) + leaves.get("sick_pfu_days", 0))
+        unpaid_days = 0
+        common = {"G5": "1", "G6": GENDER.get(getattr(emp, "sex", None) or "", None), "G7S": emp.ua_rnokpp or "", "G101": self.month, "G102": self.year,
+                  "names": emp._ua_name_parts(), "G21": "1" if (emp.ua_main_job and kind == "employment") else "0",
+                  "G22": "0" if emp.ua_full_time else "1", "G23": "0", "G24": "0", "G26": "0", "G14": days_in, "G13": unpaid_days}
+        rows.append({**common, "G8": cat, "G12": None, "G16": salary, "G17": base_main, "G18": min_diff or None, "G19": 0.0,
+                     "G20": r2(esv_main + esv_diff), "rate": rate})
+        sick = r2(sick_emp + sick_pfu)
+        if sick:
+            base_sick = r2(min(sick, remaining)); remaining = r2(remaining - base_sick)
+            esv_sick = r2(base_sick * rate / 100.0)
+            rows.append({**common, "G8": ESV_CAT["sick"], "G12": sick_days or None, "G16": sick, "G17": base_sick, "G18": None,
+                         "G19": 0.0, "G20": esv_sick, "rate": rate, "G14": None})
+        # копійки округлення - на основний рядок, щоб Σ рядків = ЄСВ листка
+        delta = r2(esv_total - sum(r["G20"] for r in rows))
+        if abs(delta) <= 0.05:
+            rows[0]["G20"] = r2(rows[0]["G20"] + delta)
+        return rows, {"gross": gross, "salary": salary, "gph": salary if kind == "gph" else 0.0, "sick_emp": sick_emp, "sick_pfu": sick_pfu,
+                      "pdfo": r2(-self._line(slip, "PDFO")), "vz": r2(-self._line(slip, "VZ")), "kind": kind, "cat": cat, "min_diff": min_diff,
+                      "emp": emp, "hire": hire, "dism": dism}
+
+    # ---- builders --------------------------------------------------------
+    def _company_head(self):
+        c = self.company_id
+        return [("HZ", self.doc_type == "HZ"), ("HZN", self.doc_type == "HZN"), ("HZU", self.doc_type == "HZU"),
+                ("HZY", self.year), ("HZM", self.month)]
+
+    def _signers(self):
+        c = self.company_id
+        return [("HFILL", self.fill_date), ("HKBOS", c.ua_director_rnokpp or ""), ("HBOS", c.ua_director_name or ""),
+                ("HKBUH", c.ua_accountant_rnokpp or None), ("HBUH", c.ua_accountant_name or None)]
+
+    def _build_d1(self, all_rows):
+        c = self.company_id
+        f = self._company_head() + [("HNAME", c.name), ("HTIN", c.company_registry)]
+        cols = ["G5", "G6", "G7S", "G8", "G9", "G101", "G102", "G111S", "G112S", "G113S", "G12", "G13", "G14", "G15", "G16", "G17", "G18", "G19", "G20", "G21", "G22", "G23", "G24", "G25", "G26"]
+        for col in cols:                                     # формат ДПС: усі значення однієї колонки підряд, з ROWNUM
+            for i, r in enumerate(all_rows, 1):
+                if col in ("G111S", "G112S", "G113S"):
+                    val = r["names"][("G111S", "G112S", "G113S").index(col)]
+                else:
+                    val = r.get(col)
+                f.append((f"T1RXXXX{col}", val, {"ROWNUM": i}))
+        f += [("R01G16", r2(sum(r["G16"] for r in all_rows))), ("R01G17", r2(sum(r["G17"] for r in all_rows))),
+              ("R01G18", r2(sum(r["G18"] or 0 for r in all_rows)) or None), ("R01G19", 0.0), ("R01G20", r2(sum(r["G20"] for r in all_rows)))]
+        return f + self._signers()
+
+    def _build_4df(self, persons):
+        c = self.company_id
+        d1, d2 = self._period()
+        f = self._company_head() + [("HNUM", self.number), ("HNAME", c.name), ("HTIN", c.company_registry), ("HKATOTTG", c.ua_katottg or "")]
+        f += [("R00G01I", sum(1 for p in persons if p["kind"] == "employment")), ("R00G02I", sum(1 for p in persons if p["kind"] == "gph"))]
+        rows = []
+        for p in persons:
+            rows.append({"G02": p["emp"].ua_rnokpp or "", "G03A": p["gross"], "G03": p["gross"], "G04A": p["pdfo"], "G04": p["pdfo"],
+                         "G5A": p["vz"], "G5": p["vz"], "G05": "102" if p["kind"] == "gph" else "101",
+                         "G06D": p["hire"] if (p["hire"] and d1 <= p["hire"] <= d2) else None,
+                         "G07D": p["dism"] if (p["dism"] and d1 <= p["dism"] <= d2) else None,
+                         "G08": PSP_CODE.get(p["emp"].ua_psp or "none"), "G09": None})
+        for col in ["G02", "G03A", "G03", "G04A", "G04", "G5A", "G5", "G05", "G06D", "G07D", "G08", "G09"]:
+            for i, r in enumerate(rows, 1):
+                f.append((f"T1RXXXX{col}", r.get(col), {"ROWNUM": i}))
+        f += [("R01G03A", r2(sum(r["G03A"] for r in rows))), ("R01G03", r2(sum(r["G03"] for r in rows))),
+              ("R01G04A", r2(sum(r["G04A"] for r in rows))), ("R01G04", r2(sum(r["G04"] for r in rows))),
+              ("R01G5A", r2(sum(r["G5A"] for r in rows))), ("R01G5", r2(sum(r["G5"] for r in rows)))]
+        return f + self._signers()
+
+    def _build_main(self, persons, all_rows, params, n_d1, n_4df):
+        c = self.company_id
+        rate22 = [r for r in all_rows if r["rate"] == params["esv_rate"]]
+        rate841 = [r for r in all_rows if r["rate"] == params["esv_rate_disabled"] and r["rate"] != params["esv_rate"]]
+        s = lambda rows, k: r2(sum(r[k] or 0 for r in rows))
+        r1_1 = r2(sum(p["salary"] for p in persons if p["kind"] != "gph"))
+        r1_2 = r2(sum(p["gph"] for p in persons))
+        r1_3 = r2(sum(p["sick_emp"] for p in persons)); r1_4 = r2(sum(p["sick_pfu"] for p in persons))
+        r2_1, r2_2 = s(rate22, "G17"), s(rate841, "G17")
+        r2_5 = r2(sum(p["min_diff"] for p in persons))
+        r3_5 = r2(r2_5 * 22 / 100.0)
+        r3_1 = r2(s(rate22, "G20") - r3_5); r3_2 = s(rate841, "G20")
+        employment = [p for p in persons if p["kind"] == "employment"]
+        f = self._company_head() + [("HNUM", self.number), ("HNAME", c.name), ("HTIN", c.company_registry), ("HKATOTTG", c.ua_katottg or ""),
+             ("HLOC", c.street or ""), ("HZIP", c.zip or ""), ("HTEL", c.phone or None), ("HEMAIL", c.email or None), ("HSTI", c.ua_sti_name or ""),
+             ("R061G3", bool(n_d1)), ("R061G4", n_d1 or None), ("R064G3", bool(n_4df)), ("R064G4", n_4df or None),
+             ("HKVED", c.ua_kved or None), ("R081G3", True),
+             ("R091G3", len(employment)), ("R0911G3", sum(1 for p in employment if p["emp"].ua_esv_category == "disabled")),
+             ("R092G3", len(employment)), ("R101G3", 0),
+             ("R0101G3", r2(r1_1 + r1_2 + r1_3 + r1_4)), ("R01011G3", r1_1), ("R01012G3", r1_2), ("R01013G3", r1_3), ("R01014G3", r1_4), ("R01015G3", 0.0),
+             ("R0102G3", r2(r2_1 + r2_2 + r2_5)), ("R01021G3", r2_1), ("R01022G3", r2_2), ("R01025G3", r2_5),
+             ("R0103G3", r2(r3_1 + r3_2 + r3_5)), ("R01031G3", r3_1), ("R01032G3", r3_2), ("R010321G3", r2(r2_2 * 22 / 100.0) if r2_2 else 0.0), ("R01035G3", r3_5),
+             ("R0104G3", 0.0), ("R0106G3", 0.0), ("R0107G3", r2(r3_1 + r3_2 + r3_5))]
+        return f + self._signers()
+
+    # ---- action ------------------------------------------------------------
+    def action_generate(self):
+        self.ensure_one()
+        c = self.company_id
+        if not c.company_registry or not c.ua_sti_code:
+            raise UserError("Заповніть у компанії ЄДРПОУ і код ДПІ (Налаштування → Компанії → «Україна»).")
+        slips = self._payslips()
+        if not slips:
+            raise UserError("Немає підтверджених листків за цей місяць.")
+        params = self.env["ua.payroll.param"].get_all(self._period()[1], c)
+        persons, all_rows = [], []
+        for slip in slips:
+            rows, p = self._person_rows(slip, params)
+            all_rows += rows; persons.append(p)
+        X = self.env["ua.dps.xml"]
+        stan = {"HZ": 1, "HZN": 1, "HZU": 3}[self.doc_type]  # STAN: 1 звітний/новий звітний, 3 уточнюючий (як у прикладах)
+        files, log = [], []
+        main_name = X.file_name(c.company_registry, c.ua_sti_code, "J05", "001", VER, stan, 0, self.number, 1, self.month, self.year, c.ua_sti_code)
+        appendices = []
+        if self.with_d1:
+            appendices.append(("101", "J0510111", self._build_d1(all_rows)))
+        if self.with_4df:
+            appendices.append(("104", "J0510411", self._build_4df(persons)))
+        linked_for_main, app_files = [], []
+        for i, (sub, code, body) in enumerate(appendices, 1):
+            linked = [{"num": 1, "type": 2, "C_DOC": "J05", "C_DOC_SUB": "001", "C_DOC_VER": VER, "C_DOC_TYPE": 0, "C_DOC_CNT": self.number, "C_DOC_STAN": stan, "FILENAME": main_name}]
+            fname, data = X.build(c, "J05", sub, VER, 1, self.month, self.year, body, linked=linked, c_doc_cnt=self.number, c_doc_stan=stan, fill_date=self.fill_date)
+            app_files.append((fname, data, code))
+            linked_for_main.append({"num": i, "type": 1, "C_DOC": "J05", "C_DOC_SUB": sub, "C_DOC_VER": VER, "C_DOC_TYPE": 0, "C_DOC_CNT": self.number, "C_DOC_STAN": stan, "FILENAME": fname})
+        body_main = self._build_main(persons, all_rows, params, 1 if self.with_d1 else 0, 1 if self.with_4df else 0)
+        fname, data = X.build(c, "J05", "001", VER, 1, self.month, self.year, body_main, linked=linked_for_main, c_doc_cnt=self.number, c_doc_stan=stan, fill_date=self.fill_date)
+        files.append((fname, data, "J0500111")); files += app_files
+        Att = self.env["ir.attachment"]; atts = Att
+        for fname, data, code in files:
+            errs = X.validate(data, code)
+            log.append(f"{fname}: {'валідний за ' + code + '.xsd' if not errs else 'ПОМИЛКИ: ' + '; '.join(errs[:8])}")
+            atts |= Att.create({"name": fname, "datas": base64.b64encode(data), "mimetype": "application/xml", "res_model": self._name, "res_id": self.id})
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
+            for fname, data, _ in files:
+                z.writestr(fname, data)
+        atts |= Att.create({"name": f"J05_{self.year}-{self.month:02d}.zip", "datas": base64.b64encode(buf.getvalue()), "mimetype": "application/zip", "res_model": self._name, "res_id": self.id})
+        self.write({"result_ids": [(6, 0, atts.ids)], "log": "\n".join(log)})
+        return {"type": "ir.actions.act_window", "res_model": self._name, "res_id": self.id, "view_mode": "form", "target": "new"}

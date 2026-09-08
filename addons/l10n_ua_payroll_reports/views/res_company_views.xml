@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_company_form_ua_reports" model="ir.ui.view">
+    <field name="name">res.company.form.ua.reports</field><field name="model">res.company</field>
+    <field name="inherit_id" ref="base.view_company_form"/>
+    <field name="arch" type="xml">
+      <notebook position="inside">
+        <page string="Україна" name="ua">
+          <group>
+            <group string="Реєстрація">
+              <field name="company_registry" string="ЄДРПОУ"/><field name="ua_sti_code"/><field name="ua_sti_name"/><field name="ua_reg"/><field name="ua_raj"/><field name="ua_katottg"/><field name="ua_kved"/>
+            </group>
+            <group string="Підписанти">
+              <field name="ua_director_name"/><field name="ua_director_rnokpp"/><field name="ua_accountant_name"/><field name="ua_accountant_rnokpp"/>
+            </group>
+          </group>
+        </page>
+      </notebook>
+    </field>
+  </record>
+</odoo>
