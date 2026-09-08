@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <data noupdate="0">
+  <data noupdate="1">
     <record id="wet_vac" model="hr.work.entry.type"><field name="name">Щорічна відпустка</field><field name="code">VAC</field><field name="is_leave">True</field><field name="sequence">20</field></record>
     <record id="wet_sick" model="hr.work.entry.type"><field name="name">Тимчасова непрацездатність</field><field name="code">SICK</field><field name="is_leave">True</field><field name="sequence">21</field></record>
     <record id="wet_unpaid" model="hr.work.entry.type"><field name="name">Відпустка без збереження зарплати</field><field name="code">UNPAID</field><field name="is_leave">True</field><field name="sequence">22</field></record>

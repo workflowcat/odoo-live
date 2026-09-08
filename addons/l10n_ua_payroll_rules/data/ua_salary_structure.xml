@@ -16,7 +16,7 @@ for line in (worked_days.VAC, worked_days.SICK, worked_days.UNPAID):
     if line:
         days -= abs(line.number_of_days)
 total = payroll.ua.month_workdays or days or 1.0
-result = round(contract.wage * max(min(days, total), 0.0) / total, 2)</field>
+result = round(contract.wage * payroll.ua.fte * max(min(days, total), 0.0) / total, 2)</field>
     </record>
     <record id="rule_bonus" model="hr.salary.rule">
       <field name="name">Премія</field><field name="code">BONUS</field><field name="sequence">10</field>

@@ -43,6 +43,10 @@ S = [
   {"BASIC": 18571.43, "SICK_EMP": 3452.05, "SICK_PFU": 3452.05, "GROSS": 25475.53, "PDFO": -4585.60, "VZ": -1273.78, "NET": 19616.15, "ESV": 5604.62}),
  ("8 Звільнення 31 серпня, 10 днів компенсації", {"ua_main_job": True, "history": 30000}, 30000, {"COMP_DAYS": 10},
   {"BASIC": 30000.00, "COMP_VAC": 9863.01, "GROSS": 39863.01, "PDFO": -7175.34, "VZ": -1993.15, "NET": 30694.52, "ESV": 8769.86}),
+ ("11 Повторне прийняття 17 серпня після звільнення 31 травня", {"ua_main_job": True, "rehire": True}, 30000, {},
+  {"BASIC": 15714.29, "PDFO": -2828.57, "VZ": -785.71, "NET": 12100.01, "ESV": 3457.14}),
+ ("12 Половина ставки (0,5), оклад 20 000", {"ua_main_job": True, "ua_fte": "0.5"}, 20000, {},
+  {"BASIC": 10000.00, "PDFO": -1800.00, "VZ": -500.00, "NET": 7700.00, "ESV": 2200.00}),
  ("9 ЦПХ", {"ua_contract_kind": "gph", "ua_main_job": False}, 0, {"GPH": 20000}, {"PDFO": -3600.00, "VZ": -1000.00, "NET": 15400.00, "ESV": 4400.00}),
  ("10 Аліменти + макс. база", {"ua_main_job": True}, 200000, {"ALIM_PCT": 25}, {"PDFO": -36000.00, "VZ": -10000.00, "ALIM": -38500.00, "NET": 115500.00, "ESV": 38046.80}),
 ]
@@ -50,7 +54,8 @@ ok = True
 for name, efields, wage, inputs, expect in S:
     moves = efields.pop("moves", None)
     ename = f"Еталон {name}"
-    start = efields.pop("start", "2026-01-01"); history = efields.pop("history", None); leaves = efields.pop("leaves", []); years = efields.pop("years", 0)
+    start = efields.pop("start", "2026-01-01"); history = efields.pop("history", None); leaves = efields.pop("leaves", []); years = efields.pop("years", 0); rehire = efields.pop("rehire", False)
+    efields.setdefault("ua_fte", "1")
     efields["ua_insurance_years"] = years
     n = int(name.split()[0]); efields.update({"ua_rnokpp": f"30000000{n:02d}", "sex": "male" if n % 2 else "female"})
     efields.update({"ua_hire_date": start} if "ua_hire_date" in EMP_FIELDS else {})
@@ -71,7 +76,15 @@ for name, efields, wage, inputs, expect in S:
     else:
         eid = call("hr.employee", "create", {"name": ename, **efields})
     ver = call("hr.employee", "read", [eid], ["version_id"])[0]["version_id"][0]
-    call("hr.version", "write", [ver], {"wage": wage, "contract_date_start": start, "struct_id": STRUCT, "resource_calendar_id": CAL})
+    if rehire:
+        # перша версія: 2026-01-01 .. 2026-05-31 (звільнений); друга версія: з 2026-08-17 (прийнятий знову) - одна картка працівника
+        call("hr.version", "write", [ver], {"wage": wage, "contract_date_start": "2026-01-01", "contract_date_end": "2026-05-31", "struct_id": STRUCT, "resource_calendar_id": CAL})
+        old2 = call("hr.version", "search", [["employee_id", "=", eid], ["date_version", "=", "2026-08-17"]])
+        v2 = old2[0] if old2 else call("hr.version", "create", {"employee_id": eid, "date_version": "2026-08-17", "wage": wage, "contract_date_start": "2026-08-17", "struct_id": STRUCT, "resource_calendar_id": CAL})
+        call("hr.version", "write", [v2], {"wage": wage, "contract_date_start": "2026-08-17", "contract_date_end": False, "struct_id": STRUCT, "resource_calendar_id": CAL})
+        ver = v2
+    else:
+        call("hr.version", "write", [ver], {"wage": wage, "contract_date_start": start, "contract_date_end": False, "struct_id": STRUCT, "resource_calendar_id": CAL})
     # історія заробітку за 12 місяців (серпень 2025 - липень 2026)
     old_h = call("ua.earnings.history", "search", [["employee_id", "=", eid]])
     if old_h:

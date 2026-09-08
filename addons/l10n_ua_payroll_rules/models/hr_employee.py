@@ -17,3 +17,6 @@ class HrEmployee(models.Model):
     ua_psp = fields.Selection(PSP, "Податкова соціальна пільга", default="none", groups="hr.group_hr_user",
                               help="За заявою працівника; застосовується лише за одним місцем роботи")
     ua_psp_children = fields.Integer("Дітей до 18 років", default=0, groups="hr.group_hr_user")
+    ua_fte = fields.Selection([("1", "повна ставка"), ("0.75", "0,75 ставки"), ("0.5", "0,5 ставки"), ("0.25", "0,25 ставки")],
+                              "Ставка", default="1", required=True, groups="hr.group_hr_user",
+                              help="Оклад у контракті вказано за повну ставку; нарахування = оклад × ставка")

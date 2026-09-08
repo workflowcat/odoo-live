@@ -50,7 +50,7 @@ class UaPayrollReportWizard(models.TransientModel):
         """Рядки Д1 для одного листка: основний рядок за категорією ЗО і окремий рядок 29 за лікарняні."""
         emp = slip.employee_id.sudo()
         d1, d2 = self._period()
-        hire, dism = emp.ua_hire_date, emp.ua_dismissal_date
+        hire, dism = self._employment_dates(emp, d1, d2)
         start = max(d1, hire) if hire else d1
         end = min(d2, dism) if dism else d2
         days_in = max((end - start).days + 1, 0)
@@ -73,10 +73,11 @@ class UaPayrollReportWizard(models.TransientModel):
         esv_diff = r2(min_diff * 22.0 / 100.0)
         leaves = slip._ua_leave_calendar_days() if hasattr(slip, "_ua_leave_calendar_days") else {}
         sick_days = (leaves.get("sick_emp_days", 0) + leaves.get("sick_pfu_days", 0))
-        unpaid_days = 0
+        unpaid_days = leaves.get("unpaid_days", 0)
+        part_time = (not emp.ua_full_time) or float(emp.ua_fte or "1") < 1.0
         common = {"G5": "1", "G6": GENDER.get(getattr(emp, "sex", None) or "", None), "G7S": emp.ua_rnokpp or "", "G101": self.month, "G102": self.year,
                   "names": emp._ua_name_parts(), "G21": "1" if (emp.ua_main_job and kind == "employment") else "0",
-                  "G22": "0" if emp.ua_full_time else "1", "G23": "0", "G24": "0", "G26": "0", "G14": days_in, "G13": unpaid_days}
+                  "G22": "1" if part_time else "0", "G23": "0", "G24": "0", "G26": "0", "G14": days_in, "G13": unpaid_days or None}
         rows.append({**common, "G8": cat, "G12": None, "G16": salary, "G17": base_main, "G18": min_diff or None, "G19": 0.0,
                      "G20": r2(esv_main + esv_diff), "rate": rate})
         sick = r2(sick_emp + sick_pfu)
@@ -92,6 +93,16 @@ class UaPayrollReportWizard(models.TransientModel):
         return rows, {"gross": gross, "salary": salary, "gph": salary if kind == "gph" else 0.0, "sick_emp": sick_emp, "sick_pfu": sick_pfu,
                       "pdfo": r2(-self._line(slip, "PDFO")), "vz": r2(-self._line(slip, "VZ")), "kind": kind, "cat": cat, "min_diff": min_diff,
                       "emp": emp, "hire": hire, "dism": dism}
+
+    def _employment_dates(self, emp, d1, d2):
+        """Період трудових відносин у місяці з версій контракту (hr.version): одна картка, кілька періодів роботи.
+        Повторне прийняття = нова версія з новою датою початку; історія не втрачається."""
+        versions = emp.version_ids.filtered(lambda v: v.contract_date_start and v.contract_date_start <= d2
+                                            and (not v.contract_date_end or v.contract_date_end >= d1)).sorted("contract_date_start")
+        if versions:
+            v = versions[-1]
+            return v.contract_date_start, v.contract_date_end
+        return emp.ua_hire_date, emp.ua_dismissal_date
 
     # ---- builders --------------------------------------------------------
     def _company_head(self):
