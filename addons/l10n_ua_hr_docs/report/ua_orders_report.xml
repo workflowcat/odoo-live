@@ -24,7 +24,7 @@
       <div style="font-weight:bold; font-size:13px;"><t t-out="company.name"/></div>
       <div style="font-size:10px; color:#444;">ЄДРПОУ <t t-out="company.company_registry or '-'"/> · <t t-out="', '.join(x for x in [company.zip, company.city, company.street] if x)"/></div>
       <h3 style="margin:16px 0 2px;">НАКАЗ</h3>
-      <div><t t-out="order_ref or '№ ____ від ____________'"/></div>
+      <div><t t-out="(order_ref or '').replace('Наказ ', '').strip() or '№ ____ від ____________'"/></div>
     </div>
   </template>
   <template id="ua_order_foot">

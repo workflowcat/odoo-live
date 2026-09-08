@@ -44,6 +44,7 @@ class HrPayslip(models.Model):
             "holidays_per_year": p.get("holidays_per_year", 0.0),
             "fte": float(emp.ua_fte or "1"),
             "reserve_rate": p.get("reserve_rate", 0.0),
+            "mat_cover_days": 0,   # l10n_ua_average перевизначає
         }
 
     def get_payroll_dict(self, contracts):

@@ -84,7 +84,7 @@ result = -round(after_tax * inputs.ALIM_PCT.amount / 100.0, 2)</field>
       <field name="category_id" ref="cat_comp"/><field name="condition_select">python</field><field name="condition_python">result = payroll.ua.contract_kind != 'fop'</field><field name="amount_select">code</field>
       <field name="amount_python_compute">base = categories.GROSS + categories.MAT
 full_month = payroll.ua.month_workdays and worked_days.WORK100 and worked_days.WORK100.number_of_days &gt;= payroll.ua.month_workdays
-if payroll.ua.esv_min_applies and full_month and base &lt; payroll.ua.min_wage:
+if payroll.ua.esv_min_applies and full_month and base &lt; payroll.ua.min_wage and not payroll.ua.mat_cover_days:
     base = payroll.ua.min_wage
 base = min(base, payroll.ua.esv_max_base)
 result = round(base * payroll.ua.esv_rate / 100.0, 2)</field>

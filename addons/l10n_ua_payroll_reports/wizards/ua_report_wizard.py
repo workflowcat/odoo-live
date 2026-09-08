@@ -68,7 +68,8 @@ class UaPayrollReportWizard(models.TransientModel):
         rows = []
         # мінімальна доплата ЄСВ: різниця між МЗП і фактичним нарахуванням (лише основне місце, повний місяць)
         min_diff = 0.0
-        if kind == "employment" and emp.ua_main_job and gross < params["min_wage"] and days_in >= (d2 - d1).days + 1:
+        leaves_all = slip._ua_leave_calendar_days() if hasattr(slip, "_ua_leave_calendar_days") else {}
+        if kind == "employment" and emp.ua_main_job and gross < params["min_wage"] and days_in >= (d2 - d1).days + 1 and not leaves_all.get("mat_cover_days"):
             min_diff = r2(params["min_wage"] - gross)
         base_main = r2(min(salary, remaining)); remaining = r2(remaining - base_main)
         esv_main = r2(base_main * rate / 100.0)

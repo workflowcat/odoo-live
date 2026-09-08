@@ -19,8 +19,10 @@ for s in slips:
     wd = {w["code"]: w["number_of_days"] for w in call("hr.payslip.worked_days", "search_read", [["payslip_id", "=", s["id"]]], fields=["code", "number_of_days"])}
     notes = []
     if emp["ua_contract_kind"] == "gph": notes.append("ЦПХ")
+    if emp["ua_contract_kind"] == "fop": notes.append("ФОП-підрядник, ознака 157")
+    if wd.get("MAT"): notes.append("декрет з 10.08, допомога ПФУ %s" % f(L.get("MAT", 0)))
     if emp["ua_fte"] != "1": notes.append(f"{emp['ua_fte'].replace('.', ',')} ставки")
-    if not emp["ua_main_job"] and emp["ua_contract_kind"] != "gph": notes.append("сумісник")
+    if not emp["ua_main_job"] and emp["ua_contract_kind"] == "employment": notes.append("сумісник")
     if emp["ua_psp"] == "base": notes.append("ПСП")
     if emp["ua_psp"] == "child": notes.append("ПСП на дітей")
     if emp["ua_esv_category"] == "disabled": notes.append("ЄСВ 8,41 %")
@@ -33,6 +35,7 @@ for s in slips:
     if emp["contract_date_start"] and emp["contract_date_start"] >= "2026-08-01": notes.append("прийнято " + ".".join(reversed(emp["contract_date_start"][5:].split("-"))))
     if L.get("ESV", 0) >= 38046.8: notes.append("макс. база ЄСВ")
     other = -(L.get("ALIM", 0))
+    L["NET"] = L.get("NET", 0)
     rows.append((emp["name"], emp["job_title"], "; ".join(notes) or "-", emp["wage"], L.get("GROSS", 0), -L.get("PDFO", 0), -L.get("VZ", 0), other, -L.get("ADV_PAID", 0), L.get("NET", 0), L.get("ESV", 0)))
 rows.sort(key=lambda r: r[0])
 for i, r in enumerate(rows, 1):
