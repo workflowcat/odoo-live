@@ -261,8 +261,10 @@ class KycCase(models.Model):
         return True
 
     def action_open_register(self):
+        """The register (kyc-service) is an API without a public page; show where the subject lives."""
         self.ensure_one()
         if not self.register_id:
             raise UserError("Справа ще не в реєстрі.")
-        return {"type": "ir.actions.act_url", "target": "new",
-                "url": f"https://kyc-service.botpartners.workers.dev/subjects/{self.register_id}"}
+        return {"type": "ir.actions.client", "tag": "display_notification", "params": {
+            "title": "Реєстр KYC", "type": "info", "sticky": False,
+            "message": f"Суб'єкт {self.register_id} записано в kyc-service. Перегляд: OfficeKit → Контрагенти."}}
