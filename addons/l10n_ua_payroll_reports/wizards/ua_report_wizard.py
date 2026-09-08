@@ -29,6 +29,7 @@ class UaPayrollReportWizard(models.TransientModel):
     number = fields.Integer("Номер розрахунку за період", default=1, required=True)
     with_d1 = fields.Boolean("Додаток 1 (Д1)", default=True)
     with_4df = fields.Boolean("Додаток 4ДФ", default=True)
+    with_d5 = fields.Boolean("Додаток 5 (Д5, трудові відносини)", default=True)
     fill_date = fields.Date("Дата заповнення", default=fields.Date.context_today, required=True)
     result_ids = fields.Many2many("ir.attachment", string="Файли")
     log = fields.Text("Перевірка за схемою", readonly=True)
@@ -150,7 +151,38 @@ class UaPayrollReportWizard(models.TransientModel):
               ("R01G5A", r2(sum(r["G5A"] for r in rows))), ("R01G5", r2(sum(r["G5"] for r in rows)))]
         return f + self._signers()
 
-    def _build_main(self, persons, all_rows, params, n_d1, n_4df):
+    def _d5_rows(self):
+        """Рядки Д5: кожна версія контракту, що почалася або закінчилася в місяці (прийняття, звільнення)."""
+        d1, d2 = self._period()
+        rows = []
+        versions = self.env["hr.version"].sudo().search([("employee_id.company_id", "=", self.company_id.id), ("contract_date_start", "!=", False),
+                                                          "|", "&", ("contract_date_start", ">=", d1), ("contract_date_start", "<=", d2),
+                                                          "&", ("contract_date_end", ">=", d1), ("contract_date_end", "<=", d2)])
+        for v in versions.sorted(lambda v: (v.employee_id.name or "", v.contract_date_start)):
+            emp = v.employee_id.sudo()
+            started = d1 <= v.contract_date_start <= d2
+            ended = bool(v.contract_date_end) and d1 <= v.contract_date_end <= d2
+            kind = emp.ua_contract_kind or "employment"
+            rows.append({"G5": "1", "G6": "1" if kind == "gph" else "0", "G7": "3" if kind == "gph" else "1",
+                         "G8S": emp.ua_rnokpp or "", "names": emp._ua_name_parts(),
+                         "G101D": v.contract_date_start if started else None, "G102D": v.contract_date_end if ended else None,
+                         "G11": "1" if v.ua_internal_parttime else "0", "G12": "0",
+                         "G13S": v.ua_prof_name or v.job_id.name or emp.job_title or "", "G14S": v.ua_kp_code or "",
+                         "G15S": v.job_title or v.job_id.name or emp.job_title or "",
+                         "G16S": (v.ua_order_ref if started else v.ua_end_order_ref) or "",
+                         "G17S": (v.ua_dismissal_basis or "") if ended else None, "G18D": None, "G19S": None, "G20": None})
+        return rows
+
+    def _build_d5(self, rows):
+        c = self.company_id
+        f = self._company_head() + [("HNAME", c.name), ("HTIN", c.company_registry)]
+        for col in ["G5", "G6", "G7", "G8S", "G91S", "G92S", "G93S", "G101D", "G102D", "G11", "G12", "G13S", "G14S", "G15S", "G16S", "G17S", "G18D", "G19S", "G20"]:
+            for i, r in enumerate(rows, 1):
+                val = r["names"][("G91S", "G92S", "G93S").index(col)] if col in ("G91S", "G92S", "G93S") else r.get(col)
+                f.append((f"T1RXXXX{col}", val, {"ROWNUM": i}))
+        return f + self._signers()
+
+    def _build_main(self, persons, all_rows, params, n_d1, n_4df, n_d5=0):
         c = self.company_id
         rate22 = [r for r in all_rows if r["rate"] == params["esv_rate"]]
         rate841 = [r for r in all_rows if r["rate"] == params["esv_rate_disabled"] and r["rate"] != params["esv_rate"]]
@@ -166,6 +198,7 @@ class UaPayrollReportWizard(models.TransientModel):
         f = self._company_head() + [("HNUM", self.number), ("HNAME", c.name), ("HTIN", c.company_registry), ("HKATOTTG", c.ua_katottg or ""),
              ("HLOC", c.street or ""), ("HZIP", c.zip or ""), ("HTEL", c.phone or None), ("HEMAIL", c.email or None), ("HSTI", c.ua_sti_name or ""),
              ("R061G3", bool(n_d1)), ("R061G4", n_d1 or None), ("R064G3", bool(n_4df)), ("R064G4", n_4df or None),
+             ("R065G3", bool(n_d5)), ("R065G4", n_d5 or None),
              ("HKVED", c.ua_kved or None), ("R081G3", True),
              ("R091G3", len(employment)), ("R0911G3", sum(1 for p in employment if p["emp"].ua_esv_category == "disabled")),
              ("R092G3", len(employment)), ("R101G3", 0),
@@ -198,13 +231,16 @@ class UaPayrollReportWizard(models.TransientModel):
             appendices.append(("101", "J0510111", self._build_d1(all_rows)))
         if self.with_4df:
             appendices.append(("104", "J0510411", self._build_4df(persons)))
+        d5_rows = self._d5_rows() if self.with_d5 else []
+        if d5_rows:
+            appendices.append(("105", "J0510511", self._build_d5(d5_rows)))
         linked_for_main, app_files = [], []
         for i, (sub, code, body) in enumerate(appendices, 1):
             linked = [{"num": 1, "type": 2, "C_DOC": "J05", "C_DOC_SUB": "001", "C_DOC_VER": VER, "C_DOC_TYPE": 0, "C_DOC_CNT": self.number, "C_DOC_STAN": stan, "FILENAME": main_name}]
             fname, data = X.build(c, "J05", sub, VER, 1, self.month, self.year, body, linked=linked, c_doc_cnt=self.number, c_doc_stan=stan, fill_date=self.fill_date)
             app_files.append((fname, data, code))
             linked_for_main.append({"num": i, "type": 1, "C_DOC": "J05", "C_DOC_SUB": sub, "C_DOC_VER": VER, "C_DOC_TYPE": 0, "C_DOC_CNT": self.number, "C_DOC_STAN": stan, "FILENAME": fname})
-        body_main = self._build_main(persons, all_rows, params, 1 if self.with_d1 else 0, 1 if self.with_4df else 0)
+        body_main = self._build_main(persons, all_rows, params, 1 if self.with_d1 else 0, 1 if self.with_4df else 0, 1 if d5_rows else 0)
         fname, data = X.build(c, "J05", "001", VER, 1, self.month, self.year, body_main, linked=linked_for_main, c_doc_cnt=self.number, c_doc_stan=stan, fill_date=self.fill_date)
         files.append((fname, data, "J0500111")); files += app_files
         Att = self.env["ir.attachment"]; atts = Att

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+  <!-- Універсальна виписка CSV: експорт із Приват24 для бізнесу / Monobank / інших банків, приведений до цих колонок -->
+  <record id="mapping_ua_csv" model="account.statement.import.sheet.mapping">
+    <field name="name">Виписка банку (CSV, UTF-8, крапка з комою)</field>
+    <field name="file_encoding">utf-8-sig</field>
+    <field name="delimiter">semicolon</field>
+    <field name="quotechar">"</field>
+    <field name="float_thousands_sep">none</field>
+    <field name="float_decimal_sep">comma</field>
+    <field name="header_lines_skip_count">1</field>
+    <field name="footer_lines_skip_count">0</field>
+    <field name="timestamp_format">%d.%m.%Y</field>
+    <field name="timestamp_column">Дата</field>
+    <field name="amount_type">distinct_credit_debit</field>
+    <field name="amount_debit_column">Дебет</field>
+    <field name="amount_credit_column">Кредит</field>
+    <field name="amount_inverse_sign" eval="True"/>
+    <field name="transaction_id_column">Номер документа</field>
+    <field name="description_column">Призначення платежу</field>
+    <field name="partner_name_column">Контрагент</field>
+    <field name="bank_account_column">Рахунок контрагента</field>
+    <field name="currency_column">Валюта</field>
+  </record>
+</odoo>

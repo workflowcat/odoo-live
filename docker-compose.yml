@@ -2,6 +2,7 @@
 # The LIVE database lives on Supabase; see docker-compose.live.yml and docs/ARCHITECTURE.md.
 services:
   db:
+    restart: unless-stopped
     image: postgres:17
     environment:
       - POSTGRES_DB=postgres
@@ -28,6 +29,10 @@ services:
       - PASSWORD=odoo
       - BP_BRIDGE_URL=https://odoo-live.botpartners.workers.dev
       - BP_BRIDGE_TOKEN=${BP_BRIDGE_TOKEN:-}
+      - ODOO_ADMIN_PASSWD=${ODOO_ADMIN_PASSWD:-}
+    # master password comes from .env; the mounted conf stays free of secrets
+    command: ["sh", "-c", "cp /etc/odoo/odoo.conf /tmp/odoo.conf && if [ -n \"$$ODOO_ADMIN_PASSWD\" ]; then printf 'admin_passwd = %s\\n' \"$$ODOO_ADMIN_PASSWD\" >> /tmp/odoo.conf; fi && ODOO_RC=/tmp/odoo.conf exec /entrypoint.sh odoo"]
+    restart: unless-stopped
     volumes:
       - odoo-live-data:/var/lib/odoo
       - ./addons:/mnt/extra-addons

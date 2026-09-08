@@ -18,6 +18,14 @@
 | `l10n_ua_payroll_reports` | об'єднана звітність з Д1, 4ДФ, Д5, Заява-розрахунок, 1-ПВ, розрахункові листки, перевірка XML за схемою ДПС |
 | маршрути моста | подання через ЕДО, індекс Держстату, оновлення параметрів |
 
+## Стан на 9 вересня 2026: стенд для перевірки Ланою
+
+- Посилання https://odoo-demo.botpartners.workers.dev → тунель localhost.run до 127.0.0.1:8110 (launchd `com.kit.odoo-payroll-tunnel`, скрипт `scripts/tunnel.sh`). Користувач `lana` (пароль у `.env`, `LANA_PASSWORD`). Посібник: `docs/payroll/review-guide.md`.
+- Безпека стенду: `list_db = False`, `dbfilter = ^payroll$`, master-пароль з `.env` (`ODOO_ADMIN_PASSWD`, підставляється командою контейнера у `/tmp/odoo.conf`). RPC `db.list`/`db.drop` повертають Access Denied.
+- Нове з 8 вересня: друковані форми (розрахунковий листок, розрахунково-платіжна відомість, `l10n_ua_payroll_reports/report`), аванс (правило ADV_PAID, вхід ADVANCE, майстер «Аванс за місяць» у `l10n_ua_payroll_rules/wizards`), Д5 (J0510511) з полів `hr.version` (`ua_order_ref`, `ua_end_order_ref`, `ua_dismissal_basis`, `ua_kp_code`, `ua_prof_name`, `ua_internal_parttime`), OCA банк: `account_statement_base`, `account_reconcile_oca`, `account_statement_import_*` (19.0, без змін, коміти в `addons/OCA_*.commit`), модуль `l10n_ua_bank` (шаблон CSV, правила звірки 661/6411/6415/651/6851, зразок виписки).
+- Сценарій 13 (аванс) у `scripts/payroll_check.py`; 13/13 PASS, XML J0500111 + Д1 + 4ДФ + Д5 валідні за XSD v11.
+- Odoo 19: `hr.version.write` з датами контракту синхронізує всі версії того самого контракту; для повторного прийняття пишіть дати з контекстом `sync_contract_dates=True` (див. скрипт).
+
 ## Стан на 8 вересня 2026
 
 Працює: рушій OCA payroll на Odoo 19, модулі `l10n_ua_payroll_rules` і `l10n_ua_average`, структура «Україна: оклад».

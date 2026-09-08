@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="paperformat_ua_a4" model="report.paperformat">
+    <field name="name">Україна A4 (без колонтитулів)</field><field name="format">A4</field><field name="orientation">Portrait</field>
+    <field name="margin_top">12</field><field name="margin_bottom">12</field><field name="margin_left">12</field><field name="margin_right">12</field>
+    <field name="header_line" eval="False"/><field name="header_spacing">0</field><field name="dpi">90</field>
+  </record>
+  <record id="paperformat_ua_a4_landscape" model="report.paperformat">
+    <field name="name">Україна A4 альбомна (без колонтитулів)</field><field name="format">A4</field><field name="orientation">Landscape</field>
+    <field name="margin_top">12</field><field name="margin_bottom">12</field><field name="margin_left">12</field><field name="margin_right">12</field>
+    <field name="header_line" eval="False"/><field name="header_spacing">0</field><field name="dpi">90</field>
+  </record>
+  <record id="action_report_ua_payslip" model="ir.actions.report">
+    <field name="name">Розрахунковий листок</field>
+    <field name="model">hr.payslip</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_payroll_reports.report_ua_payslip</field>
+    <field name="report_file">l10n_ua_payroll_reports.report_ua_payslip</field>
+    <field name="print_report_name">'Листок %s %s' % (object.employee_id.name, object.date_from.strftime('%m.%Y'))</field>
+    <field name="binding_model_id" ref="payroll.model_hr_payslip"/>
+    <field name="binding_type">report</field>
+    <field name="paperformat_id" ref="paperformat_ua_a4"/>
+  </record>
+  <template id="report_ua_payslip">
+    <t t-call="web.basic_layout">
+      <t t-foreach="docs" t-as="slip">
+        <div class="page" style="font-family: DejaVu Sans, sans-serif; font-size: 11px;">
+          <h3 style="margin-bottom:2px;">Розрахунковий листок</h3>
+          <div><t t-out="slip.company_id.name"/></div>
+          <table style="width:100%; margin:8px 0 10px; font-size:11px;">
+            <tr><td style="width:50%"><b>Працівник:</b> <t t-out="slip.employee_id.name"/></td><td><b>Період:</b> <t t-out="slip.date_from.strftime('%d.%m.%Y')"/> - <t t-out="slip.date_to.strftime('%d.%m.%Y')"/></td></tr>
+            <tr><td><b>РНОКПП:</b> <t t-out="slip.employee_id.sudo().ua_rnokpp or '-'"/></td><td><b>Листок:</b> <t t-out="slip.number or slip.name"/> · <b>Структура:</b> <t t-out="slip.struct_id.name"/></td></tr>
+            <tr><td><b>Підрозділ:</b> <t t-out="slip.employee_id.department_id.name or '-'"/></td><td><b>Посада:</b> <t t-out="slip.employee_id.job_title or slip.employee_id.job_id.name or '-'"/></td></tr>
+          </table>
+          <t t-set="wd" t-value="slip.worked_days_line_ids"/>
+          <t t-if="wd">
+            <table class="table table-sm" style="font-size:11px;">
+              <thead><tr><th>Відпрацьовано</th><th class="text-end">Днів</th><th class="text-end">Годин</th></tr></thead>
+              <tbody><t t-foreach="wd" t-as="w"><tr><td><t t-out="{'WORK100': 'Відпрацьовані дні', 'VAC': 'Щорічна відпустка', 'SICK': 'Тимчасова непрацездатність', 'UNPAID': 'Відпустка без збереження зарплати'}.get(w.code, w.name)"/></td><td class="text-end"><t t-out="'%.1f' % w.number_of_days"/></td><td class="text-end"><t t-out="'%.1f' % w.number_of_hours"/></td></tr></t></tbody>
+            </table>
+          </t>
+          <t t-set="acc" t-value="slip.line_ids.filtered(lambda l: l.category_id.code in ('BASIC', 'ALW', 'AVG') and l.total)"/>
+          <t t-set="ded" t-value="slip.line_ids.filtered(lambda l: l.category_id.code == 'DED' and l.total)"/>
+          <t t-set="net" t-value="slip.line_ids.filtered(lambda l: l.code == 'NET')"/>
+          <t t-set="comp" t-value="slip.line_ids.filtered(lambda l: l.category_id.code == 'COMP' and l.total)"/>
+          <table class="table table-sm" style="font-size:11px;">
+            <thead><tr><th style="width:70%">Нараховано</th><th class="text-end">Сума, грн</th></tr></thead>
+            <tbody>
+              <t t-foreach="acc" t-as="l"><tr><td><t t-out="l.name"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(l.total).replace(',', ' ')"/></td></tr></t>
+              <tr><td><b>Разом нараховано</b></td><td class="text-end"><b><t t-out="'{:,.2f}'.format(sum(acc.mapped('total'))).replace(',', ' ')"/></b></td></tr>
+            </tbody>
+          </table>
+          <table class="table table-sm" style="font-size:11px;">
+            <thead><tr><th style="width:70%">Утримано</th><th class="text-end">Сума, грн</th></tr></thead>
+            <tbody>
+              <t t-foreach="ded" t-as="l"><tr><td><t t-out="l.name"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(-l.total).replace(',', ' ')"/></td></tr></t>
+              <tr><td><b>Разом утримано</b></td><td class="text-end"><b><t t-out="'{:,.2f}'.format(-sum(ded.mapped('total'))).replace(',', ' ')"/></b></td></tr>
+            </tbody>
+          </table>
+          <table class="table table-sm" style="font-size:12px;">
+            <tbody>
+              <tr><td style="width:70%"><b>До виплати</b></td><td class="text-end"><b><t t-out="'{:,.2f}'.format(sum(net.mapped('total'))).replace(',', ' ')"/> грн</b></td></tr>
+              <t t-foreach="comp" t-as="l"><tr><td><t t-out="l.name"/> (за рахунок роботодавця, не утримується)</td><td class="text-end"><t t-out="'{:,.2f}'.format(l.total).replace(',', ' ')"/></td></tr></t>
+            </tbody>
+          </table>
+          <p style="color:#666; font-size:10px; margin-top:12px;">Сформовано в Odoo <t t-out="context_timestamp(datetime.datetime.now()).strftime('%d.%m.%Y')"/>. Розрахунковий листок видається працівнику під час кожної виплати (ст. 110 КЗпП).</p>
+        </div>
+      </t>
+    </t>
+  </template>
+
+  <record id="action_report_ua_payroll_sheet" model="ir.actions.report">
+    <field name="name">Розрахунково-платіжна відомість</field>
+    <field name="model">hr.payslip.run</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_payroll_reports.report_ua_payroll_sheet</field>
+    <field name="report_file">l10n_ua_payroll_reports.report_ua_payroll_sheet</field>
+    <field name="print_report_name">'Відомість %s' % object.name</field>
+    <field name="binding_model_id" ref="payroll.model_hr_payslip_run"/>
+    <field name="binding_type">report</field>
+    <field name="paperformat_id" ref="paperformat_ua_a4_landscape"/>
+  </record>
+  <template id="report_ua_payroll_sheet">
+    <t t-call="web.basic_layout">
+      <t t-foreach="docs" t-as="run">
+        <div class="page" style="font-family: DejaVu Sans, sans-serif; font-size:10px;">
+          <h3 style="margin-bottom:2px;">Розрахунково-платіжна відомість</h3>
+          <div><t t-out="run.company_id.name"/> · <t t-out="run.name"/> · <t t-out="run.date_start.strftime('%d.%m.%Y')"/> - <t t-out="run.date_end.strftime('%d.%m.%Y')"/></div>
+          <t t-set="tot" t-value="{'gross': 0.0, 'pdfo': 0.0, 'vz': 0.0, 'other': 0.0, 'net': 0.0, 'esv': 0.0}"/>
+          <style>.ua-sheet td, .ua-sheet th { white-space: nowrap; } .ua-sheet td.emp, .ua-sheet th.emp { white-space: normal; }</style>
+          <table class="table table-sm ua-sheet" style="font-size:10px; margin-top:8px;">
+            <thead><tr><th>№</th><th class="emp">Працівник</th><th>РНОКПП</th><th class="text-end">Нараховано</th><th class="text-end">ПДФО</th><th class="text-end">ВЗ</th><th class="text-end">Інші утримання</th><th class="text-end">До виплати</th><th class="text-end">ЄСВ роботодавця</th></tr></thead>
+            <tbody>
+              <t t-foreach="run.slip_ids.sorted(lambda s: s.employee_id.name)" t-as="slip">
+                <t t-set="g" t-value="sum(slip.line_ids.filtered(lambda l: l.code == 'GROSS').mapped('total'))"/>
+                <t t-set="p" t-value="-sum(slip.line_ids.filtered(lambda l: l.code == 'PDFO').mapped('total'))"/>
+                <t t-set="v" t-value="-sum(slip.line_ids.filtered(lambda l: l.code == 'VZ').mapped('total'))"/>
+                <t t-set="o" t-value="-sum(slip.line_ids.filtered(lambda l: l.category_id.code == 'DED' and l.code not in ('PDFO', 'VZ')).mapped('total'))"/>
+                <t t-set="n" t-value="sum(slip.line_ids.filtered(lambda l: l.code == 'NET').mapped('total'))"/>
+                <t t-set="e" t-value="sum(slip.line_ids.filtered(lambda l: l.code == 'ESV').mapped('total'))"/>
+                <t t-set="tot" t-value="{'gross': tot['gross'] + g, 'pdfo': tot['pdfo'] + p, 'vz': tot['vz'] + v, 'other': tot['other'] + o, 'net': tot['net'] + n, 'esv': tot['esv'] + e}"/>
+                <tr><td><t t-out="slip_index + 1"/></td><td class="emp"><t t-out="slip.employee_id.name"/></td><td><t t-out="slip.employee_id.sudo().ua_rnokpp or ''"/></td>
+                  <td class="text-end"><t t-out="'{:,.2f}'.format(g).replace(',', ' ')"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(p).replace(',', ' ')"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(v).replace(',', ' ')"/></td>
+                  <td class="text-end"><t t-out="'{:,.2f}'.format(o).replace(',', ' ')"/></td><td class="text-end"><b><t t-out="'{:,.2f}'.format(n).replace(',', ' ')"/></b></td><td class="text-end"><t t-out="'{:,.2f}'.format(e).replace(',', ' ')"/></td></tr>
+              </t>
+              <tr style="font-weight:bold; border-top:2px solid #333;"><td></td><td>Разом</td><td></td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(tot['gross']).replace(',', ' ')"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(tot['pdfo']).replace(',', ' ')"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(tot['vz']).replace(',', ' ')"/></td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(tot['other']).replace(',', ' ')"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(tot['net']).replace(',', ' ')"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(tot['esv']).replace(',', ' ')"/></td></tr>
+            </tbody>
+          </table>
+          <table style="width:100%; margin-top:24px; font-size:10px;"><tr>
+            <td style="width:50%">Керівник: ____________________ <t t-out="run.company_id.ua_director_name or ''"/></td>
+            <td>Головний бухгалтер: ____________________ <t t-out="run.company_id.ua_accountant_name or ''"/></td></tr></table>
+        </div>
+      </t>
+    </t>
+  </template>
+</odoo>

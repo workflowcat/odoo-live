@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_employee_form_ua_version_fields" model="ir.ui.view">
+    <field name="name">hr.employee.form.ua.d5</field><field name="model">hr.employee</field>
+    <field name="inherit_id" ref="l10n_ua_payroll_rules.view_employee_form_ua"/>
+    <field name="arch" type="xml">
+      <group name="ua" position="inside">
+        <group string="Трудові відносини (Д5)">
+          <field name="ua_order_ref"/><field name="ua_end_order_ref"/><field name="ua_dismissal_basis"/><field name="ua_prof_name"/><field name="ua_kp_code"/><field name="ua_internal_parttime"/>
+        </group>
+        <group string="Ім'я для звітів">
+          <field name="ua_last_name"/><field name="ua_first_name"/><field name="ua_middle_name"/><field name="ua_full_time"/>
+        </group>
+      </group>
+    </field>
+  </record>
+</odoo>

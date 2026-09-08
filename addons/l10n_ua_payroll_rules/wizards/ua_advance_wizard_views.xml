@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_advance_wizard" model="ir.ui.view">
+    <field name="name">ua.payroll.advance.wizard.form</field><field name="model">ua.payroll.advance.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Аванс за місяць">
+        <group><group><field name="company_id"/><field name="year"/><field name="month"/></group><group><field name="percent"/><field name="pay_date"/></group></group>
+        <footer><button name="action_fill" type="object" string="Розрахувати аванс" class="btn-primary"/><button string="Закрити" class="btn-secondary" special="cancel"/></footer>
+      </form>
+    </field>
+  </record>
+  <record id="view_hr_payslip_input_advance_list" model="ir.ui.view">
+    <field name="name">hr.payslip.input.advance.list</field><field name="model">hr.payslip.input</field>
+    <field name="arch" type="xml">
+      <list string="Відомість авансу" create="false" editable="bottom"><field name="payslip_id"/><field name="name"/><field name="amount" sum="Разом"/></list>
+    </field>
+  </record>
+  <record id="action_ua_advance_wizard" model="ir.actions.act_window">
+    <field name="name">Аванс за місяць</field><field name="res_model">ua.payroll.advance.wizard</field><field name="view_mode">form</field><field name="target">new</field>
+  </record>
+  <menuitem id="menu_ua_advance" name="Аванс за місяць" parent="hr.menu_hr_root" action="action_ua_advance_wizard" sequence="45" groups="hr.group_hr_user"/>
+</odoo>
