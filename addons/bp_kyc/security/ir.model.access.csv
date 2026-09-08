@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_kyc_case_user,kyc.case user,model_kyc_case,group_kyc_user,1,1,1,0
+access_kyc_case_manager,kyc.case manager,model_kyc_case,group_kyc_manager,1,1,1,1
+access_kyc_screening_user,kyc.screening user,model_kyc_screening,group_kyc_user,1,1,1,1
+access_kyc_screening_manager,kyc.screening manager,model_kyc_screening,group_kyc_manager,1,1,1,1

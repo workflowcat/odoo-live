@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_kyc_screening_list" model="ir.ui.view">
+    <field name="name">kyc.screening.list</field>
+    <field name="model">kyc.screening</field>
+    <field name="arch" type="xml">
+      <list decoration-danger="severity == 'high'" decoration-warning="severity == 'warn'">
+        <field name="fetched_at"/>
+        <field name="case_id"/>
+        <field name="partner_id"/>
+        <field name="source"/>
+        <field name="severity"/>
+        <field name="title"/>
+        <field name="detail"/>
+        <field name="pushed"/>
+      </list>
+    </field>
+  </record>
+  <record id="view_kyc_screening_form" model="ir.ui.view">
+    <field name="name">kyc.screening.form</field>
+    <field name="model">kyc.screening</field>
+    <field name="arch" type="xml">
+      <form string="Перевірка">
+        <sheet>
+          <group>
+            <group><field name="case_id"/><field name="source"/><field name="severity"/><field name="fetched_at"/></group>
+            <group><field name="key"/><field name="title"/><field name="pushed"/></group>
+          </group>
+          <field name="detail"/>
+          <field name="payload" widget="ace" options="{'mode': 'json'}"/>
+        </sheet>
+      </form>
+    </field>
+  </record>
+  <record id="action_kyc_screening" model="ir.actions.act_window">
+    <field name="name">Перевірки</field>
+    <field name="res_model">kyc.screening</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>

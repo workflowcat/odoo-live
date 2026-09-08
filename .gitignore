@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.env
+.dev.vars
+.demo-secrets
+worker/node_modules/
+worker/.wrangler/
+*.dump

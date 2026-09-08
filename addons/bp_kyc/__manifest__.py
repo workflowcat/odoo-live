@@ -1,0 +1,21 @@
+{
+    "name": "KYC",
+    "summary": "KYC-процес: справа на контрагента, скринінг ЄДР через OpenDataBot, чек-лист, рішення, синхронізація з kyc-service",
+    "version": "19.0.1.0.0",
+    "category": "Services/KYC",
+    "author": "Bot&Partners",
+    "license": "LGPL-3",
+    "depends": ["base", "contacts", "mail"],
+    "data": [
+        "security/security.xml",
+        "security/ir.model.access.csv",
+        "data/sequence.xml",
+        "data/mail_templates.xml",
+        "views/kyc_case_views.xml",
+        "views/kyc_screening_views.xml",
+        "views/res_partner_views.xml",
+        "views/menus.xml",
+    ],
+    "application": True,
+    "installable": True,
+}

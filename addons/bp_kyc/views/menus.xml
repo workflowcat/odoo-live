@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_kyc_root" name="KYC" sequence="15" groups="bp_kyc.group_kyc_user"/>
+  <menuitem id="menu_kyc_cases" name="Справи" parent="menu_kyc_root" action="action_kyc_case" sequence="10"/>
+  <menuitem id="menu_kyc_screenings" name="Перевірки" parent="menu_kyc_root" action="action_kyc_screening" sequence="20"/>
+  <menuitem id="menu_kyc_partners" name="Контрагенти" parent="menu_kyc_root" action="contacts.action_contacts" sequence="30"/>
+</odoo>

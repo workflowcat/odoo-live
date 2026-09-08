@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+    <record id="mail_template_kyc_request_docs" model="mail.template">
+      <field name="name">KYC: запит документів</field>
+      <field name="model_id" ref="model_kyc_case"/>
+      <field name="subject">Запит документів для перевірки контрагента ({{ object.partner_id.name }})</field>
+      <field name="email_from">{{ (object.user_id.email_formatted or user.email_formatted) }}</field>
+      <field name="partner_to">{{ object.partner_id.id }}</field>
+      <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;">
+<p>Добрий день!</p>
+<p>Для проходження перевірки контрагента (KYC) просимо надіслати такі документи щодо <b t-out="object.partner_id.name"/>:</p>
+<ol>
+  <li>Актуальна виписка або витяг з ЄДР.</li>
+  <li>Статут (остання редакція) або інший установчий документ.</li>
+  <li>Структура власності до кінцевих бенефіціарних власників (КБВ) і документ, що її підтверджує.</li>
+  <li>Копія паспорта та РНОКПП керівника (або підписанта) і КБВ.</li>
+  <li>Підтвердження адреси місцезнаходження (договір оренди або право власності).</li>
+  <li>Короткий опис діяльності та джерел коштів.</li>
+</ol>
+<p>Документи можна надіслати відповіддю на цей лист. Справа: <span t-out="object.name"/>.</p>
+<p>З повагою,<br/><span t-out="object.user_id.name or user.name"/></p>
+</div>
+      </field>
+      <field name="auto_delete" eval="False"/>
+    </record>
+    <record id="mail_template_kyc_decision" model="mail.template">
+      <field name="name">KYC: результат перевірки</field>
+      <field name="model_id" ref="model_kyc_case"/>
+      <field name="subject">Результат перевірки контрагента ({{ object.partner_id.name }})</field>
+      <field name="email_from">{{ (object.user_id.email_formatted or user.email_formatted) }}</field>
+      <field name="partner_to">{{ object.partner_id.id }}</field>
+      <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5;">
+<p>Добрий день!</p>
+<p>Перевірку контрагента <b t-out="object.partner_id.name"/> завершено. Результат:
+<b t-out="dict(object._fields['decision'].selection).get(object.decision)"/>.</p>
+<p t-if="object.decision == 'flagged'">Умови співпраці повідомить ваш контакт у нашій команді.</p>
+<p>Справа: <span t-out="object.name"/>.</p>
+<p>З повагою,<br/><span t-out="object.user_id.name or user.name"/></p>
+</div>
+      </field>
+      <field name="auto_delete" eval="False"/>
+    </record>
+  </data>
+</odoo>

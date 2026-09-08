@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+    <record id="seq_kyc_case" model="ir.sequence">
+      <field name="name">Справа KYC</field>
+      <field name="code">kyc.case</field>
+      <field name="prefix">KYC/%(year)s/</field>
+      <field name="padding">4</field>
+    </record>
+  </data>
+</odoo>

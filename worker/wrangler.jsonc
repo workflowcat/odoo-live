@@ -1,0 +1,10 @@
+{
+  // odoo-live: integration bridge (OpenDataBot, kyc-service) + future front door for the Odoo container.
+  // Container binding lives in wrangler.containers.jsonc until the Workers Paid plan is on.
+  "name": "odoo-live",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-01",
+  "workers_dev": true,
+  "services": [{ "binding": "KYC", "service": "kyc-service" }],
+  "d1_databases": [{ "binding": "DB", "database_name": "odoo-demo-link", "database_id": "cb71de82-5ced-4717-8163-16cd2ea9cbe3" }]
+}

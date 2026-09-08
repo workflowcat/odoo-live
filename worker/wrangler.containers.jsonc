@@ -1,0 +1,14 @@
+{
+  // Same Worker with the Odoo container attached. Needs Workers Paid. Deploy with:
+  //   wrangler deploy -c wrangler.containers.jsonc
+  "name": "odoo-live",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-01",
+  "workers_dev": true,
+  "services": [{ "binding": "KYC", "service": "kyc-service" }],
+  "d1_databases": [{ "binding": "DB", "database_name": "odoo-demo-link", "database_id": "cb71de82-5ced-4717-8163-16cd2ea9cbe3" }],
+  "containers": [{ "class_name": "OdooContainer", "image": "../odoo/Dockerfile", "max_instances": 1, "instance_type": "standard-2",
+                   "constraints": { "regions": ["WEUR"] } }],
+  "durable_objects": { "bindings": [{ "name": "ODOO", "class_name": "OdooContainer" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["OdooContainer"] }]
+}
