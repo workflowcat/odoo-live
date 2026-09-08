@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Еталонні сценарії: створює працівників, рахує листки за серпень 2026 і звіряє з docs/payroll/golden-scenarios.md.
-Запуск: python3 scripts/payroll_check.py  (читає .env: ODOO_PORT, ODOO_ADMIN_USER_PASSWORD; база payroll)"""
+Запуск: python3 scripts/payroll_check.py  (читає .env: ODOO_PORT, ODOO_ADMIN_USER_PASSWORD; база PAYROLL_CHECK_DB, типово payroll_test)
+Прибрати еталонних працівників зі стенду: python3 scripts/payroll_check.py --purge  (база з PAYROLL_CHECK_DB або payroll)"""
 import os, sys, json, urllib.request
 from collections import defaultdict
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ENV = dict(l.strip().split("=", 1) for l in open(os.path.join(ROOT, ".env")) if "=" in l and not l.startswith("#"))
-URL = f"http://127.0.0.1:{ENV.get('ODOO_PORT', '8110')}"; DB = "payroll"; PW = ENV["ODOO_ADMIN_USER_PASSWORD"]
+PURGE = "--purge" in sys.argv
+URL = f"http://127.0.0.1:{ENV.get('ODOO_PORT', '8110')}"; DB = os.environ.get("PAYROLL_CHECK_DB", "payroll" if PURGE else "payroll_test"); PW = ENV["ODOO_ADMIN_USER_PASSWORD"]
 def rpc(service, method, *args):
     body = json.dumps({"jsonrpc": "2.0", "method": "call", "id": 1, "params": {"service": service, "method": method, "args": list(args)}}).encode()
     req = urllib.request.Request(f"{URL}/jsonrpc", data=body, headers={"Content-Type": "application/json"})
@@ -21,7 +23,36 @@ if not uid:
 def call(model, method, *a, **kw): return rpc("object", "execute_kw", DB, uid, PW, model, method, list(a), kw)
 
 STRUCT = call("hr.payroll.structure", "search", [["code", "=", "UA_SALARY"]])[0]
-if "ua_sti_code" in call("res.company", "fields_get", [], attributes=["type"]):
+if PURGE:
+    emps = call("hr.employee", "search", [["name", "like", "Еталон %"], ["active", "in", [True, False]]])
+    slips = call("hr.payslip", "search_read", [["employee_id", "in", emps]], fields=["id", "state", "move_id"])
+    for sl in slips:
+        if sl["state"] == "done" and sl["move_id"]:
+            call("account.move", "button_draft", [sl["move_id"][0]]); call("account.move", "unlink", [sl["move_id"][0]])
+        if sl["state"] != "cancel":
+            call("hr.payslip", "write", [sl["id"]], {"state": "cancel"})
+    if slips:
+        call("hr.payslip", "unlink", [sl["id"] for sl in slips])
+    for run in call("hr.payslip.run", "search", [["name", "like", "Еталонні сценарії%"]]):
+        call("hr.payslip.run", "unlink", [run])
+    for h in call("ua.earnings.history", "search", [["employee_id", "in", emps]]):
+        call("ua.earnings.history", "unlink", [h])
+    leaves = call("hr.leave", "search", [["employee_id", "in", emps]])
+    if leaves:
+        call("hr.leave", "action_refuse", leaves); call("hr.leave", "unlink", leaves)
+    we = call("hr.work.entry", "search", [["employee_id", "in", emps]], context={"active_test": False})
+    if we:
+        call("hr.work.entry", "write", we, {"state": "draft"}); call("hr.work.entry", "unlink", we)
+    if emps:
+        try:
+            call("hr.employee", "unlink", emps)
+        except RuntimeError as e:
+            call("hr.employee", "write", emps, {"active": False}); print("archived instead of deleted:", str(e)[:120])
+    for d in call("hr.department", "search", [["name", "=", "Еталонні сценарії (тест)"]]):
+        call("hr.department", "unlink", [d])
+    print(f"purged {len(emps)} employees, {len(slips)} payslips from {DB}")
+    sys.exit(0)
+if "ua_sti_code" in call("res.company", "fields_get", [], attributes=["type"]) and call("res.company", "read", [1], ["company_registry"])[0]["company_registry"] in (False, "", "12345678"):
     call("res.company", "write", [1], {"company_registry": "12345678", "ua_sti_code": "2655", "ua_sti_name": "ГУ ДПС у м. Києві, ДПІ у Печерському районі (тест)",
          "ua_reg": "26", "ua_raj": "55", "ua_katottg": "UA80000000000093317", "ua_kved": "62.01", "street": "вул. Тестова, 1", "zip": "01001", "city": "Київ",
          "ua_director_name": "Тестовий Керівник", "ua_director_rnokpp": "1234567890", "ua_accountant_name": "Тестовий Бухгалтер", "ua_accountant_rnokpp": "1234567891"})
@@ -58,13 +89,15 @@ NAMES = {"1": ("Коваленко", "Ірина", "Петрівна", "female")
          "7": ("Поліщук", "Василь", "Романович", "male"), "8": ("Савченко", "Тетяна", "Олексіївна", "female"), "9": ("Лисенко", "Дмитро", "Ігорович", "male"),
          "10": ("Гончар", "Сергій", "Павлович", "male"), "11": ("Руденко", "Юлія", "Анатоліївна", "female"), "12": ("Марченко", "Оксана", "Вікторівна", "female"),
          "13": ("Петренко", "Максим", "Юрійович", "male")}
-RUN = call("hr.payslip.run", "search", [["date_start", "=", PERIOD[0]], ["date_end", "=", PERIOD[1]]])
-RUN = RUN[0] if RUN else call("hr.payslip.run", "create", {"name": "Зарплата за серпень 2026", "date_start": PERIOD[0], "date_end": PERIOD[1]})
+RUN = call("hr.payslip.run", "search", [["name", "=", "Еталонні сценарії, серпень 2026"]])
+RUN = RUN[0] if RUN else call("hr.payslip.run", "create", {"name": "Еталонні сценарії, серпень 2026", "date_start": PERIOD[0], "date_end": PERIOD[1]})
+DEPT = call("hr.department", "search", [["name", "=", "Еталонні сценарії (тест)"]])
+DEPT = DEPT[0] if DEPT else call("hr.department", "create", {"name": "Еталонні сценарії (тест)"})
 for name, efields, wage, inputs, expect in S:
     moves = efields.pop("moves", None)
     ename = f"Еталон {name}"
     ln, fn, mn, sex = NAMES[name.split()[0]]
-    efields = {"ua_last_name": ln, "ua_first_name": fn, "ua_middle_name": mn, "sex": sex, **efields}
+    efields = {"ua_last_name": ln, "ua_first_name": fn, "ua_middle_name": mn, "sex": sex, "department_id": DEPT, **efields}
     start = efields.pop("start", "2026-01-01"); end = efields.pop("end", False); history = efields.pop("history", None); leaves = efields.pop("leaves", []); years = efields.pop("years", 0); rehire = efields.pop("rehire", False)
     efields.setdefault("ua_fte", "1")
     efields["ua_insurance_years"] = years
