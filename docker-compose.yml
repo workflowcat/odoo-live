@@ -1,9 +1,8 @@
-# Local dev stack: Odoo 19 CE + Postgres 17 on this machine. Port 8100.
+# Local dev stack: Odoo 19 CE + Postgres 17 on this machine. Port ODOO_PORT (default 8100; the payroll worktree uses 8110).
 # The LIVE database lives on Supabase; see docker-compose.live.yml and docs/ARCHITECTURE.md.
 services:
   db:
     image: postgres:17
-    container_name: odoo-live-db
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=odoo
@@ -18,12 +17,11 @@ services:
       retries: 10
   odoo:
     image: odoo:19
-    container_name: odoo-live-web
     depends_on:
       db:
         condition: service_healthy
     ports:
-      - "127.0.0.1:8100:8069"
+      - "127.0.0.1:${ODOO_PORT:-8100}:8069"
     environment:
       - HOST=db
       - USER=odoo

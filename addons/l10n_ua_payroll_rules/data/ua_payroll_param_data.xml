@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+    <record id="p_min_wage_2026" model="ua.payroll.param"><field name="key">min_wage</field><field name="name">Мінімальна зарплата, грн/міс</field><field name="valid_from">2026-01-01</field><field name="value">8647</field><field name="source">Закон про Держбюджет на 2026 рік</field></record>
+    <record id="p_living_wage_2026" model="ua.payroll.param"><field name="key">living_wage</field><field name="name">Прожитковий мінімум для працездатних, грн</field><field name="valid_from">2026-01-01</field><field name="value">3328</field><field name="source">Закон про Держбюджет на 2026 рік</field></record>
+    <record id="p_psp_base_2026" model="ua.payroll.param"><field name="key">psp_base</field><field name="name">ПСП базова (50 % ПМ), грн</field><field name="valid_from">2026-01-01</field><field name="value">1664</field><field name="source">пп. 169.1.1 ПКУ</field></record>
+    <record id="p_psp_threshold_2026" model="ua.payroll.param"><field name="key">psp_threshold</field><field name="name">Поріг доходу для ПСП (ПМ × 1,4, до 10 грн), грн</field><field name="valid_from">2026-01-01</field><field name="value">4660</field><field name="source">пп. 169.4.1 ПКУ</field></record>
+    <record id="p_pdfo_2026" model="ua.payroll.param"><field name="key">pdfo_rate</field><field name="name">ПДФО, %</field><field name="valid_from">2026-01-01</field><field name="value">18</field><field name="source">п. 167.1 ПКУ</field></record>
+    <record id="p_vz_2026" model="ua.payroll.param"><field name="key">vz_rate</field><field name="name">Військовий збір, %</field><field name="valid_from">2026-01-01</field><field name="value">5</field><field name="source">п. 16-1 підрозд. 10 розд. XX ПКУ</field></record>
+    <record id="p_esv_2026" model="ua.payroll.param"><field name="key">esv_rate</field><field name="name">ЄСВ, %</field><field name="valid_from">2026-01-01</field><field name="value">22</field><field name="source">ч. 5 ст. 8 ЗУ про ЄСВ</field></record>
+    <record id="p_esv_dis_2026" model="ua.payroll.param"><field name="key">esv_rate_disabled</field><field name="name">ЄСВ для працівників з інвалідністю, %</field><field name="valid_from">2026-01-01</field><field name="value">8.41</field><field name="source">ч. 13 ст. 8 ЗУ про ЄСВ</field></record>
+    <record id="p_esv_max_2026" model="ua.payroll.param"><field name="key">esv_max_multiplier</field><field name="name">Максимальна база ЄСВ, кількість МЗП</field><field name="valid_from">2026-01-01</field><field name="value">20</field><field name="source">п. 4 ч. 1 ст. 1 ЗУ про ЄСВ</field></record>
+    <record id="p_holidays_2026" model="ua.payroll.param"><field name="key">holidays_per_year</field><field name="name">Святкових днів на рік (0 під час воєнного стану)</field><field name="valid_from">2026-01-01</field><field name="value">0</field><field name="source">ст. 6 ЗУ 2136-IX</field></record>
+  </data>
+</odoo>

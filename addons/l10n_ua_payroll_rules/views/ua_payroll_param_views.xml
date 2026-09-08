@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_payroll_param_list" model="ir.ui.view">
+    <field name="name">ua.payroll.param.list</field><field name="model">ua.payroll.param</field>
+    <field name="arch" type="xml">
+      <list editable="bottom" default_order="key, valid_from desc">
+        <field name="key"/><field name="name"/><field name="valid_from"/><field name="value"/><field name="source"/><field name="company_id" optional="hide"/>
+      </list>
+    </field>
+  </record>
+  <record id="action_ua_payroll_param" model="ir.actions.act_window">
+    <field name="name">Параметри (Україна)</field><field name="res_model">ua.payroll.param</field><field name="view_mode">list</field>
+  </record>
+  <menuitem id="menu_ua_payroll_param" name="Параметри (Україна)" parent="hr.menu_human_resources_configuration" action="action_ua_payroll_param" sequence="90"/>
+</odoo>

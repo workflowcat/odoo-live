@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_employee_form_ua" model="ir.ui.view">
+    <field name="name">hr.employee.form.ua</field><field name="model">hr.employee</field>
+    <field name="inherit_id" ref="hr.view_employee_form"/>
+    <field name="arch" type="xml">
+      <notebook position="inside">
+        <page string="Україна" name="ua" groups="hr.group_hr_user">
+          <group>
+            <group string="Облік">
+              <field name="ua_rnokpp"/><field name="ua_contract_kind"/><field name="ua_main_job"/><field name="ua_esv_category"/>
+            </group>
+            <group string="Пільги">
+              <field name="ua_psp"/><field name="ua_psp_children" invisible="ua_psp not in ('child', 'child150')"/>
+            </group>
+          </group>
+        </page>
+      </notebook>
+    </field>
+  </record>
+</odoo>
