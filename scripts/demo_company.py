@@ -202,7 +202,10 @@ for i, (ln, fn, mn, sex, bd, job, dept, wage, fte, kind, main, esv, psp, pspk, y
         call("ua.earnings.history", "create", {"employee_id": eid, "month": str(first), "gross": round(gross, 2)})
     # відпустки серпня
     for lcode, d1, d2 in extra.get("leaves", []):
-        if not call("hr.leave", "search", [["employee_id", "=", eid], ["holiday_status_id", "=", LT[lcode]], ["request_date_from", "=", d1], ["state", "=", "validate"]]):
+        existing = call("hr.leave", "search_read", [["employee_id", "=", eid], ["holiday_status_id", "=", LT[lcode]], ["request_date_from", "=", d1], ["state", "=", "validate"]], fields=["ua_sick_number", "ua_order_ref"])
+        if existing and lcode in ("SICK", "MAT") and not existing[0]["ua_sick_number"]:
+            call("hr.leave", "write", [existing[0]["id"]], {"ua_sick_number": extra.get("sick_number") or f"2026-08{i:02d}-{random.randint(100000, 999999)}"})
+        if not existing:
             lid = call("hr.leave", "create", {"employee_id": eid, "holiday_status_id": LT[lcode], "request_date_from": d1, "request_date_to": d2,
                                               "ua_order_ref": f"Наказ № {30 + i}-в від {(date.fromisoformat(d1) - timedelta(days=3)).strftime('%d.%m.%Y')}" if lcode in ("VAC", "UNPAID") else False,
                                               "ua_sick_number": extra.get("sick_number") or (f"2026-08{i:02d}-{random.randint(100000, 999999)}" if lcode in ("SICK", "MAT") else False)})
