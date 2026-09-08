@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_hr_payslip_form_ua_account" model="ir.ui.view">
+    <field name="name">hr.payslip.form.ua.account</field><field name="model">hr.payslip</field>
+    <field name="inherit_id" ref="payroll.hr_payslip_view_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//sheet" position="inside">
+        <div class="oe_button_box" name="button_box">
+          <button name="action_open_move" type="object" class="oe_stat_button" icon="fa-book" invisible="not move_id">
+            <div class="o_stat_info"><span class="o_stat_text">Проводка</span><span class="o_stat_value"><field name="move_id"/></span></div>
+          </button>
+        </div>
+      </xpath>
+    </field>
+  </record>
+</odoo>
