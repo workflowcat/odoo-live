@@ -5,6 +5,6 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 npx wrangler deploy -c wrangler.payroll.jsonc
 if [ -n "${BRIDGE_TOKEN:-}" ]; then
-  sleep 20
+  sleep 180   # дочекатися розкатки нового образу; ранній перезапуск піднімає старий образ
   curl -fsS -m 60 -X POST -H "Authorization: Bearer $BRIDGE_TOKEN" https://odoo-payroll.botpartners.workers.dev/_container/restart || true
 fi
