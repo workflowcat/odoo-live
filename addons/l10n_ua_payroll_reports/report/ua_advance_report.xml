@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_advance_sheet" model="ir.actions.report">
+    <field name="name">Авансова відомість</field>
+    <field name="model">ua.advance.sheet</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_payroll_reports.report_ua_advance_sheet</field>
+    <field name="report_file">l10n_ua_payroll_reports.report_ua_advance_sheet</field>
+    <field name="print_report_name">object.name</field>
+    <field name="binding_model_id" ref="l10n_ua_payroll_rules.model_ua_advance_sheet"/>
+    <field name="binding_type">report</field>
+    <field name="paperformat_id" ref="paperformat_ua_a4"/>
+  </record>
+  <template id="report_ua_advance_sheet">
+    <t t-call="web.basic_layout">
+      <t t-foreach="docs" t-as="doc">
+        <div class="page" style="font-family: DejaVu Sans, sans-serif; font-size: 11px;">
+          <h3 style="margin-bottom:2px;">Авансова відомість</h3>
+          <div><t t-out="doc.company_id.name"/> · <t t-out="doc.name"/></div>
+          <div>Відсоток окладу: <t t-out="'%.0f' % doc.percent"/> % · Дата виплати: <t t-out="doc.pay_date.strftime('%d.%m.%Y') if doc.pay_date else '-'"/></div>
+          <table class="table table-sm" style="font-size:11px; margin-top:10px;">
+            <thead>
+              <tr><th>№</th><th>ПІБ</th><th class="text-end">Оклад</th><th class="text-end">Ставка</th><th class="text-end">Частка</th><th class="text-end">Сума авансу</th><th>Підпис</th></tr>
+            </thead>
+            <tbody>
+              <t t-foreach="doc.line_ids" t-as="line">
+                <tr>
+                  <td><t t-out="line_index + 1"/></td>
+                  <td><t t-out="line.employee_id.name"/></td>
+                  <td class="text-end"><t t-out="'{:,.2f}'.format(line.wage).replace(',', ' ')"/></td>
+                  <td class="text-end"><t t-out="'%.2f' % line.fte"/></td>
+                  <td class="text-end"><t t-out="'%.2f' % line.ratio"/></td>
+                  <td class="text-end"><t t-out="'{:,.2f}'.format(line.amount).replace(',', ' ')"/></td>
+                  <td></td>
+                </tr>
+              </t>
+              <tr style="font-weight:bold; border-top:2px solid #333;">
+                <td></td><td>Разом</td><td></td><td></td><td></td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(sum(doc.line_ids.mapped('amount'))).replace(',', ' ')"/></td><td></td>
+              </tr>
+            </tbody>
+          </table>
+          <table style="width:100%; margin-top:24px; font-size:10px;">
+            <tr>
+              <td style="width:50%">Керівник: ____________________ <t t-out="doc.company_id.ua_director_name or ''"/></td>
+              <td>Головний бухгалтер: ____________________ <t t-out="doc.company_id.ua_accountant_name or ''"/></td>
+            </tr>
+          </table>
+        </div>
+      </t>
+    </t>
+  </template>
+</odoo>

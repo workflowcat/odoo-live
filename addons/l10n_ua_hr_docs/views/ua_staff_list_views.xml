@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_staff_list_form" model="ir.ui.view">
+    <field name="name">ua.staff.list.form</field>
+    <field name="model">ua.staff.list</field>
+    <field name="arch" type="xml">
+      <form string="Штатний розпис">
+        <header>
+          <button name="action_refill" type="object" string="Перерахувати" invisible="state != 'draft'"/>
+          <button name="action_confirm" type="object" string="Затвердити" invisible="state != 'draft'" class="oe_highlight"/>
+          <button name="action_draft" type="object" string="Повернути в чернетку" invisible="state != 'confirmed'"/>
+          <button name="%(action_report_ua_staff_list)d" type="action" string="Друк"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="order_ref" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="total_units"/>
+              <field name="total_fund"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Рядки" name="lines">
+              <field name="line_ids">
+                <list editable="bottom" readonly="parent.state != 'draft'">
+                  <field name="department_id"/>
+                  <field name="job_title"/>
+                  <field name="kp_code"/>
+                  <field name="units"/>
+                  <field name="wage"/>
+                  <field name="fund"/>
+                  <field name="note"/>
+                </list>
+              </field>
+            </page>
+            <page string="Примітка" name="note">
+              <field name="note"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_staff_list_list" model="ir.ui.view">
+    <field name="name">ua.staff.list.list</field>
+    <field name="model">ua.staff.list</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="name"/>
+        <field name="total_units"/>
+        <field name="total_fund"/>
+        <field name="state"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_staff_list" model="ir.actions.act_window">
+    <field name="name">Штатні розписи</field>
+    <field name="res_model">ua.staff.list</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>

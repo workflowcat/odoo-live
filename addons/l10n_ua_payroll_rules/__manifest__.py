@@ -12,6 +12,7 @@
         "data/ua_salary_structure.xml",
         "views/ua_payroll_param_views.xml",
         "views/hr_employee_views.xml",
+        "views/ua_advance_sheet_views.xml",
         "wizards/ua_advance_wizard_views.xml",
     ],
     "installable": True,

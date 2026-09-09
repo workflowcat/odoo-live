@@ -9,12 +9,6 @@
       </form>
     </field>
   </record>
-  <record id="view_hr_payslip_input_advance_list" model="ir.ui.view">
-    <field name="name">hr.payslip.input.advance.list</field><field name="model">hr.payslip.input</field>
-    <field name="arch" type="xml">
-      <list string="Відомість авансу" create="false" editable="bottom"><field name="payslip_id"/><field name="name"/><field name="amount" sum="Разом"/></list>
-    </field>
-  </record>
   <record id="action_ua_advance_wizard" model="ir.actions.act_window">
     <field name="name">Аванс за місяць</field><field name="res_model">ua.payroll.advance.wizard</field><field name="view_mode">form</field><field name="target">new</field>
   </record>

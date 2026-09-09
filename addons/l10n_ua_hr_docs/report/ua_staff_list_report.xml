@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <record id="action_report_ua_staff_list" model="ir.actions.report">
-    <field name="name">Штатний розпис</field><field name="model">ua.staff.list.wizard</field><field name="report_type">qweb-pdf</field>
+    <field name="name">Штатний розпис</field><field name="model">ua.staff.list</field><field name="report_type">qweb-pdf</field>
     <field name="report_name">l10n_ua_hr_docs.report_ua_staff_list</field><field name="report_file">l10n_ua_hr_docs.report_ua_staff_list</field>
     <field name="print_report_name">'Штатний розпис %s' % object.date.strftime('%d.%m.%Y')</field><field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4"/>
+    <field name="binding_model_id" ref="model_ua_staff_list"/><field name="binding_type">report</field>
   </record>
   <template id="report_ua_staff_list">
-    <t t-call="web.basic_layout"><t t-foreach="docs" t-as="w">
-      <t t-set="rows" t-value="w._rows()"/>
+    <t t-call="web.basic_layout"><t t-foreach="docs" t-as="doc">
       <div class="page" style="font-family: DejaVu Sans, sans-serif; font-size: 11px;">
-        <table style="width:100%; font-size:10px;"><tr><td style="width:60%"></td><td>ЗАТВЕРДЖЕНО<br/><t t-out="w.order_ref or 'наказ № ____ від ____________'"/><br/>Директор ____________ <t t-out="w.company_id.ua_director_name or ''"/></td></tr></table>
+        <table style="width:100%; font-size:10px;"><tr><td style="width:60%"></td><td>ЗАТВЕРДЖЕНО<br/><t t-out="doc.order_ref or 'наказ № ____ від ____________'"/><br/>Директор ____________ <t t-out="doc.company_id.ua_director_name or ''"/></td></tr></table>
         <h3 style="text-align:center; margin:14px 0 2px;">ШТАТНИЙ РОЗПИС</h3>
-        <div style="text-align:center;"><t t-out="w.company_id.name"/> станом на <t t-out="w.date.strftime('%d.%m.%Y')"/></div>
+        <div style="text-align:center;"><t t-out="doc.company_id.name"/> станом на <t t-out="doc.date.strftime('%d.%m.%Y')"/></div>
         <table class="table table-sm" style="font-size:10px; margin-top:12px;">
           <thead><tr><th>№</th><th>Підрозділ</th><th>Посада (професія)</th><th>Код КП</th><th class="text-end">Штатних одиниць</th><th class="text-end">Оклад, грн</th><th class="text-end">Місячний фонд, грн</th></tr></thead>
           <tbody>
-            <t t-foreach="rows" t-as="r"><tr><td><t t-out="r_index + 1"/></td><td><t t-out="r['dept']"/></td><td><t t-out="r['job']"/></td><td><t t-out="r['kp']"/></td>
-              <td class="text-end"><t t-out="'%g' % r['units']"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(r['wage']).replace(',', ' ')"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(r['fund']).replace(',', ' ')"/></td></tr></t>
-            <tr style="font-weight:bold;"><td></td><td>Разом</td><td></td><td></td><td class="text-end"><t t-out="'%g' % sum(r['units'] for r in rows)"/></td><td></td><td class="text-end"><t t-out="'{:,.2f}'.format(sum(r['fund'] for r in rows)).replace(',', ' ')"/></td></tr>
+            <t t-foreach="doc.line_ids" t-as="r"><tr><td><t t-out="r_index + 1"/></td><td><t t-out="r.department_id.name or '-'"/></td><td><t t-out="r.job_title"/></td><td><t t-out="r.kp_code"/></td>
+              <td class="text-end"><t t-out="'%g' % r.units"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(r.wage).replace(',', ' ')"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(r.fund).replace(',', ' ')"/></td></tr></t>
+            <tr style="font-weight:bold;"><td></td><td>Разом</td><td></td><td></td><td class="text-end"><t t-out="'%g' % doc.total_units"/></td><td></td><td class="text-end"><t t-out="'{:,.2f}'.format(doc.total_fund).replace(',', ' ')"/></td></tr>
           </tbody>
         </table>
         <p style="font-size:10px; color:#555;">Штатні одиниці рахуються за ставками працівників за трудовими договорами на дату. ЦПХ і ФОП-підрядники не входять.</p>
-        <table style="width:100%; margin-top:24px; font-size:10px;"><tr><td>Головний бухгалтер ____________ <t t-out="w.company_id.ua_accountant_name or ''"/></td></tr></table>
+        <table style="width:100%; margin-top:24px; font-size:10px;"><tr><td>Головний бухгалтер ____________ <t t-out="doc.company_id.ua_accountant_name or ''"/></td></tr></table>
       </div>
     </t></t>
   </template>

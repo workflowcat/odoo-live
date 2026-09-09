@@ -1,3 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+  <menuitem id="menu_ua_staff_list_docs" name="Штатні розписи" parent="menu_ua_payroll_docs" action="l10n_ua_hr_docs.action_ua_staff_list" sequence="3" groups="hr.group_hr_user"/>
+  <menuitem id="menu_ua_timesheet_docs" name="Табелі" parent="menu_ua_payroll_docs" action="l10n_ua_hr_docs.action_ua_timesheet_sheet" sequence="4" groups="hr.group_hr_user"/>
+  <menuitem id="menu_ua_pfu_claim_docs" name="Заяви-розрахунки ПФУ" parent="menu_ua_payroll_reporting" action="l10n_ua_hr_docs.action_ua_pfu_claim" sequence="3" groups="hr.group_hr_user"/>
 </odoo>

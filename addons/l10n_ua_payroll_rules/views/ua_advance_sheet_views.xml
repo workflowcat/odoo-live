@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_advance_sheet_form" model="ir.ui.view">
+    <field name="name">ua.advance.sheet.form</field><field name="model">ua.advance.sheet</field>
+    <field name="arch" type="xml">
+      <form string="Авансова відомість">
+        <header>
+          <button name="action_refill" type="object" string="Перерахувати" invisible="state != 'draft'"/>
+          <button name="action_confirm" type="object" string="Затвердити" class="btn-primary" invisible="state != 'draft'"/>
+          <button name="action_draft" type="object" string="Повернути в чернетку" invisible="state != 'confirmed'"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="company_id" groups="base.group_multi_company"/>
+              <field name="year"/>
+              <field name="month"/>
+            </group>
+            <group>
+              <field name="percent"/>
+              <field name="pay_date"/>
+              <field name="total"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Рядки" name="lines">
+              <field name="line_ids">
+                <list editable="bottom">
+                  <field name="employee_id" readonly="1"/>
+                  <field name="payslip_id" readonly="1"/>
+                  <field name="wage" readonly="1"/>
+                  <field name="fte" readonly="1"/>
+                  <field name="ratio" readonly="1"/>
+                  <field name="amount" sum="Разом" readonly="parent.state != 'draft'"/>
+                  <field name="note" readonly="parent.state != 'draft'"/>
+                </list>
+              </field>
+            </page>
+            <page string="Примітка" name="note">
+              <field name="note" nolabel="1"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_advance_sheet_list" model="ir.ui.view">
+    <field name="name">ua.advance.sheet.list</field><field name="model">ua.advance.sheet</field>
+    <field name="arch" type="xml">
+      <list string="Авансові відомості">
+        <field name="name"/>
+        <field name="pay_date"/>
+        <field name="total" sum="Разом"/>
+        <field name="state"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_advance_sheet" model="ir.actions.act_window">
+    <field name="name">Авансові відомості</field>
+    <field name="res_model">ua.advance.sheet</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>

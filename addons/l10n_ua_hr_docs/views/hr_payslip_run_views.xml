@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="hr_payslip_run_view_form_ua_pfu_claim" model="ir.ui.view">
+    <field name="name">hr.payslip.run.form.ua.pfu.claim</field>
+    <field name="model">hr.payslip.run</field>
+    <field name="inherit_id" ref="payroll.hr_payslip_run_view_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//header/field[@name='state']" position="before">
+        <button name="action_ua_pfu_claim" type="object" string="Заява-розрахунок ПФУ"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>

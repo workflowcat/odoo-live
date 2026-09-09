@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_timesheet_sheet_form" model="ir.ui.view">
+    <field name="name">ua.timesheet.sheet.form</field>
+    <field name="model">ua.timesheet.sheet</field>
+    <field name="arch" type="xml">
+      <form string="Табель обліку робочого часу">
+        <header>
+          <button name="action_refill" type="object" string="Перерахувати" invisible="state != 'draft'"/>
+          <button name="action_confirm" type="object" string="Затвердити" invisible="state != 'draft'" class="oe_highlight"/>
+          <button name="action_draft" type="object" string="Повернути в чернетку" invisible="state != 'confirmed'"/>
+          <button name="%(action_report_ua_timesheet)d" type="action" string="Друк"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="year" readonly="state != 'draft'"/>
+              <field name="month" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="department_id" readonly="state != 'draft'"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Рядки" name="lines">
+              <field name="line_ids">
+                <list editable="bottom" readonly="parent.state != 'draft'">
+                  <field name="employee_id"/>
+                  <field name="job_title"/>
+              <field name="d01" string="1"/>
+              <field name="d02" string="2"/>
+              <field name="d03" string="3"/>
+              <field name="d04" string="4"/>
+              <field name="d05" string="5"/>
+              <field name="d06" string="6"/>
+              <field name="d07" string="7"/>
+              <field name="d08" string="8"/>
+              <field name="d09" string="9"/>
+              <field name="d10" string="10"/>
+              <field name="d11" string="11"/>
+              <field name="d12" string="12"/>
+              <field name="d13" string="13"/>
+              <field name="d14" string="14"/>
+              <field name="d15" string="15"/>
+              <field name="d16" string="16"/>
+              <field name="d17" string="17"/>
+              <field name="d18" string="18"/>
+              <field name="d19" string="19"/>
+              <field name="d20" string="20"/>
+              <field name="d21" string="21"/>
+              <field name="d22" string="22"/>
+              <field name="d23" string="23"/>
+              <field name="d24" string="24"/>
+              <field name="d25" string="25"/>
+              <field name="d26" string="26"/>
+              <field name="d27" string="27"/>
+              <field name="d28" string="28"/>
+              <field name="d29" string="29"/>
+              <field name="d30" string="30"/>
+              <field name="d31" string="31"/>
+                  <field name="days_worked" string="Дні"/>
+                  <field name="hours" string="Години"/>
+                  <field name="days_vac" string="В"/>
+                  <field name="days_sick" string="ТН"/>
+                  <field name="days_unpaid" string="НА"/>
+                  <field name="days_mat" string="ВП"/>
+                  <field name="note"/>
+                </list>
+              </field>
+            </page>
+            <page string="Примітка" name="note">
+              <field name="note"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_timesheet_sheet_list" model="ir.ui.view">
+    <field name="name">ua.timesheet.sheet.list</field>
+    <field name="model">ua.timesheet.sheet</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="name"/>
+        <field name="department_id"/>
+        <field name="state"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_timesheet_sheet" model="ir.actions.act_window">
+    <field name="name">Табелі</field>
+    <field name="res_model">ua.timesheet.sheet</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>

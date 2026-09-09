@@ -5,7 +5,7 @@
     "license": "LGPL-3",
     "author": "Bot&Partners",
     "category": "Human Resources",
-    "depends": ["l10n_ua_payroll_reports", "l10n_ua_average", "l10n_ua_payroll_account"],
+    "depends": ["l10n_ua_payroll_reports", "l10n_ua_average", "l10n_ua_payroll_account", "mail"],
     "data": [
         "security/ir.model.access.csv",
         "wizards/ua_hr_docs_wizards_views.xml",
@@ -13,6 +13,10 @@
         "report/ua_staff_list_report.xml",
         "report/ua_timesheet_report.xml",
         "report/ua_pfu_claim_report.xml",
+        "views/ua_timesheet_sheet_views.xml",
+        "views/ua_staff_list_views.xml",
+        "views/ua_pfu_claim_views.xml",
+        "views/hr_payslip_run_views.xml",
     ],
     "installable": True,
 }

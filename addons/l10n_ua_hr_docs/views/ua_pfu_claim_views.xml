@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_pfu_claim_form" model="ir.ui.view">
+    <field name="name">ua.pfu.claim.form</field>
+    <field name="model">ua.pfu.claim</field>
+    <field name="arch" type="xml">
+      <form string="Заява-розрахунок до ПФУ">
+        <header>
+          <button name="action_refill" type="object" string="Перерахувати" invisible="state != 'draft'"/>
+          <button name="action_confirm" type="object" string="Затвердити" invisible="state != 'draft'" class="oe_highlight"/>
+          <button name="action_draft" type="object" string="Повернути в чернетку" invisible="state != 'confirmed'"/>
+          <button name="%(action_report_ua_pfu_claim)d" type="action" string="Друк"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="payslip_run_id" readonly="state != 'draft'"/>
+              <field name="date" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="total"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Рядки" name="lines">
+              <field name="line_ids">
+                <list editable="bottom" readonly="parent.state != 'draft'">
+                  <field name="employee_id"/>
+                  <field name="kind"/>
+                  <field name="sick_number"/>
+                  <field name="date_from"/>
+                  <field name="date_to"/>
+                  <field name="days"/>
+                  <field name="avg_day"/>
+                  <field name="percent"/>
+                  <field name="amount"/>
+                  <field name="note"/>
+                </list>
+              </field>
+            </page>
+            <page string="Примітка" name="note">
+              <field name="note"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_pfu_claim_list" model="ir.ui.view">
+    <field name="name">ua.pfu.claim.list</field>
+    <field name="model">ua.pfu.claim</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="name"/>
+        <field name="payslip_run_id"/>
+        <field name="total"/>
+        <field name="state"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_pfu_claim" model="ir.actions.act_window">
+    <field name="name">Заяви-розрахунки ПФУ</field>
+    <field name="res_model">ua.pfu.claim</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>
