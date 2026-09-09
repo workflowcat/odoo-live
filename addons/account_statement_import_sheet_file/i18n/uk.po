@@ -1,0 +1,602 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* account_statement_import_sheet_file
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: uk_UA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#. module: account_statement_import_sheet_file
+#. odoo-python
+#: code:addons/account_statement_import_sheet_file/wizard/account_statement_import_sheet_parser.py:0
+msgid "%(code)s: %(filename)s"
+msgstr "%(code)s: %(filename)s"
+
+#. module: account_statement_import_sheet_file
+#: model_terms:ir.ui.view,arch_db:account_statement_import_sheet_file.account_statement_import_sheet_mapping_tree
+msgid ""
+"<span class=\"fa fa-info-circle\">\n"
+"                                    Add the column names or column number (when the file has no header). You can concatenate multiple columns in the file into the same field, indicating the column names or numbers separated by comma.\n"
+"                                </span>"
+msgstr "<span class=\"fa fa-info-circle\">\n                                    Вкажіть назви колонок або номер колонки (якщо файл без заголовка). Можна об'єднати кілька колонок файлу в одне поле, вказавши назви або номери через кому.\n                                </span>"
+
+#. module: account_statement_import_sheet_file
+#: model_terms:ir.ui.view,arch_db:account_statement_import_sheet_file.account_statement_import_sheet_mapping_tree
+msgid ""
+"<span class=\"fa fa-info-circle\">\n"
+"                                    indicate the column number in the Columns section. The first column is 0.\n"
+"                                </span>"
+msgstr "<span class=\"fa fa-info-circle\">\n                                    вкажіть номер колонки в розділі «Колонки». Перша колонка має номер 0.\n                                </span>"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__amount_type__absolute_value
+msgid "Absolute value"
+msgstr "Абсолютне значення"
+
+#. module: account_statement_import_sheet_file
+#. odoo-python
+#: code:addons/account_statement_import_sheet_file/wizard/account_statement_import_sheet_parser.py:0
+msgid "Account: %s; "
+msgstr "Рахунок: %s; "
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,help:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__skip_empty_lines
+msgid "Allows to skip empty lines"
+msgstr "Дозволяє пропускати порожні рядки"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__amount_column
+msgid "Amount column"
+msgstr "Колонка суми"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__amount_type
+msgid "Amount type"
+msgstr "Тип суми"
+
+#. module: account_statement_import_sheet_file
+#. odoo-python
+#: code:addons/account_statement_import_sheet_file/wizard/account_statement_import.py:0
+msgid "Bad file/mapping: "
+msgstr "Помилковий файл або шаблон імпорту: "
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__balance_column
+msgid "Balance Column"
+msgstr "Колонка сальдо"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,help:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__balance_column
+msgid "Balance after transaction in journal's currency"
+msgstr "Сальдо після транзакції у валюті журналу"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__file_encoding__iso-8859-4
+msgid "Baltic (Latin-4 / ISO 8859-4)"
+msgstr "Балтійське (Latin-4 / ISO 8859-4)"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__bank_account_column
+msgid "Bank Account Column"
+msgstr "Колонка банківського рахунку"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__bank_name_column
+msgid "Bank Name Column"
+msgstr "Колонка назви банку"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model,name:account_statement_import_sheet_file.model_account_statement_import_sheet_mapping
+msgid "Bank Statement Import Sheet Mapping"
+msgstr "Шаблон імпорту банківської виписки з таблиці"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model,name:account_statement_import_sheet_file.model_account_statement_import_sheet_parser
+msgid "Bank Statement Import Sheet Parser"
+msgstr "Розбір таблиці банківської виписки"
+
+#. module: account_statement_import_sheet_file
+#. odoo-python
+#: code:addons/account_statement_import_sheet_file/wizard/account_statement_import_sheet_parser.py:0
+msgid "Bank: %s; "
+msgstr "Банк: %s; "
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__file_encoding__iso-8859-2
+msgid "Central European (Latin-2 / ISO 8859-2)"
+msgstr "Центральноєвропейське (Latin-2 / ISO 8859-2)"
+
+#. module: account_statement_import_sheet_file
+#: model_terms:ir.ui.view,arch_db:account_statement_import_sheet_file.account_statement_import_sheet_mapping_tree
+msgid "Columns"
+msgstr "Колонки"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,help:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__offset_column
+msgid "Columns to ignore before starting to parse"
+msgstr "Колонки, які пропускати перед розбором"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__create_uid
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_parser__create_uid
+msgid "Created by"
+msgstr "Створив"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__create_date
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_parser__create_date
+msgid "Created on"
+msgstr "Створено на"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__credit_value
+msgid "Credit Value"
+msgstr "Значення кредиту"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__amount_credit_column
+msgid "Credit amount column"
+msgstr "Колонка суми кредиту"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,help:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__amount_credit_column
+msgid "Credit amount of transaction in journal's currency"
+msgstr "Сума кредиту транзакції у валюті журналу"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__currency_column
+msgid "Currency Column"
+msgstr "Колонка валюти"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__file_encoding__koi8_r
+msgid "Cyrillic (KOI8-R)"
+msgstr "Кирилиця (KOI8-R)"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__file_encoding__koi8_u
+msgid "Cyrillic (KOI8-U)"
+msgstr "Кирилиця (KOI8-U)"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__file_encoding__windows-1251
+msgid "Cyrillic (Windows-1251)"
+msgstr "Кирилиця (Windows-1251)"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__debit_value
+msgid "Debit Value"
+msgstr "Значення дебету"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__amount_debit_column
+msgid "Debit amount column"
+msgstr "Колонка суми дебету"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,help:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__amount_debit_column
+msgid "Debit amount of transaction in journal's currency"
+msgstr "Сума дебету транзакції у валюті журналу"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__debit_credit_column
+msgid "Debit/credit column"
+msgstr "Колонка дебету/кредиту"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__float_decimal_sep
+msgid "Decimals Separator"
+msgstr "Роздільник десяткових"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_journal__default_sheet_mapping_id
+msgid "Default Sheet Mapping"
+msgstr "Типовий шаблон таблиці"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__delimiter
+msgid "Delimiter"
+msgstr "Роздільник"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__description_column
+msgid "Description Column"
+msgstr "Колонка опису"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_journal__display_name
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import__display_name
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__display_name
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_parser__display_name
+msgid "Display Name"
+msgstr "Назва для відображення"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__amount_type__distinct_credit_debit
+msgid "Distinct Credit/debit Column"
+msgstr "Окрема колонка дебету/кредиту"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__file_encoding
+msgid "Encoding"
+msgstr "Кодування"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__no_header
+msgid "File does not contain header line"
+msgstr "Файл не містить рядка заголовка"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__footer_lines_skip_count
+msgid "Footer lines skip count"
+msgstr "Кількість рядків для пропуску в кінці"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__header_lines_skip_count
+msgid "Header lines skip count"
+msgstr "Кількість рядків для пропуску на початку"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_journal__id
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import__id
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__id
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_parser__id
+msgid "ID"
+msgstr "ID"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model,name:account_statement_import_sheet_file.model_account_statement_import
+msgid "Import Bank Statement Files"
+msgstr "Імпортувати банківські виписки"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,help:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__currency_column
+msgid ""
+"In case statement is multi-currency, column to get currency of transaction "
+"from"
+msgstr "Якщо виписка мультивалютна, колонка, з якої брати валюту транзакції"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,help:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__original_currency_column
+msgid ""
+"In case statement provides original currency for transactions with automatic"
+" currency conversion, column to get original currency of transaction from"
+msgstr "Якщо виписка надає початкову валюту транзакцій з автоматичною конвертацією, колонка, з якої брати початкову валюту транзакції"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,help:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__original_amount_column
+msgid ""
+"In case statement provides original currency for transactions with automatic"
+" currency conversion, column to get original transaction amount in original "
+"transaction currency from"
+msgstr "Якщо виписка надає початкову валюту транзакцій з автоматичною конвертацією, колонка, з якої брати початкову суму транзакції в початковій валюті"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,help:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__amount_inverse_sign
+msgid ""
+"In some cases such as in credit card statements the amounts are expressed in"
+" the inverse sign. By setting this flag during the upload the amounts will "
+"be inverted in sign."
+msgstr "У деяких випадках, наприклад у виписках кредитних карток, суми мають зворотний знак. Увімкнення цього прапорця під час завантаження інвертує знак сум."
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__amount_inverse_sign
+msgid "Inverse sign of amount"
+msgstr "Інвертувати знак суми"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__file_encoding__shift_jis
+msgid "Japanese (Shift JIS)"
+msgstr "Японське (Shift JIS)"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model,name:account_statement_import_sheet_file.model_account_journal
+msgid "Journal"
+msgstr "Журнал"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__write_uid
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_parser__write_uid
+msgid "Last Updated by"
+msgstr "Останній раз оновив"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__write_date
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_parser__write_date
+msgid "Last Updated on"
+msgstr "Останнє оновлення"
+
+#. module: account_statement_import_sheet_file
+#. odoo-python
+#: code:addons/account_statement_import_sheet_file/wizard/account_statement_import_sheet_parser.py:0
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__delimiter__n/a
+msgid "N/A"
+msgstr "Н/Д"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__name
+msgid "Name"
+msgstr "Назва"
+
+#. module: account_statement_import_sheet_file
+#. odoo-python
+#: code:addons/account_statement_import_sheet_file/wizard/account_statement_import_sheet_parser.py:0
+msgid "No valid encoding was found for the attached file"
+msgstr "Для прикріпленого файлу не знайдено коректного кодування"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__notes_column
+msgid "Notes Column"
+msgstr "Колонка приміток"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__offset_column
+msgid "Offset Column"
+msgstr "Колонка зсуву"
+
+#. module: account_statement_import_sheet_file
+#. odoo-python
+#: code:addons/account_statement_import_sheet_file/models/account_statement_import_sheet_mapping.py:0
+msgid "Offsets cannot be negative"
+msgstr "Зсув не може бути від'ємним"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__original_amount_column
+msgid "Original Amount Column"
+msgstr "Колонка початкової суми"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__original_currency_column
+msgid "Original Currency Column"
+msgstr "Колонка початкової валюти"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__partner_name_column
+msgid "Partner Name Column"
+msgstr "Колонка назви контрагента"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,help:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__bank_name_column
+msgid "Partner's bank"
+msgstr "Банк контрагента"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,help:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__bank_account_column
+msgid "Partner's bank account"
+msgstr "Банківський рахунок контрагента"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__reference_column
+msgid "Reference Column"
+msgstr "Колонка референсу"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,help:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__footer_lines_skip_count
+msgid ""
+"Set the Footer lines number.Used in some csv/xlsx file that integrate meta "
+"data inlast lines."
+msgstr "Встановіть кількість рядків у кінці файлу. Використовується в деяких csv/xlsx файлах з метаданими в останніх рядках."
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,help:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__header_lines_skip_count
+msgid "Set the Header lines number."
+msgstr "Встановіть кількість рядків заголовка."
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import__sheet_mapping_id
+msgid "Sheet mapping"
+msgstr "Шаблон таблиці"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__amount_type__simple_value
+msgid "Simple value"
+msgstr "Просте значення"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,help:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__amount_type
+msgid ""
+"Simple value: use igned amount in amount column\n"
+"Absolute Value: use a same column for debit and credit\n"
+"(absolute value + indicate sign)\n"
+"Distinct Credit/debit Column: use a distinct column for debit and credit"
+msgstr "Просте значення: сума зі знаком в одній колонці\nАбсолютне значення: одна колонка для дебету й кредиту\n(абсолютне значення + ознака знаку)\nОкрема колонка дебету/кредиту: окремі колонки для дебету й кредиту"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__skip_empty_lines
+msgid "Skip Empty Lines"
+msgstr "Пропускати порожні рядки"
+
+#. module: account_statement_import_sheet_file
+#: model_terms:ir.ui.view,arch_db:account_statement_import_sheet_file.view_account_journal_form_n43
+msgid "Statement Import Map"
+msgstr "Шаблон імпорту виписки"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.actions.act_window,name:account_statement_import_sheet_file.action_statement_import_sheet_report_mappings
+#: model:ir.ui.menu,name:account_statement_import_sheet_file.menu_statement_import_sheet_mapping
+msgid "Statement Sheet Mappings"
+msgstr "Шаблони таблиць виписок"
+
+#. module: account_statement_import_sheet_file
+#: model_terms:ir.ui.view,arch_db:account_statement_import_sheet_file.account_statement_import_form
+msgid "TXT/CSV/XLSX mapping:"
+msgstr "Шаблон TXT/CSV/XLSX:"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__quotechar
+msgid "Text qualifier"
+msgstr "Ознака тексту"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__float_thousands_sep
+msgid "Thousands Separator"
+msgstr "Роздільник тисяч"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__timestamp_column
+msgid "Timestamp Column"
+msgstr "Колонка дати й часу"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__timestamp_format
+msgid "Timestamp Format"
+msgstr "Формат дати й часу"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__file_encoding__big5
+msgid "Traditional Chinese (big5)"
+msgstr "Традиційна китайська (big5)"
+
+#. module: account_statement_import_sheet_file
+#. odoo-python
+#: code:addons/account_statement_import_sheet_file/wizard/account_statement_import_sheet_parser.py:0
+msgid "Transaction ID: %s; "
+msgstr "ID транзакції: %s; "
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__file_encoding__utf-16
+msgid "UTF-16"
+msgstr "UTF-16"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__file_encoding__utf-16-sig
+msgid "UTF-16 (with BOM)"
+msgstr "UTF-16 (з BOM)"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__file_encoding__utf-8
+msgid "UTF-8"
+msgstr "UTF-8"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__file_encoding__utf-8-sig
+msgid "UTF-8 (with BOM)"
+msgstr "UTF-8 (з BOM)"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__file_encoding__gb18030
+msgid "Unified Chinese (gb18030)"
+msgstr "Уніфікована китайська (gb18030)"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,field_description:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__transaction_id_column
+msgid "Unique transaction ID column"
+msgstr "Колонка унікального ID транзакції"
+
+#. module: account_statement_import_sheet_file
+#. odoo-python
+#: code:addons/account_statement_import_sheet_file/models/account_statement_import_sheet_mapping.py:0
+msgid "Use amount_column if you have set Amount type = 'Single value'"
+msgstr "Використовуйте amount_column, якщо тип суми = «Просте значення»"
+
+#. module: account_statement_import_sheet_file
+#. odoo-python
+#: code:addons/account_statement_import_sheet_file/models/account_statement_import_sheet_mapping.py:0
+msgid ""
+"Use amount_debit_column and amount_credit_column if you have set Amount type"
+" = 'Distinct Credit/debit Column'"
+msgstr "Використовуйте amount_debit_column і amount_credit_column, якщо тип суми = «Окрема колонка дебету/кредиту»"
+
+#. module: account_statement_import_sheet_file
+#. odoo-python
+#: code:addons/account_statement_import_sheet_file/models/account_statement_import_sheet_mapping.py:0
+msgid "Use debit_credit_column if you have set Amount type = 'Absolute value'"
+msgstr "Використовуйте debit_credit_column, якщо тип суми = «Абсолютне значення»"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,help:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__debit_credit_column
+msgid ""
+"Used if amount type is \"Absolute value\"\n"
+"Some statement formats use absolute amount value and indicate sign\n"
+"of the transaction by specifying if it was a debit or a credit one"
+msgstr "Використовується, якщо тип суми «Абсолютне значення»\nДеякі формати виписок подають абсолютну суму й вказують\nзнак транзакції окремо, як дебет або кредит"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,help:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__amount_column
+msgid ""
+"Used if amount type is \"Simple value\" or \"Absolute value\"\n"
+"Amount of transaction in journal's currency\n"
+"Some statement formats use credit/debit columns"
+msgstr "Використовується, якщо тип суми «Просте значення» або «Абсолютне значення»\nСума транзакції у валюті журналу\nДеякі формати виписок використовують колонки дебету/кредиту"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,help:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__credit_value
+msgid "Value of debit/credit column that indicates if it's a credit"
+msgstr "Значення колонки дебету/кредиту, яке означає кредит"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,help:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__debit_value
+msgid "Value of debit/credit column that indicates if it's a debit"
+msgstr "Значення колонки дебету/кредиту, яке означає дебет"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__file_encoding__iso-8859-1
+msgid "Western (Latin-1 / ISO 8859-1)"
+msgstr "Західне (Latin-1 / ISO 8859-1)"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__file_encoding__windows-1252
+msgid "Western (Windows-1252)"
+msgstr "Західне (Windows-1252)"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,help:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__float_decimal_sep
+msgid ""
+"When the separator is 'none', the value will be shifted according to the "
+"currency decimals. For example, 12345 will be converted to 123.45"
+msgstr "Якщо роздільник «немає», значення зсувається відповідно до кількості десяткових знаків валюти. Наприклад, 12345 стане 123,45"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields,help:account_statement_import_sheet_file.field_account_statement_import_sheet_mapping__no_header
+msgid ""
+"When this occurs please indicate the column number in the Columns section "
+"instead of the column name, considering that the first column is 0"
+msgstr "У такому разі вкажіть номер колонки в розділі «Колонки» замість назви, враховуючи, що перша колонка має номер 0"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__delimiter__comma
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__float_decimal_sep__comma
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__float_thousands_sep__comma
+msgid "comma (,)"
+msgstr "кома (,)"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__delimiter__dot
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__float_decimal_sep__dot
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__float_thousands_sep__dot
+msgid "dot (.)"
+msgstr "крапка (.)"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__float_decimal_sep__none
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__float_thousands_sep__none
+msgid "none"
+msgstr "немає"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__float_thousands_sep__quote
+msgid "quote (')"
+msgstr "апостроф (')"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__delimiter__semicolon
+msgid "semicolon (;)"
+msgstr "крапка з комою (;)"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__delimiter__space
+msgid "space"
+msgstr "пробіл"
+
+#. module: account_statement_import_sheet_file
+#: model:ir.model.fields.selection,name:account_statement_import_sheet_file.selection__account_statement_import_sheet_mapping__delimiter__tab
+msgid "tab"
+msgstr "табуляція"

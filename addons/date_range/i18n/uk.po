@@ -23,13 +23,13 @@ msgstr ""
 #. odoo-python
 #: code:addons/date_range/models/date_range.py:0
 msgid "%(name)s is not a valid range (%(date_start)s > %(date_end)s)"
-msgstr ""
+msgstr "%(name)s не є коректним періодом (%(date_start)s > %(date_end)s)"
 
 #. module: date_range
 #. odoo-python
 #: code:addons/date_range/models/date_range.py:0
 msgid "%(thisname)s overlaps %(dtname)s"
-msgstr ""
+msgstr "%(thisname)s перетинається з %(dtname)s"
 
 #. module: date_range
 #: model_terms:ir.ui.view,arch_db:date_range.date_range_generator_view_form
@@ -37,59 +37,61 @@ msgid ""
 ",\n"
 "                                or generate"
 msgstr ""
+",\n"
+"                                або згенерувати"
 
 #. module: date_range
 #: model:ir.model.constraint,message:date_range.constraint_date_range_date_range_uniq
 msgid "A date range must be unique per company !"
-msgstr ""
+msgstr "Період має бути унікальним в межах компанії!"
 
 #. module: date_range
 #: model:ir.model.constraint,message:date_range.constraint_date_range_type_date_range_type_uniq
 msgid "A date range type must be unique per company !"
-msgstr ""
+msgstr "Тип періоду має бути унікальним в межах компанії!"
 
 #. module: date_range
 #: model:ir.model.fields,field_description:date_range.field_date_range__active
 #: model:ir.model.fields,field_description:date_range.field_date_range_type__active
 msgid "Active"
-msgstr ""
+msgstr "Активний"
 
 #. module: date_range
 #: model:ir.model.fields,field_description:date_range.field_date_range_type__allow_overlap
 msgid "Allow Overlap"
-msgstr ""
+msgstr "Дозволити перетин"
 
 #. module: date_range
 #: model_terms:ir.ui.view,arch_db:date_range.view_date_range_form_view
 #: model_terms:ir.ui.view,arch_db:date_range.view_date_range_search
 #: model_terms:ir.ui.view,arch_db:date_range.view_date_range_type_search
 msgid "Archived"
-msgstr ""
+msgstr "Заархівовано"
 
 #. module: date_range
 #: model:ir.actions.server,name:date_range.ir_cron_autocreate_ir_actions_server
 msgid "Auto-generate date ranges"
-msgstr ""
+msgstr "Автогенерація періодів"
 
 #. module: date_range
 #: model_terms:ir.ui.view,arch_db:date_range.view_date_range_type_form_view
 msgid "Auto-generation settings"
-msgstr ""
+msgstr "Налаштування автогенерації"
 
 #. module: date_range
 #: model:ir.model.fields,field_description:date_range.field_date_range_type__autogeneration_count
 msgid "Autogeneration Count"
-msgstr ""
+msgstr "Кількість для автогенерації"
 
 #. module: date_range
 #: model:ir.model.fields,field_description:date_range.field_date_range_type__autogeneration_date_start
 msgid "Autogeneration Start Date"
-msgstr ""
+msgstr "Дата початку автогенерації"
 
 #. module: date_range
 #: model:ir.model.fields,field_description:date_range.field_date_range_type__autogeneration_unit
 msgid "Autogeneration Unit"
-msgstr ""
+msgstr "Одиниця автогенерації"
 
 #. module: date_range
 #: model_terms:ir.ui.view,arch_db:date_range.date_range_generator_view_form
@@ -102,17 +104,17 @@ msgstr "Скасувати"
 #: model:ir.model.fields,field_description:date_range.field_date_range_type__company_id
 #: model_terms:ir.ui.view,arch_db:date_range.view_date_range_search
 msgid "Company"
-msgstr ""
+msgstr "Компанія"
 
 #. module: date_range
 #: model_terms:ir.ui.view,arch_db:date_range.view_date_range_type_form_view
 msgid "Configuration"
-msgstr ""
+msgstr "Налаштування"
 
 #. module: date_range
 #: model_terms:ir.ui.view,arch_db:date_range.view_date_range_type_form_view
 msgid "Create"
-msgstr ""
+msgstr "Створити"
 
 #. module: date_range
 #: model:ir.model.fields,field_description:date_range.field_date_range__create_uid
@@ -131,45 +133,45 @@ msgstr "Створено"
 #. module: date_range
 #: model:ir.model,name:date_range.model_date_range
 msgid "Date Range"
-msgstr ""
+msgstr "Період"
 
 #. module: date_range
 #: model:ir.model,name:date_range.model_date_range_generator
 msgid "Date Range Generator"
-msgstr ""
+msgstr "Генератор періодів"
 
 #. module: date_range
 #: model:ir.model,name:date_range.model_date_range_type
 #: model_terms:ir.ui.view,arch_db:date_range.view_date_range_type_form_view
 msgid "Date Range Type"
-msgstr ""
+msgstr "Тип періоду"
 
 #. module: date_range
 #: model:ir.actions.act_window,name:date_range.date_range_type_action
 #: model:ir.ui.menu,name:date_range.menu_date_range_type_action
 msgid "Date Range Types"
-msgstr ""
+msgstr "Типи періодів"
 
 #. module: date_range
 #: model:ir.actions.act_window,name:date_range.date_range_action
 #: model:ir.ui.menu,name:date_range.menu_date_range_action
 msgid "Date Ranges"
-msgstr ""
+msgstr "Періоди"
 
 #. module: date_range
 #: model:ir.model.fields,field_description:date_range.field_date_range_type__date_ranges_exist
 msgid "Date Ranges Exist"
-msgstr ""
+msgstr "Періоди вже існують"
 
 #. module: date_range
 #: model:ir.ui.menu,name:date_range.menu_date_range
 msgid "Date ranges"
-msgstr ""
+msgstr "Періоди"
 
 #. module: date_range
 #: model_terms:ir.ui.view,arch_db:date_range.view_date_range_type_form_view
 msgid "Defaults for generating date ranges"
-msgstr ""
+msgstr "Значення за замовчуванням для генерації періодів"
 
 #. module: date_range
 #: model:ir.model.fields,field_description:date_range.field_date_range__display_name
@@ -182,18 +184,18 @@ msgstr "Назва для відображення"
 #: model:ir.model.fields,field_description:date_range.field_date_range_generator__duration_count
 #: model:ir.model.fields,field_description:date_range.field_date_range_type__duration_count
 msgid "Duration"
-msgstr ""
+msgstr "Тривалість"
 
 #. module: date_range
 #: model_terms:ir.ui.view,arch_db:date_range.view_date_range_search
 msgid "End Date"
-msgstr ""
+msgstr "Дата закінчення"
 
 #. module: date_range
 #: model:ir.model.fields,field_description:date_range.field_date_range__date_end
 #: model:ir.model.fields,field_description:date_range.field_date_range_generator__date_end
 msgid "End date"
-msgstr ""
+msgstr "Дата закінчення"
 
 #. module: date_range
 #: model:ir.model.fields,help:date_range.field_date_range_generator__name_expr
@@ -203,28 +205,30 @@ msgid ""
 "You can use the Date types 'date_end' and 'date_start', as well as the "
 "'index' variable."
 msgstr ""
+"Обчислюваний вираз. Наприклад: \"'FY%s' % date_start.strftime('%Y%m%d')\"\n"
+"Можна використовувати дати 'date_end' і 'date_start', а також змінну 'index'."
 
 #. module: date_range
 #: model:ir.model.fields,field_description:date_range.field_date_range_search_mixin__date_range_search_id
 msgid "Filter by period (technical field)"
-msgstr ""
+msgstr "Фільтр за періодом (технічне поле)"
 
 #. module: date_range
 #: model_terms:ir.ui.view,arch_db:date_range.date_range_generator_view_form
 msgid "Generate"
-msgstr ""
+msgstr "Згенерувати"
 
 #. module: date_range
 #: model:ir.actions.act_window,name:date_range.date_range_generator_action
 #: model:ir.ui.menu,name:date_range.menu_date_range_generator_action
 #: model_terms:ir.ui.view,arch_db:date_range.date_range_generator_view_form
 msgid "Generate Date Ranges"
-msgstr ""
+msgstr "Згенерувати періоди"
 
 #. module: date_range
 #: model_terms:ir.ui.view,arch_db:date_range.view_date_range_type_form_view
 msgid "Generation"
-msgstr ""
+msgstr "Генерація"
 
 #. module: date_range
 #: model:ir.model.fields,field_description:date_range.field_date_range__id
@@ -236,13 +240,13 @@ msgstr "ID"
 #. module: date_range
 #: model:ir.model.fields,help:date_range.field_date_range_type__allow_overlap
 msgid "If set, date ranges of same type must not overlap."
-msgstr ""
+msgstr "Якщо позначено, періоди одного типу не повинні перетинатися."
 
 #. module: date_range
 #. odoo-python
 #: code:addons/date_range/wizard/date_range_generator.py:0
 msgid "Invalid name expression: %s"
-msgstr ""
+msgstr "Некоректний вираз назви: %s"
 
 #. module: date_range
 #: model:ir.model.fields,field_description:date_range.field_date_range__write_uid
@@ -261,86 +265,86 @@ msgstr "Дата останньої зміни"
 #. module: date_range
 #: model:ir.model,name:date_range.model_date_range_search_mixin
 msgid "Mixin class to add a Many2one style period search field"
-msgstr ""
+msgstr "Клас-домішка для додавання поля пошуку періоду у стилі Many2one"
 
 #. module: date_range
 #: model:ir.model.fields,field_description:date_range.field_date_range__name
 #: model:ir.model.fields,field_description:date_range.field_date_range_type__name
 msgid "Name"
-msgstr "Name"
+msgstr "Назва"
 
 #. module: date_range
 #. odoo-python
 #: code:addons/date_range/wizard/date_range_generator.py:0
 msgid "No ranges to generate with these settings"
-msgstr ""
+msgstr "З цими налаштуваннями немає періодів для генерації"
 
 #. module: date_range
 #: model:ir.model.fields,field_description:date_range.field_date_range_generator__count
 msgid "Number of ranges to generate"
-msgstr ""
+msgstr "Кількість періодів для генерації"
 
 #. module: date_range
 #: model:ir.model.fields,help:date_range.field_date_range_type__autogeneration_date_start
 msgid "Only applies when there are no date ranges of this type yet"
-msgstr ""
+msgstr "Застосовується, лише якщо періодів цього типу ще немає"
 
 #. module: date_range
 #: model_terms:ir.ui.view,arch_db:date_range.date_range_generator_view_form
 msgid "Parameters"
-msgstr ""
+msgstr "Параметри"
 
 #. module: date_range
 #. odoo-python
 #: code:addons/date_range/models/date_range_search_mixin.py:0
 msgid "Period"
-msgstr ""
+msgstr "Період"
 
 #. module: date_range
 #. odoo-python
 #: code:addons/date_range/wizard/date_range_generator.py:0
 msgid "Please enter an end date, or the number of ranges to generate."
-msgstr ""
+msgstr "Вкажіть дату закінчення або кількість періодів для генерації."
 
 #. module: date_range
 #. odoo-python
 #: code:addons/date_range/wizard/date_range_generator.py:0
 msgid "Please set a prefix or an expression to generate the range names."
-msgstr ""
+msgstr "Вкажіть префікс або вираз для генерації назв періодів."
 
 #. module: date_range
 #: model:ir.model.fields,field_description:date_range.field_date_range_generator__range_name_preview
 #: model:ir.model.fields,field_description:date_range.field_date_range_type__range_name_preview
 msgid "Range Name Preview"
-msgstr ""
+msgstr "Попередній перегляд назви періоду"
 
 #. module: date_range
 #: model:ir.model.fields,field_description:date_range.field_date_range_generator__name_expr
 #: model:ir.model.fields,field_description:date_range.field_date_range_type__name_expr
 msgid "Range name expression"
-msgstr ""
+msgstr "Вираз назви періоду"
 
 #. module: date_range
 #: model:ir.model.fields,field_description:date_range.field_date_range_generator__name_prefix
 #: model:ir.model.fields,field_description:date_range.field_date_range_type__name_prefix
 msgid "Range name prefix"
-msgstr ""
+msgstr "Префікс назви періоду"
 
 #. module: date_range
 #: model:ir.model.fields,field_description:date_range.field_date_range_type__date_range_ids
 msgid "Ranges"
-msgstr ""
+msgstr "Періоди"
 
 #. module: date_range
 #: model_terms:ir.ui.view,arch_db:date_range.view_date_range_search
 msgid "Start Date"
-msgstr ""
+msgstr "Дата початку"
 
 #. module: date_range
 #: model:ir.model.fields,field_description:date_range.field_date_range__date_start
 #: model:ir.model.fields,field_description:date_range.field_date_range_generator__date_start
 msgid "Start date"
-msgstr ""
+msgstr "Дата початку"
 
 #. module: date_range
 #. odoo-python
@@ -348,18 +352,18 @@ msgstr ""
 msgid ""
 "The Company in the Date Range Generator and in Date Range Type must be the "
 "same."
-msgstr ""
+msgstr "Компанія в генераторі періодів і в типі періоду має бути однаковою."
 
 #. module: date_range
 #: model:ir.model.fields,help:date_range.field_date_range_type__active
 msgid ""
 "The active field allows you to hide the date range type without removing it."
-msgstr ""
+msgstr "Поле \"Активний\" дозволяє сховати тип періоду без його видалення."
 
 #. module: date_range
 #: model:ir.model.fields,help:date_range.field_date_range__active
 msgid "The active field allows you to hide the date range without removing it."
-msgstr ""
+msgstr "Поле \"Активний\" дозволяє сховати період без його видалення."
 
 #. module: date_range
 #: model:ir.model.fields,field_description:date_range.field_date_range__type_id
@@ -371,12 +375,12 @@ msgstr "Тип"
 #: model:ir.model.fields,field_description:date_range.field_date_range_generator__unit_of_time
 #: model:ir.model.fields,field_description:date_range.field_date_range_type__unit_of_time
 msgid "Unit Of Time"
-msgstr ""
+msgstr "Одиниця часу"
 
 #. module: date_range
 #: model_terms:ir.ui.view,arch_db:date_range.date_range_generator_view_form
 msgid "Until"
-msgstr ""
+msgstr "До"
 
 #. module: date_range
 #. odoo-python
@@ -384,51 +388,51 @@ msgstr ""
 msgid ""
 "You cannot change the company, as this Date Range Type is assigned to Date "
 "Range '%s'."
-msgstr ""
+msgstr "Компанію змінити не можна: цей тип періоду призначено періоду '%s'."
 
 #. module: date_range
 #: model:ir.model.fields.selection,name:date_range.selection__date_range_generator__unit_of_time__3
 #: model:ir.model.fields.selection,name:date_range.selection__date_range_type__autogeneration_unit__3
 #: model:ir.model.fields.selection,name:date_range.selection__date_range_type__unit_of_time__3
 msgid "days"
-msgstr ""
+msgstr "днів"
 
 #. module: date_range
 #: model_terms:ir.ui.view,arch_db:date_range.date_range_generator_view_form
 msgid "entries."
-msgstr ""
+msgstr "записів."
 
 #. module: date_range
 #: model_terms:ir.ui.view,arch_db:date_range.view_date_range_type_form_view
 msgid "in advance"
-msgstr ""
+msgstr "заздалегідь"
 
 #. module: date_range
 #: model:ir.model.fields.selection,name:date_range.selection__date_range_generator__unit_of_time__1
 #: model:ir.model.fields.selection,name:date_range.selection__date_range_type__autogeneration_unit__1
 #: model:ir.model.fields.selection,name:date_range.selection__date_range_type__unit_of_time__1
 msgid "months"
-msgstr ""
+msgstr "місяців"
 
 #. module: date_range
 #: model_terms:ir.ui.view,arch_db:date_range.date_range_generator_view_form
 #: model_terms:ir.ui.view,arch_db:date_range.view_date_range_type_form_view
 msgid "or enter a complex expression below"
-msgstr ""
+msgstr "або введіть складний вираз нижче"
 
 #. module: date_range
 #: model:ir.model.fields.selection,name:date_range.selection__date_range_generator__unit_of_time__2
 #: model:ir.model.fields.selection,name:date_range.selection__date_range_type__autogeneration_unit__2
 #: model:ir.model.fields.selection,name:date_range.selection__date_range_type__unit_of_time__2
 msgid "weeks"
-msgstr ""
+msgstr "тижнів"
 
 #. module: date_range
 #: model:ir.model.fields.selection,name:date_range.selection__date_range_generator__unit_of_time__0
 #: model:ir.model.fields.selection,name:date_range.selection__date_range_type__autogeneration_unit__0
 #: model:ir.model.fields.selection,name:date_range.selection__date_range_type__unit_of_time__0
 msgid "years"
-msgstr ""
+msgstr "років"
 
 #, fuzzy
 #~ msgid "Type Name"

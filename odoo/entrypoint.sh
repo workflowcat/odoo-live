@@ -26,7 +26,7 @@ if [ -n "${MODULE_OPS:-}" ] && [ -n "${MODULE_OPS_TAG:-}" ]; then
       kind="${op%%:*}"; mods="${op#*:}"
       case "$kind" in
         i) odoo -c /etc/odoo/odoo.conf -d "$DB_NAME" --db_host="$HOST" --db_port="${PORT:-5432}" --db_user="$USER" --db_password="$PASSWORD" -i "$mods" --stop-after-init ;;
-        u) odoo -c /etc/odoo/odoo.conf -d "$DB_NAME" --db_host="$HOST" --db_port="${PORT:-5432}" --db_user="$USER" --db_password="$PASSWORD" -u "$mods" --stop-after-init ;;
+        u) odoo -c /etc/odoo/odoo.conf -d "$DB_NAME" --db_host="$HOST" --db_port="${PORT:-5432}" --db_user="$USER" --db_password="$PASSWORD" -u "$mods" --i18n-overwrite --stop-after-init ;;
       esac
     done
     psql -h "$HOST" -p "${PORT:-5432}" -U "$USER" -d "$DB_NAME" -Atc "insert into ir_config_parameter (key, value, create_date, write_date) values ('bp.module_ops_tag', '$MODULE_OPS_TAG', now(), now()) on conflict (key) do update set value = excluded.value, write_date = now()" >/dev/null
