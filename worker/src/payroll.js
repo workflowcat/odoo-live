@@ -9,7 +9,7 @@ export class OdooContainer extends Container {
     this.envVars = {
       HOST: env.PGHOST || "", PORT: env.PGPORT || "5432", USER: env.PGUSER || "", PASSWORD: env.PGPASSWORD || "",
       DB_NAME: env.DB_NAME || "payroll", ODOO_ADMIN_PASSWD: env.ODOO_ADMIN_PASSWD || "",
-      MODULE_OPS: env.MODULE_OPS || "", MODULE_OPS_TAG: env.MODULE_OPS_TAG || "",
+      MODULE_OPS: env.MODULE_OPS || "", MODULE_OPS_TAG: env.MODULE_OPS_TAG || "", RELOAD_TRANSLATIONS: env.RELOAD_TRANSLATIONS || "",
       BP_BRIDGE_URL: "https://odoo-live.botpartners.workers.dev", BP_BRIDGE_TOKEN: env.BRIDGE_TOKEN || "",
     };
   }

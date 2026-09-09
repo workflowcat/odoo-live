@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_hub_section_user,ua.hub.section user,model_ua_hub_section,base.group_user,1,0,0,0
+access_ua_hub_section_admin,ua.hub.section admin,model_ua_hub_section,base.group_system,1,1,1,1
+access_ua_hub_item_user,ua.hub.item user,model_ua_hub_item,base.group_user,1,0,0,0
+access_ua_hub_item_admin,ua.hub.item admin,model_ua_hub_item,base.group_system,1,1,1,1
