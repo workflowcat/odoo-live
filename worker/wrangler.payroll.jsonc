@@ -1,0 +1,15 @@
+{
+  // odoo-payroll: the Ukrainian payroll stand as a Cloudflare Container (Workers Paid) against the payroll database on Supabase.
+  // Deploy: cd worker && npx wrangler deploy -c wrangler.payroll.jsonc
+  // Secrets (wrangler secret put -c wrangler.payroll.jsonc): PGHOST PGPORT PGUSER PGPASSWORD ODOO_ADMIN_PASSWD BRIDGE_TOKEN
+  "name": "odoo-payroll",
+  "main": "src/payroll.js",
+  "compatibility_date": "2026-08-01",
+  "workers_dev": true,
+  "vars": { "DB_NAME": "payroll" },
+  "containers": [{ "class_name": "OdooContainer", "image": "../odoo/Dockerfile", "image_build_context": "..", "max_instances": 1, "instance_type": "standard-1" }],
+  "durable_objects": { "bindings": [{ "name": "ODOO", "class_name": "OdooContainer" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["OdooContainer"] }],
+  "triggers": { "crons": ["*/5 5-17 * * 1-5"] },
+  "observability": { "enabled": true }
+}
