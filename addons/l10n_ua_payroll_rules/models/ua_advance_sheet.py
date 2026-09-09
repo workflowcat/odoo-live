@@ -69,7 +69,7 @@ class UaAdvanceSheet(models.Model):
             d2 = date(doc.year, doc.month, calendar.monthrange(doc.year, doc.month)[1])
             h1, h2 = d1, date(doc.year, doc.month, 15)
             slips = self.env["hr.payslip"].search([
-                ("company_id", "=", doc.company_id.id), ("state", "=", "draft"),
+                ("company_id", "=", doc.company_id.id), ("state", "in", ("draft", "verify")),
                 ("date_from", ">=", d1), ("date_to", "<=", d2),
             ])
             lines = []
@@ -94,7 +94,7 @@ class UaAdvanceSheet(models.Model):
         """Перед записом входу ADVANCE листок має бути ще чернеткою (як його відібрав action_refill)."""
         for doc in self:
             for line in doc.line_ids:
-                if line.payslip_id.state != "draft":
+                if line.payslip_id.state not in ("draft", "verify"):
                     raise UserError(f"Листок «{line.employee_id.name}» уже не чернетка. Дію скасовано.")
 
     def _check_slips_resettable(self):
