@@ -1,16 +1,17 @@
 {
-  "name": "worker",
+  "name": "odoo-live-worker",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "odoo-live bridge worker and the payroll stand container worker",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "deploy:payroll": "bash scripts/deploy-payroll.sh",
+    "deploy:bridge": "wrangler deploy -c wrangler.jsonc"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "type": "commonjs",
   "dependencies": {
     "@cloudflare/containers": "^0.3.7"
+  },
+  "private": true,
+  "devDependencies": {
+    "wrangler": "^4.107.1"
   }
 }

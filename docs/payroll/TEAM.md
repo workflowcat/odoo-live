@@ -20,7 +20,20 @@
 - Інтерфейс: стандартні види Odoo, без власного JS і тем.
 - Кожна зміна розрахунку: сценарій у `scripts/payroll_check.py` і рядок у `docs/payroll/golden-scenarios.md`.
 
-## Викладка
+## Викладка через Cloudflare Workers Builds (обраний шлях)
+
+Cloudflare сам збирає образ і викладає Worker після push у гілку `payroll`. GitHub Actions не потрібен. Налаштування один раз у панелі Cloudflare (власник):
+
+1. Workers & Pages → `odoo-payroll` → Settings → Builds → Connect. Дозволити застосунок Cloudflare для GitHub на репозиторій `workflowcat/odoo-live`.
+2. Production branch: `payroll`. Root directory: `worker`.
+3. Build command: порожньо. Deploy command: `npm run deploy:payroll`.
+4. Build variables: `BRIDGE_TOKEN` = токен моста (той самий, що у секретах Worker), щоб після викладки контейнер перезапустився на новий образ.
+5. Build watch paths (include): `addons/**`, `odoo/**`, `worker/**`.
+6. Non-production branch builds: вимкнути. Для контейнерів вони не дають прев'ю.
+
+Далі кожен merge у `payroll` = збірка і викладка за 5-8 хвилин. Історія збірок і логи: той самий екран Builds.
+
+## Викладка вручну
 
 1. Гілка від `payroll`, зміни, локальна перевірка, pull request у `payroll`.
 2. Merge у `payroll` запускає GitHub Actions `deploy-payroll` (файл `docs/payroll/ci/deploy-payroll.yml` треба покласти в `.github/workflows/`; токен git на цьому Mac не має права `workflow`): збірка образу, `wrangler deploy`, перезапуск контейнера. 5-8 хвилин, стенд недоступний 2-3 хвилини.
