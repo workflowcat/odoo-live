@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Форма-обгортка: єдиний вміст - віджет картки. priority=1 (менше за стандартний 16) робить її
+       типовою формою hr.employee всюди, де форма не закріплена явним view_id (default_view()
+       обирає primary-вид з найменшим priority). Дії з власним закріпленим записом на форму
+       переприв'язуються явно в post_init_hook (hooks.py). Стандартна форма Odoo лишається
+       доступною за кнопкою «Стандартна форма» в самій картці. -->
+  <record id="view_employee_form_ua_card_wrapper" model="ir.ui.view">
+    <field name="name">hr.employee.form.ua.card.wrapper</field>
+    <field name="model">hr.employee</field>
+    <field name="priority">1</field>
+    <field name="arch" type="xml">
+      <form class="o_ua_employee_card"><sheet><widget name="ua_employee_card"/></sheet></form>
+    </field>
+  </record>
+</odoo>

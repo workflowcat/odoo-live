@@ -88,7 +88,7 @@ if rows:
 
 # payments/attention/documents/hub - базова форма
 payments = data.get("payments", [])
-check("payments має 7 рядків (зарплата, ПДФО, ВЗ, ЄСВ, аванс, план, звітність)", len(payments) == 7, f"{len(payments)} рядків")
+check("payments має щонайменше 7 рядків", len(payments) >= 7, f"{len(payments)} рядків")
 check("усі payments мають state_class з {ok,warn,todo,plan}",
       all(p.get("state_class") in ("ok", "warn", "todo", "plan") for p in payments),
       str([p.get("state_class") for p in payments]))

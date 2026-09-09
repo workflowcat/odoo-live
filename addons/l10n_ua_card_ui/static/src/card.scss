@@ -1,0 +1,148 @@
+.o_ua_employee_card {
+    font-size: 13px;
+
+    h6 {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: .04em;
+        color: #888;
+        margin: 12px 0 4px;
+
+        &:first-child {
+            margin-top: 0;
+        }
+    }
+
+    .o_ua_card_header {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        padding-bottom: 12px;
+        margin-bottom: 12px;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .o_ua_card_avatar {
+        flex: 0 0 auto;
+
+        img, .o_ua_card_initials {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+        }
+
+        img {
+            object-fit: cover;
+        }
+
+        .o_ua_card_initials {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e9ecef;
+            font-weight: 700;
+            font-size: 20px;
+        }
+    }
+
+    .o_ua_card_identity {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .o_ua_card_name {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .o_ua_card_role {
+        color: #666;
+        margin-bottom: 4px;
+    }
+
+    .o_ua_card_meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 12px;
+        font-size: 12px;
+        color: #555;
+        margin-bottom: 6px;
+    }
+
+    .o_ua_card_badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .o_ua_badge {
+        display: inline-block;
+        padding: 1px 8px;
+        border-radius: 10px;
+        border: 1px solid currentColor;
+        font-size: 11px;
+        line-height: 1.6;
+    }
+
+    .o_ua_card_print_buttons {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .o_ua_card_columns {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 0 20px;
+        margin-bottom: 16px;
+    }
+
+    .o_ua_card_table {
+        width: 100%;
+        border-collapse: collapse;
+
+        tr {
+            border-bottom: 1px solid #eee;
+        }
+
+        td {
+            padding: 3px 4px;
+            vertical-align: top;
+            line-height: 1.4;
+        }
+    }
+
+    .o_ua_card_label {
+        color: #777;
+        white-space: nowrap;
+        width: 46%;
+    }
+
+    .o_ua_card_numeric {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .o_ua_card_docs td {
+        font-size: 12px;
+    }
+
+    .o_ua_card_timeline {
+        margin-bottom: 16px;
+    }
+
+    .o_ua_card_timeline_table td:first-child {
+        width: 90px;
+    }
+
+    .o_ua_card_footer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding-top: 12px;
+        border-top: 1px solid #dee2e6;
+    }
+}

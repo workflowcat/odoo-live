@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+  <div t-name="l10n_ua_card_ui.EmployeeCard" class="o_ua_employee_card">
+    <div t-if="state.loading" class="o_ua_card_loading">Завантаження…</div>
+    <div t-elif="!state.data" class="o_ua_card_empty text-muted">Немає даних.</div>
+    <t t-else="">
+      <div class="o_ua_card_header">
+        <div class="o_ua_card_avatar">
+          <img t-if="!state.avatarFailed" t-att-src="state.data.header.avatar_url" t-on-error="onAvatarError" alt=""/>
+          <div t-else="" class="o_ua_card_initials" t-esc="state.data.header.initials"/>
+        </div>
+        <div class="o_ua_card_identity">
+          <div class="o_ua_card_name" t-esc="state.data.header.name"/>
+          <div class="o_ua_card_role">
+            <t t-esc="state.data.header.job_title"/> · <t t-esc="state.data.header.department"/>
+          </div>
+          <div class="o_ua_card_meta">
+            <span>Місце роботи: <t t-esc="state.data.header.company"/></span>
+            <span>Керівник: <t t-esc="state.data.header.manager"/></span>
+            <span>Таб. номер: <t t-esc="state.data.header.badge_number"/></span>
+          </div>
+          <div class="o_ua_card_badges">
+            <span t-foreach="state.data.header.badges" t-as="badge" t-key="badge.label"
+                  t-att-class="'o_ua_badge ' + badge.css" t-esc="badge.label"/>
+          </div>
+        </div>
+        <div class="o_ua_card_print_buttons">
+          <button t-foreach="headerActions" t-as="act" t-key="act.key" type="button"
+                  class="btn btn-secondary btn-sm" t-on-click="() => this.onActionClick(act)" t-esc="act.label"/>
+        </div>
+      </div>
+
+      <div class="o_ua_card_columns">
+        <div class="o_ua_card_column">
+          <h6>Особа</h6>
+          <table class="o_ua_card_table">
+            <tr t-foreach="state.data.person" t-as="row" t-key="row.label">
+              <td class="o_ua_card_label" t-esc="row.label"/>
+              <td t-att-class="'o_ua_card_value' + (row.numeric ? ' o_ua_card_numeric' : '') + (row.empty ? ' text-muted' : '')" t-esc="row.value"/>
+            </tr>
+          </table>
+        </div>
+
+        <div class="o_ua_card_column">
+          <h6>Оплата</h6>
+          <table class="o_ua_card_table">
+            <tr t-foreach="state.data.pay" t-as="row" t-key="row.label">
+              <td class="o_ua_card_label" t-esc="row.label"/>
+              <td t-att-class="'o_ua_card_value' + (row.numeric ? ' o_ua_card_numeric' : '') + (row.empty ? ' text-muted' : '')" t-esc="row.value"/>
+            </tr>
+          </table>
+          <h6>Відпустка</h6>
+          <table class="o_ua_card_table">
+            <tr t-foreach="state.data.vacation" t-as="row" t-key="row.label">
+              <td class="o_ua_card_label" t-esc="row.label"/>
+              <td t-att-class="'o_ua_card_value' + (row.numeric ? ' o_ua_card_numeric' : '') + (row.empty ? ' text-muted' : '')" t-esc="row.value"/>
+            </tr>
+          </table>
+        </div>
+
+        <div class="o_ua_card_column">
+          <h6>Військовий облік</h6>
+          <table class="o_ua_card_table">
+            <tr t-foreach="state.data.military" t-as="row" t-key="row.label">
+              <td class="o_ua_card_label" t-esc="row.label"/>
+              <td t-att-class="'o_ua_card_value' + (row.numeric ? ' o_ua_card_numeric' : '') + (row.empty ? ' text-muted' : '')" t-esc="row.value"/>
+            </tr>
+          </table>
+          <h6>Документи</h6>
+          <table class="o_ua_card_table o_ua_card_docs">
+            <tr t-foreach="state.data.documents" t-as="doc" t-key="doc.id">
+              <td t-esc="doc.type"/>
+              <td t-esc="doc.name"/>
+              <td t-att-class="'o_ua_card_numeric ' + (doc.css || '')" t-esc="doc.valid_until"/>
+            </tr>
+            <tr t-if="!state.data.documents.length"><td colspan="3" class="text-muted">немає</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="o_ua_card_timeline">
+        <h6>Хроніка</h6>
+        <table class="o_ua_card_table o_ua_card_timeline_table">
+          <tr t-foreach="state.data.timeline" t-as="ev" t-key="ev_index">
+            <td class="o_ua_card_numeric" t-esc="ev.date"/>
+            <td t-esc="ev.label"/>
+            <td class="text-muted" t-esc="ev.detail"/>
+          </tr>
+          <tr t-if="!state.data.timeline.length"><td colspan="3" class="text-muted">немає</td></tr>
+        </table>
+      </div>
+
+      <div class="o_ua_card_footer">
+        <button t-foreach="footerActions" t-as="act" t-key="act.key" type="button"
+                class="btn btn-primary btn-sm" t-on-click="() => this.onActionClick(act)" t-esc="act.label"/>
+      </div>
+    </t>
+  </div>
+</templates>

@@ -14,7 +14,7 @@ trial_date_end), ua.timesheet.sheet, ua.staff.list, ua.pfu.claim, ua.advance.she
 Місяць в називному відмінку («серпень», «вересень») - для цих іменників він збігається зі
 знахідним, який і вжито в текстах виписки після «за».
 """
-from datetime import timedelta
+from datetime import date, timedelta
 
 from odoo import api, fields, models
 
@@ -30,6 +30,11 @@ class UaDashboard(models.AbstractModel):
     _description = "Дані панелі «Зведення»"
 
     # ------------------------------------------------------------------ хелпери
+    @staticmethod
+    def _money(value):
+        """Українське форматування: 710 887,13"""
+        return "{:,.2f}".format(abs(value or 0.0)).replace(",", " ").replace(".", ",")
+
     @staticmethod
     def _r2(value):
         return round(value or 0.0, 2)
@@ -152,17 +157,17 @@ class UaDashboard(models.AbstractModel):
                 "department": row["department"],
                 "employees": len(row["employee_ids"]),
                 "gross": self._r2(row["gross"]),
-                "pdfo": self._r2(row["pdfo"]),
-                "vz": self._r2(row["vz"]),
+                "pdfo": self._r2(abs(row["pdfo"])),
+                "vz": self._r2(abs(row["vz"])),
                 "esv": self._r2(row["esv"]),
                 "net": self._r2(row["net"]),
             }
             rows.append(r)
             total["employees"] += r["employees"]
             for k in ("gross", "pdfo", "vz", "esv", "net"):
-                total[k] += r[k]
+                total[k] +=  r[k]
         for k in ("gross", "pdfo", "vz", "esv", "net"):
-            total[k] = self._r2(total[k])
+            total[k] =  self._r2(total[k])
 
         return {
             "rows": rows,
@@ -182,7 +187,7 @@ class UaDashboard(models.AbstractModel):
 
         state, cls, d = self._bank_status(company, "Заробітна плата", lm, ly)
         rows.append({
-            "date": fields.Date.to_string(d) if d else False,
+            "date": d.strftime("%d.%m.%Y") if d else False,
             "label": "Зарплата, %s %s" % (last_name, ly),
             "amount": abs(last_totals["NET"]), "state": state, "state_class": cls,
         })
@@ -194,7 +199,7 @@ class UaDashboard(models.AbstractModel):
         ):
             state, cls, d = self._bank_status(company, keyword, lm, ly)
             rows.append({
-                "date": fields.Date.to_string(d) if d else False,
+                "date": d.strftime("%d.%m.%Y") if d else False,
                 "label": "%s, %s %s" % (label, last_name, ly),
                 "amount": abs(last_totals[code]), "state": state, "state_class": cls,
             })
@@ -215,25 +220,29 @@ class UaDashboard(models.AbstractModel):
                 bstate, bcls = "заплановано", "plan"
                 date_val = adv.pay_date
             rows.append({
-                "date": fields.Date.to_string(date_val) if date_val else False,
+                "date": date_val.strftime("%d.%m.%Y") if date_val else False,
                 "label": "Аванс, %s %s" % (this_name, year),
                 "amount": self._r2(adv.total), "state": bstate, "state_class": bcls,
             })
 
-        nd1, nd2 = self._month_bounds(ny, nm)
-        next_run = self.env["hr.payslip.run"].search([
-            ("company_id", "=", company.id), ("date_start", ">=", nd1), ("date_start", "<=", nd2),
-        ], limit=1)
-        if next_run:
-            next_totals = self._month_payslip_totals(company, ny, nm)
+        # планова виплата за поточний місяць: 6-те число наступного місяця (ст. 115 КЗпП)
+        this_totals = self._month_payslip_totals(company, year, month)
+        if this_totals["NET"]:
+            pay_day = date(ny, nm, 6)
             rows.append({
-                "date": False, "label": "Заплановано на %s %s" % (next_name, ny),
-                "amount": abs(next_totals["NET"]), "state": "заплановано", "state_class": "plan",
+                "date": pay_day.strftime("%d.%m.%Y"),
+                "label": "Зарплата, %s %s (остаточний розрахунок)" % (this_name, year),
+                "amount": abs(this_totals["NET"]), "state": "планово", "state_class": "plan",
             })
-        else:
             rows.append({
-                "date": False, "label": "Заплановано на %s %s" % (next_name, ny),
-                "amount": 0.0, "state": "пакета немає", "state_class": "todo",
+                "date": pay_day.strftime("%d.%m.%Y"),
+                "label": "ПДФО і ВЗ, %s %s" % (this_name, year),
+                "amount": abs(this_totals["PDFO"]) + abs(this_totals["VZ"]), "state": "планово", "state_class": "plan",
+            })
+            rows.append({
+                "date": date(ny, nm, 20).strftime("%d.%m.%Y"),
+                "label": "ЄСВ, %s %s" % (this_name, year),
+                "amount": abs(this_totals["ESV"]), "state": "планово", "state_class": "plan",
             })
 
         quarter = (month - 1) // 3 + 1
@@ -248,15 +257,10 @@ class UaDashboard(models.AbstractModel):
             dstate, dcls = "наближається", "warn"
         else:
             dstate, dcls = "заплановано", "plan"
-        q_total = 0.0
-        for i in range(3):
-            qy, qm = self._month_add(year, q_end_month, -i)
-            t = self._month_payslip_totals(company, qy, qm)
-            q_total += t["PDFO"] + t["VZ"] + t["ESV"]
         rows.append({
-            "date": fields.Date.to_string(deadline),
+            "date": deadline.strftime("%d.%m.%Y"),
             "label": "Об'єднана звітність, %s квартал %s" % (quarter, year),
-            "amount": abs(self._r2(q_total)), "state": dstate, "state_class": dcls,
+            "amount": 0.0, "detail": "Д1, 4ДФ, Д5", "state": dstate, "state_class": dcls,
         })
         return rows
 
@@ -298,7 +302,7 @@ class UaDashboard(models.AbstractModel):
             amount = self._r2(sum(unrec.mapped("amount")))
             rows.append({
                 "title": "Незвірені рядки виписки",
-                "detail": "%s рядків на суму %s" % (len(unrec), amount),
+                "detail": "%s рядків на суму %s грн" % (len(unrec), self._money(amount)),
                 "count": len(unrec), "level": "warning",
                 "action": self._hub_item_id("account_reconcile_oca.action_bank_statement_line_reconcile_all"),
                 "res_model": "account.bank.statement.line",
@@ -387,7 +391,15 @@ class UaDashboard(models.AbstractModel):
                 "state": "XML", "action": False, "res_model": "ir.attachment", "res_id": rec.id,
             })
 
-        return rows
+        seen = set()
+        unique = []
+        for row in rows:
+            key = (row["name"], row.get("res_model"))
+            if key in seen:
+                continue
+            seen.add(key)
+            unique.append(row)
+        return unique[:14]
 
     def _get_hub(self):
         out = []

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_hr_employee_form_doc_missing" model="ir.ui.view">
+    <field name="name">hr.employee.form.ua.doc.missing</field>
+    <field name="model">hr.employee</field>
+    <field name="inherit_id" ref="l10n_ua_hr_card.view_employee_form_ua_card"/>
+    <field name="arch" type="xml">
+      <xpath expr="//page[@name='ua_docs']/field[@name='ua_document_ids']" position="before">
+        <field name="ua_doc_missing_count" invisible="ua_doc_missing_count == 0" class="text-danger"/>
+        <field name="ua_doc_missing_ids" widget="many2many_tags" invisible="ua_doc_missing_count == 0"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>

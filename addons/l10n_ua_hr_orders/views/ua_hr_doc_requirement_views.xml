@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_hr_doc_requirement_list" model="ir.ui.view">
+    <field name="name">ua.hr.doc.requirement.list</field>
+    <field name="model">ua.hr.doc.requirement</field>
+    <field name="arch" type="xml">
+      <list editable="bottom">
+        <field name="sequence" widget="handle"/>
+        <field name="name"/>
+        <field name="code"/>
+        <field name="applies_to"/>
+        <field name="active" widget="boolean_toggle"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_hr_doc_requirement" model="ir.actions.act_window">
+    <field name="name">Обов'язкові документи</field>
+    <field name="res_model">ua.hr.doc.requirement</field>
+    <field name="view_mode">list</field>
+    <field name="context">{'active_test': False}</field>
+  </record>
+</odoo>

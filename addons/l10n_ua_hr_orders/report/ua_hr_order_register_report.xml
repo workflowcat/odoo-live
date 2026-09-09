@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_hr_order_register" model="ir.actions.report">
+    <field name="name">Журнал реєстрації наказів</field>
+    <field name="model">ua.hr.order.register.wizard</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_hr_orders.report_ua_hr_order_register</field>
+    <field name="report_file">l10n_ua_hr_orders.report_ua_hr_order_register</field>
+    <field name="print_report_name">'Журнал %s %s' % (object.register, object.year)</field>
+    <field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4_landscape"/>
+  </record>
+
+  <template id="report_ua_hr_order_register">
+    <t t-call="web.basic_layout">
+      <t t-set="register_labels" t-value="{'k1': 'К-1, кадрові, 75 років', 'v2': 'В-2, відпустки і відрядження, 5 років'}"/>
+      <t t-set="type_labels" t-value="{'hire': 'Прийняття', 'wage': 'Зміна окладу', 'transfer': 'Переведення', 'leave': 'Відпустка', 'dismissal': 'Звільнення', 'trip': 'Відрядження'}"/>
+      <t t-set="state_labels" t-value="{'draft': 'Чернетка', 'posted': 'Проведено', 'acknowledged': 'Ознайомлено', 'cancelled': 'Скасовано'}"/>
+      <t t-foreach="docs" t-as="w">
+        <t t-set="register_label" t-value="register_labels.get(w.register)"/>
+        <t t-set="orders" t-value="env['ua.hr.order'].sudo().search([
+              ('company_id', '=', w.company_id.id), ('register', '=', w.register),
+              ('date', '&gt;=', '%s-01-01' % w.year), ('date', '&lt;=', '%s-12-31' % w.year)], order='date, name')"/>
+        <div class="page" style="font-family: DejaVu Sans, sans-serif; font-size: 10px;">
+          <h3 style="margin-bottom:2px;">Журнал реєстрації наказів</h3>
+          <div><t t-out="w.company_id.name"/> · Реєстр <t t-out="register_label"/> · <t t-out="w.year"/> рік</div>
+          <table class="table table-sm" style="font-size:10px; margin-top:8px;">
+            <thead>
+              <tr><th>№</th><th>Дата</th><th>Вид</th><th>Працівник</th><th>Зміст</th><th>Стан</th><th>Ознайомлений</th></tr>
+            </thead>
+            <tbody>
+              <t t-foreach="orders" t-as="o">
+                <tr>
+                  <td><t t-out="o.name"/></td>
+                  <td><t t-out="o.date and o.date.strftime('%d.%m.%Y')"/></td>
+                  <td><t t-out="type_labels.get(o.order_type)"/></td>
+                  <td><t t-out="o.employee_id.name"/></td>
+                  <td><t t-out="o.content_line()"/></td>
+                  <td><t t-out="state_labels.get(o.state)"/></td>
+                  <td><t t-out="o.ack_date and o.ack_date.strftime('%d.%m.%Y')"/></td>
+                </tr>
+              </t>
+              <tr t-if="not orders"><td colspan="7">Немає наказів за цей рік і реєстр.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </t>
+    </t>
+  </template>
+</odoo>
