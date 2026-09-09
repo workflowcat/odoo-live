@@ -6,6 +6,9 @@
 зустрічається не більше одного разу (нащадкові списки ua.employee.child/prior.job/document не рахуються -
 це поля ІНШОЇ моделі, що вставляються у власний inline-підвид One2many; відомий виняток самого ядра Odoo -
 bank_account_ids/user_id, які й у стандартній формі повторюються за умовними варіантами відображення).
+Також: вкладка «Огляд» (ua_overview) - перша вкладка форми, і поля всередині неї навмисно дублюють поля
+з інших вкладок (readonly-знімок стану), тож виключені з підрахунку повторів окремо.
+Для трьох працівників ua_days_in_company > 0 і ua_docs_count >= 1; у Ткачука ua_overview_alert_count >= 1.
 Запуск: python3 scripts/card_check.py"""
 import http.cookiejar
 import json
@@ -23,7 +26,10 @@ PW = ENV["ODOO_ADMIN_USER_PASSWORD"].strip()
 
 # Поля, що й у стандартній формі hr.employee (ядро Odoo + вже встановлені модулі hr_presence тощо)
 # повторюються через умовні варіанти віджета - це не наслідок наших переміщень, тож не провал перевірки.
-KNOWN_CORE_REPEATS = {"bank_account_ids": 3, "user_id": 2, "hr_icon_display": 2}
+# ua_insurance_years/ua_vacation_balance повторюються навмисно: стат-кнопка в button_box дублює
+# значення, що й так видно в його власній вкладці (Особова картка / Зарплата) - стандартний патерн Odoo.
+KNOWN_CORE_REPEATS = {"bank_account_ids": 3, "user_id": 2, "hr_icon_display": 2,
+                      "ua_insurance_years": 2, "ua_vacation_balance": 2}
 
 
 def rpc(service, method, *args):
@@ -83,24 +89,46 @@ root = ET.fromstring(arch)
 top_level_names = []
 
 
-def walk(node, inside_field):
+def walk(node, inside_field, in_overview):
     for child in node:
+        is_overview_page = child.tag == "page" and child.get("name") == "ua_overview"
         if child.tag == "field":
             name = child.get("name")
-            if not inside_field:
+            if not inside_field and not in_overview:
                 top_level_names.append(name)
-            walk(child, inside_field=True)  # усе всередині цього <field> - це вже інша модель (о2м/м2м inline)
+            # усе всередині цього <field> - це вже інша модель (о2м/м2м inline)
+            walk(child, inside_field=True, in_overview=in_overview)
         else:
-            walk(child, inside_field=inside_field)
+            walk(child, inside_field=inside_field, in_overview=in_overview or is_overview_page)
 
 
-walk(root, inside_field=False)
+walk(root, inside_field=False, in_overview=False)
 counts = Counter(top_level_names)
 unexpected_dupes = {name: n for name, n in counts.items() if n > 1 and KNOWN_CORE_REPEATS.get(name) != n}
-print(f"Полів hr.employee у формі (верхній рівень, без рядків о2м): {len(top_level_names)}, унікальних: {len(counts)}.")
+print(f"Полів hr.employee у формі (верхній рівень, без рядків о2м, без вкладки «Огляд»): {len(top_level_names)}, унікальних: {len(counts)}.")
 if unexpected_dupes:
     print("  повтори понад відомі винятки ядра:", unexpected_dupes)
-check("жодне поле hr.employee не повторюється у формі (окрім bank_account_ids/user_id з ядра Odoo)", not unexpected_dupes)
+check("жодне поле hr.employee не повторюється у формі (окрім bank_account_ids/user_id з ядра Odoo і навмисних дублів у «Огляд»)", not unexpected_dupes)
+
+# 2б. вкладка «Огляд» - перша вкладка форми
+notebook = root.find(".//notebook")
+first_page = notebook.find("./page") if notebook is not None else None
+check("вкладка «Огляд» (ua_overview) - перша вкладка форми",
+      first_page is not None and first_page.get("name") == "ua_overview")
+
+# 2в. огляд: для 3 працівників ua_days_in_company > 0, ua_docs_count >= 1
+overview_sample = call("hr.employee", "search_read", [["id", "in", [e["id"] for e in emps[:3]]]],
+                        fields=["id", "name", "ua_days_in_company", "ua_docs_count"])
+for e in overview_sample:
+    check(f"{e['name']}: ua_days_in_company > 0 ({e['ua_days_in_company']})", e["ua_days_in_company"] > 0)
+    check(f"{e['name']}: ua_docs_count >= 1 ({e['ua_docs_count']})", e["ua_docs_count"] >= 1)
+
+# 2г. Ткачук: ua_overview_alert_count >= 1
+tkachuk = call("hr.employee", "search_read", [["name", "ilike", "Ткачук"]], fields=["id", "name", "ua_overview_alert_count"])
+check("знайдено Ткачука Ігоря Володимировича", bool(tkachuk))
+if tkachuk:
+    t = tkachuk[0]
+    check(f"{t['name']}: ua_overview_alert_count >= 1 ({t['ua_overview_alert_count']})", t["ua_overview_alert_count"] >= 1)
 
 # 3. П-2 PDF для 3 працівників
 sample = emps[:3]

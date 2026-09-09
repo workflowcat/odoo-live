@@ -70,6 +70,64 @@ class HrEmployee(models.Model):
             if employee.ua_id_doc_unzr and len(employee.ua_id_doc_unzr) != 13:
                 raise ValidationError("УНЗР має містити 13 символів.")
 
+    # -- Огляд ------------------------------------------------------------------------------
+    ua_days_in_company = fields.Integer("Днів у компанії", compute="_compute_ua_days_in_company", groups="hr.group_hr_user")
+    ua_first_hire_date = fields.Date("Прийнято вперше", compute="_compute_ua_first_hire_date", store=True, groups="hr.group_hr_user")
+    ua_current_wage = fields.Monetary("Поточний оклад", compute="_compute_ua_current_wage", currency_field="currency_id", groups="hr.group_hr_user")
+    ua_docs_count = fields.Integer("Документів", compute="_compute_ua_docs_count", groups="hr.group_hr_user")
+    ua_overview_alert_count = fields.Integer("Потребує уваги", compute="_compute_ua_overview_alert_count", groups="hr.group_hr_user")
+
+    @api.depends("version_ids.contract_date_start", "version_ids.contract_date_end")
+    def _compute_ua_days_in_company(self):
+        today = fields.Date.context_today(self)
+        for employee in self:
+            seen = set()
+            days = 0
+            for v in employee.sudo().version_ids:
+                key = (v.contract_date_start, v.contract_date_end)
+                if v.contract_date_start and key not in seen:
+                    seen.add(key)
+                    end = min(v.contract_date_end or today, today)
+                    if end >= v.contract_date_start:
+                        days += (end - v.contract_date_start).days + 1
+            employee.ua_days_in_company = days
+
+    @api.depends("version_ids.contract_date_start")
+    def _compute_ua_first_hire_date(self):
+        for employee in self:
+            starts = employee.sudo().version_ids.mapped("contract_date_start")
+            employee.ua_first_hire_date = min(starts) if starts else False
+
+    @api.depends("version_id.wage")
+    def _compute_ua_current_wage(self):
+        for employee in self:
+            employee.ua_current_wage = employee.sudo().version_id.wage or 0.0
+
+    @api.depends("ua_document_ids")
+    def _compute_ua_docs_count(self):
+        for employee in self:
+            employee.ua_docs_count = len(employee.ua_document_ids)
+
+    @api.depends("ua_document_ids.valid_until", "ua_rnokpp", "ua_id_doc_type", "ua_id_doc_number",
+                 "ua_mil_needs_check", "ua_vacation_balance")
+    def _compute_ua_overview_alert_count(self):
+        today = fields.Date.context_today(self)
+        limit = today + timedelta(days=30)
+        for employee in self:
+            emp = employee.sudo()
+            count = 0
+            if any(d.valid_until and d.valid_until <= limit for d in emp.ua_document_ids):
+                count += 1
+            if not emp.ua_rnokpp:
+                count += 1
+            if not (emp.ua_id_doc_type and emp.ua_id_doc_number):
+                count += 1
+            if emp.ua_mil_needs_check:
+                count += 1
+            if (emp.ua_vacation_balance or 0.0) > 60:
+                count += 1
+            employee.ua_overview_alert_count = count
+
     def action_view_ua_documents(self):
         self.ensure_one()
         return {

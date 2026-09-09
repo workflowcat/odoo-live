@@ -1,4 +1,6 @@
-from odoo import fields, models
+from datetime import timedelta
+
+from odoo import api, fields, models
 
 TYPES = [
     ("passport", "Паспорт"),
@@ -11,6 +13,7 @@ TYPES = [
     ("statement", "Заява"),
     ("other", "Інше"),
 ]
+STATE = [("ok", "діє"), ("warning", "спливає"), ("expired", "прострочений")]
 
 
 class UaEmployeeDocument(models.Model):
@@ -27,3 +30,18 @@ class UaEmployeeDocument(models.Model):
     file = fields.Binary("Файл", attachment=True)
     filename = fields.Char("Ім'я файлу")
     note = fields.Char("Примітка")
+    ua_doc_state = fields.Selection(STATE, string="Стан", compute="_compute_ua_doc_state")
+
+    @api.depends("valid_until")
+    def _compute_ua_doc_state(self):
+        today = fields.Date.context_today(self)
+        limit = today + timedelta(days=30)
+        for doc in self:
+            if not doc.valid_until:
+                doc.ua_doc_state = "ok"
+            elif doc.valid_until < today:
+                doc.ua_doc_state = "expired"
+            elif doc.valid_until <= limit:
+                doc.ua_doc_state = "warning"
+            else:
+                doc.ua_doc_state = "ok"

@@ -49,8 +49,12 @@ UA = call("res.country", "search", [["code", "=", "UA"]])[0]
 COMPANY = 1
 CAL = call("resource.calendar", "search", [["name", "ilike", "40"]])[0]
 STRUCT = call("hr.payroll.structure", "search", [["code", "=", "UA_SALARY"]])[0]
-STRUCT_TYPE = call("hr.payroll.structure.type", "search", [["name", "=", "Employee"]])[0]
-CT = {n: call("hr.contract.type", "search", [["name", "=", n]])[0] for n in ["Permanent", "Part-Time", "Temporary", "Intern"]}
+_st = call("hr.payroll.structure.type", "search", ["|", ["name", "=", "Employee"], ["name", "=", "Працівник"]]) or call("hr.payroll.structure.type", "search", [])
+STRUCT_TYPE = _st[0]   # назву довідника перекладено модулем l10n_ua_payroll_ui, тому шукаємо обидві
+# назви видів договору перекладено модулем l10n_ua_payroll_ui, тому шукаємо і англійську, і українську
+CT_UK = {"Permanent": "Безстроковий", "Part-Time": "Неповний робочий день", "Temporary": "Строковий", "Intern": "Стажування"}
+CT = {n: (call("hr.contract.type", "search", ["|", ["name", "=", n], ["name", "=", CT_UK[n]]]) or call("hr.contract.type", "search", []))[0]
+      for n in ["Permanent", "Part-Time", "Temporary", "Intern"]}
 LT = {c: call("hr.leave.type", "search", [["work_entry_type_id.code", "=", c]])[0] for c in ["VAC", "SICK", "UNPAID", "MAT"]}
 
 
@@ -356,3 +360,26 @@ wiz = call("ua.payroll.report.wizard", "create", {"company_id": COMPANY, "year":
 call("ua.payroll.report.wizard", "action_generate", [wiz])
 atts = call("ir.attachment", "search_read", [["res_model", "=", "ua.payroll.report.wizard"], ["res_id", "=", wiz]], fields=["name"])
 print("XML:", [a["name"] for a in atts])
+
+
+# ---- залишок відпустки на дату впровадження (l10n_ua_payroll_rules), окремо й ідемпотентно ----------
+def set_vacation_opening_balances():
+    """Дата впровадження обліку відпусток компанії = 2026-01-01; початкові залишки (3-12 днів,
+    правдоподібно) - лише працівникам, прийнятим на роботу до 2026 року (за найранішою версією
+    контракту, з урахуванням повторного прийняття). Ідемпотентно: значення детерміновані
+    (random.seed(2026) на початку файлу), просте write без створення записів."""
+    call("res.company", "write", [COMPANY], {"ua_vacation_opening_date": "2026-01-01"})
+    n = 0
+    for i, (eid, name, code, extra) in created.items():
+        first = call("hr.version", "search_read", [["employee_id", "=", eid]], fields=["contract_date_start"], order="contract_date_start", limit=1)
+        if not first or not first[0]["contract_date_start"]:
+            continue
+        if first[0]["contract_date_start"] < "2026-01-01":
+            ob = random.randint(3, 12)
+            call("hr.employee", "write", [eid], {"ua_vacation_opening_balance": ob})
+            n += 1
+            print(f"{name}: залишок відпустки на 2026-01-01 = {ob} дн.")
+    print(f"\nПочаткові залишки відпустки встановлено для {n} працівників (прийнятих до 2026 року).")
+
+
+set_vacation_opening_balances()

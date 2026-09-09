@@ -5,7 +5,7 @@
     "license": "LGPL-3",
     "author": "Bot&Partners",
     "category": "Human Resources",
-    "depends": ["l10n_ua_payroll_rules", "l10n_ua_payroll_reports", "l10n_ua_average", "hr_skills"],
+    "depends": ["l10n_ua_payroll_rules", "l10n_ua_payroll_reports", "l10n_ua_average", "hr_skills", "l10n_ua_military"],
     "data": [
         "security/ir.model.access.csv",
         "report/ua_hr_card_report.xml",

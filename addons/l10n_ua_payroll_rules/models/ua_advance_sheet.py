@@ -154,7 +154,7 @@ class UaAdvanceLine(models.Model):
     company_id = fields.Many2one(related="sheet_id.company_id")
     currency_id = fields.Many2one(related="sheet_id.currency_id")
     employee_id = fields.Many2one("hr.employee", "Працівник", required=True)
-    payslip_id = fields.Many2one("hr.payslip", "Листок", required=True)
+    payslip_id = fields.Many2one("hr.payslip", "Листок", required=True, ondelete="cascade")
     wage = fields.Monetary("Оклад")
     fte = fields.Float("Ставка")
     ratio = fields.Float("Частка відпрацьованих днів 1-15")

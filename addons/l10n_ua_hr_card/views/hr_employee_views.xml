@@ -131,12 +131,46 @@
           </field>
         </xpath>
 
-        <!-- ==================== button_box: лічильник документів, що закінчуються ==================== -->
+        <!-- ==================== button_box: зведені показники огляду ====================
+             «Документи» перевикористовує вже наявну дію action_view_ua_documents, лише показує
+             ua_docs_count (усього документів) замість ua_docs_expiring (лічильник самого поля
+             лишився в моделі, поле ua_docs_expiring більше ніде у виді не використовується). -->
         <xpath expr="//div[@name='button_box']" position="inside">
+          <button class="oe_stat_button" icon="fa-money" disabled="1" groups="hr.group_hr_user">
+            <div class="o_stat_info">
+              <span class="o_stat_value"><field name="ua_current_wage"/></span>
+              <span class="o_stat_text">Оклад</span>
+            </div>
+          </button>
+          <button class="oe_stat_button" icon="fa-clock-o" disabled="1" groups="hr.group_hr_user">
+            <div class="o_stat_info">
+              <span class="o_stat_value"><field name="ua_insurance_years"/></span>
+              <span class="o_stat_text">Стаж, років</span>
+            </div>
+          </button>
+          <button class="oe_stat_button" icon="fa-plane" disabled="1" groups="hr.group_hr_user">
+            <div class="o_stat_info">
+              <span class="o_stat_value"><field name="ua_vacation_balance"/></span>
+              <span class="o_stat_text">Залишок відпустки</span>
+            </div>
+          </button>
           <button name="action_view_ua_documents" type="object" class="oe_stat_button" icon="fa-file-text-o" groups="hr.group_hr_user">
             <div class="o_stat_info">
-              <span class="o_stat_value"><field name="ua_docs_expiring"/></span>
-              <span class="o_stat_text">документів закінчується</span>
+              <span class="o_stat_value"><field name="ua_docs_count"/></span>
+              <span class="o_stat_text">Документи</span>
+            </div>
+          </button>
+          <button class="oe_stat_button" icon="fa-building-o" disabled="1" groups="hr.group_hr_user">
+            <div class="o_stat_info">
+              <span class="o_stat_value"><field name="ua_days_in_company"/></span>
+              <span class="o_stat_text">У компанії, днів</span>
+            </div>
+          </button>
+          <button class="oe_stat_button" icon="fa-exclamation-triangle" disabled="1" groups="hr.group_hr_user"
+                  invisible="ua_overview_alert_count == 0">
+            <div class="o_stat_info">
+              <span class="o_stat_value"><field name="ua_overview_alert_count"/></span>
+              <span class="o_stat_text">Потребує уваги</span>
             </div>
           </button>
         </xpath>
@@ -165,6 +199,75 @@
         <!-- ==================== Резюме: перейменувати ==================== -->
         <xpath expr="//page[@name='resume']" position="attributes">
           <attribute name="string">Навички і резюме</attribute>
+        </xpath>
+
+        <!-- ==================== Огляд: перша вкладка форми (перед «Робота») ====================
+             Зведений, повністю readonly знімок стану працівника: поля тут повторюють поля з інших
+             вкладок (Особова картка, Військовий облік, Зарплата) - це навмисне дублювання для
+             швидкого перегляду без переходів, а не наслідок помилки xpath. Порядок вкладок остаточно
+             фіксує l10n_ua_payroll_ui (пріоритет 99); той модуль не займає позицію "перед work_information",
+             тож ця вкладка лишається першою і після його застосування.
+             Важливо: цей xpath навмисно розташований ОСТАННІМ у файлі (після кроку 2, що виконує
+             position="move" для ua_rnokpp/birthday/private_city/private_phone/ua_disability_group/
+             ua_insurance_years) - якби він ішов раніше, свіжо вставлені тут поля-копії з тим самим
+             іменем потрапляли б у зведене дерево ПЕРЕД відповідним move і той move "переносив" би
+             саме їх, а не справжній оригінал, лишаючи оригінал недоторканим і спорожняючи Огляд. -->
+        <xpath expr="//page[@name='work_information']" position="before">
+          <page name="ua_overview" string="Огляд" groups="hr.group_hr_user">
+            <group string="Стан" name="ua_overview_grp_state">
+              <field name="ua_contract_kind" widget="badge" readonly="1"/>
+              <field name="ua_main_job" readonly="1"/>
+              <field name="ua_fte" readonly="1"/>
+              <field name="ua_esv_category" readonly="1"/>
+              <field name="ua_psp" readonly="1"/>
+              <field name="ua_disability_group" readonly="1"/>
+              <field name="ua_mil_status" widget="badge" readonly="1"/>
+              <field name="ua_mil_rank" readonly="1"/>
+              <field name="ua_mil_fitness" widget="badge" readonly="1"/>
+              <field name="ua_mil_reserved" readonly="1"/>
+              <field name="ua_mil_last_check" readonly="1"/>
+            </group>
+            <group string="Ідентифікація" name="ua_overview_grp_ident">
+              <field name="ua_rnokpp" readonly="1"/>
+              <field name="birthday" readonly="1"/>
+              <field name="ua_id_doc_type" readonly="1"/>
+              <field name="ua_id_doc_number" readonly="1"/>
+              <field name="ua_id_doc_unzr" readonly="1"/>
+              <field name="private_city" readonly="1"/>
+              <field name="ua_actual_address" readonly="1"/>
+              <field name="private_phone" readonly="1"/>
+            </group>
+            <group string="Документи" name="ua_overview_grp_docs">
+              <field name="ua_document_ids" nolabel="1" colspan="2" readonly="1">
+                <list create="false" decoration-danger="ua_doc_state == 'expired'" decoration-warning="ua_doc_state == 'warning'">
+                  <field name="type"/>
+                  <field name="name"/>
+                  <field name="number"/>
+                  <field name="date"/>
+                  <field name="valid_until"/>
+                  <field name="ua_doc_state" column_invisible="1"/>
+                </list>
+              </field>
+            </group>
+            <group string="Хроніка" name="ua_overview_grp_chronicle">
+              <field name="version_ids" string="Контракти" colspan="1" readonly="1">
+                <list create="false" default_order="contract_date_start">
+                  <field name="contract_date_start"/>
+                  <field name="contract_date_end"/>
+                  <field name="job_title"/>
+                  <field name="wage"/>
+                  <field name="ua_order_ref"/>
+                </list>
+              </field>
+              <field name="ua_mil_event_ids" string="Військові події" colspan="1" readonly="1">
+                <list create="false">
+                  <field name="date"/>
+                  <field name="kind"/>
+                  <field name="note"/>
+                </list>
+              </field>
+            </group>
+          </page>
         </xpath>
 
       </data>

@@ -28,7 +28,10 @@ class HrEmployee(models.Model):
     ua_vacation_accrued = fields.Float("Накопичено днів", compute="_compute_ua_vacation_balance", digits=(6, 1), groups="hr.group_hr_user")
     ua_vacation_used = fields.Float("Використано днів", compute="_compute_ua_vacation_balance", digits=(6, 1), groups="hr.group_hr_user")
     ua_vacation_balance = fields.Float("Залишок днів відпустки", compute="_compute_ua_vacation_balance", digits=(6, 1), groups="hr.group_hr_user",
-                                       help="Накопичено за відпрацьований час з дати прийняття (пропорційно до календарних днів) мінус використані щорічні відпустки і виплачені компенсації")
+                                       help="Накопичено за відпрацьований час з дати прийняття (або з дати впровадження обліку) мінус використані щорічні відпустки і виплачені компенсації, плюс залишок на дату впровадження")
+    ua_vacation_opening_balance = fields.Float("Залишок на дату впровадження", default=0, digits=(6, 1), groups="hr.group_hr_user")
+    ua_vacation_opening_date = fields.Date("Дата впровадження обліку відпусток", groups="hr.group_hr_user",
+                                           help="Накопичення рахується з цієї дати; до неї береться залишок вручну")
 
     @api.depends("ua_disability_group")
     def _compute_ua_vacation_days_year(self):
@@ -40,25 +43,29 @@ class HrEmployee(models.Model):
         Leave = self.env["hr.leave"].sudo()
         Input = self.env["hr.payslip.input"].sudo() if "hr.payslip.input" in self.env else None
         for e in self:
-            days = 0
-            for v in e.sudo().version_ids:
-                if v.contract_date_start:
-                    end = min(v.contract_date_end or today, today)
-                    if end >= v.contract_date_start:
-                        days += (end - v.contract_date_start).days + 1
-            # дублікати версій одного контракту (однакові дати) не рахуємо двічі
+            opening_date = e.ua_vacation_opening_date or e.sudo().company_id.ua_vacation_opening_date
+            # дублікати версій одного контракту (однакові дати) не рахуємо двічі; накопичення - лише від дати впровадження, якщо вона є
             seen = set(); days = 0
             for v in e.sudo().version_ids:
                 key = (v.contract_date_start, v.contract_date_end)
                 if v.contract_date_start and key not in seen:
                     seen.add(key)
+                    start = max(v.contract_date_start, opening_date) if opening_date else v.contract_date_start
                     end = min(v.contract_date_end or today, today)
-                    if end >= v.contract_date_start:
-                        days += (end - v.contract_date_start).days + 1
+                    if end >= start:
+                        days += (end - start).days + 1
             accrued = round((e.ua_vacation_days_year or 24) * days / 365.0, 1)
             used = 0.0
-            for lv in Leave.search([("employee_id", "=", e.id), ("state", "=", "validate"), ("holiday_status_id.work_entry_type_id.code", "=", "VAC")]):
+            leave_domain = [("employee_id", "=", e.id), ("state", "=", "validate"), ("holiday_status_id.work_entry_type_id.code", "=", "VAC")]
+            if opening_date:
+                leave_domain.append(("request_date_from", ">=", opening_date))
+            for lv in Leave.search(leave_domain):
                 used += (lv.request_date_to - lv.request_date_from).days + 1
             if Input is not None:
-                used += sum(Input.search([("payslip_id.employee_id", "=", e.id), ("code", "=", "COMP_DAYS"), ("payslip_id.state", "=", "done")]).mapped("amount"))
-            e.ua_vacation_accrued = accrued; e.ua_vacation_used = used; e.ua_vacation_balance = round(accrued - used, 1)
+                input_domain = [("payslip_id.employee_id", "=", e.id), ("code", "=", "COMP_DAYS"), ("payslip_id.state", "=", "done")]
+                if opening_date:
+                    input_domain.append(("payslip_id.date_to", ">=", opening_date))
+                used += sum(Input.search(input_domain).mapped("amount"))
+            opening_balance = e.ua_vacation_opening_balance if opening_date else 0.0
+            e.ua_vacation_accrued = accrued; e.ua_vacation_used = used
+            e.ua_vacation_balance = round(opening_balance + accrued - used, 1)
