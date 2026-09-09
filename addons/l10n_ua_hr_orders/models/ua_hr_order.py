@@ -73,6 +73,9 @@ class UaHrOrder(models.Model):
     # -- допоміжні поля для безпечного скасування (не бізнес-дані, а слід дії) ------------------------
     cancel_write_date = fields.Datetime(readonly=True, copy=False, help="write_date створеного/зміненого запису одразу після проведення")
     comp_days_input_id = fields.Many2one("hr.payslip.input", readonly=True, copy=False)
+    version_created = fields.Boolean(readonly=True, copy=False, default=True,
+                                     help="False, якщо hire дозаповнив початкову (бутстрап) версію нового працівника, "
+                                          "а не створив нову - тоді скасування не видаляє версію, а очищає поля.")
 
     # -- поля за видами (невидимі в формі, коли не той вид) --------------------------------------------
     date_from = fields.Date("З дати")
@@ -186,14 +189,28 @@ class UaHrOrder(models.Model):
             "ua_kp_code": self.kp_code,
             "ua_prof_name": self.prof_name,
         }
-        version = self.env["hr.version"].sudo().with_context(sync_contract_dates=True).create(vals)
+        HrVersion = self.env["hr.version"].sudo().with_context(sync_contract_dates=True)
+        # hr.employee.create() записує бутстрап-версію без contract_date_start (з date_version = сьогодні);
+        # якщо hire припадає на той самий date_version (типово - прийняття в день заведення картки), треба
+        # дозаповнити саме її, а не створювати другу версію з тим самим date_version (унікальний ключ впаде).
+        bootstrap = self.env["hr.version"].sudo().search([
+            ("employee_id", "=", self.employee_id.id), ("date_version", "=", self.date_from), ("contract_date_start", "=", False),
+        ], limit=1)
+        if bootstrap:
+            version = bootstrap
+            version.with_context(sync_contract_dates=True).write(vals)
+            created = False
+        else:
+            vals["employee_id"] = self.employee_id.id
+            version = HrVersion.create(vals)
+            created = True
         self.employee_id.sudo().write({
             "ua_main_job": self.main_job,
             "ua_fte": self.fte,
             "ua_contract_kind": self.contract_kind,
             "ua_hire_date": self.date_from,
         })
-        self.write({"version_id": version.id, "cancel_write_date": version.write_date})
+        self.write({"version_id": version.id, "cancel_write_date": version.write_date, "version_created": created})
 
     def _post_wage(self):
         self.ensure_one()
@@ -316,8 +333,18 @@ class UaHrOrder(models.Model):
             self.employee_id.sudo().write({
                 "ua_main_job": True, "ua_fte": "1", "ua_contract_kind": "employment", "ua_hire_date": False,
             })
-        version.unlink()
-        self.write({"state": "draft", "name": False, "version_id": False, "ack_date": False, "ack_user_id": False, "cancel_write_date": False})
+        if self.version_created:
+            version.unlink()
+        else:
+            # бутстрап-версія працівника - не видаляємо запис (кожен працівник має мати версію), лише
+            # очищаємо поля, які на неї записав hire
+            version.with_context(sync_contract_dates=True).write({
+                "contract_date_start": False, "wage": 0.0, "job_title": False, "department_id": False,
+                "contract_type_id": False, "trial_date_end": False, "ua_order_ref": False,
+                "ua_kp_code": False, "ua_prof_name": False,
+            })
+        self.write({"state": "draft", "name": False, "version_id": False, "ack_date": False, "ack_user_id": False,
+                   "cancel_write_date": False, "version_created": True})
 
     def _cancel_created_leave(self):
         self.ensure_one()
