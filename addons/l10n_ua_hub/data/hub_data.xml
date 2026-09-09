@@ -365,4 +365,25 @@
     <field name="description">шаблони автоматичної звірки</field>
   </record>
 
+  <record id="item_hr_orders" model="ua.hub.item">
+    <field name="name">Накази</field>
+    <field name="section_id" ref="section_hr_docs"/>
+    <field name="sequence">50</field>
+    <field name="action_xmlid">l10n_ua_hr_orders.action_ua_hr_order</field>
+    <field name="description">кадрові накази і їх проведення</field>
+  </record>
+  <record id="item_hr_order_register" model="ua.hub.item">
+    <field name="name">Журнал реєстрації наказів</field>
+    <field name="section_id" ref="section_hr_docs"/>
+    <field name="sequence">60</field>
+    <field name="action_xmlid">l10n_ua_hr_orders.action_ua_hr_order_register_wizard</field>
+    <field name="description">за рік і реєстром</field>
+  </record>
+  <record id="item_hr_doc_pack" model="ua.hub.item">
+    <field name="name">Пакет документів</field>
+    <field name="section_id" ref="section_hr_docs"/>
+    <field name="sequence">70</field>
+    <field name="action_xmlid">l10n_ua_hr_orders.action_ua_hr_doc_pack_wizard</field>
+    <field name="description">чого бракує в кожного працівника</field>
+  </record>
 </odoo>
