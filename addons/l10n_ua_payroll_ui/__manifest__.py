@@ -6,7 +6,7 @@
     "author": "Bot&Partners",
     "category": "Human Resources/Payroll",
     "depends": ["l10n_ua_payroll_rules", "l10n_ua_average", "l10n_ua_payroll_account", "l10n_ua_payroll_reports", "l10n_ua_hr_docs", "l10n_ua_bank", "account_usability", "account_financial_report"],
-    "data": ["views/menus.xml", "views/menus_docs.xml", "views/menus_advance.xml", "views/hr_payslip_views.xml"],
+    "data": ["views/menus.xml", "views/menus_docs.xml", "views/menus_advance.xml", "views/menus_military.xml", "views/hr_payslip_views.xml"],
     "post_init_hook": "post_init_hook",
     "installable": True,
 }
