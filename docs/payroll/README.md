@@ -18,6 +18,15 @@
 | `l10n_ua_payroll_reports` | об'єднана звітність з Д1, 4ДФ, Д5, Заява-розрахунок, 1-ПВ, розрахункові листки, перевірка XML за схемою ДПС |
 | маршрути моста | подання через ЕДО, індекс Держстату, оновлення параметрів |
 
+## Стенд у Cloudflare (з 9 вересня 2026)
+
+- Worker `odoo-payroll` (https://odoo-payroll.botpartners.workers.dev) тримає Odoo у Cloudflare Container: `worker/wrangler.payroll.jsonc`, `worker/src/payroll.js`, образ з `odoo/Dockerfile` (wrangler збирає amd64 і вантажить у реєстр Cloudflare, 2-5 хвилин). Instance standard-1 (1/2 vCPU, 4 GiB), один екземпляр, сон через 45 хвилин без запитів, будильник cron `*/5 5-17 * * 1-5` UTC (пн-пт 08:00-20:00 Київ). Холодний старт близько 15 секунд.
+- База `payroll` на Supabase (проєкт `odoo-live`, Франкфурт), користувач `odoo`. Вкладення в базі (`ir_attachment.location = db`). Перенесення: `pg_dump -Fc` локально → `pg_restore --no-owner --no-privileges --no-comments` через session pooler.
+- Секрети Worker: PGHOST, PGPORT, PGUSER, PGPASSWORD, ODOO_ADMIN_PASSWD, BRIDGE_TOKEN (`wrangler secret bulk`). Entrypoint переписує `db_name`/`dbfilter` з `DB_NAME`.
+- Викладка змін: `cd worker && npx wrangler deploy -c wrangler.payroll.jsonc`. Оновлення модулів після викладки: перезапуск контейнера з `INIT`-логікою не робить `-u`; поки що оновлення модулів роблять на локальному стенді, далі дамп → відновлення. Завдання: додати `UPDATE_MODULES` в entrypoint.
+- Посилання для Лани https://odoo-demo.botpartners.workers.dev тепер веде на Worker; стан «прокидається» поки контейнер стартує. Тунель з Mac (`com.kit.odoo-payroll-tunnel`) вимкнено.
+- Скрипти проти хмарного стенду мають слати браузерний User-Agent: Cloudflare відповідає 403 (1010) на Python-urllib.
+
 ## Стан на 9 вересня 2026, вечір: кадрові документи, ФОП, декрет, резерв, J3001005
 
 - Модуль `l10n_ua_hr_docs`: накази про прийняття (П-1), звільнення (П-4), відпустку (П-3) як звіти на `hr.version` і `hr.leave`; штатний розпис на дату (майстер, меню Співробітники); табель П-5 за місяць (майстер, з календаря і затверджених відпусток; кодів Р/ВХ/В/ТН/НА/ВП); Заява-розрахунок до ПФУ як звіт на пакеті листків (лікарняні з 6-го дня і декретні, номер е-ЛН з `hr.leave.ua_sick_number`).
