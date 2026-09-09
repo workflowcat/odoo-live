@@ -1,0 +1,424 @@
+# -*- coding: utf-8 -*-
+"""Дані для клієнтської дії «Зведення»: одна модель без збереження (AbstractModel),
+один публічний метод get_data(year, month) - усе інше приватні хелпери.
+
+Джерела: hr.payslip.run / hr.payslip / hr.payslip.line (коди GROSS, PDFO, VZ, ESV, NET, ADV_PAID),
+hr.employee (ua_mil_needs_check, ua_docs_expiring, ua_rnokpp), ua.employee.document (valid_until),
+account.bank.statement.line (is_reconciled, amount, payment_ref), hr.version (contract_date_end,
+trial_date_end), ua.timesheet.sheet, ua.staff.list, ua.pfu.claim, ua.advance.sheet, ir.attachment
+(вкладення XML), ua.hub.item / ua.hub.section (пульт команд, метод action_open).
+
+Звірка з банком - за текстом payment_ref (немає прямого зв'язку листок <-> рядок виписки):
+шаблони підпису рядків задає l10n_ua_bank/hooks.py, наприклад «Заробітна плата за серпень 2026,
+остаточний розрахунок», «ПДФО з авансу за серпень 2026», «Єдиний внесок (ЄСВ) за серпень 2026».
+Місяць в називному відмінку («серпень», «вересень») - для цих іменників він збігається зі
+знахідним, який і вжито в текстах виписки після «за».
+"""
+from datetime import timedelta
+
+from odoo import api, fields, models
+
+MONTHS_UA = {
+    1: "січень", 2: "лютий", 3: "березень", 4: "квітень", 5: "травень", 6: "червень",
+    7: "липень", 8: "серпень", 9: "вересень", 10: "жовтень", 11: "листопад", 12: "грудень",
+}
+PAYSLIP_CODES = ("GROSS", "PDFO", "VZ", "ESV", "NET", "ADV_PAID")
+
+
+class UaDashboard(models.AbstractModel):
+    _name = "ua.dashboard"
+    _description = "Дані панелі «Зведення»"
+
+    # ------------------------------------------------------------------ хелпери
+    @staticmethod
+    def _r2(value):
+        return round(value or 0.0, 2)
+
+    @staticmethod
+    def _month_add(year, month, delta):
+        m = month - 1 + delta
+        return year + m // 12, m % 12 + 1
+
+    @staticmethod
+    def _month_bounds(year, month):
+        import calendar
+        from datetime import date
+        d1 = date(year, month, 1)
+        d2 = date(year, month, calendar.monthrange(year, month)[1])
+        return d1, d2
+
+    @staticmethod
+    def _month_name(month):
+        return MONTHS_UA.get(month, "")
+
+    def _hub_item_id(self, xmlid):
+        """Id пункту ua.hub.item з таким action_xmlid, якщо він є в даних хабу - інакше False."""
+        item = self.env["ua.hub.item"].search([("action_xmlid", "=", xmlid)], limit=1)
+        return item.id if item else False
+
+    def _month_payslip_totals(self, company, year, month):
+        d1, d2 = self._month_bounds(year, month)
+        slips = self.env["hr.payslip"].search([
+            ("company_id", "=", company.id), ("date_from", ">=", d1), ("date_from", "<=", d2),
+            ("state", "!=", "cancel"),
+        ])
+        lines = slips.mapped("line_ids")
+        return {code: self._r2(sum(lines.filtered(lambda l: l.code == code).mapped("total"))) for code in PAYSLIP_CODES}
+
+    def _bank_status(self, company, keyword, month, year):
+        """Рядки виписки, чий payment_ref містить keyword і назву місяця/рік.
+        Повертає (текст стану, state_class, остання дата) - keyword/місяць співставляються
+        текстом, бо прямого зв'язку листок <-> рядок виписки в системі немає."""
+        lines = self.env["account.bank.statement.line"].search([
+            ("company_id", "=", company.id),
+            ("payment_ref", "ilike", keyword),
+            ("payment_ref", "ilike", "%s %s" % (self._month_name(month), year)),
+        ])
+        if not lines:
+            return "не сплачено", "todo", False
+        last_date = max(lines.mapped("date"))
+        if all(l.is_reconciled for l in lines):
+            return "сплачено, звірено", "ok", last_date
+        return "у виписці, не звірено", "warn", last_date
+
+    # ------------------------------------------------------------------ секції
+    def _get_company(self, company, year, month):
+        return {
+            "name": company.name,
+            "edrpou": company.company_registry or "",
+            "employee_count": self.env["hr.employee"].search_count([
+                ("company_id", "=", company.id), ("active", "=", True),
+            ]),
+            "year": year,
+            "month": month,
+            "month_label": self._month_name(month).capitalize(),
+        }
+
+    def _get_periods(self, company, year, month):
+        out = []
+        y, m = year, month
+        for _i in range(6):
+            d1, d2 = self._month_bounds(y, m)
+            has_run = bool(self.env["hr.payslip.run"].search_count([
+                ("company_id", "=", company.id), ("date_start", ">=", d1), ("date_start", "<=", d2),
+            ]))
+            out.append({
+                "year": y, "month": m,
+                "label": "%s %s" % (self._month_name(m).capitalize(), y),
+                "has_run": has_run,
+            })
+            y, m = self._month_add(y, m, -1)
+        out.reverse()
+        return out
+
+    def _get_payroll_by_department(self, company, year, month):
+        d1, d2 = self._month_bounds(year, month)
+        run = self.env["hr.payslip.run"].search([
+            ("company_id", "=", company.id), ("date_start", ">=", d1), ("date_start", "<=", d2),
+        ], limit=1)
+        if run:
+            slips = run.slip_ids
+        else:
+            slips = self.env["hr.payslip"].search([
+                ("company_id", "=", company.id), ("date_from", ">=", d1), ("date_from", "<=", d2),
+                ("state", "!=", "cancel"),
+            ])
+
+        order = []
+        by_dept = {}
+        for slip in slips:
+            dept = slip.employee_id.department_id
+            key = dept.id
+            row = by_dept.get(key)
+            if row is None:
+                row = by_dept[key] = {
+                    "department": dept.name if dept else "Без підрозділу",
+                    "employee_ids": set(), "gross": 0.0, "pdfo": 0.0, "vz": 0.0, "esv": 0.0, "net": 0.0,
+                }
+                order.append(key)
+            row["employee_ids"].add(slip.employee_id.id)
+            lines = slip.line_ids
+            row["gross"] += sum(lines.filtered(lambda l: l.code == "GROSS").mapped("total"))
+            row["pdfo"] += sum(lines.filtered(lambda l: l.code == "PDFO").mapped("total"))
+            row["vz"] += sum(lines.filtered(lambda l: l.code == "VZ").mapped("total"))
+            row["esv"] += sum(lines.filtered(lambda l: l.code == "ESV").mapped("total"))
+            row["net"] += sum(lines.filtered(lambda l: l.code == "NET").mapped("total"))
+
+        rows = []
+        total = {"employees": 0, "gross": 0.0, "pdfo": 0.0, "vz": 0.0, "esv": 0.0, "net": 0.0}
+        for key in order:
+            row = by_dept[key]
+            r = {
+                "department": row["department"],
+                "employees": len(row["employee_ids"]),
+                "gross": self._r2(row["gross"]),
+                "pdfo": self._r2(row["pdfo"]),
+                "vz": self._r2(row["vz"]),
+                "esv": self._r2(row["esv"]),
+                "net": self._r2(row["net"]),
+            }
+            rows.append(r)
+            total["employees"] += r["employees"]
+            for k in ("gross", "pdfo", "vz", "esv", "net"):
+                total[k] += r[k]
+        for k in ("gross", "pdfo", "vz", "esv", "net"):
+            total[k] = self._r2(total[k])
+
+        return {
+            "rows": rows,
+            "total": total,
+            "has_run": bool(run),
+            "run_action": self._hub_item_id("payroll.hr_payslip_run_action"),
+        }
+
+    def _get_payments(self, company, year, month):
+        ly, lm = self._month_add(year, month, -1)
+        ny, nm = self._month_add(year, month, 1)
+        last_name = self._month_name(lm)
+        this_name = self._month_name(month)
+        next_name = self._month_name(nm)
+        last_totals = self._month_payslip_totals(company, ly, lm)
+        rows = []
+
+        state, cls, d = self._bank_status(company, "Заробітна плата", lm, ly)
+        rows.append({
+            "date": fields.Date.to_string(d) if d else False,
+            "label": "Зарплата, %s %s" % (last_name, ly),
+            "amount": abs(last_totals["NET"]), "state": state, "state_class": cls,
+        })
+
+        for code, keyword, label in (
+            ("PDFO", "ПДФО", "ПДФО"),
+            ("VZ", "Військовий збір", "Військовий збір"),
+            ("ESV", "Єдиний внесок", "ЄСВ"),
+        ):
+            state, cls, d = self._bank_status(company, keyword, lm, ly)
+            rows.append({
+                "date": fields.Date.to_string(d) if d else False,
+                "label": "%s, %s %s" % (label, last_name, ly),
+                "amount": abs(last_totals[code]), "state": state, "state_class": cls,
+            })
+
+        adv = self.env["ua.advance.sheet"].search([
+            ("company_id", "=", company.id), ("year", "=", year), ("month", "=", month),
+        ], limit=1)
+        if not adv or not adv.line_ids:
+            rows.append({
+                "date": False, "label": "Аванс, %s %s" % (this_name, year),
+                "amount": 0.0, "state": "не розраховано", "state_class": "todo",
+            })
+        else:
+            if adv.state == "confirmed":
+                bstate, bcls, bd = self._bank_status(company, "Аванс", month, year)
+                date_val = bd or adv.pay_date
+            else:
+                bstate, bcls = "заплановано", "plan"
+                date_val = adv.pay_date
+            rows.append({
+                "date": fields.Date.to_string(date_val) if date_val else False,
+                "label": "Аванс, %s %s" % (this_name, year),
+                "amount": self._r2(adv.total), "state": bstate, "state_class": bcls,
+            })
+
+        nd1, nd2 = self._month_bounds(ny, nm)
+        next_run = self.env["hr.payslip.run"].search([
+            ("company_id", "=", company.id), ("date_start", ">=", nd1), ("date_start", "<=", nd2),
+        ], limit=1)
+        if next_run:
+            next_totals = self._month_payslip_totals(company, ny, nm)
+            rows.append({
+                "date": False, "label": "Заплановано на %s %s" % (next_name, ny),
+                "amount": abs(next_totals["NET"]), "state": "заплановано", "state_class": "plan",
+            })
+        else:
+            rows.append({
+                "date": False, "label": "Заплановано на %s %s" % (next_name, ny),
+                "amount": 0.0, "state": "пакета немає", "state_class": "todo",
+            })
+
+        quarter = (month - 1) // 3 + 1
+        q_end_month = quarter * 3
+        q_end = self._month_bounds(year, q_end_month)[1]
+        deadline = q_end + timedelta(days=40)
+        today = fields.Date.context_today(self)
+        days_left = (deadline - today).days
+        if days_left < 0:
+            dstate, dcls = "прострочено", "warn"
+        elif days_left <= 10:
+            dstate, dcls = "наближається", "warn"
+        else:
+            dstate, dcls = "заплановано", "plan"
+        q_total = 0.0
+        for i in range(3):
+            qy, qm = self._month_add(year, q_end_month, -i)
+            t = self._month_payslip_totals(company, qy, qm)
+            q_total += t["PDFO"] + t["VZ"] + t["ESV"]
+        rows.append({
+            "date": fields.Date.to_string(deadline),
+            "label": "Об'єднана звітність, %s квартал %s" % (quarter, year),
+            "amount": abs(self._r2(q_total)), "state": dstate, "state_class": dcls,
+        })
+        return rows
+
+    def _get_attention(self, company):
+        today = fields.Date.context_today(self)
+        limit30 = today + timedelta(days=30)
+        today_s, limit_s = fields.Date.to_string(today), fields.Date.to_string(limit30)
+        rows = []
+
+        mil_count = self.env["hr.employee"].search_count([
+            ("company_id", "=", company.id), ("active", "=", True), ("ua_mil_needs_check", "=", True),
+        ])
+        if mil_count:
+            rows.append({
+                "title": "Звірка з ТЦК не проведена", "detail": "працівників потребують звірки",
+                "count": mil_count, "level": "danger",
+                "action": self._hub_item_id("l10n_ua_military.action_ua_military_needs_check"),
+                "res_model": "hr.employee",
+                "domain": [("company_id", "=", company.id), ("ua_mil_needs_check", "=", True)],
+            })
+
+        docs_count = self.env["ua.employee.document"].search_count([
+            ("employee_id.company_id", "=", company.id),
+            ("valid_until", ">=", today_s), ("valid_until", "<=", limit_s),
+        ])
+        if docs_count:
+            rows.append({
+                "title": "Документи спливають за 30 днів", "detail": "документів працівників",
+                "count": docs_count, "level": "warning", "action": False,
+                "res_model": "ua.employee.document",
+                "domain": [("employee_id.company_id", "=", company.id),
+                           ("valid_until", ">=", today_s), ("valid_until", "<=", limit_s)],
+            })
+
+        unrec = self.env["account.bank.statement.line"].search([
+            ("company_id", "=", company.id), ("is_reconciled", "=", False),
+        ])
+        if unrec:
+            amount = self._r2(sum(unrec.mapped("amount")))
+            rows.append({
+                "title": "Незвірені рядки виписки",
+                "detail": "%s рядків на суму %s" % (len(unrec), amount),
+                "count": len(unrec), "level": "warning",
+                "action": self._hub_item_id("account_reconcile_oca.action_bank_statement_line_reconcile_all"),
+                "res_model": "account.bank.statement.line",
+                "domain": [("company_id", "=", company.id), ("is_reconciled", "=", False)],
+            })
+
+        versions = self.env["hr.version"].search([("employee_id.company_id", "=", company.id)])
+        ending = versions.filtered(
+            lambda v: (v.contract_date_end and today <= v.contract_date_end <= limit30)
+            or (v.trial_date_end and today <= v.trial_date_end <= limit30)
+        )
+        if ending:
+            rows.append({
+                "title": "Договори і випробування спливають за 30 днів",
+                "detail": "версій трудових договорів", "count": len(ending), "level": "warning",
+                "action": False, "res_model": "hr.version",
+                "domain": [("id", "in", ending.ids)],
+            })
+
+        no_rnokpp = self.env["hr.employee"].search_count([
+            ("company_id", "=", company.id), ("active", "=", True), ("ua_rnokpp", "=", False),
+        ])
+        if no_rnokpp:
+            rows.append({
+                "title": "Працівники без РНОКПП", "detail": "працівників", "count": no_rnokpp,
+                "level": "warning", "action": False, "res_model": "hr.employee",
+                "domain": [("company_id", "=", company.id), ("active", "=", True), ("ua_rnokpp", "=", False)],
+            })
+
+        draft_count = self.env["hr.payslip"].search_count([
+            ("company_id", "=", company.id), ("state", "=", "draft"),
+        ])
+        if draft_count:
+            rows.append({
+                "title": "Листки в чернетках", "detail": "розрахункових листків", "count": draft_count,
+                "level": "info", "action": self._hub_item_id("payroll.hr_payslip_action"),
+                "res_model": "hr.payslip", "domain": [("company_id", "=", company.id), ("state", "=", "draft")],
+            })
+
+        return rows
+
+    def _get_documents(self, company):
+        rows = []
+
+        for rec in self.env["ua.timesheet.sheet"].search(
+            [("company_id", "=", company.id)], order="year desc, month desc, id desc", limit=5
+        ):
+            rows.append({
+                "name": rec.name, "period": "%s %s" % (self._month_name(rec.month).capitalize(), rec.year),
+                "state": dict(rec._fields["state"].selection).get(rec.state, rec.state),
+                "action": False, "res_model": "ua.timesheet.sheet", "res_id": rec.id,
+            })
+
+        for rec in self.env["ua.staff.list"].search(
+            [("company_id", "=", company.id)], order="date desc, id desc", limit=5
+        ):
+            rows.append({
+                "name": rec.name, "period": rec.date.strftime("%d.%m.%Y") if rec.date else "",
+                "state": dict(rec._fields["state"].selection).get(rec.state, rec.state),
+                "action": False, "res_model": "ua.staff.list", "res_id": rec.id,
+            })
+
+        for rec in self.env["ua.pfu.claim"].search(
+            [("company_id", "=", company.id)], order="date desc, id desc", limit=5
+        ):
+            rows.append({
+                "name": rec.name, "period": rec.date.strftime("%d.%m.%Y") if rec.date else "",
+                "state": dict(rec._fields["state"].selection).get(rec.state, rec.state),
+                "action": False, "res_model": "ua.pfu.claim", "res_id": rec.id,
+            })
+
+        for rec in self.env["ua.advance.sheet"].search(
+            [("company_id", "=", company.id)], order="year desc, month desc, id desc", limit=5
+        ):
+            rows.append({
+                "name": rec.name, "period": "%s %s" % (self._month_name(rec.month).capitalize(), rec.year),
+                "state": dict(rec._fields["state"].selection).get(rec.state, rec.state),
+                "action": False, "res_model": "ua.advance.sheet", "res_id": rec.id,
+            })
+
+        for rec in self.env["ir.attachment"].search(
+            [("mimetype", "=", "application/xml")], order="create_date desc", limit=10
+        ):
+            rows.append({
+                "name": rec.name, "period": rec.create_date.strftime("%d.%m.%Y") if rec.create_date else "",
+                "state": "XML", "action": False, "res_model": "ir.attachment", "res_id": rec.id,
+            })
+
+        return rows
+
+    def _get_hub(self):
+        out = []
+        for section in self.env["ua.hub.section"].search([], order="sequence, id"):
+            items = section.item_ids.filtered("active").sorted(key=lambda i: (i.sequence, i.id))
+            available = [i for i in items if i.available]
+            if not available:
+                continue
+            out.append({
+                "section": section.name,
+                "items": [{
+                    "name": i.name, "description": i.description or "",
+                    "action_xmlid": i.action_xmlid, "id": i.id,
+                } for i in available],
+            })
+        return out
+
+    # ------------------------------------------------------------------ публічний метод
+    @api.model
+    def get_data(self, year=None, month=None):
+        today = fields.Date.context_today(self)
+        year = int(year) if year else today.year
+        month = int(month) if month else today.month
+        company = self.env.company
+
+        return {
+            "company": self._get_company(company, year, month),
+            "periods": self._get_periods(company, year, month),
+            "payroll_by_department": self._get_payroll_by_department(company, year, month),
+            "payments": self._get_payments(company, year, month),
+            "attention": self._get_attention(company),
+            "documents": self._get_documents(company),
+            "hub": self._get_hub(),
+        }

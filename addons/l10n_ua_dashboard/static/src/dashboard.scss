@@ -1,0 +1,120 @@
+// Панель «Зведення»: щільні таблиці, без переозначення глобальних стилів Odoo.
+// Усі правила під коренем .o_ua_dashboard.
+.o_ua_dashboard {
+    padding: 12px 16px;
+    font-size: 13px;
+
+    .o_ua_dashboard_header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+
+        .o_ua_dashboard_title {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+
+            h3 {
+                margin: 0;
+            }
+        }
+
+        .o_ua_dashboard_periods {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+    }
+
+    .o_ua_dashboard_section {
+        margin-bottom: 16px;
+
+        h5 {
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+    }
+
+    .o_ua_dashboard_row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 16px;
+    }
+
+    .o_ua_dashboard_table {
+        font-size: 12px;
+        margin-bottom: 0;
+
+        th, td {
+            padding: 3px 6px;
+            border-bottom: 1px solid var(--o-gray-200, #e0e0e0);
+            vertical-align: middle;
+        }
+
+        thead th {
+            font-weight: 600;
+            border-bottom: 1px solid var(--o-gray-300, #ccc);
+        }
+
+        tfoot td {
+            border-top: 1px solid var(--o-gray-400, #999);
+            border-bottom: none;
+            font-weight: 600;
+        }
+
+        .tabular-nums {
+            font-variant-numeric: tabular-nums;
+        }
+    }
+
+    .o_ua_dashboard_clickable {
+        cursor: pointer;
+
+        &:hover {
+            background-color: var(--o-gray-100, #f5f5f5);
+        }
+    }
+
+    .o_ua_dashboard_empty {
+        padding: 6px 0;
+    }
+
+    .o_ua_state, .o_ua_level {
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .o_ua_dashboard_hub {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+
+        .o_ua_dashboard_hub_section {
+            .o_ua_dashboard_hub_title {
+                font-weight: 600;
+                margin-bottom: 4px;
+            }
+
+            ul {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+
+                li {
+                    line-height: 1.6;
+                }
+
+                a {
+                    text-decoration: none;
+
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
+            }
+        }
+    }
+}

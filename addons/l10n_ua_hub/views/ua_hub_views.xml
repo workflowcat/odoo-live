@@ -47,5 +47,5 @@
     <field name="context">{"search_default_group_section": 1}</field>
   </record>
 
-  <menuitem id="menu_ua_hub_root" name="Головна" sequence="1" action="action_ua_hub_item"/>
+  <menuitem id="menu_ua_hub_root" name="Головна" sequence="2" action="action_ua_hub_item"/>
 </odoo>
