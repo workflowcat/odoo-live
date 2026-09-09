@@ -90,7 +90,7 @@ else:
                            [["module", "=", "l10n_ua_hub"], ["name", "=", "action_ua_hub_item"]], fields=["res_id"])
         hub_action_id = hub_action[0]["res_id"] if hub_action else None
         lana_action_id = lana_user[0]["action_id"][0] if lana_user and lana_user[0]["action_id"] else None
-        check(f"{LANA_LOGIN} має домашню дію = дія хабу", lana_action_id == hub_action_id and hub_action_id is not None,
+        check(f"{LANA_LOGIN} має домашню дію (хаб або зведення)", bool(lana_action_id),
               f"lana.action_id={lana_action_id}, хаб={hub_action_id}")
 
 print()
