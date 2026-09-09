@@ -32,4 +32,9 @@ if [ -n "${MODULE_OPS:-}" ] && [ -n "${MODULE_OPS_TAG:-}" ]; then
     psql -h "$HOST" -p "${PORT:-5432}" -U "$USER" -d "$DB_NAME" -Atc "insert into ir_config_parameter (key, value, create_date, write_date) values ('bp.module_ops_tag', '$MODULE_OPS_TAG', now(), now()) on conflict (key) do update set value = excluded.value, write_date = now()" >/dev/null
   fi
 fi
+# переклади ядра і всіх модулів українською, коли їх ще не завантажено або після MODULE_OPS
+if [ -n "${RELOAD_TRANSLATIONS:-}" ]; then
+  printf 'w = env["base.language.install"].create({"lang_ids": [(6, 0, env["res.lang"].with_context(active_test=False).search([("code","=","uk_UA")]).ids)], "overwrite": True})\nw.lang_install()\nenv.cr.commit()\n' | \
+    odoo shell -c /etc/odoo/odoo.conf -d "$DB_NAME" --no-http --db_host="$HOST" --db_port="${PORT:-5432}" --db_user="$USER" --db_password="$PASSWORD" >/dev/null 2>&1 || true
+fi
 exec /entrypoint.sh odoo -c /etc/odoo/odoo.conf
