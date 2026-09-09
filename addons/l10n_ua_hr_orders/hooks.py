@@ -42,7 +42,7 @@ def post_init_hook(env):
             })
 
     # dismissal: hr.version.ua_end_order_ref
-    for v in Version.search([("ua_end_order_ref", "!=", False)]):
+    for v in Version.search([("ua_end_order_ref", "!=", False), ("employee_id", "!=", False)]):
         parsed = parse_order_ref(v.ua_end_order_ref)
         if not parsed:
             continue
@@ -55,7 +55,7 @@ def post_init_hook(env):
         })
 
     # leave: hr.leave.ua_order_ref
-    for lv in Leave.search([("ua_order_ref", "!=", False)]):
+    for lv in Leave.search([("ua_order_ref", "!=", False), ("employee_id", "!=", False)]):
         parsed = parse_order_ref(lv.ua_order_ref)
         if not parsed:
             continue
@@ -68,6 +68,8 @@ def post_init_hook(env):
             "leave_type_id": lv.holiday_status_id.id, "sick_number": lv.ua_sick_number,
         })
 
+    # запобіжник: версії або відпустки без працівника (залишки видалених карток) наказів не дають
+    orders_vals = [v for v in orders_vals if v.get("employee_id")]
     if orders_vals:
         Order.create(orders_vals)
 
