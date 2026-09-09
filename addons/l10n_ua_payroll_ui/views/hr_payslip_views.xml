@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- технічні коди рядків сховані за замовчуванням; вкладки українською -->
+  <record id="hr_payslip_view_form_ua_ui" model="ir.ui.view">
+    <field name="name">hr.payslip.form.ua.ui</field><field name="model">hr.payslip</field>
+    <field name="inherit_id" ref="payroll.hr_payslip_view_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='worked_days_line_ids']//field[@name='code']" position="attributes"><attribute name="optional">hide</attribute></xpath>
+      <xpath expr="//field[@name='input_line_ids']//field[@name='code']" position="attributes"><attribute name="optional">hide</attribute></xpath>
+      <xpath expr="//field[@name='dynamic_filtered_payslip_lines']//field[@name='code']" position="attributes"><attribute name="optional">hide</attribute></xpath>
+      <xpath expr="//page[@name='input']" position="attributes"><attribute name="string">Відпрацьовані дні та входи</attribute></xpath>
+      <xpath expr="//page[@name='computation']" position="attributes"><attribute name="string">Розрахунок</attribute></xpath>
+      <xpath expr="//page[@name='accounting']" position="attributes"><attribute name="string">Бухоблік</attribute></xpath>
+    </field>
+  </record>
+</odoo>
