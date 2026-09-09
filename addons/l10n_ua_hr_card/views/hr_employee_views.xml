@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Пріоритет вищий за стандартний (16), щоб застосуватись після інших українських модулів,
+       які теж наслідують hr.view_employee_form: поля, що переносяться (position="move"),
+       мають уже існувати у зведеному дереві вигляду.
+       Примітка: position="move" працює лише коли перенесене поле - прямий нащадок вузла-специфікації
+       (position="inside"/"after"/"before"), тому кожна група спершу створюється порожньою (крок 1),
+       а тоді наповнюється окремим xpath position="inside" (крок 2). -->
+  <record id="view_employee_form_ua_card" model="ir.ui.view">
+    <field name="name">hr.employee.form.ua.card</field>
+    <field name="model">hr.employee</field>
+    <field name="inherit_id" ref="hr.view_employee_form"/>
+    <field name="priority">20</field>
+    <field name="arch" type="xml">
+      <data>
+
+        <!-- ==================== Крок 1: нові сторінки і порожні групи ==================== -->
+        <xpath expr="//page[@name='work_information']" position="after">
+          <page name="ua_card" string="Особова картка" groups="hr.group_hr_user">
+            <button name="%(l10n_ua_hr_card.action_report_ua_p2)d" type="action" string="Друк П-2" class="btn btn-secondary mb-2"/>
+            <group name="ua_card_groups">
+              <group string="Ідентифікація" name="ua_card_grp_ident"/>
+              <group string="Документ, що посвідчує особу" name="ua_card_grp_iddoc"/>
+              <group string="Адреси і контакти" name="ua_card_grp_addr"/>
+              <group string="Сім'я" name="ua_card_grp_family"/>
+              <group string="Освіта" name="ua_card_grp_edu"/>
+              <group string="Пільги і особливий статус" name="ua_card_grp_benefits"/>
+              <group string="Трудова книжка і стаж" name="ua_card_grp_labor"/>
+            </group>
+          </page>
+        </xpath>
+
+        <xpath expr="//page[@name='ua_card']" position="after">
+          <page name="ua_docs" string="Документи" groups="hr.group_hr_user">
+            <field name="ua_document_ids">
+              <list editable="bottom">
+                <field name="type"/>
+                <field name="name"/>
+                <field name="number"/>
+                <field name="date"/>
+                <field name="valid_until"/>
+                <field name="file" filename="filename"/>
+                <field name="filename" column_invisible="1"/>
+                <field name="note"/>
+              </list>
+            </field>
+          </page>
+        </xpath>
+
+        <!-- ==================== Крок 2: наповнення груп (перенесені поля position="move" + нові) ==================== -->
+        <xpath expr="//group[@name='ua_card_grp_ident']" position="inside">
+          <field name="ua_last_name" position="move"/>
+          <field name="ua_first_name" position="move"/>
+          <field name="ua_middle_name" position="move"/>
+          <field name="ua_rnokpp" position="move"/>
+          <field name="sex" position="move"/>
+          <field name="birthday" position="move"/>
+          <field name="place_of_birth" position="move"/>
+          <field name="country_of_birth" position="move"/>
+          <field name="country_id" position="move"/>
+        </xpath>
+
+        <xpath expr="//group[@name='ua_card_grp_iddoc']" position="inside">
+          <field name="ua_id_doc_type"/>
+          <field name="ua_id_doc_series"/>
+          <field name="ua_id_doc_number"/>
+          <field name="ua_id_doc_issued_by"/>
+          <field name="ua_id_doc_date"/>
+          <field name="ua_id_doc_unzr"/>
+          <field name="passport_id" position="move"/>
+        </xpath>
+
+        <xpath expr="//group[@name='ua_card_grp_addr']" position="inside">
+          <field name="private_street" position="move"/>
+          <field name="private_street2" position="move"/>
+          <field name="private_city" position="move"/>
+          <field name="private_state_id" position="move"/>
+          <field name="private_zip" position="move"/>
+          <field name="private_country_id" position="move"/>
+          <field name="ua_actual_address"/>
+          <field name="private_phone" position="move"/>
+          <field name="private_email" position="move"/>
+          <field name="emergency_contact" position="move"/>
+          <field name="emergency_phone" position="move"/>
+        </xpath>
+
+        <xpath expr="//group[@name='ua_card_grp_family']" position="inside">
+          <field name="marital" position="move"/>
+          <field name="spouse_complete_name" position="move"/>
+          <field name="spouse_birthdate" position="move"/>
+          <field name="ua_child_ids" colspan="2">
+            <list editable="bottom">
+              <field name="name"/>
+              <field name="birthday"/>
+              <field name="note"/>
+            </list>
+          </field>
+        </xpath>
+
+        <xpath expr="//group[@name='ua_card_grp_edu']" position="inside">
+          <field name="certificate" position="move"/>
+          <field name="study_field" position="move"/>
+          <field name="study_school"/>
+          <field name="ua_education_year"/>
+          <field name="ua_diploma_number"/>
+          <field name="ua_science_degree"/>
+          <field name="ua_languages"/>
+        </xpath>
+
+        <xpath expr="//group[@name='ua_card_grp_benefits']" position="inside">
+          <field name="ua_disability_group" position="move"/>
+          <field name="ua_chernobyl_category"/>
+          <field name="ua_veteran"/>
+          <field name="ua_large_family"/>
+          <field name="ua_single_parent"/>
+        </xpath>
+
+        <xpath expr="//group[@name='ua_card_grp_labor']" position="inside">
+          <field name="ua_labor_book_number"/>
+          <field name="ua_labor_book_date"/>
+          <field name="ua_electronic_labor_book"/>
+          <field name="ua_insurance_years" position="move"/>
+          <field name="ua_prior_job_ids" colspan="2">
+            <list editable="bottom">
+              <field name="company_name"/>
+              <field name="job_title"/>
+              <field name="date_from"/>
+              <field name="date_to"/>
+              <field name="note"/>
+            </list>
+          </field>
+        </xpath>
+
+        <!-- ==================== button_box: лічильник документів, що закінчуються ==================== -->
+        <xpath expr="//div[@name='button_box']" position="inside">
+          <button name="action_view_ua_documents" type="object" class="oe_stat_button" icon="fa-file-text-o" groups="hr.group_hr_user">
+            <div class="o_stat_info">
+              <span class="o_stat_value"><field name="ua_docs_expiring"/></span>
+              <span class="o_stat_text">документів закінчується</span>
+            </div>
+          </button>
+        </xpath>
+
+        <!-- ==================== Зарплата (колишня «Україна»): перейменувати, додати «Виплата» ==================== -->
+        <xpath expr="//page[@name='ua']" position="attributes">
+          <attribute name="string">Зарплата</attribute>
+        </xpath>
+        <xpath expr="//group[@name='ua']" position="inside">
+          <group string="Виплата" name="ua_card_grp_payout"/>
+        </xpath>
+        <xpath expr="//group[@name='ua_card_grp_payout']" position="inside">
+          <field name="has_multiple_bank_accounts" position="move"/>
+          <field name="is_trusted_bank_account" position="move"/>
+          <xpath expr="//page[@name='personal_information']/group/group[1]/field[@name='bank_account_ids']" position="move"/>
+          <xpath expr="//page[@name='personal_information']/group/group[1]/label[@for='bank_account_ids']" position="move"/>
+          <xpath expr="//page[@name='personal_information']/group/group[1]/div[1]" position="move"/>
+          <xpath expr="//page[@name='personal_information']/group/group[1]/div[1]" position="move"/>
+        </xpath>
+
+        <!-- ==================== Приватна інформація: сховати, дублікатів немає ==================== -->
+        <xpath expr="//page[@name='personal_information']" position="attributes">
+          <attribute name="invisible">1</attribute>
+        </xpath>
+
+        <!-- ==================== Резюме: перейменувати ==================== -->
+        <xpath expr="//page[@name='resume']" position="attributes">
+          <attribute name="string">Навички і резюме</attribute>
+        </xpath>
+
+      </data>
+    </field>
+  </record>
+
+  <!-- Список працівників: необов'язкові колонки -->
+  <record id="view_employee_tree_ua_card" model="ir.ui.view">
+    <field name="name">hr.employee.list.ua.card</field>
+    <field name="model">hr.employee</field>
+    <field name="inherit_id" ref="hr.view_employee_tree"/>
+    <field name="arch" type="xml">
+      <field name="name" position="after">
+        <field name="ua_rnokpp" optional="hide" groups="hr.group_hr_user"/>
+        <field name="job_title" optional="hide"/>
+      </field>
+    </field>
+  </record>
+</odoo>

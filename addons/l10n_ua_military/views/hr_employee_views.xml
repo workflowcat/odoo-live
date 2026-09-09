@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_employee_form_ua_military" model="ir.ui.view">
+    <field name="name">hr.employee.form.ua.military</field>
+    <field name="model">hr.employee</field>
+    <field name="inherit_id" ref="hr.view_employee_form"/>
+    <field name="arch" type="xml">
+      <notebook position="inside">
+        <page string="Військовий облік" name="ua_military" groups="hr.group_hr_user">
+          <group>
+            <group string="Облік">
+              <field name="ua_mil_status"/>
+              <field name="ua_mil_category"/>
+              <field name="ua_mil_group"/>
+              <field name="ua_mil_rank"/>
+              <field name="ua_mil_vos"/>
+              <field name="ua_mil_tcc"/>
+            </group>
+            <group string="Документ">
+              <field name="ua_mil_doc_type"/>
+              <field name="ua_mil_doc_series"/>
+              <field name="ua_mil_doc_number"/>
+              <field name="ua_mil_doc_date"/>
+            </group>
+            <group string="Придатність">
+              <field name="ua_mil_fitness"/>
+              <field name="ua_mil_vlk_date"/>
+              <field name="ua_mil_last_check"/>
+              <field name="ua_mil_needs_check" readonly="1"/>
+            </group>
+            <group string="Бронювання і відстрочка">
+              <field name="ua_mil_reserved"/>
+              <field name="ua_mil_reserve_order" invisible="not ua_mil_reserved"/>
+              <field name="ua_mil_reserve_until" invisible="not ua_mil_reserved"/>
+              <field name="ua_mil_deferment"/>
+              <field name="ua_mil_deferment_until" invisible="not ua_mil_deferment"/>
+            </group>
+          </group>
+          <field name="ua_mil_note" placeholder="Примітка"/>
+          <field name="ua_mil_event_ids">
+            <list editable="bottom">
+              <field name="date"/>
+              <field name="kind"/>
+              <field name="note"/>
+              <field name="user_id"/>
+            </list>
+          </field>
+        </page>
+      </notebook>
+    </field>
+  </record>
+
+  <record id="view_hr_employee_list_military" model="ir.ui.view">
+    <field name="name">hr.employee.list.military</field>
+    <field name="model">hr.employee</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="name"/>
+        <field name="department_id"/>
+        <field name="ua_mil_status"/>
+        <field name="ua_mil_rank"/>
+        <field name="ua_mil_vos"/>
+        <field name="ua_mil_tcc"/>
+        <field name="ua_mil_last_check"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_military_liable" model="ir.actions.act_window">
+    <field name="name">Військовозобов'язані</field>
+    <field name="res_model">hr.employee</field>
+    <field name="view_mode">list,form</field>
+    <field name="view_id" ref="view_hr_employee_list_military"/>
+    <field name="domain">[("ua_mil_status", "in", ["conscript", "liable", "reserve"])]</field>
+  </record>
+
+  <record id="action_ua_military_needs_check" model="ir.actions.act_window">
+    <field name="name">Потребують звірки</field>
+    <field name="res_model">hr.employee</field>
+    <field name="view_mode">list,form</field>
+    <field name="view_id" ref="view_hr_employee_list_military"/>
+    <field name="domain">[("ua_mil_needs_check", "=", True)]</field>
+  </record>
+</odoo>

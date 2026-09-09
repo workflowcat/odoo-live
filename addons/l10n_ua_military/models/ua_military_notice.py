@@ -1,0 +1,105 @@
+# -*- coding: utf-8 -*-
+"""Повідомлення про зміну облікових даних за період: прийняті, звільнені і ті, у кого є подія «зміна даних»,
+серед працівників, що підлягають військовому обліку. Відповідає обов'язку повідомляти ТЦК протягом 7 днів."""
+from odoo import api, fields, models
+from odoo.exceptions import UserError
+
+from .hr_employee import LIABLE_STATUSES
+
+STATES = [("draft", "Чернетка"), ("confirmed", "Затверджено")]
+CHANGE_KIND = [("hire", "Прийняття"), ("dismiss", "Звільнення"), ("change", "Зміна даних")]
+
+
+class UaMilitaryNotice(models.Model):
+    _name = "ua.military.notice"
+    _inherit = ["mail.thread"]
+    _description = "Повідомлення про зміну облікових даних"
+    _order = "date_to desc, id desc"
+
+    name = fields.Char(compute="_compute_name", store=True)
+    company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
+    date_from = fields.Date("Період з", required=True, tracking=True)
+    date_to = fields.Date("Період по", required=True, tracking=True)
+    state = fields.Selection(STATES, default="draft", required=True, tracking=True)
+    note = fields.Text("Примітка")
+    line_ids = fields.One2many("ua.military.notice.line", "notice_id", "Рядки")
+
+    @api.depends("date_from", "date_to")
+    def _compute_name(self):
+        for doc in self:
+            d1 = doc.date_from.strftime("%d.%m.%Y") if doc.date_from else ""
+            d2 = doc.date_to.strftime("%d.%m.%Y") if doc.date_to else ""
+            doc.name = "Повідомлення ТЦК %s - %s" % (d1, d2)
+
+    @api.ondelete(at_uninstall=False)
+    def _unlink_except_draft(self):
+        if any(doc.state != "draft" for doc in self):
+            raise UserError("Видалити можна лише чернетку повідомлення.")
+
+    def action_refill(self):
+        for doc in self:
+            if doc.state != "draft":
+                raise UserError("Перерахувати можна лише чернетку.")
+            doc.line_ids.unlink()
+            employees = self.env["hr.employee"].sudo().search([("company_id", "=", doc.company_id.id), ("ua_mil_status", "in", list(LIABLE_STATUSES))])
+            rows = []
+            if employees:
+                versions = self.env["hr.version"].sudo().search([
+                    ("employee_id", "in", employees.ids),
+                    "|",
+                    "&", ("contract_date_start", ">=", doc.date_from), ("contract_date_start", "<=", doc.date_to),
+                    "&", ("contract_date_end", ">=", doc.date_from), ("contract_date_end", "<=", doc.date_to),
+                ])
+                for v in versions:
+                    emp = v.employee_id
+                    if emp not in employees:
+                        continue
+                    ln, fn, mn = emp._ua_name_parts()
+                    full_name = " ".join(p for p in [ln, fn, mn] if p)
+                    job_title = v.job_title or emp.job_title or ""
+                    if v.contract_date_start and doc.date_from <= v.contract_date_start <= doc.date_to:
+                        rows.append({"employee_id": emp.id, "full_name": full_name, "birthday": emp.birthday, "rnokpp": emp.ua_rnokpp or "",
+                                     "tcc": emp.ua_mil_tcc or "", "change_kind": "hire", "date": v.contract_date_start,
+                                     "job_title": job_title, "reason": v.ua_order_ref or ""})
+                    if v.contract_date_end and doc.date_from <= v.contract_date_end <= doc.date_to:
+                        rows.append({"employee_id": emp.id, "full_name": full_name, "birthday": emp.birthday, "rnokpp": emp.ua_rnokpp or "",
+                                     "tcc": emp.ua_mil_tcc or "", "change_kind": "dismiss", "date": v.contract_date_end,
+                                     "job_title": job_title, "reason": v.ua_end_order_ref or v.ua_dismissal_basis or ""})
+                events = self.env["ua.military.event"].sudo().search([
+                    ("employee_id", "in", employees.ids), ("kind", "=", "update"), ("date", ">=", doc.date_from), ("date", "<=", doc.date_to),
+                ])
+                for ev in events:
+                    emp = ev.employee_id
+                    ln, fn, mn = emp._ua_name_parts()
+                    rows.append({"employee_id": emp.id, "full_name": " ".join(p for p in [ln, fn, mn] if p), "birthday": emp.birthday,
+                                 "rnokpp": emp.ua_rnokpp or "", "tcc": emp.ua_mil_tcc or "", "change_kind": "change", "date": ev.date,
+                                 "job_title": emp.job_title or "", "reason": ev.note or ""})
+            rows.sort(key=lambda r: (r["date"], r["full_name"]))
+            doc.line_ids = [(0, 0, r) for r in rows]
+        return True
+
+    def action_confirm(self):
+        for doc in self:
+            if not doc.line_ids:
+                raise UserError("Немає рядків. Натисніть «Перерахувати».")
+            doc.state = "confirmed"
+
+    def action_draft(self):
+        self.state = "draft"
+
+
+class UaMilitaryNoticeLine(models.Model):
+    _name = "ua.military.notice.line"
+    _description = "Рядок повідомлення про зміну облікових даних"
+    _order = "date, full_name"
+
+    notice_id = fields.Many2one("ua.military.notice", required=True, ondelete="cascade")
+    employee_id = fields.Many2one("hr.employee", "Працівник")
+    full_name = fields.Char("ПІБ")
+    birthday = fields.Date("Дата народження")
+    rnokpp = fields.Char("РНОКПП")
+    tcc = fields.Char("ТЦК")
+    change_kind = fields.Selection(CHANGE_KIND, "Вид зміни")
+    date = fields.Date("Дата")
+    job_title = fields.Char("Посада")
+    reason = fields.Char("Підстава (наказ)")

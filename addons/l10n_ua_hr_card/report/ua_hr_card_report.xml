@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_p2" model="ir.actions.report">
+    <field name="name">Особова картка (П-2)</field><field name="model">hr.employee</field><field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_hr_card.report_ua_p2</field><field name="report_file">l10n_ua_hr_card.report_ua_p2</field>
+    <field name="print_report_name">'Особова картка П-2 %s' % object.name</field>
+    <field name="binding_model_id" ref="hr.model_hr_employee"/><field name="binding_type">report</field><field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4"/>
+  </record>
+
+  <template id="report_ua_p2">
+    <t t-call="web.basic_layout">
+      <t t-foreach="docs" t-as="o">
+        <t t-set="emp" t-value="o.sudo()"/>
+        <t t-set="company" t-value="emp.company_id"/>
+        <t t-set="versions" t-value="emp.version_ids.sorted(lambda v: v.contract_date_start or v.date_version or '0000-00-00')"/>
+        <t t-set="vac_leaves" t-value="emp.env['hr.leave'].sudo().search([
+              ('employee_id', '=', emp.id), ('state', '=', 'validate'),
+              ('holiday_status_id.work_entry_type_id.code', '=', 'VAC'),
+              ('request_date_from', '&gt;=', '%s-01-01' % datetime.date.today().year),
+              ('request_date_from', '&lt;=', '%s-12-31' % datetime.date.today().year)])"/>
+        <t t-set="latest_v" t-value="versions[-1:]"/>
+        <t t-set="last_dismiss_v" t-value="latest_v if latest_v and latest_v.contract_date_end and latest_v.ua_end_order_ref else versions.browse()"/>
+        <div class="page" style="font-family: DejaVu Sans, sans-serif; font-size: 10px;">
+
+          <div style="text-align:center; margin-bottom:10px;">
+            <div style="font-weight:bold; font-size:13px;"><t t-out="company.name"/></div>
+            <div style="font-size:9px; color:#444;">ЄДРПОУ <t t-out="company.company_registry or '-'"/></div>
+            <h3 style="margin:12px 0 2px;">ОСОБОВА КАРТКА П-2</h3>
+          </div>
+
+          <h4 style="margin-bottom:2px;">I. Загальні відомості</h4>
+          <table style="width:100%; border-collapse:collapse; margin-bottom:10px;" border="1" cellpadding="3">
+            <tr><td style="width:32%;"><b>ПІБ</b></td><td><span t-field="emp.name"/></td></tr>
+            <tr><td><b>Дата і місце народження</b></td><td>
+              <t t-if="emp.birthday"><span t-field="emp.birthday"/></t><t t-if="not emp.birthday">-</t> р.,
+              <t t-out="emp.place_of_birth or '-'"/><t t-if="emp.country_of_birth"> (<span t-field="emp.country_of_birth"/>)</t>
+            </td></tr>
+            <tr><td><b>Стать</b></td><td><t t-if="emp.sex == 'male'">чоловіча</t><t t-if="emp.sex == 'female'">жіноча</t><t t-if="emp.sex not in ('male', 'female')">-</t></td></tr>
+            <tr><td><b>Громадянство</b></td><td><t t-if="emp.country_id"><span t-field="emp.country_id"/></t><t t-if="not emp.country_id">-</t></td></tr>
+            <tr><td><b>РНОКПП</b></td><td><t t-out="emp.ua_rnokpp or '-'"/></td></tr>
+            <tr><td><b>Документ, що посвідчує особу</b></td><td>
+              <t t-if="emp.ua_id_doc_type"><span t-field="emp.ua_id_doc_type"/></t><t t-if="not emp.ua_id_doc_type">-</t>
+              <t t-if="emp.ua_id_doc_series"> <t t-out="emp.ua_id_doc_series"/></t><t t-if="emp.ua_id_doc_number"> № <t t-out="emp.ua_id_doc_number"/></t>
+              <t t-if="emp.ua_id_doc_issued_by">, видано <t t-out="emp.ua_id_doc_issued_by"/></t>
+              <t t-if="emp.ua_id_doc_date"> <span t-field="emp.ua_id_doc_date"/></t>
+              <t t-if="emp.ua_id_doc_unzr">, УНЗР <t t-out="emp.ua_id_doc_unzr"/></t>
+              <t t-if="emp.passport_id">; закордонний паспорт <t t-out="emp.passport_id"/></t>
+            </td></tr>
+            <tr><td><b>Освіта</b></td><td>
+              <t t-if="emp.certificate"><span t-field="emp.certificate"/></t><t t-if="not emp.certificate">-</t>
+              <t t-if="emp.study_field"> , <t t-out="emp.study_field"/></t><t t-if="emp.study_school"> , <t t-out="emp.study_school"/></t>
+              <t t-if="emp.ua_education_year"> , <t t-out="emp.ua_education_year"/> р.</t><t t-if="emp.ua_diploma_number"> , диплом № <t t-out="emp.ua_diploma_number"/></t>
+            </td></tr>
+            <tr><td><b>Науковий ступінь</b></td><td><t t-out="emp.ua_science_degree or '-'"/></td></tr>
+            <tr><td><b>Мови</b></td><td><t t-out="emp.ua_languages or '-'"/></td></tr>
+            <tr><td><b>Сімейний стан</b></td><td>
+              <t t-if="emp.marital"><span t-field="emp.marital"/></t><t t-if="not emp.marital">-</t>
+              <t t-if="emp.spouse_complete_name"> , <t t-out="emp.spouse_complete_name"/></t>
+            </td></tr>
+            <tr><td><b>Діти</b></td><td>
+              <t t-if="not emp.ua_child_ids">-</t>
+              <t t-foreach="emp.ua_child_ids" t-as="c"><t t-out="c.name"/><t t-if="c.birthday"> (<span t-field="c.birthday"/>)</t><t t-if="not c_last">; </t></t>
+            </td></tr>
+            <tr><td><b>Адреса реєстрації</b></td><td><t t-out="', '.join(x for x in [emp.private_street, emp.private_city, emp.private_zip] if x) or '-'"/></td></tr>
+            <tr><td><b>Фактична адреса</b></td><td><t t-out="emp.ua_actual_address or '-'"/></td></tr>
+            <tr><td><b>Телефони</b></td><td>особистий: <t t-out="emp.private_phone or '-'"/>; робочий: <t t-out="emp.work_phone or '-'"/></td></tr>
+            <tr><td><b>Пільги і особливий статус</b></td><td>
+              <t t-if="emp.ua_disability_group and emp.ua_disability_group != 'none'">інвалідність <t t-out="emp.ua_disability_group"/> групи; </t>
+              <t t-if="emp.ua_chernobyl_category and emp.ua_chernobyl_category != 'none'">ЧАЕС, категорія <t t-out="emp.ua_chernobyl_category"/>; </t>
+              <t t-if="emp.ua_veteran">УБД / ветеран; </t>
+              <t t-if="emp.ua_large_family">багатодітна сім'я; </t>
+              <t t-if="emp.ua_single_parent">одинокий батько/мати; </t>
+              <t t-if="(emp.ua_disability_group in (False, 'none')) and (emp.ua_chernobyl_category in (False, 'none')) and not emp.ua_veteran and not emp.ua_large_family and not emp.ua_single_parent">-</t>
+            </td></tr>
+          </table>
+
+          <h4 style="margin-bottom:2px;">II. Відомості про військовий облік</h4>
+          <table style="width:100%; border-collapse:collapse; margin-bottom:10px;" border="1" cellpadding="3">
+            <t t-if="'ua_mil_status' in emp._fields">
+              <tr><td style="width:32%;"><b>Стан обліку</b></td><td><span t-field="emp.ua_mil_status"/></td></tr>
+              <tr><td><b>Категорія / група обліку</b></td><td><span t-field="emp.ua_mil_category"/> / <span t-field="emp.ua_mil_group"/></td></tr>
+              <tr><td><b>Звання, ВОС</b></td><td><t t-out="emp.ua_mil_rank or '-'"/>, ВОС <t t-out="emp.ua_mil_vos or '-'"/></td></tr>
+              <tr><td><b>ТЦК та СП</b></td><td><t t-out="emp.ua_mil_tcc or '-'"/></td></tr>
+              <tr><td><b>Придатність</b></td><td><span t-field="emp.ua_mil_fitness"/></td></tr>
+              <tr><td><b>Бронювання</b></td><td>
+                <t t-if="emp.ua_mil_reserved">заброньований<t t-if="emp.ua_mil_reserve_until"> до <span t-field="emp.ua_mil_reserve_until"/></t></t>
+                <t t-if="not emp.ua_mil_reserved">-</t>
+              </td></tr>
+            </t>
+            <t t-if="'ua_mil_status' not in emp._fields">
+              <tr><td>За даними модуля військового обліку.</td></tr>
+            </t>
+          </table>
+
+          <h4 style="margin-bottom:2px;">III. Призначення і переведення</h4>
+          <table style="width:100%; border-collapse:collapse; margin-bottom:10px;" border="1" cellpadding="3">
+            <tr style="font-weight:bold; background:#eee;"><td>Дата</td><td>Підрозділ</td><td>Посада</td><td>Оклад</td><td>Наказ</td></tr>
+            <tr t-foreach="versions" t-as="v">
+              <td><span t-field="v.contract_date_start"/></td>
+              <td><t t-out="v.department_id.name or '-'"/></td>
+              <td><t t-out="v.job_title or '-'"/></td>
+              <td><t t-out="'{:,.2f}'.format(v.wage or 0.0).replace(',', ' ')"/></td>
+              <td><t t-out="v.ua_order_ref or '-'"/></td>
+            </tr>
+            <tr t-if="not versions"><td colspan="5">Немає даних.</td></tr>
+          </table>
+
+          <h4 style="margin-bottom:2px;">IV. Відпустки (<t t-out="datetime.date.today().year"/> рік)</h4>
+          <table style="width:100%; border-collapse:collapse; margin-bottom:10px;" border="1" cellpadding="3">
+            <tr style="font-weight:bold; background:#eee;"><td>Тип</td><td>З</td><td>По</td><td>Днів</td><td>Наказ</td></tr>
+            <tr t-foreach="vac_leaves" t-as="lv">
+              <td><span t-field="lv.holiday_status_id"/></td>
+              <td><span t-field="lv.request_date_from"/></td>
+              <td><span t-field="lv.request_date_to"/></td>
+              <td><t t-out="(lv.request_date_to - lv.request_date_from).days + 1"/></td>
+              <td><t t-out="lv.ua_order_ref or '-'"/></td>
+            </tr>
+            <tr t-if="not vac_leaves"><td colspan="5">Немає даних.</td></tr>
+          </table>
+
+          <h4 style="margin-bottom:2px;">V. Попередні місця роботи</h4>
+          <table style="width:100%; border-collapse:collapse; margin-bottom:10px;" border="1" cellpadding="3">
+            <tr style="font-weight:bold; background:#eee;"><td>Підприємство</td><td>Посада</td><td>З</td><td>По</td></tr>
+            <tr t-foreach="emp.ua_prior_job_ids" t-as="pj">
+              <td><t t-out="pj.company_name"/></td>
+              <td><t t-out="pj.job_title or '-'"/></td>
+              <td><span t-field="pj.date_from"/></td>
+              <td><span t-field="pj.date_to"/></td>
+            </tr>
+            <tr t-if="not emp.ua_prior_job_ids"><td colspan="4">Немає даних.</td></tr>
+          </table>
+
+          <h4 style="margin-bottom:2px;">VI. Звільнення</h4>
+          <table style="width:100%; border-collapse:collapse; margin-bottom:14px;" border="1" cellpadding="3">
+            <t t-if="last_dismiss_v">
+              <tr><td style="width:32%;"><b>Дата звільнення</b></td><td><span t-field="last_dismiss_v.contract_date_end"/></td></tr>
+              <tr><td><b>Підстава</b></td><td><t t-out="last_dismiss_v.ua_dismissal_basis or '-'"/></td></tr>
+              <tr><td><b>Наказ</b></td><td><t t-out="last_dismiss_v.ua_end_order_ref or '-'"/></td></tr>
+            </t>
+            <t t-if="not last_dismiss_v"><tr><td>Не звільнявся(-лась).</td></tr></t>
+          </table>
+
+          <table style="width:100%; margin-top:24px; font-size:11px;">
+            <tr>
+              <td style="width:50%">Працівник ____________________ <span t-field="emp.name"/></td>
+              <td>«____» ____________ 20___ р.</td>
+            </tr>
+            <tr>
+              <td style="padding-top:24px;">Інспектор з кадрів ____________________</td>
+              <td style="padding-top:24px;">«____» ____________ 20___ р.</td>
+            </tr>
+          </table>
+
+        </div>
+      </t>
+    </t>
+  </template>
+</odoo>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_military_list_form" model="ir.ui.view">
+    <field name="name">ua.military.list.form</field>
+    <field name="model">ua.military.list</field>
+    <field name="arch" type="xml">
+      <form string="Список персонального обліку">
+        <header>
+          <button name="action_refill" type="object" string="Перерахувати" invisible="state != 'draft'"/>
+          <button name="action_confirm" type="object" string="Затвердити" invisible="state != 'draft'" class="oe_highlight"/>
+          <button name="action_draft" type="object" string="Повернути в чернетку" invisible="state != 'confirmed'"/>
+          <button name="%(action_report_ua_military_list)d" type="action" string="Друк"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Рядки" name="lines">
+              <field name="line_ids">
+                <list editable="bottom" readonly="parent.state != 'draft'">
+                  <field name="full_name"/>
+                  <field name="birthday"/>
+                  <field name="rnokpp"/>
+                  <field name="job_title"/>
+                  <field name="rank"/>
+                  <field name="vos"/>
+                  <field name="tcc"/>
+                  <field name="fitness"/>
+                  <field name="reserved_until"/>
+                  <field name="last_check"/>
+                  <field name="reg_address" optional="hide"/>
+                  <field name="actual_address" optional="hide"/>
+                  <field name="category" optional="hide"/>
+                  <field name="grp" optional="hide"/>
+                  <field name="doc_info" optional="hide"/>
+                  <field name="note" optional="hide"/>
+                </list>
+              </field>
+            </page>
+            <page string="Примітка" name="note">
+              <field name="note"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_military_list_list" model="ir.ui.view">
+    <field name="name">ua.military.list.list</field>
+    <field name="model">ua.military.list</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="name"/>
+        <field name="date"/>
+        <field name="state"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_military_list" model="ir.actions.act_window">
+    <field name="name">Списки персонального обліку</field>
+    <field name="res_model">ua.military.list</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>

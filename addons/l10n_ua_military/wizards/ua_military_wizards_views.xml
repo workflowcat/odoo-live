@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_military_list_wizard" model="ir.ui.view">
+    <field name="name">ua.military.list.wizard.form</field><field name="model">ua.military.list.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Список персонального обліку"><group><field name="company_id"/><field name="date"/></group>
+        <footer><button name="action_create" type="object" string="Створити" class="btn-primary"/><button string="Закрити" class="btn-secondary" special="cancel"/></footer></form>
+    </field>
+  </record>
+  <record id="action_ua_military_list_wizard" model="ir.actions.act_window">
+    <field name="name">Список персонального обліку</field><field name="res_model">ua.military.list.wizard</field><field name="view_mode">form</field><field name="target">new</field>
+  </record>
+
+  <record id="view_ua_military_notice_wizard" model="ir.ui.view">
+    <field name="name">ua.military.notice.wizard.form</field><field name="model">ua.military.notice.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Повідомлення про зміну облікових даних"><group><field name="company_id"/><field name="date_from"/><field name="date_to"/></group>
+        <footer><button name="action_create" type="object" string="Створити" class="btn-primary"/><button string="Закрити" class="btn-secondary" special="cancel"/></footer></form>
+    </field>
+  </record>
+  <record id="action_ua_military_notice_wizard" model="ir.actions.act_window">
+    <field name="name">Повідомлення про зміну облікових даних</field><field name="res_model">ua.military.notice.wizard</field><field name="view_mode">form</field><field name="target">new</field>
+  </record>
+
+  <record id="view_ua_military_reserved_wizard" model="ir.ui.view">
+    <field name="name">ua.military.reserved.wizard.form</field><field name="model">ua.military.reserved.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Список заброньованих"><group><field name="company_id"/><field name="date"/></group>
+        <footer><button name="action_create" type="object" string="Створити" class="btn-primary"/><button string="Закрити" class="btn-secondary" special="cancel"/></footer></form>
+    </field>
+  </record>
+  <record id="action_ua_military_reserved_wizard" model="ir.actions.act_window">
+    <field name="name">Список заброньованих</field><field name="res_model">ua.military.reserved.wizard</field><field name="view_mode">form</field><field name="target">new</field>
+  </record>
+</odoo>

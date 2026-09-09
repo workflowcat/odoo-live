@@ -1,0 +1,21 @@
+{
+    "name": "Військовий облік (Україна)",
+    "summary": "Дані військового обліку працівника, список персонального обліку, повідомлення ТЦК, список заброньованих",
+    "version": "19.0.1.0.0",
+    "license": "LGPL-3",
+    "author": "Bot&Partners",
+    "category": "Human Resources/Payroll",
+    "depends": ["l10n_ua_payroll_reports"],
+    "data": [
+        "security/ir.model.access.csv",
+        "wizards/ua_military_wizards_views.xml",
+        "report/ua_military_list_report.xml",
+        "report/ua_military_notice_report.xml",
+        "report/ua_military_reserved_report.xml",
+        "views/hr_employee_views.xml",
+        "views/ua_military_list_views.xml",
+        "views/ua_military_notice_views.xml",
+        "views/ua_military_reserved_views.xml",
+    ],
+    "installable": True,
+}

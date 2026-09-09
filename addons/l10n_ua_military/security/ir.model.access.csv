@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_military_event,ua.military.event,model_ua_military_event,hr.group_hr_user,1,1,1,1
+access_ua_military_list_wizard,ua.military.list.wizard,model_ua_military_list_wizard,hr.group_hr_user,1,1,1,1
+access_ua_military_list,ua.military.list,model_ua_military_list,hr.group_hr_user,1,1,1,1
+access_ua_military_list_line,ua.military.list.line,model_ua_military_list_line,hr.group_hr_user,1,1,1,1
+access_ua_military_notice_wizard,ua.military.notice.wizard,model_ua_military_notice_wizard,hr.group_hr_user,1,1,1,1
+access_ua_military_notice,ua.military.notice,model_ua_military_notice,hr.group_hr_user,1,1,1,1
+access_ua_military_notice_line,ua.military.notice.line,model_ua_military_notice_line,hr.group_hr_user,1,1,1,1
+access_ua_military_reserved_wizard,ua.military.reserved.wizard,model_ua_military_reserved_wizard,hr.group_hr_user,1,1,1,1
+access_ua_military_reserved,ua.military.reserved,model_ua_military_reserved,hr.group_hr_user,1,1,1,1
+access_ua_military_reserved_line,ua.military.reserved.line,model_ua_military_reserved_line,hr.group_hr_user,1,1,1,1

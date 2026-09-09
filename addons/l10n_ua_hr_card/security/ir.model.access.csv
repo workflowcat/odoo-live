@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_employee_child_user,ua.employee.child user,model_ua_employee_child,hr.group_hr_user,1,1,1,1
+access_ua_employee_prior_job_user,ua.employee.prior.job user,model_ua_employee_prior_job,hr.group_hr_user,1,1,1,1
+access_ua_employee_document_user,ua.employee.document user,model_ua_employee_document,hr.group_hr_user,1,1,1,1

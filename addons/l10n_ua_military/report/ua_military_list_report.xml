@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_military_list" model="ir.actions.report">
+    <field name="name">Список персонального військового обліку</field><field name="model">ua.military.list</field><field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_military.report_ua_military_list</field><field name="report_file">l10n_ua_military.report_ua_military_list</field>
+    <field name="print_report_name">'Список персонального обліку %s' % object.date.strftime('%d.%m.%Y')</field>
+    <field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4_landscape"/>
+    <field name="binding_model_id" ref="model_ua_military_list"/><field name="binding_type">report</field>
+  </record>
+  <template id="report_ua_military_list">
+    <t t-call="web.basic_layout"><t t-foreach="docs" t-as="doc">
+      <div class="page" style="font-family: DejaVu Sans, sans-serif; font-size: 7px;">
+        <div style="font-size:11px; font-weight:bold;">Список персонального військового обліку</div>
+        <div><t t-out="doc.company_id.name"/> станом на <t t-out="doc.date.strftime('%d.%m.%Y')"/></div>
+        <table class="table table-sm" style="border-collapse:collapse; width:100%; margin-top:6px;">
+          <thead><tr style="border-bottom:1px solid #999;">
+            <th>№</th><th>ПІБ</th><th>Дата нар.</th><th>РНОКПП</th><th>Адреса реєстрації</th><th>Фактична адреса</th><th>Посада</th><th>Звання</th><th>ВОС</th>
+            <th>Категорія</th><th>Група</th><th>ТЦК</th><th>Документ</th><th>Придатність</th><th>Бронювання до</th><th>Звірка</th><th>Примітка</th>
+          </tr></thead>
+          <tbody>
+            <t t-foreach="doc.line_ids" t-as="r">
+              <tr style="border-bottom:1px solid #ddd;">
+                <td><t t-out="r_index + 1"/></td>
+                <td><t t-out="r.full_name"/></td>
+                <td><t t-out="r.birthday.strftime('%d.%m.%Y') if r.birthday else ''"/></td>
+                <td><t t-out="r.rnokpp"/></td>
+                <td><t t-out="r.reg_address"/></td>
+                <td><t t-out="r.actual_address"/></td>
+                <td><t t-out="r.job_title"/></td>
+                <td><t t-out="r.rank"/></td>
+                <td><t t-out="r.vos"/></td>
+                <td><t t-out="r.category"/></td>
+                <td><t t-out="r.grp"/></td>
+                <td><t t-out="r.tcc"/></td>
+                <td><t t-out="r.doc_info"/></td>
+                <td><t t-out="r.fitness"/></td>
+                <td><t t-out="r.reserved_until.strftime('%d.%m.%Y') if r.reserved_until else ''"/></td>
+                <td><t t-out="r.last_check.strftime('%d.%m.%Y') if r.last_check else ''"/></td>
+                <td><t t-out="r.note"/></td>
+              </tr>
+            </t>
+          </tbody>
+        </table>
+      </div>
+    </t></t>
+  </template>
+</odoo>

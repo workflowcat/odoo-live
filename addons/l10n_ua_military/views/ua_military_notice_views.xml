@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_military_notice_form" model="ir.ui.view">
+    <field name="name">ua.military.notice.form</field>
+    <field name="model">ua.military.notice</field>
+    <field name="arch" type="xml">
+      <form string="Повідомлення про зміну облікових даних">
+        <header>
+          <button name="action_refill" type="object" string="Перерахувати" invisible="state != 'draft'"/>
+          <button name="action_confirm" type="object" string="Затвердити" invisible="state != 'draft'" class="oe_highlight"/>
+          <button name="action_draft" type="object" string="Повернути в чернетку" invisible="state != 'confirmed'"/>
+          <button name="%(action_report_ua_military_notice)d" type="action" string="Друк"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="date_from" readonly="state != 'draft'"/>
+              <field name="date_to" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Рядки" name="lines">
+              <field name="line_ids">
+                <list editable="bottom" readonly="parent.state != 'draft'">
+                  <field name="full_name"/>
+                  <field name="birthday"/>
+                  <field name="rnokpp"/>
+                  <field name="tcc"/>
+                  <field name="change_kind"/>
+                  <field name="date"/>
+                  <field name="job_title"/>
+                  <field name="reason"/>
+                </list>
+              </field>
+            </page>
+            <page string="Примітка" name="note">
+              <field name="note"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_military_notice_list" model="ir.ui.view">
+    <field name="name">ua.military.notice.list</field>
+    <field name="model">ua.military.notice</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="name"/>
+        <field name="date_from"/>
+        <field name="date_to"/>
+        <field name="state"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_military_notice" model="ir.actions.act_window">
+    <field name="name">Повідомлення про зміну облікових даних</field>
+    <field name="res_model">ua.military.notice</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>
