@@ -295,6 +295,7 @@ class HrEmployee(models.Model):
         actions.append({"key": "new_leave", "label": "Оформити відпустку", "method": "action_ua_card_new_leave", "group": "footer"})
         actions.append({"key": "new_document", "label": "Додати документ", "method": "action_ua_card_new_document", "group": "footer"})
         actions.append({"key": "mil_check", "label": "Записати звірку ТЦК", "method": "action_ua_card_register_mil_check", "group": "footer"})
+        actions.append({"key": "income_certificate", "label": "Довідка про доходи", "method": "action_ua_card_income_certificate", "group": "footer"})
         if can_manage:
             actions.append({"key": "dismiss", "label": "Звільнити", "method": "action_ua_card_dismiss", "group": "footer"})
         actions.append({"key": "standard_form", "label": "Стандартна форма", "method": "action_ua_card_open_standard_form", "group": "footer"})
@@ -387,6 +388,15 @@ class HrEmployee(models.Model):
             "target": "new",
             "context": {"default_employee_id": self.id},
         }
+
+    def action_ua_card_income_certificate(self):
+        """Майстер довідки про доходи з підставленим працівником."""
+        self.ensure_one()
+        action = self.env["ir.actions.act_window"]._for_xml_id(
+            "l10n_ua_payroll_reports.action_ua_income_certificate")
+        action["context"] = {"default_employee_id": self.id}
+        action["target"] = "new"
+        return action
 
     def action_ua_card_new_document(self):
         self.ensure_one()
