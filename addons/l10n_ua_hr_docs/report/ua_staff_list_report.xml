@@ -16,8 +16,8 @@
           <thead><tr><th>№</th><th>Підрозділ</th><th>Посада (професія)</th><th>Код КП</th><th class="text-end">Штатних одиниць</th><th class="text-end">Оклад, грн</th><th class="text-end">Місячний фонд, грн</th></tr></thead>
           <tbody>
             <t t-foreach="doc.line_ids" t-as="r"><tr><td><t t-out="r_index + 1"/></td><td><t t-out="r.department_id.name or '-'"/></td><td><t t-out="r.job_title"/></td><td><t t-out="r.kp_code"/></td>
-              <td class="text-end"><t t-out="'%g' % r.units"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(r.wage).replace(',', ' ')"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(r.fund).replace(',', ' ')"/></td></tr></t>
-            <tr style="font-weight:bold;"><td></td><td>Разом</td><td></td><td></td><td class="text-end"><t t-out="'%g' % doc.total_units"/></td><td></td><td class="text-end"><t t-out="'{:,.2f}'.format(doc.total_fund).replace(',', ' ')"/></td></tr>
+              <td class="text-end"><t t-out="('%g' % r.units).replace('.', ',')"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(r.wage).replace(',', '&#160;').replace('.', ',')"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(r.fund).replace(',', '&#160;').replace('.', ',')"/></td></tr></t>
+            <tr style="font-weight:bold;"><td></td><td>Разом</td><td></td><td></td><td class="text-end"><t t-out="('%g' % doc.total_units).replace('.', ',')"/></td><td></td><td class="text-end"><t t-out="'{:,.2f}'.format(doc.total_fund).replace(',', '&#160;').replace('.', ',')"/></td></tr>
           </tbody>
         </table>
         <p style="font-size:10px; color:#555;">Штатні одиниці рахуються за ставками працівників за трудовими договорами на дату. ЦПХ і ФОП-підрядники не входять.</p>

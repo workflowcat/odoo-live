@@ -24,10 +24,10 @@
               <t t-set="emp" t-value="r.employee_id.sudo()"/>
               <tr><td><t t-out="r_index + 1"/></td><td><t t-out="emp.name"/></td><td><t t-out="emp.ua_rnokpp or ''"/></td><td><t t-out="kind_label.get(r.kind)"/></td><td><t t-out="r.sick_number or ''"/></td>
                 <td><t t-if="r.date_from and r.date_to"><t t-out="r.date_from.strftime('%d.%m.%Y')"/> - <t t-out="r.date_to.strftime('%d.%m.%Y')"/></t></td>
-                <td class="text-end"><t t-out="r.days"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(r.avg_day).replace(',', ' ')"/></td>
-                <td class="text-end"><t t-out="'%g' % r.percent"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(r.amount).replace(',', ' ')"/></td></tr>
+                <td class="text-end"><t t-out="r.days"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(r.avg_day).replace(',', '&#160;').replace('.', ',')"/></td>
+                <td class="text-end"><t t-out="'%g' % r.percent"/></td><td class="text-end"><t t-out="'{:,.2f}'.format(r.amount).replace(',', '&#160;').replace('.', ',')"/></td></tr>
             </t>
-            <tr style="font-weight:bold;"><td></td><td>Разом</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="text-end"><t t-out="'{:,.2f}'.format(doc.total).replace(',', ' ')"/></td></tr>
+            <tr style="font-weight:bold;"><td></td><td>Разом</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="text-end"><t t-out="'{:,.2f}'.format(doc.total).replace(',', '&#160;').replace('.', ',')"/></td></tr>
           </tbody>
         </table>
         <table style="width:100%; margin-top:24px; font-size:10px;"><tr><td>Керівник ____________________ <t t-out="co.ua_director_name or ''"/></td><td>Головний бухгалтер ____________________ <t t-out="co.ua_accountant_name or ''"/></td></tr></table>

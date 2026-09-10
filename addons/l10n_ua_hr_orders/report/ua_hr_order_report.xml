@@ -26,7 +26,7 @@
             <p>ПРИЙНЯТИ на роботу <b><t t-out="employee.name"/></b> з <b><t t-out="o.date_from and o.date_from.strftime('%d.%m.%Y')"/></b>
               до підрозділу <b><t t-out="o.department_id.name or '-'"/></b> на посаду <b><t t-out="o.prof_name or o.job_title or '-'"/></b>
               <t t-if="o.kp_code">(код КП <t t-out="o.kp_code"/>)</t>
-              з окладом <b><t t-out="'{:,.2f}'.format(o.wage).replace(',', ' ')"/> грн</b> на місяць<t t-if="o.fte != '1'">, <t t-out="o.fte.replace('.', ',')"/> ставки</t>.</p>
+              з окладом <b><t t-out="'{:,.2f}'.format(o.wage).replace(',', '&#160;').replace('.', ',')"/> грн</b> на місяць<t t-if="o.fte != '1'">, <t t-out="o.fte.replace('.', ',')"/> ставки</t>.</p>
             <p>Умови роботи: <t t-out="'основне місце роботи' if o.main_job else 'за сумісництвом'"/>;
               <t t-out="o.contract_type_id.name or 'безстроковий трудовий договір'"/>;
               <t t-if="o.trial_date_end">випробувальний строк до <t t-out="o.trial_date_end.strftime('%d.%m.%Y')"/>;</t> нормальна тривалість робочого часу.</p>
@@ -36,8 +36,8 @@
           <t t-if="o.order_type == 'wage'">
             <p style="text-align:center;"><b>Про зміну умов оплати праці</b></p>
             <p>ВСТАНОВИТИ <b><t t-out="employee.name"/></b> з <b><t t-out="o.date_from and o.date_from.strftime('%d.%m.%Y')"/></b>
-              оклад <b><t t-out="'{:,.2f}'.format(o.wage).replace(',', ' ')"/> грн</b> на місяць
-              (замість <t t-out="'{:,.2f}'.format(o.wage_old).replace(',', ' ')"/> грн).</p>
+              оклад <b><t t-out="'{:,.2f}'.format(o.wage).replace(',', '&#160;').replace('.', ',')"/> грн</b> на місяць
+              (замість <t t-out="'{:,.2f}'.format(o.wage_old).replace(',', '&#160;').replace('.', ',')"/> грн).</p>
             <p>Підстава: <t t-out="o.basis or 'штатний розпис'"/>.</p>
           </t>
 
@@ -46,7 +46,7 @@
             <p>ПЕРЕВЕСТИ <b><t t-out="employee.name"/></b> з <b><t t-out="o.date_from and o.date_from.strftime('%d.%m.%Y')"/></b>
               до підрозділу <b><t t-out="o.department_id.name or '-'"/></b> на посаду <b><t t-out="o.prof_name or o.job_title or '-'"/></b>
               <t t-if="o.kp_code">(код КП <t t-out="o.kp_code"/>)</t>
-              <t t-if="o.wage">з окладом <b><t t-out="'{:,.2f}'.format(o.wage).replace(',', ' ')"/> грн</b> на місяць</t>.</p>
+              <t t-if="o.wage">з окладом <b><t t-out="'{:,.2f}'.format(o.wage).replace(',', '&#160;').replace('.', ',')"/> грн</b> на місяць</t>.</p>
             <p>Підстава: <t t-out="o.basis or 'заява %s' % employee.name"/>.</p>
           </t>
 
@@ -63,8 +63,8 @@
             <p style="text-align:center;"><b>Про припинення трудового договору</b></p>
             <p>ЗВІЛЬНИТИ <b><t t-out="employee.name"/></b>, <t t-out="employee.job_title or '-'"/> підрозділу <t t-out="employee.department_id.name or '-'"/>,
               <b><t t-out="o.date_to and o.date_to.strftime('%d.%m.%Y')"/></b> на підставі <b><t t-out="o.dismissal_basis or '________________________'"/></b>.</p>
-            <p>Бухгалтерії провести повний розрахунок у день звільнення<t t-if="o.comp_days"> і виплатити компенсацію за <t t-out="'%g' % o.comp_days"/> днів невикористаної щорічної відпустки</t>.</p>
-            <p>Підстава: <t t-out="o.basis or o.dismissal_basis or '________________'"/>.</p>
+            <p>Бухгалтерії провести повний розрахунок у день звільнення<t t-if="o.comp_days"> і виплатити компенсацію за <t t-out="('%g' % o.comp_days).replace('.', ',')"/> днів невикористаної щорічної відпустки</t>.</p>
+            <p>Підстава: <t t-out="o.basis or ('заява працівника' if 'ст. 38' in (o.dismissal_basis or '') else 'угода сторін' if 'ст. 36' in (o.dismissal_basis or '') else '________________')"/>.</p>
           </t>
 
           <t t-if="o.order_type == 'trip'">

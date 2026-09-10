@@ -14,6 +14,15 @@
             <span t-esc="this.periodLabel"/>
             <button class="btn btn-sm btn-link" t-on-click="() => this.shiftPeriod(1)">▶</button>
           </div>
+          <button t-if="this.connectedCount > 1" class="btn btn-sm btn-outline-secondary"
+                  t-att-disabled="state.busy" t-on-click="pullAll">Завантажити всі рахунки</button>
+          <div t-if="data.accounts.length > 1" class="o_ua_bank_total">
+            <span t-esc="this.money(data.totals.balance)"/>
+            <span class="o_ua_bank_lbl">разом на рахунках</span>
+            <span t-if="data.totals.unreconciled" class="o_ua_bank_lbl">
+              незвірених за місяць: <t t-esc="data.totals.unreconciled"/>
+            </span>
+          </div>
           <div t-foreach="data.accounts" t-as="a" t-key="a.journal_id"
                t-attf-class="o_ua_bank_account #{a.journal_id === state.journalId ? 'active' : ''}"
                t-on-click="() => this.select(a.journal_id)">
@@ -102,12 +111,12 @@
             </table>
           </div>
 
-          <div class="o_ua_bank_section" t-if="data.statements.length">
+          <div class="o_ua_bank_section" t-if="this.statements.length">
             <h5>Виписки періоду</h5>
             <table class="table table-sm o_ua_bank_table">
               <thead><tr><th>Дата</th><th>Виписка</th><th class="text-end">Рядків</th><th class="text-end">Сума рядків</th></tr></thead>
               <tbody>
-                <tr t-foreach="data.statements" t-as="s" t-key="s.id">
+                <tr t-foreach="this.statements" t-as="s" t-key="s.id">
                   <td t-esc="s.date"/>
                   <td t-esc="s.name"/>
                   <td class="text-end" t-esc="s.lines"/>

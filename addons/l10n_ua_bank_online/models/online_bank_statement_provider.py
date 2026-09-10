@@ -61,6 +61,16 @@ DEMO_ROWS = [
     (19, "Єдиний внесок (ЄСВ) за {m} {y}", -45932.00, "ГУ ДПС у м. Києві", "UA908999980313080000000012121"),
 ]
 
+# Другий зразок - рахунок для еквайрингу: надходження від карток, комісія, переказ на основний рахунок.
+DEMO_ROWS_MONO = [
+    (1, "Еквайринг за {m} {y}, партія 1", 24870.00, "Monobank еквайринг", ""),
+    (2, "Комісія за еквайринг", -348.18, "Monobank", ""),
+    (8, "Еквайринг за {m} {y}, партія 2", 31240.00, "Monobank еквайринг", ""),
+    (9, "Комісія за еквайринг", -437.36, "Monobank", ""),
+    (12, "Переказ на поточний рахунок", -50000.00, "ТОВ «Ясен Меблі»", "UA213052990000026007233566001"),
+    (16, "Еквайринг за {m} {y}, партія 3", 18990.00, "Monobank еквайринг", ""),
+    (17, "Комісія за еквайринг", -265.86, "Monobank", ""),
+]
 
 class OnlineBankStatementProvider(models.Model):
     _inherit = "online.bank.statement.provider"
@@ -240,8 +250,9 @@ class OnlineBankStatementProvider(models.Model):
     # ------------------------------------------------------------------ демо
     def _ua_demo_data(self, date_since, date_until):
         month_name = MONTHS_UA[date_since.month]
+        rows = DEMO_ROWS_MONO if self.service == "ua_mono" else DEMO_ROWS
         lines = []
-        for offset, template, amount, partner, account in DEMO_ROWS:
+        for offset, template, amount, partner, account in rows:
             moment = date_since + timedelta(days=offset, hours=11)
             if moment >= date_until:
                 continue

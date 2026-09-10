@@ -23,6 +23,9 @@ OPENING_REF = "Початковий залишок на поточному ра�
 OPENING_DATE = "2026-08-01"
 OPENING_AMOUNT = 1200000.00
 DEMO_IBAN = "UA213052990000026007233566001"
+MONO_JOURNAL = "Monobank (еквайринг)"
+MONO_CODE = "MONO"
+MONO_IBAN = "UA733220010000026001234567890"
 
 
 def rpc(service, method, *args):
@@ -85,6 +88,21 @@ if not provider:
 call("online.bank.statement.provider", "write", provider,
      {"ua_account": DEMO_IBAN, "ua_demo": True, "service": "ua_privat"})
 print(f"Демо-з'єднання {provider[0]}: рахунок {DEMO_IBAN}, ПриватБанк, демо-режим.")
+
+# 1в. Другий банк як зразок: окремий журнал, окреме з'єднання, свої дані
+mono = call("account.journal", "search", [["type", "=", "bank"], ["name", "=", MONO_JOURNAL], ["company_id", "=", company]], limit=1)
+if not mono:
+    mono = [call("account.journal", "create", {"name": MONO_JOURNAL, "type": "bank", "code": MONO_CODE, "company_id": company})]
+    print(f"Створено журнал «{MONO_JOURNAL}» ({mono[0]}).")
+mono_provider = call("online.bank.statement.provider", "search", [["journal_id", "=", mono[0]]], limit=1)
+if not mono_provider:
+    action = call("ua.bank.board", "action_create_provider", mono[0], "ua_mono")
+    mono_provider = [action["res_id"]]
+call("online.bank.statement.provider", "write", mono_provider,
+     {"service": "ua_mono", "ua_demo": True, "ua_account": MONO_IBAN, "statement_creation_mode": "monthly"})
+today = __import__("datetime").date.today()
+pull = call("ua.bank.board", "action_pull_month", mono[0], today.year, today.month)
+print(f"Monobank: {pull['message']}")
 
 # 2. Звірка за правилами
 before = call("account.bank.statement.line", "search_count", [["is_reconciled", "=", False]])

@@ -20,8 +20,8 @@
               <t t-set="cells" t-value="r._day_cells(d2.day)"/>
               <tr><td rowspan="2"><t t-out="r_index + 1"/></td><td class="n" rowspan="2"><t t-out="r.employee_id.name"/><br/><span style="color:#555;"><t t-out="r.job_title or ''"/></span></td><td rowspan="2"><t t-out="r.tab_number"/></td>
                 <t t-foreach="cells" t-as="code"><td t-att-class="'we' if code == 'ВХ' else ''"><t t-out="code"/></td></t>
-                <td rowspan="2"><t t-out="r.days_worked"/></td><td rowspan="2"><t t-out="'%g' % r.hours"/></td><td rowspan="2"><t t-out="r.days_vac"/></td><td rowspan="2"><t t-out="r.days_sick"/></td><td rowspan="2"><t t-out="r.days_unpaid"/></td><td rowspan="2"><t t-out="r.days_mat"/></td></tr>
-              <tr><t t-foreach="cells" t-as="code"><td t-att-class="'we' if code == 'ВХ' else ''"><t t-out="('%g' % r.hours_day) if code == 'Р' else ''"/></td></t></tr>
+                <td rowspan="2"><t t-out="r.days_worked"/></td><td rowspan="2"><t t-out="('%g' % r.hours).replace('.', ',')"/></td><td rowspan="2"><t t-out="r.days_vac"/></td><td rowspan="2"><t t-out="r.days_sick"/></td><td rowspan="2"><t t-out="r.days_unpaid"/></td><td rowspan="2"><t t-out="r.days_mat"/></td></tr>
+              <tr><t t-foreach="cells" t-as="code"><td t-att-class="'we' if code == 'ВХ' else ''"><t t-out="(('%g' % r.hours_day).replace('.', ',')) if code == 'Р' else ''"/></td></t></tr>
             </t>
           </tbody>
         </table>

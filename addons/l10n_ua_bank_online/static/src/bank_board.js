@@ -50,6 +50,16 @@ export class UaBankBoard extends Component {
         return `${MONTHS[period.month - 1]} ${period.year}`;
     }
 
+    get statements() {
+        const rows = (this.state.data && this.state.data.statements) || [];
+        return this.state.journalId ? rows.filter((r) => r.journal_id === this.state.journalId) : rows;
+    }
+
+    get connectedCount() {
+        const accounts = (this.state.data && this.state.data.accounts) || [];
+        return accounts.filter((a) => a.provider_id).length;
+    }
+
     get unreconciled() {
         const rows = (this.state.data && this.state.data.unreconciled) || [];
         return this.state.journalId ? rows.filter((r) => r.journal_id === this.state.journalId) : rows;
@@ -90,6 +100,11 @@ export class UaBankBoard extends Component {
     pullMonth() {
         const period = this.state.data.period;
         return this.run("action_pull_month", [this.state.journalId, period.year, period.month]);
+    }
+
+    pullAll() {
+        const period = this.state.data.period;
+        return this.run("action_pull_all", [period.year, period.month]);
     }
 
     pullToday() {

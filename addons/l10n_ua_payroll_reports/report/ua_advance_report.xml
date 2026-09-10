@@ -27,16 +27,16 @@
                 <tr>
                   <td><t t-out="line_index + 1"/></td>
                   <td><t t-out="line.employee_id.name"/></td>
-                  <td class="text-end"><t t-out="'{:,.2f}'.format(line.wage).replace(',', ' ')"/></td>
-                  <td class="text-end"><t t-out="'%.2f' % line.fte"/></td>
-                  <td class="text-end"><t t-out="'%.2f' % line.ratio"/></td>
-                  <td class="text-end"><t t-out="'{:,.2f}'.format(line.amount).replace(',', ' ')"/></td>
+                  <td class="text-end"><t t-out="'{:,.2f}'.format(line.wage).replace(',', '&#160;').replace('.', ',')"/></td>
+                  <td class="text-end"><t t-out="('%.2f' % line.fte).replace('.', ',')"/></td>
+                  <td class="text-end"><t t-out="('%.2f' % line.ratio).replace('.', ',')"/></td>
+                  <td class="text-end"><t t-out="'{:,.2f}'.format(line.amount).replace(',', '&#160;').replace('.', ',')"/></td>
                   <td></td>
                 </tr>
               </t>
               <tr style="font-weight:bold; border-top:2px solid #333;">
                 <td></td><td>Разом</td><td></td><td></td><td></td>
-                <td class="text-end"><t t-out="'{:,.2f}'.format(sum(doc.line_ids.mapped('amount'))).replace(',', ' ')"/></td><td></td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(sum(doc.line_ids.mapped('amount'))).replace(',', '&#160;').replace('.', ',')"/></td><td></td>
               </tr>
             </tbody>
           </table>

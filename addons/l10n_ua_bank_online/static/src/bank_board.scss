@@ -20,6 +20,16 @@
         font-weight: 500;
     }
 
+    .o_ua_bank_total {
+        display: flex;
+        flex-direction: column;
+        padding: 4px 2px 8px;
+        font-size: 18px;
+        font-variant-numeric: tabular-nums;
+
+        .o_ua_bank_lbl { color: var(--o-gray-600, #6c757d); font-size: 12px; }
+    }
+
     .o_ua_bank_account {
         border: 1px solid var(--o-gray-200, #dee2e6);
         border-radius: 4px;

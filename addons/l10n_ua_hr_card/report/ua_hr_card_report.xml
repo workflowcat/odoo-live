@@ -48,14 +48,14 @@
             </td></tr>
             <tr><td><b>Освіта</b></td><td>
               <t t-if="emp.certificate"><span t-field="emp.certificate"/></t><t t-if="not emp.certificate">-</t>
-              <t t-if="emp.study_field"> , <t t-out="emp.study_field"/></t><t t-if="emp.study_school"> , <t t-out="emp.study_school"/></t>
-              <t t-if="emp.ua_education_year"> , <t t-out="emp.ua_education_year"/> р.</t><t t-if="emp.ua_diploma_number"> , диплом № <t t-out="emp.ua_diploma_number"/></t>
+              <t t-if="emp.study_field">, <t t-out="emp.study_field"/></t><t t-if="emp.study_school">, <t t-out="emp.study_school"/></t>
+              <t t-if="emp.ua_education_year">, <t t-out="emp.ua_education_year"/> р.</t><t t-if="emp.ua_diploma_number"> , диплом № <t t-out="emp.ua_diploma_number"/></t>
             </td></tr>
             <tr><td><b>Науковий ступінь</b></td><td><t t-out="emp.ua_science_degree or '-'"/></td></tr>
             <tr><td><b>Мови</b></td><td><t t-out="emp.ua_languages or '-'"/></td></tr>
             <tr><td><b>Сімейний стан</b></td><td>
               <t t-if="emp.marital"><span t-field="emp.marital"/></t><t t-if="not emp.marital">-</t>
-              <t t-if="emp.spouse_complete_name"> , <t t-out="emp.spouse_complete_name"/></t>
+              <t t-if="emp.spouse_complete_name">, <t t-out="emp.spouse_complete_name"/></t>
             </td></tr>
             <tr><td><b>Діти</b></td><td>
               <t t-if="not emp.ua_child_ids">-</t>
@@ -99,7 +99,7 @@
               <td><span t-field="v.contract_date_start"/></td>
               <td><t t-out="v.department_id.name or '-'"/></td>
               <td><t t-out="v.job_title or '-'"/></td>
-              <td><t t-out="'{:,.2f}'.format(v.wage or 0.0).replace(',', ' ')"/></td>
+              <td><t t-out="'{:,.2f}'.format(v.wage or 0.0).replace(',', '&#160;').replace('.', ',')"/></td>
               <td><t t-out="v.ua_order_ref or '-'"/></td>
             </tr>
             <tr t-if="not versions"><td colspan="5">Немає даних.</td></tr>

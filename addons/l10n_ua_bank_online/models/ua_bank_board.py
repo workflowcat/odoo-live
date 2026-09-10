@@ -38,6 +38,12 @@ class UaBankBoard(models.AbstractModel):
         last = date(year + (month == 12), month % 12 + 1, 1) - timedelta(days=1)
         return first, last
 
+    def _dt(self, value):
+        """Час у форматі 11.09.2026 09:15 у поясі користувача."""
+        if not value:
+            return ""
+        return fields.Datetime.context_timestamp(self, value).strftime("%d.%m.%Y %H:%M")
+
     def _company(self):
         return self.env.company
 
@@ -54,13 +60,17 @@ class UaBankBoard(models.AbstractModel):
         return "кожні %s %s" % (provider.interval_number, INTERVAL_UA.get(provider.interval_type, ""))
 
     def _journal_balance(self, journal):
+        """Залишок за рахунком журналу. Валютний рахунок рахуємо у своїй валюті."""
         account = journal.default_account_id
         if not account:
             return 0.0
+        company_currency = journal.company_id.currency_id
+        foreign = journal.currency_id and journal.currency_id != company_currency
+        column = "amount_currency" if foreign else "balance"
         self.env.cr.execute(
-            """SELECT COALESCE(SUM(aml.balance), 0) FROM account_move_line aml
+            """SELECT COALESCE(SUM(aml.%s), 0) FROM account_move_line aml
                JOIN account_move am ON am.id = aml.move_id
-               WHERE aml.account_id = %s AND am.state = 'posted'""",
+               WHERE aml.account_id = %%s AND am.state = 'posted'""" % column,
             (account.id,),
         )
         return self._r2(self.env.cr.fetchone()[0])
@@ -90,8 +100,8 @@ class UaBankBoard(models.AbstractModel):
                 "demo": bool(provider.ua_demo),
                 "has_token": bool(provider.password),
                 "account": provider.ua_account or journal.bank_account_id.acc_number or "",
-                "last_run": fields.Datetime.to_string(provider.last_successful_run) if provider.last_successful_run else "",
-                "next_run": fields.Datetime.to_string(provider.next_run) if provider.next_run else "",
+                "last_run": self._dt(provider.last_successful_run),
+                "next_run": self._dt(provider.next_run),
                 "schedule": self._schedule_label(provider),
                 "active_sync": bool(provider) and provider.active,
                 "lines_month": len(month_lines),
@@ -115,13 +125,14 @@ class UaBankBoard(models.AbstractModel):
             "amount": self._r2(line.amount),
         } for line in lines]
 
-    def _get_statements(self, company, year, month, limit=8):
+    def _get_statements(self, company, year, month, limit=24):
         first, last = self._month_bounds(year, month)
         statements = self.env["account.bank.statement"].search([
             ("company_id", "=", company.id), ("date", ">=", first), ("date", "<=", last),
         ], order="date desc, id desc", limit=limit)
         return [{
             "id": statement.id,
+            "journal_id": statement.journal_id.id,
             "name": statement.name or "",
             "journal": statement.journal_id.name,
             "date": statement.date.strftime("%d.%m.%Y") if statement.date else "",
@@ -184,6 +195,34 @@ class UaBankBoard(models.AbstractModel):
     def action_pull_month(self, journal_id, year, month):
         first, last = self._month_bounds(int(year), int(month))
         return self.action_pull(journal_id, fields.Date.to_string(first), fields.Date.to_string(last))
+
+    @api.model
+    def action_pull_all(self, year=None, month=None):
+        """Завантажити виписку за місяць для всіх рахунків із з'єднанням."""
+        company = self._company()
+        today = fields.Date.context_today(self)
+        year = int(year or today.year)
+        month = int(month or today.month)
+        first, last = self._month_bounds(year, month)
+        done, failed, created = [], [], 0
+        for journal in self._journals(company):
+            if not journal.online_bank_statement_provider_id:
+                continue
+            try:
+                result = self.action_pull(journal.id, fields.Date.to_string(first), fields.Date.to_string(last))
+            except UserError as error:
+                failed.append("%s: %s" % (journal.name, error.args[0] if error.args else ""))
+                continue
+            created += result.get("created", 0)
+            done.append("%s: %s" % (journal.name, result.get("created", 0)))
+        if not done and not failed:
+            raise UserError(_("Немає жодного рахунку зі з'єднанням."))
+        message = _("Завантажено рядків: %s.") % created
+        if done:
+            message += "\n" + "; ".join(done)
+        if failed:
+            message += "\n" + _("Не вдалося: ") + "; ".join(failed)
+        return {"created": created, "failed": len(failed), "message": message}
 
     @api.model
     def action_test(self, journal_id):

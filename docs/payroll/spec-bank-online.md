@@ -54,6 +54,56 @@
 Правила: 661 зарплата, аванс, винагорода ЦПХ; 6411 ПДФО; 6415 військовий збір; 651 ЄСВ;
 6851 аліменти і оплата ФОП-підряднику. Бухгалтер бачить і змінює їх у «Бухоблік → Правила звірки».
 
+## Кілька банків
+
+Один рахунок = один журнал = одне з'єднання (обмеження OCA: `UNIQUE(journal_id)`). Другий банк -
+це другий журнал типу «Банк» і своє з'єднання зі своїм токеном і розкладом. Правила звірки,
+проводки і звітність спільні для всіх рахунків.
+
+На екрані: ліворуч список рахунків із залишком, службою і кількістю незвіреного, зверху сума
+«разом на рахунках» і кнопка «Завантажити всі рахунки». Виписки і незвірені рядки показуються
+для обраного рахунку; зарплатні платежі - по компанії.
+
+Валютний рахунок рахується у своїй валюті: залишок береться з `amount_currency`, а рядки в іншій
+валюті, ніж журнал, постачальник пропускає.
+
+На стенді для прикладу два рахунки: «Банк (поточний рахунок)» з ПриватБанком і
+«Monobank (еквайринг)» з надходженнями від карток, комісією і переказом на основний рахунок.
+
+## Як додати ще один банк
+
+1. Створити журнал типу «Банк» і вписати IBAN.
+2. Додати службу в `_get_available_services` і гілку в `_obtain_statement_data`.
+3. Написати два методи: запит до банку і переклад однієї операції в рядок виписки.
+
+```python
+    @api.model
+    def _get_available_services(self):
+        return super()._get_available_services() + [("ua_bank_x", "Банк X")]
+
+    def _obtain_statement_data(self, date_since, date_until):
+        if self.service != "ua_bank_x":
+            return super()._obtain_statement_data(date_since, date_until)
+        data = self._ua_fetch("%s/statements?from=%s&to=%s" % (
+            self.api_base, date_since.date(), date_until.date()),
+            {"Authorization": "Bearer %s" % self.password})
+        return [self._ua_bank_x_line(t) for t in data["items"]], {}
+
+    def _ua_bank_x_line(self, transaction):
+        return {
+            "payment_ref": transaction["purpose"],
+            "amount": float(transaction["amount"]),          # мінус на списання
+            "date": self._ua_localize(datetime.fromisoformat(transaction["date"])),
+            "unique_import_id": str(transaction["id"]),      # захист від дублів
+            "partner_name": transaction.get("counterparty", ""),
+            "account_number": transaction.get("iban", ""),
+        }
+```
+
+Решту робить рушій OCA: виписки, дедуплікація, розклад, cron, помилки в чаттері з'єднання.
+Банк без API підключається файлом: модулі `account_statement_import_*` уже стоять, потрібен лише
+шаблон колонок (меню «Шаблони імпорту виписок»).
+
 ## Перевірка
 
 `scripts/bank_check.py` (33 пункти): ключі екрана, дві служби у списку, створення з'єднання дією,
