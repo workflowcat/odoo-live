@@ -123,16 +123,13 @@ else:
         check(f"{LANA_LOGIN} бачить меню «Зведення» (load_menus)", dash_menu is not None,
               "" if dash_menu else "меню не знайдено серед видимих")
 
+        # Пульт команд тепер лише внизу «Зведення»; окреме меню хабу бачить тільки адміністратор
         hub_menu = next((m for m in menus.values() if isinstance(m, dict) and m.get("xmlid") == "l10n_ua_hub.menu_ua_hub_root"), None)
-        check(f"{LANA_LOGIN} досі бачить меню «Головна» (пульт, sequence 2)", hub_menu is not None,
-              "" if hub_menu else "меню хабу зникло - його не мали видаляти")
-        if dash_menu and hub_menu:
-            # load_menus не повертає sequence - читаємо ir.ui.menu напряму (адміном)
-            menu_recs = call("ir.ui.menu", "search_read", [["id", "in", [dash_menu["id"], hub_menu["id"]]]], fields=["sequence"])
-            seq_by_id = {m["id"]: m["sequence"] for m in menu_recs}
-            check("«Зведення» має менший sequence, ніж «Головна» (1 < 2)",
-                  seq_by_id.get(dash_menu["id"], 0) < seq_by_id.get(hub_menu["id"], 0),
-                  f"Зведення={seq_by_id.get(dash_menu['id'])}, Головна={seq_by_id.get(hub_menu['id'])}")
+        check(f"{LANA_LOGIN} не бачить окремого меню хабу", hub_menu is None,
+              "сховано" if hub_menu is None else "меню видно, хоча має бути лише в адміністратора")
+        hub_rows = data.get("hub", [])
+        check("пульт команд є всередині «Зведення»", len(hub_rows) >= 5,
+              f"{len(hub_rows)} розділів")
 
         # lana може викликати get_data (перевірка прав ir.model.access)
         try:

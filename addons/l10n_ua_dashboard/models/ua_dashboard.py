@@ -36,6 +36,16 @@ class UaDashboard(models.AbstractModel):
         return "{:,.2f}".format(abs(value or 0.0)).replace(",", " ").replace(".", ",")
 
     @staticmethod
+    def _plural(number, one, few, many):
+        """Українське число: 1 файл, 2 файли, 5 файлів."""
+        number = abs(int(number))
+        if number % 10 == 1 and number % 100 != 11:
+            return one
+        if number % 10 in (2, 3, 4) and number % 100 not in (12, 13, 14):
+            return few
+        return many
+
+    @staticmethod
     def _r2(value):
         return round(value or 0.0, 2)
 
@@ -275,7 +285,8 @@ class UaDashboard(models.AbstractModel):
         ])
         if mil_count:
             rows.append({
-                "title": "Звірка з ТЦК не проведена", "detail": "працівників потребують звірки",
+                "title": "Звірка з ТЦК не проведена",
+                "detail": self._plural(mil_count, "працівник потребує звірки", "працівники потребують звірки", "працівників потребують звірки"),
                 "count": mil_count, "level": "danger",
                 "action": self._hub_item_id("l10n_ua_military.action_ua_military_needs_check"),
                 "res_model": "hr.employee",
@@ -288,7 +299,8 @@ class UaDashboard(models.AbstractModel):
         ])
         if docs_count:
             rows.append({
-                "title": "Документи спливають за 30 днів", "detail": "документів працівників",
+                "title": "Документи спливають за 30 днів",
+                "detail": self._plural(docs_count, "документ працівника", "документи працівників", "документів працівників"),
                 "count": docs_count, "level": "warning", "action": False,
                 "res_model": "ua.employee.document",
                 "domain": [("employee_id.company_id", "=", company.id),
@@ -316,7 +328,8 @@ class UaDashboard(models.AbstractModel):
             amount = self._r2(sum(unrec.mapped("amount")))
             rows.append({
                 "title": "Незвірені рядки виписки",
-                "detail": "%s рядків на суму %s грн" % (len(unrec), self._money(amount)),
+                "detail": "%s %s на суму %s грн" % (
+                    len(unrec), self._plural(len(unrec), "рядок", "рядки", "рядків"), self._money(amount)),
                 "count": len(unrec), "level": "warning",
                 "action": self._hub_item_id("account_reconcile_oca.action_bank_statement_line_reconcile_all"),
                 "res_model": "account.bank.statement.line",
@@ -397,13 +410,18 @@ class UaDashboard(models.AbstractModel):
                 "action": False, "res_model": "ua.advance.sheet", "res_id": rec.id,
             })
 
-        for rec in self.env["ir.attachment"].search(
-            [("mimetype", "=", "application/xml")], order="create_date desc", limit=10
-        ):
-            rows.append({
-                "name": rec.name, "period": rec.create_date.strftime("%d.%m.%Y") if rec.create_date else "",
-                "state": "XML", "action": False, "res_model": "ir.attachment", "res_id": rec.id,
-            })
+        # прогони звітності замість переліку XML-файлів: файли лежать усередині прогону
+        if "ua.report.run" in self.env:
+            for rec in self.env["ua.report.run"].search(
+                [("company_id", "=", company.id)], order="year desc, id desc", limit=6
+            ):
+                files = len(rec.attachment_ids)
+                rows.append({
+                    "name": rec.name,
+                    "period": "%s %s" % (files, self._plural(files, "файл", "файли", "файлів")) if files else "без файлів",
+                    "state": dict(rec._fields["state"].selection).get(rec.state, rec.state),
+                    "action": False, "res_model": "ua.report.run", "res_id": rec.id,
+                })
 
         seen = set()
         unique = []

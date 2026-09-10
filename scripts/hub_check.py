@@ -1,5 +1,5 @@
 """Перевірка модуля l10n_ua_hub: усі action_xmlid резолвляться, кількість пунктів і розділів,
-action_open() повертає дію для 5 випадкових пунктів, lana бачить меню «Головна» і має її
+action_open() повертає дію для 5 випадкових пунктів, lana бачить «Зведення» і має домашню дію
 як домашню дію.
 
 База читається зі змінної середовища PAYROLL_DB (типово payroll).
@@ -81,9 +81,12 @@ else:
             return rpc("object", "execute_kw", DB, lana_uid, LANA_PW, model, method, list(a), kw)
 
         menus = lana_call("ir.ui.menu", "load_menus", False)
+        # Пульт команд живе внизу «Зведення»; окреме меню хабу лишили адміністратору, тому Лана його не бачить
         hub_menu = next((m for m in menus.values() if isinstance(m, dict) and m.get("xmlid") == "l10n_ua_hub.menu_ua_hub_root"), None)
-        check(f"{LANA_LOGIN} бачить меню «Головна» (load_menus)", hub_menu is not None,
-              "" if hub_menu else "меню не знайдено серед видимих")
+        check(f"{LANA_LOGIN} не бачить технічного меню хабу (пульт живе у «Зведенні»)", hub_menu is None,
+              "меню сховано" if hub_menu is None else "меню видно, хоча має бути лише в адміністратора")
+        summary_menu = next((m for m in menus.values() if isinstance(m, dict) and m.get("xmlid") == "l10n_ua_dashboard.menu_ua_dashboard_root"), None)
+        check(f"{LANA_LOGIN} бачить меню «Зведення»", summary_menu is not None)
 
         lana_user = call("res.users", "search_read", [["login", "=", LANA_LOGIN]], fields=["action_id"])
         hub_action = call("ir.model.data", "search_read",

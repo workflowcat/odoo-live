@@ -47,5 +47,7 @@
     <field name="context">{"search_default_group_section": 1}</field>
   </record>
 
-  <menuitem id="menu_ua_hub_root" name="Головна" sequence="2" action="action_ua_hub_item"/>
+  <!-- Пульт команд живе внизу «Зведення»; окреме меню лишається адміністратору для правки пунктів. -->
+  <menuitem id="menu_ua_hub_root" name="Пульт команд (налаштування)" sequence="2"
+            action="action_ua_hub_item" groups="base.group_system"/>
 </odoo>
