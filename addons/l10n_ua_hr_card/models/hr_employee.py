@@ -17,10 +17,20 @@ CHERNOBYL = [
 ]
 
 
+MARITAL_UA = [
+    ("single", "Неодружений / незаміжня"),
+    ("married", "Одружений / заміжня"),
+    ("cohabitant", "У цивільному шлюбі"),
+    ("widower", "Вдівець / вдова"),
+    ("divorced", "Розлучений / розлучена"),
+]
+
 class HrEmployee(models.Model):
     _inherit = "hr.employee"
 
     # -- Документ, що посвідчує особу -----------------------------------------------
+    # ядро Odoo пише «Одружений(заміжня)»; у картці це виглядає як помилка
+    marital = fields.Selection(selection=MARITAL_UA)
     ua_id_doc_type = fields.Selection(ID_DOC_TYPES, "Тип документа", groups="hr.group_hr_user")
     ua_id_doc_series = fields.Char("Серія", groups="hr.group_hr_user")
     ua_id_doc_number = fields.Char("Номер документа", groups="hr.group_hr_user")

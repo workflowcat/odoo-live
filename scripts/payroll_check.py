@@ -84,6 +84,8 @@ S = [
  ("15 Декретна відпустка 126 к.д. з 10 серпня", {"ua_main_job": True, "history": 30000, "leaves": [("MAT", "2026-08-10", "2026-12-13")]}, 30000, {},
   {"BASIC": 7142.86, "MAT": 124273.97, "GROSS": 7142.86, "PDFO": -1285.71, "VZ": -357.14, "NET": 129773.98, "ESV": 28911.70}),
  ("16 Індексація 500", {"ua_main_job": True}, 30000, {"INDEX": 500}, {"INDEX": 500.00, "GROSS": 30500.00, "PDFO": -5490.00, "VZ": -1525.00, "NET": 23485.00, "ESV": 6710.00}),
+ ("17 Індексація автоматично (базовий місяць липень, індекс серпня 101,0)", {"ua_main_job": True, "index_base": "2026-07-01"}, 30000, {},
+  {"INDEX": 33.28, "GROSS": 30033.28, "PDFO": -5405.99, "VZ": -1501.66, "NET": 23125.63, "ESV": 6607.32}),
  ("9 ЦПХ", {"ua_contract_kind": "gph", "ua_main_job": False}, 0, {"GPH": 20000}, {"PDFO": -3600.00, "VZ": -1000.00, "NET": 15400.00, "ESV": 4400.00}),
  ("10 Аліменти + макс. база", {"ua_main_job": True}, 200000, {"ALIM_PCT": 25}, {"PDFO": -36000.00, "VZ": -10000.00, "ALIM": -38500.00, "NET": 115500.00, "ESV": 38046.80}),
 ]
@@ -92,7 +94,16 @@ NAMES = {"1": ("Коваленко", "Ірина", "Петрівна", "female")
          "4": ("Ткаченко", "Марія", "Іванівна", "female"), "5": ("Мельник", "Олег", "Степанович", "male"), "6": ("Кравченко", "Наталія", "Богданівна", "female"),
          "7": ("Поліщук", "Василь", "Романович", "male"), "8": ("Савченко", "Тетяна", "Олексіївна", "female"), "9": ("Лисенко", "Дмитро", "Ігорович", "male"),
          "10": ("Гончар", "Сергій", "Павлович", "male"), "11": ("Руденко", "Юлія", "Анатоліївна", "female"), "12": ("Марченко", "Оксана", "Вікторівна", "female"),
-         "13": ("Петренко", "Максим", "Юрійович", "male"), "14": ("Романенко", "Ігор", "Степанович", "male"), "15": ("Литвин", "Ольга", "Михайлівна", "female"), "16": ("Ткач", "Роман", "Олегович", "male")}
+         "13": ("Петренко", "Максим", "Юрійович", "male"), "14": ("Романенко", "Ігор", "Степанович", "male"), "15": ("Литвин", "Ольга", "Михайлівна", "female"), "16": ("Ткач", "Роман", "Олегович", "male"), "17": ("Сидорук", "Ганна", "Василівна", "female")}
+# індекс споживчих цін для сценарію 17: серпень 2026 = 101,0 (тестове число, не дані Держстату)
+HAS_INDEX = "ua_index_off" in EMP_FIELDS
+if HAS_INDEX:
+    cpi = call("ua.cpi.index", "search", [["year", "=", 2026], ["month", "=", 8]])
+    if cpi:
+        call("ua.cpi.index", "write", cpi, {"value": 101.0, "note": "тестове число для еталонного сценарію"})
+    else:
+        call("ua.cpi.index", "create", {"year": 2026, "month": 8, "value": 101.0, "note": "тестове число для еталонного сценарію"})
+
 RUN = call("hr.payslip.run", "search", [["name", "=", "Еталонні сценарії, серпень 2026"]])
 RUN = RUN[0] if RUN else call("hr.payslip.run", "create", {"name": "Еталонні сценарії, серпень 2026", "date_start": PERIOD[0], "date_end": PERIOD[1]})
 DEPT = call("hr.department", "search", [["name", "=", "Еталонні сценарії (тест)"]])
@@ -104,6 +115,10 @@ for name, efields, wage, inputs, expect in S:
     efields = {"ua_last_name": ln, "ua_first_name": fn, "ua_middle_name": mn, "sex": sex, "department_id": DEPT, **efields}
     start = efields.pop("start", "2026-01-01"); end = efields.pop("end", False); history = efields.pop("history", None); leaves = efields.pop("leaves", []); years = efields.pop("years", 0); rehire = efields.pop("rehire", False)
     efields.setdefault("ua_fte", "1")
+    index_base = efields.pop("index_base", None)
+    if HAS_INDEX:
+        efields["ua_index_off"] = not index_base          # індексація лише там, де її перевіряють
+        efields["ua_index_base"] = index_base or False
     efields["ua_insurance_years"] = years
     n = int(name.split()[0]); efields.update({"ua_rnokpp": f"30000000{n:02d}", "sex": "male" if n % 2 else "female"})
     efields.update({"ua_hire_date": start, "ua_dismissal_date": end or False} if "ua_hire_date" in EMP_FIELDS else {})

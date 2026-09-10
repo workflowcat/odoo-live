@@ -139,8 +139,10 @@ for i, e in enumerate(emps, 1):
         cursor = date_from
 
     # -- Документи (2-3) -----------------------------------------------------------------------------------
+    is_passport = rnd.random() < 0.4   # вид і назва мають збігатися, тому один кидок
     docs = [
-        {"type": "passport" if rnd.random() < 0.4 else "rnokpp", "name": "Паспорт громадянина України" if rnd.random() < 0.4 else "Довідка про присвоєння РНОКПП",
+        {"type": "passport" if is_passport else "rnokpp",
+         "name": "Паспорт громадянина України" if is_passport else "Довідка про присвоєння РНОКПП",
          "number": id_number, "date": str(id_date), "valid_until": False},
         {"type": "diploma", "name": f"Диплом, {edu_year} р.", "number": diploma_no, "date": f"{edu_year}-07-01", "valid_until": False},
         {"type": "statement", "name": "Заява про прийняття на роботу", "number": False, "date": str(hire), "valid_until": False},

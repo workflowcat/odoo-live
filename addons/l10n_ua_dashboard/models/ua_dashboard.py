@@ -295,6 +295,20 @@ class UaDashboard(models.AbstractModel):
                            ("valid_until", ">=", today_s), ("valid_until", "<=", limit_s)],
             })
 
+        # індекс споживчих цін за минулий місяць: без нього індексація рахується як нуль
+        if "ua.cpi.index" in self.env and self.env["hr.employee"].search_count([
+                ("company_id", "=", company.id), ("active", "=", True), ("ua_index_off", "=", False)]):
+            year_prev, month_prev = self._month_add(today.year, today.month, -1)
+            if not self.env["ua.cpi.index"].sudo().search_count([("year", "=", year_prev), ("month", "=", month_prev)]):
+                rows.append({
+                    "title": "Немає індексу споживчих цін",
+                    "detail": "за %s %s; без нього індексація рахується як нуль" % (self._month_name(month_prev), year_prev),
+                    "count": 1, "level": "warning",
+                    "action": self._hub_item_id("l10n_ua_index.action_ua_cpi_index"),
+                    "res_model": "ua.cpi.index",
+                    "domain": [],
+                })
+
         unrec = self.env["account.bank.statement.line"].search([
             ("company_id", "=", company.id), ("is_reconciled", "=", False),
         ])

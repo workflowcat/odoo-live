@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Правило «Індексація» бере суму з поля вводу, а якщо його немає - рахує за індексами Держстату. -->
+  <record id="l10n_ua_payroll_rules.rule_index" model="hr.salary.rule">
+    <field name="condition_python">result = bool((inputs.INDEX and inputs.INDEX.amount) or payroll.ua.index_amount)</field>
+    <field name="amount_python_compute">result = round(inputs.INDEX.amount if (inputs.INDEX and inputs.INDEX.amount) else payroll.ua.index_amount, 2)</field>
+  </record>
+</odoo>
