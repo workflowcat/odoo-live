@@ -63,7 +63,7 @@ expected_keys = {"reports", "periods", "run", "checks", "summary", "appendices",
 check("get_screen_data() повертає всі очікувані ключі", expected_keys.issubset(data.keys()),
       f"відсутні: {expected_keys - set(data.keys())}" if not expected_keys.issubset(data.keys()) else
       f"звіт за замовчуванням: {data['run']['report_code']}, стан {data['run']['state']}")
-check("reports містить щонайменше 6 звітів", len(reports) >= 6, f"{len(reports)} звітів")
+check("reports містить щонайменше 6 звітів", len(data.get("reports", [])) >= 6, f"{len(data.get('reports', []))} звітів")
 check("periods містить 6 періодів", len(data.get("periods", [])) == 6, f"{len(data.get('periods', []))} періодів")
 
 # 2. j05 за 3 квартал 2026: action_refresh() дає перевірки; серед них ok на суми, error/warn за станом
