@@ -16,11 +16,20 @@ REPORTS = [
     ("j05", "Об'єднана звітність (J0500111 + Д1 + 4ДФ + Д5)"),
     ("j30", "Повідомлення про прийняття (J3001005)"),
     ("pfu", "Заява-розрахунок ПФУ"),
+    ("trial", "Оборотно-сальдова відомість"),
+    ("ledger", "Головна книга"),
     ("timesheet", "Табель П-5"),
     ("staff", "Штатний розпис"),
     ("orders", "Журнал реєстрації наказів"),
 ]
-PERIOD_TYPE = {"j05": "quarter", "j30": "month", "pfu": "month", "timesheet": "month", "staff": "date", "orders": "year"}
+PERIOD_TYPE = {"j05": "quarter", "j30": "month", "pfu": "month", "timesheet": "month", "staff": "date", "orders": "year",
+               "trial": "month", "ledger": "month"}
+# ключові рахунки зарплати для звірки з листками: код рахунку -> (назва, код правила листка, бік)
+PAYROLL_ACCOUNTS = [("661", "Розрахунки за заробітною платою", ("GROSS", "MAT"), "credit", "no_fop"),
+                    ("6411", "ПДФО", ("PDFO",), "credit", "all"),
+                    ("6415", "Військовий збір", ("VZ",), "credit", "all"),
+                    ("651", "ЄСВ", ("ESV",), "credit", "all"),
+                    ("6851", "Розрахунки з іншими кредиторами (ФОП, аліменти)", ("FOP", "ALIM"), "credit", "all")]
 STATES = [("draft", "Чернетка"), ("checked", "Перевірено"), ("generated", "Сформовано"), ("submitted", "Подано")]
 APPENDIX_LABELS = {"001": "Основна декларація (J0500111)", "101": "Додаток 1 (Д1)", "104": "Додаток 4ДФ", "105": "Додаток 5 (Д5)"}
 ROWNUM_RE = re.compile(rb'ROWNUM="(\d+)"')
@@ -34,7 +43,7 @@ AMOUNT_TOLERANCE = 0.05
 def _period_key_value(report_code, year, quarter, month, date_):
     if report_code == "j05":
         return "%s-Q%s" % (year, quarter)
-    if report_code in ("j30", "pfu", "timesheet"):
+    if report_code in ("j30", "pfu", "timesheet", "trial", "ledger"):
         return "%s-%02d" % (year, month or 0)
     if report_code == "staff":
         return "%s-%s" % (year, date_.isoformat() if date_ else "")
@@ -80,7 +89,7 @@ class UaReportRun(models.Model):
             base = names.get(run.report_code, "")
             if run.report_code == "j05" and run.quarter:
                 run.name = _("%(base)s, %(q)s квартал %(y)s") % {"base": base, "q": run.quarter, "y": run.year}
-            elif run.report_code in ("j30", "pfu", "timesheet") and run.month:
+            elif run.report_code in ("j30", "pfu", "timesheet", "trial", "ledger") and run.month:
                 run.name = "%s, %s %s" % (base, MONTHS_UA.get(run.month, "").capitalize(), run.year)
             elif run.report_code == "staff" and run.date:
                 run.name = "%s на %s" % (base, run.date.strftime("%d.%m.%Y"))
@@ -120,7 +129,7 @@ class UaReportRun(models.Model):
         vals = {"report_code": report_code, "company_id": company.id, "year": year}
         if report_code == "j05":
             vals["quarter"] = quarter
-        elif report_code in ("j30", "pfu", "timesheet"):
+        elif report_code in ("j30", "pfu", "timesheet", "trial", "ledger"):
             vals["month"] = month
         elif report_code == "staff":
             vals["date"] = date_
@@ -138,7 +147,7 @@ class UaReportRun(models.Model):
                 q -= 1
                 if q == 0:
                     q, y = 4, y - 1
-        elif report_code in ("j30", "pfu", "timesheet"):
+        elif report_code in ("j30", "pfu", "timesheet", "trial", "ledger"):
             y, m = today.year, today.month
             for _i in range(6):
                 out.append({"key": "%s-%02d" % (y, m), "label": "%s %s" % (MONTHS_UA.get(m, "").capitalize(), y), "year": y, "month": m})
@@ -683,6 +692,153 @@ class UaReportRun(models.Model):
         self.ensure_one()
         method = getattr(self, "_summary_%s" % self.report_code, None)
         return method() if method else {"columns": [], "rows": [], "total": None}
+
+
+    # ---- бухгалтерські звіти: ОСВ і головна книга ----------------------------------------
+    def _month_range(self):
+        if not self.month:
+            raise UserError(_("У прогоні не вказано місяць."))
+        d1 = date(self.year, self.month, 1)
+        d2 = date(self.year, self.month, calendar.monthrange(self.year, self.month)[1])
+        return d1, d2
+
+    def _account_by_code(self, code):
+        Account = self.env["account.account"].with_company(self.company_id)
+        return Account.search([("code", "=", code), ("company_ids", "in", self.company_id.ids)], limit=1) or \
+            Account.search([("code", "=like", code + "%"), ("company_ids", "in", self.company_id.ids)], order="code", limit=1)
+
+    def _turnover(self, account, d1, d2):
+        lines = self.env["account.move.line"].search([
+            ("account_id", "=", account.id), ("parent_state", "=", "posted"),
+            ("date", ">=", d1), ("date", "<=", d2), ("company_id", "=", self.company_id.id)])
+        return round(sum(lines.mapped("debit")), 2), round(sum(lines.mapped("credit")), 2)
+
+    def _balance_before(self, account, d1):
+        lines = self.env["account.move.line"].search([
+            ("account_id", "=", account.id), ("parent_state", "=", "posted"),
+            ("date", "<", d1), ("company_id", "=", self.company_id.id)])
+        return round(sum(lines.mapped("debit")) - sum(lines.mapped("credit")), 2)
+
+    def _slip_amount(self, d1, d2, codes, scope="all"):
+        """Сума рядків листків за кодами. scope=no_fop прибирає ФОП-підрядників: їх оплата йде на 6851, не на 661."""
+        slips = self.env["hr.payslip"].search([
+            ("company_id", "=", self.company_id.id), ("state", "=", "done"),
+            ("date_from", ">=", d1), ("date_to", "<=", d2)])
+        if scope == "no_fop":
+            slips = slips.filtered(lambda s: (s.employee_id.sudo().ua_contract_kind or "employment") != "fop")
+        lines = slips.mapped("line_ids").filtered(lambda l: l.code in codes)
+        # знак у листку різний (нарахування додатні, утримання відʼємні), а в проводці це один бік
+        return round(sum(abs(l.total) for l in lines), 2)
+
+    def _checks_accounting(self):
+        """Спільні перевірки для ОСВ і головної книги: проводки зарплати проти листків."""
+        self.ensure_one()
+        d1, d2 = self._month_range()
+        checks = []
+        drafts = self.env["account.move"].search_count([
+            ("company_id", "=", self.company_id.id), ("state", "=", "draft"),
+            ("date", ">=", d1), ("date", "<=", d2)])
+        checks.append({"code": "moves_draft", "title": "Усі проводки періоду проведені",
+                       "level": "ok" if not drafts else "warn",
+                       "detail": "Чернеток проводок: %s" % drafts, "value": str(drafts),
+                       "action_model": "account.move" if drafts else False,
+                       "action_domain": str([("state", "=", "draft"), ("date", ">=", str(d1)), ("date", "<=", str(d2))]) if drafts else False})
+        total_d = total_c = 0.0
+        for code, name, slip_codes, side, scope in PAYROLL_ACCOUNTS:
+            account = self._account_by_code(code)
+            if not account:
+                checks.append({"code": "acc_%s" % code, "title": "Рахунок %s є в плані" % code, "level": "error",
+                               "detail": "Рахунку немає", "value": "-"})
+                continue
+            debit, credit = self._turnover(account, d1, d2)
+            total_d += debit
+            total_c += credit
+            expected = self._slip_amount(d1, d2, slip_codes, scope)
+            actual = credit if side == "credit" else debit
+            diff = round(actual - expected, 2)
+            checks.append({
+                "code": "turnover_%s" % code,
+                "title": "Оборот %s (%s) дорівнює листкам" % (code, name),
+                "level": "ok" if abs(diff) <= 0.01 else "error",
+                "detail": "Проводки: %s; листки: %s; різниця: %s" % (actual, expected, diff),
+                "value": str(actual),
+                "action_model": "account.move.line" if abs(diff) > 0.01 else False,
+                "action_domain": str([("account_id", "=", account.id), ("date", ">=", str(d1)), ("date", "<=", str(d2))]) if abs(diff) > 0.01 else False})
+        all_lines = self.env["account.move.line"].search([
+            ("company_id", "=", self.company_id.id), ("parent_state", "=", "posted"),
+            ("date", ">=", d1), ("date", "<=", d2)])
+        sd, sc = round(sum(all_lines.mapped("debit")), 2), round(sum(all_lines.mapped("credit")), 2)
+        checks.append({"code": "balance", "title": "Дебет дорівнює кредиту за період",
+                       "level": "ok" if abs(sd - sc) <= 0.01 else "error",
+                       "detail": "Дебет %s, кредит %s" % (sd, sc), "value": str(sd)})
+        unrec = self.env["account.bank.statement.line"].search_count([
+            ("company_id", "=", self.company_id.id), ("is_reconciled", "=", False),
+            ("date", ">=", d1), ("date", "<=", d2)])
+        checks.append({"code": "unreconciled", "title": "Рядки виписки звірені",
+                       "level": "ok" if not unrec else "warn",
+                       "detail": "Незвірених рядків: %s" % unrec, "value": str(unrec),
+                       "action_model": "account.bank.statement.line" if unrec else False,
+                       "action_domain": str([("is_reconciled", "=", False), ("date", ">=", str(d1)), ("date", "<=", str(d2))]) if unrec else False})
+        return checks
+
+    def _checks_trial(self):
+        return self._checks_accounting()
+
+    def _checks_ledger(self):
+        return self._checks_accounting()
+
+    def _summary_accounting(self):
+        d1, d2 = self._month_range()
+        columns = ["Рахунок", "Назва", "Сальдо на початок", "Дебет", "Кредит", "Сальдо на кінець"]
+        rows = []
+        codes = [c[0] for c in PAYROLL_ACCOUNTS] + ["311", "301", "471", "378", "6851", "92", "93", "23", "91"]
+        seen = set()
+        for code in codes:
+            if code in seen:
+                continue
+            seen.add(code)
+            account = self._account_by_code(code)
+            if not account:
+                continue
+            debit, credit = self._turnover(account, d1, d2)
+            if not debit and not credit:
+                continue
+            opening = self._balance_before(account, d1)
+            rows.append([account.code, account.name, opening, debit, credit, round(opening + debit - credit, 2)])
+        total = ["Разом", "", round(sum(r[2] for r in rows), 2), round(sum(r[3] for r in rows), 2),
+                 round(sum(r[4] for r in rows), 2), round(sum(r[5] for r in rows), 2)] if rows else None
+        return {"columns": columns, "rows": rows, "total": total}
+
+    def _summary_trial(self):
+        return self._summary_accounting()
+
+    def _summary_ledger(self):
+        return self._summary_accounting()
+
+    def _generate_accounting(self, wizard_model, report_name, file_name):
+        self.ensure_one()
+        d1, d2 = self._month_range()
+        wiz = self.env[wizard_model].create({
+            "company_id": self.company_id.id, "date_from": d1, "date_to": d2, "target_move": "posted",
+        })
+        if hasattr(wiz, "_set_default_wizard_values"):
+            wiz._set_default_wizard_values()
+        data = wiz._prepare_report_data()
+        pdf, _dummy = self.env["ir.actions.report"]._render_qweb_pdf(report_name, [wiz.id], data=data)
+        att = self.env["ir.attachment"].create({
+            "name": file_name % (self.month, self.year), "type": "binary",
+            "datas": base64.b64encode(pdf), "mimetype": "application/pdf",
+            "res_model": self._name, "res_id": self.id})
+        self.attachment_ids = [(4, att.id)]
+        return att
+
+    def _generate_trial(self):
+        return self._generate_accounting("trial.balance.report.wizard", "account_financial_report.trial_balance",
+                                         "Оборотно-сальдова відомість %02d.%s.pdf")
+
+    def _generate_ledger(self):
+        return self._generate_accounting("general.ledger.report.wizard", "account_financial_report.general_ledger",
+                                         "Головна книга %02d.%s.pdf")
 
     def _summary_j05(self):
         c = self.company_id
