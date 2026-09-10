@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_report_run,ua.report.run,model_ua_report_run,hr.group_hr_user,1,1,1,1
+access_ua_report_check,ua.report.check,model_ua_report_check,hr.group_hr_user,1,1,1,1
