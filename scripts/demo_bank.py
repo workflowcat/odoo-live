@@ -78,10 +78,13 @@ else:
 
 # 1б. Реквізити демо-з'єднання, щоб на екрані було видно рахунок
 provider = call("online.bank.statement.provider", "search", [["journal_id", "=", journal[0]]], limit=1)
-if provider:
-    call("online.bank.statement.provider", "write", provider,
-         {"ua_account": DEMO_IBAN, "ua_demo": True, "service": "ua_privat"})
-    print(f"Демо-з'єднання {provider[0]}: рахунок {DEMO_IBAN}, ПриватБанк, демо-режим.")
+if not provider:
+    action = call("ua.bank.board", "action_create_provider", journal[0], "ua_privat")
+    provider = [action["res_id"]]
+    print(f"Створено з'єднання {provider[0]} для журналу {journal[0]}.")
+call("online.bank.statement.provider", "write", provider,
+     {"ua_account": DEMO_IBAN, "ua_demo": True, "service": "ua_privat"})
+print(f"Демо-з'єднання {provider[0]}: рахунок {DEMO_IBAN}, ПриватБанк, демо-режим.")
 
 # 2. Звірка за правилами
 before = call("account.bank.statement.line", "search_count", [["is_reconciled", "=", False]])
