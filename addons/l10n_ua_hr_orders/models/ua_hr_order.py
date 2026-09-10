@@ -60,7 +60,7 @@ class UaHrOrder(models.Model):
     employee_id = fields.Many2one("hr.employee", "Працівник", required=True, tracking=True)
     company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
     currency_id = fields.Many2one(related="company_id.currency_id")
-    state = fields.Selection(STATES, default="draft", required=True, copy=False, tracking=True)
+    state = fields.Selection(STATES, "Стан", default="draft", required=True, copy=False, tracking=True)
     note = fields.Text("Примітка")
     basis = fields.Char("Підстава")
     signed_file = fields.Binary("Скан підписаного наказу", attachment=True)

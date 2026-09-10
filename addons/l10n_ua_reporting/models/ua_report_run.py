@@ -56,7 +56,7 @@ class UaReportRun(models.Model):
     _description = "Звітний прогін"
     _order = "year desc, quarter desc, month desc, date desc, id desc"
 
-    name = fields.Char(compute="_compute_name", store=True)
+    name = fields.Char("Назва", compute="_compute_name", store=True)
     report_code = fields.Selection(REPORTS, "Звіт", required=True, tracking=True)
     company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
     year = fields.Integer("Рік", required=True, default=lambda s: date.today().year)
@@ -64,7 +64,7 @@ class UaReportRun(models.Model):
     month = fields.Integer("Місяць")
     date = fields.Date("Дата")
     period_key = fields.Char(compute="_compute_period_key", store=True)
-    state = fields.Selection(STATES, default="draft", required=True, tracking=True, copy=False)
+    state = fields.Selection(STATES, "Стан", default="draft", required=True, tracking=True, copy=False)
     check_ids = fields.One2many("ua.report.check", "run_id", "Перевірки")
     attachment_ids = fields.Many2many("ir.attachment", "ua_report_run_attachment_rel", "run_id", "attachment_id", string="Файли")
     receipt_ids = fields.Many2many("ir.attachment", "ua_report_run_receipt_rel", "run_id", "attachment_id", string="Квитанції")
@@ -285,7 +285,7 @@ class UaReportRun(models.Model):
             ("company_id", "=", c.id), ("date_from", ">=", d1), ("date_from", "<=", d2), ("state", "in", ("draft", "verify")),
         ])
         yield {
-            "code": "period_closed", "title": "Період закритий (немає чернеток листків)",
+            "code": "period_closed", "title": "Чернетки листків у періоді",
             "level": "ok" if not draft_slips else "warn",
             "detail": "Чернеток немає" if not draft_slips else "Листків-чернеток: %s" % len(draft_slips),
             "value": str(len(draft_slips)),
@@ -363,7 +363,7 @@ class UaReportRun(models.Model):
         yield {
             "code": "j05_d1_amount", "title": "Сума нарахувань у Д1 дорівнює сумі листків за квартал",
             "level": "ok" if abs(d1_total - expected_d1) <= AMOUNT_TOLERANCE else "error",
-            "detail": "Д1: %.2f, листки (без ФОП): %.2f" % (d1_total, expected_d1), "value": "%.2f" % d1_total,
+            "detail": "Д1: %s, листки (без ФОП): %s" % (self._m(d1_total), self._m(expected_d1)), "value": self._m(d1_total),
             "action_model": "hr.payslip", "action_domain": str([("company_id", "=", c.id), ("state", "=", "done")]),
         }
 
@@ -372,7 +372,7 @@ class UaReportRun(models.Model):
         yield {
             "code": "j05_d1_esv", "title": "ЄСВ у Д1 дорівнює нарахованому ЄСВ",
             "level": "ok" if abs(d1_esv_total - esv_total) <= AMOUNT_TOLERANCE else "error",
-            "detail": "Д1: %.2f, нараховано: %.2f" % (d1_esv_total, esv_total), "value": "%.2f" % d1_esv_total,
+            "detail": "Д1: %s, нараховано: %s" % (self._m(d1_esv_total), self._m(esv_total)), "value": self._m(d1_esv_total),
             "action_model": "hr.payslip", "action_domain": str([("company_id", "=", c.id), ("state", "=", "done")]),
         }
 
@@ -380,7 +380,7 @@ class UaReportRun(models.Model):
         yield {
             "code": "j05_4df_amount", "title": "Сума 4ДФ дорівнює сумі листків",
             "level": "ok" if abs(fourdf_gross - round(gross_total, 2)) <= AMOUNT_TOLERANCE else "error",
-            "detail": "4ДФ: %.2f, листки: %.2f" % (fourdf_gross, gross_total), "value": "%.2f" % fourdf_gross,
+            "detail": "4ДФ: %s, листки: %s" % (self._m(fourdf_gross), self._m(gross_total)), "value": self._m(fourdf_gross),
             "action_model": "hr.payslip", "action_domain": str([("company_id", "=", c.id), ("state", "=", "done")]),
         }
 
@@ -480,7 +480,7 @@ class UaReportRun(models.Model):
         yield {
             "code": "pfu_amounts", "title": "Суми дорівнюють рядкам листків SICK_PFU і MAT",
             "level": "ok" if abs(claim_total - slip_total) <= AMOUNT_TOLERANCE else "error",
-            "detail": "Заява: %.2f, листки: %.2f" % (claim_total, slip_total), "value": "%.2f" % claim_total,
+            "detail": "Заява: %s, листки: %s" % (self._m(claim_total), self._m(slip_total)), "value": self._m(claim_total),
             "action_model": "ua.pfu.claim", "action_domain": str([("id", "=", claim.id)]),
         }
 
@@ -547,7 +547,7 @@ class UaReportRun(models.Model):
         yield {
             "code": "staff_fund", "title": "Фонд дорівнює сумі окладів чинних версій",
             "level": "ok" if abs(fund - wage_sum) <= 0.01 else "warn",
-            "detail": "Штатний розпис: %.2f, розрахунок: %.2f" % (fund, wage_sum), "value": "%.2f" % fund,
+            "detail": "Штатний розпис: %s, розрахунок: %s" % (self._m(fund), self._m(wage_sum)), "value": self._m(fund),
             "action_model": "ua.staff.list", "action_domain": str([("id", "=", sheet.id)]),
         }
 
@@ -688,10 +688,17 @@ class UaReportRun(models.Model):
         })
 
     # ------------------------------------------------------------------ дані для таблиці «Дані»
+    @staticmethod
+    def _m(value):
+        """Українське форматування суми: 1 194 649,69"""
+        return "{:,.2f}".format(value or 0.0).replace(",", "\u00a0").replace(".", ",")
+
     def _summary(self):
         self.ensure_one()
         method = getattr(self, "_summary_%s" % self.report_code, None)
-        return method() if method else {"columns": [], "rows": [], "total": None}
+        data = method() if method else {"columns": [], "rows": [], "total": None}
+        data.setdefault("money", [])
+        return data
 
 
     # ---- бухгалтерські звіти: ОСВ і головна книга ----------------------------------------
@@ -760,8 +767,8 @@ class UaReportRun(models.Model):
                 "code": "turnover_%s" % code,
                 "title": "Оборот %s (%s) дорівнює листкам" % (code, name),
                 "level": "ok" if abs(diff) <= 0.01 else "error",
-                "detail": "Проводки: %s; листки: %s; різниця: %s" % (actual, expected, diff),
-                "value": str(actual),
+                "detail": "Проводки: %s; листки: %s; різниця: %s" % (self._m(actual), self._m(expected), self._m(diff)),
+                "value": self._m(actual),
                 "action_model": "account.move.line" if abs(diff) > 0.01 else False,
                 "action_domain": str([("account_id", "=", account.id), ("date", ">=", str(d1)), ("date", "<=", str(d2))]) if abs(diff) > 0.01 else False})
         all_lines = self.env["account.move.line"].search([
@@ -770,7 +777,7 @@ class UaReportRun(models.Model):
         sd, sc = round(sum(all_lines.mapped("debit")), 2), round(sum(all_lines.mapped("credit")), 2)
         checks.append({"code": "balance", "title": "Дебет дорівнює кредиту за період",
                        "level": "ok" if abs(sd - sc) <= 0.01 else "error",
-                       "detail": "Дебет %s, кредит %s" % (sd, sc), "value": str(sd)})
+                       "detail": "Дебет %s, кредит %s" % (self._m(sd), self._m(sc)), "value": self._m(sd)})
         unrec = self.env["account.bank.statement.line"].search_count([
             ("company_id", "=", self.company_id.id), ("is_reconciled", "=", False),
             ("date", ">=", d1), ("date", "<=", d2)])
@@ -807,7 +814,7 @@ class UaReportRun(models.Model):
             rows.append([account.code, account.name, opening, debit, credit, round(opening + debit - credit, 2)])
         total = ["Разом", "", round(sum(r[2] for r in rows), 2), round(sum(r[3] for r in rows), 2),
                  round(sum(r[4] for r in rows), 2), round(sum(r[5] for r in rows), 2)] if rows else None
-        return {"columns": columns, "rows": rows, "total": total}
+        return {"columns": columns, "rows": rows, "total": total, "money": [2, 3, 4, 5]}
 
     def _summary_trial(self):
         return self._summary_accounting()
@@ -859,7 +866,7 @@ class UaReportRun(models.Model):
             for k in totals:
                 totals[k] += row[k]
         total = ["Разом", totals["employees"], round(totals["gross"], 2), round(totals["pdfo"], 2), round(totals["vz"], 2), round(totals["esv"], 2)]
-        return {"columns": columns, "rows": rows, "total": total}
+        return {"columns": columns, "rows": rows, "total": total, "money": [2, 3, 4, 5]}
 
     def _summary_j30(self):
         d1, d2 = self._period_bounds()
@@ -875,7 +882,7 @@ class UaReportRun(models.Model):
         kinds = dict(self.env["ua.pfu.claim.line"]._fields["kind"].selection)
         rows = [[l.employee_id.name, kinds.get(l.kind), l.sick_number or "-", l.days, round(l.amount, 2)] for l in claim.line_ids]
         total = ["Разом", "", "", sum(claim.line_ids.mapped("days")), round(sum(claim.line_ids.mapped("amount")), 2)] if claim and claim.line_ids else None
-        return {"columns": ["Працівник", "Вид", "№ е-ЛН", "Днів", "Сума"], "rows": rows, "total": total}
+        return {"columns": ["Працівник", "Вид", "№ е-ЛН", "Днів", "Сума"], "rows": rows, "total": total, "money": [4]}
 
     def _summary_timesheet(self):
         sheet = self.env["ua.timesheet.sheet"].search([
@@ -890,7 +897,7 @@ class UaReportRun(models.Model):
         sheet = self.env["ua.staff.list"].search([("company_id", "=", self.company_id.id), ("date", "=", self.date)], limit=1)
         rows = [[l.department_id.name or "-", l.job_title, l.kp_code or "-", l.units, round(l.wage, 2), round(l.fund, 2)] for l in sheet.line_ids] if sheet else []
         total = ["Разом", "", "", sheet.total_units, "", round(sheet.total_fund, 2)] if sheet and sheet.line_ids else None
-        return {"columns": ["Підрозділ", "Посада", "Код КП", "Штат. один.", "Оклад", "Фонд"], "rows": rows, "total": total}
+        return {"columns": ["Підрозділ", "Посада", "Код КП", "Штат. один.", "Оклад", "Фонд"], "rows": rows, "total": total, "money": [4, 5]}
 
     def _summary_orders(self):
         d1, d2 = self._period_bounds()

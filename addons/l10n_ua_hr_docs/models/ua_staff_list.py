@@ -12,12 +12,12 @@ class UaStaffList(models.Model):
     _description = "Штатний розпис"
     _order = "date desc, id desc"
 
-    name = fields.Char(compute="_compute_name", store=True)
+    name = fields.Char("Назва", compute="_compute_name", store=True)
     company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
     currency_id = fields.Many2one(related="company_id.currency_id")
     date = fields.Date("На дату", default=fields.Date.today, required=True, tracking=True)
     order_ref = fields.Char("Затверджено наказом", tracking=True)
-    state = fields.Selection(STATES, default="draft", required=True, tracking=True)
+    state = fields.Selection(STATES, "Стан", default="draft", required=True, tracking=True)
     note = fields.Text("Примітка")
     line_ids = fields.One2many("ua.staff.list.line", "list_id", "Рядки")
     total_units = fields.Float("Штатних одиниць, разом", compute="_compute_totals", store=True)

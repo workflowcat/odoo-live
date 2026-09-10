@@ -16,12 +16,12 @@ class UaTimesheetSheet(models.Model):
     _description = "Табель обліку робочого часу"
     _order = "year desc, month desc, id desc"
 
-    name = fields.Char(compute="_compute_name", store=True)
+    name = fields.Char("Назва", compute="_compute_name", store=True)
     company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
     year = fields.Integer("Рік", default=lambda s: date.today().year, required=True, tracking=True)
     month = fields.Integer("Місяць", default=lambda s: date.today().month, required=True, tracking=True)
     department_id = fields.Many2one("hr.department", "Підрозділ", tracking=True)
-    state = fields.Selection(STATES, default="draft", required=True, tracking=True)
+    state = fields.Selection(STATES, "Стан", default="draft", required=True, tracking=True)
     note = fields.Text("Примітка")
     line_ids = fields.One2many("ua.timesheet.line", "sheet_id", "Рядки")
 
@@ -98,7 +98,7 @@ class UaTimesheetLine(models.Model):
     _description = "Рядок табеля обліку робочого часу"
     _order = "id"
 
-    sheet_id = fields.Many2one("ua.timesheet.sheet", required=True, ondelete="cascade")
+    sheet_id = fields.Many2one("ua.timesheet.sheet", "Табель", required=True, ondelete="cascade")
     employee_id = fields.Many2one("hr.employee", "Працівник", required=True)
     job_title = fields.Char("Посада")
     tab_number = fields.Char("Таб. №")

@@ -76,12 +76,12 @@
               </thead>
               <tbody>
                 <tr t-foreach="data.summary.rows" t-as="row" t-key="row_index">
-                  <t t-foreach="row" t-as="cell" t-key="cell_index"><td t-att-class="cell_index ? 'text-end tabular-nums' : ''" t-esc="this.fmt(cell)"/></t>
+                  <t t-foreach="row" t-as="cell" t-key="cell_index"><td t-att-class="cell_index ? 'text-end tabular-nums' : ''" t-esc="this.fmt(cell, this.isMoney(cell_index))"/></t>
                 </tr>
               </tbody>
               <tfoot t-if="data.summary.total">
                 <tr class="o_ua_reporting_total">
-                  <t t-foreach="data.summary.total" t-as="cell" t-key="cell_index"><td t-att-class="cell_index ? 'text-end tabular-nums' : ''" t-esc="this.fmt(cell)"/></t>
+                  <t t-foreach="data.summary.total" t-as="cell" t-key="cell_index"><td t-att-class="cell_index ? 'text-end tabular-nums' : ''" t-esc="this.fmt(cell, this.isMoney(cell_index))"/></t>
                 </tr>
               </tfoot>
             </table>

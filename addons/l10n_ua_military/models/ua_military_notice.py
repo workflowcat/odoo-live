@@ -16,11 +16,11 @@ class UaMilitaryNotice(models.Model):
     _description = "Повідомлення про зміну облікових даних"
     _order = "date_to desc, id desc"
 
-    name = fields.Char(compute="_compute_name", store=True)
+    name = fields.Char("Назва", compute="_compute_name", store=True)
     company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
     date_from = fields.Date("Період з", required=True, tracking=True)
     date_to = fields.Date("Період по", required=True, tracking=True)
-    state = fields.Selection(STATES, default="draft", required=True, tracking=True)
+    state = fields.Selection(STATES, "Стан", default="draft", required=True, tracking=True)
     note = fields.Text("Примітка")
     line_ids = fields.One2many("ua.military.notice.line", "notice_id", "Рядки")
 

@@ -16,7 +16,7 @@ class UaEarningsHistory(models.Model):
     calendar_days = fields.Integer("Календарних днів", help="Днів місяця в розрахунковому періоді")
     excluded_days = fields.Integer("Виключені дні", default=0,
                                    help="Дні, не відпрацьовані з поважних причин (без збереження зарплати тощо)")
-    source = fields.Selection([("manual", "вручну"), ("payslip", "з листка")], default="manual", required=True)
+    source = fields.Selection([("manual", "вручну"), ("payslip", "з листка")], "Джерело", default="manual", required=True)
     payslip_id = fields.Many2one("hr.payslip", "Листок", ondelete="set null")
 
     _sql_constraints = [("emp_month_uniq", "unique(employee_id, month)", "Один рядок на місяць для працівника.")]

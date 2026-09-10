@@ -9,11 +9,11 @@ const LEVEL_COLOR = { ok: "text-success", warn: "text-warning", error: "text-dan
 const STATE_LABEL = { draft: "Чернетка", checked: "Перевірено", generated: "Сформовано", submitted: "Подано" };
 const STATE_STEPS = ["draft", "checked", "generated", "submitted"];
 
-function fmtCell(v) {
+function fmtCell(v, money) {
     if (typeof v !== "number") {
         return v;
     }
-    if (Number.isInteger(v)) {
+    if (Number.isInteger(v) && !money) {
         return String(v);
     }
     return v.toLocaleString("uk-UA", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -23,8 +23,13 @@ export class UaReporting extends Component {
     static template = "l10n_ua_reporting.Reporting";
     static props = { ...standardActionServiceProps };
 
-    fmt(value) {
-        return fmtCell(value);
+    fmt(value, money) {
+        return fmtCell(value, money);
+    }
+
+    isMoney(index) {
+        const summary = this.state.data && this.state.data.summary;
+        return !!(summary && (summary.money || []).includes(index));
     }
 
     setup() {
