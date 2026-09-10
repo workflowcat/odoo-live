@@ -189,6 +189,13 @@
     <field name="code">accounting</field>
     <field name="sequence">60</field>
   </record>
+  <record id="item_acc_bank_board" model="ua.hub.item">
+    <field name="name">Банк</field>
+    <field name="section_id" ref="section_accounting"/>
+    <field name="sequence">5</field>
+    <field name="action_xmlid">l10n_ua_bank_online.action_ua_bank_board</field>
+    <field name="description">рахунки, завантаження виписок, звірка</field>
+  </record>
   <record id="item_acc_moves" model="ua.hub.item">
     <field name="name">Журнальні проводки</field>
     <field name="section_id" ref="section_accounting"/>

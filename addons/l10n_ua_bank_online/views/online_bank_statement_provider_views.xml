@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Доступ до банку: поля ключів у формі з'єднання плюс кнопка перевірки зв'язку. -->
+  <record id="view_provider_form_ua" model="ir.ui.view">
+    <field name="name">online.bank.statement.provider.form.ua</field>
+    <field name="model">online.bank.statement.provider</field>
+    <field name="inherit_id" ref="account_statement_import_online.online_bank_statement_provider_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//header" position="inside">
+        <button name="action_ua_test" type="object" string="Перевірити зв'язок"
+                invisible="service not in ['ua_privat', 'ua_mono']"/>
+      </xpath>
+      <xpath expr="//group[@name='configuration']" position="after">
+        <group name="ua_access" string="Доступ до банку" invisible="service not in ['ua_privat', 'ua_mono']">
+          <field name="ua_account" placeholder="UA00 3052 9900 0002 6001 2345 6789"/>
+          <field name="username" string="Ідентифікатор клієнта"
+                 invisible="service != 'ua_privat'"
+                 placeholder="id з кабінету Автоклієнта"/>
+          <field name="password" string="Токен" password="True"
+                 placeholder="токен Автоклієнта або Monobank"/>
+          <field name="api_base" string="Адреса API"
+                 placeholder="https://acp.privatbank.ua/api"/>
+          <field name="ua_demo"/>
+        </group>
+      </xpath>
+    </field>
+  </record>
+</odoo>

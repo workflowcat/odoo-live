@@ -80,8 +80,9 @@ no_doc = [e["name"] for e in emps if not (e["ua_id_doc_number"] and e["ua_id_doc
 check(f"усі мають РНОКПП (без РНОКПП: {no_rnokpp or 'немає'})", not no_rnokpp)
 check(f"усі мають документ особи (без документа: {no_doc or 'немає'})", not no_doc)
 
-# 2. get_views форми працівника без помилок + жодне поле hr.employee не повторюється (окрім відомих винятків ядра)
-res = call("hr.employee", "get_views", [[False, "form"]], {})
+# 2. get_views стандартної форми працівника (hr.view_employee_form; типова форма тепер OWL-картка) без помилок + жодне поле hr.employee не повторюється (окрім відомих винятків ядра)
+std_form_id = call("ir.model.data", "check_object_reference", "hr", "view_employee_form")[1]
+res = call("hr.employee", "get_views", [[std_form_id, "form"]], {})
 arch = res["views"]["form"]["arch"]
 check("get_views форми працівника відпрацював без помилок", bool(arch))
 

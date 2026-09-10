@@ -1,10 +1,11 @@
 """Правила звірки банку для зарплатних платежів: створюються під час встановлення для кожної компанії з планом рахунків."""
 RULES = [
-    ("Зарплата на картки (661)", "661", ["заробітн", "зарплат", "аванс", "зарплатн"]),
+    ("Зарплата на картки (661)", "661", ["заробітн", "зарплат", "аванс", "зарплатн", "винагород"]),
     ("ПДФО (6411)", "6411", ["пдфо", "податок на доходи", "податку на доходи", "101"]),
     ("Військовий збір (6415)", "6415", ["військов", "збір"]),
     ("ЄСВ (651)", "651", ["єсв", "єдиний внесок", "єдиного внеску", "соціальн"]),
     ("Аліменти (6851)", "6851", ["алімент"]),
+    ("ФОП-підрядник (6851)", "6851", ["договором підряду", "договір підряду", "фоп ", "послуги фоп"]),
 ]
 
 
@@ -20,13 +21,17 @@ def post_init_hook(env):
         if not _account(env, company, "661"):
             continue
         for name, code, words in RULES:
-            if Model.search([("name", "=", name), ("company_id", "=", company.id)], limit=1):
+            pattern = "(?i)" + "|".join(words)
+            existing = Model.search([("name", "=", name), ("company_id", "=", company.id)], limit=1)
+            if existing:
+                if existing.match_label_param != pattern:
+                    existing.match_label_param = pattern
                 continue
             acc = _account(env, company, code)
             if not acc:
                 continue
             Model.create({"name": name, "company_id": company.id, "trigger": "manual", "can_be_proposed": True,
-                          "match_label": "match_regex", "match_label_param": "(?i)" + "|".join(words),
+                          "match_label": "match_regex", "match_label_param": pattern,
                           "line_ids": [(0, 0, {"account_id": acc.id, "amount_type": "percentage", "amount_string": "100", "label": name})]})
         bank = env["account.journal"].search([("type", "=", "bank"), ("company_id", "=", company.id)], limit=1)
         if bank and bank.name in ("Bank", "Банк"):

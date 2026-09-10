@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+  <t t-name="l10n_ua_bank_online.BankBoard" owl="1">
+    <div class="o_ua_bank">
+      <t t-if="state.loading">
+        <div class="text-muted p-4">Завантаження…</div>
+      </t>
+      <t t-elif="state.data">
+        <t t-set="data" t-value="state.data"/>
+
+        <div class="o_ua_bank_left">
+          <div class="o_ua_bank_period">
+            <button class="btn btn-sm btn-link" t-on-click="() => this.shiftPeriod(-1)">◀</button>
+            <span t-esc="this.periodLabel"/>
+            <button class="btn btn-sm btn-link" t-on-click="() => this.shiftPeriod(1)">▶</button>
+          </div>
+          <div t-foreach="data.accounts" t-as="a" t-key="a.journal_id"
+               t-attf-class="o_ua_bank_account #{a.journal_id === state.journalId ? 'active' : ''}"
+               t-on-click="() => this.select(a.journal_id)">
+            <div class="o_ua_bank_account_name" t-esc="a.name"/>
+            <div t-if="a.iban" class="o_ua_bank_account_iban" t-esc="a.iban"/>
+            <div class="o_ua_bank_account_balance">
+              <span t-esc="this.money(a.balance)"/>
+              <span class="text-muted ms-1" t-esc="a.currency"/>
+            </div>
+            <div class="o_ua_bank_account_state">
+              <span t-if="a.demo" class="badge text-bg-warning">демо</span>
+              <span t-elif="a.provider_id" class="badge text-bg-success" t-esc="a.service_label"/>
+              <span t-else="" class="badge text-bg-secondary">без з'єднання</span>
+              <span t-if="a.unreconciled" class="badge text-bg-danger">
+                незвірених <t t-esc="a.unreconciled"/>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="o_ua_bank_right" t-if="this.account">
+          <div class="o_ua_bank_header">
+            <div>
+              <h4 t-esc="this.account.name"/>
+              <div class="text-muted small">
+                <span t-esc="this.account.iban || 'рахунок у з\'єднанні не вказано'"/>
+                <span t-if="this.account.last_run"> · останнє завантаження <t t-esc="this.account.last_run"/></span>
+                <span t-if="this.account.schedule"> · за розкладом <t t-esc="this.account.schedule"/></span>
+              </div>
+            </div>
+            <div class="o_ua_bank_actions">
+              <t t-if="this.account.provider_id">
+                <button class="btn btn-sm btn-primary" t-att-disabled="state.busy" t-on-click="pullMonth">Завантажити за місяць</button>
+                <button class="btn btn-sm btn-outline-secondary" t-att-disabled="state.busy" t-on-click="pullToday">З початку місяця по сьогодні</button>
+                <button class="btn btn-sm btn-outline-secondary" t-att-disabled="state.busy" t-on-click="test">Перевірити зв'язок</button>
+                <button class="btn btn-sm btn-outline-secondary" t-on-click="openProvider">З'єднання</button>
+              </t>
+              <t t-else="">
+                <button class="btn btn-sm btn-primary" t-on-click="() => this.createProvider('ua_privat')">Підключити ПриватБанк</button>
+                <button class="btn btn-sm btn-primary" t-on-click="() => this.createProvider('ua_mono')">Підключити Monobank</button>
+              </t>
+              <button class="btn btn-sm btn-success" t-att-disabled="state.busy" t-on-click="applyRules">Застосувати правила</button>
+              <button class="btn btn-sm btn-success" t-on-click="reconcile">Звірити</button>
+              <button class="btn btn-sm btn-outline-secondary" t-on-click="openStatements">Виписки</button>
+            </div>
+          </div>
+
+          <div class="o_ua_bank_numbers">
+            <div><span class="o_ua_bank_num" t-esc="this.money(this.account.balance)"/><span class="o_ua_bank_lbl">залишок за рахунком</span></div>
+            <div><span class="o_ua_bank_num" t-esc="this.money(this.account.amount_in)"/><span class="o_ua_bank_lbl">надходження за місяць</span></div>
+            <div><span class="o_ua_bank_num" t-esc="this.money(this.account.amount_out)"/><span class="o_ua_bank_lbl">списання за місяць</span></div>
+            <div><span class="o_ua_bank_num" t-esc="this.account.lines_month"/><span class="o_ua_bank_lbl">рядків виписки</span></div>
+            <div><span t-attf-class="o_ua_bank_num #{this.account.unreconciled ? 'text-danger' : ''}" t-esc="this.account.unreconciled"/><span class="o_ua_bank_lbl">не звірено за місяць</span></div>
+          </div>
+
+          <div class="o_ua_bank_section">
+            <h5>Зарплатні платежі періоду</h5>
+            <table class="table table-sm o_ua_bank_table">
+              <thead><tr><th>Дата</th><th>Платіж</th><th class="text-end">Сума</th><th>Стан</th></tr></thead>
+              <tbody>
+                <tr t-foreach="data.payments" t-as="p" t-key="p_index">
+                  <td t-esc="p.date || '—'"/>
+                  <td><div t-esc="p.label"/><div t-if="p.detail" class="text-muted small" t-esc="p.detail"/></td>
+                  <td class="text-end" t-esc="this.money(p.amount)"/>
+                  <td><span t-attf-class="badge o_ua_bank_state_#{p.state_class}" t-esc="p.state"/></td>
+                </tr>
+                <tr t-if="!data.payments.length"><td colspan="4" class="text-muted">За цей місяць платежів немає.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="o_ua_bank_section">
+            <h5>Незвірені рядки, усі періоди</h5>
+            <table class="table table-sm o_ua_bank_table">
+              <thead><tr><th>Дата</th><th>Призначення</th><th>Контрагент</th><th class="text-end">Сума</th></tr></thead>
+              <tbody>
+                <tr t-foreach="this.unreconciled" t-as="l" t-key="l.id" class="o_ua_bank_clickable"
+                    t-on-click="() => this.openLine(l)">
+                  <td t-esc="l.date"/>
+                  <td t-esc="l.ref"/>
+                  <td t-esc="l.partner || '—'"/>
+                  <td class="text-end" t-esc="this.money(l.amount)"/>
+                </tr>
+                <tr t-if="!this.unreconciled.length"><td colspan="4" class="text-muted">Незвірених рядків немає.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="o_ua_bank_section" t-if="data.statements.length">
+            <h5>Виписки періоду</h5>
+            <table class="table table-sm o_ua_bank_table">
+              <thead><tr><th>Дата</th><th>Виписка</th><th class="text-end">Рядків</th><th class="text-end">Сума рядків</th></tr></thead>
+              <tbody>
+                <tr t-foreach="data.statements" t-as="s" t-key="s.id">
+                  <td t-esc="s.date"/>
+                  <td t-esc="s.name"/>
+                  <td class="text-end" t-esc="s.lines"/>
+                  <td class="text-end" t-esc="this.money(s.amount)"/>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="o_ua_bank_right" t-else="">
+          <div class="text-muted p-4">У компанії немає банківського журналу.</div>
+        </div>
+      </t>
+    </div>
+  </t>
+</templates>
