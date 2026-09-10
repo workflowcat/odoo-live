@@ -136,6 +136,15 @@ Odoo → XML → FreeZvit (перевірка) → Електронний каб
 - Кожна зміна проходить `scripts/payroll_check.py`. Сценарій, що зійшовся з бухгалтером, не змінює очікувані числа.
 - Версія модуля `19.0.x.y.z`; міграція на наступну версію Odoo - окрема гілка з тим самим набором сценаріїв.
 
+## Локальний стенд
+
+- Адреса http://127.0.0.1:8110, база `payroll`, ті самі дані, що в хмарі (ТОВ «Ясен Меблі», 20 працівників).
+- Користувачі: `admin` (пароль `ODOO_ADMIN_USER_PASSWORD` у `.env`) і `lana` (пароль `LANA_PASSWORD`) - бухгалтер без прав адміністратора.
+- Контейнери підняті з `restart: unless-stopped`, тому стенд повертається після перезавантаження Mac.
+- Керування: `docker compose up -d`, `docker compose stop`, `docker compose logs -f odoo`.
+- Оновити модуль: `docker compose run --rm odoo odoo -d payroll -u <модуль> --stop-after-init`, далі `docker compose restart odoo` (нові файли Python бачить лише перезапущений процес).
+- Знімок екрана для перевірки: `node <scratchpad>/shot.js "/odoo/action-<xmlid>" out.png` через headless Chrome; логін і пароль передаються змінними ODOO_LOGIN і ODOO_PASSWORD.
+
 ## Як працювати
 
 ```bash

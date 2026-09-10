@@ -21,6 +21,14 @@ MENU_RENAMES = {
     "account_statement_import_online.menu_account_statement_import_online_provider": "Онлайн-виписки (провайдери)",
     "account.menu_finance": "Бухоблік", "account.menu_finance_configuration_reconciliation": "Правила звірки", "account.menu_finance_reports": "Звіти", "account.account_reports_management_menu": "Податки",
 }
+# друк: власні форми лишаємо, англійські OCA-звіти ховаємо з меню «Друк» (самі звіти лишаються)
+HIDE_REPORT_BINDINGS = ["payroll.report_payslipdetails", "payroll.report_payslip"]
+REPORT_RENAMES = {
+    "hr.print_employee_badge": "Бейдж працівника",
+    "account.report_invoice_with_payments": "Рахунок з платежами (PDF)",
+    "account.report_original_vendor_bill": "Оригінали рахунків постачальника",
+    "account.report_invoice": "Рахунок (PDF)",
+}
 ADMIN_ONLY_MENUS = ["base.menu_management", "mail.menu_root_discuss", "calendar.mail_menu_calendar", "spreadsheet_dashboard.spreadsheet_dashboard_menu_root", "base.menu_tests"]
 
 
@@ -35,6 +43,16 @@ def post_init_hook(env):
         menu = env.ref(xmlid, raise_if_not_found=False)
         if menu:
             menu.with_context(lang=UK).write({"name": name}); menu.with_context(lang="en_US").write({"name": name})
+    Report = env["ir.actions.report"]
+    for report_name in HIDE_REPORT_BINDINGS:
+        report = Report.search([("report_name", "=", report_name)], limit=1)
+        if report and report.binding_model_id:
+            report.binding_model_id = False
+    for report_name, name in REPORT_RENAMES.items():
+        report = Report.search([("report_name", "=", report_name)], limit=1)
+        if report:
+            report.with_context(lang=UK).write({"name": name})
+            report.with_context(lang="en_US").write({"name": name})
     admin = env.ref("base.group_system")
     for xmlid in ADMIN_ONLY_MENUS:
         menu = env.ref(xmlid, raise_if_not_found=False)
