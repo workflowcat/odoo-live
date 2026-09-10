@@ -13,8 +13,10 @@
         "views/hr_version_views.xml",
         "wizards/ua_report_wizard_views.xml",
         "wizards/ua_hire_notice_wizard_views.xml",
+        "wizards/ua_income_certificate_views.xml",
         "report/ua_payslip_report.xml",
         "report/ua_advance_report.xml",
+        "report/ua_income_certificate.xml",
     ],
     "installable": True,
 }

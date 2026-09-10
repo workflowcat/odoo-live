@@ -94,6 +94,23 @@ for label, report_name, res_id in [
     print(f"PDF {label}: {len(pdf)} байт")
     check(f"PDF {label} починається з %PDF", pdf[:4] == b"%PDF")
 
+# Довідка про доходи: майстер рахує суми з проведених листків і друкує PDF
+emp_ids = call("hr.employee", "search", [["active", "=", True], ["name", "like", "Крамар"]], limit=1)
+if emp_ids:
+    cert_id = call("ua.income.certificate.wizard", "create",
+                   {"employee_id": emp_ids[0], "date_from": "2026-07-01", "date_to": "2026-08-31",
+                    "purpose": "для подання до банку"})
+    slips = call("hr.payslip", "search_read",
+                 [["employee_id", "=", emp_ids[0]], ["state", "=", "done"],
+                  ["date_from", ">=", "2026-07-01"], ["date_to", "<=", "2026-08-31"]],
+                 fields=["line_ids"])
+    check(f"довідка про доходи: є проведені листки за період ({len(slips)})", len(slips) >= 1)
+    pdf = get_pdf("l10n_ua_payroll_reports.report_ua_income_certificate", cert_id)
+    print(f"PDF Довідка про доходи: {len(pdf)} байт")
+    check("PDF довідки про доходи починається з %PDF", pdf[:4] == b"%PDF")
+else:
+    check("довідка про доходи: знайдено працівника Крамар", False)
+
 print()
 if errors:
     print(f"ПОМИЛКИ: {len(errors)}")

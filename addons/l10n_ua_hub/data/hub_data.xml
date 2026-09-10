@@ -329,6 +329,13 @@
     <field name="action_xmlid">l10n_ua_payroll_rules.action_ua_payroll_param</field>
     <field name="description">МЗП, ставки та ліміти</field>
   </record>
+  <record id="item_income_certificate" model="ua.hub.item">
+    <field name="name">Довідка про доходи</field>
+    <field name="section_id" ref="section_tax_pfu"/>
+    <field name="sequence">40</field>
+    <field name="action_xmlid">l10n_ua_payroll_reports.action_ua_income_certificate</field>
+    <field name="description">довідка працівнику для банку</field>
+  </record>
   <record id="item_ref_cpi" model="ua.hub.item">
     <field name="name">Індекси споживчих цін</field>
     <field name="section_id" ref="section_payroll_ref"/>

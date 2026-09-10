@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_income_certificate" model="ir.actions.report">
+    <field name="name">Довідка про доходи</field>
+    <field name="model">ua.income.certificate.wizard</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_payroll_reports.report_ua_income_certificate</field>
+    <field name="report_file">l10n_ua_payroll_reports.report_ua_income_certificate</field>
+    <field name="print_report_name">'Довідка про доходи %s' % object.employee_id.name</field>
+  </record>
+
+  <template id="report_ua_income_certificate">
+    <t t-call="web.basic_layout">
+      <t t-foreach="docs" t-as="w">
+        <t t-set="emp" t-value="w.employee_id.sudo()"/>
+        <t t-set="company" t-value="w.employee_id.company_id"/>
+        <t t-set="rows" t-value="content[w.id]['rows']"/>
+        <t t-set="totals" t-value="content[w.id]['totals']"/>
+        <div class="page" style="font-family: DejaVu Sans, sans-serif; font-size:12px;">
+          <div style="text-align:center;">
+            <b><t t-out="company.name"/></b><br/>
+            <span style="font-size:10px;">ЄДРПОУ <t t-out="company.company_registry or ''"/><t t-if="company.street"> · <t t-out="company.zip or ''"/>, <t t-out="company.city or ''"/>, <t t-out="company.street"/></t></span>
+          </div>
+          <h3 style="text-align:center; margin-top:18px;">ДОВІДКА ПРО ДОХОДИ</h3>
+          <p>Видана <b><t t-out="emp.name"/></b><t t-if="emp.ua_rnokpp">, РНОКПП <t t-out="emp.ua_rnokpp"/></t> про те,
+             що він (вона) працює в <t t-out="company.name"/> на посаді «<t t-out="emp.job_title or emp.job_id.name or '-'"/>»
+             <t t-if="emp.department_id">підрозділу <t t-out="emp.department_id.name"/></t>.</p>
+          <p>Нарахування за період з <t t-out="w.date_from.strftime('%d.%m.%Y')"/> до <t t-out="w.date_to.strftime('%d.%m.%Y')"/>:</p>
+          <table class="table table-sm" style="font-size:11px;">
+            <thead>
+              <tr>
+                <th>Місяць</th>
+                <th class="text-end">Нараховано, грн</th>
+                <th class="text-end">ПДФО, грн</th>
+                <th class="text-end">Військовий збір, грн</th>
+                <th t-if="w.show_net" class="text-end">До виплати, грн</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr t-foreach="rows" t-as="r">
+                <td><t t-out="r['period']"/></td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(r['gross']).replace(',', '&#160;').replace('.', ',')"/></td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(r['pdfo']).replace(',', '&#160;').replace('.', ',')"/></td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(r['vz']).replace(',', '&#160;').replace('.', ',')"/></td>
+                <td t-if="w.show_net" class="text-end"><t t-out="'{:,.2f}'.format(r['net']).replace(',', '&#160;').replace('.', ',')"/></td>
+              </tr>
+              <tr style="font-weight:bold; border-top:2px solid #333;">
+                <td>Разом</td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(totals['gross']).replace(',', '&#160;').replace('.', ',')"/></td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(totals['pdfo']).replace(',', '&#160;').replace('.', ',')"/></td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(totals['vz']).replace(',', '&#160;').replace('.', ',')"/></td>
+                <td t-if="w.show_net" class="text-end"><t t-out="'{:,.2f}'.format(totals['net']).replace(',', '&#160;').replace('.', ',')"/></td>
+              </tr>
+            </tbody>
+          </table>
+          <p>Довідку видано <t t-out="w.purpose or 'за місцем вимоги'"/>.</p>
+          <table style="width:100%; margin-top:28px;"><tr>
+            <td style="width:50%">Керівник ____________________ <t t-out="company.ua_director_name or ''"/></td>
+            <td>Головний бухгалтер ____________________ <t t-out="company.ua_accountant_name or ''"/></td>
+          </tr></table>
+          <p style="color:#666; font-size:10px; margin-top:14px;">Дата видачі <t t-out="context_timestamp(datetime.datetime.now()).strftime('%d.%m.%Y')"/>. Довідка дійсна без печатки згідно із Законом № 1982-VIII.</p>
+        </div>
+      </t>
+    </t>
+  </template>
+</odoo>
