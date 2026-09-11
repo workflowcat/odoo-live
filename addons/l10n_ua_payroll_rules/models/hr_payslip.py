@@ -45,6 +45,7 @@ class HrPayslip(models.Model):
             "fte": float(emp.ua_fte or "1"),
             "reserve_rate": p.get("reserve_rate", 0.0),
             "mat_cover_days": 0,   # l10n_ua_average перевизначає
+            "time_ratio": -1.0,    # l10n_ua_hr_docs ставить частку часу із затвердженого табеля
         }
 
     def get_payroll_dict(self, contracts):

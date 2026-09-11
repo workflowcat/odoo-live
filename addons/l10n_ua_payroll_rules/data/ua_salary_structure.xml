@@ -12,12 +12,15 @@
     <record id="rule_basic" model="hr.salary.rule">
       <field name="name">Оклад</field><field name="code">BASIC</field><field name="sequence">1</field>
       <field name="category_id" ref="cat_basic"/><field name="condition_select">none</field><field name="amount_select">code</field>
-      <field name="amount_python_compute">days = worked_days.WORK100.number_of_days if worked_days.WORK100 else 0.0
-for line in (worked_days.VAC, worked_days.SICK, worked_days.UNPAID, worked_days.MAT):
-    if line:
-        days -= abs(line.number_of_days)
-total = payroll.ua.month_workdays or days or 1.0
-result = round(contract.wage * payroll.ua.fte * max(min(days, total), 0.0) / total, 2)</field>
+      <field name="amount_python_compute">if payroll.ua.time_ratio &gt;= 0:
+    result = round(contract.wage * payroll.ua.fte * payroll.ua.time_ratio, 2)
+else:
+    days = worked_days.WORK100.number_of_days if worked_days.WORK100 else 0.0
+    for line in (worked_days.VAC, worked_days.SICK, worked_days.UNPAID, worked_days.MAT):
+        if line:
+            days -= abs(line.number_of_days)
+    total = payroll.ua.month_workdays or days or 1.0
+    result = round(contract.wage * payroll.ua.fte * max(min(days, total), 0.0) / total, 2)</field>
     </record>
     <record id="rule_bonus" model="hr.salary.rule">
       <field name="name">Премія</field><field name="code">BONUS</field><field name="sequence">10</field>

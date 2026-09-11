@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Табель обліку робочого часу (типова форма П-5): документ з рядками, станом і друком."""
 import calendar
-from datetime import date, timedelta
+from datetime import date, datetime, time, timedelta
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
@@ -83,6 +83,28 @@ class UaTimesheetSheet(models.Model):
             doc.line_ids = [(0, 0, v) for v in vals_list]
         return True
 
+    def action_recompute_payslips(self):
+        """Перерахувати чернетки листків періоду за виправленим табелем."""
+        self.ensure_one()
+        if self.state != "confirmed":
+            raise UserError("Спершу затвердьте табель: листки беруть години лише із затвердженого табеля.")
+        d1, d2 = self._period()
+        employees = self.line_ids.mapped("employee_id")
+        slips = self.env["hr.payslip"].search([
+            ("company_id", "=", self.company_id.id), ("employee_id", "in", employees.ids),
+            ("date_from", ">=", d1), ("date_to", "<=", d2), ("state", "in", ("draft", "verify")),
+        ])
+        if not slips:
+            raise UserError("За цей місяць немає чернеток розрахункових листків.")
+        slips.compute_sheet()
+        self.message_post(body="Перераховано листків: %s." % len(slips))
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {"title": "Табель", "message": "Перераховано листків: %s." % len(slips),
+                       "type": "success", "sticky": False},
+        }
+
     def action_confirm(self):
         for doc in self:
             if not doc.line_ids:
@@ -134,13 +156,40 @@ class UaTimesheetLine(models.Model):
     d29 = fields.Char(size=3)
     d30 = fields.Char(size=3)
     d31 = fields.Char(size=3)
-    days_worked = fields.Integer("Днів «Р»", compute="_compute_totals", store=True)
-    hours = fields.Float("Години", compute="_compute_totals", store=True)
+    days_worked = fields.Float("Факт днів", compute="_compute_totals", store=True, readonly=False,
+                               help="Рахується з днів табеля. Бухгалтер може виправити - виправлення залишиться, "
+                                    "поки не змінити дні в сітці.")
+    hours = fields.Float("Факт годин", compute="_compute_totals", store=True, readonly=False,
+                         help="Години за місяць. Якщо заповнено разом із нормою, оклад рахується за годинами.")
+    norm_days = fields.Float("Норма днів", compute="_compute_norm", store=True)
+    norm_hours = fields.Float("Норма годин", compute="_compute_norm", store=True)
+    diff_days = fields.Float("Відхилення, днів", compute="_compute_norm", store=True,
+                             help="Факт плюс дні відсутності мінус норма місяця.")
     days_vac = fields.Integer("В", compute="_compute_totals", store=True)
     days_sick = fields.Integer("ТН", compute="_compute_totals", store=True)
     days_unpaid = fields.Integer("НА", compute="_compute_totals", store=True)
     days_mat = fields.Integer("ВП", compute="_compute_totals", store=True)
     note = fields.Char("Примітка")
+
+    @api.depends("employee_id", "sheet_id.year", "sheet_id.month", "days_worked",
+                 "days_vac", "days_sick", "days_unpaid", "days_mat")
+    def _compute_norm(self):
+        """Норма місяця за графіком працівника: скільки днів і годин мав відпрацювати."""
+        for line in self:
+            sheet = line.sheet_id
+            days = hours = 0.0
+            if sheet and sheet.year and sheet.month and line.employee_id:
+                d1, d2 = sheet._period()
+                calendar_rec = (line.employee_id.sudo().resource_calendar_id
+                                or sheet.company_id.resource_calendar_id)
+                if calendar_rec:
+                    data = calendar_rec.get_work_duration_data(
+                        datetime.combine(d1, time.min), datetime.combine(d2, time.max), compute_leaves=False)
+                    days, hours = data.get("days", 0.0), data.get("hours", 0.0)
+            line.norm_days = days
+            line.norm_hours = hours
+            absent = line.days_vac + line.days_sick + line.days_unpaid + line.days_mat
+            line.diff_days = round(line.days_worked + absent - days, 2)
 
     def _day_cells(self, last_day=31):
         """Список кодів днів 1..last_day (для звіту, без getattr - через __getitem__)."""
