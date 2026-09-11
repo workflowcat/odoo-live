@@ -8,6 +8,7 @@
     <record id="cat_net" model="hr.salary.rule.category"><field name="name">До виплати</field><field name="code">NET</field></record>
     <record id="cat_mat" model="hr.salary.rule.category"><field name="name">Допомога по вагітності та пологах</field><field name="code">MAT</field></record>
     <record id="cat_comp" model="hr.salary.rule.category"><field name="name">За рахунок підприємства</field><field name="code">COMP</field></record>
+    <record id="cat_notax" model="hr.salary.rule.category"><field name="name">Виплати без податків і внесків</field><field name="code">NOTAX</field></record>
 
     <record id="rule_basic" model="hr.salary.rule">
       <field name="name">Оклад</field><field name="code">BASIC</field><field name="sequence">1</field>
@@ -16,8 +17,8 @@
     result = round(contract.wage * payroll.ua.fte * payroll.ua.time_ratio, 2)
 else:
     days = worked_days.WORK100.number_of_days if worked_days.WORK100 else 0.0
-    for line in (worked_days.VAC, worked_days.SICK, worked_days.UNPAID, worked_days.MAT):
-        if line:
+    for code, line in worked_days.dict.items():
+        if code != 'WORK100' and line:
             days -= abs(line.number_of_days)
     total = payroll.ua.month_workdays or days or 1.0
     result = round(contract.wage * payroll.ua.fte * max(min(days, total), 0.0) / total, 2)</field>
@@ -80,7 +81,7 @@ result = -round(after_tax * inputs.ALIM_PCT.amount / 100.0, 2)</field>
     <record id="rule_net" model="hr.salary.rule">
       <field name="name">До виплати</field><field name="code">NET</field><field name="sequence">200</field>
       <field name="category_id" ref="cat_net"/><field name="condition_select">none</field><field name="amount_select">code</field>
-      <field name="amount_python_compute">result = round(categories.GROSS + categories.MAT + categories.DED, 2)</field>
+      <field name="amount_python_compute">result = round(categories.GROSS + categories.MAT + categories.NOTAX + categories.DED, 2)</field>
     </record>
     <record id="rule_esv" model="hr.salary.rule">
       <field name="name">ЄСВ 22 % за рахунок підприємства</field><field name="code">ESV</field><field name="sequence">300</field>

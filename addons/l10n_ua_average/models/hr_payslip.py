@@ -34,7 +34,8 @@ class HrPayslip(models.Model):
 
     def _ua_leave_calendar_days(self):
         """Календарні дні відпусток і лікарняних у періоді листка, з поділом лікарняних на роботодавця (1-5) і ПФУ (6+)."""
-        out = {"vac_days": 0, "sick_emp_days": 0, "sick_pfu_days": 0, "unpaid_days": 0, "mat_days": 0, "mat_cover_days": 0}
+        out = {"vac_days": 0, "sick_emp_days": 0, "sick_pfu_days": 0, "unpaid_days": 0, "mat_days": 0, "mat_cover_days": 0,
+               "study_days": 0, "child_vac_days": 0, "trip_days": 0, "trip_work_days": 0, "child3_days": 0, "sick_care_days": 0}
         leaves = self.env["hr.leave"].search([("employee_id", "=", self.employee_id.id), ("state", "=", "validate"),
                                               ("request_date_from", "<=", self.date_to), ("request_date_to", ">=", self.date_from)])
         for lv in leaves:
@@ -52,6 +53,22 @@ class HrPayslip(models.Model):
                 out["mat_cover_days"] += (end - start).days + 1   # дні декрету в цьому місяці: без доплати ЄСВ до мінімального
                 if self.date_from <= lv.request_date_from <= self.date_to:
                     out["mat_days"] += (lv.request_date_to - lv.request_date_from).days + 1
+            elif code == "STUDY":
+                out["study_days"] += (end - start).days + 1
+            elif code == "CHILD_VAC":
+                out["child_vac_days"] += (end - start).days + 1
+            elif code == "CHILD3":
+                out["child3_days"] += (end - start).days + 1
+            elif code == "SICK_CARE":
+                # догляд за хворим оплачує ПФУ з першого дня, п'яти днів за рахунок роботодавця немає
+                out["sick_care_days"] += (end - start).days + 1
+            elif code == "TRIP":
+                out["trip_days"] += (end - start).days + 1
+                day = start
+                while day <= end:
+                    if day.weekday() < 5:          # робочі дні відрядження: за ними платять середню (ст. 121 КЗпП)
+                        out["trip_work_days"] += 1
+                    day = fields.Date.add(day, days=1)
             elif code == "SICK":
                 d = start
                 while d <= end:
@@ -60,6 +77,12 @@ class HrPayslip(models.Model):
                     d = fields.Date.add(d, days=1)
         return out
 
+    def _ua_average_work_days(self):
+        """Робочі дні у вікні середньої: за ними рахують середню за час відрядження (ст. 121 КЗпП)."""
+        self.ensure_one()
+        _total, calendar_days = self._ua_average_base()
+        return round(calendar_days * 5.0 / 7.0, 2) if calendar_days else 0.0
+
     def _ua_payroll_values(self, contracts):
         res = super()._ua_payroll_values(contracts)
         total, days = self._ua_average_base()
@@ -67,6 +90,7 @@ class HrPayslip(models.Model):
         res.update({
             "avg100_day": avg,          # середня за Постановою 100, грн за календарний день
             "avg1266_day": avg,         # те саме вікно; виключення - через excluded_days
+            "avg100_work_day": (total / self._ua_average_work_days()) if self._ua_average_work_days() else 0.0,
             "sick_percent": self.employee_id.sudo().ua_sick_percent or 50.0,
             **self._ua_leave_calendar_days(),
         })

@@ -5,7 +5,10 @@ from odoo.exceptions import UserError
 
 STATES = [("draft", "Чернетка"), ("confirmed", "Затверджено")]
 # (код рядка листка, код виду відпустки, kind рядка заяви, назва)
-SOURCES = [("SICK_PFU", "SICK", "sick", "Тимчасова непрацездатність"), ("MAT", "MAT", "mat", "Вагітність та пологи")]
+SOURCES = [("SICK_PFU", "SICK", "sick", "Тимчасова непрацездатність"),
+           ("SICK_CARE_PAY", "SICK_CARE", "care", "Догляд за хворою дитиною або членом сім'ї"),
+           ("MAT", "MAT", "mat", "Вагітність та пологи")]
+DAYS_KEY = {"SICK_PFU": "sick_pfu_days", "SICK_CARE_PAY": "sick_care_days", "MAT": "mat_days"}
 
 
 class UaPfuClaim(models.Model):
@@ -59,7 +62,7 @@ class UaPfuClaim(models.Model):
                         ("request_date_from", "<=", slip.date_to), ("request_date_to", ">=", slip.date_from),
                     ], limit=1)
                     days = slip._ua_leave_calendar_days()
-                    nd = days.get("mat_days" if code == "MAT" else "sick_pfu_days", 0)
+                    nd = days.get(DAYS_KEY.get(code, "sick_pfu_days"), 0)
                     percent = 100.0 if code == "MAT" else (emp.ua_sick_percent or 100.0)
                     avg_day = (amount / nd / (percent / 100.0)) if nd else 0.0
                     vals_list.append({
@@ -90,7 +93,9 @@ class UaPfuClaimLine(models.Model):
     claim_id = fields.Many2one("ua.pfu.claim", required=True, ondelete="cascade")
     currency_id = fields.Many2one(related="claim_id.currency_id")
     employee_id = fields.Many2one("hr.employee", "Працівник", required=True)
-    kind = fields.Selection([("sick", "Тимчасова непрацездатність"), ("mat", "Вагітність та пологи")], "Вид", required=True)
+    kind = fields.Selection([("sick", "Тимчасова непрацездатність"),
+                             ("care", "Догляд за хворою дитиною або членом сім'ї"),
+                             ("mat", "Вагітність та пологи")], "Вид", required=True)
     sick_number = fields.Char("№ е-ЛН")
     date_from = fields.Date("Від")
     date_to = fields.Date("До")

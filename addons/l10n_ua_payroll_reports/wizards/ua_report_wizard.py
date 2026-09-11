@@ -76,8 +76,9 @@ class UaPayrollReportWizard(models.TransientModel):
         cat = ESV_CAT["gph"] if kind == "gph" else (ESV_CAT["disabled"] if emp.ua_esv_category == "disabled" else ESV_CAT["employment"])
         rate = params["esv_rate_disabled"] if emp.ua_esv_category == "disabled" else params["esv_rate"]
         sick_emp, sick_pfu = self._line(slip, "SICK_EMP"), self._line(slip, "SICK_PFU")
+        sick_care = self._line(slip, "SICK_CARE_PAY")        # догляд за хворим: ПФУ з першого дня, у Д1 та сама категорія 29
         gross = self._line(slip, "GROSS")
-        salary = r2(gross - sick_emp - sick_pfu)
+        salary = r2(gross - sick_emp - sick_pfu - sick_care)
         esv_total = r2(self._line(slip, "ESV"))
         max_base = params["min_wage"] * params["esv_max_multiplier"]
         remaining = max_base
@@ -91,7 +92,7 @@ class UaPayrollReportWizard(models.TransientModel):
         esv_main = r2(base_main * rate / 100.0)
         esv_diff = r2(min_diff * 22.0 / 100.0)
         leaves = slip._ua_leave_calendar_days() if hasattr(slip, "_ua_leave_calendar_days") else {}
-        sick_days = (leaves.get("sick_emp_days", 0) + leaves.get("sick_pfu_days", 0))
+        sick_days = (leaves.get("sick_emp_days", 0) + leaves.get("sick_pfu_days", 0) + leaves.get("sick_care_days", 0))
         unpaid_days = leaves.get("unpaid_days", 0)
         part_time = (not emp.ua_full_time) or float(emp.ua_fte or "1") < 1.0
         common = {"G5": "1", "G6": GENDER.get(getattr(emp, "sex", None) or "", None), "G7S": emp.ua_rnokpp or "", "G101": self.month, "G102": self.year,
@@ -116,7 +117,7 @@ class UaPayrollReportWizard(models.TransientModel):
                     rows.append({**common, "G101": cur.month, "G102": cur.year, "G8": ESV_CAT["mat"], "G12": seg_days, "G16": share, "G17": base_mat, "G18": None,
                                  "G19": 0.0, "G20": r2(base_mat * rate / 100.0), "rate": rate, "G14": None, "G13": None})
                     cur = seg_end + timedelta(days=1)
-        sick = r2(sick_emp + sick_pfu)
+        sick = r2(sick_emp + sick_pfu + sick_care)
         if sick:
             base_sick = r2(min(sick, remaining)); remaining = r2(remaining - base_sick)
             esv_sick = r2(base_sick * rate / 100.0)
@@ -128,7 +129,7 @@ class UaPayrollReportWizard(models.TransientModel):
             rows[0]["G20"] = r2(rows[0]["G20"] + delta)
         if kind == "fop":
             rows = []   # ФОП-підрядник: без ЄСВ, у Д1 не потрапляє; лише 4ДФ з ознакою 157
-        return rows, {"gross": gross, "salary": salary, "gph": salary if kind == "gph" else 0.0, "sick_emp": sick_emp, "sick_pfu": sick_pfu, "mat": mat,
+        return rows, {"gross": gross, "salary": salary, "gph": salary if kind == "gph" else 0.0, "sick_emp": sick_emp, "sick_pfu": r2(sick_pfu + sick_care), "mat": mat,
                       "pdfo": r2(-self._line(slip, "PDFO")), "vz": r2(-self._line(slip, "VZ")), "kind": kind, "cat": cat, "min_diff": min_diff,
                       "emp": emp, "hire": hire, "dism": dism}
 

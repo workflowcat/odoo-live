@@ -6,7 +6,8 @@ from datetime import date, datetime, time, timedelta
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
-DAY_CODES = {"VAC": "В", "SICK": "ТН", "UNPAID": "НА", "MAT": "ВП"}
+DAY_CODES = {"VAC": "В", "SICK": "ТН", "UNPAID": "НА", "MAT": "ВП", "STUDY": "Н", "CHILD_VAC": "Д",
+             "TRIP": "ВД", "CHILD3": "ДД", "SICK_CARE": "ТН"}
 STATES = [("draft", "Чернетка"), ("confirmed", "Затверджено")]
 
 
