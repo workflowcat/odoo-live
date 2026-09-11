@@ -6,6 +6,7 @@
     <field name="arch" type="xml">
       <list string="Закриття періодів" decoration-muted="state == 'open'">
         <field name="name"/>
+        <field name="kind"/>
         <field name="state"/>
         <field name="hard"/>
         <field name="lock_date"/>
@@ -36,6 +37,7 @@
               <field name="company_id"/>
               <field name="year"/>
               <field name="month"/>
+              <field name="kind"/>
               <field name="hard"/>
             </group>
             <group>

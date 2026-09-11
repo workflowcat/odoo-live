@@ -256,7 +256,31 @@ class UaPeriodBoard(models.AbstractModel):
             "blockers": blockers,
             "close": close,
             "new_changes": self.env["ua.change.log"].count_new(company, year, month),
+            "quarter": self._quarter_info(company, year, month),
+            "year_close": self._year_info(company, year, month),
         }
+
+    def _quarter_info(self, company, year, month):
+        """Закриття кварталу показуємо в останньому місяці кварталу."""
+        quarter = (month - 1) // 3 + 1
+        if month != quarter * 3:
+            return {}
+        Close = self.env["ua.period.close"]
+        rec = Close.search([("company_id", "=", company.id), ("year", "=", year),
+                            ("month", "=", month), ("kind", "=", "quarter")], limit=1)
+        return {"quarter": quarter, "label": "%s квартал %s" % (quarter, year),
+                "closed": rec.state == "closed" if rec else False,
+                "blockers": Close.quarter_blockers(company, year, quarter)}
+
+    def _year_info(self, company, year, month):
+        """Закриття року показуємо в грудні."""
+        if month != 12:
+            return {}
+        Close = self.env["ua.period.close"]
+        rec = Close.search([("company_id", "=", company.id), ("year", "=", year),
+                            ("kind", "=", "year")], limit=1)
+        return {"label": "%s рік" % year, "closed": rec.state == "closed" if rec else False,
+                "blockers": Close.year_blockers(company, year)}
 
     # ------------------------------------------------------------------ дії
     @api.model
@@ -310,3 +334,11 @@ class UaPeriodBoard(models.AbstractModel):
         return {"type": "ir.actions.act_window", "res_model": "ua.period.close",
                 "res_id": rec.id, "view_mode": "form", "views": [(False, "form")],
                 "target": "current"}
+
+    @api.model
+    def action_close_quarter(self, year, quarter):
+        return self.env["ua.period.close"].close_quarter(year, quarter)
+
+    @api.model
+    def action_close_year(self, year):
+        return self.env["ua.period.close"].close_year(year)

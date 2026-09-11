@@ -81,6 +81,28 @@
                     t-on-click="() => this.closeMonth()">Закрити місяць</button>
           </t>
         </div>
+
+        <div class="o_ua_period_close" t-if="data.quarter.label">
+          <span class="o_ua_period_blockers">
+            <t t-if="data.quarter.closed"><t t-esc="data.quarter.label"/> закрито: податкова дата блокування стоїть.</t>
+            <t t-elif="data.quarter.blockers.length"><t t-esc="data.quarter.label"/> закрити не можна: <t t-esc="data.quarter.blockers.join('; ')"/>.</t>
+            <t t-else=""><t t-esc="data.quarter.label"/> готовий до закриття.</t>
+          </span>
+          <button class="btn btn-sm btn-secondary" t-if="!data.quarter.closed"
+                  t-att-disabled="state.busy or data.quarter.blockers.length"
+                  t-on-click="() => this.closeQuarter()">Закрити квартал</button>
+        </div>
+
+        <div class="o_ua_period_close" t-if="data.year_close.label">
+          <span class="o_ua_period_blockers">
+            <t t-if="data.year_close.closed"><t t-esc="data.year_close.label"/> закрито остаточно.</t>
+            <t t-elif="data.year_close.blockers.length"><t t-esc="data.year_close.label"/> закрити не можна: <t t-esc="data.year_close.blockers.join('; ')"/>.</t>
+            <t t-else=""><t t-esc="data.year_close.label"/> готовий до остаточного закриття.</t>
+          </span>
+          <button class="btn btn-sm btn-secondary" t-if="!data.year_close.closed"
+                  t-att-disabled="state.busy or data.year_close.blockers.length"
+                  t-on-click="() => this.closeYear()">Закрити рік остаточно</button>
+        </div>
       </t>
     </div>
   </t>

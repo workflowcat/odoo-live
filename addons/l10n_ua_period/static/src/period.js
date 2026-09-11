@@ -84,6 +84,31 @@ export class UaPeriod extends Component {
         }
     }
 
+    async closeQuarter() {
+        const period = this.state.data.period;
+        await this.runClose("action_close_quarter", [period.year, this.state.data.quarter.quarter],
+                            `Квартал закрито: ${this.state.data.quarter.label}`);
+    }
+
+    async closeYear() {
+        const period = this.state.data.period;
+        await this.runClose("action_close_year", [period.year], `Рік закрито: ${period.year}`);
+    }
+
+    async runClose(method, args, message) {
+        this.state.busy = true;
+        try {
+            const period = this.state.data.period;
+            await this.orm.call("ua.period.board", method, args);
+            this.notification.add(message, { type: "success" });
+            await this.load({ year: period.year, month: period.month });
+        } catch (e) {
+            this.notification.add((e.data && e.data.message) || e.message || "Помилка", { type: "danger" });
+        } finally {
+            this.state.busy = false;
+        }
+    }
+
     async openClose() {
         this.state.busy = true;
         try {

@@ -18,6 +18,7 @@ MONTHS_UA = {
     7: "Липень", 8: "Серпень", 9: "Вересень", 10: "Жовтень", 11: "Листопад", 12: "Грудень",
 }
 STATES = [("open", "Відкритий"), ("closed", "Закритий")]
+KINDS = [("month", "Місяць"), ("quarter", "Квартал"), ("year", "Рік")]
 
 
 class UaPeriodClose(models.Model):
@@ -31,6 +32,7 @@ class UaPeriodClose(models.Model):
                                  default=lambda s: s.env.company)
     year = fields.Integer("Рік", required=True)
     month = fields.Integer("Місяць", required=True)
+    kind = fields.Selection(KINDS, "Період", default="month", required=True)
     state = fields.Selection(STATES, "Стан", default="open", required=True)
     hard = fields.Boolean("Остаточно", help="Дата блокування, яку не можна зняти")
     lock_date = fields.Date("Дата блокування", readonly=True)
@@ -41,7 +43,7 @@ class UaPeriodClose(models.Model):
     reopened_date = fields.Datetime("Відкрито", readonly=True)
     changes_accepted = fields.Integer("Прийнято змін", readonly=True)
 
-    _period_uniq = models.Constraint("unique(company_id, year, month)", "Період уже є в списку.")
+    _period_uniq = models.Constraint("unique(company_id, year, month, kind)", "Період уже є в списку.")
     _month_ok = models.Constraint("CHECK (month BETWEEN 1 AND 12)", "Місяць від 1 до 12.")
 
     @api.model
@@ -54,10 +56,15 @@ class UaPeriodClose(models.Model):
     def _months(self):
         return MONTHS_UA
 
-    @api.depends("year", "month")
+    @api.depends("year", "month", "kind")
     def _compute_name(self):
         for rec in self:
-            rec.name = "%s %s" % (MONTHS_UA.get(rec.month, rec.month), rec.year)
+            if rec.kind == "year":
+                rec.name = "%s рік" % rec.year
+            elif rec.kind == "quarter":
+                rec.name = "%s квартал %s" % ((rec.month - 1) // 3 + 1, rec.year)
+            else:
+                rec.name = "%s %s" % (MONTHS_UA.get(rec.month, rec.month), rec.year)
 
     # ------------------------------------------------------------------ межі
     @staticmethod
@@ -105,7 +112,7 @@ class UaPeriodClose(models.Model):
         if reasons:
             raise UserError(_("Місяць закрити не можна: %s.") % "; ".join(reasons))
         rec = self.search([("company_id", "=", company.id), ("year", "=", year),
-                           ("month", "=", month)], limit=1)
+                           ("month", "=", month), ("kind", "=", "month")], limit=1)
         if rec and rec.state == "closed":
             raise UserError(_("Місяць уже закрито."))
         last = self._bounds(year, month)[1]
@@ -117,7 +124,7 @@ class UaPeriodClose(models.Model):
         if rec:
             rec.write(vals)
         else:
-            vals.update({"company_id": company.id, "year": year, "month": month})
+            vals.update({"company_id": company.id, "year": year, "month": month, "kind": "month"})
             rec = self.create(vals)
         rec._apply_lock(last, hard)
         return rec.id
@@ -160,11 +167,89 @@ class UaPeriodClose(models.Model):
         })
         return True
 
+    # ------------------------------------------------------------------ квартал і рік
+    @api.model
+    def quarter_blockers(self, company, year, quarter):
+        """Чому не можна закрити квартал: незакриті місяці або неподана звітність."""
+        company = self._as_company(company)
+        year, quarter = int(year), int(quarter)
+        months = [quarter * 3 - 2, quarter * 3 - 1, quarter * 3]
+        out = []
+        closed = self.search([("company_id", "=", company.id), ("year", "=", year),
+                              ("kind", "=", "month"), ("month", "in", months), ("state", "=", "closed")])
+        left = sorted(set(months) - set(closed.mapped("month")))
+        if left:
+            out.append(_("не закриті місяці: %s") % ", ".join(MONTHS_UA[m].lower() for m in left))
+        run = self.env["ua.report.run"].search([
+            ("company_id", "=", company.id), ("report_code", "=", "j05"), ("year", "=", year),
+            ("quarter", "=", quarter), ("doc_kind", "=", "HZ"),
+        ], limit=1)
+        if not run or run.state != "submitted":
+            out.append(_("податковий розрахунок за квартал не позначено поданим"))
+        return out
+
+    @api.model
+    def year_blockers(self, company, year):
+        """Чому не можна закрити рік: незакриті квартали."""
+        company = self._as_company(company)
+        year = int(year)
+        out = []
+        closed = self.search([("company_id", "=", company.id), ("year", "=", year),
+                              ("kind", "=", "quarter"), ("state", "=", "closed")])
+        left = sorted({1, 2, 3, 4} - {(m - 1) // 3 + 1 for m in closed.mapped("month")})
+        if left:
+            out.append(_("не закриті квартали: %s") % ", ".join(str(q) for q in left))
+        return out
+
+    @api.model
+    def close_quarter(self, year, quarter):
+        """Закрити квартал: дата податкового блокування на кінець кварталу."""
+        company = self.env.company
+        year, quarter = int(year), int(quarter)
+        reasons = self.quarter_blockers(company, year, quarter)
+        if reasons:
+            raise UserError(_("Квартал закрити не можна: %s.") % "; ".join(reasons))
+        last = self._bounds(year, quarter * 3)[1]
+        rec = self.search([("company_id", "=", company.id), ("year", "=", year),
+                           ("month", "=", quarter * 3), ("kind", "=", "quarter")], limit=1)
+        vals = {"state": "closed", "lock_date": last, "closed_user_id": self.env.uid,
+                "closed_date": fields.Datetime.now()}
+        if rec:
+            rec.write(vals)
+        else:
+            rec = self.create({**vals, "company_id": company.id, "year": year,
+                               "month": quarter * 3, "kind": "quarter"})
+        sudo = company.sudo()
+        if not sudo.tax_lock_date or sudo.tax_lock_date < last:
+            sudo.write({"tax_lock_date": last})
+        rec._apply_lock(last)
+        return rec.id
+
+    @api.model
+    def close_year(self, year):
+        """Закрити рік остаточно: жорстка дата блокування, яку не знімає ніхто."""
+        company = self.env.company
+        year = int(year)
+        reasons = self.year_blockers(company, year)
+        if reasons:
+            raise UserError(_("Рік закрити не можна: %s.") % "; ".join(reasons))
+        last = date(year, 12, 31)
+        rec = self.search([("company_id", "=", company.id), ("year", "=", year),
+                           ("month", "=", 12), ("kind", "=", "year")], limit=1)
+        vals = {"state": "closed", "hard": True, "lock_date": last,
+                "closed_user_id": self.env.uid, "closed_date": fields.Datetime.now()}
+        if rec:
+            rec.write(vals)
+        else:
+            rec = self.create({**vals, "company_id": company.id, "year": year, "month": 12, "kind": "year"})
+        rec._apply_lock(last, hard=True)
+        return rec.id
+
     @api.model
     def state_of(self, company, year, month):
         company = self._as_company(company)
         rec = self.search([("company_id", "=", company.id), ("year", "=", int(year)),
-                           ("month", "=", int(month))], limit=1)
+                           ("month", "=", int(month)), ("kind", "=", "month")], limit=1)
         if not rec:
             return {"state": "open", "hard": False, "closed_by": "", "closed_date": ""}
         return {

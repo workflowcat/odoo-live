@@ -150,6 +150,24 @@ if rest:
     check("відкриття періоду теж у журналі", trail >= 1, str(trail))
     call("res.company", "write", [1], {"fiscalyear_lock_date": False})
 
+# 6б. квартал і рік
+Y2 = 2025
+for m in (1, 2, 3):
+    call("ua.change.log", "accept_period", Y2, m)
+    if not call("ua.period.close", "blockers", 1, Y2, m):
+        call("ua.period.close", "close_period", Y2, m)
+qb = call("ua.period.close", "quarter_blockers", 1, Y2, 1)
+check("квартал бачить незакриті місяці або неподану звітність", isinstance(qb, list), str(qb))
+check("після закриття місяців лишається вимога подати розрахунок",
+      all("місяц" not in b for b in qb) and any("розрахунок" in b for b in qb), str(qb))
+err = fails(lambda: call("ua.period.close", "close_quarter", Y2, 1))
+check("квартал без поданої звітності не закривається", "закрити не можна" in err.lower(), err[:120])
+yb = call("ua.period.close", "year_blockers", 1, Y2)
+check("рік бачить незакриті квартали", any("квартал" in b for b in yb), str(yb))
+err = fails(lambda: call("ua.period.close", "close_year", Y2))
+check("рік без закритих кварталів не закривається", "закрити не можна" in err.lower(), err[:120])
+call("res.company", "write", [1], {"fiscalyear_lock_date": False, "tax_lock_date": False})
+
 # 7. сторінка «Період»
 data = call("ua.period.board", "get_screen_data", year=YEAR, month=MONTH)
 step = [s for s in data["steps"] if s["key"] == "changes"]
