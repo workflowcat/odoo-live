@@ -12,7 +12,15 @@
     COMP за рахунок підприємства
 """
 from . import average, indexation
+from .dsl import evaluate
 from .model import Line, Result
+
+INPUT_CODES = ("BONUS", "GPH", "COMP_DAYS", "DAILY", "FOP_PAY", "INDEX", "AID", "GIFT",
+               "SEVERANCE", "COMP_TOOL", "ALIM_PCT", "UNION_PCT", "EXEC_AMT", "EXEC_PCT",
+               "DAMAGE_AMT", "ADVANCE")
+LEAVE_FIELDS = ("vac_days", "sick_emp_days", "sick_pfu_days", "sick_care_days", "mat_days",
+                "mat_cover_days", "study_days", "child_vac_days", "child3_days", "unpaid_days",
+                "trip_days", "trip_work_days")
 
 PSP_MULT = {"none": 0.0, "base": 1.0, "child": None, "child150": None, "s150": 1.5, "s200": 2.0}
 
@@ -217,4 +225,41 @@ def compute(slip, params):
         if condition and not condition(ctx):
             continue
         ctx.add(code, name, category, amount(ctx))
+    return Result(ctx.lines, dict(ctx.cat))
+
+
+# ---------------------------------------------------------------- правила як дані
+def context(slip, ua, categories):
+    """Плоский контекст для виразів: числа листка, параметри і підсумки категорій."""
+    ctx = dict(ua)
+    ctx.update(categories)
+    ctx.update({
+        "wage": slip.wage,
+        "fte": ua["fte"],
+        "kind": ua["contract_kind"],
+        "work_days": slip.worked.work_days,
+        "norm": ua["month_workdays"] or slip.worked.work_days or 1.0,
+        "worked": slip.worked.worked(),
+        "full_month": bool(ua["month_workdays"]) and slip.worked.work_days >= ua["month_workdays"],
+    })
+    for field in LEAVE_FIELDS:
+        ctx[field] = getattr(slip.leaves, field)
+    for code in INPUT_CODES:
+        ctx["in_" + code] = float(slip.inputs.get(code) or 0.0)
+    return ctx
+
+
+def compute_rules(slip, params, ruleset):
+    """Порахувати листок за набором правил-даних. Результат той самий, що й у compute()."""
+    ua = values(slip, params)
+    ctx = _Ctx(slip, ua)
+    names = context(slip, ua, ctx.cat)
+    for item in ruleset.derived:
+        names[item["name"]] = evaluate(item["value"], names)
+    for rule in ruleset.rules:
+        if rule.get("when") and not evaluate(rule["when"], names):
+            continue
+        amount = evaluate(rule["amount"], names)
+        ctx.add(rule["code"], rule["name"], rule["category"], amount)
+        names.update(ctx.cat)
     return Result(ctx.lines, dict(ctx.cat))

@@ -2,9 +2,11 @@
 """Усі перевірки пакета: python3 -m payroll_core.tests"""
 import sys
 
-from . import dps, golden
+from . import dps, dsl, golden
 
 code = golden.main()
+print()
+code |= dsl.main()
 print()
 code |= dps.main()
 sys.exit(code)
