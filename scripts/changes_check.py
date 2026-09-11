@@ -134,6 +134,13 @@ if rest:
     Y2, M2 = 2025, 1
     call("ua.change.log", "accept_period", Y2, M2)
     check("порожній місяць блокерів не має", not call("ua.period.close", "blockers", 1, Y2, M2))
+    # перевірка має бути повторюваною: якщо місяць уже закритий попереднім запуском, відкриваємо його
+    prev = call("ua.period.close", "search", [["year", "=", Y2], ["month", "=", M2], ["kind", "=", "month"]], limit=1)
+    if prev:
+        call("ua.period.close", "write", prev, {"reopen_reason": "повторний запуск перевірки"})
+        if call("ua.period.close", "read", prev, ["state"])[0]["state"] == "closed":
+            call("ua.period.close", "action_reopen", prev)
+            call("ua.change.log", "accept_period", Y2, M2)   # саме відкриття теж пише рядок у журнал
     cid = call("ua.period.close", "close_period", Y2, M2)
     rec = call("ua.period.close", "read", [cid], ["state", "lock_date", "closed_user_id", "hard"])[0]
     check("місяць закрито", rec["state"] == "closed", str(rec["state"]))
@@ -154,7 +161,8 @@ if rest:
 Y2 = 2025
 for m in (1, 2, 3):
     call("ua.change.log", "accept_period", Y2, m)
-    if not call("ua.period.close", "blockers", 1, Y2, m):
+    state = call("ua.period.close", "state_of", 1, Y2, m)
+    if state["state"] != "closed" and not call("ua.period.close", "blockers", 1, Y2, m):
         call("ua.period.close", "close_period", Y2, m)
 qb = call("ua.period.close", "quarter_blockers", 1, Y2, 1)
 check("квартал бачить незакриті місяці або неподану звітність", isinstance(qb, list), str(qb))
