@@ -9,8 +9,21 @@
           <button name="action_refill" type="object" string="Перерахувати" invisible="state != 'draft'"/>
           <button name="action_confirm" type="object" string="Затвердити" invisible="state != 'draft'" class="oe_highlight"/>
           <button name="action_draft" type="object" string="Повернути в чернетку" invisible="state != 'confirmed'"/>
+          <button name="action_submit" type="object" string="Подано до ПФУ" class="oe_highlight"
+                  invisible="state not in ('confirmed', 'rejected')"/>
+          <button name="action_accept" type="object" string="ПФУ прийняв" class="oe_highlight"
+                  invisible="state != 'submitted'"/>
+          <button name="action_reject" type="object" string="ПФУ відмовив" invisible="state != 'submitted'"/>
+          <button name="action_register_funding" type="object" string="Кошти надійшли" class="oe_highlight"
+                  invisible="state not in ('accepted', 'funded_partial')"/>
+          <button name="action_register_payment" type="object" string="Виплачено працівникам" class="oe_highlight"
+                  invisible="state not in ('funded', 'funded_partial')"/>
+          <button name="action_notice_sent" type="object" string="Повідомлення подано" class="oe_highlight"
+                  invisible="state != 'paid'"/>
+          <button name="action_done" type="object" string="Завершити" invisible="state != 'notified'"/>
           <button name="%(action_report_ua_pfu_claim)d" type="action" string="Друк"/>
-          <field name="state" widget="statusbar"/>
+          <field name="state" widget="statusbar"
+                 statusbar_visible="draft,confirmed,submitted,accepted,funded,paid,notified,done"/>
         </header>
         <sheet>
           <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
@@ -21,7 +34,24 @@
             </group>
             <group>
               <field name="total"/>
+              <field name="funding_journal_id"/>
               <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+            </group>
+          </group>
+          <group string="Цикл фінансування" invisible="state in ('draft', 'confirmed')">
+            <group>
+              <field name="submitted_date"/>
+              <field name="accepted_date"/>
+              <field name="reject_reason" invisible="state != 'rejected'" required="state == 'rejected'"/>
+              <field name="notice_date"/>
+              <field name="notice_deadline"/>
+            </group>
+            <group>
+              <field name="funded_amount"/>
+              <field name="funded_date"/>
+              <field name="unfunded"/>
+              <field name="paid_amount"/>
+              <field name="to_pay"/>
             </group>
           </group>
           <notebook>

@@ -270,6 +270,25 @@ class UaPeriodBoard(models.AbstractModel):
                 continue
             out.append({"title": step["title"], "detail": step["fact"], "level": "warning",
                         "action": step["action"], "key": step["key"]})
+        claim = self.env["ua.pfu.claim"].search([
+            ("company_id", "=", company.id),
+            ("payslip_run_id.date_start", ">=", self._bounds(year, month)[0]),
+            ("payslip_run_id.date_start", "<=", self._bounds(year, month)[1]),
+        ], limit=1)
+        if claim and claim.state != "done":
+            stage = {
+                "draft": "заяву не подано", "confirmed": "заяву не подано",
+                "submitted": "ПФУ ще не прийняв заяву",
+                "rejected": "ПФУ відмовив: %s" % (claim.reject_reason or ""),
+                "accepted": "кошти від ПФУ не надійшли",
+                "funded_partial": "профінансовано частково, залишок %s" % self._money(claim.unfunded),
+                "funded": "допомогу не виплачено працівникам",
+                "paid": "повідомлення не подано, строк %s" % (
+                    claim.notice_deadline.strftime("%d.%m.%Y") if claim.notice_deadline else ""),
+                "notified": "заяву не завершено",
+            }.get(claim.state, claim.state)
+            out.append({"title": "Фінансування ПФУ", "detail": stage, "level": "warning",
+                        "action": {"model": "ua.pfu.claim", "res_id": claim.id}, "key": "pfu"})
         for row in self.env["ua.dashboard"]._get_attention(company):
             detail = row["detail"]
             if row.get("count") and str(row["count"]) not in detail:

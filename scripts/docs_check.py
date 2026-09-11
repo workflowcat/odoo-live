@@ -111,6 +111,24 @@ if emp_ids:
 else:
     check("довідка про доходи: знайдено працівника Крамар", False)
 
+# ---- цикл фінансування ПФУ: заява - прийняття - кошти - виплата - повідомлення ----
+claim_ids = call("ua.pfu.claim", "search", [["state", "!=", "draft"]], limit=1) or call("ua.pfu.claim", "search", [], limit=1)
+if claim_ids:
+    claim = claim_ids[0]
+    fields_pfu = call("ua.pfu.claim", "fields_get", [], attributes=["type"])
+    need = {"submitted_date", "accepted_date", "funded_amount", "paid_amount", "notice_date",
+            "notice_deadline", "unfunded", "to_pay", "funding_journal_id"}
+    check("заява ПФУ має поля циклу фінансування", need.issubset(fields_pfu))
+    states = dict(call("ua.pfu.claim", "fields_get", ["state"])["state"]["selection"])
+    check("стани заяви покривають увесь цикл", {"submitted", "accepted", "rejected", "funded_partial", "funded", "paid", "notified", "done"}.issubset(states))
+    data = call("ua.pfu.claim", "read", [claim], ["state", "total", "funded_amount", "paid_amount",
+                                                  "unfunded", "to_pay", "notice_deadline"])[0]
+    check("заява проходить цикл до завершення", data["state"] in ("done", "notified", "paid"))
+    check("залишки рахуються", abs(data["unfunded"]) < 0.01 and abs(data["to_pay"]) < 0.01)
+    check("строк повідомлення визначено", bool(data["notice_deadline"]))
+else:
+    check("заява ПФУ знайдена", False)
+
 print()
 if errors:
     print(f"ПОМИЛКИ: {len(errors)}")
