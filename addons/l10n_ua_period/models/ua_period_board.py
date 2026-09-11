@@ -318,6 +318,120 @@ class UaPeriodBoard(models.AbstractModel):
             return "%s позиції" % count
         return "%s позицій" % count
 
+
+    # ------------------------------------------------------------------ люди і суми
+    CATEGORY_ORDER = ("BASIC", "ALW", "AVG", "MAT", "NOTAX", "NOESV", "GROSS", "DED", "NET", "COMP")
+    SLIP_STATE = {"draft": "чернетка", "verify": "перевірено", "done": "проведено", "cancel": "скасовано"}
+
+    def _payment_state(self, company, first, last):
+        """Стан виплати за працівником: у якій відомості і чи позначена оплаченою."""
+        batches = self.env["ua.payment.batch"].search([
+            ("company_id", "=", company.id), ("year", "=", first.year), ("month", "=", first.month),
+        ])
+        out = {}
+        for batch in batches:
+            for line in batch.line_ids.filtered("employee_id"):
+                current = out.get(line.employee_id.id)
+                if current and current["paid"]:
+                    continue
+                out[line.employee_id.id] = {"batch": batch.name, "batch_id": batch.id,
+                                            "paid": batch.state == "paid",
+                                            "amount": self._money(line.amount)}
+        return out
+
+    @api.model
+    def get_people(self, year=None, month=None):
+        """Рядок на працівника: час, нараховано, до виплати, ЄСВ, стан листка і виплати."""
+        company = self._company()
+        today = fields.Date.context_today(self)
+        year = int(year or today.year)
+        month = int(month or today.month)
+        first, last = self._bounds(year, month)
+        payments = self._payment_state(company, first, last)
+        sheet = self.env["ua.timesheet.sheet"].search([
+            ("company_id", "=", company.id), ("year", "=", year), ("month", "=", month)], limit=1)
+        by_employee = {line.employee_id.id: line for line in sheet.line_ids} if sheet else {}
+        rows = []
+        for slip in self._slips(company, first, last).sorted(lambda s: s.employee_id.name or ""):
+            employee = slip.employee_id
+            lines = {line.code: line.total for line in slip.line_ids}
+            time_line = by_employee.get(employee.id)
+            flags = []
+            if not employee.sudo()._ua_payment_account():
+                flags.append("немає рахунку")
+            if time_line and abs(time_line.diff_days) > 0.01:
+                flags.append("відхилення в табелі %s дн" % self._money(time_line.diff_days).replace(",00", ""))
+            payment = payments.get(employee.id)
+            rows.append({
+                "employee_id": employee.id,
+                "name": employee.name,
+                "job": employee.job_title or "",
+                "department": employee.department_id.name or "",
+                "days": self._money(time_line.days_worked).replace(",00", "") if time_line else "",
+                "gross": self._money(lines.get("GROSS", 0.0)),
+                "net": self._money(lines.get("NET", 0.0)),
+                "esv": self._money(lines.get("ESV", 0.0)),
+                "state": self.SLIP_STATE.get(slip.state, slip.state),
+                "done": slip.state == "done",
+                "payment": (payment["batch"] if payment else ""),
+                "paid": bool(payment and payment["paid"]),
+                "flags": flags,
+            })
+        return rows
+
+    @api.model
+    def get_person(self, employee_id, year=None, month=None):
+        """Картка працівника за місяць: рядки розрахунку, події, виплата."""
+        company = self._company()
+        today = fields.Date.context_today(self)
+        year = int(year or today.year)
+        month = int(month or today.month)
+        first, last = self._bounds(year, month)
+        employee = self.env["hr.employee"].browse(int(employee_id))
+        slip = self._slips(company, first, last).filtered(lambda s: s.employee_id == employee)[:1]
+        lines = []
+        if slip:
+            order = {code: index for index, code in enumerate(self.CATEGORY_ORDER)}
+            for line in slip.line_ids.sorted(lambda l: (order.get(l.category_id.code, 99), l.sequence)):
+                if not line.total:
+                    continue
+                lines.append({"code": line.code, "name": line.name,
+                              "category": line.category_id.name or "",
+                              "amount": self._money(line.total)})
+        events = []
+        for order_doc in self.env["ua.hr.order"].search([
+                ("employee_id", "=", employee.id), ("date", ">=", first), ("date", "<=", last)]):
+            events.append({"title": order_doc.name or order_doc.display_name,
+                           "detail": dict(order_doc._fields["order_type"].selection).get(order_doc.order_type, ""),
+                           "model": "ua.hr.order", "id": order_doc.id})
+        for leave in self.env["hr.leave"].search([
+                ("employee_id", "=", employee.id), ("state", "=", "validate"),
+                ("request_date_from", "<=", last), ("request_date_to", ">=", first)]):
+            events.append({"title": leave.holiday_status_id.name or "",
+                           "detail": "%s - %s" % (leave.request_date_from.strftime("%d.%m"),
+                                                  leave.request_date_to.strftime("%d.%m")),
+                           "model": "hr.leave", "id": leave.id})
+        payment = self._payment_state(company, first, last).get(employee.id)
+        return {
+            "employee_id": employee.id,
+            "name": employee.name,
+            "job": employee.job_title or "",
+            "department": employee.department_id.name or "",
+            "slip_id": slip.id if slip else False,
+            "state": self.SLIP_STATE.get(slip.state, slip.state) if slip else "листка немає",
+            "lines": lines,
+            "events": events,
+            "payment": payment or {},
+        }
+
+    @api.model
+    def action_open_person(self, employee_id, slip_id=None):
+        if slip_id:
+            return {"type": "ir.actions.act_window", "res_model": "hr.payslip", "res_id": int(slip_id),
+                    "view_mode": "form", "views": [(False, "form")], "target": "current"}
+        return {"type": "ir.actions.act_window", "res_model": "hr.employee", "res_id": int(employee_id),
+                "view_mode": "form", "views": [(False, "form")], "target": "current"}
+
     # ------------------------------------------------------------------ обороти
     def _turnover(self, company, first, last):
         """Обороти за групами рахунків: беремо всі субрахунки за префіксом (311 і 311001 разом)."""

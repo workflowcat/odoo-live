@@ -173,6 +173,17 @@ check("скасування leave видалило створену відпус
 (wage_order | leave_order).unlink()
 
 env.cr.commit()
+
+# наслідки наказу: що система створила після проведення
+posted = env["ua.hr.order"].search([("state", "in", ("posted", "acknowledged"))], limit=1)
+if posted:
+    check("наказ показує свої наслідки", bool(posted.ua_effect_note), posted.ua_effect_note)
+    check("наслідки рахують листки або виплату",
+          posted.ua_effect_slip_count >= 0 and posted.ua_effect_payment_count >= 0,
+          f"листків {posted.ua_effect_slip_count}, рядків виплати {posted.ua_effect_payment_count}")
+    act = posted.action_ua_open_slips()
+    check("кнопка «Листки» відкриває листки місяця", act.get("res_model") == "hr.payslip", str(act.get("res_model")))
+
 print()
 if errors:
     print(f"ПЕРЕВІРКУ НЕ ПРОЙДЕНО: {len(errors)} з {total} пунктів провалено")

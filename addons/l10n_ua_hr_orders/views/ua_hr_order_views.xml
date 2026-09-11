@@ -14,8 +14,29 @@
           <field name="state" widget="statusbar" statusbar_visible="draft,posted,acknowledged"/>
         </header>
         <sheet>
+          <div class="oe_button_box" name="button_box" invisible="state == 'draft'">
+            <button name="action_ua_open_version" type="object" class="oe_stat_button" icon="fa-file-text-o"
+                    invisible="not version_id">
+              <div class="o_stat_info"><span class="o_stat_text">Версія</span><span class="o_stat_text">договору</span></div>
+            </button>
+            <button name="action_ua_open_leave" type="object" class="oe_stat_button" icon="fa-calendar"
+                    invisible="not leave_id">
+              <div class="o_stat_info"><span class="o_stat_text">Відсутність</span></div>
+            </button>
+            <button name="action_ua_open_slips" type="object" class="oe_stat_button" icon="fa-calculator"
+                    invisible="ua_effect_slip_count == 0">
+              <field name="ua_effect_slip_count" widget="statinfo" string="Листки"/>
+            </button>
+            <button name="action_ua_open_payments" type="object" class="oe_stat_button" icon="fa-money"
+                    invisible="ua_effect_payment_count == 0">
+              <field name="ua_effect_payment_count" widget="statinfo" string="Виплата"/>
+            </button>
+          </div>
           <div class="oe_title">
             <h1><field name="name" readonly="1" placeholder="Новий"/></h1>
+            <div class="text-muted" invisible="state == 'draft'">
+              Наслідки: <field name="ua_effect_note" readonly="1" class="oe_inline"/>
+            </div>
           </div>
           <group>
             <group>

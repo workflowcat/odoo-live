@@ -60,6 +60,39 @@
           </div>
         </div>
 
+        <div class="o_ua_period_section">
+          <h5>Люди і суми</h5>
+          <div class="o_ua_period_people">
+            <table class="table table-sm o_ua_period_table">
+              <thead>
+                <tr>
+                  <th>Працівник</th><th>Підрозділ</th><th class="text-end">Дні</th>
+                  <th class="text-end">Нараховано</th><th class="text-end">До виплати</th>
+                  <th class="text-end">ЄСВ</th><th>Листок</th><th>Виплата</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr t-foreach="state.people" t-as="row" t-key="row.employee_id"
+                    t-attf-class="o_ua_person_row #{state.person and state.person.employee_id === row.employee_id ? 'active' : ''}"
+                    t-on-click="() => this.openPerson(row)">
+                  <td>
+                    <t t-esc="row.name"/>
+                    <span t-if="row.flags.length" class="o_ua_person_flag" t-esc="row.flags.join(' · ')"/>
+                  </td>
+                  <td class="text-muted" t-esc="row.department"/>
+                  <td class="text-end" t-esc="row.days"/>
+                  <td class="text-end" t-esc="row.gross"/>
+                  <td class="text-end" t-esc="row.net"/>
+                  <td class="text-end" t-esc="row.esv"/>
+                  <td><span t-attf-class="o_ua_person_state #{row.done ? 'done' : 'draft'}" t-esc="row.state"/></td>
+                  <td><span t-if="row.payment" t-attf-class="o_ua_person_state #{row.paid ? 'done' : 'draft'}"
+                            t-esc="row.paid ? 'оплачено' : 'у відомості'"/></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <h5 class="o_ua_period_progress_title">Хід роботи · <t t-esc="data.done"/> з <t t-esc="data.total"/></h5>
         <div class="o_ua_period_steps">
           <t t-foreach="data.steps" t-as="step" t-key="step.key">
@@ -141,6 +174,49 @@
           <button class="btn btn-sm btn-secondary" t-if="!data.year_close.closed"
                   t-att-disabled="state.busy or data.year_close.blockers.length"
                   t-on-click="() => this.closeYear()">Закрити рік остаточно</button>
+        </div>
+        <div class="o_ua_person_panel" t-if="state.person">
+          <div class="o_ua_person_panel_head">
+            <div>
+              <div class="o_ua_person_panel_name" t-esc="state.person.name"/>
+              <div class="text-muted small">
+                <t t-esc="state.person.job"/><t t-if="state.person.department"> · <t t-esc="state.person.department"/></t>
+              </div>
+            </div>
+            <button class="btn btn-sm btn-link" t-on-click="() => this.closePerson()">Закрити</button>
+          </div>
+
+          <div class="o_ua_person_panel_body">
+            <div class="o_ua_person_panel_state">Листок: <t t-esc="state.person.state"/></div>
+            <table class="table table-sm o_ua_period_table">
+              <tbody>
+                <tr t-foreach="state.person.lines" t-as="line" t-key="line.code">
+                  <td t-esc="line.name"/>
+                  <td class="text-end" t-esc="line.amount"/>
+                </tr>
+              </tbody>
+            </table>
+
+            <div t-if="state.person.events.length">
+              <h6>Події місяця</h6>
+              <div t-foreach="state.person.events" t-as="event" t-key="event.model + '-' + event.id"
+                   class="o_ua_period_detail" t-on-click="() => this.openRecord({model: event.model, id: event.id})">
+                <span t-esc="event.title"/>
+                <span class="text-muted" t-esc="event.detail"/>
+              </div>
+            </div>
+
+            <div t-if="state.person.payment.batch" class="o_ua_person_panel_state">
+              Виплата: <t t-esc="state.person.payment.amount"/> ·
+              <t t-esc="state.person.payment.paid ? 'оплачено' : 'у відомості'"/>
+            </div>
+          </div>
+
+          <div class="o_ua_person_panel_foot">
+            <button class="btn btn-sm btn-secondary" t-if="state.person.slip_id"
+                    t-on-click="() => this.openPersonRecord(state.person.slip_id)">Відкрити листок</button>
+            <button class="btn btn-sm btn-secondary" t-on-click="() => this.openPersonRecord(false)">Картка працівника</button>
+          </div>
         </div>
       </t>
     </div>

@@ -15,15 +15,18 @@ export class UaPeriod extends Component {
         this.orm = useService("orm");
         this.action = useService("action");
         this.notification = useService("notification");
-        this.state = useState({ data: null, loading: true, busy: false, open: {} });
+        this.state = useState({ data: null, loading: true, busy: false, open: {}, people: [], person: null });
         this.stateLabel = (s) => STATE_LABEL[s] || s;
         onWillStart(() => this.load());
     }
 
     async load(period = {}) {
         this.state.loading = true;
+        this.state.person = null;
         try {
             this.state.data = await this.orm.call("ua.period.board", "get_screen_data", [], period);
+            const now = this.state.data.period;
+            this.state.people = await this.orm.call("ua.period.board", "get_people", [now.year, now.month]);
         } finally {
             this.state.loading = false;
         }
@@ -155,6 +158,30 @@ export class UaPeriod extends Component {
             target: "current",
             name: row.label,
         });
+    }
+
+    async openPerson(row) {
+        const period = this.state.data.period;
+        if (this.state.person && this.state.person.employee_id === row.employee_id) {
+            return this.closePerson();
+        }
+        try {
+            this.state.person = await this.orm.call("ua.period.board", "get_person",
+                [row.employee_id, period.year, period.month]);
+        } catch (e) {
+            this.notification.add((e.data && e.data.message) || e.message || "Помилка", { type: "danger" });
+        }
+    }
+
+    closePerson() {
+        this.state.person = null;
+    }
+
+    async openPersonRecord(slipId) {
+        const person = this.state.person;
+        const action = await this.orm.call("ua.period.board", "action_open_person",
+            [person.employee_id, slipId || false]);
+        await this.action.doAction(action);
     }
 
     async openClose() {
