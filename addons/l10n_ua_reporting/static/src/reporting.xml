@@ -37,6 +37,12 @@
           <div class="o_ua_reporting_header">
             <div class="o_ua_reporting_title">
               <h4 t-esc="data.run.name"/>
+              <div t-if="data.run.base_run" class="text-muted small">
+                виправляє: <t t-esc="data.run.base_run"/>
+              </div>
+              <div t-if="data.run.corrections and data.run.corrections.length" class="text-muted small">
+                коригування: <t t-esc="data.run.corrections.length"/>
+              </div>
               <div class="o_ua_reporting_steps">
                 <t t-foreach="this.stateSteps" t-as="s" t-key="s">
                   <span t-attf-class="o_ua_step #{data.run.state === s ? 'active' : ''}" t-esc="this.stateLabel(s)"/>
@@ -48,6 +54,10 @@
               <button class="btn btn-sm btn-primary" t-on-click="generate" t-att-disabled="state.busy || this.hasErrors">Сформувати</button>
               <button class="btn btn-sm btn-success" t-on-click="markSubmitted" t-att-disabled="state.busy || data.run.state !== 'generated'">Позначити поданим</button>
               <button class="btn btn-sm btn-outline-secondary" t-on-click="downloadAll" t-att-disabled="!data.run.files.length">Завантажити всі файли</button>
+              <button t-if="data.run.can_correct" class="btn btn-sm btn-outline-danger" t-att-disabled="state.busy"
+                      t-on-click="() => this.createCorrection('HZN')">Звітний новий</button>
+              <button t-if="data.run.can_correct" class="btn btn-sm btn-outline-danger" t-att-disabled="state.busy"
+                      t-on-click="() => this.createCorrection('HZU')">Уточнюючий</button>
             </div>
           </div>
 

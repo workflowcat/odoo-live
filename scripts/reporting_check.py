@@ -163,6 +163,29 @@ else:
     except Exception as exc:
         check("GET /web/assets/debug/web.assets_backend.js", False, str(exc)[:300])
 
+# 12. Коригування об'єднаної звітності: створення прогону і зрозуміла відмова без розбіжностей
+j05_run = call("ua.report.run", "search_read",
+               [["report_code", "=", "j05"], ["state", "in", ["generated", "submitted"]], ["doc_kind", "=", "HZ"]],
+               fields=["id", "name"], limit=1)
+if not j05_run:
+    print("[--] немає сформованого звітного розрахунку, перевірку коригування пропущено")
+else:
+    screen = call("ua.report.run", "get_screen_data", run_id=j05_run[0]["id"])
+    check("сформований розрахунок можна коригувати", screen["run"].get("can_correct") is True)
+    created = call("ua.report.run", "create_correction", j05_run[0]["id"], "HZU")
+    check("коригування створюється з позначкою типу", "уточнюючий" in created["name"], created["name"])
+    corr = call("ua.report.run", "read", [created["id"]], ["doc_kind", "base_run_id", "state", "correction_no"])[0]
+    check("у коригуванні вказано тип, основу і номер",
+          corr["doc_kind"] == "HZU" and corr["base_run_id"] and corr["correction_no"] == 1,
+          f"{corr['doc_kind']}, основа {corr['base_run_id'][1] if corr['base_run_id'] else '-'}, № {corr['correction_no']}")
+    try:
+        call("ua.report.run", "action_generate", [created["id"]])
+        check("без змін коригування не формується", False, "файли сформувалися, хоча змін немає")
+    except SystemExit as exc:
+        check("без змін коригування не формується і пояснює чому", "Розбіжностей" in str(exc), str(exc)[:90])
+    call("ua.report.run", "unlink", [created["id"]])
+    check("тестове коригування прибрано", not call("ua.report.run", "search", [["id", "=", created["id"]]]))
+
 print()
 if errors:
     print(f"ПЕРЕВІРКУ НЕ ПРОЙДЕНО: {len(errors)} з {total} пунктів провалено")

@@ -78,6 +78,19 @@ export class UaReporting extends Component {
         }
     }
 
+    async createCorrection(kind) {
+        this.state.busy = true;
+        try {
+            const created = await this.orm.call("ua.report.run", "create_correction", [this.state.data.run.id, kind]);
+            this.notification.add(`Створено: ${created.name}`, { type: "success" });
+            await this.load({ run_id: created.id });
+        } catch (e) {
+            this.notification.add((e.data && e.data.message) || e.message || "Помилка", { type: "danger" });
+        } finally {
+            this.state.busy = false;
+        }
+    }
+
     refresh() {
         return this._runAction("action_refresh");
     }

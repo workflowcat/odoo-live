@@ -68,6 +68,14 @@ class UaReportRun(models.Model):
     check_ids = fields.One2many("ua.report.check", "run_id", "Перевірки")
     attachment_ids = fields.Many2many("ir.attachment", "ua_report_run_attachment_rel", "run_id", "attachment_id", string="Файли")
     receipt_ids = fields.Many2many("ir.attachment", "ua_report_run_receipt_rel", "run_id", "attachment_id", string="Квитанції")
+    doc_kind = fields.Selection(
+        [("HZ", "Звітний"), ("HZN", "Звітний новий"), ("HZU", "Уточнюючий")],
+        "Тип розрахунку", default="HZ", required=True, tracking=True,
+        help="Звітний новий подають до кінця строку, уточнюючий - після. В обох випадках у додатках "
+             "лишаються тільки змінені рядки: старий з ознакою 1, новий з ознакою 0.")
+    base_run_id = fields.Many2one("ua.report.run", "Виправляє прогін", readonly=True, copy=False)
+    correction_no = fields.Integer("Номер коригування", default=0, readonly=True, copy=False)
+    correction_ids = fields.One2many("ua.report.run", "base_run_id", "Коригування")
     submitted_date = fields.Date("Дата подання", readonly=True, copy=False)
     submitted_by = fields.Many2one("res.users", "Подав", readonly=True, copy=False)
     note = fields.Text("Примітка")
@@ -77,10 +85,13 @@ class UaReportRun(models.Model):
     ]
 
     # ------------------------------------------------------------------ обчислювані поля
-    @api.depends("report_code", "year", "quarter", "month", "date")
+    @api.depends("report_code", "year", "quarter", "month", "date", "doc_kind", "correction_no")
     def _compute_period_key(self):
         for run in self:
-            run.period_key = _period_key_value(run.report_code, run.year, run.quarter, run.month, run.date)
+            key = _period_key_value(run.report_code, run.year, run.quarter, run.month, run.date)
+            if run.doc_kind and run.doc_kind != "HZ":
+                key = "%s-%s-%s" % (key, run.doc_kind.lower(), run.correction_no or 1)
+            run.period_key = key
 
     @api.depends("report_code", "year", "quarter", "month", "date")
     def _compute_name(self):
@@ -89,6 +100,9 @@ class UaReportRun(models.Model):
             base = names.get(run.report_code, "")
             if run.report_code == "j05" and run.quarter:
                 run.name = _("%(base)s, %(q)s квартал %(y)s") % {"base": base, "q": run.quarter, "y": run.year}
+                if run.doc_kind and run.doc_kind != "HZ":
+                    label = dict(run._fields["doc_kind"].selection).get(run.doc_kind, "")
+                    run.name = "%s (%s %s)" % (run.name, label.lower(), run.correction_no or 1)
             elif run.report_code in ("j30", "pfu", "timesheet", "trial", "ledger") and run.month:
                 run.name = "%s, %s %s" % (base, MONTHS_UA.get(run.month, "").capitalize(), run.year)
             elif run.report_code == "staff" and run.date:
@@ -212,6 +226,11 @@ class UaReportRun(models.Model):
             "date": self.date.isoformat() if self.date else False,
             "submitted_date": self.submitted_date.isoformat() if self.submitted_date else False,
             "submitted_by": self.submitted_by.name or "",
+            "doc_kind": self.doc_kind,
+            "doc_kind_label": dict(self._fields["doc_kind"].selection).get(self.doc_kind, ""),
+            "base_run": self.base_run_id.name or "",
+            "corrections": [{"id": r.id, "name": r.name, "state": r.state} for r in self.correction_ids],
+            "can_correct": self.report_code == "j05" and self.state in ("generated", "submitted"),
             "files": [{"id": a.id, "name": a.name, "mimetype": a.mimetype} for a in self.attachment_ids],
             "receipts": [{"id": a.id, "name": a.name, "mimetype": a.mimetype} for a in self.receipt_ids],
             "note": self.note or "",
@@ -589,6 +608,42 @@ class UaReportRun(models.Model):
         }
 
     # ------------------------------------------------------------------ формування: j05
+    def _base_files_for_month(self, month):
+        """Файли Д1 і 4ДФ поданого розрахунку за конкретний місяць кварталу.
+
+        Місяць і рік зашиті в імені файлу ДПС перед кодом ДПІ: ...<тип періоду><ММ><РРРР><ДПІ>.XML
+        """
+        self.ensure_one()
+        if not self.base_run_id:
+            return self.env["ir.attachment"]
+        pattern = re.compile(r"1%02d%d\d{4}\.XML$" % (month, self.year), re.IGNORECASE)
+        return self.base_run_id.attachment_ids.filtered(
+            lambda att: ("J0510111" in (att.name or "") or "J0510411" in (att.name or "")) and pattern.search(att.name or ""))
+
+    @api.model
+    def create_correction(self, run_id, kind="HZU"):
+        """Виклик з екрана: зробити коригування і повернути id нового прогону."""
+        run = self.browse(int(run_id)).action_create_correction(kind)
+        return {"id": run.id, "name": run.name}
+
+    def action_create_correction(self, kind="HZU"):
+        """Новий прогін-коригування на основі поданого: рядки на вилучення беруться з його файлів."""
+        self.ensure_one()
+        if self.report_code != "j05":
+            raise UserError(_("Коригування зроблено для об'єднаної звітності."))
+        if self.state not in ("generated", "submitted"):
+            raise UserError(_("Коригувати можна лише сформований або поданий розрахунок."))
+        if kind not in ("HZN", "HZU"):
+            raise UserError(_("Тип коригування: звітний новий або уточнюючий."))
+        base = self.base_run_id or self
+        number = max(base.correction_ids.mapped("correction_no") or [0]) + 1
+        run = self.create({
+            "report_code": "j05", "company_id": self.company_id.id, "year": self.year, "quarter": self.quarter,
+            "doc_kind": kind, "base_run_id": base.id, "correction_no": number,
+        })
+        run.message_post(body=_("Коригування до «%s»") % base.name)
+        return run
+
     def _generate_j05(self):
         self.ensure_one()
         c = self.company_id
@@ -596,8 +651,15 @@ class UaReportRun(models.Model):
         atts = self.env["ir.attachment"]
         notes = []
         for m in self._quarter_months():
-            w = Wizard.create({"company_id": c.id, "year": self.year, "month": m, "doc_type": "HZ", "number": 1,
-                               "with_d1": True, "with_4df": True, "with_d5": True, "fill_date": fields.Date.context_today(self)})
+            values = {"company_id": c.id, "year": self.year, "month": m, "doc_type": self.doc_kind or "HZ", "number": 1,
+                      "with_d1": True, "with_4df": True, "with_d5": True, "fill_date": fields.Date.context_today(self)}
+            if self.doc_kind in ("HZN", "HZU"):
+                base_files = self._base_files_for_month(m)
+                if not base_files:
+                    notes.append("%s: немає файлів поданого розрахунку" % MONTHS_UA.get(m, m))
+                    continue
+                values["base_attachment_ids"] = [(6, 0, base_files.ids)]
+            w = Wizard.create(values)
             try:
                 w.action_generate()
             except UserError as exc:

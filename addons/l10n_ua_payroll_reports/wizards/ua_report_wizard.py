@@ -15,6 +15,17 @@ PSP_CODE = {"none": None, "base": "01", "child": "04", "child150": "04", "s150":
 GENDER = {"male": "1", "female": "0"}   # схема допускає лише 0 або 1; трактування підтвердити (припущення: 1 = чоловік, 0 = жінка)
 
 
+D1_COLS = ["G5", "G6", "G7S", "G8", "G9", "G101", "G102", "G111S", "G112S", "G113S", "G12", "G13", "G14",
+           "G15", "G16", "G17", "G18", "G19", "G20", "G21", "G22", "G23", "G24", "G25", "G26"]
+DF_COLS = ["G02", "G03A", "G03", "G04A", "G04", "G5A", "G5", "G05", "G06D", "G07D", "G08", "G09"]
+D1_FLAG, DF_FLAG = "G26", "G09"          # графа «Ознака (0, 1)»: 0 - рядок на введення, 1 - на вилучення
+D1_KEY = ("G7S", "G8", "G101", "G102")   # РНОКПП, категорія ЗО, місяць, рік
+DF_KEY = ("G02", "G05")                  # РНОКПП, ознака доходу
+D1_SUMS = [("R01G16", "G16"), ("R01G17", "G17"), ("R01G18", "G18"), ("R01G19", None), ("R01G20", "G20")]
+DF_SUMS = [("R01G03A", "G03A"), ("R01G03", "G03"), ("R01G04A", "G04A"), ("R01G04", "G04"),
+           ("R01G5A", "G5A"), ("R01G5", "G5")]
+
+
 def r2(x):
     return round(float(x or 0.0) + 1e-9, 2)
 
@@ -32,6 +43,11 @@ class UaPayrollReportWizard(models.TransientModel):
     with_4df = fields.Boolean("Додаток 4ДФ", default=True)
     with_d5 = fields.Boolean("Додаток 5 (Д5, трудові відносини)", default=True)
     fill_date = fields.Date("Дата заповнення", default=fields.Date.context_today, required=True)
+    base_attachment_ids = fields.Many2many(
+        "ir.attachment", "ua_report_wizard_base_att_rel", "wizard_id", "attachment_id",
+        string="Файли поданого розрахунку",
+        help="XML раніше поданого розрахунку за цей місяць. Для звітного нового і уточнюючого "
+             "з них беруться рядки, які треба вилучити.")
     result_ids = fields.Many2many("ir.attachment", string="Файли")
     log = fields.Text("Перевірка за схемою", readonly=True)
 
@@ -137,26 +153,92 @@ class UaPayrollReportWizard(models.TransientModel):
         return [("HFILL", self.fill_date), ("HKBOS", c.ua_director_rnokpp or ""), ("HBOS", c.ua_director_name or ""),
                 ("HKBUH", c.ua_accountant_rnokpp or None), ("HBUH", c.ua_accountant_name or None)]
 
-    def _build_d1(self, all_rows):
+    # ---- рядки як текст: один формат і для нових даних, і для розібраного XML ----------
+    def _text_row(self, row, cols, flag="0"):
+        """Рядок у тому вигляді, у якому він лягає в XML: усі колонки - рядки тексту."""
+        X = self.env["ua.dps.xml"]
+        out = {}
+        for col in cols:
+            if col in ("G111S", "G112S", "G113S") and "names" in row:
+                value = row["names"][("G111S", "G112S", "G113S").index(col)]
+            else:
+                value = row.get(col)
+            out[col] = "" if value is None or value == "" or value is False else X._fmt(value)
+        out[D1_FLAG if cols is D1_COLS else DF_FLAG] = flag
+        return out
+
+    @staticmethod
+    def _rows_from_xml(data, cols):
+        """Рядки додатка з поданого XML: елементи T1RXXXX<колонка> з атрибутом ROWNUM."""
+        from lxml import etree
+
+        root = etree.fromstring(data)
+        rows = {}
+        for element in root.iter():
+            tag = etree.QName(element).localname
+            if not tag.startswith("T1RXXXX"):
+                continue
+            col = tag[len("T1RXXXX"):]
+            if col not in cols:
+                continue
+            number = int(element.get("ROWNUM") or 0)
+            rows.setdefault(number, {c: "" for c in cols})[col] = (element.text or "").strip()
+        return [rows[key] for key in sorted(rows)]
+
+    @staticmethod
+    def _diff_rows(old_rows, new_rows, key_cols, flag_col):
+        """Рядки коригування: спершу вилучення старих (ознака 1), потім введення нових (ознака 0).
+        Незмінені рядки в коригування не потрапляють."""
+        def key(row):
+            return tuple(row.get(col, "") for col in key_cols)
+
+        def payload(row):
+            return tuple((col, value) for col, value in sorted(row.items()) if col != flag_col)
+
+        old_by_key, new_by_key = {}, {}
+        for row in old_rows:
+            old_by_key.setdefault(key(row), []).append(row)
+        for row in new_rows:
+            new_by_key.setdefault(key(row), []).append(row)
+        remove, add = [], []
+        for row_key in sorted(set(old_by_key) | set(new_by_key)):
+            olds, news = old_by_key.get(row_key, []), new_by_key.get(row_key, [])
+            old_payloads = [payload(row) for row in olds]
+            new_payloads = [payload(row) for row in news]
+            if old_payloads == new_payloads:
+                continue
+            remove += [dict(row, **{flag_col: "1"}) for row in olds]
+            add += [dict(row, **{flag_col: "0"}) for row in news]
+        return remove + add
+
+    @staticmethod
+    def _signed_sum(rows, col, flag_col):
+        total = 0.0
+        for row in rows:
+            value = row.get(col) or ""
+            if not value:
+                continue
+            total += -float(value) if row.get(flag_col) == "1" else float(value)
+        return r2(total)
+
+    def _build_d1(self, all_rows, text_rows=None):
         c = self.company_id
+        rows = text_rows if text_rows is not None else [self._text_row(r, D1_COLS) for r in all_rows]
         f = self._company_head() + [("HNAME", c.name), ("HTIN", c.company_registry)]
-        cols = ["G5", "G6", "G7S", "G8", "G9", "G101", "G102", "G111S", "G112S", "G113S", "G12", "G13", "G14", "G15", "G16", "G17", "G18", "G19", "G20", "G21", "G22", "G23", "G24", "G25", "G26"]
-        for col in cols:                                     # формат ДПС: усі значення однієї колонки підряд, з ROWNUM
-            for i, r in enumerate(all_rows, 1):
-                if col in ("G111S", "G112S", "G113S"):
-                    val = r["names"][("G111S", "G112S", "G113S").index(col)]
-                else:
-                    val = r.get(col)
-                f.append((f"T1RXXXX{col}", val, {"ROWNUM": i}))
-        f += [("R01G16", r2(sum(r["G16"] for r in all_rows))), ("R01G17", r2(sum(r["G17"] for r in all_rows))),
-              ("R01G18", r2(sum(r["G18"] or 0 for r in all_rows)) or None), ("R01G19", 0.0), ("R01G20", r2(sum(r["G20"] for r in all_rows)))]
+        for col in D1_COLS:                                  # формат ДПС: усі значення однієї колонки підряд, з ROWNUM
+            for i, r in enumerate(rows, 1):
+                f.append((f"T1RXXXX{col}", r.get(col) or None, {"ROWNUM": i}))
+        for tag, col in D1_SUMS:                             # порядок елементів як у схемі: G16, G17, G18, G19, G20
+            if col is None:
+                f.append((tag, 0.0))
+                continue
+            value = self._signed_sum(rows, col, D1_FLAG)
+            f.append((tag, value if (value or tag != "R01G18") else None))
         return f + self._signers()
 
-    def _build_4df(self, persons):
-        c = self.company_id
+    def _4df_rows(self, persons):
+        """Рядки 4ДФ: основний дохід кожної особи плюс окремий рядок допомоги по вагітності та пологах."""
         d1, d2 = self._period()
-        f = self._company_head() + [("HNUM", self.number), ("HNAME", c.name), ("HTIN", c.company_registry), ("HKATOTTG", c.ua_katottg or "")]
-        f += [("R00G01I", sum(1 for p in persons if p["kind"] == "employment")), ("R00G02I", sum(1 for p in persons if p["kind"] == "gph"))]
         rows = []
         for p in persons:
             rows.append({"G02": p["emp"].ua_rnokpp or "", "G03A": p["gross"], "G03": p["gross"], "G04A": p["pdfo"], "G04": p["pdfo"],
@@ -168,12 +250,17 @@ class UaPayrollReportWizard(models.TransientModel):
             if p.get("mat"):
                 rows.append({"G02": p["emp"].ua_rnokpp or "", "G03A": p["mat"], "G03": p["mat"], "G04A": 0.0, "G04": 0.0, "G5A": 0.0, "G5": 0.0, "G05": "128",
                              "G06D": None, "G07D": None, "G08": None, "G09": None})
-        for col in ["G02", "G03A", "G03", "G04A", "G04", "G5A", "G5", "G05", "G06D", "G07D", "G08", "G09"]:
+        return rows
+
+    def _build_4df(self, persons, text_rows=None):
+        c = self.company_id
+        rows = text_rows if text_rows is not None else [self._text_row(r, DF_COLS) for r in self._4df_rows(persons)]
+        f = self._company_head() + [("HNUM", self.number), ("HNAME", c.name), ("HTIN", c.company_registry), ("HKATOTTG", c.ua_katottg or "")]
+        f += [("R00G01I", sum(1 for p in persons if p["kind"] == "employment")), ("R00G02I", sum(1 for p in persons if p["kind"] == "gph"))]
+        for col in DF_COLS:
             for i, r in enumerate(rows, 1):
-                f.append((f"T1RXXXX{col}", r.get(col), {"ROWNUM": i}))
-        f += [("R01G03A", r2(sum(r["G03A"] for r in rows))), ("R01G03", r2(sum(r["G03"] for r in rows))),
-              ("R01G04A", r2(sum(r["G04A"] for r in rows))), ("R01G04", r2(sum(r["G04"] for r in rows))),
-              ("R01G5A", r2(sum(r["G5A"] for r in rows))), ("R01G5", r2(sum(r["G5"] for r in rows)))]
+                f.append((f"T1RXXXX{col}", r.get(col) or None, {"ROWNUM": i}))
+        f += [(tag, self._signed_sum(rows, col, DF_FLAG)) for tag, col in DF_SUMS]
         return f + self._signers()
 
     def _d5_rows(self):
@@ -234,6 +321,31 @@ class UaPayrollReportWizard(models.TransientModel):
         return f + self._signers()
 
     # ---- action ------------------------------------------------------------
+    def _base_rows(self, sub, cols):
+        """Рядки додатка з поданого XML: файл упізнаємо за кодом додатка в імені (J0510111, J0510411)."""
+        code = "J05%s%s" % (sub, VER)
+        for attachment in self.base_attachment_ids:
+            if code in (attachment.name or ""):
+                return self._rows_from_xml(base64.b64decode(attachment.datas), cols)
+        return None
+
+    def _correction_rows(self, all_rows, persons):
+        """Рядки коригування для Д1 і 4ДФ: вилучення поданих рядків і введення виправлених."""
+        if not self.base_attachment_ids:
+            raise UserError("Для звітного нового і уточнюючого розрахунку додайте файли раніше поданого розрахунку: "
+                            "з них беруться рядки на вилучення.")
+        old_d1 = self._base_rows("101", D1_COLS)
+        old_df = self._base_rows("104", DF_COLS)
+        if old_d1 is None and old_df is None:
+            raise UserError("Серед доданих файлів немає ні Д1 (J0510111), ні 4ДФ (J0510411).")
+        new_d1 = [self._text_row(r, D1_COLS) for r in all_rows]
+        new_df = [self._text_row(r, DF_COLS) for r in self._4df_rows(persons)]
+        d1_text = self._diff_rows(old_d1 or [], new_d1, D1_KEY, D1_FLAG) if old_d1 is not None else None
+        df_text = self._diff_rows(old_df or [], new_df, DF_KEY, DF_FLAG) if old_df is not None else None
+        if not (d1_text or df_text):
+            raise UserError("Розбіжностей з поданим розрахунком немає: коригувати нічого.")
+        return d1_text, df_text
+
     def action_generate(self):
         self.ensure_one()
         c = self.company_id
@@ -249,13 +361,16 @@ class UaPayrollReportWizard(models.TransientModel):
             all_rows += rows; persons.append(p)
         X = self.env["ua.dps.xml"]
         stan = {"HZ": 1, "HZN": 1, "HZU": 3}[self.doc_type]  # STAN: 1 звітний/новий звітний, 3 уточнюючий (як у прикладах)
+        d1_text = df_text = None
+        if self.doc_type in ("HZN", "HZU"):
+            d1_text, df_text = self._correction_rows(all_rows, persons)
         files, log = [], []
         main_name = X.file_name(c.company_registry, c.ua_sti_code, "J05", "001", VER, stan, 0, self.number, 1, self.month, self.year, c.ua_sti_code)
         appendices = []
         if self.with_d1:
-            appendices.append(("101", "J0510111", self._build_d1(all_rows)))
+            appendices.append(("101", "J0510111", self._build_d1(all_rows, text_rows=d1_text)))
         if self.with_4df:
-            appendices.append(("104", "J0510411", self._build_4df(persons)))
+            appendices.append(("104", "J0510411", self._build_4df(persons, text_rows=df_text)))
         d5_rows = self._d5_rows() if self.with_d5 else []
         if d5_rows:
             appendices.append(("105", "J0510511", self._build_d5(d5_rows)))
