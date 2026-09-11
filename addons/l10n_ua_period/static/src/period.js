@@ -109,6 +109,54 @@ export class UaPeriod extends Component {
         }
     }
 
+    async runHeadline() {
+        const period = this.state.data.period;
+        const action = this.state.data.headline.action;
+        if (action === "exceptions") {
+            document.querySelector(".o_ua_period_section h5")?.scrollIntoView({ behavior: "smooth" });
+            return;
+        }
+        this.state.busy = true;
+        try {
+            const result = await this.orm.call("ua.period.board", "action_headline", [period.year, period.month, action]);
+            if (result && result.type) {
+                return this.action.doAction(result);
+            }
+            if (result && result.message) {
+                this.notification.add(result.message, { type: "success" });
+            }
+            await this.load({ year: period.year, month: period.month });
+        } catch (e) {
+            this.notification.add((e.data && e.data.message) || e.message || "Помилка", { type: "danger" });
+        } finally {
+            this.state.busy = false;
+        }
+    }
+
+    async openException(row) {
+        this.state.busy = true;
+        try {
+            const action = await this.orm.call("ua.period.board", "action_open_exception", [row]);
+            await this.action.doAction(action);
+        } catch (e) {
+            this.notification.add((e.data && e.data.message) || e.message || "Помилка", { type: "danger" });
+        } finally {
+            this.state.busy = false;
+        }
+    }
+
+    async openChange(row) {
+        await this.action.doAction({
+            type: "ir.actions.act_window",
+            res_model: row.model,
+            domain: row.domain,
+            view_mode: "list,form",
+            views: [[false, "list"], [false, "form"]],
+            target: "current",
+            name: row.label,
+        });
+    }
+
     async openClose() {
         this.state.busy = true;
         try {

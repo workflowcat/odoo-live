@@ -100,8 +100,8 @@ lana_pw = ENV.get("LANA_PASSWORD", "").strip()
 lana_uid = rpc("common", "login", DB, "lana", lana_pw) if lana_pw else None
 if lana_uid:
     menus = rpc("object", "execute_kw", DB, lana_uid, lana_pw, "ir.ui.menu", "search_read",
-                [[["name", "=", "Період"]]], {"fields": ["name"]})
-    check("lana бачить меню «Період»", bool(menus), f"{len(menus)} пунктів")
+                [[["name", "=", "Зарплата"], ["parent_id", "=", False]]], {"fields": ["name"]})
+    check("lana бачить меню «Зарплата»", bool(menus), f"{len(menus)} пунктів")
     screen = rpc("object", "execute_kw", DB, lana_uid, lana_pw, "ua.period.board", "get_screen_data", [], {})
     check("lana може відкрити сторінку", isinstance(screen, dict) and "steps" in screen)
 else:
@@ -117,6 +117,26 @@ if DB == "payroll":
     with opener.open(BASE + "/web/assets/debug/web.assets_backend.js", timeout=180) as response:
         body = response.read().decode("utf-8", errors="replace")
     check("бандл містить l10n_ua_period.Period", "l10n_ua_period.Period" in body)
+
+
+# робоче місце місяця: головна дія, числа, зміни, черга винятків
+work = {"headline", "estimate", "changes", "exceptions"}
+check("сторінка віддає дані робочого місця", work.issubset(data.keys()),
+      f"немає: {sorted(work - set(data.keys()))}")
+head = data.get("headline") or {}
+check("головна дія має назву і кнопку", bool(head.get("title")) and "action" in head,
+      f"{head.get('title')} → {head.get('label') or 'без кнопки'}")
+est = data.get("estimate") or {}
+check("числа місяця: нараховано, до виплати, ЄСВ",
+      all(est.get(k) for k in ("gross", "net", "employer")), str(est))
+check("черга винятків має причину і дію",
+      all(e.get("title") and e.get("detail") is not None and "action" in e for e in data.get("exceptions", [])),
+      f"{len(data.get('exceptions', []))} позицій")
+check("зміни місяця показані переліком",
+      all(r.get("label") and r.get("count") for r in data.get("changes", [])),
+      str([(r["label"], r["count"]) for r in data.get("changes", [])]))
+prepare = call("ua.period.board", "action_prepare_month", 2026, 8)
+check("«Підготувати місяць» відповідає повідомленням", bool(prepare.get("message")), str(prepare)[:80])
 
 print()
 if errors:

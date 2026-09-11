@@ -11,6 +11,7 @@
 from datetime import date, timedelta
 
 from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 MONTHS_UA = {
     1: "січень", 2: "лютий", 3: "березень", 4: "квітень", 5: "травень", 6: "червень",
@@ -192,6 +193,131 @@ class UaPeriodBoard(models.AbstractModel):
                               "%s нових з %s" % (new, total), action, details)
         return self._step("changes", "Перевірка змін", "done", "%s змін прийнято" % total, action)
 
+
+
+    def _steps(self, company, year, month, first, last):
+        """Кроки місяця в порядку роботи."""
+        return [
+            self._step_orders(company, first, last),
+            self._step_timesheet(company, year, month),
+            self._step_advance(company, year, month),
+            self._step_payslips(company, first, last),
+            self._step_moves(company, first, last),
+            self._step_payment(company, year, month),
+            self._step_bank(company, first, last),
+            self._step_changes(company, year, month),
+            self._step_reporting(company, year, month),
+        ]
+
+    # ------------------------------------------------------------------ робоче місце місяця
+    def _slips(self, company, first, last):
+        return self.env["hr.payslip"].search([
+            ("company_id", "=", company.id), ("date_from", ">=", first), ("date_from", "<=", last),
+            ("state", "!=", "cancel"),
+        ])
+
+    def _estimate(self, company, first, last):
+        """Три числа місяця: нараховано, до виплати, внески підприємства."""
+        slips = self._slips(company, first, last)
+        lines = slips.mapped("line_ids")
+
+        def total(codes):
+            return self._r2(sum(lines.filtered(lambda l: l.code in codes).mapped("total")))
+
+        gross = self._r2(total(("GROSS",)) + total(("MAT",)) + total(("DAILY", "AID_FREE", "GIFT_FREE"))
+                         + total(("AID_TAX", "GIFT_TAX", "SEVERANCE", "COMP_TOOL")))
+        return {
+            "gross": self._money(gross),
+            "net": self._money(total(("NET",))),
+            "employer": self._money(total(("ESV",))),
+            "people": len(slips),
+            "draft": len(slips.filtered(lambda s: s.state != "done")),
+        }
+
+    def _changes(self, company, first, last):
+        """Події працівників у місяці: що змінилося проти попереднього місяця."""
+        Order = self.env["ua.hr.order"]
+        posted = [("company_id", "=", company.id), ("date", ">=", first), ("date", "<=", last),
+                  ("state", "in", ("posted", "acknowledged"))]
+        rows = []
+        kinds = [("hire", "прийнято"), ("wage", "зміна окладу"), ("transfer", "переведення"),
+                 ("dismissal", "звільнення")]
+        for code, label in kinds:
+            count = Order.search_count(posted + [("order_type", "=", code)])
+            if count:
+                rows.append({"label": label, "count": count, "model": "ua.hr.order",
+                             "domain": [("company_id", "=", company.id), ("date", ">=", str(first)),
+                                        ("date", "<=", str(last)), ("order_type", "=", code)]})
+        Leave = self.env["hr.leave"]
+        leave_domain = [("employee_id.company_id", "=", company.id), ("state", "=", "validate"),
+                        ("request_date_from", "<=", last), ("request_date_to", ">=", first)]
+        groups = [(("SICK", "SICK_CARE"), "лікарняні"), (("VAC", "STUDY", "CHILD_VAC"), "відпустки"),
+                  (("MAT",), "декрет"), (("TRIP",), "відрядження")]
+        for codes, label in groups:
+            count = Leave.search_count(leave_domain + [("holiday_status_id.work_entry_type_id.code", "in", list(codes))])
+            if count:
+                rows.append({"label": label, "count": count, "model": "hr.leave",
+                             "domain": [("employee_id.company_id", "=", company.id), ("state", "=", "validate"),
+                                        ("request_date_from", "<=", str(last)), ("request_date_to", ">=", str(first)),
+                                        ("holiday_status_id.work_entry_type_id.code", "in", list(codes))]})
+        return rows
+
+    def _exceptions(self, company, steps, year, month):
+        """Черга винятків: тільки те, що потребує рішення. Причина і дія в одному рядку."""
+        out = []
+        for step in steps:
+            if step["state"] != "warn":
+                continue
+            out.append({"title": step["title"], "detail": step["fact"], "level": "warning",
+                        "action": step["action"], "key": step["key"]})
+        for row in self.env["ua.dashboard"]._get_attention(company):
+            detail = row["detail"]
+            if row.get("count") and str(row["count"]) not in detail:
+                detail = "%s %s" % (row["count"], detail)
+            out.append({"title": row["title"], "detail": detail,
+                        "level": "danger" if row.get("level") == "danger" else "warning",
+                        "action": {"model": row.get("res_model"), "domain": row.get("domain")},
+                        "key": "attention"})
+        return out
+
+    def _headline(self, company, steps, exceptions, close, blockers, estimate):
+        """Одна головна дія, яка змінюється зі станом місяця."""
+        by_key = {step["key"]: step for step in steps}
+        if close.get("state") == "closed":
+            return {"title": "Місяць закрито", "detail": close.get("closed_date") or "",
+                    "action": "", "label": "", "tone": "ok"}
+        if not estimate["people"]:
+            return {"title": "Місяць не підготовлено", "detail": "листків ще немає",
+                    "action": "prepare", "label": "Підготувати місяць", "tone": "todo"}
+        if exceptions:
+            count = len(exceptions)
+            verb = "потребує" if count == 1 else "потребують"
+            return {"title": "Підготовка неповна",
+                    "detail": "%s %s рішення" % (self._plural_items(count), verb),
+                    "action": "exceptions", "label": "Переглянути винятки", "tone": "warn"}
+        if estimate["draft"]:
+            return {"title": "Розрахунок попередній", "detail": "%s листків не проведено" % estimate["draft"],
+                    "action": "payslips", "label": "Підтвердити розрахунок", "tone": "warn"}
+        if by_key.get("payment", {}).get("state") != "done":
+            return {"title": "Виплата не підготовлена", "detail": by_key.get("payment", {}).get("fact", ""),
+                    "action": "payment", "label": "Підготувати виплати", "tone": "todo"}
+        if by_key.get("reporting", {}).get("state") != "done":
+            return {"title": "Звітність не подана", "detail": by_key.get("reporting", {}).get("fact", ""),
+                    "action": "reporting", "label": "Переглянути звітність", "tone": "todo"}
+        if blockers:
+            return {"title": "Місяць майже готовий", "detail": "; ".join(blockers),
+                    "action": "", "label": "", "tone": "warn"}
+        return {"title": "Місяць готовий до закриття", "detail": "усі кроки виконані",
+                "action": "close", "label": "Закрити місяць", "tone": "ok"}
+
+    @staticmethod
+    def _plural_items(count):
+        if count == 1:
+            return "1 позиція"
+        if 2 <= count <= 4:
+            return "%s позиції" % count
+        return "%s позицій" % count
+
     # ------------------------------------------------------------------ обороти
     def _turnover(self, company, first, last):
         """Обороти за групами рахунків: беремо всі субрахунки за префіксом (311 і 311001 разом)."""
@@ -225,19 +351,11 @@ class UaPeriodBoard(models.AbstractModel):
         year = int(year or today.year)
         month = int(month or today.month)
         first, last = self._bounds(year, month)
-        steps = [
-            self._step_orders(company, first, last),
-            self._step_timesheet(company, year, month),
-            self._step_advance(company, year, month),
-            self._step_payslips(company, first, last),
-            self._step_moves(company, first, last),
-            self._step_payment(company, year, month),
-            self._step_bank(company, first, last),
-            self._step_changes(company, year, month),
-            self._step_reporting(company, year, month),
-        ]
+        steps = self._steps(company, year, month, first, last)
         blockers = self.env["ua.period.close"].blockers(company, year, month)
         close = self.env["ua.period.close"].state_of(company, year, month)
+        estimate = self._estimate(company, first, last)
+        exceptions = self._exceptions(company, steps, year, month)
         done = sum(1 for s in steps if s["state"] == "done")
         periods = []
         y, m = year, month
@@ -256,6 +374,10 @@ class UaPeriodBoard(models.AbstractModel):
             "blockers": blockers,
             "close": close,
             "new_changes": self.env["ua.change.log"].count_new(company, year, month),
+            "estimate": estimate,
+            "changes": self._changes(company, first, last),
+            "exceptions": exceptions,
+            "headline": self._headline(company, steps, exceptions, close, blockers, estimate),
             "quarter": self._quarter_info(company, year, month),
             "year_close": self._year_info(company, year, month),
         }
@@ -342,3 +464,92 @@ class UaPeriodBoard(models.AbstractModel):
     @api.model
     def action_close_year(self, year):
         return self.env["ua.period.close"].close_year(year)
+
+    @api.model
+    def action_prepare_month(self, year, month):
+        """Підготувати місяць: табель, чернетки листків, перерахунок.
+
+        Нічого не проводить і нічого не платить. Мета - щоб бухгалтер побачив числа
+        і перелік винятків, а не заповнював документи руками."""
+        company = self._company()
+        year, month = int(year), int(month)
+        first, last = self._bounds(year, month)
+        done = []
+
+        sheet = self.env["ua.timesheet.sheet"].search([
+            ("company_id", "=", company.id), ("year", "=", year), ("month", "=", month)], limit=1)
+        if not sheet:
+            sheet = self.env["ua.timesheet.sheet"].create({
+                "company_id": company.id, "year": year, "month": month})
+            sheet.action_refill()
+            done.append(_("табель створено"))
+        elif sheet.state == "draft" and not sheet.line_ids:
+            sheet.action_refill()
+            done.append(_("табель заповнено"))
+
+        Payslip = self.env["hr.payslip"]
+        existing = Payslip.search([
+            ("company_id", "=", company.id), ("date_from", ">=", first), ("date_from", "<=", last),
+            ("state", "!=", "cancel")])
+        covered = existing.mapped("employee_id")
+        run = self.env["hr.payslip.run"].search([
+            ("company_id", "=", company.id), ("date_start", "=", first), ("date_end", "=", last)], limit=1)
+        if not run:
+            run = self.env["hr.payslip.run"].create({
+                "name": _("Зарплата %(month)02d.%(year)s") % {"month": month, "year": year},
+                "date_start": first, "date_end": last, "company_id": company.id})
+        created = 0
+        for employee in self.env["hr.employee"].search([("company_id", "=", company.id), ("active", "=", True)]):
+            if employee in covered:
+                continue
+            version = employee.sudo().version_ids.filtered(
+                lambda v: v.contract_date_start and v.contract_date_start <= last
+                and (not v.contract_date_end or v.contract_date_end >= first)).sorted("contract_date_start")[-1:]
+            if not version:
+                continue
+            slip = Payslip.create({
+                "employee_id": employee.id, "date_from": first, "date_to": last,
+                "payslip_run_id": run.id, "company_id": company.id,
+            })
+            slip.onchange_employee()
+            created += 1
+        if created:
+            done.append(_("створено листків: %s") % created)
+
+        drafts = Payslip.search([
+            ("company_id", "=", company.id), ("date_from", ">=", first), ("date_from", "<=", last),
+            ("state", "in", ("draft", "verify"))])
+        if drafts:
+            drafts.compute_sheet()
+            done.append(_("перераховано листків: %s") % len(drafts))
+        return {"message": "; ".join(done) if done else _("Змінювати не було чого: місяць уже підготовлено.")}
+
+    @api.model
+    def action_headline(self, year, month, action):
+        """Головна дія робочого місця. Повертає повідомлення або дію Odoo."""
+        year, month = int(year), int(month)
+        if action == "prepare":
+            return self.action_prepare_month(year, month)
+        if action == "close":
+            self.env["ua.period.close"].close_period(year, month)
+            return {"message": _("Місяць закрито.")}
+        company = self._company()
+        first, last = self._bounds(year, month)
+        steps = {step["key"]: step for step in self._steps(company, year, month, first, last)}
+        step = steps.get(action)
+        if step:
+            return self.action_open(step["action"])
+        raise UserError(_("Невідома дія."))
+
+    @api.model
+    def action_open_exception(self, row):
+        """Відкрити те, що стоїть за винятком."""
+        action = row.get("action") or {}
+        if action.get("xmlid") or (action.get("model") and action.get("res_id")):
+            return self.action_open(action)
+        if action.get("model"):
+            return {"type": "ir.actions.act_window", "res_model": action["model"],
+                    "domain": action.get("domain") or [], "view_mode": "list,form",
+                    "views": [(False, "list"), (False, "form")], "target": "current",
+                    "name": row.get("title") or ""}
+        raise UserError(_("Немає що відкривати."))

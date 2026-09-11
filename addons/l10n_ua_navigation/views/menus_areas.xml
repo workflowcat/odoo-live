@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- П'ять розділів верхнього меню.
+
+     Робоче місце місяця - головний екран. Решта згрупована так, як її шукає бухгалтер,
+     а не так, як влаштовані модулі. Стандартні розділи Odoo (Бухоблік, Співробітники)
+     лишаються на місці: там живуть ОСВ, головна книга і звичайні кадрові екрани. -->
+<odoo>
+  <menuitem id="menu_ua_people_root" name="Працівники" sequence="2"/>
+  <menuitem id="menu_ua_history_root" name="Історія" sequence="5"/>
+  <menuitem id="menu_ua_setup_root" name="Налаштування зарплати" sequence="6"/>
+
+  <!-- Працівники -->
+  <menuitem id="menu_ua_people_employees" name="Картки працівників" parent="menu_ua_people_root"
+            action="hr.open_view_employee_list_my" sequence="1" groups="hr.group_hr_user"/>
+  <menuitem id="menu_ua_people_orders" name="Накази" parent="menu_ua_people_root"
+            action="l10n_ua_hr_orders.action_ua_hr_order" sequence="2" groups="hr.group_hr_user"/>
+  <menuitem id="menu_ua_people_leaves" name="Відсутності" parent="menu_ua_people_root"
+            action="hr_holidays.hr_leave_action_action_approve_department" sequence="3" groups="hr.group_hr_user"/>
+  <menuitem id="menu_ua_people_timesheet" name="Табелі" parent="menu_ua_people_root"
+            action="l10n_ua_hr_docs.action_ua_timesheet_sheet" sequence="4" groups="hr.group_hr_user"/>
+
+  <!-- Історія -->
+  <menuitem id="menu_ua_history_periods" name="Закриті періоди" parent="menu_ua_history_root"
+            action="l10n_ua_changes.action_ua_period_close" sequence="1"/>
+
+  <!-- Наявні меню переїжджають у нові розділи.
+       «Зарплата» лишається без підпунктів: меню з дією і дітьми показує лише дітей. -->
+  <menuitem id="l10n_ua_bank_online.menu_ua_bank_board" name="Банк"
+            parent="" sequence="3"/>
+  <menuitem id="l10n_ua_reporting.menu_ua_reporting_root" name="Звітність" sequence="4"/>
+  <menuitem id="l10n_ua_dashboard.menu_ua_dashboard_root" name="Зведення за місяць"
+            parent="menu_ua_history_root" sequence="2"/>
+  <menuitem id="l10n_ua_changes.menu_ua_changes_root" name="Журнал змін"
+            parent="menu_ua_history_root" sequence="3"/>
+  <menuitem id="l10n_ua_hub.menu_ua_hub_root" name="Пульт команд"
+            parent="menu_ua_setup_root" sequence="1"/>
+
+  <!-- Налаштування зарплати -->
+  <menuitem id="menu_ua_setup_params" name="Параметри зарплати" parent="menu_ua_setup_root"
+            action="l10n_ua_payroll_rules.action_ua_payroll_param" sequence="10"/>
+  <menuitem id="menu_ua_setup_cpi" name="Індекси споживчих цін" parent="menu_ua_setup_root"
+            action="l10n_ua_index.action_ua_cpi_index" sequence="11"/>
+  <menuitem id="menu_ua_setup_accounts" name="Проводки зарплати" parent="menu_ua_setup_root"
+            action="l10n_ua_payroll_account.action_ua_payroll_account_map" sequence="12"/>
+  <menuitem id="menu_ua_setup_bank" name="Підключення банків" parent="menu_ua_setup_root"
+            action="l10n_ua_bank_online.action_ua_bank_connect" sequence="13"/>
+</odoo>

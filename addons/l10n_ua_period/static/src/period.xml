@@ -11,9 +11,7 @@
         <div class="o_ua_period_head">
           <div>
             <h4 t-esc="data.period.label"/>
-            <div class="text-muted small">
-              <t t-esc="data.company"/> · <t t-esc="data.done"/> з <t t-esc="data.total"/> кроків готові
-            </div>
+            <div class="text-muted small"><t t-esc="data.company"/></div>
           </div>
           <div class="o_ua_period_months">
             <span t-foreach="data.periods" t-as="p" t-key="p.label"
@@ -22,6 +20,47 @@
           </div>
         </div>
 
+        <div t-attf-class="o_ua_period_headline o_ua_tone_#{data.headline.tone}">
+          <div class="o_ua_period_headline_text">
+            <div class="o_ua_period_headline_title" t-esc="data.headline.title"/>
+            <div class="text-muted small" t-esc="data.headline.detail"/>
+          </div>
+          <button t-if="data.headline.label" class="btn btn-primary" t-att-disabled="state.busy"
+                  t-on-click="() => this.runHeadline()" t-esc="data.headline.label"/>
+        </div>
+
+        <div class="o_ua_period_numbers">
+          <div><span class="o_ua_period_num" t-esc="data.estimate.gross"/><span class="o_ua_period_lbl">нараховано</span></div>
+          <div><span class="o_ua_period_num" t-esc="data.estimate.net"/><span class="o_ua_period_lbl">до виплати</span></div>
+          <div><span class="o_ua_period_num" t-esc="data.estimate.employer"/><span class="o_ua_period_lbl">ЄСВ підприємства</span></div>
+          <div><span class="o_ua_period_num" t-esc="data.estimate.people"/><span class="o_ua_period_lbl">працівників у розрахунку</span></div>
+        </div>
+
+        <div class="o_ua_period_section" t-if="data.exceptions.length">
+          <h5>Потребує рішення</h5>
+          <div class="o_ua_period_steps">
+            <div t-foreach="data.exceptions" t-as="row" t-key="row.key + '-' + row.title"
+                 t-attf-class="o_ua_period_step o_ua_state_#{row.level === 'danger' ? 'warn' : 'warn'}"
+                 t-on-click="() => this.openException(row)">
+              <span class="o_ua_period_mark">!</span>
+              <span class="o_ua_period_title" t-esc="row.title"/>
+              <span class="o_ua_period_fact" t-esc="row.detail"/>
+              <span class="o_ua_period_open"><button class="btn btn-sm btn-link p-0">Відкрити</button></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="o_ua_period_section" t-if="data.changes.length">
+          <h5>Зміни цього місяця</h5>
+          <div class="o_ua_period_changes">
+            <span t-foreach="data.changes" t-as="row" t-key="row.label" class="o_ua_period_chip"
+                  t-on-click="() => this.openChange(row)">
+              <t t-esc="row.count"/> <t t-esc="row.label"/>
+            </span>
+          </div>
+        </div>
+
+        <h5 class="o_ua_period_progress_title">Хід роботи · <t t-esc="data.done"/> з <t t-esc="data.total"/></h5>
         <div class="o_ua_period_steps">
           <t t-foreach="data.steps" t-as="step" t-key="step.key">
             <div t-attf-class="o_ua_period_step o_ua_state_#{step.state}" t-on-click="() => this.toggle(step)">

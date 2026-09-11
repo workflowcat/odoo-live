@@ -95,3 +95,39 @@
     .o_ua_period_locked { font-weight: 500; }
     .o_ua_period_blockers { flex: 1 1 auto; }
 }
+
+.o_ua_period_headline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 16px;
+    margin: 8px 0 16px;
+    border-left: 3px solid var(--o-gray-400, #adb5bd);
+    background: var(--o-gray-100, #f8f9fa);
+
+    &.o_ua_tone_warn { border-left-color: #96690a; }
+    &.o_ua_tone_ok { border-left-color: #2f8f63; }
+    .o_ua_period_headline_title { font-size: 15px; font-weight: 600; }
+}
+
+.o_ua_period_numbers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    margin: 0 0 20px;
+
+    .o_ua_period_num { display: block; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .o_ua_period_lbl { display: block; font-size: 12px; color: var(--o-gray-600, #6c757d); }
+}
+
+.o_ua_period_changes { display: flex; flex-wrap: wrap; gap: 8px; }
+.o_ua_period_chip {
+    padding: 3px 10px;
+    border: 1px solid var(--o-gray-300, #dee2e6);
+    font-size: 13px;
+    cursor: pointer;
+
+    &:hover { background: var(--o-gray-100, #f8f9fa); }
+}
+.o_ua_period_progress_title { margin-top: 24px; }
