@@ -1,0 +1,84 @@
+// Сторінка «Період»: кроки списком, деталі розкриваються під рядком.
+.o_ua_period {
+    padding: 12px 16px;
+    font-size: 13px;
+
+    .o_ua_period_head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        flex-wrap: wrap;
+
+        h4 { margin: 0; }
+    }
+
+    .o_ua_period_months {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+
+    .o_ua_period_month {
+        padding: 3px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+
+        &:hover { background: var(--o-action-hover-bg, rgba(0, 0, 0, 0.04)); }
+        &.active { background: var(--o-brand-primary, #714B67); color: #fff; }
+    }
+
+    .o_ua_period_steps { margin-top: 14px; border-top: 1px solid var(--o-gray-200, #dee2e6); }
+
+    .o_ua_period_step {
+        display: grid;
+        grid-template-columns: 20px minmax(150px, 1fr) minmax(180px, 1.2fr) 90px;
+        gap: 10px;
+        align-items: center;
+        padding: 8px 6px;
+        border-bottom: 1px solid var(--o-gray-200, #dee2e6);
+        cursor: pointer;
+
+        &:hover { background: var(--o-action-hover-bg, rgba(0, 0, 0, 0.03)); }
+
+        .o_ua_period_title { font-size: 14px; }
+        .o_ua_period_fact { color: var(--o-gray-600, #6c757d); font-variant-numeric: tabular-nums; }
+        .o_ua_period_open { text-align: right; }
+
+        &.o_ua_state_done .o_ua_period_mark { color: var(--o-success, #28a745); }
+        &.o_ua_state_warn { background: rgba(255, 193, 7, 0.10); }
+        &.o_ua_state_warn .o_ua_period_mark { color: var(--o-warning, #b8860b); font-weight: 700; }
+        &.o_ua_state_todo .o_ua_period_mark { color: var(--o-gray-500, #adb5bd); }
+    }
+
+    .o_ua_period_details {
+        border-bottom: 1px solid var(--o-gray-200, #dee2e6);
+        padding: 4px 0 6px 36px;
+    }
+
+    .o_ua_period_detail {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 3px 6px;
+        cursor: pointer;
+        font-variant-numeric: tabular-nums;
+
+        &:hover { background: var(--o-action-hover-bg, rgba(0, 0, 0, 0.04)); }
+    }
+
+    .o_ua_period_section { margin-top: 18px; h5 { font-size: 14px; font-weight: 500; } }
+
+    .o_ua_period_table {
+        margin-bottom: 0;
+        td, th { padding: 3px 6px; }
+        td.text-end, th.text-end { font-variant-numeric: tabular-nums; }
+    }
+
+    .o_ua_period_blockers {
+        margin-top: 14px;
+        color: var(--o-warning, #8a6d00);
+
+        &.ok { color: var(--o-success, #28a745); }
+    }
+}

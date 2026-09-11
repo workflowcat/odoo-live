@@ -102,9 +102,10 @@ with opener.open(BASE + "/report/pdf/l10n_ua_payments.report_ua_payment_batch/%s
     pdf = response.read()
 check("друкована відомість формується", pdf[:4] == b"%PDF", f"{len(pdf)} байт")
 
-call("ua.payment.batch", "action_draft", [batch])
-call("ua.payment.batch", "unlink", [batch])
-check("тестову відомість прибрано", not call("ua.payment.batch", "search", [["id", "=", batch]]))
+# відомість лишається на стенді як приклад: позначаємо оплаченою
+call("ua.payment.batch", "action_paid", [batch])
+final = call("ua.payment.batch", "read", [batch], ["state"])[0]["state"]
+check("відомість лишилася на стенді зі станом «оплачено»", final == "paid", final)
 
 print()
 if errors:

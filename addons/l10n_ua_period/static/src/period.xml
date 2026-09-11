@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+  <t t-name="l10n_ua_period.Period" owl="1">
+    <div class="o_ua_period">
+      <t t-if="state.loading">
+        <div class="text-muted p-4">Завантаження…</div>
+      </t>
+      <t t-elif="state.data">
+        <t t-set="data" t-value="state.data"/>
+
+        <div class="o_ua_period_head">
+          <div>
+            <h4 t-esc="data.period.label"/>
+            <div class="text-muted small">
+              <t t-esc="data.company"/> · <t t-esc="data.done"/> з <t t-esc="data.total"/> кроків готові
+            </div>
+          </div>
+          <div class="o_ua_period_months">
+            <span t-foreach="data.periods" t-as="p" t-key="p.label"
+                  t-attf-class="o_ua_period_month #{p.year === data.period.year and p.month === data.period.month ? 'active' : ''}"
+                  t-on-click="() => this.selectPeriod(p)" t-esc="p.label"/>
+          </div>
+        </div>
+
+        <div class="o_ua_period_steps">
+          <t t-foreach="data.steps" t-as="step" t-key="step.key">
+            <div t-attf-class="o_ua_period_step o_ua_state_#{step.state}" t-on-click="() => this.toggle(step)">
+              <span class="o_ua_period_mark" t-esc="step.state === 'done' ? '✓' : (step.state === 'warn' ? '!' : '·')"/>
+              <span class="o_ua_period_title" t-esc="step.title"/>
+              <span class="o_ua_period_fact" t-esc="step.fact"/>
+              <span class="o_ua_period_open">
+                <button class="btn btn-sm btn-link p-0" t-att-disabled="state.busy"
+                        t-on-click.stop="() => this.open(step)">
+                  <t t-esc="step.button or 'Відкрити'"/>
+                </button>
+              </span>
+            </div>
+            <div t-if="this.isOpen(step) and step.details.length" class="o_ua_period_details">
+              <div t-foreach="step.details" t-as="row" t-key="row.model + '-' + row.id"
+                   class="o_ua_period_detail" t-on-click="() => this.openRecord(row)">
+                <span t-esc="row.title"/>
+                <span class="text-muted" t-esc="row.note"/>
+              </div>
+            </div>
+          </t>
+        </div>
+
+        <div class="o_ua_period_section" t-if="data.turnover.length">
+          <h5>Обороти за період</h5>
+          <table class="table table-sm o_ua_period_table">
+            <thead><tr><th>Рахунок</th><th></th><th class="text-end">Дебет</th><th class="text-end">Кредит</th><th class="text-end">Сальдо Дт</th><th class="text-end">Сальдо Кт</th></tr></thead>
+            <tbody>
+              <tr t-foreach="data.turnover" t-as="row" t-key="row.code">
+                <td t-esc="row.code"/>
+                <td t-esc="row.name"/>
+                <td class="text-end" t-esc="row.debit"/>
+                <td class="text-end" t-esc="row.credit"/>
+                <td class="text-end" t-esc="row.saldo_debit"/>
+                <td class="text-end" t-esc="row.saldo_credit"/>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="o_ua_period_blockers" t-if="data.blockers.length">
+          Закрити місяць не можна: <t t-esc="data.blockers.join(', ')"/>.
+        </div>
+        <div class="o_ua_period_blockers ok" t-else="">
+          Усі кроки місяця закриті.
+        </div>
+      </t>
+    </div>
+  </t>
+</templates>

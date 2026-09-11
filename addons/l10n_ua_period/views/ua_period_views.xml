@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_ua_period" model="ir.actions.client">
+    <field name="name">Період</field>
+    <field name="tag">ua_period</field>
+  </record>
+
+  <menuitem id="menu_ua_period_root" name="Період" sequence="2" action="action_ua_period"/>
+</odoo>
