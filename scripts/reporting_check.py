@@ -1,6 +1,6 @@
 """Перевірка модуля l10n_ua_reporting: get_screen_data() повертає всі ключі, action_refresh() дає
 перевірки (є ok на суми і error/warn за станом даних), action_generate() без помилок формує
-щонайменше 4 файли XML (кожен починається з <?xml) для j05 за квартал; окремий прогін pfu формує
+щонайменше 4 файли XML (кожен починається з <?xml) для j05 за місяць; окремий прогін pfu формує
 PDF (%PDF); action_mark_submitted() ставить стан і дату; повторне створення прогону на той самий
 період відкриває наявний, а не дублює; бандл web.assets_backend містить l10n_ua_reporting.Reporting.
 
@@ -57,7 +57,7 @@ def call(model, method, *a, **kw):
     return rpc("object", "execute_kw", DB, UID, PW, model, method, list(a), kw)
 
 
-# 1. get_screen_data() без run_id повертає всі очікувані ключі (j05, поточний квартал за замовчуванням)
+# 1. get_screen_data() без run_id повертає всі очікувані ключі (j05, поточний місяць за замовчуванням)
 data = call("ua.report.run", "get_screen_data")
 expected_keys = {"reports", "periods", "run", "checks", "summary", "appendices", "history"}
 check("get_screen_data() повертає всі очікувані ключі", expected_keys.issubset(data.keys()),
@@ -66,11 +66,12 @@ check("get_screen_data() повертає всі очікувані ключі",
 check("reports містить щонайменше 6 звітів", len(data.get("reports", [])) >= 6, f"{len(data.get('reports', []))} звітів")
 check("periods містить 6 періодів", len(data.get("periods", [])) == 6, f"{len(data.get('periods', []))} періодів")
 
-# 2. j05 за 3 квартал 2026: action_refresh() дає перевірки; серед них ok на суми, error/warn за станом
-data_j05 = call("ua.report.run", "get_screen_data", report_code="j05", year=2026, quarter=3)
+# 2. j05 за серпень 2026: action_refresh() дає перевірки; серед них ok на суми, error/warn за станом
+# Податковий розрахунок подається щомісяця: прогін має місяць, а не квартал.
+data_j05 = call("ua.report.run", "get_screen_data", report_code="j05", year=2026, month=8)
 run_j05 = data_j05["run"]
 run_j05_id = run_j05["id"]
-check("j05 3 квартал 2026: run створено/знайдено", run_j05["report_code"] == "j05" and run_j05["year"] == 2026 and run_j05["quarter"] == 3,
+check("j05 серпень 2026: run створено/знайдено", run_j05["report_code"] == "j05" and run_j05["year"] == 2026 and run_j05["month"] == 8,
       f"run_id={run_j05_id}, стан={run_j05['state']}")
 
 call("ua.report.run", "action_refresh", [run_j05_id])
@@ -137,10 +138,10 @@ else:
     check("pfu: submitted_date заповнено", bool(run_pfu["submitted_date"]), run_pfu["submitted_date"])
 
 # 6. повторне створення прогону на той самий період відкриває наявний, а не дублює
-before = call("ua.report.run", "search_count", [["report_code", "=", "j05"], ["year", "=", 2026], ["quarter", "=", 3]])
-data_again = call("ua.report.run", "get_screen_data", report_code="j05", year=2026, quarter=3)
-after = call("ua.report.run", "search_count", [["report_code", "=", "j05"], ["year", "=", 2026], ["quarter", "=", 3]])
-check("повторне звернення на j05/Q3-2026 не створює дубль", before == after and data_again["run"]["id"] == run_j05_id,
+before = call("ua.report.run", "search_count", [["report_code", "=", "j05"], ["year", "=", 2026], ["month", "=", 8]])
+data_again = call("ua.report.run", "get_screen_data", report_code="j05", year=2026, month=8)
+after = call("ua.report.run", "search_count", [["report_code", "=", "j05"], ["year", "=", 2026], ["month", "=", 8]])
+check("повторне звернення на j05 за серпень не створює дубль", before == after and data_again["run"]["id"] == run_j05_id,
       f"до={before}, після={after}, run_id={data_again['run']['id']} (очікували {run_j05_id})")
 
 # 7. HTTP-перевірка збірки ресурсів - лише коли DB=payroll (dbfilter стенду блокує інші бази)

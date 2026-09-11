@@ -155,24 +155,24 @@ class UaPeriodBoard(models.AbstractModel):
                           button="Звірити" if lines else "")
 
     def _step_reporting(self, company, year, month):
-        quarter = (month - 1) // 3 + 1
+        """Податковий розрахунок подається щомісяця: 20 днів після закінчення місяця."""
         run = self.env["ua.report.run"].search([
             ("company_id", "=", company.id), ("report_code", "=", "j05"),
-            ("year", "=", year), ("quarter", "=", quarter), ("doc_kind", "=", "HZ"),
+            ("year", "=", year), ("month", "=", month), ("doc_kind", "=", "HZ"),
         ], limit=1)
-        q_end = self._bounds(year, quarter * 3)[1]
-        deadline = q_end + timedelta(days=40)
+        deadline = self._bounds(year, month)[1] + timedelta(days=20)
         if run and run.state == "submitted":
             state, fact = "done", "подано %s" % (run.submitted_date.strftime("%d.%m.%Y") if run.submitted_date else "")
         elif run and run.state == "generated":
             state, fact = "warn", "сформовано, не подано · строк %s" % deadline.strftime("%d.%m.%Y")
         else:
             state, fact = "todo", "строк %s" % deadline.strftime("%d.%m.%Y")
-        return self._step("reporting", "Звітність за квартал", state, fact,
+        return self._step("reporting", "Податковий розрахунок за місяць", state, fact,
                           {"xmlid": "l10n_ua_reporting.action_ua_reporting"})
 
 
     def _step_changes(self, company, year, month):
+        """Скільки змін місяця ще не переглянув бухгалтер."""
         Log = self.env["ua.change.log"]
         total = Log.search_count([("company_id", "=", company.id), ("year", "=", year), ("month", "=", month)])
         new = Log.count_new(company, year, month)

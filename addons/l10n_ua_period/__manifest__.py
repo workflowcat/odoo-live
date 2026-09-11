@@ -1,7 +1,7 @@
 {
     "name": "Україна: період (закриття місяця)",
     "summary": "Одна сторінка на місяць: кроки роботи, стан кожного, обороти рахунків і що заважає закрити",
-    "version": "19.0.1.2.0",
+    "version": "19.0.1.2.1",
     "category": "Human Resources/Payroll",
     "author": "Bot&Partners",
     "license": "LGPL-3",

@@ -189,6 +189,8 @@ class UaBankBoard(models.AbstractModel):
 
     # ------------------------------------------------------------------ дії
     def _provider(self, journal_id):
+        if not journal_id:
+            raise UserError(_("Виберіть рахунок зліва, щоб завантажити виписку."))
         journal = self.env["account.journal"].browse(int(journal_id))
         provider = journal.online_bank_statement_provider_id
         if not provider:
@@ -330,17 +332,31 @@ class UaBankBoard(models.AbstractModel):
         return self.env["ir.actions.act_window"]._for_xml_id("account.action_account_reconcile_model")
 
     @api.model
-    def action_open_reconcile(self, journal_id):
-        journal = self.env["account.journal"].browse(int(journal_id))
+    def _journal_or_all(self, journal_id):
+        """Журнал за номером. Без номера - усі банківські журнали компанії.
+
+        Прямий перехід до звірки не має падати: якщо рахунок не вибрано, показуємо всі."""
+        company = self._company()
+        if journal_id:
+            journal = self.env["account.journal"].browse(int(journal_id)).exists()
+            if journal and journal.company_id == company:
+                return journal
+        return self._journals(company)
+
+    @api.model
+    def action_open_reconcile(self, journal_id=None):
+        journals = self._journal_or_all(journal_id)
+        if not journals:
+            raise UserError(_("У компанії немає банківського журналу."))
         action = self.env["ir.actions.act_window"]._for_xml_id(
             "account_reconcile_oca.action_bank_statement_line_reconcile")
-        action["domain"] = [("journal_id", "=", journal.id)]
+        action["domain"] = [("journal_id", "in", journals.ids)]
         action["context"] = {
-            "default_journal_id": journal.id,
+            "default_journal_id": journals[:1].id,
             "search_default_not_reconciled": True,
             "view_ref": "account_reconcile_oca.bank_statement_line_form_reconcile_view",
         }
-        action["name"] = _("Звірка: %s") % journal.name
+        action["name"] = _("Звірка: %s") % (journals.name if len(journals) == 1 else _("усі рахунки"))
         return action
 
     @api.model
@@ -395,6 +411,8 @@ class UaBankBoard(models.AbstractModel):
 
     @api.model
     def action_open_connect(self, journal_id):
+        if not journal_id:
+            raise UserError(_("Виберіть рахунок зліва."))
         """Відкрити чек-лист підключення банку. Якщо його немає, створити."""
         connect = self.env["ua.bank.connect"].for_journal(int(journal_id))
         return {"type": "ir.actions.act_window", "res_model": "ua.bank.connect",

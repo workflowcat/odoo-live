@@ -22,7 +22,7 @@ REPORTS = [
     ("staff", "Штатний розпис"),
     ("orders", "Журнал реєстрації наказів"),
 ]
-PERIOD_TYPE = {"j05": "quarter", "j30": "month", "pfu": "month", "timesheet": "month", "staff": "date", "orders": "year",
+PERIOD_TYPE = {"j05": "month", "j30": "month", "pfu": "month", "timesheet": "month", "staff": "date", "orders": "year",
                "trial": "month", "ledger": "month"}
 # ключові рахунки зарплати для звірки з листками: код рахунку -> (назва, код правила листка, бік)
 PAYROLL_ACCOUNTS = [("661", "Розрахунки за заробітною платою", ("GROSS", "MAT"), "credit", "no_fop"),
@@ -41,9 +41,9 @@ AMOUNT_TOLERANCE = 0.05
 
 
 def _period_key_value(report_code, year, quarter, month, date_):
-    if report_code == "j05":
-        return "%s-Q%s" % (year, quarter)
-    if report_code in ("j30", "pfu", "timesheet", "trial", "ledger"):
+    if report_code == "j05" and not month and quarter:
+        return "%s-Q%s" % (year, quarter)          # старі квартальні прогони лишаються як є
+    if report_code in ("j05", "j30", "pfu", "timesheet", "trial", "ledger"):
         return "%s-%02d" % (year, month or 0)
     if report_code == "staff":
         return "%s-%s" % (year, date_.isoformat() if date_ else "")
@@ -96,7 +96,7 @@ class UaReportRun(models.Model):
         names = dict(REPORTS)
         for run in self:
             base = names.get(run.report_code, "")
-            if run.report_code == "j05" and run.quarter:
+            if run.report_code == "j05" and not run.month and run.quarter:
                 run.name = _("%(base)s, %(q)s квартал %(y)s") % {"base": base, "q": run.quarter, "y": run.year}
                 if run.doc_kind and run.doc_kind != "HZ":
                     label = dict(run._fields["doc_kind"].selection).get(run.doc_kind, "")
@@ -111,16 +111,27 @@ class UaReportRun(models.Model):
                 run.name = base
 
     # ------------------------------------------------------------------ періоди
-    def _quarter_months(self):
+    def _report_months(self):
+        """Місяці періоду прогону.
+
+        Податковий розрахунок подається щомісяця (з липня 2026 року для податкових агентів).
+        Старі квартальні прогони читаються як три місяці кварталу."""
         self.ensure_one()
-        m1 = (self.quarter - 1) * 3 + 1
-        return [m1, m1 + 1, m1 + 2]
+        if self.month:
+            return [self.month]
+        if self.quarter:
+            m1 = (self.quarter - 1) * 3 + 1
+            return [m1, m1 + 1, m1 + 2]
+        return [self.month or 1]
+
+    def _quarter_months(self):
+        return self._report_months()
 
     def _period_bounds(self):
         """Перший і останній день періоду прогону, залежно від типу звіту."""
         self.ensure_one()
         if self.report_code == "j05":
-            months = self._quarter_months()
+            months = self._report_months()
             d1 = date(self.year, months[0], 1)
             d2 = date(self.year, months[-1], calendar.monthrange(self.year, months[-1])[1])
         elif self.report_code == "orders":
@@ -140,7 +151,8 @@ class UaReportRun(models.Model):
             return run
         vals = {"report_code": report_code, "company_id": company.id, "year": year}
         if report_code == "j05":
-            vals["quarter"] = quarter
+            vals["month"] = month
+            vals["quarter"] = quarter or ((month - 1) // 3 + 1 if month else False)
         elif report_code in ("j30", "pfu", "timesheet", "trial", "ledger"):
             vals["month"] = month
         elif report_code == "staff":
@@ -152,14 +164,7 @@ class UaReportRun(models.Model):
     def _periods_for(self, report_code, company):
         today = fields.Date.context_today(self)
         out = []
-        if report_code == "j05":
-            y, q = today.year, (today.month - 1) // 3 + 1
-            for _i in range(6):
-                out.append({"key": "%s-Q%s" % (y, q), "label": "%s квартал %s" % (q, y), "year": y, "quarter": q})
-                q -= 1
-                if q == 0:
-                    q, y = 4, y - 1
-        elif report_code in ("j30", "pfu", "timesheet", "trial", "ledger"):
+        if report_code in ("j05", "j30", "pfu", "timesheet", "trial", "ledger"):
             y, m = today.year, today.month
             for _i in range(6):
                 out.append({"key": "%s-%02d" % (y, m), "label": "%s %s" % (MONTHS_UA.get(m, "").capitalize(), y), "year": y, "month": m})
@@ -344,7 +349,7 @@ class UaReportRun(models.Model):
         d5_count = 0
         xml_errors = []
         today = fields.Date.context_today(self)
-        for m in self._quarter_months():
+        for m in self._report_months():
             md1, md2 = date(self.year, m, 1), date(self.year, m, calendar.monthrange(self.year, m)[1])
             slips = self.env["hr.payslip"].search([("company_id", "=", c.id), ("state", "=", "done"), ("date_from", ">=", md1), ("date_to", "<=", md2)])
             lines = slips.mapped("line_ids")
@@ -639,7 +644,8 @@ class UaReportRun(models.Model):
         base = self.base_run_id or self
         number = max(base.correction_ids.mapped("correction_no") or [0]) + 1
         run = self.create({
-            "report_code": "j05", "company_id": self.company_id.id, "year": self.year, "quarter": self.quarter,
+            "report_code": "j05", "company_id": self.company_id.id, "year": self.year,
+            "month": self.month, "quarter": self.quarter,
             "doc_kind": kind, "base_run_id": base.id, "correction_no": number,
         })
         run.message_post(body=_("Коригування до «%s»") % base.name)
@@ -651,7 +657,7 @@ class UaReportRun(models.Model):
         Wizard = self.env["ua.payroll.report.wizard"]
         atts = self.env["ir.attachment"]
         notes = []
-        for m in self._quarter_months():
+        for m in self._report_months():
             values = {"company_id": c.id, "year": self.year, "month": m, "doc_type": self.doc_kind or "HZ", "number": 1,
                       "with_d1": True, "with_4df": True, "with_d5": True, "fill_date": fields.Date.context_today(self)}
             if self.doc_kind in ("HZN", "HZU"):
@@ -914,7 +920,7 @@ class UaReportRun(models.Model):
         c = self.company_id
         columns = ["Місяць", "Осіб", "Нараховано", "ПДФО", "ВЗ", "ЄСВ"]
         rows, totals = [], {"employees": 0, "gross": 0.0, "pdfo": 0.0, "vz": 0.0, "esv": 0.0}
-        for m in self._quarter_months():
+        for m in self._report_months():
             d1, d2 = date(self.year, m, 1), date(self.year, m, calendar.monthrange(self.year, m)[1])
             slips = self.env["hr.payslip"].search([("company_id", "=", c.id), ("state", "=", "done"), ("date_from", ">=", d1), ("date_to", "<=", d2)])
             lines = slips.mapped("line_ids")
