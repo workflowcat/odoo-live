@@ -29,6 +29,9 @@ REPORT_RENAMES = {
     "account.report_original_vendor_bill": "Оригінали рахунків постачальника",
     "account.report_invoice": "Рахунок (PDF)",
 }
+# види відсутності з демо-даних ядра: українські види свої, ці лише заважають у списку
+CORE_LEAVE_TYPES = ["Paid Time Off", "Sick Time Off", "Compensatory Days", "Unpaid",
+                    "Extra Hours", "Extra Time Off", "Training Time Off", "Parental Leaves"]
 ADMIN_ONLY_MENUS = ["base.menu_management", "mail.menu_root_discuss", "calendar.mail_menu_calendar", "spreadsheet_dashboard.spreadsheet_dashboard_menu_root", "base.menu_tests"]
 
 
@@ -53,6 +56,11 @@ def post_init_hook(env):
         if report:
             report.with_context(lang=UK).write({"name": name})
             report.with_context(lang="en_US").write({"name": name})
+    LeaveType = env["hr.leave.type"].with_context(active_test=False)
+    for name in CORE_LEAVE_TYPES:
+        for leave_type in LeaveType.with_context(lang="en_US").search([("name", "=", name), ("active", "=", True)]):
+            if not env["hr.leave"].search_count([("holiday_status_id", "=", leave_type.id)]):
+                leave_type.active = False
     admin = env.ref("base.group_system")
     for xmlid in ADMIN_ONLY_MENUS:
         menu = env.ref(xmlid, raise_if_not_found=False)
