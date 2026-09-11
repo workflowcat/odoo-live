@@ -1,0 +1,15 @@
+[
+  {"key": "min_wage", "name": "Мінімальна зарплата, грн/міс", "valid_from": "2026-01-01", "value": 8647, "source": "Закон про Держбюджет на 2026 рік"},
+  {"key": "living_wage", "name": "Прожитковий мінімум для працездатних, грн", "valid_from": "2026-01-01", "value": 3328, "source": "Закон про Держбюджет на 2026 рік"},
+  {"key": "psp_base", "name": "ПСП базова (50 % ПМ), грн", "valid_from": "2026-01-01", "value": 1664, "source": "пп. 169.1.1 ПКУ"},
+  {"key": "psp_threshold", "name": "Поріг доходу для ПСП, грн", "valid_from": "2026-01-01", "value": 4660, "source": "пп. 169.4.1 ПКУ"},
+  {"key": "pdfo_rate", "name": "ПДФО, %", "valid_from": "2026-01-01", "value": 18, "source": "п. 167.1 ПКУ"},
+  {"key": "vz_rate", "name": "Військовий збір, %", "valid_from": "2026-01-01", "value": 5, "source": "п. 16-1 підрозд. 10 розд. XX ПКУ"},
+  {"key": "esv_rate", "name": "ЄСВ, %", "valid_from": "2026-01-01", "value": 22, "source": "ч. 5 ст. 8 ЗУ про ЄСВ"},
+  {"key": "esv_rate_disabled", "name": "ЄСВ для працівників з інвалідністю, %", "valid_from": "2026-01-01", "value": 8.41, "source": "ч. 13 ст. 8 ЗУ про ЄСВ"},
+  {"key": "esv_max_multiplier", "name": "Максимальна база ЄСВ, кількість МЗП", "valid_from": "2026-01-01", "value": 20, "source": "п. 4 ч. 1 ст. 1 ЗУ про ЄСВ"},
+  {"key": "reserve_rate", "name": "Резерв відпусток, % від фонду оплати", "valid_from": "2026-01-01", "value": 9.6, "source": "П(С)БО 11"},
+  {"key": "holidays_per_year", "name": "Святкових днів на рік", "valid_from": "2026-01-01", "value": 0, "source": "ст. 6 ЗУ 2136-IX"},
+  {"key": "aid_charity_limit", "name": "Нецільова благодійна допомога без ПДФО, грн на рік", "valid_from": "2026-01-01", "value": 4660, "source": "пп. 170.7.3 ПКУ"},
+  {"key": "gift_limit_share", "name": "Подарунок без ПДФО, % МЗП на місяць", "valid_from": "2026-01-01", "value": 25, "source": "пп. 165.1.39 ПКУ"}
+]
