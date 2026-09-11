@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Виплати, які оподатковуються ПДФО і військовим збором, але не входять у базу ЄСВ,
+     та утримання, крім аліментів. Категорія NOESV відділяє такі виплати від зарплати:
+     Д1 їх не бачить, 4ДФ показує окремим рядком зі своєю ознакою доходу. -->
+<odoo>
+  <data>
+    <record id="cat_noesv" model="hr.salary.rule.category">
+      <field name="name">Оподатковувані виплати без ЄСВ</field><field name="code">NOESV</field>
+    </record>
+
+    <!-- Матеріальна допомога (нецільова благодійна), пп. 170.7.3 ПКУ -->
+    <record id="rule_aid_free" model="hr.salary.rule">
+      <field name="name">Матеріальна допомога в межах норми</field><field name="code">AID_FREE</field><field name="sequence">50</field>
+      <field name="category_id" ref="cat_notax"/><field name="condition_select">python</field>
+      <field name="condition_python">result = bool(inputs.AID and inputs.AID.amount)</field>
+      <field name="amount_select">code</field>
+      <field name="amount_python_compute">limit = payroll.ua.aid_charity_limit - payroll.ua.aid_used_year
+result = round(max(min(inputs.AID.amount, limit), 0.0), 2)</field>
+      <field name="note">пп. 170.7.3 ПКУ: нецільова благодійна допомога не оподатковується в межах граничної суми на рік. ЄСВ не нараховується (п. 14 розд. I Переліку 1170).</field>
+    </record>
+    <record id="rule_aid_tax" model="hr.salary.rule">
+      <field name="name">Матеріальна допомога понад норму</field><field name="code">AID_TAX</field><field name="sequence">51</field>
+      <field name="category_id" ref="cat_noesv"/><field name="condition_select">python</field>
+      <field name="condition_python">result = bool(inputs.AID and inputs.AID.amount)</field>
+      <field name="amount_select">code</field>
+      <field name="amount_python_compute">limit = payroll.ua.aid_charity_limit - payroll.ua.aid_used_year
+free = max(min(inputs.AID.amount, limit), 0.0)
+result = round(inputs.AID.amount - free, 2)</field>
+    </record>
+
+    <!-- Подарунки, пп. 165.1.39 ПКУ: 25 % мінімальної зарплати на місяць -->
+    <record id="rule_gift_free" model="hr.salary.rule">
+      <field name="name">Подарунок у межах норми</field><field name="code">GIFT_FREE</field><field name="sequence">52</field>
+      <field name="category_id" ref="cat_notax"/><field name="condition_select">python</field>
+      <field name="condition_python">result = bool(inputs.GIFT and inputs.GIFT.amount)</field>
+      <field name="amount_select">code</field>
+      <field name="amount_python_compute">limit = payroll.ua.min_wage * payroll.ua.gift_limit_share / 100.0
+result = round(min(inputs.GIFT.amount, limit), 2)</field>
+      <field name="note">пп. 165.1.39 ПКУ: вартість дарунка не оподатковується в межах 25 % мінімальної зарплати на місяць.</field>
+    </record>
+    <record id="rule_gift_tax" model="hr.salary.rule">
+      <field name="name">Подарунок понад норму</field><field name="code">GIFT_TAX</field><field name="sequence">53</field>
+      <field name="category_id" ref="cat_noesv"/><field name="condition_select">python</field>
+      <field name="condition_python">result = bool(inputs.GIFT and inputs.GIFT.amount)</field>
+      <field name="amount_select">code</field>
+      <field name="amount_python_compute">limit = payroll.ua.min_wage * payroll.ua.gift_limit_share / 100.0
+result = round(max(inputs.GIFT.amount - limit, 0.0), 2)</field>
+    </record>
+
+    <!-- Вихідна допомога, ст. 44 КЗпП -->
+    <record id="rule_severance" model="hr.salary.rule">
+      <field name="name">Вихідна допомога</field><field name="code">SEVERANCE</field><field name="sequence">54</field>
+      <field name="category_id" ref="cat_noesv"/><field name="condition_select">python</field>
+      <field name="condition_python">result = bool(inputs.SEVERANCE and inputs.SEVERANCE.amount)</field>
+      <field name="amount_select">code</field>
+      <field name="amount_python_compute">result = round(inputs.SEVERANCE.amount, 2)</field>
+      <field name="note">ст. 44 КЗпП. ЄСВ не нараховується (п. 4 розд. I Переліку 1170); ПДФО і ВЗ утримуються.</field>
+    </record>
+
+    <!-- Компенсація за використання власного майна працівника -->
+    <record id="rule_comp_tool" model="hr.salary.rule">
+      <field name="name">Компенсація за використання власного майна</field><field name="code">COMP_TOOL</field><field name="sequence">55</field>
+      <field name="category_id" ref="cat_noesv"/><field name="condition_select">python</field>
+      <field name="condition_python">result = bool(inputs.COMP_TOOL and inputs.COMP_TOOL.amount)</field>
+      <field name="amount_select">code</field>
+      <field name="amount_python_compute">result = round(inputs.COMP_TOOL.amount, 2)</field>
+      <field name="note">ст. 125 КЗпП. ЄСВ не нараховується (п. 11 розд. I Переліку 1170). Оподаткування ПДФО підтвердити з бухгалтером.</field>
+    </record>
+
+    <!-- Утримання, крім аліментів -->
+    <record id="rule_union" model="hr.salary.rule">
+      <field name="name">Профспілковий внесок</field><field name="code">UNION</field><field name="sequence">155</field>
+      <field name="category_id" ref="cat_ded"/><field name="condition_select">python</field>
+      <field name="condition_python">result = bool(inputs.UNION_PCT and inputs.UNION_PCT.amount)</field>
+      <field name="amount_select">code</field>
+      <field name="amount_python_compute">result = -round(categories.GROSS * inputs.UNION_PCT.amount / 100.0, 2)</field>
+      <field name="note">Відсоток від нарахованої зарплати за заявою працівника.</field>
+    </record>
+    <record id="rule_exec_doc" model="hr.salary.rule">
+      <field name="name">Утримання за виконавчим документом</field><field name="code">EXEC_DOC</field><field name="sequence">160</field>
+      <field name="category_id" ref="cat_ded"/><field name="condition_select">python</field>
+      <field name="condition_python">result = bool((inputs.EXEC_AMT and inputs.EXEC_AMT.amount) or (inputs.EXEC_PCT and inputs.EXEC_PCT.amount))</field>
+      <field name="amount_select">code</field>
+      <field name="amount_python_compute">rest = categories.GROSS + categories.NOESV + categories.DED
+if inputs.EXEC_AMT and inputs.EXEC_AMT.amount:
+    result = -round(min(inputs.EXEC_AMT.amount, max(rest, 0.0)), 2)
+else:
+    result = -round(max(rest, 0.0) * inputs.EXEC_PCT.amount / 100.0, 2)</field>
+      <field name="note">Береться від суми, що лишилася після податків і попередніх утримань. Загальна межа утримань - ст. 128 КЗпП.</field>
+    </record>
+    <record id="rule_damage" model="hr.salary.rule">
+      <field name="name">Відшкодування шкоди</field><field name="code">DAMAGE</field><field name="sequence">165</field>
+      <field name="category_id" ref="cat_ded"/><field name="condition_select">python</field>
+      <field name="condition_python">result = bool(inputs.DAMAGE_AMT and inputs.DAMAGE_AMT.amount)</field>
+      <field name="amount_select">code</field>
+      <field name="amount_python_compute">rest = categories.GROSS + categories.NOESV + categories.DED
+result = -round(min(inputs.DAMAGE_AMT.amount, max(rest, 0.0)), 2)</field>
+      <field name="note">ст. 136 КЗпП: відрахування за наказом у межах середнього місячного заробітку.</field>
+    </record>
+
+    <record id="input_aid" model="hr.rule.input"><field name="name">Матеріальна допомога</field><field name="code">AID</field><field name="input_id" ref="rule_aid_free"/></record>
+    <record id="input_gift" model="hr.rule.input"><field name="name">Подарунок</field><field name="code">GIFT</field><field name="input_id" ref="rule_gift_free"/></record>
+    <record id="input_severance" model="hr.rule.input"><field name="name">Вихідна допомога</field><field name="code">SEVERANCE</field><field name="input_id" ref="rule_severance"/></record>
+    <record id="input_comp_tool" model="hr.rule.input"><field name="name">Компенсація за власне майно</field><field name="code">COMP_TOOL</field><field name="input_id" ref="rule_comp_tool"/></record>
+    <record id="input_union" model="hr.rule.input"><field name="name">Профспілковий внесок, %</field><field name="code">UNION_PCT</field><field name="input_id" ref="rule_union"/></record>
+    <record id="input_exec_amt" model="hr.rule.input"><field name="name">Виконавчий документ, сума</field><field name="code">EXEC_AMT</field><field name="input_id" ref="rule_exec_doc"/></record>
+    <record id="input_exec_pct" model="hr.rule.input"><field name="name">Виконавчий документ, %</field><field name="code">EXEC_PCT</field><field name="input_id" ref="rule_exec_doc"/></record>
+    <record id="input_damage" model="hr.rule.input"><field name="name">Відшкодування шкоди, сума</field><field name="code">DAMAGE_AMT</field><field name="input_id" ref="rule_damage"/></record>
+
+    <record id="l10n_ua_payroll_rules.struct_ua_salary" model="hr.payroll.structure">
+      <field name="rule_ids" eval="[(4, ref('rule_aid_free')), (4, ref('rule_aid_tax')), (4, ref('rule_gift_free')), (4, ref('rule_gift_tax')),
+                                    (4, ref('rule_severance')), (4, ref('rule_comp_tool')), (4, ref('rule_union')), (4, ref('rule_exec_doc')), (4, ref('rule_damage'))]"/>
+    </record>
+  </data>
+</odoo>

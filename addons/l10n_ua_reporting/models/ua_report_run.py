@@ -349,6 +349,9 @@ class UaReportRun(models.Model):
             slips = self.env["hr.payslip"].search([("company_id", "=", c.id), ("state", "=", "done"), ("date_from", ">=", md1), ("date_to", "<=", md2)])
             lines = slips.mapped("line_ids")
             gross_total += sum(lines.filtered(lambda l: l.code == "GROSS").mapped("total"))
+            # виплати поза зарплатою: у 4ДФ окремими ознаками, у Д1 їх немає
+            other_codes = ("AID_FREE", "AID_TAX", "GIFT_FREE", "GIFT_TAX", "SEVERANCE", "COMP_TOOL")
+            gross_total += sum(lines.filtered(lambda l: l.code in other_codes).mapped("total"))
             # ФОП-підрядники не потрапляють у Д1 (лише в 4ДФ з ознакою 157) - для звірки Д1 їх виключаємо
             non_fop = slips.filtered(lambda s: (s.employee_id.sudo().ua_contract_kind or "employment") != "fop")
             gross_total_d1 += sum(non_fop.mapped("line_ids").filtered(lambda l: l.code == "GROSS").mapped("total"))
@@ -367,7 +370,7 @@ class UaReportRun(models.Model):
                     persons.append(p)
                 d1_total += sum(r["G16"] for r in all_rows)
                 d1_esv_total += sum(r["G20"] for r in all_rows)
-                fourdf_gross += sum(p["gross"] for p in persons)
+                fourdf_gross += sum(p["gross"] + p.get("other_income", 0.0) for p in persons)
                 d5_count += len(w._d5_rows())
                 if all_rows:
                     _fn, data = X.build(c, "J05", "101", "11", 1, m, self.year, w._build_d1(all_rows), c_doc_cnt=1, c_doc_stan=1, fill_date=today)

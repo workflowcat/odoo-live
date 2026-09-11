@@ -30,7 +30,7 @@
           </group>
           <group>
             <group>
-              <field name="employee_count" readonly="1"/>
+              <field name="employee_count" readonly="1" string="Рядків"/>
               <field name="without_account" readonly="1" decoration-danger="without_account > 0"/>
             </group>
             <group>
@@ -42,7 +42,9 @@
             <page string="Рядки" name="lines">
               <field name="line_ids" readonly="state != 'draft'">
                 <list editable="bottom">
-                  <field name="employee_id" readonly="1"/>
+                  <field name="employee_id" readonly="1" column_invisible="parent.kind == 'tax'"/>
+                  <field name="name" column_invisible="parent.kind != 'tax'"/>
+                  <field name="partner_id" column_invisible="parent.kind != 'tax'"/>
                   <field name="account_number"/>
                   <field name="amount" sum="Разом"/>
                   <field name="purpose" optional="show"/>

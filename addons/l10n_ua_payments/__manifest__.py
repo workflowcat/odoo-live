@@ -1,7 +1,7 @@
 {
     "name": "Україна: відомість на перерахування зарплати",
     "summary": "Список на виплату з реквізитами працівників, файл для банку і друкована відомість",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Human Resources/Payroll",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -9,6 +9,7 @@
     "data": [
         "security/ir.model.access.csv",
         "report/ua_payment_batch_report.xml",
+        "views/res_company_views.xml",
         "views/ua_payment_batch_views.xml",
     ],
     "installable": True,

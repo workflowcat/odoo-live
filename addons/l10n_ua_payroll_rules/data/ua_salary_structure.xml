@@ -64,20 +64,21 @@ else:
       <field name="name">ПДФО 18 %</field><field name="code">PDFO</field><field name="sequence">110</field>
       <field name="category_id" ref="cat_ded"/><field name="condition_select">python</field><field name="condition_python">result = payroll.ua.contract_kind != 'fop'</field><field name="amount_select">code</field>
       <field name="amount_python_compute">gross = categories.GROSS
+base = gross + categories.NOESV
 psp = payroll.ua.psp_amount if (payroll.ua.psp_amount and gross &lt;= payroll.ua.psp_threshold) else 0.0
-result = -round(max(gross - psp, 0.0) * payroll.ua.pdfo_rate / 100.0, 2)</field>
+result = -round(max(base - psp, 0.0) * payroll.ua.pdfo_rate / 100.0, 2)</field>
     </record>
     <record id="rule_vz" model="hr.salary.rule">
       <field name="name">Військовий збір 5 %</field><field name="code">VZ</field><field name="sequence">120</field>
       <field name="category_id" ref="cat_ded"/><field name="condition_select">python</field><field name="condition_python">result = payroll.ua.contract_kind != 'fop'</field><field name="amount_select">code</field>
-      <field name="amount_python_compute">result = -round(categories.GROSS * payroll.ua.vz_rate / 100.0, 2)</field>
+      <field name="amount_python_compute">result = -round((categories.GROSS + categories.NOESV) * payroll.ua.vz_rate / 100.0, 2)</field>
     </record>
     <record id="rule_alim" model="hr.salary.rule">
       <field name="name">Аліменти</field><field name="code">ALIM</field><field name="sequence">150</field>
       <field name="category_id" ref="cat_ded"/><field name="condition_select">python</field>
       <field name="condition_python">result = bool(inputs.ALIM_PCT and inputs.ALIM_PCT.amount)</field>
       <field name="amount_select">code</field>
-      <field name="amount_python_compute">after_tax = categories.GROSS + categories.DED
+      <field name="amount_python_compute">after_tax = categories.GROSS + categories.NOESV + categories.DED
 result = -round(after_tax * inputs.ALIM_PCT.amount / 100.0, 2)</field>
     </record>
     <record id="rule_adv" model="hr.salary.rule">
@@ -89,7 +90,7 @@ result = -round(after_tax * inputs.ALIM_PCT.amount / 100.0, 2)</field>
     <record id="rule_net" model="hr.salary.rule">
       <field name="name">До виплати</field><field name="code">NET</field><field name="sequence">200</field>
       <field name="category_id" ref="cat_net"/><field name="condition_select">none</field><field name="amount_select">code</field>
-      <field name="amount_python_compute">result = round(categories.GROSS + categories.MAT + categories.NOTAX + categories.DED, 2)</field>
+      <field name="amount_python_compute">result = round(categories.GROSS + categories.MAT + categories.NOTAX + categories.NOESV + categories.DED, 2)</field>
     </record>
     <record id="rule_esv" model="hr.salary.rule">
       <field name="name">ЄСВ 22 % за рахунок підприємства</field><field name="code">ESV</field><field name="sequence">300</field>

@@ -107,6 +107,43 @@ call("ua.payment.batch", "action_paid", [batch])
 final = call("ua.payment.batch", "read", [batch], ["state"])[0]["state"]
 check("відомість лишилася на стенді зі станом «оплачено»", final == "paid", final)
 
+# ------------------------------------------------------------------ платежі до бюджету
+YEAR, MONTH = 2026, 8
+company = call("res.company", "read", [1], ["ua_iban_pdfo", "ua_iban_vz", "ua_iban_esv"])[0]
+check("у компанії є рахунки бюджету для ПДФО, ВЗ і ЄСВ",
+      all(company.get(f) for f in ("ua_iban_pdfo", "ua_iban_vz", "ua_iban_esv")),
+      str({k: v for k, v in company.items() if k != "id"}))
+
+tax = call("ua.payment.batch", "search", [["kind", "=", "tax"], ["year", "=", YEAR], ["month", "=", MONTH]], limit=1)
+if not tax:
+    tax = call("ua.payment.batch", "create", {"year": YEAR, "month": MONTH, "kind": "tax"})
+    tax = [tax[0] if isinstance(tax, list) else tax]
+call("ua.payment.batch", "action_draft", tax)
+call("ua.payment.batch", "action_fill", tax)
+tax_lines = call("ua.payment.line", "search_read", [["batch_id", "=", tax[0]]], ["name", "amount", "account_number", "purpose"])
+check("відомість до бюджету має три рядки", len(tax_lines) == 3, str([l["name"] for l in tax_lines]))
+
+slips = call("hr.payslip", "search", [["state", "=", "done"], ["date_from", ">=", f"{YEAR}-{MONTH:02d}-01"],
+                                      ["date_from", "<=", f"{YEAR}-{MONTH:02d}-28"]])
+def rule_sum(code):
+    lines = call("hr.payslip.line", "search_read", [["slip_id", "in", slips], ["code", "=", code]], ["total"])
+    return round(abs(sum(l["total"] for l in lines)), 2)
+by_name = {l["name"]: round(l["amount"], 2) for l in tax_lines}
+for label, code in (("ПДФО", "PDFO"), ("Військовий збір", "VZ"), ("Єдиний внесок (ЄСВ)", "ESV")):
+    check(f"сума «{label}» дорівнює сумі листків", abs(by_name.get(label, 0) - rule_sum(code)) < 0.01,
+          f"{by_name.get(label)} проти {rule_sum(code)}")
+check("рядки мають рахунок бюджету", all(l["account_number"].startswith("UA") for l in tax_lines),
+      str([l["account_number"][:10] for l in tax_lines]))
+check("призначення платежу збігається з правилами звірки",
+      all(("за " in l["purpose"]) for l in tax_lines), str([l["purpose"] for l in tax_lines]))
+call("ua.payment.batch", "action_confirm", tax)
+check("відомість до бюджету затверджується", call("ua.payment.batch", "read", tax, ["state"])[0]["state"] == "confirmed")
+export = call("ua.payment.batch", "action_export", tax)
+att = int(export["url"].split("/")[-1].split("?")[0])
+content = base64.b64decode(call("ir.attachment", "read", [att], ["datas"])[0]["datas"]).decode("windows-1251")
+check("файл до бюджету містить назви платежів і рахунки",
+      "ПДФО" in content and "UA" in content, content.splitlines()[1][:70] if len(content.splitlines()) > 1 else "")
+
 print()
 if errors:
     print(f"ПЕРЕВІРКУ НЕ ПРОЙДЕНО: {len(errors)} з {total} пунктів провалено")

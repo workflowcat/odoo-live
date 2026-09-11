@@ -11,6 +11,13 @@ from odoo.exceptions import UserError
 VER = "11"
 ESV_CAT = {"employment": "1", "disabled": "2", "gph": "26", "sick": "29", "mat": "42"}
 INCOME_SIGN = {"employment": "101", "gph": "102", "fop": "157"}   # ознака доходу 4ДФ
+# Виплати поза зарплатою: ознака 4ДФ -> (правила з сумою доходу, правила з оподатковуваною частиною).
+# У Д1 вони не потрапляють: ЄСВ на них не нараховується.
+OTHER_INCOME = {
+    "169": (("AID_FREE", "AID_TAX"), ("AID_TAX",)),        # нецільова благодійна допомога, пп. 170.7.3 ПКУ
+    "160": (("GIFT_FREE", "GIFT_TAX"), ("GIFT_TAX",)),     # вартість дарунків, пп. 165.1.39 ПКУ
+    "127": (("SEVERANCE", "COMP_TOOL"), ("SEVERANCE", "COMP_TOOL")),   # інші доходи
+}
 PSP_CODE = {"none": None, "base": "01", "child": "04", "child150": "04", "s150": "02", "s200": "03"}
 GENDER = {"male": "1", "female": "0"}   # схема допускає лише 0 або 1; трактування підтвердити (припущення: 1 = чоловік, 0 = жінка)
 
@@ -129,8 +136,15 @@ class UaPayrollReportWizard(models.TransientModel):
             rows[0]["G20"] = r2(rows[0]["G20"] + delta)
         if kind == "fop":
             rows = []   # ФОП-підрядник: без ЄСВ, у Д1 не потрапляє; лише 4ДФ з ознакою 157
+        other = {}
+        for sign, (income_codes, tax_codes) in OTHER_INCOME.items():
+            income = r2(sum(self._line(slip, code) for code in income_codes))
+            taxable = r2(sum(self._line(slip, code) for code in tax_codes))
+            if income:
+                other[sign] = (income, taxable)
         return rows, {"gross": gross, "salary": salary, "gph": salary if kind == "gph" else 0.0, "sick_emp": sick_emp, "sick_pfu": r2(sick_pfu + sick_care), "mat": mat,
                       "pdfo": r2(-self._line(slip, "PDFO")), "vz": r2(-self._line(slip, "VZ")), "kind": kind, "cat": cat, "min_diff": min_diff,
+                      "other": other, "other_income": r2(sum(v[0] for v in other.values())),
                       "emp": emp, "hire": hire, "dism": dism}
 
     def _employment_dates(self, emp, d1, d2):
@@ -238,15 +252,31 @@ class UaPayrollReportWizard(models.TransientModel):
         return f + self._signers()
 
     def _4df_rows(self, persons):
-        """Рядки 4ДФ: основний дохід кожної особи плюс окремий рядок допомоги по вагітності та пологах."""
+        """Рядки 4ДФ: зарплата, виплати поза зарплатою за своїми ознаками і допомога по вагітності та пологах.
+
+        Податок ділиться між рядками пропорційно оподатковуваній частині кожного доходу;
+        копійки округлення лишаються на рядку зарплати."""
         d1, d2 = self._period()
         rows = []
         for p in persons:
-            rows.append({"G02": p["emp"].ua_rnokpp or "", "G03A": p["gross"], "G03": p["gross"], "G04A": p["pdfo"], "G04": p["pdfo"],
-                         "G5A": p["vz"], "G5": p["vz"], "G05": INCOME_SIGN.get(p["kind"], "101"),
+            other = p.get("other") or {}
+            base = r2(p["gross"] + sum(taxable for _income, taxable in other.values()))
+            extra_rows, used_pdfo, used_vz = [], 0.0, 0.0
+            for sign in sorted(other):
+                income, taxable = other[sign]
+                share = (taxable / base) if base else 0.0
+                pdfo_sign, vz_sign = r2(p["pdfo"] * share), r2(p["vz"] * share)
+                used_pdfo, used_vz = r2(used_pdfo + pdfo_sign), r2(used_vz + vz_sign)
+                extra_rows.append({"G02": p["emp"].ua_rnokpp or "", "G03A": income, "G03": income,
+                                   "G04A": pdfo_sign, "G04": pdfo_sign, "G5A": vz_sign, "G5": vz_sign, "G05": sign,
+                                   "G06D": None, "G07D": None, "G08": None, "G09": None})
+            main_pdfo, main_vz = r2(p["pdfo"] - used_pdfo), r2(p["vz"] - used_vz)
+            rows.append({"G02": p["emp"].ua_rnokpp or "", "G03A": p["gross"], "G03": p["gross"], "G04A": main_pdfo, "G04": main_pdfo,
+                         "G5A": main_vz, "G5": main_vz, "G05": INCOME_SIGN.get(p["kind"], "101"),
                          "G06D": p["hire"] if (p["hire"] and d1 <= p["hire"] <= d2) else None,
                          "G07D": p["dism"] if (p["dism"] and d1 <= p["dism"] <= d2) else None,
                          "G08": PSP_CODE.get(p["emp"].ua_psp or "none"), "G09": None})
+            rows += extra_rows
         for p in persons:
             if p.get("mat"):
                 rows.append({"G02": p["emp"].ua_rnokpp or "", "G03A": p["mat"], "G03": p["mat"], "G04A": 0.0, "G04": 0.0, "G5A": 0.0, "G5": 0.0, "G05": "128",

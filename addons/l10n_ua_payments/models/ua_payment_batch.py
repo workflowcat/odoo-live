@@ -22,7 +22,14 @@ MONTHS_UA = {
     1: "січень", 2: "лютий", 3: "березень", 4: "квітень", 5: "травень", 6: "червень",
     7: "липень", 8: "серпень", 9: "вересень", 10: "жовтень", 11: "листопад", 12: "грудень",
 }
-KINDS = [("advance", "Аванс"), ("salary", "Заробітна плата"), ("other", "Інша виплата")]
+KINDS = [("advance", "Аванс"), ("salary", "Заробітна плата"), ("tax", "Податки і внески"), ("other", "Інша виплата")]
+# Податки до бюджету: код рядка -> (правило листка, назва, поле рахунку компанії, текст призначення).
+# Текст збігається з правилами звірки виписки, тому платіж потім знаходиться сам.
+TAXES = [
+    ("PDFO", "ПДФО", "ua_iban_pdfo", "ПДФО за %s %s"),
+    ("VZ", "Військовий збір", "ua_iban_vz", "Військовий збір за %s %s"),
+    ("ESV", "Єдиний внесок (ЄСВ)", "ua_iban_esv", "Єдиний внесок (ЄСВ) за %s %s"),
+]
 STATES = [("draft", "Чернетка"), ("confirmed", "Затверджено"), ("paid", "Оплачено")]
 
 
@@ -74,6 +81,8 @@ class UaPaymentBatch(models.Model):
             return "Аванс за %s %s" % (month_name, self.year)
         if self.kind == "salary":
             return "Заробітна плата за %s %s, остаточний розрахунок" % (month_name, self.year)
+        if self.kind == "tax":
+            return "Податки і внески за %s %s" % (month_name, self.year)
         return "Виплата за %s %s" % (month_name, self.year)
 
     # ------------------------------------------------------------------ наповнення
@@ -92,6 +101,9 @@ class UaPaymentBatch(models.Model):
                     raise UserError(_("Немає авансової відомості за цей місяць."))
                 for line in sheet.line_ids.filtered(lambda l: l.amount > 0):
                     values.append((line.employee_id, round(line.amount, 2)))
+            elif doc.kind == "tax":
+                doc._fill_taxes()
+                continue
             else:
                 slips = self.env["hr.payslip"].search([
                     ("company_id", "=", doc.company_id.id), ("state", "in", ("done", "verify")),
@@ -111,11 +123,40 @@ class UaPaymentBatch(models.Model):
             }) for employee, amount in sorted(values, key=lambda item: item[0].name or "")]
         return True
 
+    def _fill_taxes(self):
+        """Рядки на сплату ПДФО, військового збору і ЄСВ за місяць. Суми беремо з проведених листків."""
+        self.ensure_one()
+        first, last = self._period()
+        month_name = MONTHS_UA.get(self.month, "")
+        slips = self.env["hr.payslip"].search([
+            ("company_id", "=", self.company_id.id), ("state", "=", "done"),
+            ("date_from", ">=", first), ("date_from", "<", last),
+        ])
+        lines = slips.mapped("line_ids")
+        partner = self.company_id.sudo()._ua_partner("dps")
+        values = []
+        for code, label, iban_field, purpose in TAXES:
+            amount = round(abs(sum(lines.filtered(lambda l: l.code == code).mapped("total"))), 2)
+            if not amount:
+                continue
+            values.append({
+                "name": label, "partner_id": partner.id, "amount": amount,
+                "account_number": self.company_id[iban_field] or "",
+                "purpose": purpose % (month_name, self.year),
+            })
+        if not values:
+            raise UserError(_("За цей місяць немає проведених листків, тому немає що платити."))
+        self.line_ids = [(0, 0, vals) for vals in values]
+        return True
+
     def action_confirm(self):
         for doc in self:
             if not doc.line_ids:
                 raise UserError(_("Немає рядків. Натисніть «Заповнити»."))
             missing = doc.line_ids.filtered(lambda line: not line.account_number)
+            if missing and doc.kind == "tax":
+                raise UserError(_("Немає рахунку бюджету: %s. Впишіть рахунки в картці компанії.")
+                                % ", ".join(missing.mapped("name")[:5]))
             if missing:
                 raise UserError(_("Без рахунку: %s. Впишіть IBAN у картці працівника або в рядку.")
                                 % ", ".join(missing.mapped("employee_id.name")[:10]))
@@ -141,8 +182,8 @@ class UaPaymentBatch(models.Model):
         writer.writerow(["ПІБ", "РНОКПП", "Рахунок", "Сума", "Призначення"])
         for line in self.line_ids:
             writer.writerow([
-                line.employee_id.name,
-                line.employee_id.sudo().ua_rnokpp or "",
+                line.employee_id.name or line.name or "",
+                (line.employee_id.sudo().ua_rnokpp if line.employee_id else (line.partner_id.vat or "")) or "",
                 line.account_number or "",
                 ("%.2f" % line.amount).replace(".", ","),
                 line.purpose or self._purpose(),
@@ -167,7 +208,9 @@ class UaPaymentLine(models.Model):
     _order = "id"
 
     batch_id = fields.Many2one("ua.payment.batch", "Відомість", required=True, ondelete="cascade")
-    employee_id = fields.Many2one("hr.employee", "Працівник", required=True)
+    employee_id = fields.Many2one("hr.employee", "Працівник")
+    partner_id = fields.Many2one("res.partner", "Отримувач", help="Для платежів до бюджету")
+    name = fields.Char("Рядок", help="Назва платежу, коли одержувач не працівник")
     currency_id = fields.Many2one(related="batch_id.currency_id")
     account_number = fields.Char("Рахунок (IBAN)")
     amount = fields.Monetary("Сума", required=True)

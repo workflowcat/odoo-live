@@ -28,8 +28,8 @@
             <tbody>
               <tr t-foreach="doc.line_ids" t-as="line">
                 <td><t t-out="line_index + 1"/></td>
-                <td><t t-out="line.employee_id.name"/></td>
-                <td><t t-out="line.employee_id.sudo().ua_rnokpp or ''"/></td>
+                <td><t t-out="line.employee_id.name or line.name or ''"/></td>
+                <td><t t-out="(line.employee_id.sudo().ua_rnokpp if line.employee_id else (line.partner_id.vat or '')) or ''"/></td>
                 <td><t t-out="line.account_number or ''"/></td>
                 <td class="text-end"><t t-out="'{:,.2f}'.format(line.amount).replace(',', '&#160;').replace('.', ',')"/></td>
               </tr>

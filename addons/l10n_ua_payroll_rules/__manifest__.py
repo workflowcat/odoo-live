@@ -1,7 +1,7 @@
 {
     "name": "Зарплата: правила України",
     "summary": "Параметри з датами (МЗП, ПМ, ПСП, ставки), поля працівника, структура «Україна: оклад», правила ПДФО, ВЗ, ЄСВ",
-    "version": "19.0.0.2.1",
+    "version": "19.0.0.3.0",
     "category": "Human Resources/Payroll",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -10,6 +10,7 @@
         "security/ir.model.access.csv",
         "data/ua_payroll_param_data.xml",
         "data/ua_salary_structure.xml",
+        "data/ua_extra_rules.xml",
         "views/ua_payroll_param_views.xml",
         "views/hr_employee_views.xml",
         "views/ua_advance_sheet_views.xml",

@@ -44,9 +44,28 @@ class HrPayslip(models.Model):
             "holidays_per_year": p.get("holidays_per_year", 0.0),
             "fte": float(emp.ua_fte or "1"),
             "reserve_rate": p.get("reserve_rate", 0.0),
+            "aid_charity_limit": p.get("aid_charity_limit", 0.0),
+            "gift_limit_share": p.get("gift_limit_share", 0.0),
+            "aid_used_year": self._ua_aid_used_year(),
             "mat_cover_days": 0,   # l10n_ua_average перевизначає
             "time_ratio": -1.0,    # l10n_ua_hr_docs ставить частку часу із затвердженого табеля
         }
+
+    def _ua_aid_used_year(self):
+        """Скільки неоподатковуваної матеріальної допомоги працівник уже отримав цього року.
+
+        Межа за пп. 170.7.3 ПКУ - річна, тому дивимось усі проведені листки року, крім цього."""
+        if not self.employee_id or not self.date_from:
+            return 0.0
+        year_start = self.date_from.replace(month=1, day=1)
+        lines = self.env["hr.payslip.line"].sudo().search([
+            ("slip_id.employee_id", "=", self.employee_id.id),
+            ("slip_id.state", "=", "done"),
+            ("slip_id.date_from", ">=", year_start),
+            ("slip_id.date_from", "<", self.date_from),
+            ("code", "=", "AID_FREE"),
+        ])
+        return round(sum(lines.mapped("total")), 2)
 
     def _ua_worked_share(self, values):
         """Частка відпрацьованого часу за рядками відпрацьованих днів листка."""
