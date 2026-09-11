@@ -44,8 +44,8 @@
                 <list editable="bottom">
                   <field name="employee_id" readonly="1"/>
                   <field name="account_number"/>
-                  <field name="purpose"/>
                   <field name="amount" sum="Разом"/>
+                  <field name="purpose" optional="show"/>
                   <field name="currency_id" column_invisible="1"/>
                 </list>
               </field>
