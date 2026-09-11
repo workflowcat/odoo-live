@@ -6,7 +6,7 @@
   "main": "src/payroll.js",
   "compatibility_date": "2026-08-01",
   "workers_dev": true,
-  "vars": { "DB_NAME": "payroll", "RELOAD_TRANSLATIONS": "1", "MODULE_OPS": "i:l10n_ua_period", "MODULE_OPS_TAG": "2026-09-11k" },
+  "vars": { "DB_NAME": "payroll", "RELOAD_TRANSLATIONS": "1", "MODULE_OPS": "i:l10n_ua_changes;u:l10n_ua_period,l10n_ua_bank_online,l10n_ua_payroll_rules,l10n_ua_average,l10n_ua_reporting", "MODULE_OPS_TAG": "2026-09-11m" },
   "containers": [{ "class_name": "OdooContainer", "image": "../odoo/Dockerfile", "image_build_context": "..", "max_instances": 1, "instance_type": "standard-2", "constraints": { "regions": ["WEUR"] } }],
   "durable_objects": { "bindings": [{ "name": "ODOO", "class_name": "OdooContainer" }] },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["OdooContainer"] }],
