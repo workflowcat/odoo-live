@@ -12,8 +12,14 @@
 import ast
 import json
 
+def _round_money(value, digits=2):
+    """Округлення грошей у виразах: ROUND_HALF_UP, а не банківське."""
+    from .calc import _r2
+    return _r2(value, digits)
+
+
 ALLOWED_FUNCS = {
-    "round": round, "min": min, "max": max, "abs": abs, "float": float, "int": int,
+    "round": _round_money, "min": min, "max": max, "abs": abs, "float": float, "int": int,
 }
 ALLOWED_NODES = (
     ast.Expression, ast.BoolOp, ast.BinOp, ast.UnaryOp, ast.IfExp, ast.Compare, ast.Call,
@@ -27,21 +33,24 @@ class RuleError(ValueError):
     """Вираз не можна виконати."""
 
 
-def check(expression):
-    """Перевірити вираз перед виконанням. Помилка каже, що саме заборонено."""
+def check(expression, extra_funcs=()):
+    """Перевірити вираз перед виконанням. Помилка каже, що саме заборонено.
+
+    `extra_funcs` - імена алгоритмів, які дає рушій (наприклад помісячний ЄСВ)."""
     tree = ast.parse(expression, mode="eval")
     for node in ast.walk(tree):
         if not isinstance(node, ALLOWED_NODES):
             raise RuleError("заборонено: %s у «%s»" % (type(node).__name__, expression))
         if isinstance(node, ast.Call):
-            if not isinstance(node.func, ast.Name) or node.func.id not in ALLOWED_FUNCS:
-                raise RuleError("дозволені лише функції %s" % ", ".join(sorted(ALLOWED_FUNCS)))
+            allowed = set(ALLOWED_FUNCS) | set(extra_funcs)
+            if not isinstance(node.func, ast.Name) or node.func.id not in allowed:
+                raise RuleError("дозволені лише функції %s" % ", ".join(sorted(allowed)))
     return tree
 
 
-def evaluate(expression, context):
+def evaluate(expression, context, extra_funcs=()):
     """Порахувати вираз у контексті. Контекст - плоский словник чисел і рядків."""
-    tree = check(expression)
+    tree = check(expression, extra_funcs)
     names = dict(ALLOWED_FUNCS)
     names.update(context)
     return eval(compile(tree, "<rule>", "eval"), {"__builtins__": {}}, names)   # noqa: S307 - вираз перевірено вище
@@ -61,14 +70,14 @@ class RuleSet:
         with open(path, encoding="utf-8") as stream:
             return cls(json.load(stream))
 
-    def validate(self):
+    def validate(self, extra_funcs=()):
         """Перевірити всі вирази набору. Повертає список помилок."""
         errors = []
         for item in self.derived + self.rules:
             for key in ("value", "when", "amount"):
                 if item.get(key):
                     try:
-                        check(item[key])
+                        check(item[key], extra_funcs)
                     except (RuleError, SyntaxError) as error:
                         errors.append("%s.%s: %s" % (item.get("code") or item.get("name"), key, error))
         return errors

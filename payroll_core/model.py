@@ -24,6 +24,7 @@ class Employee:
     insurance_years: float = 0.0
     sick_percent: float = 0.0             # 0 = порахувати за стажем
     index_base: date = None               # базовий місяць індексації
+    index_paid_month: date = None         # місяць останньої виплаченої індексації
     index_off: bool = False
 
 
@@ -55,6 +56,8 @@ class Leaves:
     unpaid_days: float = 0.0
     trip_days: float = 0.0
     trip_work_days: float = 0.0
+    mat_start: date = None                # межі листка непрацездатності: потрібні для
+    mat_end: date = None                  # помісячного розподілу допомоги і мінімального ЄСВ
 
 
 @dataclass
@@ -63,6 +66,7 @@ class EarningsMonth:
     month: date
     gross: float
     calendar_days: float = 0.0            # 0 = взяти з календаря
+    work_days: float = 0.0                # фактично відпрацьовані робочі дні; 0 = невідомо
     excluded_days: float = 0.0
 
 
@@ -72,6 +76,7 @@ class CpiMonth:
     year: int
     month: int
     value: float
+    published_on: date = None             # дата оприлюднення Держстатом
 
 
 @dataclass

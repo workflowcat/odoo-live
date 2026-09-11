@@ -16,11 +16,19 @@ DATA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
 YEAR, MONTH, NORM = 2026, 8, 21.0
 
 
+WORK_DAYS = {(2025, 8): 21, (2025, 9): 22, (2025, 10): 23, (2025, 11): 20, (2025, 12): 23,
+             (2026, 1): 21, (2026, 2): 20, (2026, 3): 22, (2026, 4): 22, (2026, 5): 20,
+             (2026, 6): 22, (2026, 7): 23, (2026, 8): 21}
+# лютий і березень дають наростаючий 103,1 %; серпень навмисно великий і не застосовується
+CPI = [CpiMonth(2026, 2, 101.5), CpiMonth(2026, 3, 101.6), CpiMonth(2026, 8, 110.0)]
+
+
 def history(gross=30000.0, months=12):
     """Історія заробітку за 12 повних місяців перед серпнем 2026."""
     rows, year, month = [], 2025, 8
     for _i in range(months):
-        rows.append(EarningsMonth(month=date(year, month, 1), gross=gross))
+        rows.append(EarningsMonth(month=date(year, month, 1), gross=gross,
+                                  work_days=WORK_DAYS.get((year, month), 21)))
         month += 1
         if month > 12:
             year, month = year + 1, 1
@@ -89,10 +97,26 @@ SCENARIOS = [
     ("16 Індексація 500", slip(inputs={"INDEX": 500}),
      {"INDEX": 500.00, "GROSS": 30500.00, "PDFO": -5490.00, "VZ": -1525.00, "NET": 23485.00,
       "ESV": 6710.00}),
-    ("17 Індексація автоматично (базовий липень, індекс серпня 101,0)",
-     slip(employee=Employee(index_base=date(2026, 7, 1)), cpi=[CpiMonth(2026, 8, 101.0)]),
-     {"INDEX": 33.28, "GROSS": 30033.28, "PDFO": -5405.99, "VZ": -1501.66, "NET": 23125.63,
-      "ESV": 6607.32}),
+    ("17 Індексація автоматично (базовий січень, наростаючий 103,1 %)",
+     slip(employee=Employee(index_base=date(2026, 1, 1)), cpi=CPI),
+     {"INDEX": 103.17, "GROSS": 30103.17, "PDFO": -5418.57, "VZ": -1505.16, "NET": 23179.44,
+      "ESV": 6622.70}),
+    ("27 Індексації немає: наростаючий індекс нижчий за поріг",
+     slip(employee=Employee(index_base=date(2026, 2, 1)), cpi=CPI),
+     {"GROSS": 30000.00, "PDFO": -5400.00, "VZ": -1500.00, "NET": 23100.00, "ESV": 6600.00}),
+    ("28 Індекс місяця листка не застосовується",
+     slip(employee=Employee(index_base=date(2026, 7, 1)), cpi=CPI),
+     {"GROSS": 30000.00, "PDFO": -5400.00, "VZ": -1500.00, "NET": 23100.00, "ESV": 6600.00}),
+    ("29 Відрядження: середня за два місяці вища за оклад",
+     slip(absences={"TRIP": 5}, leaves=Leaves(trip_days=5, trip_work_days=5), hist=history(45000.0)),
+     {"BASIC": 22857.14, "TRIP_PAY": 10000.00, "GROSS": 32857.14, "PDFO": -5914.29,
+      "VZ": -1642.86, "NET": 25299.99, "ESV": 7228.57}),
+    ("30 Декрет із низьким заробітком: мінімальний ЄСВ за кожен місяць",
+     slip(wage=8000.0, absences={"MAT": 16},
+          leaves=Leaves(mat_days=126, mat_cover_days=22,
+                        mat_start=date(2026, 8, 10), mat_end=date(2026, 12, 13))),
+     {"BASIC": 1904.76, "MINSAL": 154.05, "MAT": 33139.73, "GROSS": 2058.81, "NET": 34725.01,
+      "ESV": 9511.70}),
     ("18 Навчальна відпустка 10 к.д. (3-12 серпня)",
      slip(absences={"STUDY": 8}, leaves=Leaves(study_days=10), hist=history()),
      {"BASIC": 18571.43, "STUDY_PAY": 9863.01, "GROSS": 28434.44, "PDFO": -5118.20,

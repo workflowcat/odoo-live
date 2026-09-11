@@ -21,7 +21,8 @@ RULES = os.path.join(BASE, "data", "rules-ua.json")
 def main():
     params = Params.load(PARAMS)
     ruleset = RuleSet.load(RULES)
-    errors = ruleset.validate()
+    from ..calc import EXTRA_FUNCS
+    errors = ruleset.validate(EXTRA_FUNCS)
     print(("PASS " if not errors else "FAIL ") + "усі вирази набору безпечні | %s" % (errors or "помилок немає"))
     failed = 1 if errors else 0
     for name, slip, expect in SCENARIOS:

@@ -118,7 +118,7 @@
       "name": "Середній заробіток за час відрядження",
       "category": "AVG",
       "when": "trip_work_days > 0",
-      "amount": "round(trip_work_days * max(avg100_work_day, day_wage), 2)"
+      "amount": "round(trip_work_days * max(avg_trip_day, day_wage), 2)"
     },
     {
       "sequence": 29,
@@ -286,7 +286,7 @@
       "name": "ЄСВ за рахунок підприємства",
       "category": "COMP",
       "when": "kind != 'fop'",
-      "amount": "round(min((min_wage if (esv_min_applies and full_month and (GROSS + MAT) < min_wage and not mat_cover_days) else (GROSS + MAT)), esv_max_base) * esv_rate / 100.0, 2)"
+      "amount": "esv_monthly(GROSS, MAT)"
     },
     {
       "sequence": 310,

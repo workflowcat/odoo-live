@@ -11,10 +11,15 @@
     NOESV оподатковувані виплати без ЄСВ · DED утримання · NET до виплати
     COMP за рахунок підприємства
 """
+from decimal import ROUND_HALF_UP, Decimal
+
 from . import average, indexation
 from .dsl import evaluate
+from datetime import date
+
 from .model import Line, Result
 
+EXTRA_FUNCS = ("esv_monthly",)   # названі алгоритми, дозволені у виразах правил
 INPUT_CODES = ("BONUS", "GPH", "COMP_DAYS", "DAILY", "FOP_PAY", "INDEX", "AID", "GIFT",
                "SEVERANCE", "COMP_TOOL", "ALIM_PCT", "UNION_PCT", "EXEC_AMT", "EXEC_PCT",
                "DAMAGE_AMT", "ADVANCE")
@@ -25,8 +30,12 @@ LEAVE_FIELDS = ("vac_days", "sick_emp_days", "sick_pfu_days", "sick_care_days", 
 PSP_MULT = {"none": 0.0, "base": 1.0, "child": None, "child150": None, "s150": 1.5, "s200": 2.0}
 
 
-def _r2(value):
-    return round(value, 2)
+def _r2(value, digits=2):
+    """Округлення грошей: пів копійки вгору. round() Python округлює до парного."""
+    if value is None:
+        return 0.0
+    quant = Decimal(1).scaleb(-int(digits))
+    return float(Decimal(str(value)).quantize(quant, rounding=ROUND_HALF_UP))
 
 
 def values(slip, params):
@@ -58,12 +67,42 @@ def values(slip, params):
         "time_ratio": slip.worked.time_ratio,
         "avg100_day": average.per_calendar_day(slip, holidays),
         "avg1266_day": average.per_calendar_day(slip, holidays),
-        "avg100_work_day": average.per_work_day(slip, holidays),
+        "avg_trip_day": average.per_trip_day(slip),
         "sick_percent": average.sick_percent(employee),
-        "index_amount": indexation.amount(slip, p["living_wage"]),
+        "index_amount": indexation.amount(
+            slip, p["living_wage"], p.get("index_threshold", indexation.THRESHOLD_DEFAULT),
+            _index_share(slip, employee)),
     }
     ua["min_sal_target"] = _min_sal_target(slip, ua)
+    ua["mat_shares"] = _mat_shares(slip, ua)
     return ua
+
+
+def _index_share(slip, employee):
+    """Пропорція індексації: ставка і відпрацьований час, як для окладу."""
+    norm = slip.worked.month_workdays or slip.worked.work_days or 1.0
+    time_share = max(min(slip.worked.worked() / norm, 1.0), 0.0) if norm else 1.0
+    return float(employee.fte or 1.0) * time_share
+
+
+def _mat_shares(slip, ua):
+    """Частки декретної допомоги за місяцями: мінімальний ЄСВ перевіряється помісячно."""
+    import calendar as _calendar
+    from datetime import timedelta
+    leaves = slip.leaves
+    if not leaves.mat_days or not leaves.mat_start or not leaves.mat_end:
+        return []
+    total = _r2(leaves.mat_days * ua["avg1266_day"])
+    days_total = (leaves.mat_end - leaves.mat_start).days + 1
+    shares, current = [], leaves.mat_start
+    while current <= leaves.mat_end:
+        month_end = date(current.year, current.month,
+                         _calendar.monthrange(current.year, current.month)[1])
+        segment_end = min(month_end, leaves.mat_end)
+        days = (segment_end - current).days + 1
+        shares.append(_r2(total * days / days_total))
+        current = segment_end + timedelta(days=1)
+    return shares
 
 
 def _worked_share(slip, ua):
@@ -121,14 +160,29 @@ def _gift_limit(c):
     return c.ua["min_wage"] * c.ua["gift_limit_share"] / 100.0
 
 
-def _esv(c):
-    ua = c.ua
-    base = c.cat["GROSS"] + c.cat["MAT"]
-    full_month = bool(ua["month_workdays"]) and c.slip.worked.work_days >= ua["month_workdays"]
-    if ua["esv_min_applies"] and full_month and base < ua["min_wage"] and not c.slip.leaves.mat_cover_days:
+def esv_monthly(slip, ua, gross, mat_total=0.0):
+    """ЄСВ за листок.
+
+    Декретну допомогу спершу розподіляємо за місяцями: мінімальний внесок перевіряється
+    за кожен місяць окремо, а не за весь листок. Без декрету - один місяць."""
+    shares = ua.get("mat_shares") or []
+    if shares:
+        total = 0.0
+        for index, share in enumerate(shares):
+            base = share + (gross if index == 0 else 0.0)
+            if ua["esv_min_applies"] and base < ua["min_wage"]:
+                base = ua["min_wage"]
+            total += min(base, ua["esv_max_base"]) * ua["esv_rate"] / 100.0
+        return _r2(total)
+    base = gross + mat_total
+    full_month = bool(ua["month_workdays"]) and slip.worked.work_days >= ua["month_workdays"]
+    if ua["esv_min_applies"] and full_month and base < ua["min_wage"]:
         base = ua["min_wage"]
-    base = min(base, ua["esv_max_base"])
-    return _r2(base * ua["esv_rate"] / 100.0)
+    return _r2(min(base, ua["esv_max_base"]) * ua["esv_rate"] / 100.0)
+
+
+def _esv(c):
+    return esv_monthly(c.slip, c.ua, c.cat["GROSS"], c.cat["MAT"])
 
 
 def _exec_doc(c):
@@ -163,7 +217,7 @@ RULES = [
     (28, "TRIP_PAY", "Середній заробіток за час відрядження", "AVG",
      lambda c: c.slip.leaves.trip_work_days > 0,
      lambda c: _r2(c.slip.leaves.trip_work_days * max(
-         c.ua["avg100_work_day"],
+         c.ua["avg_trip_day"],
          (c.slip.wage * c.ua["fte"] / c.ua["month_workdays"]) if c.ua["month_workdays"] else 0.0))),
     (29, "SICK_CARE_PAY", "Допомога по догляду за хворим", "AVG",
      lambda c: c.slip.leaves.sick_care_days > 0,
@@ -254,12 +308,13 @@ def compute_rules(slip, params, ruleset):
     ua = values(slip, params)
     ctx = _Ctx(slip, ua)
     names = context(slip, ua, ctx.cat)
+    names["esv_monthly"] = lambda gross, mat=0.0: esv_monthly(slip, ua, gross, mat)
     for item in ruleset.derived:
-        names[item["name"]] = evaluate(item["value"], names)
+        names[item["name"]] = evaluate(item["value"], names, EXTRA_FUNCS)
     for rule in ruleset.rules:
-        if rule.get("when") and not evaluate(rule["when"], names):
+        if rule.get("when") and not evaluate(rule["when"], names, EXTRA_FUNCS):
             continue
-        amount = evaluate(rule["amount"], names)
+        amount = evaluate(rule["amount"], names, EXTRA_FUNCS)
         ctx.add(rule["code"], rule["name"], rule["category"], amount)
         names.update(ctx.cat)
     return Result(ctx.lines, dict(ctx.cat))
