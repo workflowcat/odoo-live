@@ -322,6 +322,13 @@
     <field name="code">payroll_ref</field>
     <field name="sequence">90</field>
   </record>
+  <record id="item_employee_import" model="ua.hub.item">
+    <field name="name">Імпорт працівників</field>
+    <field name="section_id" ref="section_payroll_ref"/>
+    <field name="sequence">5</field>
+    <field name="action_xmlid">l10n_ua_onboarding.action_ua_employee_import</field>
+    <field name="description">перенесення карток і залишків з файлу</field>
+  </record>
   <record id="item_ref_params" model="ua.hub.item">
     <field name="name">Параметри (МЗП, ставки)</field>
     <field name="section_id" ref="section_payroll_ref"/>
