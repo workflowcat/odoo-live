@@ -1,11 +1,30 @@
 from datetime import datetime, time, timedelta
+from decimal import ROUND_HALF_UP, Decimal
 
 from odoo import models
 from odoo.addons.payroll.models.base_browsable import BaseBrowsableObject
 
 
+def ua_round(value, digits=2):
+    """Округлення грошей: пів копійки вгору (ROUND_HALF_UP).
+
+    Вбудований round() Python округлює до парного: round(0.125, 2) дає 0,12.
+    Для грошей це неправильно. Тут значення переводиться в Decimal через рядок,
+    тому двійкова похибка float не тягнеться далі, і половина завжди йде вгору."""
+    if value is None:
+        return 0.0
+    quant = Decimal(1).scaleb(-int(digits))
+    return float(Decimal(str(value)).quantize(quant, rounding=ROUND_HALF_UP))
+
+
 class HrPayslip(models.Model):
     _inherit = "hr.payslip"
+
+    def _get_tools_dict(self):
+        """Функції, доступні у формулах правил. r2 - округлення грошей."""
+        tools = super()._get_tools_dict()
+        tools["r2"] = ua_round
+        return tools
 
     def _ua_month_workdays(self, contract):
         """Робочі дні періоду за графіком контракту. Святкові не віднімаються, поки holidays_per_year = 0 (воєнний стан)."""
@@ -65,7 +84,7 @@ class HrPayslip(models.Model):
             ("slip_id.date_from", "<", self.date_from),
             ("code", "=", "AID_FREE"),
         ])
-        return round(sum(lines.mapped("total")), 2)
+        return ua_round(sum(lines.mapped("total")))
 
     def _ua_worked_share(self, values):
         """Частка відпрацьованого часу за рядками відпрацьованих днів листка."""
@@ -87,7 +106,7 @@ class HrPayslip(models.Model):
         if share is None or share < 0:
             share = self._ua_worked_share(values)
         share = max(min(share, 1.0), 0.0)
-        return round(values["min_wage"] * values.get("fte", 1.0) * share, 2)
+        return ua_round(values["min_wage"] * values.get("fte", 1.0) * share)
 
     def get_payroll_dict(self, contracts):
         res = super().get_payroll_dict(contracts)

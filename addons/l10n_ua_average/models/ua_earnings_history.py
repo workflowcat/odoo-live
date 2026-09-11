@@ -14,6 +14,9 @@ class UaEarningsHistory(models.Model):
     gross = fields.Float("Заробіток у розрахунку", digits="Payroll", required=True,
                          help="Нарахування, що входять до середньої: оклад, доплати, премії, відпускні, лікарняні")
     calendar_days = fields.Integer("Календарних днів", help="Днів місяця в розрахунковому періоді")
+    work_days = fields.Float("Відпрацьовано робочих днів", digits=(6, 2),
+                             help="Фактично відпрацьовані робочі дні місяця. Потрібні для середньої "
+                                  "за два місяці (відрядження). Нуль означає «невідомо».")
     excluded_days = fields.Integer("Виключені дні", default=0,
                                    help="Дні, не відпрацьовані з поважних причин (без збереження зарплати тощо)")
     source = fields.Selection([("manual", "вручну"), ("payslip", "з листка")], "Джерело", default="manual", required=True)

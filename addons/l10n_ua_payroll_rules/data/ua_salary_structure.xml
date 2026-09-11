@@ -14,51 +14,51 @@
       <field name="name">Оклад</field><field name="code">BASIC</field><field name="sequence">1</field>
       <field name="category_id" ref="cat_basic"/><field name="condition_select">none</field><field name="amount_select">code</field>
       <field name="amount_python_compute">if payroll.ua.time_ratio &gt;= 0:
-    result = round(contract.wage * payroll.ua.fte * payroll.ua.time_ratio, 2)
+    result = tools.r2(contract.wage * payroll.ua.fte * payroll.ua.time_ratio, 2)
 else:
     days = worked_days.WORK100.number_of_days if worked_days.WORK100 else 0.0
     for code, line in worked_days.dict.items():
         if code != 'WORK100' and line:
             days -= abs(line.number_of_days)
     total = payroll.ua.month_workdays or days or 1.0
-    result = round(contract.wage * payroll.ua.fte * max(min(days, total), 0.0) / total, 2)</field>
+    result = tools.r2(contract.wage * payroll.ua.fte * max(min(days, total), 0.0) / total, 2)</field>
     </record>
     <record id="rule_bonus" model="hr.salary.rule">
       <field name="name">Премія</field><field name="code">BONUS</field><field name="sequence">10</field>
       <field name="category_id" ref="cat_alw"/><field name="condition_select">python</field>
       <field name="condition_python">result = bool(inputs.BONUS and inputs.BONUS.amount)</field>
-      <field name="amount_select">code</field><field name="amount_python_compute">result = round(inputs.BONUS.amount, 2)</field>
+      <field name="amount_select">code</field><field name="amount_python_compute">result = tools.r2(inputs.BONUS.amount, 2)</field>
     </record>
     <record id="rule_gph" model="hr.salary.rule">
       <field name="name">Винагорода за ЦПХ</field><field name="code">GPH</field><field name="sequence">12</field>
       <field name="category_id" ref="cat_alw"/><field name="condition_select">python</field>
       <field name="condition_python">result = bool(inputs.GPH and inputs.GPH.amount)</field>
-      <field name="amount_select">code</field><field name="amount_python_compute">result = round(inputs.GPH.amount, 2)</field>
+      <field name="amount_select">code</field><field name="amount_python_compute">result = tools.r2(inputs.GPH.amount, 2)</field>
     </record>
     <record id="rule_fop" model="hr.salary.rule">
       <field name="name">Оплата ФОП</field><field name="code">FOP</field><field name="sequence">32</field>
       <field name="category_id" ref="cat_alw"/><field name="condition_select">python</field>
       <field name="condition_python">result = bool(inputs.FOP_PAY and inputs.FOP_PAY.amount)</field>
-      <field name="amount_select">code</field><field name="amount_python_compute">result = round(inputs.FOP_PAY.amount, 2)</field>
+      <field name="amount_select">code</field><field name="amount_python_compute">result = tools.r2(inputs.FOP_PAY.amount, 2)</field>
     </record>
     <record id="rule_index" model="hr.salary.rule">
       <field name="name">Індексація</field><field name="code">INDEX</field><field name="sequence">33</field>
       <field name="category_id" ref="cat_alw"/><field name="condition_select">python</field>
       <field name="condition_python">result = bool(inputs.INDEX and inputs.INDEX.amount)</field>
-      <field name="amount_select">code</field><field name="amount_python_compute">result = round(inputs.INDEX.amount, 2)</field>
+      <field name="amount_select">code</field><field name="amount_python_compute">result = tools.r2(inputs.INDEX.amount, 2)</field>
     </record>
     <record id="rule_minsal" model="hr.salary.rule">
       <field name="name">Доплата до мінімальної зарплати</field><field name="code">MINSAL</field><field name="sequence">40</field>
       <field name="category_id" ref="cat_alw"/><field name="condition_select">python</field>
       <field name="condition_python">result = payroll.ua.min_sal_target &gt; 0 and (categories.BASIC + categories.ALW) &lt; payroll.ua.min_sal_target - 0.005</field>
       <field name="amount_select">code</field>
-      <field name="amount_python_compute">result = round(payroll.ua.min_sal_target - (categories.BASIC + categories.ALW), 2)</field>
+      <field name="amount_python_compute">result = tools.r2(payroll.ua.min_sal_target - (categories.BASIC + categories.ALW), 2)</field>
       <field name="note">ст. 3-1 ЗУ про оплату праці. База порівняння — оклад і доплати за відпрацьований час. Відпускні, лікарняні та декретні в базу не входять.</field>
     </record>
     <record id="rule_gross" model="hr.salary.rule">
       <field name="name">Усього нараховано</field><field name="code">GROSS</field><field name="sequence">100</field>
       <field name="category_id" ref="cat_gross"/><field name="condition_select">none</field><field name="amount_select">code</field>
-      <field name="amount_python_compute">result = round(categories.BASIC + categories.ALW + categories.AVG, 2)</field>
+      <field name="amount_python_compute">result = tools.r2(categories.BASIC + categories.ALW + categories.AVG, 2)</field>
     </record>
     <record id="rule_pdfo" model="hr.salary.rule">
       <field name="name">ПДФО 18 %</field><field name="code">PDFO</field><field name="sequence">110</field>
@@ -66,12 +66,12 @@ else:
       <field name="amount_python_compute">gross = categories.GROSS
 base = gross + categories.NOESV
 psp = payroll.ua.psp_amount if (payroll.ua.psp_amount and gross &lt;= payroll.ua.psp_threshold) else 0.0
-result = -round(max(base - psp, 0.0) * payroll.ua.pdfo_rate / 100.0, 2)</field>
+result = -tools.r2(max(base - psp, 0.0) * payroll.ua.pdfo_rate / 100.0, 2)</field>
     </record>
     <record id="rule_vz" model="hr.salary.rule">
       <field name="name">Військовий збір 5 %</field><field name="code">VZ</field><field name="sequence">120</field>
       <field name="category_id" ref="cat_ded"/><field name="condition_select">python</field><field name="condition_python">result = payroll.ua.contract_kind != 'fop'</field><field name="amount_select">code</field>
-      <field name="amount_python_compute">result = -round((categories.GROSS + categories.NOESV) * payroll.ua.vz_rate / 100.0, 2)</field>
+      <field name="amount_python_compute">result = -tools.r2((categories.GROSS + categories.NOESV) * payroll.ua.vz_rate / 100.0, 2)</field>
     </record>
     <record id="rule_alim" model="hr.salary.rule">
       <field name="name">Аліменти</field><field name="code">ALIM</field><field name="sequence">150</field>
@@ -79,41 +79,56 @@ result = -round(max(base - psp, 0.0) * payroll.ua.pdfo_rate / 100.0, 2)</field>
       <field name="condition_python">result = bool(inputs.ALIM_PCT and inputs.ALIM_PCT.amount)</field>
       <field name="amount_select">code</field>
       <field name="amount_python_compute">after_tax = categories.GROSS + categories.NOESV + categories.DED
-result = -round(after_tax * inputs.ALIM_PCT.amount / 100.0, 2)</field>
+result = -tools.r2(after_tax * inputs.ALIM_PCT.amount / 100.0, 2)</field>
     </record>
     <record id="rule_adv" model="hr.salary.rule">
       <field name="name">Виплачено авансом</field><field name="code">ADV_PAID</field><field name="sequence">180</field>
       <field name="category_id" ref="cat_ded"/><field name="condition_select">python</field>
       <field name="condition_python">result = bool(inputs.ADVANCE and inputs.ADVANCE.amount)</field>
-      <field name="amount_select">code</field><field name="amount_python_compute">result = -round(inputs.ADVANCE.amount, 2)</field>
+      <field name="amount_select">code</field><field name="amount_python_compute">result = -tools.r2(inputs.ADVANCE.amount, 2)</field>
     </record>
     <record id="rule_net" model="hr.salary.rule">
       <field name="name">До виплати</field><field name="code">NET</field><field name="sequence">200</field>
       <field name="category_id" ref="cat_net"/><field name="condition_select">none</field><field name="amount_select">code</field>
-      <field name="amount_python_compute">result = round(categories.GROSS + categories.MAT + categories.NOTAX + categories.NOESV + categories.DED, 2)</field>
+      <field name="amount_python_compute">result = tools.r2(categories.GROSS + categories.MAT + categories.NOTAX + categories.NOESV + categories.DED, 2)</field>
     </record>
     <record id="rule_esv" model="hr.salary.rule">
       <field name="name">ЄСВ 22 % за рахунок підприємства</field><field name="code">ESV</field><field name="sequence">300</field>
       <field name="category_id" ref="cat_comp"/><field name="condition_select">python</field><field name="condition_python">result = payroll.ua.contract_kind != 'fop'</field><field name="amount_select">code</field>
-      <field name="amount_python_compute">base = categories.GROSS + categories.MAT
+      <field name="amount_python_compute"># Декретну допомогу спершу розподіляємо за місяцями: мінімальний внесок перевіряється
+# за кожен місяць окремо, а не за весь листок (роз'яснення ДПС про розподіл допомоги).
+rate = payroll.ua.esv_rate
+max_base = payroll.ua.esv_max_base
+min_wage = payroll.ua.min_wage
+shares = list(payroll.ua.mat_shares or [])
+salary = categories.GROSS
 full_month = payroll.ua.month_workdays and worked_days.WORK100 and worked_days.WORK100.number_of_days &gt;= payroll.ua.month_workdays
-if payroll.ua.esv_min_applies and full_month and base &lt; payroll.ua.min_wage and not payroll.ua.mat_cover_days:
-    base = payroll.ua.min_wage
-base = min(base, payroll.ua.esv_max_base)
-result = round(base * payroll.ua.esv_rate / 100.0, 2)</field>
+if shares:
+    total = 0.0
+    for index, share in enumerate(shares):
+        base = share + (salary if index == 0 else 0.0)
+        if payroll.ua.esv_min_applies and base &lt; min_wage:
+            base = min_wage
+        total += min(base, max_base) * rate / 100.0
+    result = tools.r2(total, 2)
+else:
+    base = salary + categories.MAT
+    if payroll.ua.esv_min_applies and full_month and base &lt; min_wage:
+        base = min_wage
+    result = tools.r2(min(base, max_base) * rate / 100.0, 2)</field>
     </record>
 
     <record id="rule_reserve" model="hr.salary.rule">
       <field name="name">Резерв відпусток</field><field name="code">RESERVE</field><field name="sequence">310</field>
       <field name="category_id" ref="cat_comp"/><field name="condition_select">python</field>
       <field name="condition_python">result = payroll.ua.contract_kind == 'employment' and payroll.ua.reserve_rate &gt; 0</field>
-      <field name="amount_select">code</field><field name="amount_python_compute">result = round((categories.BASIC + categories.ALW) * payroll.ua.reserve_rate / 100.0, 2)</field>
+      <field name="amount_select">code</field><field name="amount_python_compute">result = tools.r2((categories.BASIC + categories.ALW) * payroll.ua.reserve_rate / 100.0, 2)</field>
     </record>
     <record id="rule_reserve_esv" model="hr.salary.rule">
       <field name="name">ЄСВ на резерв відпусток</field><field name="code">RESERVE_ESV</field><field name="sequence">311</field>
       <field name="category_id" ref="cat_comp"/><field name="condition_select">python</field>
       <field name="condition_python">result = payroll.ua.contract_kind == 'employment' and payroll.ua.reserve_rate &gt; 0</field>
-      <field name="amount_select">code</field><field name="amount_python_compute">result = round((categories.BASIC + categories.ALW) * payroll.ua.reserve_rate / 100.0 * payroll.ua.esv_rate / 100.0, 2)</field>
+      <field name="amount_select">code</field><field name="amount_python_compute">result = tools.r2((categories.BASIC + categories.ALW) * payroll.ua.reserve_rate / 100.0 * payroll.ua.esv_rate / 100.0, 2)</field>
     </record>
     <record id="input_fop" model="hr.rule.input"><field name="name">Оплата ФОП-підряднику</field><field name="code">FOP_PAY</field><field name="input_id" ref="rule_fop"/></record>
     <record id="input_index" model="hr.rule.input"><field name="name">Індексація</field><field name="code">INDEX</field><field name="input_id" ref="rule_index"/></record>

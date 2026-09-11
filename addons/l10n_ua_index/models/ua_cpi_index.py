@@ -25,6 +25,9 @@ class UaCpiIndex(models.Model):
     month = fields.Integer("Місяць", required=True)
     value = fields.Float("Індекс, %", required=True, digits=(6, 2),
                          help="Індекс споживчих цін до попереднього місяця, як публікує Держстат. 100,0 - без зміни.")
+    published_on = fields.Date("Оприлюднено",
+                               help="Дата публікації Держстатом. Індекс не застосовується до розрахунків "
+                                    "за місяці, що закінчилися раніше за цю дату. Порожньо - без обмеження.")
     name = fields.Char("Період", compute="_compute_name", store=True)
     note = fields.Char("Джерело")
 

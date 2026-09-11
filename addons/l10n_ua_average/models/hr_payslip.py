@@ -1,7 +1,9 @@
 import calendar
-from datetime import date
+from datetime import date, timedelta
 
 from odoo import fields, models
+
+from odoo.addons.l10n_ua_payroll_rules.models.hr_payslip import ua_round
 
 
 def _add_months(d, n):
@@ -77,11 +79,65 @@ class HrPayslip(models.Model):
                     d = fields.Date.add(d, days=1)
         return out
 
-    def _ua_average_work_days(self):
-        """Робочі дні у вікні середньої: за ними рахують середню за час відрядження (ст. 121 КЗпП)."""
+    def _ua_trip_window(self):
+        """Два повні календарні місяці перед місяцем події (Постанова 100 у редакції 1213)."""
+        first = self.date_from.replace(day=1)
+        return _add_months(first, -2), first
+
+    def _ua_average_trip(self):
+        """Середня за робочий день для відрядження: заробіток двох місяців / відпрацьовані робочі дні.
+
+        Календарні дні × 5/7 більше не застосовуються: Порядок 100 вимагає фактичні
+        робочі дні розрахункового періоду. Якщо робочі дні невідомі, середньої немає,
+        і правило бере денний заробіток за окладом."""
+        start, end = self._ua_trip_window()
+        rows = self.env["ua.earnings.history"].search([
+            ("employee_id", "=", self.employee_id.id), ("month", ">=", start), ("month", "<", end),
+        ])
+        days = sum(rows.mapped("work_days"))
+        if not rows or days <= 0:
+            return 0.0, 0.0
+        return sum(rows.mapped("gross")), days
+
+    def _ua_average_day(self):
+        """Середня за календарний день на дату листка."""
+        holidays = self.env["ua.payroll.param"].get("holidays_per_year", self.date_to, self.company_id)
+        total, days = self._ua_average_base()
+        return total / days if days else 0.0
+
+    def _ua_mat_shares(self):
+        """Частки декретної допомоги за місяцями листка непрацездатності.
+
+        ЄСВ перевіряється за кожним місяцем окремо, тому допомогу треба спершу розподілити
+        пропорційно календарним дням (роз'яснення ДПС про мінімальний внесок після розподілу)."""
         self.ensure_one()
-        _total, calendar_days = self._ua_average_base()
-        return round(calendar_days * 5.0 / 7.0, 2) if calendar_days else 0.0
+        leaves = self.env["hr.leave"].sudo().search([
+            ("employee_id", "=", self.employee_id.id), ("state", "=", "validate"),
+            ("holiday_status_id.work_entry_type_id.code", "=", "MAT"),
+            ("request_date_from", ">=", self.date_from), ("request_date_from", "<=", self.date_to),
+        ])
+        # Рядків листка ще немає: значення рахуються до виконання правил. Тому суму
+        # допомоги беремо тією самою формулою, що й правило MAT.
+        leave_days = self._ua_leave_calendar_days()
+        total_amount = ua_round(leave_days.get("mat_days", 0) * self._ua_average_day())
+        if not leaves or not total_amount:
+            return []
+        shares = []
+        for leave in leaves:
+            days_total = (leave.request_date_to - leave.request_date_from).days + 1
+            current = leave.request_date_from
+            while current <= leave.request_date_to:
+                month_end = date(current.year, current.month,
+                                 calendar.monthrange(current.year, current.month)[1])
+                segment_end = min(month_end, leave.request_date_to)
+                days = (segment_end - current).days + 1
+                shares.append(round(total_amount * days / days_total, 2))
+                current = segment_end + timedelta(days=1)
+        return shares
+
+    def _ua_trip_day(self):
+        total, days = self._ua_average_trip()
+        return (total / days) if days else 0.0
 
     def _ua_payroll_values(self, contracts):
         res = super()._ua_payroll_values(contracts)
@@ -90,7 +146,8 @@ class HrPayslip(models.Model):
         res.update({
             "avg100_day": avg,          # середня за Постановою 100, грн за календарний день
             "avg1266_day": avg,         # те саме вікно; виключення - через excluded_days
-            "avg100_work_day": (total / self._ua_average_work_days()) if self._ua_average_work_days() else 0.0,
+            "avg_trip_day": self._ua_trip_day(),
+            "mat_shares": self._ua_mat_shares(),
             "sick_percent": self.employee_id.sudo().ua_sick_percent or 50.0,
             **self._ua_leave_calendar_days(),
         })
@@ -103,6 +160,9 @@ class HrPayslip(models.Model):
             gross = sum(slip.line_ids.filtered(lambda l: l.category_id.code in ("BASIC", "ALW", "AVG")).mapped("total"))
             month = slip.date_from.replace(day=1)
             row = Hist.search([("employee_id", "=", slip.employee_id.id), ("month", "=", month)], limit=1)
-            vals = {"employee_id": slip.employee_id.id, "month": month, "gross": gross, "source": "payslip", "payslip_id": slip.id}
+            worked = sum(line.number_of_days for line in slip.worked_days_line_ids if line.code == "WORK100")
+            absent = sum(abs(line.number_of_days) for line in slip.worked_days_line_ids if line.code != "WORK100")
+            vals = {"employee_id": slip.employee_id.id, "month": month, "gross": gross, "source": "payslip",
+                    "payslip_id": slip.id, "work_days": max(worked - absent, 0.0)}
             row.write(vals) if row else Hist.create(vals)
         return res

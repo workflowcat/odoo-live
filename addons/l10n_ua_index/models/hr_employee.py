@@ -17,13 +17,18 @@ class HrEmployee(models.Model):
     ua_index_off = fields.Boolean(
         "Не індексувати", groups="hr.group_hr_user",
         help="Вимикає автоматичну індексацію для цього працівника.")
+    ua_index_paid_month = fields.Date(
+        "Місяць останньої виплаченої індексації", groups="hr.group_hr_user", copy=False,
+        help="Після виплати індексації починається новий цикл накопичення індексу.")
     ua_index_base_effective = fields.Date(
         "Базовий місяць (чинний)", compute="_compute_ua_index_base_effective", groups="hr.group_hr_user")
 
     @api.depends("ua_index_base", "version_ids.wage", "version_ids.date_version")
     def _compute_ua_index_base_effective(self):
         for employee in self:
-            employee.ua_index_base_effective = employee.ua_index_base or employee._ua_index_base_auto()
+            base = employee.ua_index_base or employee._ua_index_base_auto()
+            paid = employee.ua_index_paid_month
+            employee.ua_index_base_effective = paid if (paid and (not base or paid > base)) else base
 
     def _ua_index_base_auto(self):
         """Місяць останнього підвищення окладу за версіями контракту."""
