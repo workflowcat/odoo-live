@@ -19,6 +19,13 @@ class UaHrOrder(models.Model):
     }
     _ua_change_unlink = True
 
+    def _ua_change_label(self):
+        """Чернетка наказу ще не має номера. Пишемо вид наказу і працівника."""
+        if self.name:
+            return "%s · %s" % (self.name, self.employee_id.name or "")
+        kind = dict(self._fields["order_type"].selection).get(self.order_type, "наказ")
+        return "%s (чернетка) · %s" % (kind, self.employee_id.name or "")
+
     def _ua_change_period(self):
         day = self.date or fields.Date.context_today(self)
         return day.year, day.month
