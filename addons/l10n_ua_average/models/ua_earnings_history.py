@@ -19,7 +19,7 @@ class UaEarningsHistory(models.Model):
     source = fields.Selection([("manual", "вручну"), ("payslip", "з листка")], "Джерело", default="manual", required=True)
     payslip_id = fields.Many2one("hr.payslip", "Листок", ondelete="set null")
 
-    _sql_constraints = [("emp_month_uniq", "unique(employee_id, month)", "Один рядок на місяць для працівника.")]
+    _emp_month_uniq = models.Constraint("unique(employee_id, month)", "Один рядок на місяць для працівника.")
 
     @api.model_create_multi
     def create(self, vals_list):

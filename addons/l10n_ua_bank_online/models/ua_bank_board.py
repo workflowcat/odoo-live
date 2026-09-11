@@ -108,8 +108,28 @@ class UaBankBoard(models.AbstractModel):
                 "unreconciled": len(unreconciled),
                 "amount_in": self._r2(sum(a for a in amounts if a > 0)),
                 "amount_out": self._r2(sum(a for a in amounts if a < 0)),
+                "connect": self._connect_row(journal),
             })
         return rows
+
+
+    def _connect_row(self, journal):
+        """Стан підготовки до підключення банку: скільки кроків пройдено і чого чекаємо."""
+        connect = self.env["ua.bank.connect"].search([("journal_id", "=", journal.id)], limit=1)
+        provider = journal.online_bank_statement_provider_id
+        if provider and provider.password and not provider.ua_demo:
+            state, label = "live", "ключ працює"
+        elif provider and provider.ua_demo:
+            state, label = "demo", "демо-дані"
+        elif connect and connect.state == "received":
+            state, label = "key", "ключ є, треба з'єднати"
+        elif connect and connect.done_steps:
+            state, label = "prep", "%s з %s кроків" % (connect.done_steps, connect.total_steps)
+        else:
+            state, label = "none", "не підключено"
+        return {"state": state, "label": label, "id": connect.id or False,
+                "done": connect.done_steps if connect else 0,
+                "total": connect.total_steps if connect else 0}
 
     def _get_unreconciled(self, company, limit=40):
         lines = self.env["account.bank.statement.line"].search([
@@ -372,3 +392,21 @@ class UaBankBoard(models.AbstractModel):
             "views": [(False, "form")],
             "target": "current",
         }
+
+    @api.model
+    def action_open_connect(self, journal_id):
+        """Відкрити чек-лист підключення банку. Якщо його немає, створити."""
+        connect = self.env["ua.bank.connect"].for_journal(int(journal_id))
+        return {"type": "ir.actions.act_window", "res_model": "ua.bank.connect",
+                "res_id": connect.id, "view_mode": "form", "views": [(False, "form")],
+                "target": "current"}
+
+    @api.model
+    def action_import_file(self, journal_id=None):
+        """Завантажити виписку файлом. Працює, поки немає ключа банку."""
+        action = dict(self.env["ir.actions.actions"]._for_xml_id(
+            "account_statement_import_file.account_statement_import_action"))
+        if journal_id:
+            action["context"] = {"journal_id": int(journal_id),
+                                 "default_journal_id": int(journal_id)}
+        return action

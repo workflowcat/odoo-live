@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_bank_connect_form" model="ir.ui.view">
+    <field name="name">ua.bank.connect.form</field>
+    <field name="model">ua.bank.connect</field>
+    <field name="arch" type="xml">
+      <form string="Підключення банку">
+        <header>
+          <button name="action_fill_steps" type="object" string="Оновити кроки"/>
+          <button name="action_create_provider" type="object" string="Створити з'єднання"
+                  class="btn-primary" invisible="provider_id"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="journal_id"/>
+              <field name="service"/>
+              <field name="account" placeholder="UA... або ідентифікатор рахунку"/>
+              <field name="provider_id" readonly="1"/>
+            </group>
+            <group>
+              <field name="key_holder" placeholder="Посада і прізвище"/>
+              <field name="key_place"/>
+              <field name="key_rotate_months"/>
+              <field name="requested_date"/>
+              <field name="received_date"/>
+              <field name="done_steps"/>
+              <field name="total_steps"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Кроки">
+              <field name="step_ids">
+                <list editable="bottom" decoration-muted="done">
+                  <field name="sequence" widget="handle"/>
+                  <field name="done" widget="boolean_toggle"/>
+                  <field name="name"/>
+                  <field name="who"/>
+                  <field name="hint"/>
+                  <field name="done_date" readonly="1"/>
+                  <field name="note"/>
+                </list>
+              </field>
+            </page>
+            <page string="Примітка">
+              <field name="note" placeholder="Що сказав банк, які обмеження, коли міняти ключ"/>
+            </page>
+          </notebook>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_bank_connect_list" model="ir.ui.view">
+    <field name="name">ua.bank.connect.list</field>
+    <field name="model">ua.bank.connect</field>
+    <field name="arch" type="xml">
+      <list string="Підключення банків">
+        <field name="journal_id"/>
+        <field name="service"/>
+        <field name="state"/>
+        <field name="done_steps"/>
+        <field name="total_steps"/>
+        <field name="key_holder"/>
+        <field name="key_place"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_bank_connect" model="ir.actions.act_window">
+    <field name="name">Підключення банків</field>
+    <field name="res_model">ua.bank.connect</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>

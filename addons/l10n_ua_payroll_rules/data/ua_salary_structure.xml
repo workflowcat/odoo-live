@@ -47,6 +47,14 @@ else:
       <field name="condition_python">result = bool(inputs.INDEX and inputs.INDEX.amount)</field>
       <field name="amount_select">code</field><field name="amount_python_compute">result = round(inputs.INDEX.amount, 2)</field>
     </record>
+    <record id="rule_minsal" model="hr.salary.rule">
+      <field name="name">Доплата до мінімальної зарплати</field><field name="code">MINSAL</field><field name="sequence">40</field>
+      <field name="category_id" ref="cat_alw"/><field name="condition_select">python</field>
+      <field name="condition_python">result = payroll.ua.min_sal_target &gt; 0 and (categories.BASIC + categories.ALW) &lt; payroll.ua.min_sal_target - 0.005</field>
+      <field name="amount_select">code</field>
+      <field name="amount_python_compute">result = round(payroll.ua.min_sal_target - (categories.BASIC + categories.ALW), 2)</field>
+      <field name="note">ст. 3-1 ЗУ про оплату праці. База порівняння — оклад і доплати за відпрацьований час. Відпускні, лікарняні та декретні в базу не входять.</field>
+    </record>
     <record id="rule_gross" model="hr.salary.rule">
       <field name="name">Усього нараховано</field><field name="code">GROSS</field><field name="sequence">100</field>
       <field name="category_id" ref="cat_gross"/><field name="condition_select">none</field><field name="amount_select">code</field>
@@ -115,7 +123,7 @@ result = round(base * payroll.ua.esv_rate / 100.0, 2)</field>
 
     <record id="struct_ua_salary" model="hr.payroll.structure">
       <field name="name">Україна: оклад</field><field name="code">UA_SALARY</field>
-      <field name="rule_ids" eval="[(6, 0, [ref('rule_basic'), ref('rule_bonus'), ref('rule_gph'), ref('rule_gross'), ref('rule_pdfo'), ref('rule_vz'), ref('rule_fop'), ref('rule_index'), ref('rule_alim'), ref('rule_adv'), ref('rule_net'), ref('rule_esv'), ref('rule_reserve'), ref('rule_reserve_esv')])]"/>
+      <field name="rule_ids" eval="[(6, 0, [ref('rule_basic'), ref('rule_bonus'), ref('rule_gph'), ref('rule_gross'), ref('rule_pdfo'), ref('rule_vz'), ref('rule_fop'), ref('rule_index'), ref('rule_minsal'), ref('rule_alim'), ref('rule_adv'), ref('rule_net'), ref('rule_esv'), ref('rule_reserve'), ref('rule_reserve_esv')])]"/>
     </record>
   </data>
 </odoo>

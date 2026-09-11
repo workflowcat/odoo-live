@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Розмітка файлових виписок. Поки немає ключів банку, виписку вантажать файлом:
+     Банк → Виписки → Імпорт. Назви колонок узяті з типового експорту. Перший
+     справжній файл треба звірити з цією розміткою і, за потреби, виправити назви. -->
+<odoo>
+  <data noupdate="1">
+    <record id="map_privat_csv" model="account.statement.import.sheet.mapping">
+      <field name="name">ПриватБанк: виписка CSV (Приват24 для бізнесу)</field>
+      <field name="file_encoding">windows-1251</field>
+      <field name="delimiter">semicolon</field>
+      <field name="quotechar">"</field>
+      <field name="float_thousands_sep">none</field>
+      <field name="float_decimal_sep">dot</field>
+      <field name="header_lines_skip_count">1</field>
+      <field name="footer_lines_skip_count">0</field>
+      <field name="timestamp_format">%d.%m.%Y</field>
+      <field name="timestamp_column">Дата</field>
+      <field name="amount_type">absolute_value</field>
+      <field name="amount_column">Сума</field>
+      <field name="debit_credit_column">Тип операції</field>
+      <field name="debit_value">Дебет</field>
+      <field name="credit_value">Кредит</field>
+      <field name="description_column">Призначення платежу</field>
+      <field name="partner_name_column">Назва контрагента</field>
+      <field name="bank_account_column">Рахунок контрагента</field>
+      <field name="reference_column">Номер документа</field>
+    </record>
+
+    <record id="map_mono_csv" model="account.statement.import.sheet.mapping">
+      <field name="name">Monobank: виписка CSV (кабінет)</field>
+      <field name="file_encoding">utf-8</field>
+      <field name="delimiter">comma</field>
+      <field name="quotechar">"</field>
+      <field name="float_thousands_sep">none</field>
+      <field name="float_decimal_sep">dot</field>
+      <field name="header_lines_skip_count">1</field>
+      <field name="footer_lines_skip_count">0</field>
+      <field name="timestamp_format">%d.%m.%Y %H:%M:%S</field>
+      <field name="timestamp_column">Дата i час операції</field>
+      <field name="amount_type">simple_value</field>
+      <field name="amount_column">Сума в валюті картки (UAH)</field>
+      <field name="description_column">Деталі операції</field>
+      <field name="balance_column">Залишок після операції</field>
+    </record>
+  </data>
+</odoo>

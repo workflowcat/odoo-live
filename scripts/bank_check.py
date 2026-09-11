@@ -206,6 +206,41 @@ if lana_uid:
 else:
     check("вхід lana для перевірки меню", False, "не вдалося увійти")
 
+# 11б. Підготовка до підключення: чек-лист, розмітки файлів, кнопка «Виписка файлом»
+conn_fields = call("ua.bank.connect", "fields_get", [], attributes=["type"])
+check("модель підключення банку має потрібні поля",
+      {"journal_id", "service", "state", "key_holder", "key_place", "step_ids", "done_steps"}.issubset(conn_fields),
+      str(sorted({"journal_id", "service", "state", "key_holder", "key_place", "step_ids", "done_steps"} - set(conn_fields))))
+
+journals = call("account.journal", "search", [["type", "=", "bank"]])
+conn = call("ua.bank.connect", "search", [["journal_id", "=", journals[0]]], limit=1)
+if not conn:
+    conn = [call("ua.bank.connect", "create", {"journal_id": journals[0], "service": "ua_privat"})]
+    conn = [conn[0] if isinstance(conn[0], list) else conn[0]]
+rec = call("ua.bank.connect", "read", conn, ["done_steps", "total_steps", "service", "state"])[0]
+check("чек-лист підключення наповнений кроками", rec["total_steps"] >= 6, f"{rec['done_steps']} з {rec['total_steps']}")
+steps = call("ua.bank.connect.step", "search_read", [["connect_id", "=", conn[0]]], ["name", "who", "hint"])
+check("у кожного кроку є виконавець і підказка",
+      all(st["who"] and st["hint"] for st in steps), str(len(steps)))
+check("кроки називають ключ і сховище",
+      any("ключ" in st["name"].lower() for st in steps) and any("сховищ" in st["name"].lower() for st in steps))
+
+maps = call("account.statement.import.sheet.mapping", "search_read", [], ["name"])
+names = " | ".join(m["name"] for m in maps)
+check("є розмітка файлової виписки ПриватБанку", "ПриватБанк" in names, names[:160])
+check("є розмітка файлової виписки Monobank", "Monobank" in names, names[:160])
+
+action = call("ua.bank.board", "action_import_file", journals[0])
+check("кнопка «Виписка файлом» відкриває майстер імпорту",
+      action.get("res_model") == "account.statement.import", str(action.get("res_model")))
+action = call("ua.bank.board", "action_open_connect", journals[0])
+check("кнопка «Підготовка до підключення» відкриває чек-лист",
+      action.get("res_model") == "ua.bank.connect" and action.get("res_id"), str(action.get("res_model")))
+data = call("ua.bank.board", "get_screen_data")
+check("екран «Банк» показує стан підключення кожного рахунку",
+      all("connect" in a and a["connect"].get("label") for a in data["accounts"]),
+      str([a["connect"]["label"] for a in data["accounts"]]))
+
 # 12. Компонент у бандлі
 if DB == "payroll":
     cj = http.cookiejar.CookieJar()

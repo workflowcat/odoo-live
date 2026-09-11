@@ -80,9 +80,7 @@ class UaReportRun(models.Model):
     submitted_by = fields.Many2one("res.users", "Подав", readonly=True, copy=False)
     note = fields.Text("Примітка")
 
-    _sql_constraints = [
-        ("period_uniq", "unique(company_id, report_code, period_key)", "Прогін для цього звіту і періоду вже існує."),
-    ]
+    _period_uniq = models.Constraint("unique(company_id, report_code, period_key)", "Прогін для цього звіту і періоду вже існує.")
 
     # ------------------------------------------------------------------ обчислювані поля
     @api.depends("report_code", "year", "quarter", "month", "date", "doc_kind", "correction_no")

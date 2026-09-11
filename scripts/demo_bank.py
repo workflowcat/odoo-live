@@ -118,3 +118,14 @@ for line in rest:
 
 balance = call("ua.bank.board", "get_screen_data")
 print("Залишок за рахунком:", balance["totals"]["balance"])
+
+# 3. Підготовка до підключення: чек-лист на кожен банківський журнал.
+# Ключів банку ще немає, тому кроки лишаються невиконаними. Це і є стан справ.
+for journal_id, service, holder in ((journal[0], "ua_privat", "Директор"), (mono[0], "ua_mono", "Директор")):
+    connect = call("ua.bank.connect", "search", [["journal_id", "=", journal_id]], limit=1)
+    if not connect:
+        connect = [call("ua.bank.connect", "create",
+                        {"journal_id": journal_id, "service": service, "key_holder": holder,
+                         "key_place": "worker", "company_id": company})]
+    steps = call("ua.bank.connect", "read", connect, ["done_steps", "total_steps", "name"])[0]
+    print(f"Підключення {steps['name']}: {steps['done_steps']} з {steps['total_steps']} кроків.")

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_period_close_list" model="ir.ui.view">
+    <field name="name">ua.period.close.list</field>
+    <field name="model">ua.period.close</field>
+    <field name="arch" type="xml">
+      <list string="Закриття періодів" decoration-muted="state == 'open'">
+        <field name="name"/>
+        <field name="state"/>
+        <field name="hard"/>
+        <field name="lock_date"/>
+        <field name="closed_user_id"/>
+        <field name="closed_date"/>
+        <field name="changes_accepted"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_period_close_form" model="ir.ui.view">
+    <field name="name">ua.period.close.form</field>
+    <field name="model">ua.period.close</field>
+    <field name="arch" type="xml">
+      <form string="Період">
+        <header>
+          <button name="action_close" type="object" string="Закрити місяць" class="btn-primary"
+                  invisible="state == 'closed'"/>
+          <button name="action_reopen" type="object" string="Відкрити знову"
+                  invisible="state != 'closed' or hard"
+                  confirm="Дата блокування зміститься назад. Продовжити?"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="company_id"/>
+              <field name="year"/>
+              <field name="month"/>
+              <field name="hard"/>
+            </group>
+            <group>
+              <field name="lock_date"/>
+              <field name="closed_user_id"/>
+              <field name="closed_date"/>
+              <field name="changes_accepted"/>
+              <field name="reopened_user_id" invisible="not reopened_user_id"/>
+              <field name="reopened_date" invisible="not reopened_date"/>
+            </group>
+          </group>
+          <group>
+            <field name="reopen_reason" placeholder="Причина, чому період відкрили знову"/>
+          </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_period_close" model="ir.actions.act_window">
+    <field name="name">Закриті періоди</field>
+    <field name="res_model">ua.period.close</field>
+    <field name="view_mode">list,form</field>
+  </record>
+
+  <menuitem id="menu_ua_period_close" name="Закриті періоди"
+            parent="l10n_ua_payroll_ui.menu_ua_payroll_calc"
+            action="action_ua_period_close" sequence="80" groups="account.group_account_manager"/>
+</odoo>

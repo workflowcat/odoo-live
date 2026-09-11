@@ -62,11 +62,24 @@
           </table>
         </div>
 
-        <div class="o_ua_period_blockers" t-if="data.blockers.length">
-          Закрити місяць не можна: <t t-esc="data.blockers.join(', ')"/>.
-        </div>
-        <div class="o_ua_period_blockers ok" t-else="">
-          Усі кроки місяця закриті.
+        <div class="o_ua_period_close">
+          <t t-if="data.close.state === 'closed'">
+            <span class="o_ua_period_locked">Місяць закрито <t t-esc="data.close.closed_date"/><t t-if="data.close.closed_by"> · <t t-esc="data.close.closed_by"/></t><t t-if="data.close.hard"> · остаточно</t></span>
+            <button class="btn btn-sm btn-secondary" t-if="!data.close.hard"
+                    t-att-disabled="state.busy" t-on-click="() => this.openClose()">Відкрити знову</button>
+          </t>
+          <t t-else="">
+            <span t-if="data.blockers.length" class="o_ua_period_blockers">
+              Закрити місяць не можна: <t t-esc="data.blockers.join('; ')"/>.
+            </span>
+            <span t-else="" class="o_ua_period_blockers ok">Усі умови закриття виконані.</span>
+            <button class="btn btn-sm btn-secondary" t-if="data.new_changes"
+                    t-att-disabled="state.busy" t-on-click="() => this.acceptAll()">
+              Прийняти всі зміни (<t t-esc="data.new_changes"/>)
+            </button>
+            <button class="btn btn-sm btn-primary" t-att-disabled="state.busy or data.blockers.length"
+                    t-on-click="() => this.closeMonth()">Закрити місяць</button>
+          </t>
         </div>
       </t>
     </div>

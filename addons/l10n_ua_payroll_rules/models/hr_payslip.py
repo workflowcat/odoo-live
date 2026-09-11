@@ -48,7 +48,31 @@ class HrPayslip(models.Model):
             "time_ratio": -1.0,    # l10n_ua_hr_docs ставить частку часу із затвердженого табеля
         }
 
+    def _ua_worked_share(self, values):
+        """Частка відпрацьованого часу за рядками відпрацьованих днів листка."""
+        lines = self.worked_days_line_ids
+        work = sum(line.number_of_days for line in lines if line.code == "WORK100")
+        other = sum(abs(line.number_of_days) for line in lines if line.code != "WORK100")
+        days = work - other
+        total = values.get("month_workdays") or work or 1.0
+        return max(min(days, total), 0.0) / (total or 1.0)
+
+    def _ua_min_sal_target(self, values):
+        """Мінімальна зарплата за ст. 3-1 ЗУ про оплату праці, пропорційно ставці і часу.
+
+        Норму часу беремо із затвердженого табеля (time_ratio), інакше з рядків
+        відпрацьованих днів. Для ЦПХ і ФОП доплата не застосовується."""
+        if values.get("contract_kind") != "employment":
+            return 0.0
+        share = values.get("time_ratio", -1.0)
+        if share is None or share < 0:
+            share = self._ua_worked_share(values)
+        share = max(min(share, 1.0), 0.0)
+        return round(values["min_wage"] * values.get("fte", 1.0) * share, 2)
+
     def get_payroll_dict(self, contracts):
         res = super().get_payroll_dict(contracts)
-        res["ua"] = BaseBrowsableObject(self._ua_payroll_values(contracts))
+        values = self._ua_payroll_values(contracts)
+        values["min_sal_target"] = self._ua_min_sal_target(values)
+        res["ua"] = BaseBrowsableObject(values)
         return res

@@ -131,6 +131,14 @@ export class UaBankBoard extends Component {
         return this.run("action_open_lines", [this.state.journalId]);
     }
 
+    openConnect() {
+        return this.run("action_open_connect", [this.state.journalId]);
+    }
+
+    importFile() {
+        return this.run("action_import_file", [this.state.journalId]);
+    }
+
     openProvider() {
         return this.run("action_open_providers", [this.state.journalId]);
     }

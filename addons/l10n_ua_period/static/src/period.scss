@@ -82,3 +82,16 @@
         &.ok { color: var(--o-success, #28a745); }
     }
 }
+
+.o_ua_period_close {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--o-gray-300, #dee2e6);
+
+    .o_ua_period_locked { font-weight: 500; }
+    .o_ua_period_blockers { flex: 1 1 auto; }
+}

@@ -15,7 +15,7 @@ class UaPayrollParam(models.Model):
     source = fields.Char("Підстава", help="Закон, постанова або наказ, який встановив значення")
     company_id = fields.Many2one("res.company", "Компанія", help="Порожньо = для всіх компаній")
 
-    _sql_constraints = [("key_from_company_uniq", "unique(key, valid_from, company_id)", "Один параметр на дату.")]
+    _key_from_company_uniq = models.Constraint("unique(key, valid_from, company_id)", "Один параметр на дату.")
 
     @api.model
     def get(self, key, date=None, company=None):

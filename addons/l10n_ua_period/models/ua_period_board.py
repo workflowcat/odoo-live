@@ -171,6 +171,27 @@ class UaPeriodBoard(models.AbstractModel):
         return self._step("reporting", "Звітність за квартал", state, fact,
                           {"xmlid": "l10n_ua_reporting.action_ua_reporting"})
 
+
+    def _step_changes(self, company, year, month):
+        Log = self.env["ua.change.log"]
+        total = Log.search_count([("company_id", "=", company.id), ("year", "=", year), ("month", "=", month)])
+        new = Log.count_new(company, year, month)
+        action = {"xmlid": "l10n_ua_changes.action_ua_change_log",
+                  "domain": [("year", "=", year), ("month", "=", month)],
+                  "context": {"search_default_f_new": 1, "search_default_g_area": 1}}
+        if not total:
+            return self._step("changes", "Перевірка змін", "done", "змін немає", action)
+        if new:
+            rows = Log.search([("company_id", "=", company.id), ("year", "=", year),
+                               ("month", "=", month), ("state", "=", "new")], limit=20)
+            details = [{"id": r.id, "model": "ua.change.log",
+                        "title": "%s · %s" % (r.res_name, r.what or dict(r._fields["operation"].selection).get(r.operation, "")),
+                        "note": ("%s → %s" % (r.old_value or "—", r.new_value or "—")) if r.what else r.user_id.name}
+                       for r in rows]
+            return self._step("changes", "Перевірка змін", "warn",
+                              "%s нових з %s" % (new, total), action, details)
+        return self._step("changes", "Перевірка змін", "done", "%s змін прийнято" % total, action)
+
     # ------------------------------------------------------------------ обороти
     def _turnover(self, company, first, last):
         """Обороти за групами рахунків: беремо всі субрахунки за префіксом (311 і 311001 разом)."""
@@ -212,9 +233,11 @@ class UaPeriodBoard(models.AbstractModel):
             self._step_moves(company, first, last),
             self._step_payment(company, year, month),
             self._step_bank(company, first, last),
+            self._step_changes(company, year, month),
             self._step_reporting(company, year, month),
         ]
-        blockers = [s["title"].lower() for s in steps if s["state"] == "warn" and s["key"] != "reporting"]
+        blockers = self.env["ua.period.close"].blockers(company, year, month)
+        close = self.env["ua.period.close"].state_of(company, year, month)
         done = sum(1 for s in steps if s["state"] == "done")
         periods = []
         y, m = year, month
@@ -231,6 +254,8 @@ class UaPeriodBoard(models.AbstractModel):
             "total": len(steps),
             "turnover": self._turnover(company, first, last),
             "blockers": blockers,
+            "close": close,
+            "new_changes": self.env["ua.change.log"].count_new(company, year, month),
         }
 
     # ------------------------------------------------------------------ дії
@@ -238,7 +263,12 @@ class UaPeriodBoard(models.AbstractModel):
     def action_open(self, action):
         """Відкрити те, що стоїть за кроком: список за xmlid або конкретний запис."""
         if action.get("xmlid"):
-            return self.env["ir.actions.actions"]._for_xml_id(action["xmlid"])
+            res = dict(self.env["ir.actions.actions"]._for_xml_id(action["xmlid"]))
+            if action.get("domain"):
+                res["domain"] = action["domain"]
+            if action.get("context"):
+                res["context"] = dict(action["context"])
+            return res
         if action.get("model") and action.get("res_id"):
             return {
                 "type": "ir.actions.act_window", "res_model": action["model"], "res_id": int(action["res_id"]),
@@ -257,3 +287,26 @@ class UaPeriodBoard(models.AbstractModel):
             }
         return {"type": "ir.actions.act_window", "res_model": model, "res_id": int(res_id),
                 "view_mode": view, "views": [(False, view)], "target": "current"}
+
+    @api.model
+    def action_accept_changes(self, year, month):
+        """Прийняти всі нові зміни місяця."""
+        return self.env["ua.change.log"].accept_period(year, month)
+
+    @api.model
+    def action_close_month(self, year, month, hard=False):
+        """Закрити місяць: перевірити блокери і поставити дату блокування."""
+        return self.env["ua.period.close"].close_period(year, month, hard)
+
+    @api.model
+    def action_open_close_record(self, year, month):
+        """Відкрити картку закриття періоду (там причина і кнопка «Відкрити знову»)."""
+        Close = self.env["ua.period.close"]
+        rec = Close.search([("company_id", "=", self.env.company.id),
+                            ("year", "=", int(year)), ("month", "=", int(month))], limit=1)
+        if not rec:
+            rec = Close.create({"company_id": self.env.company.id,
+                                "year": int(year), "month": int(month)})
+        return {"type": "ir.actions.act_window", "res_model": "ua.period.close",
+                "res_id": rec.id, "view_mode": "form", "views": [(False, "form")],
+                "target": "current"}

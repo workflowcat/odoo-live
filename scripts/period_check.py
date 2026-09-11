@@ -1,7 +1,7 @@
 """Перевірка сторінки «Період» (модуль l10n_ua_period).
 
 Сторінка не має власних даних: вона читає накази, табель, аванс, листки, проводки,
-відомості, виписку і звітність. Перевіряємо, що всі вісім кроків на місці, стани
+відомості, виписку, журнал змін і звітність. Перевіряємо, що всі дев'ять кроків на місці, стани
 відповідають даним стенду, обороти рахунків рахуються, а кнопки відкривають записи.
 
 База зі змінної PAYROLL_DB (типово payroll).
@@ -55,8 +55,8 @@ check("get_screen_data() повертає всі ключі", expected.issubset(
       f"відсутні: {expected - set(data.keys())}" if not expected.issubset(data.keys()) else data["period"]["label"])
 
 keys = [s["key"] for s in data["steps"]]
-check("вісім кроків у робочому порядку",
-      keys == ["orders", "timesheet", "advance", "payslips", "moves", "payment", "bank", "reporting"], str(keys))
+check("дев'ять кроків у робочому порядку",
+      keys == ["orders", "timesheet", "advance", "payslips", "moves", "payment", "bank", "changes", "reporting"], str(keys))
 check("кожен крок має назву, стан і число",
       all(s["title"] and s["state"] in ("done", "warn", "todo") and s["fact"] for s in data["steps"]))
 check("періодів для перемикання шість", len(data["periods"]) == 6, f"{len(data['periods'])}")

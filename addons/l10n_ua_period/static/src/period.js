@@ -56,6 +56,47 @@ export class UaPeriod extends Component {
         }
     }
 
+    async acceptAll() {
+        this.state.busy = true;
+        try {
+            const period = this.state.data.period;
+            const n = await this.orm.call("ua.period.board", "action_accept_changes", [period.year, period.month]);
+            this.notification.add(`Прийнято змін: ${n}`, { type: "success" });
+            await this.load({ year: period.year, month: period.month });
+        } catch (e) {
+            this.notification.add((e.data && e.data.message) || e.message || "Помилка", { type: "danger" });
+        } finally {
+            this.state.busy = false;
+        }
+    }
+
+    async closeMonth() {
+        this.state.busy = true;
+        try {
+            const period = this.state.data.period;
+            await this.orm.call("ua.period.board", "action_close_month", [period.year, period.month]);
+            this.notification.add(`Місяць закрито: ${period.label}`, { type: "success" });
+            await this.load({ year: period.year, month: period.month });
+        } catch (e) {
+            this.notification.add((e.data && e.data.message) || e.message || "Помилка", { type: "danger" });
+        } finally {
+            this.state.busy = false;
+        }
+    }
+
+    async openClose() {
+        this.state.busy = true;
+        try {
+            const period = this.state.data.period;
+            const action = await this.orm.call("ua.period.board", "action_open_close_record", [period.year, period.month]);
+            await this.action.doAction(action);
+        } catch (e) {
+            this.notification.add((e.data && e.data.message) || e.message || "Помилка", { type: "danger" });
+        } finally {
+            this.state.busy = false;
+        }
+    }
+
     async openRecord(row) {
         this.state.busy = true;
         try {
