@@ -86,13 +86,16 @@ S = [
  ("16 Індексація 500", {"ua_main_job": True}, 30000, {"INDEX": 500}, {"INDEX": 500.00, "GROSS": 30500.00, "PDFO": -5490.00, "VZ": -1525.00, "NET": 23485.00, "ESV": 6710.00}),
  ("17 Індексація автоматично (базовий місяць липень, індекс серпня 101,0)", {"ua_main_job": True, "index_base": "2026-07-01"}, 30000, {},
   {"INDEX": 33.28, "GROSS": 30033.28, "PDFO": -5405.99, "VZ": -1501.66, "NET": 23125.63, "ESV": 6607.32}),
- ("18 Навчальна відпустка 10 к.д. (3-12 серпня)", {"ua_main_job": True, "history": 30000, "leaves": [("STUDY", "2026-08-03", "2026-08-12")]}, 30000, {},
+ ("18 Навчальна відпустка 10 к.д. (3-12 серпня)", {"ua_main_job": True, "history": 30000, "leaves": [("STUDY", "2026-08-03", "2026-08-12")],
+   "moves": {("Дт", "92"): 36865.11, ("Кт", "661"): 28434.44, ("Дт", "661"): 6539.92, ("Кт", "6411"): 5118.20, ("Кт", "6415"): 1421.72, ("Кт", "651"): 6255.58, ("Кт", "471"): 2175.09}}, 30000, {},
   {"BASIC": 18571.43, "STUDY_PAY": 9863.01, "GROSS": 28434.44, "PDFO": -5118.20, "VZ": -1421.72, "NET": 21894.52, "ESV": 6255.58}),
- ("19 Відрядження 5 робочих днів (3-7 серпня) з добовими", {"ua_main_job": True, "history": 30000, "leaves": [("TRIP", "2026-08-03", "2026-08-07")]}, 30000, {"DAILY": 1500},
+ ("19 Відрядження 5 робочих днів (3-7 серпня) з добовими", {"ua_main_job": True, "history": 30000, "leaves": [("TRIP", "2026-08-03", "2026-08-07")],
+   "moves": {("Дт", "92"): 40777.03, ("Кт", "661"): 31500.00, ("Дт", "661"): 6900.00, ("Кт", "6411"): 5400.00, ("Кт", "6415"): 1500.00, ("Кт", "651"): 6600.00, ("Кт", "471"): 2677.03}}, 30000, {"DAILY": 1500},
   {"BASIC": 22857.14, "TRIP_PAY": 7142.86, "DAILY": 1500.00, "GROSS": 30000.00, "PDFO": -5400.00, "VZ": -1500.00, "NET": 24600.00, "ESV": 6600.00}),
  ("20 Догляд за хворою дитиною 7 к.д. (10-16 серпня), стаж 6 років", {"ua_main_job": True, "history": 30000, "years": 6, "leaves": [("SICK_CARE", "2026-08-10", "2026-08-16")]}, 30000, {},
   {"BASIC": 22857.14, "SICK_CARE_PAY": 4832.88, "GROSS": 27690.02, "PDFO": -4984.20, "VZ": -1384.50, "NET": 21321.32, "ESV": 6091.80}),
- ("21 Доплата до мінімальної зарплати (оклад 8 000, повний місяць)", {"ua_main_job": True}, 8000, {},
+ ("21 Доплата до мінімальної зарплати (оклад 8 000, повний місяць)", {"ua_main_job": True,
+   "moves": {("Дт", "92"): 11562.07, ("Кт", "661"): 8647.00, ("Дт", "661"): 1988.81, ("Кт", "6411"): 1556.46, ("Кт", "6415"): 432.35, ("Кт", "651"): 1902.34, ("Кт", "471"): 1012.73}}, 8000, {},
   {"BASIC": 8000.00, "MINSAL": 647.00, "GROSS": 8647.00, "PDFO": -1556.46, "VZ": -432.35, "NET": 6658.19, "ESV": 1902.34}),
  ("22 Доплати до мінімальної немає: оклад вищий", {"ua_main_job": True}, 12000, {},
   {"BASIC": 12000.00, "GROSS": 12000.00, "PDFO": -2160.00, "VZ": -600.00, "NET": 9240.00, "ESV": 2640.00}),
@@ -100,6 +103,9 @@ S = [
  ("10 Аліменти + макс. база", {"ua_main_job": True}, 200000, {"ALIM_PCT": 25}, {"PDFO": -36000.00, "VZ": -10000.00, "ALIM": -38500.00, "NET": 115500.00, "ESV": 38046.80}),
 ]
 ok = True
+USED_CODES = set()
+# Ці коди навмисно не проводяться: підсумки листка і аванс, який уже проведений при виплаті.
+NO_MOVE_CODES = {"GROSS", "NET", "ADV_PAID"}
 NAMES = {"1": ("Коваленко", "Ірина", "Петрівна", "female"), "2": ("Шевчук", "Андрій", "Миколайович", "male"), "3": ("Бондаренко", "Олена", "Василівна", "female"),
          "4": ("Ткаченко", "Марія", "Іванівна", "female"), "5": ("Мельник", "Олег", "Степанович", "male"), "6": ("Кравченко", "Наталія", "Богданівна", "female"),
          "7": ("Поліщук", "Василь", "Романович", "male"), "8": ("Савченко", "Тетяна", "Олексіївна", "female"), "9": ("Лисенко", "Дмитро", "Ігорович", "male"),
@@ -192,6 +198,7 @@ for name, efields, wage, inputs, expect in S:
                 call("hr.payslip.input", "create", {"payslip_id": slip, "code": code, "name": code, "amount": amount, "contract_id": ver})
     call("hr.payslip", "compute_sheet", [slip])
     lines = {l["code"]: round(l["total"], 2) for l in call("hr.payslip.line", "search_read", [["slip_id", "=", slip]], fields=["code", "total"])}
+    USED_CODES.update(code for code, total in lines.items() if abs(total) > 0.005)
     wd = call("hr.payslip.worked_days", "search_read", [["payslip_id", "=", slip]], fields=["code", "number_of_days"])
     res = []
     for code, exp in expect.items():
@@ -216,6 +223,12 @@ for name, efields, wage, inputs, expect in S:
             mres.append(f"{side}{code} {g} {'==' if good else '!='} {exp}")
         bal = round(sum(l["debit"] for l in ml) - sum(l["credit"] for l in ml), 2); ok &= (bal == 0)
         print(("  PASS " if all("==" in r for r in mres) and bal == 0 else "  FAIL ") + f"проводка {mid[1] if mid else 'немає'} | " + "; ".join(mres) + f" | баланс {bal}")
+# Кожне правило з ненульовою сумою має мати рядок у карті проводок, інакше сума мовчки не потрапить в облік.
+mapped = {m["rule_code"] for m in call("ua.payroll.account.map", "search_read", [], fields=["rule_code"])}
+missing = sorted(USED_CODES - mapped - NO_MOVE_CODES)
+ok &= not missing
+print(("PASS " if not missing else "FAIL ") + f"карта проводок покриває всі правила | без проводки: {missing or 'немає'}")
+
 print("ALL PASS" if ok else "SOME FAIL")
 if ok and "ua.payroll.report.wizard" in [m["model"] for m in call("ir.model", "search_read", [["model", "=", "ua.payroll.report.wizard"]], fields=["model"])]:
     wid = call("ua.payroll.report.wizard", "create", {"company_id": 1, "year": 2026, "month": 8, "doc_type": "HZ", "number": 1, "with_d1": True, "with_4df": True})
