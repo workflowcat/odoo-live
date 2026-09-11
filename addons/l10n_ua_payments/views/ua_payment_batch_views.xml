@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_payment_batch_form" model="ir.ui.view">
+    <field name="name">ua.payment.batch.form</field>
+    <field name="model">ua.payment.batch</field>
+    <field name="arch" type="xml">
+      <form string="Відомість на перерахування">
+        <header>
+          <button name="action_fill" type="object" string="Заповнити" invisible="state != 'draft'"/>
+          <button name="action_confirm" type="object" string="Затвердити" class="oe_highlight" invisible="state != 'draft'"/>
+          <button name="action_export" type="object" string="Файл для банку" invisible="state == 'draft'"/>
+          <button name="%(action_report_ua_payment_batch)d" type="action" string="Друк" invisible="state == 'draft'"/>
+          <button name="action_paid" type="object" string="Позначити оплаченою" invisible="state != 'confirmed'"/>
+          <button name="action_draft" type="object" string="Повернути в чернетку" invisible="state == 'draft'"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="kind" readonly="state != 'draft'"/>
+              <field name="year" readonly="state != 'draft'"/>
+              <field name="month" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="pay_date"/>
+              <field name="journal_id"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+            </group>
+          </group>
+          <group>
+            <group>
+              <field name="employee_count" readonly="1"/>
+              <field name="without_account" readonly="1" decoration-danger="without_account > 0"/>
+            </group>
+            <group>
+              <field name="total" readonly="1"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Рядки" name="lines">
+              <field name="line_ids" readonly="state != 'draft'">
+                <list editable="bottom">
+                  <field name="employee_id" readonly="1"/>
+                  <field name="account_number"/>
+                  <field name="purpose"/>
+                  <field name="amount" sum="Разом"/>
+                  <field name="currency_id" column_invisible="1"/>
+                </list>
+              </field>
+            </page>
+            <page string="Примітка" name="note"><field name="note"/></page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_payment_batch_list" model="ir.ui.view">
+    <field name="name">ua.payment.batch.list</field>
+    <field name="model">ua.payment.batch</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="name"/>
+        <field name="pay_date"/>
+        <field name="employee_count"/>
+        <field name="total" sum="Разом"/>
+        <field name="state" widget="badge"/>
+        <field name="currency_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_payment_batch" model="ir.actions.act_window">
+    <field name="name">Відомості на перерахування</field>
+    <field name="res_model">ua.payment.batch</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Створіть відомість на виплату</p>
+      <p>Відомість збирає суми до виплати з листків або з авансу, дає файл для банку і друковану форму.</p>
+    </field>
+  </record>
+</odoo>

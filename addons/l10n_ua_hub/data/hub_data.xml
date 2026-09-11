@@ -189,6 +189,13 @@
     <field name="code">accounting</field>
     <field name="sequence">60</field>
   </record>
+  <record id="item_payment_batch" model="ua.hub.item">
+    <field name="name">Відомості на перерахування</field>
+    <field name="section_id" ref="section_salary"/>
+    <field name="sequence">35</field>
+    <field name="action_xmlid">l10n_ua_payments.action_ua_payment_batch</field>
+    <field name="description">виплата зарплати через банк</field>
+  </record>
   <record id="item_acc_bank_board" model="ua.hub.item">
     <field name="name">Банк</field>
     <field name="section_id" ref="section_accounting"/>
