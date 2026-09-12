@@ -71,6 +71,29 @@ class UaDashboard(models.AbstractModel):
         item = self.env["ua.hub.item"].search([("action_xmlid", "=", xmlid)], limit=1)
         return item.id if item else False
 
+    def _slip_domain(self, company, year, month, department_id=None):
+        """Домен листків місяця - те, що стоїть за сумою в рядку панелі."""
+        d1, d2 = self._month_bounds(year, month)
+        dom = [
+            ("company_id", "=", company.id),
+            ("date_from", ">=", fields.Date.to_string(d1)),
+            ("date_from", "<=", fields.Date.to_string(d2)),
+            ("state", "!=", "cancel"),
+        ]
+        if department_id:
+            dom.append(("employee_id.department_id", "=", department_id))
+        elif department_id is False:
+            dom.append(("employee_id.department_id", "=", False))
+        return dom
+
+    def _bank_domain(self, company, keyword, month, year):
+        """Домен рядків виписки за тим самим підписом, що його читає _bank_status."""
+        return [
+            ("company_id", "=", company.id),
+            ("payment_ref", "ilike", keyword),
+            ("payment_ref", "ilike", "%s %s" % (self._month_name(month), year)),
+        ]
+
     def _month_payslip_totals(self, company, year, month):
         d1, d2 = self._month_bounds(year, month)
         slips = self.env["hr.payslip"].search([
@@ -148,6 +171,7 @@ class UaDashboard(models.AbstractModel):
             if row is None:
                 row = by_dept[key] = {
                     "department": dept.name if dept else "Без підрозділу",
+                    "department_id": dept.id if dept else False,
                     "employee_ids": set(), "gross": 0.0, "pdfo": 0.0, "vz": 0.0, "esv": 0.0, "net": 0.0,
                 }
                 order.append(key)
@@ -165,6 +189,9 @@ class UaDashboard(models.AbstractModel):
             row = by_dept[key]
             r = {
                 "department": row["department"],
+                "res_model": "hr.payslip",
+                "domain": self._slip_domain(company, year, month, row["department_id"]),
+                "title": "Листки · %s · %s %s" % (row["department"], self._month_name(month), year),
                 "employees": len(row["employee_ids"]),
                 "gross": self._r2(row["gross"]),
                 "pdfo": self._r2(abs(row["pdfo"])),
@@ -179,6 +206,9 @@ class UaDashboard(models.AbstractModel):
         for k in ("gross", "pdfo", "vz", "esv", "net"):
             total[k] =  self._r2(total[k])
 
+        total["res_model"] = "hr.payslip"
+        total["domain"] = self._slip_domain(company, year, month)
+        total["title"] = "Листки · %s %s" % (self._month_name(month), year)
         return {
             "rows": rows,
             "total": total,
@@ -200,6 +230,10 @@ class UaDashboard(models.AbstractModel):
             "date": d.strftime("%d.%m.%Y") if d else False,
             "label": "Зарплата, %s %s" % (last_name, ly),
             "amount": abs(last_totals["NET"]), "state": state, "state_class": cls,
+            "res_model": "account.bank.statement.line" if d else "hr.payslip",
+            "domain": self._bank_domain(company, "Заробітна плата", lm, ly) if d
+                      else self._slip_domain(company, ly, lm),
+            "title": "Зарплата, %s %s" % (last_name, ly),
         })
 
         for code, keyword, label in (
@@ -212,6 +246,10 @@ class UaDashboard(models.AbstractModel):
                 "date": d.strftime("%d.%m.%Y") if d else False,
                 "label": "%s, %s %s" % (label, last_name, ly),
                 "amount": abs(last_totals[code]), "state": state, "state_class": cls,
+                "res_model": "account.bank.statement.line" if d else "hr.payslip",
+                "domain": self._bank_domain(company, keyword, lm, ly) if d
+                          else self._slip_domain(company, ly, lm),
+                "title": "%s, %s %s" % (label, last_name, ly),
             })
 
         adv = self.env["ua.advance.sheet"].search([
@@ -221,6 +259,10 @@ class UaDashboard(models.AbstractModel):
             rows.append({
                 "date": False, "label": "Аванс, %s %s" % (this_name, year),
                 "amount": 0.0, "state": "не розраховано", "state_class": "todo",
+                "action": self._hub_item_id("l10n_ua_payroll_rules.action_ua_advance_sheet"),
+                "res_model": "ua.advance.sheet",
+                "domain": [("company_id", "=", company.id)],
+                "title": "Відомості авансу",
             })
         else:
             if adv.state == "confirmed":
@@ -233,27 +275,30 @@ class UaDashboard(models.AbstractModel):
                 "date": date_val.strftime("%d.%m.%Y") if date_val else False,
                 "label": "Аванс, %s %s" % (this_name, year),
                 "amount": self._r2(adv.total), "state": bstate, "state_class": bcls,
+                "res_model": "ua.advance.sheet", "res_id": adv.id,
             })
 
         # планова виплата за поточний місяць: 6-те число наступного місяця (ст. 115 КЗпП)
         this_totals = self._month_payslip_totals(company, year, month)
         if this_totals["NET"]:
             pay_day = date(ny, nm, 6)
-            rows.append({
-                "date": pay_day.strftime("%d.%m.%Y"),
-                "label": "Зарплата, %s %s (остаточний розрахунок)" % (this_name, year),
-                "amount": abs(this_totals["NET"]), "state": "планово", "state_class": "plan",
-            })
-            rows.append({
-                "date": pay_day.strftime("%d.%m.%Y"),
-                "label": "ПДФО і ВЗ, %s %s" % (this_name, year),
-                "amount": abs(this_totals["PDFO"]) + abs(this_totals["VZ"]), "state": "планово", "state_class": "plan",
-            })
-            rows.append({
-                "date": date(ny, nm, 20).strftime("%d.%m.%Y"),
-                "label": "ЄСВ, %s %s" % (this_name, year),
-                "amount": abs(this_totals["ESV"]), "state": "планово", "state_class": "plan",
-            })
+            slip_target = {
+                "res_model": "hr.payslip",
+                "domain": self._slip_domain(company, year, month),
+                "title": "Листки · %s %s" % (this_name, year),
+            }
+            rows.append(dict(slip_target,
+                date=pay_day.strftime("%d.%m.%Y"),
+                label="Зарплата, %s %s (остаточний розрахунок)" % (this_name, year),
+                amount=abs(this_totals["NET"]), state="планово", state_class="plan"))
+            rows.append(dict(slip_target,
+                date=pay_day.strftime("%d.%m.%Y"),
+                label="ПДФО і ВЗ, %s %s" % (this_name, year),
+                amount=abs(this_totals["PDFO"]) + abs(this_totals["VZ"]), state="планово", state_class="plan"))
+            rows.append(dict(slip_target,
+                date=date(ny, nm, 20).strftime("%d.%m.%Y"),
+                label="ЄСВ, %s %s" % (this_name, year),
+                amount=abs(this_totals["ESV"]), state="планово", state_class="plan"))
 
         quarter = (month - 1) // 3 + 1
         q_end_month = quarter * 3
@@ -271,6 +316,10 @@ class UaDashboard(models.AbstractModel):
             "date": deadline.strftime("%d.%m.%Y"),
             "label": "Об'єднана звітність, %s квартал %s" % (quarter, year),
             "amount": 0.0, "detail": "Д1, 4ДФ, Д5", "state": dstate, "state_class": dcls,
+            "action": self._hub_item_id("l10n_ua_reporting.action_ua_reporting"),
+            "res_model": "ua.report.run",
+            "domain": [("company_id", "=", company.id)],
+            "title": "Податкова звітність",
         })
         return rows
 

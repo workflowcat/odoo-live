@@ -1,4 +1,10 @@
 .o_ua_setup {
+    // Клієнтська дія живе в .o_action_manager з overflow:hidden і фіксованою висотою.
+    // Без власної прокрутки все, що нижче вікна, недосяжне.
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+
     padding: 16px 24px 48px;
     max-width: 1100px;
 

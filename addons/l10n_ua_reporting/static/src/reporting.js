@@ -117,6 +117,28 @@ export class UaReporting extends Component {
         }
     }
 
+    /** Ціль рядка «Дані»: запис, який правлять, щоб число змінилося. */
+    rowTarget(index) {
+        const targets = (this.state.data && this.state.data.summary && this.state.data.summary.targets) || [];
+        return targets[index] || false;
+    }
+
+    async openSummaryRow(index) {
+        const target = this.rowTarget(index);
+        if (!target) {
+            return;
+        }
+        await this.action.doAction({
+            type: "ir.actions.act_window",
+            res_model: target.model,
+            res_id: target.res_id || false,
+            domain: target.res_id ? false : (target.domain || []),
+            views: target.res_id ? [[false, "form"]] : [[false, "list"], [false, "form"]],
+            target: "current",
+            name: target.name || "",
+        });
+    }
+
     downloadAll() {
         for (const f of this.state.data.run.files) {
             window.open("/web/content/" + f.id + "?download=true", "_blank");

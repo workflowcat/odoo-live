@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- П'ять розділів верхнього меню.
+<!-- Сім розділів верхнього меню.
 
      Робоче місце місяця - головний екран. Решта згрупована так, як її шукає бухгалтер,
      а не так, як влаштовані модулі. Стандартні розділи Odoo (Бухоблік, Співробітники)
      лишаються на місці: там живуть ОСВ, головна книга і звичайні кадрові екрани. -->
 <odoo>
-  <menuitem id="menu_ua_people_root" name="Працівники" sequence="2"/>
-  <menuitem id="menu_ua_history_root" name="Історія" sequence="5"/>
-  <menuitem id="menu_ua_setup_root" name="Налаштування зарплати" sequence="6"/>
+  <menuitem id="menu_ua_people_root" name="Працівники" sequence="3"/>
+  <menuitem id="menu_ua_history_root" name="Історія" sequence="6"/>
+  <menuitem id="menu_ua_setup_root" name="Налаштування зарплати" sequence="7"/>
 
   <!-- Працівники -->
   <menuitem id="menu_ua_people_employees" name="Картки працівників" parent="menu_ua_people_root"
@@ -26,12 +26,13 @@
   <!-- Наявні меню переїжджають у нові розділи.
        «Зарплата» лишається без підпунктів: меню з дією і дітьми показує лише дітей. -->
   <menuitem id="l10n_ua_bank_online.menu_ua_bank_board" name="Банк"
-            parent="" sequence="3"/>
-  <menuitem id="l10n_ua_reporting.menu_ua_reporting_root" name="Звітність" sequence="4"/>
-  <menuitem id="l10n_ua_dashboard.menu_ua_dashboard_root" name="Зведення за місяць"
-            parent="menu_ua_history_root" sequence="2"/>
+            parent="" sequence="4"/>
+  <menuitem id="l10n_ua_reporting.menu_ua_reporting_root" name="Звітність" sequence="5"/>
+  <!-- Зведення - числа поточного місяця, а не архів: стоїть поруч із «Зарплата», не в «Історії» -->
+  <menuitem id="l10n_ua_dashboard.menu_ua_dashboard_root" name="Зведення"
+            parent="" sequence="2"/>
   <menuitem id="l10n_ua_changes.menu_ua_changes_root" name="Журнал змін"
-            parent="menu_ua_history_root" sequence="3"/>
+            parent="menu_ua_history_root" sequence="2"/>
   <menuitem id="l10n_ua_hub.menu_ua_hub_root" name="Пульт команд"
             parent="menu_ua_setup_root" sequence="1"/>
 

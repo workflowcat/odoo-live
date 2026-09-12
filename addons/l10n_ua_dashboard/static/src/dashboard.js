@@ -57,6 +57,11 @@ export class UaDashboard extends Component {
 
     /** Відкрити рядок «потребує уваги» або «документи»: спершу пункт пульту (action),
      * далі відфільтрований список (res_model + domain), далі форма одного запису (res_model + res_id). */
+    /** Чи веде рядок кудись: пункт пульту, список за доменом або одна форма. */
+    hasTarget(row) {
+        return Boolean(row.action || (row.res_model && (row.domain || row.res_id)));
+    }
+
     async openRow(row) {
         if (row.action) {
             await this.openHubItem(row.action);
@@ -66,7 +71,7 @@ export class UaDashboard extends Component {
                 res_model: row.res_model,
                 domain: row.domain,
                 views: [[false, "list"], [false, "form"]],
-                name: row.title || row.name || "",
+                name: row.title || row.name || row.label || "",
                 target: "current",
             });
         } else if (row.res_model && row.res_id) {

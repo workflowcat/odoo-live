@@ -143,6 +143,26 @@ else:
         check(f"{LANA_LOGIN} має домашню дію = дія «Зведення»", lana_action_id == action_id and action_id is not None,
               f"{LANA_LOGIN}.action_id={lana_action_id}, action_ua_dashboard={action_id}")
 
+# 4a. кожне число веде у свій запис: рядок підрозділу, підсумок і платіж мають ціль
+dep = data["payroll_by_department"]
+if dep["rows"]:
+    row = dep["rows"][0]
+    check("рядок підрозділу веде в листки", row.get("res_model") == "hr.payslip" and bool(row.get("domain")),
+          f"res_model={row.get('res_model')}, domain={row.get('domain')}")
+    slips = call("hr.payslip", "search_count", row["domain"])
+    check("домен рядка підрозділу знаходить листки", slips > 0, f"знайдено {slips}")
+else:
+    print("[--] рядків підрозділів немає: перевірку цілі пропущено")
+check("підсумок веде в листки місяця", dep["total"].get("res_model") == "hr.payslip" and bool(dep["total"].get("domain")),
+      f"total.res_model={dep['total'].get('res_model')}")
+targeted = [p for p in data["payments"] if p.get("res_model") or p.get("action")]
+check("кожен рядок платежів веде у свій запис", len(targeted) == len(data["payments"]),
+      f"з цілями {len(targeted)} з {len(data['payments'])}")
+for pay in data["payments"]:
+    if pay.get("domain") and pay.get("res_model"):
+        found = call(pay["res_model"], "search_count", pay["domain"])
+        check(f"домен платежу «{pay['label'][:32]}» дійсний", isinstance(found, int), f"знайдено {found}")
+
 # 5. HTTP-перевірка збірки ресурсів - лише коли DB=payroll (dbfilter стенду блокує payroll_test)
 if DB != "payroll":
     print(f"[--] HTTP-перевірка збірки web.assets_backend пропущена: dbfilter стенду дозволяє HTTP "

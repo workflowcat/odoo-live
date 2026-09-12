@@ -210,6 +210,14 @@ class UaPeriodBoard(models.AbstractModel):
         ]
 
     # ------------------------------------------------------------------ робоче місце місяця
+    def _slip_domain(self, company, first, last):
+        """Домен листків місяця: те, що стоїть за числами зверху екрана."""
+        return [
+            ("company_id", "=", company.id),
+            ("date_from", ">=", str(first)), ("date_from", "<=", str(last)),
+            ("state", "!=", "cancel"),
+        ]
+
     def _slips(self, company, first, last):
         return self.env["hr.payslip"].search([
             ("company_id", "=", company.id), ("date_from", ">=", first), ("date_from", "<=", last),
@@ -232,6 +240,9 @@ class UaPeriodBoard(models.AbstractModel):
             "employer": self._money(total(("ESV",))),
             "people": len(slips),
             "draft": len(slips.filtered(lambda s: s.state != "done")),
+            "model": "hr.payslip",
+            "domain": self._slip_domain(company, first, last),
+            "draft_domain": self._slip_domain(company, first, last) + [("state", "!=", "done")],
         }
 
     def _changes(self, company, first, last):
@@ -483,7 +494,11 @@ class UaPeriodBoard(models.AbstractModel):
             rows.append({"code": code, "name": accounts[0].name,
                          "debit": self._money(debit), "credit": self._money(credit),
                          "saldo_debit": self._money(balance) if balance > 0 else "",
-                         "saldo_credit": self._money(-balance) if balance < 0 else ""})
+                         "saldo_credit": self._money(-balance) if balance < 0 else "",
+                         "model": "account.move.line",
+                         "domain": [("account_id", "in", accounts.ids),
+                                    ("move_id.state", "=", "posted"),
+                                    ("date", ">=", str(first)), ("date", "<=", str(last))]})
         return rows
 
     # ------------------------------------------------------------------ екран

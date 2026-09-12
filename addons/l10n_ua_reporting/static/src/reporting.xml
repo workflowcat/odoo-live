@@ -85,7 +85,9 @@
                 <tr><t t-foreach="data.summary.columns" t-as="col" t-key="col"><th t-esc="col"/></t></tr>
               </thead>
               <tbody>
-                <tr t-foreach="data.summary.rows" t-as="row" t-key="row_index">
+                <tr t-foreach="data.summary.rows" t-as="row" t-key="row_index"
+                    t-attf-class="#{this.rowTarget(row_index) ? 'o_ua_reporting_clickable' : ''}"
+                    t-on-click="() => this.openSummaryRow(row_index)">
                   <t t-foreach="row" t-as="cell" t-key="cell_index"><td t-att-class="cell_index ? 'text-end tabular-nums' : ''" t-esc="this.fmt(cell, this.isMoney(cell_index))"/></t>
                 </tr>
               </tbody>

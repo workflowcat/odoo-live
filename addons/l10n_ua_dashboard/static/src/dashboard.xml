@@ -40,7 +40,8 @@
               </button>
             </div>
           </t>
-          <table t-else="" class="o_ua_dashboard_table table table-sm">
+          <div t-else="" class="o_ua_wide">
+          <table class="o_ua_dashboard_table table table-sm">
             <thead>
               <tr>
                 <th>Підрозділ</th>
@@ -53,7 +54,9 @@
               </tr>
             </thead>
             <tbody>
-              <tr t-foreach="data.payroll_by_department.rows" t-as="row" t-key="row.department">
+              <tr t-foreach="data.payroll_by_department.rows" t-as="row" t-key="row.department"
+                  t-attf-class="#{this.hasTarget(row) ? 'o_ua_dashboard_clickable' : ''}"
+                  t-on-click="() => this.openRow(row)">
                 <td t-esc="row.department"/>
                 <td class="text-end" t-esc="row.employees"/>
                 <td class="text-end tabular-nums" t-esc="this.fmt(row.gross)"/>
@@ -64,7 +67,8 @@
               </tr>
             </tbody>
             <tfoot>
-              <tr class="o_ua_dashboard_total">
+              <tr class="o_ua_dashboard_total o_ua_dashboard_clickable"
+                  t-on-click="() => this.openRow(data.payroll_by_department.total)">
                 <td>Разом</td>
                 <td class="text-end" t-esc="data.payroll_by_department.total.employees"/>
                 <td class="text-end tabular-nums" t-esc="this.fmt(data.payroll_by_department.total.gross)"/>
@@ -75,12 +79,14 @@
               </tr>
             </tfoot>
           </table>
+          </div>
         </div>
 
         <div class="o_ua_dashboard_row">
           <!-- Платежі і строки -->
           <div class="o_ua_dashboard_section o_ua_dashboard_col">
             <h5>Платежі і строки</h5>
+            <div class="o_ua_wide o_ua_wide_narrow">
             <table class="o_ua_dashboard_table table table-sm">
               <thead>
                 <tr>
@@ -91,7 +97,9 @@
                 </tr>
               </thead>
               <tbody>
-                <tr t-foreach="data.payments" t-as="p" t-key="p_index">
+                <tr t-foreach="data.payments" t-as="p" t-key="p_index"
+                    t-attf-class="#{this.hasTarget(p) ? 'o_ua_dashboard_clickable' : ''}"
+                    t-on-click="() => this.openRow(p)">
                   <td t-esc="p.date or '-'"/>
                   <td t-esc="p.label"/>
                   <td class="text-end tabular-nums" t-esc="this.fmt(p.amount)"/>
@@ -99,6 +107,7 @@
                 </tr>
               </tbody>
             </table>
+            </div>
           </div>
 
           <!-- Потребує уваги -->

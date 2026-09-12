@@ -138,6 +138,21 @@ check("зміни місяця показані переліком",
 prepare = call("ua.period.board", "action_prepare_month", 2026, 8)
 check("«Підготувати місяць» відповідає повідомленням", bool(prepare.get("message")), str(prepare)[:80])
 
+# числа і обороти ведуть у свої записи
+est = data["estimate"]
+check("числа місяця ведуть у листки", est.get("model") == "hr.payslip" and bool(est.get("domain")),
+      f"model={est.get('model')}")
+found = call("hr.payslip", "search_count", est["domain"])
+check("домен чисел місяця знаходить листки", found == est["people"], f"домен={found}, у числі {est['people']}")
+draft = call("hr.payslip", "search_count", est["draft_domain"])
+check("домен чернеток збігається з числом", draft == est["draft"], f"домен={draft}, у числі {est['draft']}")
+if data["turnover"]:
+    row = data["turnover"][0]
+    check("рядок оборотів веде у проводки", row.get("model") == "account.move.line" and bool(row.get("domain")),
+          f"model={row.get('model')}")
+    lines = call("account.move.line", "search_count", row["domain"])
+    check("домен рядка оборотів знаходить проводки", lines > 0, f"знайдено {lines}")
+
 print()
 if errors:
     print(f"ПЕРЕВІРКУ НЕ ПРОЙДЕНО: {len(errors)} з {total} пунктів провалено")

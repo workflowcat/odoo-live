@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
   <t t-name="l10n_ua_period.Period" owl="1">
-    <div class="o_ua_period">
+    <div t-attf-class="o_ua_period #{state.person ? 'o_ua_period_with_panel' : ''}">
       <t t-if="state.loading">
         <div class="text-muted p-4">Завантаження…</div>
       </t>
@@ -30,10 +30,16 @@
         </div>
 
         <div class="o_ua_period_numbers">
-          <div><span class="o_ua_period_num" t-esc="data.estimate.gross"/><span class="o_ua_period_lbl">нараховано</span></div>
-          <div><span class="o_ua_period_num" t-esc="data.estimate.net"/><span class="o_ua_period_lbl">до виплати</span></div>
-          <div><span class="o_ua_period_num" t-esc="data.estimate.employer"/><span class="o_ua_period_lbl">ЄСВ підприємства</span></div>
-          <div><span class="o_ua_period_num" t-esc="data.estimate.people"/><span class="o_ua_period_lbl">працівників у розрахунку</span></div>
+          <div class="o_ua_period_numcell" t-on-click="() => this.openEstimate('gross')">
+            <span class="o_ua_period_num" t-esc="data.estimate.gross"/><span class="o_ua_period_lbl">нараховано</span></div>
+          <div class="o_ua_period_numcell" t-on-click="() => this.openEstimate('net')">
+            <span class="o_ua_period_num" t-esc="data.estimate.net"/><span class="o_ua_period_lbl">до виплати</span></div>
+          <div class="o_ua_period_numcell" t-on-click="() => this.openEstimate('esv')">
+            <span class="o_ua_period_num" t-esc="data.estimate.employer"/><span class="o_ua_period_lbl">ЄСВ підприємства</span></div>
+          <div class="o_ua_period_numcell" t-on-click="() => this.openEstimate('people')">
+            <span class="o_ua_period_num" t-esc="data.estimate.people"/><span class="o_ua_period_lbl">працівників у розрахунку</span></div>
+          <div t-if="data.estimate.draft" class="o_ua_period_numcell" t-on-click="() => this.openEstimate('draft')">
+            <span class="o_ua_period_num" t-esc="data.estimate.draft"/><span class="o_ua_period_lbl">листків у чернетці</span></div>
         </div>
 
         <div class="o_ua_period_section" t-if="data.exceptions.length">
@@ -62,7 +68,7 @@
 
         <div class="o_ua_period_section">
           <h5>Люди і суми</h5>
-          <div class="o_ua_period_people">
+          <div class="o_ua_period_people o_ua_wide">
             <table class="table table-sm o_ua_period_table">
               <thead>
                 <tr>
@@ -119,10 +125,12 @@
 
         <div class="o_ua_period_section" t-if="data.turnover.length">
           <h5>Обороти за період</h5>
+          <div class="o_ua_wide">
           <table class="table table-sm o_ua_period_table">
             <thead><tr><th>Рахунок</th><th></th><th class="text-end">Дебет</th><th class="text-end">Кредит</th><th class="text-end">Сальдо Дт</th><th class="text-end">Сальдо Кт</th></tr></thead>
             <tbody>
-              <tr t-foreach="data.turnover" t-as="row" t-key="row.code">
+              <tr t-foreach="data.turnover" t-as="row" t-key="row.code"
+                  class="o_ua_period_numcell" t-on-click="() => this.openTurnover(row)">
                 <td t-esc="row.code"/>
                 <td t-esc="row.name"/>
                 <td class="text-end" t-esc="row.debit"/>
@@ -132,6 +140,7 @@
               </tr>
             </tbody>
           </table>
+          </div>
         </div>
 
         <div class="o_ua_period_close">

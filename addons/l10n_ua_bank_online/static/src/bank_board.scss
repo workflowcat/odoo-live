@@ -1,5 +1,11 @@
 // Екран «Банк»: ліворуч рахунки і період, праворуч числа місяця, платежі, незвірені рядки, виписки.
 .o_ua_bank {
+    // Клієнтська дія живе в .o_action_manager з overflow:hidden і фіксованою висотою.
+    // Без власної прокрутки все, що нижче вікна, недосяжне.
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+
     display: flex;
     align-items: flex-start;
     gap: 16px;

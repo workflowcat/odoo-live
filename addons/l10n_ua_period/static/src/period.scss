@@ -1,5 +1,11 @@
 // Сторінка «Період»: кроки списком, деталі розкриваються під рядком.
 .o_ua_period {
+    // Клієнтська дія живе в .o_action_manager з overflow:hidden і фіксованою висотою.
+    // Без власної прокрутки все, що нижче вікна, недосяжне.
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+
     padding: 12px 16px;
     font-size: 13px;
 
@@ -69,10 +75,24 @@
 
     .o_ua_period_section { margin-top: 18px; h5 { font-size: 14px; font-weight: 500; } }
 
+    .o_ua_wide {
+        overflow-x: auto;
+
+        > table {
+            min-width: 680px;
+        }
+    }
+
     .o_ua_period_table {
         margin-bottom: 0;
         td, th { padding: 3px 6px; }
         td.text-end, th.text-end { font-variant-numeric: tabular-nums; }
+    }
+
+    .o_ua_period_numcell {
+        cursor: pointer;
+
+        &:hover { background: var(--o-action-hover-bg, rgba(0, 0, 0, 0.04)); }
     }
 
     .o_ua_period_blockers {
@@ -146,6 +166,11 @@
     .o_ua_person_state.draft { color: #96690a; }
 }
 
+// Поки бічна панель відкрита, вміст звужується на її ширину.
+.o_ua_period_with_panel {
+    padding-right: 396px !important;
+}
+
 .o_ua_person_panel {
     position: fixed;
     top: 46px;
@@ -160,7 +185,7 @@
     flex-direction: column;
     z-index: 1000;
 
-    .o_ua_period_table td { padding: 3px 6px; }
+    .o_ua_period_table { min-width: 0; td { padding: 3px 6px; } }
 
     .o_ua_person_panel_head {
         display: flex;

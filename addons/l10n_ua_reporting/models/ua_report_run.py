@@ -767,7 +767,23 @@ class UaReportRun(models.Model):
         method = getattr(self, "_summary_%s" % self.report_code, None)
         data = method() if method else {"columns": [], "rows": [], "total": None}
         data.setdefault("money", [])
+        data.setdefault("targets", [])
+        # targets вирівнюємо по rows: клік по рядку веде в запис, який правлять
+        rows = data.get("rows") or []
+        targets = list(data["targets"])
+        while len(targets) < len(rows):
+            targets.append(False)
+        data["targets"] = targets[:len(rows)]
         return data
+
+    def _slip_target(self, d1, d2, employee=None, name=""):
+        """Ціль кліку: листки періоду, за потреби одного працівника."""
+        domain = [("company_id", "=", self.company_id.id),
+                  ("date_from", ">=", str(d1)), ("date_from", "<=", str(d2)),
+                  ("state", "!=", "cancel")]
+        if employee:
+            domain.append(("employee_id", "=", employee.id))
+        return {"model": "hr.payslip", "domain": domain, "name": name or "Листки"}
 
 
     # ---- бухгалтерські звіти: ОСВ і головна книга ----------------------------------------
@@ -866,7 +882,7 @@ class UaReportRun(models.Model):
     def _summary_accounting(self):
         d1, d2 = self._month_range()
         columns = ["Рахунок", "Назва", "Сальдо на початок", "Дебет", "Кредит", "Сальдо на кінець"]
-        rows = []
+        rows, targets = [], []
         codes = [c[0] for c in PAYROLL_ACCOUNTS] + ["311", "301", "471", "378", "6851", "92", "93", "23", "91"]
         seen = set()
         for code in codes:
@@ -881,9 +897,14 @@ class UaReportRun(models.Model):
                 continue
             opening = self._balance_before(account, d1)
             rows.append([account.code, account.name, opening, debit, credit, round(opening + debit - credit, 2)])
+            targets.append({"model": "account.move.line",
+                            "domain": [("account_id", "=", account.id), ("parent_state", "=", "posted"),
+                                       ("date", ">=", str(d1)), ("date", "<=", str(d2)),
+                                       ("company_id", "=", self.company_id.id)],
+                            "name": "%s %s" % (account.code, account.name)})
         total = ["Разом", "", round(sum(r[2] for r in rows), 2), round(sum(r[3] for r in rows), 2),
                  round(sum(r[4] for r in rows), 2), round(sum(r[5] for r in rows), 2)] if rows else None
-        return {"columns": columns, "rows": rows, "total": total, "money": [2, 3, 4, 5]}
+        return {"columns": columns, "rows": rows, "total": total, "money": [2, 3, 4, 5], "targets": targets}
 
     def _summary_trial(self):
         return self._summary_accounting()
@@ -919,7 +940,8 @@ class UaReportRun(models.Model):
     def _summary_j05(self):
         c = self.company_id
         columns = ["Місяць", "Осіб", "Нараховано", "ПДФО", "ВЗ", "ЄСВ"]
-        rows, totals = [], {"employees": 0, "gross": 0.0, "pdfo": 0.0, "vz": 0.0, "esv": 0.0}
+        rows, targets = [], []
+        totals = {"employees": 0, "gross": 0.0, "pdfo": 0.0, "vz": 0.0, "esv": 0.0}
         for m in self._report_months():
             d1, d2 = date(self.year, m, 1), date(self.year, m, calendar.monthrange(self.year, m)[1])
             slips = self.env["hr.payslip"].search([("company_id", "=", c.id), ("state", "=", "done"), ("date_from", ">=", d1), ("date_to", "<=", d2)])
@@ -932,17 +954,19 @@ class UaReportRun(models.Model):
                 "esv": round(sum(lines.filtered(lambda l: l.code == "ESV").mapped("total")), 2),
             }
             rows.append(["%s %s" % (MONTHS_UA.get(m, "").capitalize(), self.year), row["employees"], row["gross"], row["pdfo"], row["vz"], row["esv"]])
+            targets.append(self._slip_target(d1, d2, name="Листки · %s %s" % (MONTHS_UA.get(m, ""), self.year)))
             for k in totals:
                 totals[k] += row[k]
         total = ["Разом", totals["employees"], round(totals["gross"], 2), round(totals["pdfo"], 2), round(totals["vz"], 2), round(totals["esv"], 2)]
-        return {"columns": columns, "rows": rows, "total": total, "money": [2, 3, 4, 5]}
+        return {"columns": columns, "rows": rows, "total": total, "money": [2, 3, 4, 5], "targets": targets}
 
     def _summary_j30(self):
         d1, d2 = self._period_bounds()
         versions = self.env["hr.version"].sudo().search([
             ("employee_id.company_id", "=", self.company_id.id), ("contract_date_start", ">=", d1), ("contract_date_start", "<=", d2)])
         rows = [[v.employee_id.name, v.contract_date_start.strftime("%d.%m.%Y"), v.job_title or v.ua_prof_name or "-"] for v in versions]
-        return {"columns": ["Працівник", "Дата прийняття", "Посада"], "rows": rows, "total": None}
+        targets = [{"model": "hr.employee", "res_id": v.employee_id.id, "name": v.employee_id.name} for v in versions]
+        return {"columns": ["Працівник", "Дата прийняття", "Посада"], "rows": rows, "total": None, "targets": targets}
 
     def _summary_pfu(self):
         d1, d2 = self._period_bounds()
@@ -950,23 +974,29 @@ class UaReportRun(models.Model):
         claim = self.env["ua.pfu.claim"].search([("payslip_run_id", "=", run_rec.id)], limit=1) if run_rec else self.env["ua.pfu.claim"]
         kinds = dict(self.env["ua.pfu.claim.line"]._fields["kind"].selection)
         rows = [[l.employee_id.name, kinds.get(l.kind), l.sick_number or "-", l.days, round(l.amount, 2)] for l in claim.line_ids]
+        targets = [self._slip_target(d1, d2, l.employee_id, l.employee_id.name) for l in claim.line_ids]
         total = ["Разом", "", "", sum(claim.line_ids.mapped("days")), round(sum(claim.line_ids.mapped("amount")), 2)] if claim and claim.line_ids else None
-        return {"columns": ["Працівник", "Вид", "№ е-ЛН", "Днів", "Сума"], "rows": rows, "total": total, "money": [4]}
+        return {"columns": ["Працівник", "Вид", "№ е-ЛН", "Днів", "Сума"], "rows": rows, "total": total,
+                "money": [4], "targets": targets}
 
     def _summary_timesheet(self):
         sheet = self.env["ua.timesheet.sheet"].search([
             ("company_id", "=", self.company_id.id), ("year", "=", self.year), ("month", "=", self.month), ("department_id", "=", False)], limit=1)
         rows = [[l.employee_id.name, l.job_title or "-", l.days_worked, l.days_vac, l.days_sick, l.days_unpaid] for l in sheet.line_ids] if sheet else []
+        targets = ([{"model": "ua.timesheet.sheet", "res_id": sheet.id, "name": "Табель"}] * len(rows)) if sheet else []
         total = (["Разом", "", sum(sheet.line_ids.mapped("days_worked")), sum(sheet.line_ids.mapped("days_vac")),
                  sum(sheet.line_ids.mapped("days_sick")), sum(sheet.line_ids.mapped("days_unpaid"))]
                 if sheet and sheet.line_ids else None)
-        return {"columns": ["Працівник", "Посада", "Р", "В", "ТН", "НА"], "rows": rows, "total": total}
+        return {"columns": ["Працівник", "Посада", "Р", "В", "ТН", "НА"], "rows": rows, "total": total,
+                "targets": targets}
 
     def _summary_staff(self):
         sheet = self.env["ua.staff.list"].search([("company_id", "=", self.company_id.id), ("date", "=", self.date)], limit=1)
         rows = [[l.department_id.name or "-", l.job_title, l.kp_code or "-", l.units, round(l.wage, 2), round(l.fund, 2)] for l in sheet.line_ids] if sheet else []
+        targets = ([{"model": "ua.staff.list", "res_id": sheet.id, "name": "Штатний розпис"}] * len(rows)) if sheet else []
         total = ["Разом", "", "", sheet.total_units, "", round(sheet.total_fund, 2)] if sheet and sheet.line_ids else None
-        return {"columns": ["Підрозділ", "Посада", "Код КП", "Штат. один.", "Оклад", "Фонд"], "rows": rows, "total": total, "money": [4, 5]}
+        return {"columns": ["Підрозділ", "Посада", "Код КП", "Штат. один.", "Оклад", "Фонд"], "rows": rows,
+                "total": total, "money": [4, 5], "targets": targets}
 
     def _summary_orders(self):
         d1, d2 = self._period_bounds()
@@ -975,7 +1005,8 @@ class UaReportRun(models.Model):
         type_labels = dict(Order._fields["order_type"].selection)
         state_labels = dict(Order._fields["state"].selection)
         rows = [[o.name or "-", o.date.strftime("%d.%m.%Y"), type_labels.get(o.order_type), o.employee_id.name, state_labels.get(o.state)] for o in orders]
-        return {"columns": ["№", "Дата", "Вид", "Працівник", "Стан"], "rows": rows, "total": None}
+        targets = [{"model": "ua.hr.order", "res_id": o.id, "name": o.name or "Наказ"} for o in orders]
+        return {"columns": ["№", "Дата", "Вид", "Працівник", "Стан"], "rows": rows, "total": None, "targets": targets}
 
 
 class UaReportCheck(models.Model):

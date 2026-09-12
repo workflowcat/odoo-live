@@ -148,6 +148,34 @@ export class UaPeriod extends Component {
         }
     }
 
+    /** Відкрити список записів за моделлю і доменом: клік по числу веде в його джерело. */
+    async openList(model, domain, name) {
+        if (!model || !domain) {
+            return;
+        }
+        await this.action.doAction({
+            type: "ir.actions.act_window",
+            res_model: model,
+            domain: domain,
+            views: [[false, "list"], [false, "form"]],
+            target: "current",
+            name: name || "",
+        });
+    }
+
+    /** Клік по числу місяця: листки цього місяця. */
+    openEstimate(kind) {
+        const data = this.state.data;
+        const domain = kind === "draft" ? data.estimate.draft_domain : data.estimate.domain;
+        return this.openList(data.estimate.model, domain, `Листки · ${data.period.label}`);
+    }
+
+    /** Клік по рядку оборотів: проводки цього рахунку за місяць. */
+    openTurnover(row) {
+        return this.openList(row.model, row.domain,
+            `${row.code} ${row.name} · ${this.state.data.period.label}`);
+    }
+
     async openChange(row) {
         await this.action.doAction({
             type: "ir.actions.act_window",

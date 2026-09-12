@@ -187,6 +187,26 @@ else:
     call("ua.report.run", "unlink", [created["id"]])
     check("тестове коригування прибрано", not call("ua.report.run", "search", [["id", "=", created["id"]]]))
 
+# рядок «Дані» веде в запис, який правлять
+for code in ("j05", "timesheet", "orders", "trial"):
+    scr = call("ua.report.run", "get_screen_data", report_code=code, year=2026, month=8)
+    summary = scr.get("summary") or {}
+    rows = summary.get("rows") or []
+    targets = summary.get("targets") or []
+    if not rows:
+        print(f"[--] звіт {code}: рядків немає, ціль не перевіряємо")
+        continue
+    check(f"звіт {code}: цілей стільки ж, скільки рядків", len(targets) == len(rows),
+          f"рядків {len(rows)}, цілей {len(targets)}")
+    first = next((t for t in targets if t), None)
+    check(f"звіт {code}: перший рядок веде в запис", bool(first), str(targets[:1])[:80])
+    if first and first.get("domain"):
+        found = call(first["model"], "search_count", first["domain"])
+        check(f"звіт {code}: домен рядка дійсний", isinstance(found, int), f"знайдено {found}")
+    elif first and first.get("res_id"):
+        exists = call(first["model"], "search_count", [["id", "=", first["res_id"]]])
+        check(f"звіт {code}: запис рядка існує", exists == 1, f"знайдено {exists}")
+
 print()
 if errors:
     print(f"ПЕРЕВІРКУ НЕ ПРОЙДЕНО: {len(errors)} з {total} пунктів провалено")

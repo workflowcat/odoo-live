@@ -1,6 +1,12 @@
 // Панель «Зведення»: щільні таблиці, без переозначення глобальних стилів Odoo.
 // Усі правила під коренем .o_ua_dashboard.
 .o_ua_dashboard {
+    // Клієнтська дія живе в .o_action_manager з overflow:hidden і фіксованою висотою.
+    // Без власної прокрутки все, що нижче вікна, недосяжне.
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+
     padding: 12px 16px;
     font-size: 13px;
 
@@ -42,6 +48,19 @@
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
         gap: 16px;
+    }
+
+    .o_ua_wide {
+        overflow-x: auto;
+
+        > table {
+            min-width: 620px;
+        }
+
+        // таблиця платежів вужча: чотири колонки вміщаються в половину екрана
+        &.o_ua_wide_narrow > table {
+            min-width: 440px;
+        }
     }
 
     .o_ua_dashboard_table {

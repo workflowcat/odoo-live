@@ -1,6 +1,12 @@
 // Робоче місце «Звітність»: ліворуч звіти і періоди, праворуч стан, перевірки, дані, додатки, файли.
 // Усі правила під коренем .o_ua_reporting.
 .o_ua_reporting {
+    // Клієнтська дія живе в .o_action_manager з overflow:hidden і фіксованою висотою.
+    // Без власної прокрутки все, що нижче вікна, недосяжне.
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+
     display: flex;
     align-items: flex-start;
     gap: 16px;
