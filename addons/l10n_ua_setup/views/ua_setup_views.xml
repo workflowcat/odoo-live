@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_setup_profile_form" model="ir.ui.view">
+    <field name="name">ua.setup.profile.form</field>
+    <field name="model">ua.setup.profile</field>
+    <field name="arch" type="xml">
+      <form string="Анкета компанії">
+        <header>
+          <button name="action_fill" type="object" string="Заповнити з каталогу"/>
+          <button name="action_propose" type="object" string="Підказати з опису"/>
+          <button name="action_test_month" type="object" string="Пробний місяць"/>
+          <button name="action_ready" type="object" string="Готово до перевірки"
+                  invisible="state != 'draft'"/>
+          <button name="action_activate" type="object" string="Активувати" class="oe_highlight"
+                  invisible="state == 'active'"/>
+          <button name="action_draft" type="object" string="Повернути до заповнення"
+                  invisible="state == 'draft'"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="company_id"/>
+              <field name="total_count"/>
+              <field name="confirmed_count"/>
+            </group>
+            <group>
+              <field name="proposed_count"/>
+              <field name="missing_count"/>
+              <field name="required_missing" decoration-danger="required_missing > 0"/>
+            </group>
+          </group>
+          <group>
+            <field name="description" placeholder="Українське ТОВ, меблі, 20 працівників, більшість на окладі, двоє на пів ставки, банк ПриватБанк"/>
+          </group>
+          <notebook>
+            <page string="Питання" name="answers">
+              <field name="answer_ids">
+                <list editable="bottom" default_order="sequence"
+                      decoration-danger="state == 'missing' and required"
+                      decoration-warning="state == 'proposed'"
+                      decoration-muted="state == 'confirmed'">
+                  <field name="sequence" column_invisible="1"/>
+                  <field name="name" readonly="1"/>
+                  <field name="value"/>
+                  <field name="state"/>
+                  <field name="section" optional="show"/>
+                  <field name="required" readonly="1" widget="boolean_toggle" optional="show"/>
+                  <field name="options" readonly="1" optional="hide"/>
+                  <field name="source" optional="hide"/>
+                  <field name="note" optional="hide"/>
+                  <button name="action_confirm" type="object" string="Підтвердити" icon="fa-check"
+                          invisible="state == 'confirmed'"/>
+                </list>
+              </field>
+            </page>
+            <page string="Примітка" name="note"><field name="note"/></page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_setup_profile_list" model="ir.ui.view">
+    <field name="name">ua.setup.profile.list</field>
+    <field name="model">ua.setup.profile</field>
+    <field name="arch" type="xml">
+      <list string="Анкети">
+        <field name="name"/>
+        <field name="state"/>
+        <field name="total_count"/>
+        <field name="confirmed_count"/>
+        <field name="missing_count"/>
+        <field name="required_missing" decoration-danger="required_missing > 0"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_setup_question_list" model="ir.ui.view">
+    <field name="name">ua.setup.question.list</field>
+    <field name="model">ua.setup.question</field>
+    <field name="arch" type="xml">
+      <list string="Питання анкети" default_order="sequence">
+        <field name="sequence" column_invisible="1"/>
+        <field name="code"/>
+        <field name="section"/>
+        <field name="name"/>
+        <field name="kind"/>
+        <field name="required"/>
+        <field name="options" optional="show"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_setup_profile" model="ir.actions.act_window">
+    <field name="name">Анкета компанії</field>
+    <field name="res_model">ua.setup.profile</field>
+    <field name="view_mode">list,form</field>
+  </record>
+
+  <record id="action_ua_setup_question" model="ir.actions.act_window">
+    <field name="name">Питання анкети</field>
+    <field name="res_model">ua.setup.question</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>

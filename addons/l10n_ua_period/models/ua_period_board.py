@@ -289,6 +289,16 @@ class UaPeriodBoard(models.AbstractModel):
             }.get(claim.state, claim.state)
             out.append({"title": "Фінансування ПФУ", "detail": stage, "level": "warning",
                         "action": {"model": "ua.pfu.claim", "res_id": claim.id}, "key": "pfu"})
+        # Анкета компанії: поки є обов'язкові питання без відповіді, реальний розрахунок
+        # робити рано. Модуль анкети необов'язковий, тому перевіряємо його наявність.
+        if "ua.setup.profile" in self.env:
+            profile = self.env["ua.setup.profile"].search([("company_id", "=", company.id)], limit=1)
+            if profile and profile.required_missing:
+                out.append({"title": "Анкета компанії",
+                            "detail": "%s обов'язкових питань без відповіді" % profile.required_missing,
+                            "level": "danger",
+                            "action": {"model": "ua.setup.profile", "res_id": profile.id},
+                            "key": "setup"})
         for row in self.env["ua.dashboard"]._get_attention(company):
             detail = row["detail"]
             if row.get("count") and str(row["count"]) not in detail:

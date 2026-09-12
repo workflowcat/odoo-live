@@ -36,6 +36,10 @@
             parent="menu_ua_setup_root" sequence="1"/>
 
   <!-- Налаштування зарплати -->
+  <menuitem id="menu_ua_setup_profile" name="Анкета компанії" parent="menu_ua_setup_root"
+            action="l10n_ua_setup.action_ua_setup_profile" sequence="5"/>
+  <menuitem id="menu_ua_setup_questions" name="Питання анкети" parent="menu_ua_setup_root"
+            action="l10n_ua_setup.action_ua_setup_question" sequence="6" groups="hr.group_hr_manager"/>
   <menuitem id="menu_ua_setup_params" name="Параметри зарплати" parent="menu_ua_setup_root"
             action="l10n_ua_payroll_rules.action_ua_payroll_param" sequence="10"/>
   <menuitem id="menu_ua_setup_cpi" name="Індекси споживчих цін" parent="menu_ua_setup_root"

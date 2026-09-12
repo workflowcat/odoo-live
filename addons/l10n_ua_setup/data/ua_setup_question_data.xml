@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Каталог питань анкети. Створено скриптом scripts/setup_questions_from_docx.py
+     з файла бухгалтера. Текст питань не змінюємо: анкету звіряють з оригіналом. -->
+<odoo>
+  <data noupdate="0">
+    <record id="question_q001" model="ua.setup.question">
+      <field name="code">q001</field>
+      <field name="sequence">10</field>
+      <field name="section">1. Компанія</field>
+      <field name="name">Яка назва компанії?</field>
+      <field name="kind">text</field>
+      <field name="required" eval="False"/>
+      <field name="options">Назва: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q002" model="ua.setup.question">
+      <field name="code">q002</field>
+      <field name="sequence">20</field>
+      <field name="section">1. Компанія</field>
+      <field name="name">Який ЄДРПОУ компанії?</field>
+      <field name="kind">text</field>
+      <field name="required" eval="False"/>
+      <field name="options">ЄДРПОУ: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q003" model="ua.setup.question">
+      <field name="code">q003</field>
+      <field name="sequence">30</field>
+      <field name="section">1. Компанія</field>
+      <field name="name">Яка дата реєстрації компанії?</field>
+      <field name="kind">text</field>
+      <field name="required" eval="False"/>
+      <field name="options">Дата реєстрації: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q004" model="ua.setup.question">
+      <field name="code">q004</field>
+      <field name="sequence">40</field>
+      <field name="section">1. Компанія</field>
+      <field name="name">Яка юридична адреса компанії?</field>
+      <field name="kind">text</field>
+      <field name="required" eval="False"/>
+      <field name="options">Юр. адреса: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q005" model="ua.setup.question">
+      <field name="code">q005</field>
+      <field name="sequence">50</field>
+      <field name="section">1. Компанія</field>
+      <field name="name">Яка організаційно-правова форма компанії?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">ТОВ | ФОП | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q006" model="ua.setup.question">
+      <field name="code">q006</field>
+      <field name="sequence">60</field>
+      <field name="section">1. Компанія</field>
+      <field name="name">Скільки учасників (власників) у компанії?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">1 | 2 | 3+ | Свій варіант → ___________________________________ | ⚠ Є нерезиденти серед власників</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q007" model="ua.setup.question">
+      <field name="code">q007</field>
+      <field name="sequence">70</field>
+      <field name="section">1. Компанія</field>
+      <field name="name">Статутний капітал внесено повністю чи частково?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Повністю | Частково | Ні | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q008" model="ua.setup.question">
+      <field name="code">q008</field>
+      <field name="sequence">80</field>
+      <field name="section">1. Компанія</field>
+      <field name="name">Чи є відокремлені підрозділи / філії?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Немає | Свій варіант → ___________________________________ | Є: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q009" model="ua.setup.question">
+      <field name="code">q009</field>
+      <field name="sequence">90</field>
+      <field name="section">1. Компанія</field>
+      <field name="name">Який поточний стан компанії?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Нова (з нуля) | Діюча, є історія обліку | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q010" model="ua.setup.question">
+      <field name="code">q010</field>
+      <field name="sequence">100</field>
+      <field name="section">2. Система оподаткування</field>
+      <field name="name">Яку систему оподаткування використовує компанія?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="True"/>
+      <field name="options">ЄП 3 група, 5% (без ПДВ) | ЄП 3 група, 3% + ПДВ | Загальна система, 18% на прибуток | Ще не обрано | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q011" model="ua.setup.question">
+      <field name="code">q011</field>
+      <field name="sequence">110</field>
+      <field name="section">2. Система оподаткування</field>
+      <field name="name">Чи є компанія платником ПДВ?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="True"/>
+      <field name="options">Ні | Свій варіант → ___________________________________ | Так: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q012" model="ua.setup.question">
+      <field name="code">q012</field>
+      <field name="sequence">120</field>
+      <field name="section">2. Система оподаткування</field>
+      <field name="name">Який очікується річний дохід компанії?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="True"/>
+      <field name="options">До 5 млн грн | 5–10 млн грн | ⚠ Близько / понад ліміт 3 групи (10,09 млн грн у 2026) | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q013" model="ua.setup.question">
+      <field name="code">q013</field>
+      <field name="sequence">130</field>
+      <field name="section">3. Клієнти і валюта</field>
+      <field name="name">Хто ваші клієнти?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="True"/>
+      <field name="options">Лише Україна | Лише нерезиденти | Свій варіант → ___________________________________ | І ті, і ті: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q014" model="ua.setup.question">
+      <field name="code">q014</field>
+      <field name="sequence">140</field>
+      <field name="section">3. Клієнти і валюта</field>
+      <field name="name">З яких країн ваші замовники-нерезиденти?</field>
+      <field name="kind">text</field>
+      <field name="required" eval="False"/>
+      <field name="options">Країни: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q015" model="ua.setup.question">
+      <field name="code">q015</field>
+      <field name="sequence">150</field>
+      <field name="section">3. Клієнти і валюта</field>
+      <field name="name">У якій валюті відбуваються розрахунки?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">UAH | USD | EUR | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q016" model="ua.setup.question">
+      <field name="code">q016</field>
+      <field name="sequence">160</field>
+      <field name="section">3. Клієнти і валюта</field>
+      <field name="name">Яким чином отримуєте кошти від клієнтів?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Банк | Wise | Payoneer | Stripe | PayPal | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q017" model="ua.setup.question">
+      <field name="code">q017</field>
+      <field name="sequence">170</field>
+      <field name="section">3. Клієнти і валюта</field>
+      <field name="name">Чи передаєте майнові права на код у договорах з клієнтами?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Так | Ні | Частково | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q018" model="ua.setup.question">
+      <field name="code">q018</field>
+      <field name="sequence">180</field>
+      <field name="section">3. Клієнти і валюта</field>
+      <field name="name">Яка первинка є з клієнтом? (позначте все, що є)</field>
+      <field name="kind">multi</field>
+      <field name="required" eval="False"/>
+      <field name="options">Акти | Інвойси | Таймшити | Звіти | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q019" model="ua.setup.question">
+      <field name="code">q019</field>
+      <field name="sequence">190</field>
+      <field name="section">3. Клієнти і валюта</field>
+      <field name="name">Чи бувають аванси / передоплати від клієнтів?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Так | Ні | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q020" model="ua.setup.question">
+      <field name="code">q020</field>
+      <field name="sequence">200</field>
+      <field name="section">3. Клієнти і валюта</field>
+      <field name="name">Хто відстежує строки розрахунків за ЗЕД (валютний нагляд НБУ)?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="True"/>
+      <field name="options">Бухгалтер | Банк | Ніхто поки (ризик пені) | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q021" model="ua.setup.question">
+      <field name="code">q021</field>
+      <field name="sequence">210</field>
+      <field name="section">4. Банк і підписи</field>
+      <field name="name">Скільки рахунків відкрито в банках?</field>
+      <field name="kind">text</field>
+      <field name="required" eval="False"/>
+      <field name="options">Гривневі: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q022" model="ua.setup.question">
+      <field name="code">q022</field>
+      <field name="sequence">220</field>
+      <field name="section">4. Банк і підписи</field>
+      <field name="name">Хто підписує платежі в клієнт-банку?</field>
+      <field name="kind">text</field>
+      <field name="required" eval="False"/>
+      <field name="options">ПІБ / посада: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q023" model="ua.setup.question">
+      <field name="code">q023</field>
+      <field name="sequence">230</field>
+      <field name="section">4. Банк і підписи</field>
+      <field name="name">Чи є КЕП директора?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Є | Немає | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q024" model="ua.setup.question">
+      <field name="code">q024</field>
+      <field name="sequence">240</field>
+      <field name="section">4. Банк і підписи</field>
+      <field name="name">Чи є КЕП бухгалтера?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Є | Немає | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q025" model="ua.setup.question">
+      <field name="code">q025</field>
+      <field name="sequence">250</field>
+      <field name="section">4. Банк і підписи</field>
+      <field name="name">Хто рахує курсові різниці / переоцінку валюти?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Бухгалтер | Система автоматично | Ніхто поки | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q026" model="ua.setup.question">
+      <field name="code">q026</field>
+      <field name="sequence">260</field>
+      <field name="section">5. Люди і форми залучення</field>
+      <field name="name">Скільки людей залучено зараз?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">1–5 | 6–15 | 16–50 | 50+ | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q027" model="ua.setup.question">
+      <field name="code">q027</field>
+      <field name="sequence">270</field>
+      <field name="section">5. Люди і форми залучення</field>
+      <field name="name">Які форми залучення використовуєте або плануєте використовувати? (позначте все, що є)</field>
+      <field name="kind">multi</field>
+      <field name="required" eval="False"/>
+      <field name="options">Штат (трудовий договір) | ЦПХ (цивільно-правовий) | ФОП (аутстаф) | Гіг-контракт (Дія.City) | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q028" model="ua.setup.question">
+      <field name="code">q028</field>
+      <field name="sequence">280</field>
+      <field name="section">5. Люди і форми залучення</field>
+      <field name="name">Чи є люди, що працюють щодня, повний день, за графіком компанії, на її техніці?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="True"/>
+      <field name="options">⚠ Так (ризик перекваліфікації ЦПХ/ФОП у трудові відносини) | Ні | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q029" model="ua.setup.question">
+      <field name="code">q029</field>
+      <field name="sequence">290</field>
+      <field name="section">5. Люди і форми залучення</field>
+      <field name="name">Чи є сумісники?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Ні | Свій варіант → ___________________________________ | Так: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q030" model="ua.setup.question">
+      <field name="code">q030</field>
+      <field name="sequence">300</field>
+      <field name="section">5. Люди і форми залучення</field>
+      <field name="name">Чи є працівники з інвалідністю (ЄСВ 8,41%)?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Ні | Свій варіант → ___________________________________ | Так: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q031" model="ua.setup.question">
+      <field name="code">q031</field>
+      <field name="sequence">310</field>
+      <field name="section">5. Люди і форми залучення</field>
+      <field name="name">Чи є нерезиденти / виконавці за кордоном?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Ні | Свій варіант → ___________________________________ | Так: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q032" model="ua.setup.question">
+      <field name="code">q032</field>
+      <field name="sequence">320</field>
+      <field name="section">5. Люди і форми залучення</field>
+      <field name="name">Чи оформлені NDA / передача прав на код (IP assignment)?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Так | Ні | Частково | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q033" model="ua.setup.question">
+      <field name="code">q033</field>
+      <field name="sequence">330</field>
+      <field name="section">5. Люди і форми залучення</field>
+      <field name="name">Чи КВЕДи ФОП-виконавців покривають надані послуги?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Так | Ні / не перевіряли | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q034" model="ua.setup.question">
+      <field name="code">q034</field>
+      <field name="sequence">340</field>
+      <field name="section">6. Зарплата</field>
+      <field name="name">Чи не плануєте оклади не нижче мінімалки (8 647 грн у 2026)?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Так | Є нижчі (неповна ставка) | Свій варіант → ___________________________________ | Декрет (ЄСВ — так, ПДФО/ВЗ — ні) | Довгі лікарняні (ПДФО + ВЗ + ЄСВ — усі три) | Відпустки | Аліменти / виконавчі листи | Нічого з цього | Свій варіант → ___________________________________</field>
+      <field name="hint">Враховуємо все з переліченого:</field>
+    </record>
+    <record id="question_q035" model="ua.setup.question">
+      <field name="code">q035</field>
+      <field name="sequence">350</field>
+      <field name="section">6. Зарплата</field>
+      <field name="name">Чи є премії / доплати / надбавки?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Так | Ні | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q036" model="ua.setup.question">
+      <field name="code">q036</field>
+      <field name="sequence">360</field>
+      <field name="section">6. Зарплата</field>
+      <field name="name">Чи ведеться індексація зарплати?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Так | Ні | Не знаю | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q037" model="ua.setup.question">
+      <field name="code">q037</field>
+      <field name="sequence">370</field>
+      <field name="section">7. Військовий облік і бронювання</field>
+      <field name="name">Чи плануєте бронювання працівників?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="True"/>
+      <field name="options">Так, плануємо | Вже бронюємо | Ні | Ще не вирішили | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q038" model="ua.setup.question">
+      <field name="code">q038</field>
+      <field name="sequence">380</field>
+      <field name="section">7. Військовий облік і бронювання</field>
+      <field name="name">Чи є у компанії статус критично важливого підприємства?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Є | Подаємо / у процесі | Немає підстав | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q039" model="ua.setup.question">
+      <field name="code">q039</field>
+      <field name="sequence">390</field>
+      <field name="section">7. Військовий облік і бронювання</field>
+      <field name="name">Хто відповідальна особа за військовий облік?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="True"/>
+      <field name="options">Ще не призначено | Свій варіант → ___________________________________ | ПІБ / посада: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q040" model="ua.setup.question">
+      <field name="code">q040</field>
+      <field name="sequence">400</field>
+      <field name="section">7. Військовий облік і бронювання</field>
+      <field name="name">Чи є мобілізовані працівники зараз?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Ні | Свій варіант → ___________________________________ | Так: ___</field>
+      <field name="hint">Для мобілізованих: трудові відносини зберігаються, нарахування зупиняються, роботодавець середній заробіток не платить.</field>
+    </record>
+    <record id="question_q041" model="ua.setup.question">
+      <field name="code">q041</field>
+      <field name="sequence">410</field>
+      <field name="section">7. Військовий облік і бронювання</field>
+      <field name="name">Чи є заброньовані працівники?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Ні | Свій варіант → ___________________________________ | Так: ___</field>
+      <field name="hint">Контролювати рівень зарплати заброньованих — не нижче порога критичної важливості.</field>
+    </record>
+    <record id="question_q042" model="ua.setup.question">
+      <field name="code">q042</field>
+      <field name="sequence">420</field>
+      <field name="section">7. Військовий облік і бронювання</field>
+      <field name="name">Чи є працівники, що виїхали / працюють дистанційно з-за кордону?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Ні | Свій варіант → ___________________________________ | Так: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q043" model="ua.setup.question">
+      <field name="code">q043</field>
+      <field name="sequence">430</field>
+      <field name="section">7. Військовий облік і бронювання</field>
+      <field name="name">Де ведеться військовий облік?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Оберіг | Резерв+ | Паперово | Ще не ведеться | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q044" model="ua.setup.question">
+      <field name="code">q044</field>
+      <field name="sequence">440</field>
+      <field name="section">7. Військовий облік і бронювання</field>
+      <field name="name">Як оплачується простій / час повітряних тривог?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">2/3 окладу | Не було | Свій варіант → ___________________________________ | Інше: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q045" model="ua.setup.question">
+      <field name="code">q045</field>
+      <field name="sequence">450</field>
+      <field name="section">8. Облік і Дія.City</field>
+      <field name="name">Хто веде облік?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Штатний бухгалтер | Аутсорс | Бухгалтер-ФОП | Ніхто поки | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q046" model="ua.setup.question">
+      <field name="code">q046</field>
+      <field name="sequence">460</field>
+      <field name="section">8. Облік і Дія.City</field>
+      <field name="name">Який статус компанії щодо Дія.City?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Вже резидент | Плануємо вступати | Ні | Розглядаємо — треба порахувати сценарій | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q047" model="ua.setup.question">
+      <field name="code">q047</field>
+      <field name="sequence">470</field>
+      <field name="section">8. Облік і Дія.City</field>
+      <field name="name">Чи кількість фахівців ≥ 9?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Так | Ні | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q048" model="ua.setup.question">
+      <field name="code">q048</field>
+      <field name="sequence">480</field>
+      <field name="section">8. Облік і Дія.City</field>
+      <field name="name">Чи середня винагорода ≥ 1200 €?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Так | Ні | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q049" model="ua.setup.question">
+      <field name="code">q049</field>
+      <field name="sequence">490</field>
+      <field name="section">8. Облік і Дія.City</field>
+      <field name="name">Яку корпоративну модель оподаткування плануєте / застосовуєте?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Податок на виведений капітал 9% | 18% на прибуток | Не визначено | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q050" model="ua.setup.question">
+      <field name="code">q050</field>
+      <field name="sequence">500</field>
+      <field name="section">9. Вхідні залишки і історія</field>
+      <field name="name">Чи будуть передані вхідні залишки (гроші, дебіторка/кредиторка, основні засоби, розрахунки з людьми)?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Є, передамо | Немає | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q051" model="ua.setup.question">
+      <field name="code">q051</field>
+      <field name="sequence">510</field>
+      <field name="section">9. Вхідні залишки і історія</field>
+      <field name="name">Чи є незакриті періоди / неподана звітність?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Немає | Свій варіант → ___________________________________ | Є: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q052" model="ua.setup.question">
+      <field name="code">q052</field>
+      <field name="sequence">520</field>
+      <field name="section">9. Вхідні залишки і історія</field>
+      <field name="name">Чи є доступ до попередньої бази й первинки?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Є | Ні | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q053" model="ua.setup.question">
+      <field name="code">q053</field>
+      <field name="sequence">530</field>
+      <field name="section">9. Вхідні залишки і історія</field>
+      <field name="name">Коли була остання звірка з ДПС / ПФУ?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Цього року | Давно | Не було | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q054" model="ua.setup.question">
+      <field name="code">q054</field>
+      <field name="sequence">540</field>
+      <field name="section">10. Ролі і відповідальні</field>
+      <field name="name">Хто директор / підписант компанії?</field>
+      <field name="kind">text</field>
+      <field name="required" eval="False"/>
+      <field name="options">ПІБ / посада: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q055" model="ua.setup.question">
+      <field name="code">q055</field>
+      <field name="sequence">550</field>
+      <field name="section">10. Ролі і відповідальні</field>
+      <field name="name">Хто веде бухгалтерію (ПІБ) і в якому форматі?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Штат | Аутсорс | Свій варіант → ___________________________________ | ПІБ / компанія: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q056" model="ua.setup.question">
+      <field name="code">q056</field>
+      <field name="sequence">560</field>
+      <field name="section">10. Ролі і відповідальні</field>
+      <field name="name">Хто виконує функції кадровика?</field>
+      <field name="kind">text</field>
+      <field name="required" eval="False"/>
+      <field name="options">ПІБ / посада: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q057" model="ua.setup.question">
+      <field name="code">q057</field>
+      <field name="sequence">570</field>
+      <field name="section">10. Ролі і відповідальні</field>
+      <field name="name">Хто юрист компанії?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Немає | Свій варіант → ___________________________________ | ПІБ / компанія: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q058" model="ua.setup.question">
+      <field name="code">q058</field>
+      <field name="sequence">580</field>
+      <field name="section">11. Плани</field>
+      <field name="name">Який пріоритет на найближчі 3–6 місяців? (позначте головне)</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Запуск обліку | Бронювання | Вступ у Дія.City | Due diligence / залучення інвестора | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q059" model="ua.setup.question">
+      <field name="code">q059</field>
+      <field name="sequence">590</field>
+      <field name="section">11. Плани</field>
+      <field name="name">Чи плануєте залучення інвестицій, продаж частки компанії або M&amp;A найближчим часом?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Так | Ні | Розглядаємо | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q060" model="ua.setup.question">
+      <field name="code">q060</field>
+      <field name="sequence">600</field>
+      <field name="section">11. Плани</field>
+      <field name="name">Чи плануєте зміну системи оподаткування у майбутньому (напр. у зв'язку з ростом доходу)?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Ні | Свій варіант → ___________________________________ | Так: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q061" model="ua.setup.question">
+      <field name="code">q061</field>
+      <field name="sequence">610</field>
+      <field name="section">11. Плани</field>
+      <field name="name">Чи плануєте запуск нових напрямків послуг або власних продуктів (напр. SaaS)?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Ні | Свій варіант → ___________________________________ | Так: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q062" model="ua.setup.question">
+      <field name="code">q062</field>
+      <field name="sequence">620</field>
+      <field name="section">11. Плани</field>
+      <field name="name">Як плануєте організувати зарплатний проєкт для працівників?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Через один банк для всіх працівників | Через кілька банків залежно від того, де в працівників картки | Ще не визначились | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q063" model="ua.setup.question">
+      <field name="code">q063</field>
+      <field name="sequence">630</field>
+      <field name="section">11. Плани</field>
+      <field name="name">Хто буде відповідальним за нарахування і виплату зарплати?</field>
+      <field name="kind">text</field>
+      <field name="required" eval="False"/>
+      <field name="options">ПІБ / посада: ___</field>
+      <field name="hint"></field>
+    </record>
+    <record id="question_q064" model="ua.setup.question">
+      <field name="code">q064</field>
+      <field name="sequence">640</field>
+      <field name="section">11. Плани</field>
+      <field name="name">Яку модель реалізації послуг клієнтам плануєте / використовуєте?</field>
+      <field name="kind">choice</field>
+      <field name="required" eval="False"/>
+      <field name="options">Аутсорсинг (Time &amp; Material) | Аутстафінг | Fixed price проєкти | Власний продукт / SaaS | Свій варіант → ___________________________________</field>
+      <field name="hint"></field>
+    </record>
+  </data>
+</odoo>

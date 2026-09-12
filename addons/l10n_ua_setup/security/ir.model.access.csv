@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_setup_question_user,ua.setup.question user,model_ua_setup_question,base.group_user,1,0,0,0
+access_ua_setup_question_hr,ua.setup.question hr,model_ua_setup_question,hr.group_hr_manager,1,1,1,1
+access_ua_setup_profile_user,ua.setup.profile user,model_ua_setup_profile,base.group_user,1,0,0,0
+access_ua_setup_profile_hr,ua.setup.profile hr,model_ua_setup_profile,hr.group_hr_user,1,1,1,1
+access_ua_setup_answer_user,ua.setup.answer user,model_ua_setup_answer,base.group_user,1,0,0,0
+access_ua_setup_answer_hr,ua.setup.answer hr,model_ua_setup_answer,hr.group_hr_user,1,1,1,1
