@@ -7,8 +7,14 @@ cd "$(dirname "$0")/.."
 if [ -n "${VERIFY_ON_CLOUD_COPY:-}" ]; then
   ( cd .. && docker compose exec -T odoo sh -c "odoo -c /etc/odoo/odoo.conf --db_host=db --db_user=odoo --db_password=odoo -d payroll_cloud -i $VERIFY_ON_CLOUD_COPY --stop-after-init --log-level=warn" ) || { echo "встановлення на копії хмарної бази провалилося, викладку зупинено"; exit 1; }
 fi
-npx wrangler deploy -c wrangler.payroll.jsonc
+# збірка образу інколи падає на push у реєстр; без цієї перевірки помилку ховає конвеєр
+if ! npx wrangler deploy -c wrangler.payroll.jsonc; then
+  echo "DEPLOY-PAYROLL: FAILED (wrangler deploy)"
+  exit 1
+fi
 if [ -n "${BRIDGE_TOKEN:-}" ]; then
   sleep 180   # дочекатися розкатки нового образу; ранній перезапуск піднімає старий образ
   curl -fsS -m 60 -X POST -H "Authorization: Bearer $BRIDGE_TOKEN" https://odoo-payroll.botpartners.workers.dev/_container/restart || true
 fi
+# останній рядок виводу: якщо його немає, викладка не дійшла до кінця
+echo "DEPLOY-PAYROLL: OK"

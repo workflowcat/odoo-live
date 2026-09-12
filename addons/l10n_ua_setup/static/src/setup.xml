@@ -15,11 +15,11 @@
           </div>
           <div class="o_ua_setup_actions">
             <button class="btn btn-sm btn-outline-secondary" t-att-disabled="state.busy"
-                    t-on-click="() => this.run('fill')">Оновити з каталогу</button>
+                    t-on-click="() => this.run('fill')">Заповнити з каталогу</button>
             <button class="btn btn-sm btn-outline-secondary" t-att-disabled="state.busy"
                     t-on-click="() => this.run('test')">Пробний місяць</button>
             <button class="btn btn-sm btn-primary" t-att-disabled="state.busy or data.counters.required_missing"
-                    t-on-click="() => this.run('activate')">Активувати</button>
+                    t-on-click="() => this.run('activate')">Затвердити</button>
           </div>
         </div>
 

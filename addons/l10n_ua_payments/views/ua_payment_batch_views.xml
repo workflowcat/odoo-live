@@ -6,7 +6,7 @@
     <field name="arch" type="xml">
       <form string="Відомість на перерахування">
         <header>
-          <button name="action_fill" type="object" string="Заповнити" invisible="state != 'draft'"/>
+          <button name="action_fill" type="object" string="Перерахувати" invisible="state != 'draft'"/>
           <button name="action_confirm" type="object" string="Затвердити" class="oe_highlight" invisible="state != 'draft'"/>
           <button name="action_export" type="object" string="Файл для банку" invisible="state == 'draft'"/>
           <button name="%(action_report_ua_payment_batch)d" type="action" string="Друк" invisible="state == 'draft'"/>

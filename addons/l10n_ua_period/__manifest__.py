@@ -1,7 +1,7 @@
 {
     "name": "Україна: робоче місце місяця",
     "summary": "Одна сторінка на місяць: головна дія, числа, зміни, черга винятків, кроки і закриття",
-    "version": "19.0.1.3.3",
+    "version": "19.0.1.4.0",
     "category": "Human Resources/Payroll",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -18,4 +18,5 @@
         ],
     },
     "installable": True,
+    "post_init_hook": "post_init_hook",
 }

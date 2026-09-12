@@ -13,7 +13,7 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
-STATES = [("draft", "Заповнення"), ("ready", "Готово до перевірки"), ("active", "Працює")]
+STATES = [("draft", "Чернетка"), ("ready", "Готово до перевірки"), ("active", "Затверджено")]
 ANSWER_STATES = [("missing", "Бракує"), ("supplied", "Надано"),
                  ("proposed", "Запропоновано"), ("confirmed", "Підтверджено")]
 
@@ -275,7 +275,7 @@ class UaSetupProfile(models.Model):
                     "detail": "%s запропонованих відповідей" % counters["proposed"],
                     "action": "", "label": "", "tone": "warn"}
         return {"title": "Обов'язкові питання закриті", "detail": "можна активувати",
-                "action": "activate", "label": "Активувати", "tone": "ok"}
+                "action": "activate", "label": "Затвердити", "tone": "ok"}
 
     # ------------------------------------------------------------------ застосування
     # Як відповідь перетворюється на налаштування. Ключ - поле компанії, значення -

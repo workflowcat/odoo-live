@@ -6,8 +6,8 @@
     <field name="arch" type="xml">
       <form string="Підключення банку">
         <header>
-          <button name="action_fill_steps" type="object" string="Оновити кроки"/>
-          <button name="action_create_provider" type="object" string="Створити з'єднання"
+          <button name="action_fill_steps" type="object" string="Перерахувати"/>
+          <button name="action_create_provider" type="object" string="Створити"
                   class="btn-primary" invisible="provider_id"/>
           <field name="state" widget="statusbar"/>
         </header>

@@ -17,7 +17,7 @@
         <!-- ==================== Крок 1: нові сторінки і порожні групи ==================== -->
         <xpath expr="//page[@name='work_information']" position="after">
           <page name="ua_card" string="Особова картка" groups="hr.group_hr_user">
-            <button name="%(l10n_ua_hr_card.action_report_ua_p2)d" type="action" string="Друк П-2" class="btn btn-secondary mb-2"/>
+            <button name="%(l10n_ua_hr_card.action_report_ua_p2)d" type="action" string="Друк" class="btn btn-secondary mb-2"/>
             <group name="ua_card_groups">
               <group string="Ідентифікація" name="ua_card_grp_ident"/>
               <group string="Документ, що посвідчує особу" name="ua_card_grp_iddoc"/>

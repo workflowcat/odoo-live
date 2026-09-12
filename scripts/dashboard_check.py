@@ -138,10 +138,14 @@ else:
         except SystemExit as exc:
             check(f"{LANA_LOGIN} може викликати ua.dashboard.get_data", False, str(exc)[:300])
 
+        # домашня дія - «Період»: робоче місце місяця, не аналітика
         lana_user = call("res.users", "search_read", [["login", "=", LANA_LOGIN]], fields=["action_id"])
         lana_action_id = lana_user[0]["action_id"][0] if lana_user and lana_user[0]["action_id"] else None
-        check(f"{LANA_LOGIN} має домашню дію = дія «Зведення»", lana_action_id == action_id and action_id is not None,
-              f"{LANA_LOGIN}.action_id={lana_action_id}, action_ua_dashboard={action_id}")
+        period_id = call("ir.model.data", "search_read",
+                         [["module", "=", "l10n_ua_period"], ["name", "=", "action_ua_period"]], fields=["res_id"])
+        period_id = period_id[0]["res_id"] if period_id else None
+        check(f"{LANA_LOGIN} має домашню дію = дія «Період»", lana_action_id == period_id and period_id is not None,
+              f"{LANA_LOGIN}.action_id={lana_action_id}, action_ua_period={period_id}")
 
 # 4a. кожне число веде у свій запис: рядок підрозділу, підсумок і платіж мають ціль
 dep = data["payroll_by_department"]

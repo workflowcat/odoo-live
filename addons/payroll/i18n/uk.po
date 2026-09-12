@@ -727,7 +727,7 @@ msgstr "Налаштування"
 #: model:ir.model.fields.selection,name:payroll.selection__hr_payslip_change_state__state__done
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_form
 msgid "Confirm"
-msgstr "Підтвердити"
+msgstr "Затвердити"
 
 #. module: payroll
 #: model:ir.model.fields,field_description:payroll.field_res_config_settings__prevent_compute_on_confirm
@@ -766,7 +766,7 @@ msgstr "Рядки листа з реєстром накопичення"
 #: model:ir.ui.menu,name:payroll.hr_contribution_register_menu
 #: model_terms:ir.ui.view,arch_db:payroll.hr_contribution_register_view_search
 msgid "Contribution Registers"
-msgstr "Реєстри накопичення"
+msgstr "Реєстри внесків"
 
 #. module: payroll
 #: model:hr.salary.rule,name:payroll.hr_salary_rule_convanceallowance1
@@ -1697,7 +1697,7 @@ msgstr "Розрахункові листки"
 #: model:ir.ui.menu,name:payroll.hr_payslip_run_menu
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_run_view_form
 msgid "Payslips Batches"
-msgstr "Групові розрахунки"
+msgstr "Пакети листків"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.view_hr_payslip_by_employees
@@ -1934,7 +1934,7 @@ msgstr "Правило зарплатні"
 #: model:ir.ui.menu,name:payroll.menu_hr_salary_rule_category
 #: model_terms:ir.ui.view,arch_db:payroll.hr_salary_rule_category_view_search
 msgid "Salary Rule Categories"
-msgstr "Категорії правил розрахунку"
+msgstr "Категорії правил"
 
 #. module: payroll
 #: model:ir.model,name:payroll.model_hr_salary_rule_category

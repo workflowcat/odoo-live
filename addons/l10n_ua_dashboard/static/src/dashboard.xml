@@ -152,20 +152,6 @@
           <div t-else="" class="o_ua_dashboard_empty text-muted">Документів немає.</div>
         </div>
 
-        <!-- Пульт команд -->
-        <div class="o_ua_dashboard_section">
-          <h5>Пульт команд</h5>
-          <div class="o_ua_dashboard_hub">
-            <div t-foreach="data.hub" t-as="section" t-key="section.section" class="o_ua_dashboard_hub_section">
-              <div class="o_ua_dashboard_hub_title" t-esc="section.section"/>
-              <ul>
-                <li t-foreach="section.items" t-as="item" t-key="item.id">
-                  <a href="#" t-on-click.prevent="() => this.openHubItem(item.id)" t-esc="item.name"/>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
       </t>
     </div>
   </t>

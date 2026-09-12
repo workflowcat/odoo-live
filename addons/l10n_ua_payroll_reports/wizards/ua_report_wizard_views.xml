@@ -11,7 +11,7 @@
         <field name="log" invisible="not log"/>
         <field name="result_ids" invisible="not result_ids" widget="many2many_binary" readonly="1"/>
         <footer>
-          <button name="action_generate" type="object" string="Сформувати XML" class="btn-primary"/>
+          <button name="action_generate" type="object" string="Сформувати" class="btn-primary"/>
           <button string="Закрити" class="btn-secondary" special="cancel"/>
         </footer>
       </form>

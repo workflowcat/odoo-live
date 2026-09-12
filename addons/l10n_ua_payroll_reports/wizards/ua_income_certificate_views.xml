@@ -14,7 +14,7 @@
         </group>
         <footer>
           <button name="action_print" type="object" string="Друк" class="btn-primary"/>
-          <button special="cancel" string="Скасувати" class="btn-secondary"/>
+          <button special="cancel" string="Закрити" class="btn-secondary"/>
         </footer>
       </form>
     </field>

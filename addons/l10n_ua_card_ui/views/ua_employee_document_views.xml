@@ -20,7 +20,7 @@
         </group>
         <footer>
           <button string="Зберегти" special="save" class="btn btn-primary"/>
-          <button string="Скасувати" special="cancel" class="btn btn-secondary"/>
+          <button string="Закрити" special="cancel" class="btn btn-secondary"/>
         </footer>
       </form>
     </field>

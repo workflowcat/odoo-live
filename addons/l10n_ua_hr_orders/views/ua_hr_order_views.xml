@@ -8,7 +8,7 @@
         <header>
           <button name="action_post" type="object" string="Провести" invisible="state != 'draft'" class="oe_highlight"/>
           <button name="action_acknowledge" type="object" string="Ознайомити" invisible="state != 'posted'" class="oe_highlight"/>
-          <button name="action_cancel" type="object" string="Скасувати" invisible="state not in ('posted', 'acknowledged')"
+          <button name="action_cancel" type="object" string="Скасувати наказ" invisible="state not in ('posted', 'acknowledged')"
                   confirm="Скасувати наказ? Якщо дані після проведення не змінювали - зміну буде прибрано."/>
           <button name="%(l10n_ua_hr_orders.action_report_ua_hr_order)d" type="action" string="Друк" invisible="state == 'draft'"/>
           <field name="state" widget="statusbar" statusbar_visible="draft,posted,acknowledged"/>

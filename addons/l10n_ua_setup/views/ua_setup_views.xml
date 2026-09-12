@@ -11,9 +11,9 @@
           <button name="action_test_month" type="object" string="Пробний місяць"/>
           <button name="action_ready" type="object" string="Готово до перевірки"
                   invisible="state != 'draft'"/>
-          <button name="action_activate" type="object" string="Активувати" class="oe_highlight"
+          <button name="action_activate" type="object" string="Затвердити" class="oe_highlight"
                   invisible="state == 'active'"/>
-          <button name="action_draft" type="object" string="Повернути до заповнення"
+          <button name="action_draft" type="object" string="Повернути в чернетку"
                   invisible="state == 'draft'"/>
           <field name="state" widget="statusbar"/>
         </header>
@@ -50,7 +50,7 @@
                   <field name="options" readonly="1" optional="hide"/>
                   <field name="source" optional="hide"/>
                   <field name="note" optional="hide"/>
-                  <button name="action_confirm" type="object" string="Підтвердити" icon="fa-check"
+                  <button name="action_confirm" type="object" string="Затвердити" icon="fa-check"
                           invisible="state == 'confirmed'"/>
                 </list>
               </field>

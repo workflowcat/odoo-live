@@ -337,7 +337,7 @@ class UaPeriodBoard(models.AbstractModel):
                     "action": "exceptions", "label": "Переглянути винятки", "tone": "warn"}
         if estimate["draft"]:
             return {"title": "Розрахунок попередній", "detail": "%s листків не проведено" % estimate["draft"],
-                    "action": "payslips", "label": "Підтвердити розрахунок", "tone": "warn"}
+                    "action": "payslips", "label": "Затвердити розрахунок", "tone": "warn"}
         if by_key.get("payment", {}).get("state") != "done":
             return {"title": "Виплата не підготовлена", "detail": by_key.get("payment", {}).get("fact", ""),
                     "action": "payment", "label": "Підготувати виплати", "tone": "todo"}
