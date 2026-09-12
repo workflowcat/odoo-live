@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+  <t t-name="l10n_ua_setup.Setup" owl="1">
+    <div class="o_ua_setup">
+      <t t-if="state.loading">
+        <div class="text-muted p-4">Завантаження…</div>
+      </t>
+      <t t-elif="state.data">
+        <t t-set="data" t-value="state.data"/>
+
+        <div class="o_ua_setup_head">
+          <div>
+            <h4>Анкета компанії</h4>
+            <div class="text-muted small"><t t-esc="data.company"/></div>
+          </div>
+          <div class="o_ua_setup_actions">
+            <button class="btn btn-sm btn-outline-secondary" t-att-disabled="state.busy"
+                    t-on-click="() => this.run('fill')">Оновити з каталогу</button>
+            <button class="btn btn-sm btn-outline-secondary" t-att-disabled="state.busy"
+                    t-on-click="() => this.run('test')">Пробний місяць</button>
+            <button class="btn btn-sm btn-primary" t-att-disabled="state.busy or data.counters.required_missing"
+                    t-on-click="() => this.run('activate')">Активувати</button>
+          </div>
+        </div>
+
+        <div t-attf-class="o_ua_setup_headline o_ua_tone_#{data.headline.tone}">
+          <div>
+            <div class="o_ua_setup_headline_title" t-esc="data.headline.title"/>
+            <div class="text-muted small" t-esc="data.headline.detail"/>
+          </div>
+          <button t-if="data.headline.label" class="btn btn-primary" t-att-disabled="state.busy"
+                  t-on-click="() => this.run(data.headline.action)" t-esc="data.headline.label"/>
+        </div>
+
+        <div class="o_ua_setup_progress">
+          <div class="o_ua_setup_bar">
+            <span class="o_ua_setup_fill" t-attf-style="width: #{data.counters.percent}%"/>
+          </div>
+          <div class="o_ua_setup_counters">
+            <span><b t-esc="data.counters.percent"/>% заповнено</span>
+            <span class="ok"><t t-esc="data.counters.confirmed"/> підтверджено</span>
+            <span class="info"><t t-esc="data.counters.supplied"/> надано</span>
+            <span class="warn"><t t-esc="data.counters.proposed"/> запропоновано</span>
+            <span class="muted"><t t-esc="data.counters.missing"/> бракує</span>
+            <span t-if="data.counters.required_missing" class="crit">
+              <t t-esc="data.counters.required_missing"/> обов'язкових
+            </span>
+          </div>
+        </div>
+
+        <div class="o_ua_setup_desc">
+          <label>Опис компанії своїми словами</label>
+          <textarea t-att-value="state.description" t-on-change="(ev) => this.onDescription(ev)"
+                    placeholder="Українське ТОВ, меблі, 20 працівників, більшість на окладі, двоє на пів ставки, розрахунки в гривні, один банк для зарплати"/>
+          <button class="btn btn-sm btn-secondary" t-att-disabled="state.busy"
+                  t-on-click="() => this.run('propose')">Підказати з опису</button>
+        </div>
+
+        <div class="o_ua_setup_filters">
+          <span t-attf-class="o_ua_setup_chip #{state.filter === 'all' ? 'active' : ''}"
+                t-on-click="() => this.setFilter('all')">усі</span>
+          <span t-attf-class="o_ua_setup_chip #{state.filter === 'required' ? 'active' : ''}"
+                t-on-click="() => this.setFilter('required')">обов'язкові</span>
+          <span t-attf-class="o_ua_setup_chip #{state.filter === 'missing' ? 'active' : ''}"
+                t-on-click="() => this.setFilter('missing')">бракує</span>
+          <span t-attf-class="o_ua_setup_chip #{state.filter === 'proposed' ? 'active' : ''}"
+                t-on-click="() => this.setFilter('proposed')">запропоновані</span>
+        </div>
+
+        <div class="o_ua_setup_sections">
+          <t t-foreach="data.sections" t-as="section" t-key="section.name">
+            <div t-if="this.visible(section)" class="o_ua_setup_section">
+              <div class="o_ua_setup_section_head" t-on-click="() => this.toggle(section)">
+                <span class="o_ua_setup_section_name" t-esc="section.name"/>
+                <span class="o_ua_setup_section_count">
+                  <t t-esc="section.done"/> з <t t-esc="section.total"/>
+                </span>
+                <span t-if="section.required_missing" class="o_ua_setup_section_req">
+                  <t t-esc="section.required_missing"/> обов'язкових
+                </span>
+                <span class="o_ua_setup_section_arrow" t-esc="this.isOpen(section) ? '−' : '+'"/>
+              </div>
+
+              <div t-if="this.isOpen(section)" class="o_ua_setup_questions">
+                <div t-foreach="this.questions(section)" t-as="question" t-key="question.id"
+                     t-attf-class="o_ua_setup_question o_ua_state_#{question.state}">
+                  <div class="o_ua_setup_question_head">
+                    <span class="o_ua_setup_question_name">
+                      <t t-if="question.required"><span class="o_ua_setup_req" title="обов'язкове для старту">!</span></t>
+                      <t t-esc="question.name"/>
+                    </span>
+                    <span class="o_ua_setup_badge" t-esc="this.stateLabel(question.state)"/>
+                  </div>
+                  <div t-if="question.hint" class="o_ua_setup_hint" t-esc="question.hint"/>
+
+                  <div t-if="question.options.length" class="o_ua_setup_options">
+                    <span t-foreach="question.options" t-as="option" t-key="option"
+                          t-attf-class="o_ua_setup_option #{this.chosen(question, option) ? 'active' : ''}"
+                          t-on-click="() => this.pick(question, option)" t-esc="option"/>
+                  </div>
+
+                  <input class="o_ua_setup_input" type="text" t-att-value="question.value"
+                         t-att-placeholder="question.options.length ? 'або впишіть свій варіант' : 'відповідь'"
+                         t-on-change="(ev) => this.onText(question, ev)"/>
+                  <div t-if="question.source" class="o_ua_setup_source">джерело: <t t-esc="question.source"/></div>
+                </div>
+              </div>
+            </div>
+          </t>
+        </div>
+      </t>
+    </div>
+  </t>
+</templates>

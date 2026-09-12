@@ -1,7 +1,7 @@
 {
     "name": "Україна: п'ять розділів меню",
     "summary": "Верхнє меню під роботу бухгалтера: Зарплата, Працівники, Банк, Історія, Налаштування",
-    "version": "19.0.1.0.1",
+    "version": "19.0.1.0.2",
     "category": "Human Resources/Payroll",
     "author": "Bot&Partners",
     "license": "LGPL-3",

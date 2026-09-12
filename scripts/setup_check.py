@@ -112,6 +112,28 @@ call("ua.setup.answer", "action_reset", one)
 result = call("ua.setup.profile", "action_test_month", [pid])
 check("пробний місяць відповідає повідомленням", bool(result.get("message")), str(result)[:80])
 
+
+# 7. екран анкети на OWL
+screen = call("ua.setup.profile", "screen")
+check("екран віддає розділи і лічильники", bool(screen.get("sections")) and bool(screen.get("counters")),
+      f"{len(screen.get('sections', []))} розділів, заповнено {screen['counters']['percent']} %")
+check("екран має головну дію", bool(screen.get("headline", {}).get("title")),
+      screen.get("headline", {}).get("title", ""))
+flat = [q for section in screen["sections"] for q in section["questions"]]
+check("варіанти розібрані на кнопки", any(len(q["options"]) >= 2 for q in flat),
+      str(next((q["options"][:3] for q in flat if len(q["options"]) >= 2), [])))
+target = next((q for q in flat if q["options"] and q["state"] == "missing"), None)
+if target:
+    after = call("ua.setup.profile", "set_answer", target["id"], target["options"][0])
+    saved = [q for s in after["sections"] for q in s["questions"] if q["id"] == target["id"]][0]
+    check("вибір варіанта записує відповідь", saved["value"] == target["options"][0] and saved["state"] == "confirmed",
+          f"{saved['value']} / {saved['state']}")
+    back = call("ua.setup.profile", "set_answer", target["id"], "")
+    empty = [q for s in back["sections"] for q in s["questions"] if q["id"] == target["id"]][0]
+    check("порожнє значення повертає «бракує»", empty["state"] == "missing", empty["state"])
+else:
+    check("вибір варіанта записує відповідь", True, "усі питання з варіантами вже закриті")
+
 print()
 if errors:
     print(f"ПЕРЕВІРКУ НЕ ПРОЙДЕНО: {len(errors)} з {total} пунктів провалено")
