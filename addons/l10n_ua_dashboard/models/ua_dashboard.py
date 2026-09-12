@@ -510,8 +510,13 @@ class UaDashboard(models.AbstractModel):
             "company": self._get_company(company, year, month),
             "periods": self._get_periods(company, year, month),
             "payroll_by_department": self._get_payroll_by_department(company, year, month),
-            "payments": self._get_payments(company, year, month),
-            "attention": self._get_attention(company),
+            "turnover": self._get_turnover(company, year, month),
             "documents": self._get_documents(company),
-            "hub": self._get_hub(),
         }
+
+    def _get_turnover(self, company, year, month):
+        """Обороти за період беремо з робочого місця місяця: одне джерело чисел."""
+        if "ua.period.board" not in self.env:
+            return []
+        first, last = self._month_bounds(year, month)
+        return self.env["ua.period.board"]._turnover(company, first, last)

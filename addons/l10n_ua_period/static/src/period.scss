@@ -19,22 +19,31 @@
         h4 { margin: 0; }
     }
 
-    .o_ua_period_months {
-        display: flex;
-        gap: 4px;
-        flex-wrap: wrap;
-    }
-
-    .o_ua_period_month {
-        padding: 3px 8px;
-        border-radius: 4px;
-        cursor: pointer;
-
-        &:hover { background: var(--o-action-hover-bg, rgba(0, 0, 0, 0.04)); }
-        &.active { background: var(--o-brand-primary, #714B67); color: #fff; }
-    }
-
     .o_ua_period_steps { margin-top: 14px; border-top: 1px solid var(--o-gray-200, #dee2e6); }
+
+    .o_ua_dot {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        margin-left: 4px;
+        background: var(--ua-rule-strong, #ced4da);
+    }
+
+    .o_ua_dot_done { background: var(--ua-ok, #2f8f63); }
+    .o_ua_dot_warn { background: var(--ua-warn, #96690a); }
+    .o_ua_dot_todo { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ua-rule-strong, #ced4da); }
+    .o_ua_dot_crit { background: var(--ua-crit, #c04f31); }
+
+    .o_ua_period_more {
+        margin-left: 10px;
+        padding: 0;
+        border: none;
+        background: none;
+        font-size: 12px;
+        color: var(--ua-muted, #6c757d);
+        text-decoration: underline;
+    }
 
     .o_ua_period_step {
         display: grid;
@@ -49,11 +58,10 @@
 
         .o_ua_period_title { font-size: 14px; }
         .o_ua_period_fact { color: var(--o-gray-600, #6c757d); font-variant-numeric: tabular-nums; }
-        .o_ua_period_open { text-align: right; }
+        .o_ua_period_open { text-align: right; color: var(--ua-muted, #6c757d); font-size: 16px; line-height: 1; }
 
         &.o_ua_state_done .o_ua_period_mark { color: var(--o-success, #28a745); }
-        &.o_ua_state_warn { background: rgba(255, 193, 7, 0.10); }
-        &.o_ua_state_warn .o_ua_period_mark { color: var(--o-warning, #b8860b); font-weight: 700; }
+        &.o_ua_state_warn { background: transparent; }
         &.o_ua_state_todo .o_ua_period_mark { color: var(--o-gray-500, #adb5bd); }
     }
 
@@ -73,7 +81,10 @@
         &:hover { background: var(--o-action-hover-bg, rgba(0, 0, 0, 0.04)); }
     }
 
-    .o_ua_period_section { margin-top: 18px; h5 { font-size: 14px; font-weight: 500; } }
+    .o_ua_period_section { margin-top: 20px; }
+
+    // черга уваги: єдине місце з теплим тлом, щоб її було видно з першого погляду
+    .o_ua_period_attention .o_ua_period_step { background: rgba(255, 193, 7, 0.08); }
 
     .o_ua_wide {
         overflow-x: auto;
@@ -87,12 +98,6 @@
         margin-bottom: 0;
         td, th { padding: 3px 6px; }
         td.text-end, th.text-end { font-variant-numeric: tabular-nums; }
-    }
-
-    .o_ua_period_numcell {
-        cursor: pointer;
-
-        &:hover { background: var(--o-action-hover-bg, rgba(0, 0, 0, 0.04)); }
     }
 
     .o_ua_period_blockers {
@@ -121,25 +126,15 @@
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    padding: 14px 16px;
-    margin: 8px 0 16px;
-    border-left: 3px solid var(--o-gray-400, #adb5bd);
-    background: var(--o-gray-100, #f8f9fa);
+    padding: 2px 0 14px 14px;
+    margin: 4px 0 18px;
+    border-left: 2px solid var(--o-gray-400, #adb5bd);
 
     &.o_ua_tone_warn { border-left-color: #96690a; }
     &.o_ua_tone_ok { border-left-color: #2f8f63; }
     .o_ua_period_headline_title { font-size: 15px; font-weight: 600; }
 }
 
-.o_ua_period_numbers {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 32px;
-    margin: 0 0 20px;
-
-    .o_ua_period_num { display: block; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
-    .o_ua_period_lbl { display: block; font-size: 12px; color: var(--o-gray-600, #6c757d); }
-}
 
 .o_ua_period_changes { display: flex; flex-wrap: wrap; gap: 8px; }
 .o_ua_period_chip {

@@ -11,6 +11,23 @@
       <xpath expr="//page[@name='input']" position="attributes"><attribute name="string">Відпрацьовані дні та входи</attribute></xpath>
       <xpath expr="//page[@name='computation']" position="attributes"><attribute name="string">Розрахунок</attribute></xpath>
       <xpath expr="//page[@name='accounting']" position="attributes"><attribute name="string">Бухоблік</attribute></xpath>
+      <!-- одна головна кнопка на екран: наступний крок. «Перерахувати» - звичайна -->
+      <xpath expr="//button[@name='compute_sheet']" position="attributes">
+        <attribute name="class"/>
+      </xpath>
+    </field>
+  </record>
+
+  <!-- Пакет листків: одна головна кнопка і предметна назва замість «Закрити». -->
+  <record id="hr_payslip_run_view_form_ua_ui" model="ir.ui.view">
+    <field name="name">hr.payslip.run.form.ua.ui</field>
+    <field name="model">hr.payslip.run</field>
+    <field name="inherit_id" ref="payroll.hr_payslip_run_view_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//button[@name='close_payslip_run']" position="attributes">
+        <attribute name="string">Закрити пакет</attribute>
+        <attribute name="class"/>
+      </xpath>
     </field>
   </record>
 </odoo>

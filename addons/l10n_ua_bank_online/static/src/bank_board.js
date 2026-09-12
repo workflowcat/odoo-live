@@ -4,6 +4,8 @@ import { Component, onWillStart, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { standardActionServiceProps } from "@web/webclient/actions/action_service";
+import { Dropdown } from "@web/core/dropdown/dropdown";
+import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 
 const MONTHS = ["січень", "лютий", "березень", "квітень", "травень", "червень",
     "липень", "серпень", "вересень", "жовтень", "листопад", "грудень"];
@@ -16,6 +18,7 @@ function money(value) {
 export class UaBankBoard extends Component {
     static template = "l10n_ua_bank_online.BankBoard";
     static props = { ...standardActionServiceProps };
+    static components = { Dropdown, DropdownItem };
 
     setup() {
         this.orm = useService("orm");

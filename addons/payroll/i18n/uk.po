@@ -639,7 +639,7 @@ msgstr "Дочірнє визначення"
 #: model:ir.model.fields.selection,name:payroll.selection__hr_payslip_run__state__close
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_run_view_form
 msgid "Close"
-msgstr "Закрити"
+msgstr "Закрито"
 
 #. module: payroll
 #: model:ir.model.fields,field_description:payroll.field_hr_payslip_input__code
@@ -1060,7 +1060,7 @@ msgstr "Згенерувати"
 #: model:ir.actions.act_window,name:payroll.action_hr_payslip_by_employees
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_run_view_form
 msgid "Generate Payslips"
-msgstr "Згенерувати розрахункові листи"
+msgstr "Створити листки"
 
 #. module: payroll
 #: model:ir.model,name:payroll.model_hr_payslip_employees

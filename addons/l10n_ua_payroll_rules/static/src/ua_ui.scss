@@ -1,0 +1,117 @@
+// Спільні правила для власних екранів (Період, Зведення, Банк, Звітність, Анкета).
+// Один масштаб відступів, один акцент, одні пігулки станів, одні таблиці.
+// Класи починаються з .o_ua_, щоб не чіпати стандартні екрани Odoo.
+:root {
+    --ua-gap: 16px;
+    --ua-rule: var(--o-gray-200, #dee2e6);
+    --ua-rule-strong: var(--o-gray-300, #ced4da);
+    --ua-muted: var(--o-gray-600, #6c757d);
+    --ua-hover: var(--o-action-hover-bg, rgba(0, 0, 0, 0.03));
+    --ua-ok: #2f8f63;
+    --ua-warn: #96690a;
+    --ua-crit: #c04f31;
+}
+
+// Заголовок розділу: один розмір і один відступ на всіх екранах
+.o_ua_period, .o_ua_dashboard, .o_ua_bank, .o_ua_reporting, .o_ua_setup {
+    h5 {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ua-muted);
+        margin: 0 0 8px;
+    }
+
+    // Ряд чисел: числа табличними цифрами, підпис під числом, лінія знизу
+    .o_ua_numbers {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 40px;
+        margin: 0 0 var(--ua-gap);
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--ua-rule);
+
+        > div {
+            cursor: default;
+            padding: 2px 0;
+        }
+    }
+
+    // Число і підпис працюють і поза рядом чисел: у бічній панелі, у картках
+    .o_ua_num {
+        display: block;
+        font-size: 21px;
+        font-weight: 600;
+        line-height: 1.2;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .o_ua_num_sm { font-size: 15px; font-weight: 500; }
+
+    .o_ua_lbl {
+        display: block;
+        font-size: 12px;
+        color: var(--ua-muted);
+    }
+
+    // Пігулка стану: один вигляд на всі екрани
+    .o_ua_pill {
+        display: inline-block;
+        padding: 1px 7px;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+        border: 1px solid currentColor;
+        color: var(--ua-muted);
+    }
+
+    .o_ua_pill_ok { color: var(--ua-ok); }
+    .o_ua_pill_warn { color: var(--ua-warn); }
+    .o_ua_pill_crit { color: var(--ua-crit); }
+
+    // Таблиця: тонкі лінії, щільні рядки, числа праворуч
+    .o_ua_table {
+        width: 100%;
+        margin: 0;
+        font-size: 13px;
+
+        th, td { padding: 5px 10px 5px 0; border-bottom: 1px solid var(--ua-rule); vertical-align: middle; }
+        thead th { font-size: 12px; font-weight: 600; color: var(--ua-muted); }
+        td.text-end, th.text-end { font-variant-numeric: tabular-nums; }
+        tbody tr:last-child td { border-bottom: none; }
+
+        tfoot td, tr.o_ua_total td {
+            border-top: 1px solid var(--ua-rule-strong);
+            border-bottom: none;
+            font-weight: 600;
+        }
+    }
+
+    .o_ua_clickable { cursor: pointer; }
+    .o_ua_clickable:hover { background: var(--ua-hover); }
+
+    // Перелік місяців: вибір періоду, не дія - тому без кнопок
+    .o_ua_months {
+        display: flex;
+        gap: 2px;
+        flex-wrap: wrap;
+    }
+
+    .o_ua_month {
+        padding: 3px 9px;
+        cursor: pointer;
+        font-size: 13px;
+        color: var(--ua-muted);
+        border: 1px solid transparent;
+
+        &:hover { background: var(--ua-hover); }
+
+        &.active {
+            color: var(--o-brand-primary, #714B67);
+            border-color: var(--o-brand-primary, #714B67);
+            font-weight: 600;
+        }
+    }
+
+    // Широкий вміст прокручується у своїй смузі, сторінка не їде вбік
+    .o_ua_wide { overflow-x: auto; }
+}

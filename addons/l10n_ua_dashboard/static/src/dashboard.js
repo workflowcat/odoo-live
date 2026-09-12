@@ -25,6 +25,17 @@ export class UaDashboard extends Component {
         this.fmt = fmt;
         this.stateColor = (cls) => STATE_COLOR[cls] || "";
         this.levelColor = (level) => LEVEL_COLOR[level] || "";
+        // стан документа словом, колір - лише контуром пігулки
+        this.docPill = (state) => {
+            const s = (state || "").toLowerCase();
+            if (s.includes("затверд") || s.includes("подано") || s.includes("оплач")) {
+                return "o_ua_pill_ok";
+            }
+            if (s.includes("чернетк")) {
+                return "";
+            }
+            return "o_ua_pill_warn";
+        };
         onWillStart(() => this.load());
     }
 

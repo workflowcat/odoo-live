@@ -274,13 +274,12 @@ class UaPeriodBoard(models.AbstractModel):
         return rows
 
     def _exceptions(self, company, steps, year, month):
-        """Черга винятків: тільки те, що потребує рішення. Причина і дія в одному рядку."""
+        """Черга уваги: тільки те, чого немає в кроках місяця.
+
+        Кроки вже показують свій стан у своєму переліку, тому дублювати їх тут
+        не треба: раніше чотири рядки з дев'яти повторювалися.
+        """
         out = []
-        for step in steps:
-            if step["state"] != "warn":
-                continue
-            out.append({"title": step["title"], "detail": step["fact"], "level": "warning",
-                        "action": step["action"], "key": step["key"]})
         claim = self.env["ua.pfu.claim"].search([
             ("company_id", "=", company.id),
             ("payslip_run_id.date_start", ">=", self._bounds(year, month)[0]),

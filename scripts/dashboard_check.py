@@ -59,7 +59,7 @@ def call(model, method, *a, **kw):
 
 # 1. get_data() повертає всі ключі
 data = call("ua.dashboard", "get_data", [])
-expected_keys = {"company", "periods", "payroll_by_department", "payments", "attention", "documents", "hub"}
+expected_keys = {"company", "periods", "payroll_by_department", "turnover", "documents"}
 check("get_data() повертає всі очікувані ключі", expected_keys.issubset(data.keys()),
       f"відсутні: {expected_keys - set(data.keys())}" if not expected_keys.issubset(data.keys()) else
       f"компанія: {data['company']['name']}, {data['company']['month_label']} {data['company']['year']}")
@@ -86,21 +86,24 @@ if rows:
     check("gross >= net у підсумку (адекватність сум)", total_row.get("gross", 0) >= total_row.get("net", 0),
           f"gross={total_row.get('gross')}, net={total_row.get('net')}")
 
-# payments/attention/documents/hub - базова форма
-payments = data.get("payments", [])
-check("payments має щонайменше 7 рядків", len(payments) >= 7, f"{len(payments)} рядків")
-check("усі payments мають state_class з {ok,warn,todo,plan}",
-      all(p.get("state_class") in ("ok", "warn", "todo", "plan") for p in payments),
-      str([p.get("state_class") for p in payments]))
+# «Зведення» - аналітика періоду: платежі і попередження живуть на «Періоді» і «Банку»
+check("панель не повертає платежів і попереджень", "payments" not in data and "attention" not in data,
+      str(sorted(set(data.keys()) & {"payments", "attention", "hub"})))
 
-attention = data.get("attention", [])
-check("усі attention мають level з {danger,warning,info}",
-      all(a.get("level") in ("danger", "warning", "info") for a in attention),
+turnover = data.get("turnover", [])
+check("обороти за період повертаються", isinstance(turnover, list), f"{len(turnover)} рядків")
+if turnover:
+    row = turnover[0]
+    check("рядок оборотів веде у проводки", row.get("model") == "account.move.line" and bool(row.get("domain")),
+          str(row.get("model")))
+    found = call("account.move.line", "search_count", row["domain"])
+    check("домен рядка оборотів знаходить проводки", found > 0, f"знайдено {found}")
+
+# платежі і попередження лишаються в моделі: їх читає «Період»
+attention = call("ua.period.board", "get_screen_data")["exceptions"]
+check("черга уваги «Періоду» не дублює кроків місяця",
+      all("Розрахунок листків" != a.get("title") for a in attention),
       f"{len(attention)} рядків: {[a.get('title') for a in attention]}")
-
-hub = data.get("hub", [])
-check("hub містить розділи з доступними командами", len(hub) > 0 and all(s.get("items") for s in hub),
-      f"{len(hub)} розділів, {sum(len(s['items']) for s in hub)} команд")
 
 # 3. клієнтська дія існує (тег ua_dashboard)
 action = call("ir.actions.client", "search_read", [["tag", "=", "ua_dashboard"]], fields=["id", "name"])
@@ -127,9 +130,7 @@ else:
         hub_menu = next((m for m in menus.values() if isinstance(m, dict) and m.get("xmlid") == "l10n_ua_hub.menu_ua_hub_root"), None)
         check(f"{LANA_LOGIN} не бачить окремого меню хабу", hub_menu is None,
               "сховано" if hub_menu is None else "меню видно, хоча має бути лише в адміністратора")
-        hub_rows = data.get("hub", [])
-        check("пульт команд є всередині «Зведення»", len(hub_rows) >= 5,
-              f"{len(hub_rows)} розділів")
+        check("пульту команд більше немає ні в меню, ні на панелі", "hub" not in data, str("hub" in data))
 
         # lana може викликати get_data (перевірка прав ir.model.access)
         try:
@@ -159,10 +160,13 @@ else:
     print("[--] рядків підрозділів немає: перевірку цілі пропущено")
 check("підсумок веде в листки місяця", dep["total"].get("res_model") == "hr.payslip" and bool(dep["total"].get("domain")),
       f"total.res_model={dep['total'].get('res_model')}")
-targeted = [p for p in data["payments"] if p.get("res_model") or p.get("action")]
-check("кожен рядок платежів веде у свій запис", len(targeted) == len(data["payments"]),
-      f"з цілями {len(targeted)} з {len(data['payments'])}")
-for pay in data["payments"]:
+# платежі показує «Банк»: там і перевіряємо цілі
+bank = call("ua.bank.board", "get_screen_data")
+bank_payments = bank.get("payments", [])
+targeted = [p for p in bank_payments if p.get("res_model") or p.get("action")]
+check("кожен рядок платежів веде у свій запис", len(targeted) == len(bank_payments),
+      f"з цілями {len(targeted)} з {len(bank_payments)}")
+for pay in bank_payments:
     if pay.get("domain") and pay.get("res_model"):
         found = call(pay["res_model"], "search_count", pay["domain"])
         check(f"домен платежу «{pay['label'][:32]}» дійсний", isinstance(found, int), f"знайдено {found}")

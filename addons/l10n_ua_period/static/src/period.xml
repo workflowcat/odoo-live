@@ -13,9 +13,9 @@
             <h4 t-esc="data.period.label"/>
             <div class="text-muted small"><t t-esc="data.company"/></div>
           </div>
-          <div class="o_ua_period_months">
+          <div class="o_ua_months">
             <span t-foreach="data.periods" t-as="p" t-key="p.label"
-                  t-attf-class="o_ua_period_month #{p.year === data.period.year and p.month === data.period.month ? 'active' : ''}"
+                  t-attf-class="o_ua_month #{p.year === data.period.year and p.month === data.period.month ? 'active' : ''}"
                   t-on-click="() => this.selectPeriod(p)" t-esc="p.label"/>
           </div>
         </div>
@@ -29,29 +29,53 @@
                   t-on-click="() => this.runHeadline()" t-esc="data.headline.label"/>
         </div>
 
-        <div class="o_ua_period_numbers">
-          <div class="o_ua_period_numcell" t-on-click="() => this.openEstimate('gross')">
-            <span class="o_ua_period_num" t-esc="data.estimate.gross"/><span class="o_ua_period_lbl">нараховано</span></div>
-          <div class="o_ua_period_numcell" t-on-click="() => this.openEstimate('net')">
-            <span class="o_ua_period_num" t-esc="data.estimate.net"/><span class="o_ua_period_lbl">до виплати</span></div>
-          <div class="o_ua_period_numcell" t-on-click="() => this.openEstimate('esv')">
-            <span class="o_ua_period_num" t-esc="data.estimate.employer"/><span class="o_ua_period_lbl">ЄСВ підприємства</span></div>
-          <div class="o_ua_period_numcell" t-on-click="() => this.openEstimate('people')">
-            <span class="o_ua_period_num" t-esc="data.estimate.people"/><span class="o_ua_period_lbl">працівників у розрахунку</span></div>
-          <div t-if="data.estimate.draft" class="o_ua_period_numcell" t-on-click="() => this.openEstimate('draft')">
-            <span class="o_ua_period_num" t-esc="data.estimate.draft"/><span class="o_ua_period_lbl">листків у чернетці</span></div>
+        <div class="o_ua_numbers">
+          <div class="o_ua_clickable" t-on-click="() => this.openEstimate('gross')">
+            <span class="o_ua_num" t-esc="data.estimate.gross"/><span class="o_ua_lbl">нараховано</span></div>
+          <div class="o_ua_clickable" t-on-click="() => this.openEstimate('net')">
+            <span class="o_ua_num" t-esc="data.estimate.net"/><span class="o_ua_lbl">до виплати</span></div>
+          <div class="o_ua_clickable" t-on-click="() => this.openEstimate('esv')">
+            <span class="o_ua_num" t-esc="data.estimate.employer"/><span class="o_ua_lbl">ЄСВ підприємства</span></div>
+          <div class="o_ua_clickable" t-on-click="() => this.openEstimate('people')">
+            <span class="o_ua_num" t-esc="data.estimate.people"/><span class="o_ua_lbl">працівників у розрахунку</span></div>
+          <div t-if="data.estimate.draft" class="o_ua_clickable" t-on-click="() => this.openEstimate('draft')">
+            <span class="o_ua_num" t-esc="data.estimate.draft"/><span class="o_ua_lbl">листків у чернетці</span></div>
         </div>
 
-        <div class="o_ua_period_section" t-if="data.exceptions.length">
-          <h5>Потребує рішення</h5>
+        <h5 class="o_ua_period_progress_title">Хід роботи · <t t-esc="data.done"/> з <t t-esc="data.total"/></h5>
+        <div class="o_ua_period_steps">
+          <t t-foreach="data.steps" t-as="step" t-key="step.key">
+            <div t-attf-class="o_ua_period_step o_ua_state_#{step.state}" t-on-click="() => this.open(step)">
+              <span t-attf-class="o_ua_dot o_ua_dot_#{step.state}"/>
+              <span class="o_ua_period_title">
+                <t t-esc="step.title"/>
+                <button t-if="step.details.length" class="o_ua_period_more" t-on-click.stop="() => this.toggle(step)"
+                        t-att-aria-expanded="this.isOpen(step) ? 'true' : 'false'"
+                        t-esc="this.isOpen(step) ? 'згорнути' : 'докладно'"/>
+              </span>
+              <span class="o_ua_period_fact" t-esc="step.fact"/>
+              <span class="o_ua_period_open">›</span>
+            </div>
+            <div t-if="this.isOpen(step) and step.details.length" class="o_ua_period_details">
+              <div t-foreach="step.details" t-as="row" t-key="row.model + '-' + row.id"
+                   class="o_ua_period_detail" t-on-click="() => this.openRecord(row)">
+                <span t-esc="row.title"/>
+                <span class="text-muted" t-esc="row.note"/>
+              </div>
+            </div>
+          </t>
+        </div>
+
+        <div class="o_ua_period_section o_ua_period_attention" t-if="data.exceptions.length">
+          <h5>Потребує уваги</h5>
           <div class="o_ua_period_steps">
             <div t-foreach="data.exceptions" t-as="row" t-key="row.key + '-' + row.title"
-                 t-attf-class="o_ua_period_step o_ua_state_#{row.level === 'danger' ? 'warn' : 'warn'}"
+                 class="o_ua_period_step o_ua_state_warn"
                  t-on-click="() => this.openException(row)">
-              <span class="o_ua_period_mark">!</span>
+              <span t-attf-class="o_ua_dot o_ua_dot_#{row.level === 'danger' ? 'crit' : 'warn'}"/>
               <span class="o_ua_period_title" t-esc="row.title"/>
               <span class="o_ua_period_fact" t-esc="row.detail"/>
-              <span class="o_ua_period_open"><button class="btn btn-sm btn-link p-0">Відкрити</button></span>
+              <span class="o_ua_period_open">›</span>
             </div>
           </div>
         </div>
@@ -69,7 +93,7 @@
         <div class="o_ua_period_section">
           <h5>Люди і суми</h5>
           <div class="o_ua_period_people o_ua_wide">
-            <table class="table table-sm o_ua_period_table">
+            <table class="o_ua_table">
               <thead>
                 <tr>
                   <th>Працівник</th><th>Підрозділ</th><th class="text-end">Дні</th>
@@ -90,56 +114,12 @@
                   <td class="text-end" t-esc="row.gross"/>
                   <td class="text-end" t-esc="row.net"/>
                   <td class="text-end" t-esc="row.esv"/>
-                  <td><span t-attf-class="o_ua_person_state #{row.done ? 'done' : 'draft'}" t-esc="row.state"/></td>
-                  <td><span t-if="row.payment" t-attf-class="o_ua_person_state #{row.paid ? 'done' : 'draft'}"
+                  <td><span t-attf-class="o_ua_pill #{row.done ? 'o_ua_pill_ok' : 'o_ua_pill_warn'}" t-esc="row.state"/></td>
+                  <td><span t-if="row.payment" t-attf-class="o_ua_pill #{row.paid ? 'o_ua_pill_ok' : 'o_ua_pill_warn'}"
                             t-esc="row.paid ? 'оплачено' : 'у відомості'"/></td>
                 </tr>
               </tbody>
             </table>
-          </div>
-        </div>
-
-        <h5 class="o_ua_period_progress_title">Хід роботи · <t t-esc="data.done"/> з <t t-esc="data.total"/></h5>
-        <div class="o_ua_period_steps">
-          <t t-foreach="data.steps" t-as="step" t-key="step.key">
-            <div t-attf-class="o_ua_period_step o_ua_state_#{step.state}" t-on-click="() => this.toggle(step)">
-              <span class="o_ua_period_mark" t-esc="step.state === 'done' ? '✓' : (step.state === 'warn' ? '!' : '·')"/>
-              <span class="o_ua_period_title" t-esc="step.title"/>
-              <span class="o_ua_period_fact" t-esc="step.fact"/>
-              <span class="o_ua_period_open">
-                <button class="btn btn-sm btn-link p-0" t-att-disabled="state.busy"
-                        t-on-click.stop="() => this.open(step)">
-                  <t t-esc="step.button or 'Відкрити'"/>
-                </button>
-              </span>
-            </div>
-            <div t-if="this.isOpen(step) and step.details.length" class="o_ua_period_details">
-              <div t-foreach="step.details" t-as="row" t-key="row.model + '-' + row.id"
-                   class="o_ua_period_detail" t-on-click="() => this.openRecord(row)">
-                <span t-esc="row.title"/>
-                <span class="text-muted" t-esc="row.note"/>
-              </div>
-            </div>
-          </t>
-        </div>
-
-        <div class="o_ua_period_section" t-if="data.turnover.length">
-          <h5>Обороти за період</h5>
-          <div class="o_ua_wide">
-          <table class="table table-sm o_ua_period_table">
-            <thead><tr><th>Рахунок</th><th></th><th class="text-end">Дебет</th><th class="text-end">Кредит</th><th class="text-end">Сальдо Дт</th><th class="text-end">Сальдо Кт</th></tr></thead>
-            <tbody>
-              <tr t-foreach="data.turnover" t-as="row" t-key="row.code"
-                  class="o_ua_period_numcell" t-on-click="() => this.openTurnover(row)">
-                <td t-esc="row.code"/>
-                <td t-esc="row.name"/>
-                <td class="text-end" t-esc="row.debit"/>
-                <td class="text-end" t-esc="row.credit"/>
-                <td class="text-end" t-esc="row.saldo_debit"/>
-                <td class="text-end" t-esc="row.saldo_credit"/>
-              </tr>
-            </tbody>
-          </table>
           </div>
         </div>
 
@@ -158,7 +138,7 @@
                     t-att-disabled="state.busy" t-on-click="() => this.acceptAll()">
               Прийняти всі зміни (<t t-esc="data.new_changes"/>)
             </button>
-            <button class="btn btn-sm btn-primary" t-att-disabled="state.busy or data.blockers.length"
+            <button class="btn btn-sm btn-secondary" t-att-disabled="state.busy or data.blockers.length"
                     t-on-click="() => this.closeMonth()">Закрити місяць</button>
           </t>
         </div>
@@ -197,7 +177,7 @@
 
           <div class="o_ua_person_panel_body">
             <div class="o_ua_person_panel_state">Листок: <t t-esc="state.person.state"/></div>
-            <table class="table table-sm o_ua_period_table">
+            <table class="o_ua_table">
               <tbody>
                 <tr t-foreach="state.person.lines" t-as="line" t-key="line.code">
                   <td t-esc="line.name"/>

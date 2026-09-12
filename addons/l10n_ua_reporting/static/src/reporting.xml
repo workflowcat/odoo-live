@@ -21,7 +21,7 @@
                  t-attf-class="o_ua_reporting_period_item #{p.run_id === data.run.id ? 'active' : ''}"
                  t-on-click="() => this.selectPeriod(p)">
               <span t-esc="p.label"/>
-              <span t-if="p.state" t-attf-class="badge o_ua_state_#{p.state}" t-esc="this.stateLabel(p.state)"/>
+              <span t-if="p.state" t-attf-class="o_ua_pill o_ua_state_#{p.state}" t-esc="this.stateLabel(p.state)"/>
             </div>
           </div>
           <div class="o_ua_reporting_history" t-if="data.history.length">
@@ -52,7 +52,7 @@
             <div class="o_ua_reporting_actions">
               <button class="btn btn-sm btn-outline-secondary" t-on-click="refresh" t-att-disabled="state.busy">Перерахувати</button>
               <button class="btn btn-sm btn-primary" t-on-click="generate" t-att-disabled="state.busy || this.hasErrors">Сформувати</button>
-              <button class="btn btn-sm btn-success" t-on-click="markSubmitted" t-att-disabled="state.busy || data.run.state !== 'generated'">Позначити поданим</button>
+              <button class="btn btn-sm btn-secondary" t-on-click="markSubmitted" t-att-disabled="state.busy || data.run.state !== 'generated'">Позначити поданим</button>
               <button class="btn btn-sm btn-outline-secondary" t-on-click="downloadAll" t-att-disabled="!data.run.files.length">Завантажити всі файли</button>
               <button t-if="data.run.can_correct" class="btn btn-sm btn-outline-danger" t-att-disabled="state.busy"
                       t-on-click="() => this.createCorrection('HZN')">Звітний новий</button>
@@ -63,13 +63,13 @@
 
           <div class="o_ua_reporting_section">
             <h5>Перевірки</h5>
-            <table class="table table-sm o_ua_reporting_table">
+            <table class="o_ua_table">
               <thead><tr><th>Рівень</th><th>Перевірка</th><th class="text-end">Значення</th></tr></thead>
               <tbody>
                 <tr t-foreach="data.checks" t-as="c" t-key="c.id"
-                    t-attf-class="#{c.action_model ? 'o_ua_reporting_clickable' : ''}"
+                    t-attf-class="#{c.action_model ? 'o_ua_clickable' : ''}"
                     t-on-click="() => this.openCheck(c)">
-                  <td t-attf-class="o_ua_level #{this.levelColor(c.level)}" t-esc="c.level"/>
+                  <td><span t-attf-class="o_ua_pill #{this.levelPill(c.level)}" t-esc="this.levelLabel(c.level)"/></td>
                   <td><div t-esc="c.title"/><div class="text-muted small" t-esc="c.detail"/></td>
                   <td class="text-end" t-esc="c.value"/>
                 </tr>
@@ -80,13 +80,13 @@
 
           <div class="o_ua_reporting_section" t-if="data.summary.rows and data.summary.rows.length">
             <h5>Дані</h5>
-            <table class="table table-sm o_ua_reporting_table">
+            <table class="o_ua_table">
               <thead>
                 <tr><t t-foreach="data.summary.columns" t-as="col" t-key="col"><th t-esc="col"/></t></tr>
               </thead>
               <tbody>
                 <tr t-foreach="data.summary.rows" t-as="row" t-key="row_index"
-                    t-attf-class="#{this.rowTarget(row_index) ? 'o_ua_reporting_clickable' : ''}"
+                    t-attf-class="#{this.rowTarget(row_index) ? 'o_ua_clickable' : ''}"
                     t-on-click="() => this.openSummaryRow(row_index)">
                   <t t-foreach="row" t-as="cell" t-key="cell_index"><td t-att-class="cell_index ? 'text-end tabular-nums' : ''" t-esc="this.fmt(cell, this.isMoney(cell_index))"/></t>
                 </tr>
@@ -101,7 +101,7 @@
 
           <div class="o_ua_reporting_section" t-if="data.appendices.length">
             <h5>Додатки</h5>
-            <table class="table table-sm o_ua_reporting_table">
+            <table class="o_ua_table">
               <thead><tr><th>Додаток</th><th>Файл</th><th class="text-end">Рядків</th><th>Стан</th></tr></thead>
               <tbody>
                 <tr t-foreach="data.appendices" t-as="a" t-key="a.attachment_id">

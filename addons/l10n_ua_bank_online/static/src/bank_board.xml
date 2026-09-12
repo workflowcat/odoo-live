@@ -18,8 +18,8 @@
                   t-att-disabled="state.busy" t-on-click="pullAll">Завантажити всі рахунки</button>
           <div t-if="data.accounts.length > 1" class="o_ua_bank_total">
             <span t-esc="this.money(data.totals.balance)"/>
-            <span class="o_ua_bank_lbl">разом на рахунках</span>
-            <span t-if="data.totals.unreconciled" class="o_ua_bank_lbl">
+            <span class="o_ua_lbl">разом на рахунках</span>
+            <span t-if="data.totals.unreconciled" class="o_ua_lbl">
               незвірених за місяць: <t t-esc="data.totals.unreconciled"/>
             </span>
           </div>
@@ -33,10 +33,10 @@
               <span class="text-muted ms-1" t-esc="a.currency"/>
             </div>
             <div class="o_ua_bank_account_state">
-              <span t-if="a.demo" class="badge text-bg-warning">демо</span>
-              <span t-elif="a.provider_id" class="badge text-bg-success" t-esc="a.service_label"/>
-              <span t-else="" class="badge text-bg-secondary" t-esc="a.connect.label"/>
-              <span t-if="a.unreconciled" class="badge text-bg-danger">
+              <span t-if="a.demo" class="o_ua_pill o_ua_pill_warn">демо</span>
+              <span t-elif="a.provider_id" class="o_ua_pill o_ua_pill_ok" t-esc="a.service_label"/>
+              <span t-else="" class="o_ua_pill" t-esc="a.connect.label"/>
+              <span t-if="a.unreconciled" class="o_ua_pill o_ua_pill_crit">
                 незвірених <t t-esc="a.unreconciled"/>
               </span>
             </div>
@@ -49,48 +49,57 @@
               <h4 t-esc="this.account.name"/>
               <div class="text-muted small">
                 <span t-esc="this.account.iban || 'рахунок у з\'єднанні не вказано'"/>
-                <span t-if="this.account.last_run"> · останнє завантаження <t t-esc="this.account.last_run"/></span>
-                <span t-if="this.account.schedule"> · за розкладом <t t-esc="this.account.schedule"/></span>
                 <span t-if="!this.account.provider_id"> · підключення: <t t-esc="this.account.connect.label"/></span>
               </div>
             </div>
+            <!-- одна головна кнопка: наступний крок. Решта - у «Ще». -->
             <div class="o_ua_bank_actions">
               <t t-if="this.account.provider_id">
                 <button class="btn btn-sm btn-primary" t-att-disabled="state.busy" t-on-click="pullMonth">Завантажити за місяць</button>
-                <button class="btn btn-sm btn-outline-secondary" t-att-disabled="state.busy" t-on-click="pullToday">З початку місяця по сьогодні</button>
-                <button class="btn btn-sm btn-outline-secondary" t-att-disabled="state.busy" t-on-click="test">Перевірити зв'язок</button>
-                <button class="btn btn-sm btn-outline-secondary" t-on-click="openProvider">З'єднання</button>
               </t>
               <t t-else="">
                 <button class="btn btn-sm btn-primary" t-on-click="openConnect">Підготовка до підключення</button>
-                <button class="btn btn-sm btn-outline-secondary" t-on-click="() => this.createProvider('ua_privat')">З'єднання ПриватБанк</button>
-                <button class="btn btn-sm btn-outline-secondary" t-on-click="() => this.createProvider('ua_mono')">З'єднання Monobank</button>
               </t>
-              <button class="btn btn-sm btn-outline-secondary" t-on-click="importFile">Виписка файлом</button>
-              <button class="btn btn-sm btn-success" t-att-disabled="state.busy" t-on-click="applyRules">Застосувати правила</button>
-              <button class="btn btn-sm btn-success" t-on-click="reconcile">Звірити</button>
-              <button class="btn btn-sm btn-outline-secondary" t-on-click="openStatements">Виписки</button>
+              <button class="btn btn-sm btn-secondary" t-on-click="reconcile">Звірити</button>
+              <Dropdown>
+                <button class="btn btn-sm btn-outline-secondary">Ще</button>
+                <t t-set-slot="content">
+                  <t t-if="this.account.provider_id">
+                    <DropdownItem onSelected="() => this.pullToday()">З початку місяця по сьогодні</DropdownItem>
+                    <DropdownItem onSelected="() => this.test()">Перевірити зв'язок</DropdownItem>
+                    <DropdownItem onSelected="() => this.openProvider()">З'єднання</DropdownItem>
+                  </t>
+                  <t t-else="">
+                    <DropdownItem onSelected="() => this.createProvider('ua_privat')">Створити з'єднання ПриватБанк</DropdownItem>
+                    <DropdownItem onSelected="() => this.createProvider('ua_mono')">Створити з'єднання Monobank</DropdownItem>
+                  </t>
+                  <DropdownItem onSelected="() => this.importFile()">Виписка файлом</DropdownItem>
+                  <DropdownItem onSelected="() => this.applyRules()">Застосувати правила</DropdownItem>
+                  <DropdownItem onSelected="() => this.openStatements()">Виписки</DropdownItem>
+                </t>
+              </Dropdown>
             </div>
           </div>
 
-          <div class="o_ua_bank_numbers">
-            <div><span class="o_ua_bank_num" t-esc="this.money(this.account.balance)"/><span class="o_ua_bank_lbl">залишок за рахунком</span></div>
-            <div><span class="o_ua_bank_num" t-esc="this.money(this.account.amount_in)"/><span class="o_ua_bank_lbl">надходження за місяць</span></div>
-            <div><span class="o_ua_bank_num" t-esc="this.money(this.account.amount_out)"/><span class="o_ua_bank_lbl">списання за місяць</span></div>
-            <div><span class="o_ua_bank_num" t-esc="this.account.lines_month"/><span class="o_ua_bank_lbl">рядків виписки</span></div>
-            <div><span t-attf-class="o_ua_bank_num #{this.account.unreconciled ? 'text-danger' : ''}" t-esc="this.account.unreconciled"/><span class="o_ua_bank_lbl">не звірено за місяць</span></div>
+          <div class="o_ua_numbers">
+            <div><span class="o_ua_num" t-esc="this.money(this.account.balance)"/><span class="o_ua_lbl">залишок за рахунком</span></div>
+            <div><span class="o_ua_num" t-esc="this.money(this.account.amount_in)"/><span class="o_ua_lbl">надходження за місяць</span></div>
+            <div><span class="o_ua_num" t-esc="this.money(this.account.amount_out)"/><span class="o_ua_lbl">списання за місяць</span></div>
+            <div><span class="o_ua_num" t-esc="this.account.lines_month"/><span class="o_ua_lbl">рядків виписки</span></div>
+            <div t-if="this.account.last_run"><span class="o_ua_num o_ua_num_sm" t-esc="this.account.last_run"/><span class="o_ua_lbl">останнє завантаження<t t-if="this.account.schedule"> · розклад <t t-esc="this.account.schedule"/></t></span></div>
+            <div><span t-attf-class="o_ua_num #{this.account.unreconciled ? 'text-danger' : ''}" t-esc="this.account.unreconciled"/><span class="o_ua_lbl">не звірено за місяць</span></div>
           </div>
 
           <div class="o_ua_bank_section">
             <h5>Зарплатні платежі періоду</h5>
-            <table class="table table-sm o_ua_bank_table">
+            <table class="o_ua_table">
               <thead><tr><th>Дата</th><th>Платіж</th><th class="text-end">Сума</th><th>Стан</th></tr></thead>
               <tbody>
                 <tr t-foreach="data.payments" t-as="p" t-key="p_index">
                   <td t-esc="p.date || '—'"/>
                   <td><div t-esc="p.label"/><div t-if="p.detail" class="text-muted small" t-esc="p.detail"/></td>
                   <td class="text-end" t-esc="this.money(p.amount)"/>
-                  <td><span t-attf-class="badge o_ua_bank_state_#{p.state_class}" t-esc="p.state"/></td>
+                  <td><span t-attf-class="o_ua_pill o_ua_bank_state_#{p.state_class}" t-esc="p.state"/></td>
                 </tr>
                 <tr t-if="!data.payments.length"><td colspan="4" class="text-muted">За цей місяць платежів немає.</td></tr>
               </tbody>
@@ -99,7 +108,7 @@
 
           <div class="o_ua_bank_section">
             <h5>Незвірені рядки, усі періоди</h5>
-            <table class="table table-sm o_ua_bank_table">
+            <table class="o_ua_table">
               <thead><tr><th>Дата</th><th>Призначення</th><th>Контрагент</th><th class="text-end">Сума</th></tr></thead>
               <tbody>
                 <tr t-foreach="this.unreconciled" t-as="l" t-key="l.id" class="o_ua_bank_clickable"
@@ -116,7 +125,7 @@
 
           <div class="o_ua_bank_section" t-if="this.statements.length">
             <h5>Виписки періоду</h5>
-            <table class="table table-sm o_ua_bank_table">
+            <table class="o_ua_table">
               <thead><tr><th>Дата</th><th>Виписка</th><th class="text-end">Рядків</th><th class="text-end">Сума рядків</th></tr></thead>
               <tbody>
                 <tr t-foreach="this.statements" t-as="s" t-key="s.id">

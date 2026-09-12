@@ -33,7 +33,7 @@
         font-size: 18px;
         font-variant-numeric: tabular-nums;
 
-        .o_ua_bank_lbl { color: var(--o-gray-600, #6c757d); font-size: 12px; }
+        .o_ua_lbl { color: var(--ua-muted, #6c757d); font-size: 12px; }
     }
 
     .o_ua_bank_account {
@@ -66,17 +66,6 @@
 
     .o_ua_bank_actions { display: flex; gap: 6px; flex-wrap: wrap; }
 
-    .o_ua_bank_numbers {
-        display: flex;
-        gap: 24px;
-        flex-wrap: wrap;
-        margin: 12px 0 4px;
-
-        > div { display: flex; flex-direction: column; }
-
-        .o_ua_bank_num { font-size: 20px; font-variant-numeric: tabular-nums; }
-        .o_ua_bank_lbl { color: var(--o-gray-600, #6c757d); font-size: 12px; }
-    }
 
     .o_ua_bank_section {
         margin-top: 16px;
@@ -93,8 +82,9 @@
     .o_ua_bank_clickable { cursor: pointer; }
     .o_ua_bank_clickable:hover { background: var(--o-action-hover-bg, rgba(0, 0, 0, 0.04)); }
 
-    .o_ua_bank_state_ok { background: var(--o-success, #28a745); color: #fff; }
-    .o_ua_bank_state_warn { background: var(--o-warning, #ffc107); color: #000; }
-    .o_ua_bank_state_todo { background: var(--o-gray-300, #dee2e6); color: #000; }
-    .o_ua_bank_state_plan { background: var(--o-gray-200, #e9ecef); color: #000; }
+    // стани платежів: той самий контур, що в решті екранів
+    .o_ua_bank_state_ok { color: var(--ua-ok, #2f8f63); }
+    .o_ua_bank_state_warn { color: var(--ua-warn, #96690a); }
+    .o_ua_bank_state_todo { color: var(--ua-crit, #c04f31); }
+    .o_ua_bank_state_plan { color: var(--ua-muted, #6c757d); }
 }

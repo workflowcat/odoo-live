@@ -15,14 +15,10 @@
             <span class="text-muted" t-if="data.company.edrpou">ЄДРПОУ <t t-esc="data.company.edrpou"/></span>
             <span class="text-muted"><t t-esc="data.company.employee_count"/> активних працівників</span>
           </div>
-          <div class="o_ua_dashboard_periods">
+          <div class="o_ua_months">
             <t t-foreach="data.periods" t-as="period" t-key="period.year + '-' + period.month">
-              <button
-                type="button"
-                t-attf-class="btn btn-sm #{period.month === data.company.month and period.year === data.company.year ? 'btn-primary' : (period.has_run ? 'btn-outline-secondary' : 'btn-outline-secondary text-muted')}"
-                t-on-click="() => this.onSelectPeriod(period)">
-                <t t-esc="period.label"/>
-              </button>
+              <span t-attf-class="o_ua_month #{period.month === data.company.month and period.year === data.company.year ? 'active' : ''}"
+                    t-on-click="() => this.onSelectPeriod(period)" t-esc="period.label"/>
             </t>
           </div>
         </div>
@@ -41,7 +37,7 @@
             </div>
           </t>
           <div t-else="" class="o_ua_wide">
-          <table class="o_ua_dashboard_table table table-sm">
+          <table class="o_ua_table">
             <thead>
               <tr>
                 <th>Підрозділ</th>
@@ -55,7 +51,7 @@
             </thead>
             <tbody>
               <tr t-foreach="data.payroll_by_department.rows" t-as="row" t-key="row.department"
-                  t-attf-class="#{this.hasTarget(row) ? 'o_ua_dashboard_clickable' : ''}"
+                  t-attf-class="#{this.hasTarget(row) ? 'o_ua_clickable' : ''}"
                   t-on-click="() => this.openRow(row)">
                 <td t-esc="row.department"/>
                 <td class="text-end" t-esc="row.employees"/>
@@ -67,7 +63,7 @@
               </tr>
             </tbody>
             <tfoot>
-              <tr class="o_ua_dashboard_total o_ua_dashboard_clickable"
+              <tr class="o_ua_total o_ua_clickable"
                   t-on-click="() => this.openRow(data.payroll_by_department.total)">
                 <td>Разом</td>
                 <td class="text-end" t-esc="data.payroll_by_department.total.employees"/>
@@ -82,57 +78,34 @@
           </div>
         </div>
 
-        <div class="o_ua_dashboard_row">
-          <!-- Платежі і строки -->
-          <div class="o_ua_dashboard_section o_ua_dashboard_col">
-            <h5>Платежі і строки</h5>
-            <div class="o_ua_wide o_ua_wide_narrow">
-            <table class="o_ua_dashboard_table table table-sm">
+        <!-- Обороти за період: рахунки зарплати, податків і виплат -->
+        <div class="o_ua_dashboard_section" t-if="data.turnover.length">
+          <h5>Обороти за період</h5>
+          <div class="o_ua_wide">
+            <table class="o_ua_table">
               <thead>
-                <tr>
-                  <th>Дата</th>
-                  <th>Платіж</th>
-                  <th class="text-end">Сума</th>
-                  <th>Стан</th>
-                </tr>
+                <tr><th>Рахунок</th><th></th><th class="text-end">Дебет</th><th class="text-end">Кредит</th>
+                    <th class="text-end">Сальдо Дт</th><th class="text-end">Сальдо Кт</th></tr>
               </thead>
               <tbody>
-                <tr t-foreach="data.payments" t-as="p" t-key="p_index"
-                    t-attf-class="#{this.hasTarget(p) ? 'o_ua_dashboard_clickable' : ''}"
-                    t-on-click="() => this.openRow(p)">
-                  <td t-esc="p.date or '-'"/>
-                  <td t-esc="p.label"/>
-                  <td class="text-end tabular-nums" t-esc="this.fmt(p.amount)"/>
-                  <td t-attf-class="o_ua_state #{this.stateColor(p.state_class)}" t-esc="p.state"/>
+                <tr t-foreach="data.turnover" t-as="row" t-key="row.code"
+                    class="o_ua_clickable" t-on-click="() => this.openRow(row)">
+                  <td t-esc="row.code"/>
+                  <td t-esc="row.name"/>
+                  <td class="text-end tabular-nums" t-esc="row.debit"/>
+                  <td class="text-end tabular-nums" t-esc="row.credit"/>
+                  <td class="text-end tabular-nums" t-esc="row.saldo_debit"/>
+                  <td class="text-end tabular-nums" t-esc="row.saldo_credit"/>
                 </tr>
               </tbody>
             </table>
-            </div>
-          </div>
-
-          <!-- Потребує уваги -->
-          <div class="o_ua_dashboard_section o_ua_dashboard_col">
-            <h5>Потребує уваги</h5>
-            <table t-if="data.attention.length" class="o_ua_dashboard_table table table-sm">
-              <tbody>
-                <tr t-foreach="data.attention" t-as="a" t-key="a_index"
-                    class="o_ua_dashboard_clickable" t-on-click="() => this.openRow(a)">
-                  <td t-attf-class="o_ua_level #{this.levelColor(a.level)}" t-esc="a.count"/>
-                  <td>
-                    <div t-esc="a.title"/>
-                    <div class="text-muted small" t-esc="a.detail"/>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <div t-else="" class="o_ua_dashboard_empty text-muted">Немає зауважень.</div>
           </div>
         </div>
 
         <!-- Документи періоду -->
         <div class="o_ua_dashboard_section">
           <h5>Документи</h5>
-          <table t-if="data.documents.length" class="o_ua_dashboard_table table table-sm">
+          <table t-if="data.documents.length" class="o_ua_table">
             <thead>
               <tr>
                 <th>Назва</th>
@@ -142,10 +115,10 @@
             </thead>
             <tbody>
               <tr t-foreach="data.documents" t-as="doc" t-key="doc.res_model + '-' + doc.res_id"
-                  class="o_ua_dashboard_clickable" t-on-click="() => this.openRow(doc)">
+                  class="o_ua_clickable" t-on-click="() => this.openRow(doc)">
                 <td t-esc="doc.name"/>
                 <td t-esc="doc.period"/>
-                <td t-esc="doc.state"/>
+                <td><span t-attf-class="o_ua_pill #{this.docPill(doc.state)}" t-esc="doc.state"/></td>
               </tr>
             </tbody>
           </table>

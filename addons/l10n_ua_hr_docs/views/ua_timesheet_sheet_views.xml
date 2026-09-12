@@ -9,8 +9,10 @@
           <button name="action_refill" type="object" string="Перерахувати" invisible="state != 'draft'"/>
           <button name="action_confirm" type="object" string="Затвердити" invisible="state != 'draft'" class="oe_highlight"/>
           <button name="action_draft" type="object" string="Повернути в чернетку" invisible="state != 'confirmed'"/>
+          <!-- перезаписує суми в листках, тому не головна і питає підтвердження -->
           <button name="action_recompute_payslips" type="object" string="Перерахувати листки"
-                  invisible="state != 'confirmed'" class="oe_highlight"/>
+                  invisible="state != 'confirmed'"
+                  confirm="Суми в листках місяця будуть перераховані за цим табелем. Продовжити?"/>
           <button name="%(action_report_ua_timesheet)d" type="action" string="Друк"/>
           <field name="state" widget="statusbar"/>
         </header>
@@ -31,13 +33,13 @@
               <field name="line_ids" readonly="state != 'draft'">
                 <list editable="bottom" default_order="employee_id">
                   <field name="employee_id" readonly="1"/>
-                  <field name="job_title" readonly="1" optional="show"/>
+                  <field name="job_title" readonly="1" optional="hide"/>
                   <field name="tab_number" readonly="1" optional="hide"/>
                   <field name="norm_days" readonly="1" sum="Норма"/>
                   <field name="days_worked" sum="Факт"/>
-                  <field name="norm_hours" readonly="1" optional="show" sum="Норма"/>
+                  <field name="norm_hours" readonly="1" optional="hide" sum="Норма"/>
                   <field name="hours" optional="show" sum="Факт"/>
-                  <field name="diff_days" readonly="1" decoration-danger="diff_days != 0" optional="show"/>
+                  <field name="diff_days" readonly="1" decoration-danger="diff_days != 0" optional="hide"/>
                   <field name="days_vac" string="Відпустка" readonly="1" optional="show"/>
                   <field name="days_sick" string="Лікарняний" readonly="1" optional="show"/>
                   <field name="days_unpaid" string="Без збереження" readonly="1" optional="hide"/>
@@ -45,10 +47,6 @@
                   <field name="note"/>
                 </list>
               </field>
-              <div class="text-muted mt-2">
-                Виправте «Факт днів» або «Факт годин» і натисніть «Перерахувати листки»:
-                оклад перерахується пропорційно. Норма береться з графіка роботи працівника.
-              </div>
             </page>
             <page string="По днях (П-5)" name="days">
               <field name="line_ids" readonly="state != 'draft'">

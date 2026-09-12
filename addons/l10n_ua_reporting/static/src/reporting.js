@@ -38,6 +38,8 @@ export class UaReporting extends Component {
         this.notification = useService("notification");
         this.state = useState({ data: null, loading: true, busy: false });
         this.levelColor = (l) => LEVEL_COLOR[l] || "";
+        this.levelPill = (lvl) => ({ ok: "o_ua_pill_ok", warn: "o_ua_pill_warn", error: "o_ua_pill_crit" }[lvl] || "");
+        this.levelLabel = (lvl) => ({ ok: "ок", warn: "увага", error: "помилка" }[lvl] || lvl);
         this.stateLabel = (s) => STATE_LABEL[s] || s;
         this.stateSteps = STATE_STEPS;
         onWillStart(() => this.load());

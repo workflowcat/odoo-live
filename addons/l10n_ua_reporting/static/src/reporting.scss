@@ -47,10 +47,11 @@
         .badge {
             font-size: 10px;
         }
-        .o_ua_state_draft { background: #adb5bd; }
-        .o_ua_state_checked { background: #0d6efd; }
-        .o_ua_state_generated { background: #fd7e14; }
-        .o_ua_state_submitted { background: #198754; }
+        // стани прогону: той самий контур, що в решті екранів
+        .o_ua_state_draft { color: var(--ua-muted, #6c757d); }
+        .o_ua_state_checked { color: var(--ua-warn, #96690a); }
+        .o_ua_state_generated { color: var(--ua-warn, #96690a); }
+        .o_ua_state_submitted { color: var(--ua-ok, #2f8f63); }
 
         .o_ua_reporting_history {
             margin-top: 8px;
