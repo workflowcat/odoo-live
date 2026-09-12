@@ -17,6 +17,27 @@ import zipfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "addons", "l10n_ua_setup", "data", "ua_setup_question_data.xml")
 
+# Питання-налаштування: відповідь змінює розрахунок або перелік звітів. Для них список
+# закритий, а вільний текст дозволений лише через варіант «Свій варіант» з приміткою.
+# Ключ - початок тексту питання, значення - (поле компанії або позначка, вид відповіді).
+SETTINGS = {
+    "Яка назва компанії": ("company.name", "text"),
+    "Який ЄДРПОУ компанії": ("company.company_registry", "text"),
+    "Яку систему оподаткування використовує компанія": ("company.ua_tax_system", "choice"),
+    "Чи є компанія платником ПДВ": ("company.ua_vat_payer", "choice"),
+    "У якій валюті відбуваються розрахунки": ("company.ua_settlement_currency", "choice"),
+    "Чи ведеться індексація зарплати": ("company.ua_index_default_off", "choice"),
+    "Чи не плануєте оклади не нижче мінімалки": ("company.ua_below_min_wage", "choice"),
+    "Як плануєте організувати зарплатний проєкт": ("company.ua_payroll_bank_mode", "choice"),
+    "Чи є працівники з інвалідністю": ("company.ua_has_disabled", "choice"),
+    "Які форми залучення використовуєте": ("company.ua_engagement_forms", "multi"),
+    "Чи плануєте бронювання працівників": ("company.ua_booking_planned", "choice"),
+    "⚠ Хто відповідальна особа за військовий облік": ("company.ua_military_officer", "text"),
+    "Хто директор / підписант компанії": ("company.ua_director_name", "text"),
+    "Хто веде бухгалтерію": ("company.ua_accountant_name", "text"),
+    "Чи будуть передані вхідні залишки": ("migration.opening_balances", "choice"),
+}
+
 # Розділ починається з питання, текст якого наведено ключем.
 SECTIONS = [
     ("Яка назва компанії?", "1. Компанія"),
@@ -72,7 +93,18 @@ def parse(lines):
     return questions
 
 
+def setting_of(question):
+    """Чи питання налаштовує систему і що саме воно налаштовує."""
+    for prefix, (target, kind) in SETTINGS.items():
+        if question["title"].startswith(prefix.lstrip("⚠ ")):
+            return target, kind
+    return "", ""
+
+
 def kind_of(question):
+    _target, kind = setting_of(question)
+    if kind:
+        return kind
     if question["options"] and any(word in question["title"].lower() for word in ("позначте все", "враховуємо все")):
         return "multi"
     if question["options"]:
@@ -92,6 +124,7 @@ def main():
     rows = []
     for index, question in enumerate(questions, 1):
         code = "q%03d" % index
+        target, _kind = setting_of(question)
         options = " | ".join(question["options"] + ["%s: ___" % f for f in question["fields"]])
         rows.append(
             '    <record id="question_%s" model="ua.setup.question">\n'
@@ -103,10 +136,13 @@ def main():
             '      <field name="required" eval="%s"/>\n'
             '      <field name="options">%s</field>\n'
             '      <field name="hint">%s</field>\n'
+            '      <field name="target">%s</field>\n'
+            '      <field name="is_setting" eval="%s"/>\n'
             '    </record>' % (
                 code, code, index * 10, escape(question["section"]), escape(question["title"]),
                 kind_of(question), "True" if question["required"] else "False",
-                escape(options), escape(question["hint"])))
+                escape(options), escape(question["hint"]), escape(target),
+                "True" if target else "False"))
     body = "\n".join(rows)
     with open(OUT, "w", encoding="utf-8") as stream:
         stream.write(

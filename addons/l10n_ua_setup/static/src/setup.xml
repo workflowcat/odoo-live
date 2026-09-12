@@ -56,6 +56,22 @@
                   t-on-click="() => this.run('propose')">Підказати з опису</button>
         </div>
 
+        <div class="o_ua_setup_apply" t-if="data.apply.length">
+          <div class="o_ua_setup_apply_head">
+            <span>Готово записати в налаштування: <t t-esc="data.apply.length"/></span>
+            <button class="btn btn-sm btn-primary" t-att-disabled="state.busy"
+                    t-on-click="() => this.run('apply')">Застосувати</button>
+          </div>
+          <table class="o_ua_setup_apply_table">
+            <tr t-foreach="data.apply" t-as="row" t-key="row.field">
+              <td t-esc="row.label"/>
+              <td class="text-muted" t-esc="row.old"/>
+              <td>→</td>
+              <td><b t-esc="row.new"/></td>
+            </tr>
+          </table>
+        </div>
+
         <div class="o_ua_setup_filters">
           <span t-attf-class="o_ua_setup_chip #{state.filter === 'all' ? 'active' : ''}"
                 t-on-click="() => this.setFilter('all')">усі</span>
@@ -99,10 +115,15 @@
                           t-on-click="() => this.pick(question, option)" t-esc="option"/>
                   </div>
 
-                  <input class="o_ua_setup_input" type="text" t-att-value="question.value"
-                         t-att-placeholder="question.options.length ? 'або впишіть свій варіант' : 'відповідь'"
+                  <input t-if="this.showInput(question)" class="o_ua_setup_input" type="text"
+                         t-att-value="question.value"
+                         t-att-placeholder="question.is_setting ? 'опишіть свій варіант' : 'відповідь'"
                          t-on-change="(ev) => this.onText(question, ev)"/>
-                  <div t-if="question.source" class="o_ua_setup_source">джерело: <t t-esc="question.source"/></div>
+                  <div class="o_ua_setup_source" t-if="question.source or question.is_setting">
+                    <t t-if="question.source">джерело: <t t-esc="question.source"/></t>
+                    <t t-if="question.source and question.is_setting"> · </t>
+                    <t t-if="question.is_setting">це налаштування</t>
+                  </div>
                 </div>
               </div>
             </div>

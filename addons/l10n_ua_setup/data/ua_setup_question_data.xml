@@ -12,6 +12,8 @@
       <field name="required" eval="False"/>
       <field name="options">Назва: ___</field>
       <field name="hint"></field>
+      <field name="target">company.name</field>
+      <field name="is_setting" eval="True"/>
     </record>
     <record id="question_q002" model="ua.setup.question">
       <field name="code">q002</field>
@@ -22,6 +24,8 @@
       <field name="required" eval="False"/>
       <field name="options">ЄДРПОУ: ___</field>
       <field name="hint"></field>
+      <field name="target">company.company_registry</field>
+      <field name="is_setting" eval="True"/>
     </record>
     <record id="question_q003" model="ua.setup.question">
       <field name="code">q003</field>
@@ -32,6 +36,8 @@
       <field name="required" eval="False"/>
       <field name="options">Дата реєстрації: ___</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q004" model="ua.setup.question">
       <field name="code">q004</field>
@@ -42,6 +48,8 @@
       <field name="required" eval="False"/>
       <field name="options">Юр. адреса: ___</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q005" model="ua.setup.question">
       <field name="code">q005</field>
@@ -52,6 +60,8 @@
       <field name="required" eval="False"/>
       <field name="options">ТОВ | ФОП | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q006" model="ua.setup.question">
       <field name="code">q006</field>
@@ -62,6 +72,8 @@
       <field name="required" eval="False"/>
       <field name="options">1 | 2 | 3+ | Свій варіант → ___________________________________ | ⚠ Є нерезиденти серед власників</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q007" model="ua.setup.question">
       <field name="code">q007</field>
@@ -72,6 +84,8 @@
       <field name="required" eval="False"/>
       <field name="options">Повністю | Частково | Ні | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q008" model="ua.setup.question">
       <field name="code">q008</field>
@@ -82,6 +96,8 @@
       <field name="required" eval="False"/>
       <field name="options">Немає | Свій варіант → ___________________________________ | Є: ___</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q009" model="ua.setup.question">
       <field name="code">q009</field>
@@ -92,6 +108,8 @@
       <field name="required" eval="False"/>
       <field name="options">Нова (з нуля) | Діюча, є історія обліку | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q010" model="ua.setup.question">
       <field name="code">q010</field>
@@ -102,6 +120,8 @@
       <field name="required" eval="True"/>
       <field name="options">ЄП 3 група, 5% (без ПДВ) | ЄП 3 група, 3% + ПДВ | Загальна система, 18% на прибуток | Ще не обрано | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target">company.ua_tax_system</field>
+      <field name="is_setting" eval="True"/>
     </record>
     <record id="question_q011" model="ua.setup.question">
       <field name="code">q011</field>
@@ -112,6 +132,8 @@
       <field name="required" eval="True"/>
       <field name="options">Ні | Свій варіант → ___________________________________ | Так: ___</field>
       <field name="hint"></field>
+      <field name="target">company.ua_vat_payer</field>
+      <field name="is_setting" eval="True"/>
     </record>
     <record id="question_q012" model="ua.setup.question">
       <field name="code">q012</field>
@@ -122,6 +144,8 @@
       <field name="required" eval="True"/>
       <field name="options">До 5 млн грн | 5–10 млн грн | ⚠ Близько / понад ліміт 3 групи (10,09 млн грн у 2026) | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q013" model="ua.setup.question">
       <field name="code">q013</field>
@@ -132,6 +156,8 @@
       <field name="required" eval="True"/>
       <field name="options">Лише Україна | Лише нерезиденти | Свій варіант → ___________________________________ | І ті, і ті: ___</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q014" model="ua.setup.question">
       <field name="code">q014</field>
@@ -142,6 +168,8 @@
       <field name="required" eval="False"/>
       <field name="options">Країни: ___</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q015" model="ua.setup.question">
       <field name="code">q015</field>
@@ -152,6 +180,8 @@
       <field name="required" eval="False"/>
       <field name="options">UAH | USD | EUR | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target">company.ua_settlement_currency</field>
+      <field name="is_setting" eval="True"/>
     </record>
     <record id="question_q016" model="ua.setup.question">
       <field name="code">q016</field>
@@ -162,6 +192,8 @@
       <field name="required" eval="False"/>
       <field name="options">Банк | Wise | Payoneer | Stripe | PayPal | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q017" model="ua.setup.question">
       <field name="code">q017</field>
@@ -172,6 +204,8 @@
       <field name="required" eval="False"/>
       <field name="options">Так | Ні | Частково | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q018" model="ua.setup.question">
       <field name="code">q018</field>
@@ -182,6 +216,8 @@
       <field name="required" eval="False"/>
       <field name="options">Акти | Інвойси | Таймшити | Звіти | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q019" model="ua.setup.question">
       <field name="code">q019</field>
@@ -192,6 +228,8 @@
       <field name="required" eval="False"/>
       <field name="options">Так | Ні | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q020" model="ua.setup.question">
       <field name="code">q020</field>
@@ -202,6 +240,8 @@
       <field name="required" eval="True"/>
       <field name="options">Бухгалтер | Банк | Ніхто поки (ризик пені) | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q021" model="ua.setup.question">
       <field name="code">q021</field>
@@ -212,6 +252,8 @@
       <field name="required" eval="False"/>
       <field name="options">Гривневі: ___</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q022" model="ua.setup.question">
       <field name="code">q022</field>
@@ -222,6 +264,8 @@
       <field name="required" eval="False"/>
       <field name="options">ПІБ / посада: ___</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q023" model="ua.setup.question">
       <field name="code">q023</field>
@@ -232,6 +276,8 @@
       <field name="required" eval="False"/>
       <field name="options">Є | Немає | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q024" model="ua.setup.question">
       <field name="code">q024</field>
@@ -242,6 +288,8 @@
       <field name="required" eval="False"/>
       <field name="options">Є | Немає | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q025" model="ua.setup.question">
       <field name="code">q025</field>
@@ -252,6 +300,8 @@
       <field name="required" eval="False"/>
       <field name="options">Бухгалтер | Система автоматично | Ніхто поки | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q026" model="ua.setup.question">
       <field name="code">q026</field>
@@ -262,6 +312,8 @@
       <field name="required" eval="False"/>
       <field name="options">1–5 | 6–15 | 16–50 | 50+ | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q027" model="ua.setup.question">
       <field name="code">q027</field>
@@ -272,6 +324,8 @@
       <field name="required" eval="False"/>
       <field name="options">Штат (трудовий договір) | ЦПХ (цивільно-правовий) | ФОП (аутстаф) | Гіг-контракт (Дія.City) | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target">company.ua_engagement_forms</field>
+      <field name="is_setting" eval="True"/>
     </record>
     <record id="question_q028" model="ua.setup.question">
       <field name="code">q028</field>
@@ -282,6 +336,8 @@
       <field name="required" eval="True"/>
       <field name="options">⚠ Так (ризик перекваліфікації ЦПХ/ФОП у трудові відносини) | Ні | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q029" model="ua.setup.question">
       <field name="code">q029</field>
@@ -292,6 +348,8 @@
       <field name="required" eval="False"/>
       <field name="options">Ні | Свій варіант → ___________________________________ | Так: ___</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q030" model="ua.setup.question">
       <field name="code">q030</field>
@@ -302,6 +360,8 @@
       <field name="required" eval="False"/>
       <field name="options">Ні | Свій варіант → ___________________________________ | Так: ___</field>
       <field name="hint"></field>
+      <field name="target">company.ua_has_disabled</field>
+      <field name="is_setting" eval="True"/>
     </record>
     <record id="question_q031" model="ua.setup.question">
       <field name="code">q031</field>
@@ -312,6 +372,8 @@
       <field name="required" eval="False"/>
       <field name="options">Ні | Свій варіант → ___________________________________ | Так: ___</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q032" model="ua.setup.question">
       <field name="code">q032</field>
@@ -322,6 +384,8 @@
       <field name="required" eval="False"/>
       <field name="options">Так | Ні | Частково | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q033" model="ua.setup.question">
       <field name="code">q033</field>
@@ -332,6 +396,8 @@
       <field name="required" eval="False"/>
       <field name="options">Так | Ні / не перевіряли | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q034" model="ua.setup.question">
       <field name="code">q034</field>
@@ -342,6 +408,8 @@
       <field name="required" eval="False"/>
       <field name="options">Так | Є нижчі (неповна ставка) | Свій варіант → ___________________________________ | Декрет (ЄСВ — так, ПДФО/ВЗ — ні) | Довгі лікарняні (ПДФО + ВЗ + ЄСВ — усі три) | Відпустки | Аліменти / виконавчі листи | Нічого з цього | Свій варіант → ___________________________________</field>
       <field name="hint">Враховуємо все з переліченого:</field>
+      <field name="target">company.ua_below_min_wage</field>
+      <field name="is_setting" eval="True"/>
     </record>
     <record id="question_q035" model="ua.setup.question">
       <field name="code">q035</field>
@@ -352,6 +420,8 @@
       <field name="required" eval="False"/>
       <field name="options">Так | Ні | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q036" model="ua.setup.question">
       <field name="code">q036</field>
@@ -362,6 +432,8 @@
       <field name="required" eval="False"/>
       <field name="options">Так | Ні | Не знаю | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target">company.ua_index_default_off</field>
+      <field name="is_setting" eval="True"/>
     </record>
     <record id="question_q037" model="ua.setup.question">
       <field name="code">q037</field>
@@ -372,6 +444,8 @@
       <field name="required" eval="True"/>
       <field name="options">Так, плануємо | Вже бронюємо | Ні | Ще не вирішили | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target">company.ua_booking_planned</field>
+      <field name="is_setting" eval="True"/>
     </record>
     <record id="question_q038" model="ua.setup.question">
       <field name="code">q038</field>
@@ -382,16 +456,20 @@
       <field name="required" eval="False"/>
       <field name="options">Є | Подаємо / у процесі | Немає підстав | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q039" model="ua.setup.question">
       <field name="code">q039</field>
       <field name="sequence">390</field>
       <field name="section">7. Військовий облік і бронювання</field>
       <field name="name">Хто відповідальна особа за військовий облік?</field>
-      <field name="kind">choice</field>
+      <field name="kind">text</field>
       <field name="required" eval="True"/>
       <field name="options">Ще не призначено | Свій варіант → ___________________________________ | ПІБ / посада: ___</field>
       <field name="hint"></field>
+      <field name="target">company.ua_military_officer</field>
+      <field name="is_setting" eval="True"/>
     </record>
     <record id="question_q040" model="ua.setup.question">
       <field name="code">q040</field>
@@ -402,6 +480,8 @@
       <field name="required" eval="False"/>
       <field name="options">Ні | Свій варіант → ___________________________________ | Так: ___</field>
       <field name="hint">Для мобілізованих: трудові відносини зберігаються, нарахування зупиняються, роботодавець середній заробіток не платить.</field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q041" model="ua.setup.question">
       <field name="code">q041</field>
@@ -412,6 +492,8 @@
       <field name="required" eval="False"/>
       <field name="options">Ні | Свій варіант → ___________________________________ | Так: ___</field>
       <field name="hint">Контролювати рівень зарплати заброньованих — не нижче порога критичної важливості.</field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q042" model="ua.setup.question">
       <field name="code">q042</field>
@@ -422,6 +504,8 @@
       <field name="required" eval="False"/>
       <field name="options">Ні | Свій варіант → ___________________________________ | Так: ___</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q043" model="ua.setup.question">
       <field name="code">q043</field>
@@ -432,6 +516,8 @@
       <field name="required" eval="False"/>
       <field name="options">Оберіг | Резерв+ | Паперово | Ще не ведеться | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q044" model="ua.setup.question">
       <field name="code">q044</field>
@@ -442,6 +528,8 @@
       <field name="required" eval="False"/>
       <field name="options">2/3 окладу | Не було | Свій варіант → ___________________________________ | Інше: ___</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q045" model="ua.setup.question">
       <field name="code">q045</field>
@@ -452,6 +540,8 @@
       <field name="required" eval="False"/>
       <field name="options">Штатний бухгалтер | Аутсорс | Бухгалтер-ФОП | Ніхто поки | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q046" model="ua.setup.question">
       <field name="code">q046</field>
@@ -462,6 +552,8 @@
       <field name="required" eval="False"/>
       <field name="options">Вже резидент | Плануємо вступати | Ні | Розглядаємо — треба порахувати сценарій | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q047" model="ua.setup.question">
       <field name="code">q047</field>
@@ -472,6 +564,8 @@
       <field name="required" eval="False"/>
       <field name="options">Так | Ні | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q048" model="ua.setup.question">
       <field name="code">q048</field>
@@ -482,6 +576,8 @@
       <field name="required" eval="False"/>
       <field name="options">Так | Ні | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q049" model="ua.setup.question">
       <field name="code">q049</field>
@@ -492,6 +588,8 @@
       <field name="required" eval="False"/>
       <field name="options">Податок на виведений капітал 9% | 18% на прибуток | Не визначено | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q050" model="ua.setup.question">
       <field name="code">q050</field>
@@ -502,6 +600,8 @@
       <field name="required" eval="False"/>
       <field name="options">Є, передамо | Немає | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target">migration.opening_balances</field>
+      <field name="is_setting" eval="True"/>
     </record>
     <record id="question_q051" model="ua.setup.question">
       <field name="code">q051</field>
@@ -512,6 +612,8 @@
       <field name="required" eval="False"/>
       <field name="options">Немає | Свій варіант → ___________________________________ | Є: ___</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q052" model="ua.setup.question">
       <field name="code">q052</field>
@@ -522,6 +624,8 @@
       <field name="required" eval="False"/>
       <field name="options">Є | Ні | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q053" model="ua.setup.question">
       <field name="code">q053</field>
@@ -532,6 +636,8 @@
       <field name="required" eval="False"/>
       <field name="options">Цього року | Давно | Не було | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q054" model="ua.setup.question">
       <field name="code">q054</field>
@@ -542,16 +648,20 @@
       <field name="required" eval="False"/>
       <field name="options">ПІБ / посада: ___</field>
       <field name="hint"></field>
+      <field name="target">company.ua_director_name</field>
+      <field name="is_setting" eval="True"/>
     </record>
     <record id="question_q055" model="ua.setup.question">
       <field name="code">q055</field>
       <field name="sequence">550</field>
       <field name="section">10. Ролі і відповідальні</field>
       <field name="name">Хто веде бухгалтерію (ПІБ) і в якому форматі?</field>
-      <field name="kind">choice</field>
+      <field name="kind">text</field>
       <field name="required" eval="False"/>
       <field name="options">Штат | Аутсорс | Свій варіант → ___________________________________ | ПІБ / компанія: ___</field>
       <field name="hint"></field>
+      <field name="target">company.ua_accountant_name</field>
+      <field name="is_setting" eval="True"/>
     </record>
     <record id="question_q056" model="ua.setup.question">
       <field name="code">q056</field>
@@ -562,6 +672,8 @@
       <field name="required" eval="False"/>
       <field name="options">ПІБ / посада: ___</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q057" model="ua.setup.question">
       <field name="code">q057</field>
@@ -572,6 +684,8 @@
       <field name="required" eval="False"/>
       <field name="options">Немає | Свій варіант → ___________________________________ | ПІБ / компанія: ___</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q058" model="ua.setup.question">
       <field name="code">q058</field>
@@ -582,6 +696,8 @@
       <field name="required" eval="False"/>
       <field name="options">Запуск обліку | Бронювання | Вступ у Дія.City | Due diligence / залучення інвестора | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q059" model="ua.setup.question">
       <field name="code">q059</field>
@@ -592,6 +708,8 @@
       <field name="required" eval="False"/>
       <field name="options">Так | Ні | Розглядаємо | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q060" model="ua.setup.question">
       <field name="code">q060</field>
@@ -602,6 +720,8 @@
       <field name="required" eval="False"/>
       <field name="options">Ні | Свій варіант → ___________________________________ | Так: ___</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q061" model="ua.setup.question">
       <field name="code">q061</field>
@@ -612,6 +732,8 @@
       <field name="required" eval="False"/>
       <field name="options">Ні | Свій варіант → ___________________________________ | Так: ___</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q062" model="ua.setup.question">
       <field name="code">q062</field>
@@ -622,6 +744,8 @@
       <field name="required" eval="False"/>
       <field name="options">Через один банк для всіх працівників | Через кілька банків залежно від того, де в працівників картки | Ще не визначились | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target">company.ua_payroll_bank_mode</field>
+      <field name="is_setting" eval="True"/>
     </record>
     <record id="question_q063" model="ua.setup.question">
       <field name="code">q063</field>
@@ -632,6 +756,8 @@
       <field name="required" eval="False"/>
       <field name="options">ПІБ / посада: ___</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
     <record id="question_q064" model="ua.setup.question">
       <field name="code">q064</field>
@@ -642,6 +768,8 @@
       <field name="required" eval="False"/>
       <field name="options">Аутсорсинг (Time &amp; Material) | Аутстафінг | Fixed price проєкти | Власний продукт / SaaS | Свій варіант → ___________________________________</field>
       <field name="hint"></field>
+      <field name="target"></field>
+      <field name="is_setting" eval="False"/>
     </record>
   </data>
 </odoo>

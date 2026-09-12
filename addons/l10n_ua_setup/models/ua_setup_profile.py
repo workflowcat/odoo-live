@@ -234,6 +234,8 @@ class UaSetupProfile(models.Model):
                 "value": answer.value or "",
                 "state": answer.state,
                 "source": dict(answer._fields["source"].selection).get(answer.source, ""),
+                "is_setting": question.is_setting,
+                "target": question.target or "",
             })
         counters = {
             "total": profile.total_count, "missing": profile.missing_count,
@@ -251,6 +253,7 @@ class UaSetupProfile(models.Model):
             "counters": counters,
             "sections": sections,
             "headline": profile._headline(counters),
+            "apply": profile.preview_apply(),
         }
 
     def _headline(self, counters):
@@ -273,6 +276,85 @@ class UaSetupProfile(models.Model):
                     "action": "", "label": "", "tone": "warn"}
         return {"title": "Обов'язкові питання закриті", "detail": "можна активувати",
                 "action": "activate", "label": "Активувати", "tone": "ok"}
+
+    # ------------------------------------------------------------------ застосування
+    # Як відповідь перетворюється на налаштування. Ключ - поле компанії, значення -
+    # функція, яка читає текст відповіді. Пропозиції не застосовуються: тільки
+    # підтверджені відповіді і те, що система знала сама.
+    @staticmethod
+    def _yes(value):
+        text = (value or "").strip().lower()
+        return text.startswith("так") or text.startswith("вже") or text.startswith("є")
+
+    def _setting_value(self, field, value):
+        text = (value or "").strip()
+        if field == "ua_tax_system":
+            low = text.lower()
+            if "5" in low and "пдв" in low:
+                return "ep3_5"
+            if "3" in low and "пдв" in low:
+                return "ep3_3"
+            if "загальн" in low:
+                return "general"
+            return "undecided"
+        if field == "ua_vat_payer":
+            return not text.lower().startswith("ні")
+        if field == "ua_index_default_off":
+            return text.lower().startswith("ні")
+        if field == "ua_below_min_wage":
+            return "нижч" in text.lower()
+        if field == "ua_has_disabled":
+            return not text.lower().startswith("ні")
+        if field == "ua_booking_planned":
+            return not text.lower().startswith("ні") and "не вирішили" not in text.lower()
+        if field == "ua_opening_balances":
+            return text.lower().startswith("є")
+        if field == "ua_payroll_bank_mode":
+            low = text.lower()
+            if "один банк" in low:
+                return "one"
+            if "кілька" in low:
+                return "many"
+            return False
+        return text
+
+    def preview_apply(self):
+        """Що саме зміниться в налаштуваннях. Показуємо до запису."""
+        self.ensure_one()
+        rows = []
+        for answer in self.answer_ids.filtered(lambda a: a.question_id.is_setting):
+            target = answer.question_id.target or ""
+            if not target.startswith("company.") or answer.state not in ("confirmed", "supplied"):
+                continue
+            field = target.split(".", 1)[1]
+            if field not in self.company_id._fields:
+                continue
+            new = self._setting_value(field, answer.value)
+            old = self.company_id[field]
+            if new in (False, "", None) or new == old:
+                continue
+            rows.append({"field": field,
+                         "label": self.company_id._fields[field].string,
+                         "question": answer.question_id.name,
+                         "old": str(old) if old not in (False, None) else "—",
+                         "new": str(new)})
+        return rows
+
+    def action_apply(self):
+        """Записати підтверджені відповіді в налаштування компанії."""
+        for profile in self:
+            rows = profile.preview_apply()
+            if not rows:
+                raise UserError(_("Немає що застосовувати: підтверджені відповіді вже в налаштуваннях."))
+            values = {}
+            for row in rows:
+                values[row["field"]] = profile._setting_value(row["field"], next(
+                    a.value for a in profile.answer_ids
+                    if a.question_id.target == "company." + row["field"]))
+            profile.company_id.sudo().write(values)
+            profile.message_post(body=_("Застосовано налаштувань: %s (%s)") % (
+                len(rows), ", ".join(row["label"] for row in rows)))
+        return True
 
     @api.model
     def set_answer(self, answer_id, value, state="confirmed"):
@@ -305,6 +387,11 @@ class UaSetupProfile(models.Model):
         if action == "test":
             result = profile.action_test_month()
             return {"message": result.get("message", ""), "data": self.screen()}
+        if action == "apply":
+            rows = profile.preview_apply()
+            profile.action_apply()
+            return {"message": _("Записано в налаштування: %s") % ", ".join(r["label"] for r in rows),
+                    "data": self.screen()}
         if action == "activate":
             profile.action_activate()
             return {"message": _("Анкета активна."), "data": self.screen()}

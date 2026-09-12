@@ -26,5 +26,8 @@ class UaSetupQuestion(models.Model):
     options = fields.Char("Варіанти", help="Варіанти з анкети, розділені знаком |")
     hint = fields.Char("Підказка")
     target = fields.Char("Що налаштовує", help="Поле або параметр системи, на який впливає відповідь")
+    is_setting = fields.Boolean("Це налаштування",
+                                help="Відповідь змінює розрахунок або перелік звітів. Для таких питань "
+                                     "список закритий: вільний текст дозволений лише через «Свій варіант».")
 
     _code_uniq = models.Constraint("unique(code)", "Питання з таким кодом уже є.")

@@ -134,6 +134,33 @@ if target:
 else:
     check("вибір варіанта записує відповідь", True, "усі питання з варіантами вже закриті")
 
+
+# 8. налаштування: закритий список і запис у картку компанії
+screen = call("ua.setup.profile", "screen")
+flat = [q for section in screen["sections"] for q in section["questions"]]
+settings = [q for q in flat if q["is_setting"]]
+check("питання-налаштування позначені", len(settings) >= 10, f"{len(settings)} з {len(flat)}")
+check("налаштування знає своє поле", all(q["target"] for q in settings),
+      str([q["target"] for q in settings[:3]]))
+check("факти лишилися вільним текстом", any(not q["is_setting"] for q in flat),
+      f"{sum(1 for q in flat if not q['is_setting'])} питань-фактів")
+
+tax = next((q for q in settings if q["target"] == "company.ua_tax_system"), None)
+if tax:
+    call("res.company", "write", [1], {"ua_tax_system": False})   # перевірка має бути повторюваною
+    call("ua.setup.profile", "set_answer", tax["id"], tax["options"][0])
+    preview = call("ua.setup.profile", "screen")["apply"]
+    check("попередній перегляд показує, що зміниться", any(r["field"] == "ua_tax_system" for r in preview),
+          str([(r["label"], r["new"]) for r in preview]))
+    call("ua.setup.profile", "run", "apply")
+    value = call("res.company", "read", [1], ["ua_tax_system"])[0]["ua_tax_system"]
+    check("відповідь записалася в картку компанії", bool(value), str(value))
+    after = call("ua.setup.profile", "screen")["apply"]
+    check("після запису переглядати нічого", not any(r["field"] == "ua_tax_system" for r in after),
+          str(len(after)))
+else:
+    check("попередній перегляд показує, що зміниться", False, "немає питання про систему оподаткування")
+
 print()
 if errors:
     print(f"ПЕРЕВІРКУ НЕ ПРОЙДЕНО: {len(errors)} з {total} пунктів провалено")

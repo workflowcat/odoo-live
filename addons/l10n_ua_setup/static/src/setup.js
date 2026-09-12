@@ -96,6 +96,17 @@ export class UaSetup extends Component {
         }
     }
 
+    showInput(question) {
+        // Питання-налаштування мають закритий список: вільний текст лише через «Свій варіант».
+        if (!question.is_setting) {
+            return true;
+        }
+        if (!question.options.length) {
+            return true;
+        }
+        return /свій варіант/i.test(question.value || "");
+    }
+
     chosen(question, option) {
         if (question.kind !== "multi") {
             return question.value === option;
