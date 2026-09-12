@@ -11,14 +11,13 @@
         <field name="available"/>
         <templates>
           <t t-name="card">
-            <div class="oe_kanban_global_click p-2">
-              <a name="action_open" type="object" t-attf-class="text-decoration-none #{record.available.raw_value ? '' : 'text-muted'}">
-                <strong><field name="name"/></strong>
-                <div t-if="record.description.raw_value" class="text-muted small">
-                  <field name="description"/>
-                </div>
-              </a>
-            </div>
+            <a name="action_open" type="object"
+               t-attf-class="d-block w-100 flex-grow-1 p-2 text-decoration-none #{record.available.raw_value ? '' : 'text-muted'}">
+              <strong><field name="name"/></strong>
+              <div t-if="record.description.raw_value" class="text-muted small">
+                <field name="description"/>
+              </div>
+            </a>
           </t>
         </templates>
       </kanban>

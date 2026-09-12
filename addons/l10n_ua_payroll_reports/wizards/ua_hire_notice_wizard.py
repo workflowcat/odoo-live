@@ -13,14 +13,14 @@ class UaHireNoticeWizard(models.TransientModel):
     _name = "ua.hire.notice.wizard"
     _description = "Повідомлення про прийняття працівника (J3001005)"
 
-    company_id = fields.Many2one("res.company", default=lambda s: s.env.company, required=True)
+    company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
     employee_ids = fields.Many2many("hr.employee", string="Працівники", required=True,
                                     default=lambda s: s.env["hr.employee"].browse(s.env.context.get("active_ids", [])) if s.env.context.get("active_model") == "hr.employee" else False)
     notice_type = fields.Selection([("H01", "початкове"), ("H02", "скасовуюче")], default="H01", required=True, string="Тип")
     number = fields.Integer("Номер повідомлення (C_DOC_CNT)", default=1, required=True, help="Порядковий номер документа цього типу в періоді")
     fill_date = fields.Date("Дата формування", default=fields.Date.today, required=True)
     citizenship_ua = fields.Boolean("Усі громадяни України", default=True)
-    log = fields.Text(readonly=True)
+    log = fields.Text("Журнал", readonly=True)
 
     def _rows(self):
         rows = []

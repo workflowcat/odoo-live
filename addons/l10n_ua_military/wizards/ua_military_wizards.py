@@ -11,7 +11,7 @@ class UaMilitaryListWizard(models.TransientModel):
     _name = "ua.military.list.wizard"
     _description = "Список персонального військового обліку"
 
-    company_id = fields.Many2one("res.company", default=lambda s: s.env.company, required=True)
+    company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
     date = fields.Date("На дату", default=fields.Date.today, required=True)
 
     def action_create(self):
@@ -27,7 +27,7 @@ class UaMilitaryNoticeWizard(models.TransientModel):
     _name = "ua.military.notice.wizard"
     _description = "Повідомлення про зміну облікових даних"
 
-    company_id = fields.Many2one("res.company", default=lambda s: s.env.company, required=True)
+    company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
     date_from = fields.Date("Період з", default=lambda s: date.today().replace(day=1), required=True)
     date_to = fields.Date("Період по", default=fields.Date.today, required=True)
 
@@ -46,7 +46,7 @@ class UaMilitaryReservedWizard(models.TransientModel):
     _name = "ua.military.reserved.wizard"
     _description = "Список заброньованих"
 
-    company_id = fields.Many2one("res.company", default=lambda s: s.env.company, required=True)
+    company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
     date = fields.Date("На дату", default=fields.Date.today, required=True)
 
     def action_create(self):

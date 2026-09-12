@@ -8,7 +8,7 @@ class UaPayrollAdvanceWizard(models.TransientModel):
     _name = "ua.payroll.advance.wizard"
     _description = "Аванс за місяць"
 
-    company_id = fields.Many2one("res.company", default=lambda s: s.env.company, required=True)
+    company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
     year = fields.Integer("Рік", default=lambda s: date.today().year, required=True)
     month = fields.Integer("Місяць", default=lambda s: date.today().month, required=True)
     percent = fields.Float("Відсоток окладу", default=50.0, required=True,

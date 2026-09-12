@@ -5,7 +5,7 @@
     <field name="model">ua.cpi.index</field>
     <field name="arch" type="xml">
       <list string="Індекси споживчих цін" editable="top" default_order="year desc, month desc">
-        <field name="year"/>
+        <field name="year" options="{'enable_formatting': False}"/>
         <field name="month"/>
         <field name="name"/>
         <field name="value"/>
@@ -21,7 +21,7 @@
       <form string="Індекс споживчих цін">
         <sheet>
           <group>
-            <field name="year"/>
+            <field name="year" options="{'enable_formatting': False}"/>
             <field name="month"/>
             <field name="value"/>
             <field name="note" placeholder="Держстат, повідомлення від ..."/>

@@ -4,7 +4,7 @@
     <field name="name">ua.payroll.advance.wizard.form</field><field name="model">ua.payroll.advance.wizard</field>
     <field name="arch" type="xml">
       <form string="Аванс за місяць">
-        <group><group><field name="company_id"/><field name="year"/><field name="month"/></group><group><field name="percent"/><field name="pay_date"/></group></group>
+        <group><group><field name="company_id"/><field name="year" options="{'enable_formatting': False}"/><field name="month"/></group><group><field name="percent"/><field name="pay_date"/></group></group>
         <footer><button name="action_fill" type="object" string="Розрахувати аванс" class="btn-primary"/><button string="Закрити" class="btn-secondary" special="cancel"/></footer>
       </form>
     </field>

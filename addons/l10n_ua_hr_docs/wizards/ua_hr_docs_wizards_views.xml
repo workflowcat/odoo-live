@@ -14,7 +14,7 @@
   <record id="view_ua_timesheet_wizard" model="ir.ui.view">
     <field name="name">ua.timesheet.wizard.form</field><field name="model">ua.timesheet.wizard</field>
     <field name="arch" type="xml">
-      <form string="Табель обліку робочого часу"><group><field name="company_id"/><field name="year"/><field name="month"/><field name="department_id"/></group>
+      <form string="Табель обліку робочого часу"><group><field name="company_id"/><field name="year" options="{'enable_formatting': False}"/><field name="month"/><field name="department_id"/></group>
         <footer><button name="action_create" type="object" string="Створити" class="btn-primary"/><button string="Закрити" class="btn-secondary" special="cancel"/></footer></form>
     </field>
   </record>

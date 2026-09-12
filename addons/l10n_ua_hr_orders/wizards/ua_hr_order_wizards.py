@@ -16,9 +16,9 @@ class UaHrOrderRegisterWizard(models.TransientModel):
     _name = "ua.hr.order.register.wizard"
     _description = "Журнал реєстрації наказів"
 
-    company_id = fields.Many2one("res.company", default=lambda s: s.env.company, required=True)
-    year = fields.Integer(default=lambda s: date.today().year, required=True)
-    register = fields.Selection(REGISTERS, default="k1", required=True)
+    company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
+    year = fields.Integer("Рік", default=lambda s: date.today().year, required=True)
+    register = fields.Selection(REGISTERS, "Реєстр", default="k1", required=True)
 
     def action_print(self):
         self.ensure_one()
@@ -29,7 +29,7 @@ class UaHrDocPackWizard(models.TransientModel):
     _name = "ua.hr.doc.pack.wizard"
     _description = "Пакет документів"
 
-    company_id = fields.Many2one("res.company", default=lambda s: s.env.company, required=True)
+    company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
     employee_ids = fields.Many2many("hr.employee", string="Працівники",
                                     default=lambda s: s.env["hr.employee"].search([("company_id", "=", s.env.company.id)]))
 

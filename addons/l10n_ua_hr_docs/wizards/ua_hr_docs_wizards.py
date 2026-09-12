@@ -11,7 +11,7 @@ class UaStaffListWizard(models.TransientModel):
     _name = "ua.staff.list.wizard"
     _description = "Штатний розпис"
 
-    company_id = fields.Many2one("res.company", default=lambda s: s.env.company, required=True)
+    company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
     date = fields.Date("На дату", default=fields.Date.today, required=True)
     order_ref = fields.Char("Затверджено наказом (№ і дата)")
 
@@ -31,7 +31,7 @@ class UaTimesheetWizard(models.TransientModel):
     _name = "ua.timesheet.wizard"
     _description = "Табель обліку робочого часу (П-5)"
 
-    company_id = fields.Many2one("res.company", default=lambda s: s.env.company, required=True)
+    company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
     year = fields.Integer("Рік", default=lambda s: date.today().year, required=True)
     month = fields.Integer("Місяць", default=lambda s: date.today().month, required=True)
     department_id = fields.Many2one("hr.department", "Підрозділ (порожньо = усі)")

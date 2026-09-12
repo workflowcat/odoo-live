@@ -18,7 +18,7 @@
           <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
           <group>
             <group>
-              <field name="year" readonly="state != 'draft'"/>
+              <field name="year" readonly="state != 'draft'" options="{'enable_formatting': False}"/>
               <field name="month" readonly="state != 'draft'"/>
             </group>
             <group>

@@ -27,10 +27,18 @@ class HrPayslip(models.Model):
         ], limit=1)
         return line or None
 
+    # Назви рядків відпрацьованого часу. Рушій OCA пише назву перекладом у момент
+    # створення листка, тому в старих листках лишається англійський текст.
+    UA_WORKED_NAMES = {"WORK100": "Відпрацьовані дні"}
+
     def get_worked_day_lines(self, contracts, date_from, date_to):
         """Дні і години WORK100 з табеля. Дні відсутності лишаються окремими рядками,
         тому у WORK100 тримаємо суму «факт + відсутності», як це робить рушій OCA."""
         res = super().get_worked_day_lines(contracts, date_from, date_to)
+        for vals in res:
+            name = self.UA_WORKED_NAMES.get(vals.get("code"))
+            if name:
+                vals["name"] = name
         line = self._ua_timesheet_line()
         if not line:
             return res

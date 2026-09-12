@@ -6,7 +6,7 @@
     <field name="arch" type="xml">
       <form string="Журнал реєстрації наказів">
         <group>
-          <field name="year"/>
+          <field name="year" options="{'enable_formatting': False}"/>
           <field name="register"/>
           <field name="company_id" groups="base.group_multi_company"/>
         </group>

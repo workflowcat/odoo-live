@@ -51,4 +51,12 @@
             action="l10n_ua_payroll_account.action_ua_payroll_account_map" sequence="12"/>
   <menuitem id="menu_ua_setup_bank" name="Підключення банків" parent="menu_ua_setup_root"
             action="l10n_ua_bank_online.action_ua_bank_connect" sequence="13"/>
+
+  <!-- Пункти-дублі: та сама дія вже є в новому розділі, тому старий пункт вимикаємо. -->
+  <menuitem id="l10n_ua_hr_orders.menu_ua_hr_order" active="False"/>
+  <menuitem id="l10n_ua_payroll_ui.menu_ua_timesheet_docs" active="False"/>
+  <menuitem id="l10n_ua_changes.menu_ua_period_close" active="False"/>
+  <menuitem id="l10n_ua_index.menu_ua_cpi_index" active="False"/>
+  <menuitem id="l10n_ua_payroll_rules.menu_ua_payroll_param" active="False"/>
+  <menuitem id="l10n_ua_payroll_account.menu_ua_payroll_account_map" active="False"/>
 </odoo>

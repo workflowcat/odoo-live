@@ -5,7 +5,7 @@
     <field name="arch" type="xml">
       <form string="Об'єднана звітність (XML для ДПС)">
         <group>
-          <group><field name="company_id"/><field name="year"/><field name="month"/><field name="doc_type"/><field name="number"/></group>
+          <group><field name="company_id"/><field name="year" options="{'enable_formatting': False}"/><field name="month"/><field name="doc_type"/><field name="number"/></group>
           <group><field name="with_d1"/><field name="with_4df"/><field name="with_d5"/><field name="fill_date"/></group>
         </group>
         <field name="log" invisible="not log"/>

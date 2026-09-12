@@ -19,7 +19,7 @@
           <group>
             <group>
               <field name="kind" readonly="state != 'draft'"/>
-              <field name="year" readonly="state != 'draft'"/>
+              <field name="year" readonly="state != 'draft'" options="{'enable_formatting': False}"/>
               <field name="month" readonly="state != 'draft'"/>
             </group>
             <group>
