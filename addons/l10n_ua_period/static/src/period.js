@@ -1,11 +1,21 @@
 /** @odoo-module **/
 
-import { Component, onWillStart, useState } from "@odoo/owl";
+import { Component, onWillStart, useRef, useState } from "@odoo/owl";
+import { browser } from "@web/core/browser/browser";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { standardActionServiceProps } from "@web/webclient/actions/action_service";
 
 const STATE_LABEL = { done: "готово", warn: "потребує уваги", todo: "не почато" };
+const BASKET_KEY = "ua_print_basket";
+
+function readBasket() {
+    try {
+        return JSON.parse(browser.localStorage.getItem(BASKET_KEY) || "[]");
+    } catch {
+        return [];
+    }
+}
 
 export class UaPeriod extends Component {
     static template = "l10n_ua_period.Period";
@@ -15,7 +25,9 @@ export class UaPeriod extends Component {
         this.orm = useService("orm");
         this.action = useService("action");
         this.notification = useService("notification");
-        this.state = useState({ data: null, loading: true, busy: false, open: {}, people: [], person: null });
+        this.state = useState({ data: null, loading: true, busy: false, open: {}, people: [], person: null,
+                                selected: null, preview: null, basket: readBasket() });
+        this.previewFrame = useRef("previewFrame");
         this.stateLabel = (s) => STATE_LABEL[s] || s;
         onWillStart(() => this.load());
     }
@@ -23,12 +35,131 @@ export class UaPeriod extends Component {
     async load(period = {}) {
         this.state.loading = true;
         this.state.person = null;
+        this.state.preview = null;
         try {
             this.state.data = await this.orm.call("ua.period.board", "get_screen_data", [], period);
             const now = this.state.data.period;
             this.state.people = await this.orm.call("ua.period.board", "get_people", [now.year, now.month]);
         } finally {
             this.state.loading = false;
+        }
+    }
+
+    // ---------------------------------------------------------------- перелік і деталь
+    /** Вибраний крок: явно вибраний, інакше перший, що потребує уваги, інакше перший. */
+    get selectedKey() {
+        const steps = (this.state.data && this.state.data.steps) || [];
+        if (this.state.selected && steps.some((s) => s.key === this.state.selected)) {
+            return this.state.selected;
+        }
+        const warn = steps.find((s) => s.state === "warn");
+        return (warn || steps[0] || {}).key;
+    }
+
+    get selectedStep() {
+        const steps = (this.state.data && this.state.data.steps) || [];
+        return steps.find((s) => s.key === this.selectedKey);
+    }
+
+    selectStep(step) {
+        this.state.selected = step.key;
+        this.state.preview = null;
+    }
+
+    docsFor(step) {
+        const docs = (this.state.data && this.state.data.documents) || {};
+        return docs[step.key] || [];
+    }
+
+    // ---------------------------------------------------------------- перегляд і кошик
+    printUrl(items, embed) {
+        const params = new URLSearchParams({ items: JSON.stringify(items) });
+        if (embed) {
+            params.set("embed", "1");
+        }
+        return `/ua/print?${params.toString()}`;
+    }
+
+    previewDoc(doc) {
+        const item = { r: doc.report, ids: doc.ids, t: doc.name };
+        this.state.preview = { ...item, report: doc.report, name: doc.name, url: this.printUrl([item], true) };
+    }
+
+    isPreviewed(doc) {
+        const p = this.state.preview;
+        return !!p && p.r === doc.report && JSON.stringify(p.ids) === JSON.stringify(doc.ids);
+    }
+
+    closePreview() {
+        this.state.preview = null;
+    }
+
+    /** Друк браузером з документа в рамці: вікна Odoo і завантаження немає. */
+    printPreview() {
+        const frame = this.previewFrame.el;
+        if (frame && frame.contentWindow) {
+            frame.contentWindow.focus();
+            frame.contentWindow.print();
+        }
+    }
+
+    saveBasket() {
+        try {
+            browser.localStorage.setItem(BASKET_KEY, JSON.stringify(this.state.basket));
+        } catch {
+            // приватне вікно: кошик живе до перезавантаження
+        }
+    }
+
+    inBasket(doc) {
+        const r = doc.report || doc.r;
+        const ids = JSON.stringify(doc.ids);
+        return this.state.basket.some((i) => i.r === r && JSON.stringify(i.ids) === ids);
+    }
+
+    addToBasket(doc) {
+        if (this.inBasket(doc)) {
+            return;
+        }
+        this.state.basket.push({ r: doc.report || doc.r, ids: doc.ids, t: doc.name || doc.t });
+        this.saveBasket();
+    }
+
+    removeFromBasket(index) {
+        this.state.basket.splice(index, 1);
+        this.saveBasket();
+    }
+
+    moveBasket(index, delta) {
+        const to = index + delta;
+        if (to < 0 || to >= this.state.basket.length) {
+            return;
+        }
+        const [item] = this.state.basket.splice(index, 1);
+        this.state.basket.splice(to, 0, item);
+        this.saveBasket();
+    }
+
+    clearBasket() {
+        this.state.basket.splice(0);
+        this.saveBasket();
+    }
+
+    /** Пакет відкривається у своїй вкладці: там перегляд усіх документів і друк браузером. */
+    openBundle() {
+        const title = `Пакет · ${this.state.data.period.label}`;
+        const url = this.printUrl(this.state.basket.map(({ r, ids, t }) => ({ r, ids, t })), false) +
+            `&title=${encodeURIComponent(title)}`;
+        browser.open(url, "_blank");
+    }
+
+    async openDocTarget(doc) {
+        const target = doc.target || {};
+        if (target.xmlid) {
+            return this.open({ action: { xmlid: target.xmlid } });
+        }
+        if (target.model && target.res_id) {
+            return this.openRecord({ model: target.model, id: target.res_id });
         }
     }
 

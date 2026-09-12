@@ -500,6 +500,137 @@ class UaPeriodBoard(models.AbstractModel):
                                     ("date", ">=", str(first)), ("date", "<=", str(last))]})
         return rows
 
+    # ------------------------------------------------------------------ документи кроків
+    def _doc(self, kind, name, report=None, records=None, deadline=None, target=None, state=None):
+        """Документ біля кроку місяця.
+
+        kind: print - друкується; filing - подається в держорган; file - машинний файл.
+        report + ids відкривають перегляд /ua/print, target - запис, де документ ведуть.
+        """
+        ids = records.ids if records else []
+        return {"kind": kind, "name": name, "report": report or "", "ids": ids,
+                "deadline": deadline.strftime("%d.%m.%Y") if deadline else "",
+                "target": target or {}, "state": state or ""}
+
+    @staticmethod
+    def _doc_state(records):
+        states = set(records.mapped("state")) if records and "state" in records._fields else set()
+        if not records:
+            return "немає"
+        if states <= {"draft", "verify"}:
+            return "чернетка"
+        return "створено"
+
+    def _documents(self, company, year, month, first, last):
+        """Документи, які породжує кожен крок місяця. Ключ - ключ кроку."""
+        out = {}
+        Order = self.env["ua.hr.order"]
+        orders = Order.search([("company_id", "=", company.id), ("date", ">=", first), ("date", "<=", last),
+                               ("state", "!=", "cancel")])
+        docs = []
+        if orders:
+            docs.append(self._doc("print", "Накази · %s" % len(orders), "l10n_ua_hr_orders.report_ua_hr_order", orders,
+                                  state=self._doc_state(orders)))
+        if "ua.military.notice" in self.env:
+            notices = self.env["ua.military.notice"].search([("company_id", "=", company.id),
+                                                            ("date_from", "<=", last), ("date_to", ">=", first)])
+            for notice in notices:
+                docs.append(self._doc("filing", "Повідомлення ТЦК", "l10n_ua_military.report_ua_military_notice", notice,
+                                      deadline=notice.date_to + timedelta(days=7),
+                                      target={"model": "ua.military.notice", "res_id": notice.id},
+                                      state=self._doc_state(notice)))
+        out["orders"] = docs
+
+        sheet = self.env["ua.timesheet.sheet"].search([("company_id", "=", company.id), ("year", "=", year),
+                                                       ("month", "=", month), ("department_id", "=", False)], limit=1)
+        out["timesheet"] = [self._doc("print", "Табель П-5", "l10n_ua_hr_docs.report_ua_timesheet", sheet,
+                                      target={"model": "ua.timesheet.sheet", "res_id": sheet.id},
+                                      state=self._doc_state(sheet))] if sheet else []
+
+        advance = self.env["ua.advance.sheet"].search([("company_id", "=", company.id), ("year", "=", year),
+                                                       ("month", "=", month)], limit=1)
+        out["advance"] = [self._doc("print", "Авансова відомість", "l10n_ua_payroll_reports.report_ua_advance_sheet",
+                                    advance, target={"model": "ua.advance.sheet", "res_id": advance.id},
+                                    state=self._doc_state(advance))] if advance else []
+
+        slips = self.env["hr.payslip"].search([("company_id", "=", company.id), ("date_from", ">=", first),
+                                               ("date_from", "<=", last), ("state", "!=", "cancel")])
+        run = self.env["hr.payslip.run"].search([("company_id", "=", company.id), ("date_start", ">=", first),
+                                                 ("date_start", "<=", last)], limit=1)
+        docs = []
+        if slips:
+            docs.append(self._doc("print", "Розрахункові листки · %s" % len(slips),
+                                  "l10n_ua_payroll_reports.report_ua_payslip", slips, state=self._doc_state(slips)))
+        if run:
+            docs.append(self._doc("print", "Розрахунково-платіжна відомість",
+                                  "l10n_ua_payroll_reports.report_ua_payroll_sheet", run,
+                                  target={"model": "hr.payslip.run", "res_id": run.id},
+                                  state=self._doc_state(slips)))
+        out["payslips"] = docs
+
+        batches = self.env["ua.payment.batch"].search([("company_id", "=", company.id), ("year", "=", year),
+                                                       ("month", "=", month)])
+        docs = []
+        for batch in batches:
+            docs.append(self._doc("print", batch.name, "l10n_ua_payments.report_ua_payment_batch", batch,
+                                  target={"model": "ua.payment.batch", "res_id": batch.id},
+                                  state=self._doc_state(batch)))
+            docs.append(self._doc("file", "Файл для банку · %s" % batch.name,
+                                  target={"model": "ua.payment.batch", "res_id": batch.id}))
+        out["payment"] = docs
+
+        deadline = last + timedelta(days=20)
+        docs = []
+        run_j05 = self.env["ua.report.run"].search([("company_id", "=", company.id), ("report_code", "=", "j05"),
+                                                    ("year", "=", year), ("month", "=", month)], limit=1)
+        docs.append(self._doc("filing", "J0500111 · Д1, 4ДФ, Д5", deadline=deadline,
+                              target={"xmlid": "l10n_ua_reporting.action_ua_reporting"},
+                              state={"submitted": "подано", "generated": "сформовано"}.get(run_j05.state, "чернетка")
+                              if run_j05 else "немає"))
+        claims = self.env["ua.pfu.claim"].search([("company_id", "=", company.id),
+                                                  ("payslip_run_id.date_start", ">=", first),
+                                                  ("payslip_run_id.date_start", "<=", last)])
+        for claim in claims:
+            docs.append(self._doc("filing", "Заява-розрахунок ПФУ", "l10n_ua_hr_docs.report_ua_pfu_claim", claim,
+                                  deadline=deadline, target={"model": "ua.pfu.claim", "res_id": claim.id},
+                                  state=self._doc_state(claim)))
+        out["reporting"] = docs
+        return out
+
+    def _deadlines(self, company, year, month):
+        """Смуга строків: платежі і подання навколо місяця, за датою."""
+        state_map = {"ok": "ok", "warn": "warn", "todo": "crit", "plan": "todo"}
+        rows = []
+        import re
+        for row in self.env["ua.dashboard"]._get_payments(company, year, month):
+            # квартальний рядок - залишок старої схеми; розрахунок подається щомісяця
+            if not row.get("date") or "квартал" in row["label"]:
+                continue
+            label = re.sub(r",\s*\S+\s+\d{4}", "", row["label"]).replace(" (остаточний розрахунок)", "")
+            rows.append({"date": row["date"], "label": label, "state": state_map.get(row.get("state_class"), "todo")})
+        first, last = self._bounds(year, month)
+        rows.append({"date": (last + timedelta(days=20)).strftime("%d.%m.%Y"),
+                     "label": "Податковий розрахунок", "state": "todo"})
+
+        def key(r):
+            d, m, y = r["date"].split(".")
+            return (y, m, d)
+        rows.sort(key=key)
+        # однакові дати зливаються в одну позначку
+        merged = []
+        for r in rows:
+            if merged and merged[-1]["date"] == r["date"]:
+                merged[-1]["label"] += " · " + r["label"]
+                if r["state"] in ("crit", "warn") and merged[-1]["state"] not in ("crit",):
+                    merged[-1]["state"] = r["state"]
+            else:
+                merged.append(dict(r))
+        today = fields.Date.context_today(self).strftime("%Y%m%d")
+        for r in merged:
+            d, m, y = r["date"].split(".")
+            r["past"] = y + m + d < today
+        return merged
+
     # ------------------------------------------------------------------ екран
     @api.model
     def get_screen_data(self, year=None, month=None):
@@ -534,6 +665,8 @@ class UaPeriodBoard(models.AbstractModel):
             "estimate": estimate,
             "changes": self._changes(company, first, last),
             "exceptions": exceptions,
+            "documents": self._documents(company, year, month, first, last),
+            "deadlines": self._deadlines(company, year, month),
             "headline": self._headline(company, steps, exceptions, close, blockers, estimate),
             "quarter": self._quarter_info(company, year, month),
             "year_close": self._year_info(company, year, month),
