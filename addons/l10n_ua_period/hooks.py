@@ -1,7 +1,7 @@
 """Після встановлення: домашня дія «Період» для бухгалтерів і кадровиків.
 
 «Період» - робоче місце місяця, тому воно і має відкриватися першим. Раніше
-домашньою дією було «Зведення» (аналітика) або «Пульт команд» (навігація).
+домашньою дією було «Зведення» (аналітика).
 """
 
 
@@ -11,7 +11,7 @@ def post_init_hook(env):
         return
     # дії різних моделей (client і act_window), тому збираємо саме id
     replace = []
-    for xmlid in ("l10n_ua_dashboard.action_ua_dashboard", "l10n_ua_hub.action_ua_hub_item"):
+    for xmlid in ("l10n_ua_dashboard.action_ua_dashboard",):
         old = env.ref(xmlid, raise_if_not_found=False)
         if old:
             replace.append(old.id)

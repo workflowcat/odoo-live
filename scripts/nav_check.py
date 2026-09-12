@@ -26,7 +26,7 @@ LANA_PW = ENV.get("LANA_PASSWORD", "").strip()
 
 AREAS = ["Зарплата", "Працівники", "Банк", "Звітність", "Налаштування зарплати"]
 OFF_MENUS = [
-    "payroll.payroll_menu_root", "l10n_ua_hub.menu_ua_hub_root",
+    "payroll.payroll_menu_root",
     "l10n_ua_payroll_reports.menu_ua_payroll_report", "l10n_ua_payroll_reports.menu_ua_hire_notice",
     "l10n_ua_hr_docs.menu_ua_staff_list", "l10n_ua_hr_docs.menu_ua_timesheet",
     "l10n_ua_hr_orders.menu_ua_hr_order_register", "l10n_ua_payroll_rules.menu_ua_advance",
@@ -178,6 +178,26 @@ if LANA_PW:
         seen = {m["name"] for m in lana_menus}
         need = {"Зарплата", "Працівники", "Банк", "Звітність"}
         check(f"{LANA_LOGIN} бачить робочі розділи", need <= seen, str(sorted(need & seen)))
+
+# 8. прибирання: зайві модулі видалено, стандартні розділи сховано, оргструктура в «Працівниках»
+REMOVED = ["bp_kyc", "l10n_ua_partner_edr", "l10n_ua_hub", "spreadsheet_dashboard", "spreadsheet", "sms", "snailmail",
+           "partner_autocomplete", "iap", "mail_bot", "google_gmail", "microsoft_outlook", "hr_homeworking",
+           "web_unsplash", "auth_passkey", "account_edi_ubl_cii", "account_payment", "payment", "hr_skills"]
+still = call("ir.module.module", "search_read", [["name", "in", REMOVED], ["state", "=", "installed"]], fields=["name"])
+check("зайві модулі видалено", not still, str([m["name"] for m in still]))
+KEEP = ["rpc", "auth_totp", "hr_org_chart", "web_hierarchy", "base_import"]
+kept = call("ir.module.module", "search_read", [["name", "in", KEEP], ["state", "=", "installed"]], fields=["name"])
+check("потрібні модулі лишилися", len(kept) == len(KEEP), str(sorted(m["name"] for m in kept)))
+HIDDEN = ["mail.menu_root_discuss", "calendar.mail_menu_calendar", "contacts.menu_contacts", "account.menu_finance",
+          "hr.menu_hr_root", "hr_holidays.menu_hr_holidays_root", "base.menu_tests"]
+for xmlid in HIDDEN:
+    module, _, name = xmlid.partition(".")
+    data = call("ir.model.data", "search_read", [["module", "=", module], ["name", "=", name]], fields=["res_id"])
+    rec = call("ir.ui.menu", "search_read", [["id", "=", data[0]["res_id"]]], fields=["name", "group_ids"]) if data else []
+    check(f"розділ «{rec[0]['name'] if rec else xmlid}» лише в режимі розробника",
+          bool(rec) and rec[0]["group_ids"] == [no_one_id], str(rec[0]["group_ids"] if rec else "немає"))
+people = [m["name"] for m in items]
+check("оргструктура і підрозділи в «Працівниках»", "Оргструктура" in people and "Підрозділи" in people)
 
 print()
 if errors:

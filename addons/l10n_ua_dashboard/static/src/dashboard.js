@@ -57,17 +57,13 @@ export class UaDashboard extends Component {
         await this.load(period.year, period.month);
     }
 
-    /** Відкрити пункт пульту команд (ua.hub.item.action_open). */
-    async openHubItem(id) {
-        if (!id) {
-            return;
+    /** Відкрити дію за xmlid. */
+    async openActionXmlid(xmlid) {
+        if (xmlid) {
+            await this.action.doAction(xmlid);
         }
-        const action = await this.orm.call("ua.hub.item", "action_open", [id]);
-        this.action.doAction(action);
     }
 
-    /** Відкрити рядок «потребує уваги» або «документи»: спершу пункт пульту (action),
-     * далі відфільтрований список (res_model + domain), далі форма одного запису (res_model + res_id). */
     /** Чи веде рядок кудись: пункт пульту, список за доменом або одна форма. */
     hasTarget(row) {
         return Boolean(row.action || (row.res_model && (row.domain || row.res_id)));
@@ -75,7 +71,7 @@ export class UaDashboard extends Component {
 
     async openRow(row) {
         if (row.action) {
-            await this.openHubItem(row.action);
+            await this.openActionXmlid(row.action);
         } else if (row.res_model && row.domain) {
             await this.action.doAction({
                 type: "ir.actions.act_window",

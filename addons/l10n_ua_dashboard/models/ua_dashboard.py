@@ -6,7 +6,7 @@
 hr.employee (ua_mil_needs_check, ua_docs_expiring, ua_rnokpp), ua.employee.document (valid_until),
 account.bank.statement.line (is_reconciled, amount, payment_ref), hr.version (contract_date_end,
 trial_date_end), ua.timesheet.sheet, ua.staff.list, ua.pfu.claim, ua.advance.sheet, ir.attachment
-(вкладення XML), ua.hub.item / ua.hub.section (пульт команд, метод action_open).
+(вкладення XML).
 
 Звірка з банком - за текстом payment_ref (немає прямого зв'язку листок <-> рядок виписки):
 шаблони підпису рядків задає l10n_ua_bank/hooks.py, наприклад «Заробітна плата за серпень 2026,
@@ -66,10 +66,9 @@ class UaDashboard(models.AbstractModel):
     def _month_name(month):
         return MONTHS_UA.get(month, "")
 
-    def _hub_item_id(self, xmlid):
-        """Id пункту ua.hub.item з таким action_xmlid, якщо він є в даних хабу - інакше False."""
-        item = self.env["ua.hub.item"].search([("action_xmlid", "=", xmlid)], limit=1)
-        return item.id if item else False
+    def _action_xmlid(self, xmlid):
+        """Xmlid дії, якщо дія існує, інакше False. Клієнт відкриває її напряму."""
+        return xmlid if self.env.ref(xmlid, raise_if_not_found=False) else False
 
     def _slip_domain(self, company, year, month, department_id=None):
         """Домен листків місяця - те, що стоїть за сумою в рядку панелі."""
@@ -213,7 +212,7 @@ class UaDashboard(models.AbstractModel):
             "rows": rows,
             "total": total,
             "has_run": bool(run),
-            "run_action": self._hub_item_id("payroll.hr_payslip_run_action"),
+            "run_action": self._action_xmlid("payroll.hr_payslip_run_action"),
         }
 
     def _get_payments(self, company, year, month):
@@ -259,7 +258,7 @@ class UaDashboard(models.AbstractModel):
             rows.append({
                 "date": False, "label": "Аванс, %s %s" % (this_name, year),
                 "amount": 0.0, "state": "не розраховано", "state_class": "todo",
-                "action": self._hub_item_id("l10n_ua_payroll_rules.action_ua_advance_sheet"),
+                "action": self._action_xmlid("l10n_ua_payroll_rules.action_ua_advance_sheet"),
                 "res_model": "ua.advance.sheet",
                 "domain": [("company_id", "=", company.id)],
                 "title": "Відомості авансу",
@@ -316,7 +315,7 @@ class UaDashboard(models.AbstractModel):
             "date": deadline.strftime("%d.%m.%Y"),
             "label": "Об'єднана звітність, %s квартал %s" % (quarter, year),
             "amount": 0.0, "detail": "Д1, 4ДФ, Д5", "state": dstate, "state_class": dcls,
-            "action": self._hub_item_id("l10n_ua_reporting.action_ua_reporting"),
+            "action": self._action_xmlid("l10n_ua_reporting.action_ua_reporting"),
             "res_model": "ua.report.run",
             "domain": [("company_id", "=", company.id)],
             "title": "Податкова звітність",
@@ -337,7 +336,7 @@ class UaDashboard(models.AbstractModel):
                 "title": "Звірка з ТЦК не проведена",
                 "detail": self._plural(mil_count, "працівник потребує звірки", "працівники потребують звірки", "працівників потребують звірки"),
                 "count": mil_count, "level": "danger",
-                "action": self._hub_item_id("l10n_ua_military.action_ua_military_needs_check"),
+                "action": self._action_xmlid("l10n_ua_military.action_ua_military_needs_check"),
                 "res_model": "hr.employee",
                 "domain": [("company_id", "=", company.id), ("ua_mil_needs_check", "=", True)],
             })
@@ -365,7 +364,7 @@ class UaDashboard(models.AbstractModel):
                     "title": "Немає індексу споживчих цін",
                     "detail": "за %s %s; без нього індексація рахується як нуль" % (self._month_name(month_prev), year_prev),
                     "count": 1, "level": "warning",
-                    "action": self._hub_item_id("l10n_ua_index.action_ua_cpi_index"),
+                    "action": self._action_xmlid("l10n_ua_index.action_ua_cpi_index"),
                     "res_model": "ua.cpi.index",
                     "domain": [],
                 })
@@ -380,7 +379,7 @@ class UaDashboard(models.AbstractModel):
                 "detail": "%s %s на суму %s грн" % (
                     len(unrec), self._plural(len(unrec), "рядок", "рядки", "рядків"), self._money(amount)),
                 "count": len(unrec), "level": "warning",
-                "action": self._hub_item_id("account_reconcile_oca.action_bank_statement_line_reconcile_all"),
+                "action": self._action_xmlid("account_reconcile_oca.action_bank_statement_line_reconcile_all"),
                 "res_model": "account.bank.statement.line",
                 "domain": [("company_id", "=", company.id), ("is_reconciled", "=", False)],
             })
@@ -414,7 +413,7 @@ class UaDashboard(models.AbstractModel):
         if draft_count:
             rows.append({
                 "title": "Листки в чернетках", "detail": "розрахункових листків", "count": draft_count,
-                "level": "info", "action": self._hub_item_id("payroll.hr_payslip_action"),
+                "level": "info", "action": self._action_xmlid("payroll.hr_payslip_action"),
                 "res_model": "hr.payslip", "domain": [("company_id", "=", company.id), ("state", "=", "draft")],
             })
 
@@ -482,24 +481,6 @@ class UaDashboard(models.AbstractModel):
             unique.append(row)
         return unique[:14]
 
-    def _get_hub(self):
-        out = []
-        for section in self.env["ua.hub.section"].search([], order="sequence, id"):
-            items = section.item_ids.filtered("active").sorted(key=lambda i: (i.sequence, i.id))
-            available = [i for i in items if i.available]
-            if not available:
-                continue
-            out.append({
-                "section": section.name,
-                "items": [{
-                    "name": i.name, "description": i.description or "",
-                    "action_xmlid": i.action_xmlid, "id": i.id,
-                } for i in available],
-            })
-        return out
-
-    # ------------------------------------------------------------------ публічний метод
-    @api.model
     def get_data(self, year=None, month=None):
         today = fields.Date.context_today(self)
         year = int(year) if year else today.year

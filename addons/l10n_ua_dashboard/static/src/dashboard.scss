@@ -101,34 +101,4 @@
         white-space: nowrap;
     }
 
-    .o_ua_dashboard_hub {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 12px;
-
-        .o_ua_dashboard_hub_section {
-            .o_ua_dashboard_hub_title {
-                font-weight: 600;
-                margin-bottom: 4px;
-            }
-
-            ul {
-                list-style: none;
-                margin: 0;
-                padding: 0;
-
-                li {
-                    line-height: 1.6;
-                }
-
-                a {
-                    text-decoration: none;
-
-                    &:hover {
-                        text-decoration: underline;
-                    }
-                }
-            }
-        }
-    }
 }

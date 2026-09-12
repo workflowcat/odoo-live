@@ -41,17 +41,19 @@
   <menuitem id="menu_ua_people_employees" name="Картки працівників" parent="menu_ua_people_root"
             action="hr.open_view_employee_list_my" sequence="1" groups="hr.group_hr_user"/>
   <menuitem id="menu_ua_people_orders" name="Накази" parent="menu_ua_people_root"
-            action="l10n_ua_hr_orders.action_ua_hr_order" sequence="2" groups="hr.group_hr_user"/>
+            action="l10n_ua_hr_orders.action_ua_hr_order" sequence="4" groups="hr.group_hr_user"/>
   <menuitem id="menu_ua_people_leaves" name="Відсутності" parent="menu_ua_people_root"
-            action="hr_holidays.hr_leave_action_action_approve_department" sequence="3" groups="hr.group_hr_user"/>
+            action="hr_holidays.hr_leave_action_action_approve_department" sequence="5" groups="hr.group_hr_user"/>
+  <menuitem id="menu_ua_people_org_chart" name="Оргструктура" parent="menu_ua_people_root"
+            action="hr_org_chart.action_hr_employee_org_chart" sequence="2" groups="hr.group_hr_user"/>
+  <menuitem id="menu_ua_people_departments" name="Підрозділи" parent="menu_ua_people_root"
+            action="hr.hr_department_kanban_action" sequence="3" groups="hr.group_hr_user"/>
   <menuitem id="menu_ua_people_timesheet" name="Табелі" parent="menu_ua_people_root"
-            action="l10n_ua_hr_docs.action_ua_timesheet_sheet" sequence="4" groups="hr.group_hr_user"/>
+            action="l10n_ua_hr_docs.action_ua_timesheet_sheet" sequence="6" groups="hr.group_hr_user"/>
   <menuitem id="l10n_ua_payroll_ui.menu_ua_staff_list_docs" name="Штатні розписи"
             parent="menu_ua_people_root" sequence="5"/>
   <menuitem id="l10n_ua_hr_orders.menu_ua_hr_doc_requirement" name="Обов'язкові документи"
             parent="menu_ua_people_root" sequence="6"/>
-  <menuitem id="l10n_ua_payroll_ui.menu_ua_income_certificate" name="Довідка про доходи"
-            parent="menu_ua_people_root" sequence="7"/>
   <menuitem id="l10n_ua_hr_orders.menu_ua_hr_doc_pack" name="Пакет документів працівника"
             parent="menu_ua_people_root" sequence="8"/>
   <!-- військовий облік лишається групою: свого екрана в нього ще немає -->
@@ -121,8 +123,6 @@
   <menuitem id="l10n_ua_payroll_ui.menu_ua_payroll_docs" active="False"/>
   <menuitem id="payroll.payroll_menu_configuration" active="False"/>
 
-  <!-- «Пульт команд»: третя навігація тими самими посиланнями. -->
-  <menuitem id="l10n_ua_hub.menu_ua_hub_root" active="False"/>
 
   <!-- Чарівники без пунктів меню: періодичні документи створює екран «Звітність». -->
   <menuitem id="l10n_ua_payroll_reports.menu_ua_payroll_report" active="False"/>
@@ -132,7 +132,33 @@
   <menuitem id="l10n_ua_hr_orders.menu_ua_hr_order_register" active="False"/>
   <menuitem id="l10n_ua_payroll_rules.menu_ua_advance" active="False"/>
 
-  <!-- Пункти-дублі: та сама дія вже є в новому розділі. -->
+  <!-- Стандартні застосунки, яких бухгалтер не використовує: лише в режимі розробника.
+       Модулі потрібні як залежності (стрічка, календар відсутностей, облік), тому не видаляються.
+       Робочі сторінки звідти вже стоять у наших розділах: картки, відсутності, оргструктура. -->
+  <record id="mail.menu_root_discuss" model="ir.ui.menu">
+    <field name="group_ids" eval="[(6, 0, [ref('base.group_no_one')])]"/>
+  </record>
+  <record id="calendar.mail_menu_calendar" model="ir.ui.menu">
+    <field name="group_ids" eval="[(6, 0, [ref('base.group_no_one')])]"/>
+  </record>
+  <record id="contacts.menu_contacts" model="ir.ui.menu">
+    <field name="group_ids" eval="[(6, 0, [ref('base.group_no_one')])]"/>
+  </record>
+  <record id="account.menu_finance" model="ir.ui.menu">
+    <field name="group_ids" eval="[(6, 0, [ref('base.group_no_one')])]"/>
+  </record>
+  <record id="hr.menu_hr_root" model="ir.ui.menu">
+    <field name="group_ids" eval="[(6, 0, [ref('base.group_no_one')])]"/>
+  </record>
+  <record id="hr_holidays.menu_hr_holidays_root" model="ir.ui.menu">
+    <field name="group_ids" eval="[(6, 0, [ref('base.group_no_one')])]"/>
+  </record>
+  <record id="base.menu_tests" model="ir.ui.menu">
+    <field name="group_ids" eval="[(6, 0, [ref('base.group_no_one')])]"/>
+  </record>
+
+  <!-- Пункти-дублі: та сама дія вже є в новому розділі або в картці працівника. -->
+  <menuitem id="l10n_ua_payroll_ui.menu_ua_income_certificate" active="False"/>
   <menuitem id="l10n_ua_hr_orders.menu_ua_hr_order" active="False"/>
   <menuitem id="l10n_ua_payroll_ui.menu_ua_timesheet_docs" active="False"/>
   <menuitem id="l10n_ua_changes.menu_ua_period_close" active="False"/>

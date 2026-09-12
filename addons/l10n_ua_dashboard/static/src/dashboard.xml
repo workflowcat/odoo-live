@@ -31,7 +31,7 @@
               Листків за цей місяць немає.
               <button type="button" class="btn btn-sm btn-link p-0"
                       t-if="data.payroll_by_department.run_action"
-                      t-on-click="() => this.openHubItem(data.payroll_by_department.run_action)">
+                      t-on-click="() => this.openActionXmlid(data.payroll_by_department.run_action)">
                 Відкрити пакети листків
               </button>
             </div>
