@@ -111,14 +111,13 @@
             </table>
           </div>
 
-          <div class="o_ua_reporting_section">
+          <div class="o_ua_reporting_section" t-if="data.run.files.length or data.run.receipts.length">
             <h5>Файли</h5>
             <ul t-if="data.run.files.length" class="o_ua_reporting_files">
               <li t-foreach="data.run.files" t-as="f" t-key="f.id">
                 <a t-attf-href="/web/content/#{f.id}?download=true" target="_blank" t-esc="f.name"/>
               </li>
             </ul>
-            <div t-else="" class="text-muted">Файлів ще немає.</div>
             <div t-if="data.run.receipts.length" class="o_ua_reporting_receipts">
               <h6>Квитанції</h6>
               <ul class="o_ua_reporting_files">

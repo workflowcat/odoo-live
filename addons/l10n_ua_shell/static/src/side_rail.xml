@@ -30,10 +30,12 @@
         <t t-if="node.childrenTree and node.childrenTree.length">
           <div class="o_ua_rail_group" t-esc="node.name"/>
           <t t-foreach="node.childrenTree" t-as="leaf" t-key="leaf.id">
-            <a href="#" class="o_ua_rail_link o_ua_rail_link_sub" t-on-click.prevent="() => this.openMenu(leaf)" t-esc="leaf.name"/>
+            <a href="#" class="o_ua_rail_link o_ua_rail_link_sub" t-on-click.prevent="() => this.openMenu(leaf)" t-esc="leaf.name"
+               t-att-data-tooltip="pageHelp(leaf)" data-tooltip-position="right"/>
           </t>
         </t>
-        <a t-else="" href="#" class="o_ua_rail_link" t-on-click.prevent="() => this.openMenu(node)" t-esc="node.name"/>
+        <a t-else="" href="#" class="o_ua_rail_link" t-on-click.prevent="() => this.openMenu(node)" t-esc="node.name"
+           t-att-data-tooltip="pageHelp(node)" data-tooltip-position="right"/>
       </t>
     </div>
   </t>

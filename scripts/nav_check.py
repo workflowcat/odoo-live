@@ -199,6 +199,60 @@ for xmlid in HIDDEN:
 people = [m["name"] for m in items]
 check("оргструктура і підрозділи в «Працівниках»", "Оргструктура" in people and "Підрозділи" in people)
 
+# 9. жодної порожньої сторінки: кожен видимий пункт наших розділів показує дані, не діалог, має опис
+import http.cookiejar as _cj
+import urllib.request as _ur
+_jar = _cj.CookieJar(); _op = _ur.build_opener(_ur.HTTPCookieProcessor(_jar))
+_base = URL.rsplit("/jsonrpc", 1)[0]
+
+
+def _post(path, params):
+    req = _ur.Request(_base + path, json.dumps({"jsonrpc": "2.0", "method": "call", "params": params}).encode(),
+                      {"Content-Type": "application/json"})
+    return json.loads(_op.open(req, timeout=120).read())
+
+
+if LANA_PW:
+    _post("/web/session/authenticate", {"db": DB, "login": LANA_LOGIN, "password": LANA_PW})
+    menus = json.loads(_op.open(_base + "/web/webclient/load_menus", timeout=60).read())
+    OUR_ROOTS = {"l10n_ua_period.menu_ua_period_root", "l10n_ua_navigation.menu_ua_people_root",
+                 "l10n_ua_bank_online.menu_ua_bank_board", "l10n_ua_reporting.menu_ua_reporting_root",
+                 "l10n_ua_navigation.menu_ua_setup_root"}
+    leaves = []
+
+    def _walk(mid):
+        m = menus[str(mid)]
+        if m["children"]:
+            for c in m["children"]:
+                _walk(c)
+        else:
+            leaves.append(m)
+
+    for app in menus["root"]["children"]:
+        if menus[str(app)]["xmlid"] in OUR_ROOTS:
+            _walk(app)
+    rail_js = open("addons/l10n_ua_shell/static/src/side_rail.js", encoding="utf-8").read()
+    empty, modal, no_help = [], [], []
+    for leaf in leaves:
+        if leaf["xmlid"] not in rail_js:
+            no_help.append(leaf["name"])
+        act = _post("/web/action/load", {"action_id": leaf["actionID"]}).get("result") or {}
+        if act.get("type") != "ir.actions.act_window":
+            continue
+        if act.get("target") == "new":
+            modal.append(leaf["name"])
+            continue
+        dom = act.get("domain") or "[]"
+        if isinstance(dom, str):
+            dom = eval(dom, {}, {"uid": 0, "company_id": 1, "allowed_company_ids": [1]})
+        res = _post("/web/dataset/call_kw", {"model": act["res_model"], "method": "search_count", "args": [dom], "kwargs": {}})
+        if res.get("result", 0) == 0:
+            empty.append(leaf["name"])
+    check(f"сторінок у наших розділах для {LANA_LOGIN}: {len(leaves)}", len(leaves) >= 20, "")
+    check("жодна сторінка меню не відкриває діалог", not modal, str(modal))
+    check("жодна сторінка-перелік не порожня", not empty, str(empty))
+    check("кожна сторінка має опис у підказці", not no_help, str(no_help))
+
 print()
 if errors:
     print(f"ПЕРЕВІРКУ НЕ ПРОЙДЕНО: {len(errors)} з {total} пунктів провалено")

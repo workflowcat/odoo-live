@@ -21,10 +21,20 @@ def post_init_hook(env):
         form_view_rec = action.view_ids.filtered(lambda v: v.view_mode == "form")
         if form_view_rec:
             form_view_rec.write({"view_id": card_view.id})
-        else:
-            env["ir.actions.act_window.view"].create({
-                "act_window_id": action.id,
-                "view_mode": "form",
-                "view_id": card_view.id,
-                "sequence": 1,
-            })
+        # Якщо окремого запису форми немає, нічого не створюємо: картка має priority=1 і
+        # стає формою за замовчуванням сама. Створений запис Odoo ставить перед рештою видів,
+        # тож дія зі списком або деревом відкривалась би порожньою формою нового запису.
+
+
+def repair_form_first(env):
+    """Прибрати записи форми, які попередня версія хука створила першим видом дії."""
+    card_view = env.ref("l10n_ua_card_ui.view_employee_form_ua_card_wrapper", raise_if_not_found=False)
+    if not card_view:
+        return
+    records = env["ir.actions.act_window.view"].search([("view_id", "=", card_view.id), ("view_mode", "=", "form")])
+    for rec in records:
+        action = rec.act_window_id
+        modes = (action.view_mode or "").split(",")
+        # запис форми, єдиний у дії, яка починається не з форми - це саме той хибний запис
+        if modes and modes[0] != "form" and len(action.view_ids) == 1:
+            rec.unlink()

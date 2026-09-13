@@ -13,6 +13,19 @@
   <record id="hr.open_view_employee_list_my" model="ir.actions.act_window">
     <field name="name">Картки працівників</field>
   </record>
+  <record id="hr_org_chart.action_hr_employee_org_chart" model="ir.actions.act_window">
+    <field name="name">Оргструктура</field>
+  </record>
+
+  <!-- «Відсутності» зі стандартною дією hr_holidays відкривались з фільтром «Очікує на мене»:
+       записів не видно, а Odoo малює на їхньому місці приклад з вигаданими людьми. -->
+  <record id="action_ua_leaves" model="ir.actions.act_window">
+    <field name="name">Відсутності</field>
+    <field name="res_model">hr.leave</field>
+    <field name="view_mode">list,calendar,form</field>
+    <field name="domain">[]</field>
+    <field name="context">{}</field>
+  </record>
 
   <!-- ================================================================= розділи -->
   <menuitem id="menu_ua_people_root" name="Працівники" sequence="2"/>
@@ -33,7 +46,7 @@
             parent="l10n_ua_period.menu_ua_period_root" sequence="6"/>
   <menuitem id="menu_ua_history_periods" name="Закриті періоди"
             parent="l10n_ua_period.menu_ua_period_root"
-            action="l10n_ua_changes.action_ua_period_close" sequence="7"/>
+            action="l10n_ua_changes.action_ua_period_close" sequence="7" active="False"/>
   <menuitem id="l10n_ua_changes.menu_ua_changes_root" name="Журнал змін"
             parent="l10n_ua_period.menu_ua_period_root" sequence="8"/>
 
@@ -43,7 +56,7 @@
   <menuitem id="menu_ua_people_orders" name="Накази" parent="menu_ua_people_root"
             action="l10n_ua_hr_orders.action_ua_hr_order" sequence="4" groups="hr.group_hr_user"/>
   <menuitem id="menu_ua_people_leaves" name="Відсутності" parent="menu_ua_people_root"
-            action="hr_holidays.hr_leave_action_action_approve_department" sequence="5" groups="hr.group_hr_user"/>
+            action="action_ua_leaves" sequence="5" groups="hr.group_hr_user"/>
   <menuitem id="menu_ua_people_org_chart" name="Оргструктура" parent="menu_ua_people_root"
             action="hr_org_chart.action_hr_employee_org_chart" sequence="2" groups="hr.group_hr_user"/>
   <menuitem id="menu_ua_people_departments" name="Підрозділи" parent="menu_ua_people_root"
@@ -54,11 +67,19 @@
             parent="menu_ua_people_root" sequence="5"/>
   <menuitem id="l10n_ua_hr_orders.menu_ua_hr_doc_requirement" name="Обов'язкові документи"
             parent="menu_ua_people_root" sequence="6"/>
-  <menuitem id="l10n_ua_hr_orders.menu_ua_hr_doc_pack" name="Пакет документів працівника"
-            parent="menu_ua_people_root" sequence="8"/>
+  <menuitem id="l10n_ua_hr_orders.menu_ua_hr_doc_pack" active="False"/>
   <!-- військовий облік лишається групою: свого екрана в нього ще немає -->
   <menuitem id="l10n_ua_payroll_ui.menu_ua_military" name="Військовий облік"
             parent="menu_ua_people_root" sequence="9"/>
+  <menuitem id="l10n_ua_payroll_ui.menu_ua_military_list" name="Списки персонального обліку"
+            action="l10n_ua_military.action_ua_military_list"
+            parent="l10n_ua_payroll_ui.menu_ua_military" sequence="2"/>
+  <menuitem id="l10n_ua_payroll_ui.menu_ua_military_notice" name="Повідомлення до ТЦК"
+            action="l10n_ua_military.action_ua_military_notice"
+            parent="l10n_ua_payroll_ui.menu_ua_military" sequence="3"/>
+  <menuitem id="l10n_ua_payroll_ui.menu_ua_military_reserved" name="Списки заброньованих"
+            action="l10n_ua_military.action_ua_military_reserved"
+            parent="l10n_ua_payroll_ui.menu_ua_military" sequence="4"/>
 
   <!-- ================================================================= 3. Банк -->
   <menuitem id="l10n_ua_bank_online.menu_ua_bank_board" name="Банк" parent="" sequence="3"/>
@@ -88,8 +109,7 @@
             action="l10n_ua_payroll_account.action_ua_payroll_account_map" sequence="4"/>
   <menuitem id="l10n_ua_average.menu_ua_earnings_history" name="Історія заробітку"
             parent="menu_ua_setup_root" sequence="5"/>
-  <menuitem id="l10n_ua_onboarding.menu_ua_employee_import" name="Імпорт працівників"
-            parent="menu_ua_setup_root" sequence="6"/>
+  <menuitem id="l10n_ua_onboarding.menu_ua_employee_import" active="False"/>
 
   <!-- Технічні таблиці: лише в режимі розробника. Бухгалтер їх не редагує. -->
   <menuitem id="menu_ua_setup_questions" name="Питання анкети" parent="menu_ua_setup_root"

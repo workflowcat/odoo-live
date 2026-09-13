@@ -26,6 +26,39 @@ const SHORT = {
 };
 const OURS = Object.keys(SHORT);
 
+// Що робить кожна сторінка: одне речення в підказці переліку сторінок.
+export const PAGE_HELP = {
+    "l10n_ua_navigation.menu_ua_period_screen": "Робоче місце місяця: кроки, документи, строки і закриття.",
+    "l10n_ua_dashboard.menu_ua_dashboard_root": "Нарахування по підрозділах, обороти рахунків і документи місяця.",
+    "payroll.hr_payslip_menu": "Листок кожного працівника за місяць: нарахування, податки, сума до виплати.",
+    "payroll.hr_payslip_run_menu": "Листки всіх працівників за місяць однією групою для розрахунку і затвердження.",
+    "l10n_ua_payroll_ui.menu_ua_payment_batch": "Відомості на виплату зарплати через банк і файли для банку.",
+    "l10n_ua_payroll_ui.menu_ua_advance_sheet": "Відомості авансу за першу половину місяця.",
+    "l10n_ua_changes.menu_ua_changes_root": "Кожна зміна суми, часу або стану після розрахунку: було, стало, хто.",
+    "l10n_ua_navigation.menu_ua_people_employees": "Картка працівника: договір, оклад, документи, відпустки, військовий облік.",
+    "l10n_ua_navigation.menu_ua_people_org_chart": "Хто кому підпорядкований, від директора до працівників.",
+    "l10n_ua_navigation.menu_ua_people_departments": "Підрозділи компанії, їхні керівники і кількість працівників.",
+    "l10n_ua_navigation.menu_ua_people_orders": "Кадрові накази: прийняття, звільнення, зміна окладу, відпустки.",
+    "l10n_ua_payroll_ui.menu_ua_staff_list_docs": "Штатний розпис: посади, штатні одиниці, оклади і фонд.",
+    "l10n_ua_navigation.menu_ua_people_leaves": "Відпустки, лікарняні та інші відсутності працівників.",
+    "l10n_ua_hr_orders.menu_ua_hr_doc_requirement": "Документи, які має мати кожен працівник, і в кого їх бракує.",
+    "l10n_ua_navigation.menu_ua_people_timesheet": "Табель П-5: дні і години кожного працівника за місяць.",
+    "l10n_ua_payroll_ui.menu_ua_military_liable": "Працівники, які перебувають на військовому обліку.",
+    "l10n_ua_payroll_ui.menu_ua_military_list": "Списки персонального військового обліку для ТЦК.",
+    "l10n_ua_payroll_ui.menu_ua_military_notice": "Повідомлення до ТЦК про зміну облікових даних працівників.",
+    "l10n_ua_payroll_ui.menu_ua_military_reserved": "Списки заброньованих працівників.",
+    "l10n_ua_payroll_ui.menu_ua_military_needs_check": "Працівники, у яких звірку з ТЦК не проведено.",
+    "l10n_ua_navigation.menu_ua_bank_screen": "Залишки, виписки і звірка рахунків компанії за місяць.",
+    "l10n_ua_navigation.menu_ua_setup_bank": "Підготовка підключення рахунків до автоматичних виписок банку.",
+    "l10n_ua_navigation.menu_ua_reporting_screen": "Звіти до ДПС і ПФУ, облікові звіти і кадрові форми: перевірки, файли, подання.",
+    "l10n_ua_payroll_ui.menu_ua_pfu_claim_docs": "Заяви-розрахунки до ПФУ на лікарняні й декретні та їх фінансування.",
+    "l10n_ua_navigation.menu_ua_setup_profile": "Анкета про компанію: відповіді стають налаштуваннями розрахунку.",
+    "l10n_ua_navigation.menu_ua_setup_params": "Законодавчі числа з датою дії: мінімальна зарплата, ставки, межі.",
+    "l10n_ua_navigation.menu_ua_setup_cpi": "Індекси споживчих цін Держстату для індексації зарплати.",
+    "l10n_ua_navigation.menu_ua_setup_accounts": "Рахунки обліку для кожного рядка розрахункового листка.",
+    "l10n_ua_average.menu_ua_earnings_history": "Заробіток працівників за 12 місяців для відпускних і лікарняних.",
+};
+
 function readPin() {
     try {
         return browser.localStorage.getItem(PIN_KEY) === "1";
@@ -147,6 +180,10 @@ export class UaSideRail extends Component {
             }
         }
         return null;
+    }
+
+    pageHelp(node) {
+        return PAGE_HELP[node.xmlid] || "";
     }
 
     async openMenu(node) {

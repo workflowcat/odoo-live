@@ -193,18 +193,18 @@
                   </tr>
                 </tbody>
               </table>
-              <div t-else="" class="o_ua_lbl o_ua_pd_empty">Записів немає.</div>
+
             </t>
           </div>
 
           <!-- праворуч: кошик друку, увага, зміни -->
           <div class="o_ua_pd_side">
-            <div class="o_ua_pd_side_block">
+            <div class="o_ua_pd_side_block" t-if="state.basket.length or state.guide">
               <div class="o_ua_pd_side_title">
                 <span t-if="state.guide" class="o_ua_guide_no" data-tooltip="Пакет документів для одного друку. Порядок змінюють стрілки. Кошик пам'ятає цей браузер.">4</span>
                 Кошик друку · <t t-esc="state.basket.length"/>
               </div>
-              <div t-if="!state.basket.length" class="o_ua_lbl">Порожньо.</div>
+              <div t-if="!state.basket.length" class="o_ua_lbl">Додайте документ кнопкою «До кошика».</div>
               <div t-foreach="state.basket" t-as="item" t-key="item.r + '-' + item.ids.join(',')" class="o_ua_pd_basket_row">
                 <span class="o_ua_pd_basket_name" t-esc="item.t"/>
                 <button class="o_ua_pd_icon" t-att-disabled="item_index === 0" t-on-click="() => this.moveBasket(item_index, -1)" aria-label="Вище">↑</button>

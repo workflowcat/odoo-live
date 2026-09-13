@@ -142,13 +142,31 @@ HAS_INDEX = "ua_index_off" in EMP_FIELDS
 if HAS_INDEX:
     # тестові індекси: лютий і березень дають наростаючий 103,1 % (поріг 103 % перевищено),
     # серпень навмисно великий - його не можна застосовувати до серпневого листка
-    for year, month, value in ((2026, 2, 101.5), (2026, 3, 101.6), (2026, 8, 110.0)):
-        found = call("ua.cpi.index", "search", [["year", "=", year], ["month", "=", month]])
+    # у довіднику лежать справжні індекси Держстату: тестові числа ставимо лише на час
+    # розрахунку, а після перевірки (навіть при збої) повертаємо як було
+    import atexit
+    _cpi_restore = []
+    _test_cpi = {2: 101.5, 3: 101.6, 8: 110.0}   # решта місяців сценарію - без зміни цін
+    for year, month, value in ((2026, m, _test_cpi.get(m, 100.0)) for m in range(1, 9)):
+        found = call("ua.cpi.index", "search_read", [["year", "=", year], ["month", "=", month]], fields=["value", "note"])
         vals = {"value": value, "note": "тестове число для еталонного сценарію"}
         if found:
-            call("ua.cpi.index", "write", found, vals)
+            _cpi_restore.append(("write", found[0]["id"], {"value": found[0]["value"], "note": found[0]["note"] or False}))
+            call("ua.cpi.index", "write", [found[0]["id"]], vals)
         else:
-            call("ua.cpi.index", "create", {"year": year, "month": month, **vals})
+            new_id = call("ua.cpi.index", "create", {"year": year, "month": month, **vals})
+            _cpi_restore.append(("unlink", new_id, None))
+
+    def _restore_cpi():
+        for op, rec_id, vals in _cpi_restore:
+            try:
+                if op == "write":
+                    call("ua.cpi.index", "write", [rec_id], vals)
+                else:
+                    call("ua.cpi.index", "unlink", [rec_id])
+            except Exception as exc:  # відновлення не має ховати результат перевірки
+                print("не вдалося повернути індекс", rec_id, exc)
+    atexit.register(_restore_cpi)
 
 RUN = call("hr.payslip.run", "search", [["name", "=", "Еталонні сценарії, серпень 2026"]])
 RUN = RUN[0] if RUN else call("hr.payslip.run", "create", {"name": "Еталонні сценарії, серпень 2026", "date_start": PERIOD[0], "date_end": PERIOD[1]})

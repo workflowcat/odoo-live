@@ -245,8 +245,14 @@ mgr = {"Адміністрація": created[1][0], "Бухгалтерія": cr
 for d, m in mgr.items():
     call("hr.department", "write", [DEPTS[d]], {"manager_id": m})
 for i, (ln, fn, mn, sex, bd, job, dept, *_rest) in enumerate(P, 1):
-    eid = created[i][0]; boss = mgr[dept] if mgr[dept] != eid else created[1][0]
+    eid = created[i][0]
+    # керівник підрозділу підпорядкований директору; директор - корінь оргструктури без керівника
+    boss = mgr[dept] if mgr[dept] != eid else (created[1][0] if eid != created[1][0] else False)
     call("hr.employee", "write", [eid], {"parent_id": boss, "coach_id": boss})
+# стандартний підрозділ Odoo «Administration» порожній і англійською: архівуємо
+stray = [d["id"] for d in call("hr.department", "search_read", [["name", "=", "Administration"]], fields=["member_ids"]) if not d["member_ids"]]
+if stray:
+    call("hr.department", "write", stray, {"active": False})
 call("res.company", "write", [COMPANY], {"ua_director_name": created[1][1], "ua_director_rnokpp": created[1][2], "ua_accountant_name": created[2][1], "ua_accountant_rnokpp": created[2][2]})
 
 # ---- пакети листків: липень (закрито), серпень (закрито), вересень (чернетки для авансу) ---------------

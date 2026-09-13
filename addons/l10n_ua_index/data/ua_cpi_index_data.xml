@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Індекси споживчих цін Держстату до попереднього місяця, %.
+     Звірено за двома джерелами 13.09.2026: «Дебет-Кредит» (services.dtkt.ua, оновлено 09.09.2026)
+     і Мінфін (index.minfin.com.ua). Дату оприлюднення не вносимо: точних дат у джерелах немає.
+     noupdate: бухгалтер може виправити число, оновлення модуля його не перезапише. -->
+<odoo noupdate="1">
+  <record id="cpi_2025_01" model="ua.cpi.index"><field name="year">2025</field><field name="month">1</field><field name="value">101.2</field><field name="note">Держстат; звірено Дебет-Кредит і Мінфін 13.09.2026</field></record>
+  <record id="cpi_2025_02" model="ua.cpi.index"><field name="year">2025</field><field name="month">2</field><field name="value">100.8</field><field name="note">Держстат; звірено Дебет-Кредит і Мінфін 13.09.2026</field></record>
+  <record id="cpi_2025_03" model="ua.cpi.index"><field name="year">2025</field><field name="month">3</field><field name="value">101.5</field><field name="note">Держстат; звірено Дебет-Кредит і Мінфін 13.09.2026</field></record>
+  <record id="cpi_2025_04" model="ua.cpi.index"><field name="year">2025</field><field name="month">4</field><field name="value">100.7</field><field name="note">Держстат; звірено Дебет-Кредит і Мінфін 13.09.2026</field></record>
+  <record id="cpi_2025_05" model="ua.cpi.index"><field name="year">2025</field><field name="month">5</field><field name="value">101.3</field><field name="note">Держстат; звірено Дебет-Кредит і Мінфін 13.09.2026</field></record>
+  <record id="cpi_2025_06" model="ua.cpi.index"><field name="year">2025</field><field name="month">6</field><field name="value">100.8</field><field name="note">Держстат; звірено Дебет-Кредит і Мінфін 13.09.2026</field></record>
+  <record id="cpi_2025_07" model="ua.cpi.index"><field name="year">2025</field><field name="month">7</field><field name="value">99.8</field><field name="note">Держстат; звірено Дебет-Кредит і Мінфін 13.09.2026</field></record>
+  <record id="cpi_2025_08" model="ua.cpi.index"><field name="year">2025</field><field name="month">8</field><field name="value">99.8</field><field name="note">Держстат; звірено Дебет-Кредит і Мінфін 13.09.2026</field></record>
+  <record id="cpi_2025_09" model="ua.cpi.index"><field name="year">2025</field><field name="month">9</field><field name="value">100.3</field><field name="note">Держстат; звірено Дебет-Кредит і Мінфін 13.09.2026</field></record>
+  <record id="cpi_2025_10" model="ua.cpi.index"><field name="year">2025</field><field name="month">10</field><field name="value">100.9</field><field name="note">Держстат; звірено Дебет-Кредит і Мінфін 13.09.2026</field></record>
+  <record id="cpi_2025_11" model="ua.cpi.index"><field name="year">2025</field><field name="month">11</field><field name="value">100.4</field><field name="note">Держстат; звірено Дебет-Кредит і Мінфін 13.09.2026</field></record>
+  <record id="cpi_2025_12" model="ua.cpi.index"><field name="year">2025</field><field name="month">12</field><field name="value">100.2</field><field name="note">Держстат; звірено Дебет-Кредит і Мінфін 13.09.2026</field></record>
+  <record id="cpi_2026_01" model="ua.cpi.index"><field name="year">2026</field><field name="month">1</field><field name="value">100.7</field><field name="note">Держстат; звірено Дебет-Кредит і Мінфін 13.09.2026</field></record>
+  <record id="cpi_2026_02" model="ua.cpi.index"><field name="year">2026</field><field name="month">2</field><field name="value">101.0</field><field name="note">Держстат; звірено Дебет-Кредит і Мінфін 13.09.2026</field></record>
+  <record id="cpi_2026_03" model="ua.cpi.index"><field name="year">2026</field><field name="month">3</field><field name="value">101.7</field><field name="note">Держстат; звірено Дебет-Кредит і Мінфін 13.09.2026</field></record>
+  <record id="cpi_2026_04" model="ua.cpi.index"><field name="year">2026</field><field name="month">4</field><field name="value">101.4</field><field name="note">Держстат; звірено Дебет-Кредит і Мінфін 13.09.2026</field></record>
+  <record id="cpi_2026_05" model="ua.cpi.index"><field name="year">2026</field><field name="month">5</field><field name="value">100.9</field><field name="note">Держстат; звірено Дебет-Кредит і Мінфін 13.09.2026</field></record>
+  <record id="cpi_2026_06" model="ua.cpi.index"><field name="year">2026</field><field name="month">6</field><field name="value">99.9</field><field name="note">Держстат; звірено Дебет-Кредит і Мінфін 13.09.2026</field></record>
+  <record id="cpi_2026_07" model="ua.cpi.index"><field name="year">2026</field><field name="month">7</field><field name="value">100.3</field><field name="note">Держстат; звірено Дебет-Кредит і Мінфін 13.09.2026</field></record>
+  <record id="cpi_2026_08" model="ua.cpi.index"><field name="year">2026</field><field name="month">8</field><field name="value">100.1</field><field name="note">Держстат; звірено Дебет-Кредит і Мінфін 13.09.2026</field></record>
+</odoo>

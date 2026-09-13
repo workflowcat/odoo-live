@@ -11,6 +11,9 @@ get_card_data() збирає в один виклик усе, що картка 
 """
 from datetime import date
 
+import json
+from urllib.parse import urlencode
+
 from odoo import fields, models
 from odoo.exceptions import UserError
 
@@ -296,6 +299,7 @@ class HrEmployee(models.Model):
         actions.append({"key": "new_document", "label": "Додати документ", "method": "action_ua_card_new_document", "group": "footer"})
         actions.append({"key": "mil_check", "label": "Записати звірку ТЦК", "method": "action_ua_card_register_mil_check", "group": "footer"})
         actions.append({"key": "income_certificate", "label": "Довідка про доходи", "method": "action_ua_card_income_certificate", "group": "footer"})
+        actions.append({"key": "doc_pack", "label": "Пакет документів", "method": "action_ua_card_doc_pack", "group": "footer"})
         if can_manage:
             actions.append({"key": "dismiss", "label": "Звільнити", "method": "action_ua_card_dismiss", "group": "footer"})
         actions.append({"key": "standard_form", "label": "Стандартна форма", "method": "action_ua_card_open_standard_form", "group": "footer"})
@@ -388,6 +392,15 @@ class HrEmployee(models.Model):
             "target": "new",
             "context": {"default_employee_id": self.id},
         }
+
+    def action_ua_card_doc_pack(self):
+        """Пакет документів працівника: перегляд у вкладці браузера, друк звідти."""
+        self.ensure_one()
+        wizard = self.env["ua.hr.doc.pack.wizard"].create({"employee_ids": [(6, 0, self.ids)]})
+        items = json.dumps([{"r": "l10n_ua_hr_orders.report_ua_hr_doc_pack", "ids": wizard.ids,
+                             "t": "Пакет документів · %s" % self.name}], ensure_ascii=False)
+        return {"type": "ir.actions.act_url", "target": "new",
+                "url": "/ua/print?" + urlencode({"items": items})}
 
     def action_ua_card_income_certificate(self):
         """Майстер довідки про доходи з підставленим працівником."""

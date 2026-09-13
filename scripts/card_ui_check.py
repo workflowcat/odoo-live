@@ -115,8 +115,13 @@ if form_entries and card_view:
 act2 = env.ref('l10n_ua_military.action_ua_military_liable', raise_if_not_found=False)
 if act2 and card_view:
     form_entries2 = [v for v in act2.views if v[1] == 'form']
+    # форма може бути прописана явно або братися за пріоритетом: картка має priority=1
+    default_form = env['hr.employee'].get_views([(False, 'form')])['views']['form']['id']
+    effective = form_entries2[0][0] or default_form if form_entries2 else None
     check("дія «Військовозобов'язані» також відкриває нашу картку (форма)",
-          bool(form_entries2) and form_entries2[0][0] == card_view.id, str(act2.views))
+          effective == card_view.id, f"views={act2.views}, форма за замовчуванням={default_form}")
+    check("дія «Військовозобов'язані» відкривається списком, а не формою",
+          act2.views and act2.views[0][1] != 'form', str(act2.views))
 
 # 5. Дії кнопок повертають коректні словники (без реальних записів для Ткачука - лише форма/друк)
 if tk:
