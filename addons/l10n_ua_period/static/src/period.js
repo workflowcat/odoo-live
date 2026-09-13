@@ -8,6 +8,31 @@ import { standardActionServiceProps } from "@web/webclient/actions/action_servic
 
 const STATE_LABEL = { done: "готово", warn: "потребує уваги", todo: "не почато" };
 const BASKET_KEY = "ua_print_basket";
+const GUIDE_KEY = "ua_guide";
+
+// Підказки при наведенні: одне речення, що означає позначка або що станеться після кліку.
+const DOT_TIP = { done: "Готово", warn: "Потребує уваги", todo: "Не почато", crit: "Терміново" };
+const MARK_TIP = { ok: "Виконано", warn: "Потребує уваги", crit: "Не сплачено або прострочено", todo: "Заплановано" };
+const DOC_TIP = {
+    print: "Документ для друку. Можна переглянути на папері і додати в кошик.",
+    filing: "Подання в держорган. Має строк і квитанцію.",
+    file: "Машинний файл для банку. Відкриває запис, де цей файл формують.",
+};
+const STATE_TIP = {
+    "чернетка": "Чернетка: документ ще можна правити, номера немає.",
+    "створено": "Створено: документ зафіксовано.",
+    "подано": "Подано: є квитанція.",
+    "сформовано": "Сформовано: файл готовий, але ще не поданий.",
+    "немає": "Документа за цей місяць ще немає.",
+};
+
+function readGuide() {
+    try {
+        return browser.localStorage.getItem(GUIDE_KEY) !== "0";
+    } catch {
+        return true;
+    }
+}
 
 function readBasket() {
     try {
@@ -26,7 +51,11 @@ export class UaPeriod extends Component {
         this.action = useService("action");
         this.notification = useService("notification");
         this.state = useState({ data: null, loading: true, busy: false, open: {}, people: [], person: null,
-                                selected: null, preview: null, basket: readBasket() });
+                                selected: null, preview: null, basket: readBasket(), guide: readGuide() });
+        this.dotTip = (state) => DOT_TIP[state] || "";
+        this.markTip = (mark) => `${mark.date}: ${mark.label}. ${MARK_TIP[mark.state] || ""}`;
+        this.docTip = (doc) => DOC_TIP[doc.kind] || "";
+        this.stateTip = (state) => STATE_TIP[state] || "";
         this.previewFrame = useRef("previewFrame");
         this.stateLabel = (s) => STATE_LABEL[s] || s;
         onWillStart(() => this.load());
@@ -43,6 +72,31 @@ export class UaPeriod extends Component {
         } finally {
             this.state.loading = false;
         }
+    }
+
+    // ---------------------------------------------------------------- підказки
+    /** Режим підказок: перші кроки, пояснення кроку, номери частин екрана. Стан пам'ятає браузер. */
+    toggleGuide() {
+        this.state.guide = !this.state.guide;
+        try {
+            browser.localStorage.setItem(GUIDE_KEY, this.state.guide ? "1" : "0");
+        } catch {
+            // приватне вікно: стан живе до перезавантаження
+        }
+    }
+
+    get firstStepsLeft() {
+        const items = (this.state.data && this.state.data.first_steps) || [];
+        return items.filter((i) => !i.done).length;
+    }
+
+    helpFor(step) {
+        const help = (this.state.data && this.state.data.help) || {};
+        return help[step.key];
+    }
+
+    openFirstStep(item) {
+        return this.openDocTarget({ target: item.action });
     }
 
     // ---------------------------------------------------------------- перелік і деталь

@@ -500,6 +500,117 @@ class UaPeriodBoard(models.AbstractModel):
                                     ("date", ">=", str(first)), ("date", "<=", str(last))]})
         return rows
 
+    # ------------------------------------------------------------------ довідка
+    # Пояснення кроків місяця для режиму підказок. Що це, коли готово, що далі.
+    STEP_HELP = {
+        "orders": {
+            "what": "Накази місяця: прийняття, звільнення, зміна окладу, відпустки.",
+            "done": "Готово, коли чернеток немає.",
+            "next": "Проведений наказ сам змінює договір працівника і рядки його листка.",
+        },
+        "timesheet": {
+            "what": "Дні і години кожного працівника. Норма береться з графіка, факт правите вручну.",
+            "done": "Готово, коли табель затверджено.",
+            "next": "«Перерахувати листки» в табелі переносить факт у листки.",
+        },
+        "advance": {
+            "what": "Виплата за першу половину місяця за відсотком окладу.",
+            "done": "Готово, коли авансову відомість затверджено.",
+            "next": "Сума авансу віднімається в листку при остаточному розрахунку.",
+        },
+        "payslips": {
+            "what": "Листок на кожного працівника: нарахування, ПДФО 18 %, військовий збір 5 %, ЄСВ 22 %.",
+            "done": "Готово, коли всі листки затверджено.",
+            "next": "Затвердження створює проводки і рядки для відомості на виплату.",
+        },
+        "moves": {
+            "what": "Проводки з листків на рахунки 661, 641, 651.",
+            "done": "Готово, коли дебет дорівнює кредиту і чернеток немає.",
+            "next": "Обороти видно на екрані «Зведення».",
+        },
+        "payment": {
+            "what": "Відомість на перерахування і файл для банку.",
+            "done": "Готово, коли відомість позначено оплаченою.",
+            "next": "Оплату підтверджує рядок виписки на кроці «Звірка банку».",
+        },
+        "bank": {
+            "what": "Рядки виписки за місяць зіставляються з виплатами і податками.",
+            "done": "Готово, коли незвірених рядків за місяць немає.",
+            "next": "Звірений рядок закриває платіж на смузі строків.",
+        },
+        "changes": {
+            "what": "Журнал кожної зміни суми, часу або стану після розрахунку: було, стало, хто.",
+            "done": "Готово, коли всі зміни прийнято.",
+            "next": "Без цього кроку місяць не закривається.",
+        },
+        "reporting": {
+            "what": "Податковий розрахунок J0500111 з додатками Д1, 4ДФ і Д5.",
+            "done": "Готово, коли розрахунок позначено поданим.",
+            "next": "Строк подання - 20 днів після кінця місяця.",
+        },
+    }
+
+    def _first_steps(self, company, year, month):
+        """Перші кроки для нової компанії. Кожен пункт перевіряє справжні дані."""
+        Employee = self.env["hr.employee"]
+        steps = []
+
+        def item(key, title, done, fact, action):
+            steps.append({"key": key, "title": title, "done": bool(done), "fact": fact, "action": action})
+
+        missing = [label for field, label in (
+            ("company_registry", "ЄДРПОУ"), ("ua_sti_code", "код ДПІ"),
+            ("ua_director_name", "керівник"), ("ua_accountant_name", "головний бухгалтер"),
+        ) if field in company._fields and not company[field]]
+        item("company", "Реквізити компанії", not missing,
+             "заповнено" if not missing else "бракує: %s" % ", ".join(missing),
+             {"model": "res.company", "res_id": company.id})
+
+        if "ua.setup.profile" in self.env:
+            profile = self.env["ua.setup.profile"].search([("company_id", "=", company.id)], limit=1)
+            left = profile.required_missing if profile else None
+            item("setup", "Анкета компанії", profile and not left,
+                 "не почато" if not profile else ("усі обов'язкові відповіді є" if not left else "%s обов'язкових питань без відповіді" % left),
+                 {"xmlid": "l10n_ua_setup.action_ua_setup_board"})
+
+        first, _last = self._bounds(year, month)
+        min_wage = self.env["ua.payroll.param"].search([("key", "=", "min_wage"), ("valid_from", "<=", str(first)),
+                                                         ("valid_from", ">=", "%s-01-01" % year)], limit=1)
+        item("params", "Законодавчі числа на %s рік" % year, min_wage,
+             "мінімальна зарплата %s" % self._money(min_wage.value) if min_wage else "немає мінімальної зарплати на рік",
+             {"xmlid": "l10n_ua_payroll_rules.action_ua_payroll_param"})
+
+        if "ua.cpi.index" in self.env:
+            py, pm = (year - 1, 12) if month == 1 else (year, month - 1)
+            cpi = self.env["ua.cpi.index"].sudo().search_count([("year", "=", py), ("month", "=", pm)])
+            item("cpi", "Індекс цін за %s %s" % (MONTHS_UA[pm], py), cpi,
+                 "внесено" if cpi else "немає - індексація рахується як нуль",
+                 {"xmlid": "l10n_ua_index.action_ua_cpi_index"})
+
+        employees = Employee.search([("company_id", "=", company.id), ("active", "=", True)])
+        no_code = employees.filtered(lambda e: "ua_rnokpp" in e._fields and not e.ua_rnokpp)
+        item("employees", "Працівники", employees and not no_code,
+             "немає - почніть з імпорту" if not employees else ("%s працівників" % len(employees) +
+                                                            (", без РНОКПП: %s" % len(no_code) if no_code else "")),
+             {"xmlid": "l10n_ua_onboarding.action_ua_employee_import"} if not employees
+             else {"xmlid": "hr.open_view_employee_list_my"})
+
+        no_terms = employees.filtered(lambda e: not e.resource_calendar_id or not (e.version_id and e.version_id.wage))
+        item("terms", "Оклади і графіки", employees and not no_terms,
+             "у всіх працівників" if employees and not no_terms else "без окладу або графіка: %s" % len(no_terms),
+             {"xmlid": "hr.open_view_employee_list_my"})
+
+        banks = company.partner_id.bank_ids
+        item("bank", "Рахунок компанії в банку", banks,
+             ", ".join(banks.mapped("acc_number"))[:40] if banks else "немає рахунку",
+             {"xmlid": "l10n_ua_bank_online.action_ua_bank_board"})
+
+        run = self.env["hr.payslip.run"].search_count([("company_id", "=", company.id)])
+        item("first_month", "Перший розрахунок", run,
+             "є пакет листків" if run else "ще не рахували",
+             {"xmlid": "payroll.action_hr_payslip_run_tree"})
+        return steps
+
     # ------------------------------------------------------------------ документи кроків
     def _doc(self, kind, name, report=None, records=None, deadline=None, target=None, state=None):
         """Документ біля кроку місяця.
@@ -666,6 +777,8 @@ class UaPeriodBoard(models.AbstractModel):
             "changes": self._changes(company, first, last),
             "exceptions": exceptions,
             "documents": self._documents(company, year, month, first, last),
+            "first_steps": self._first_steps(company, year, month),
+            "help": self.STEP_HELP,
             "deadlines": self._deadlines(company, year, month),
             "headline": self._headline(company, steps, exceptions, close, blockers, estimate),
             "quarter": self._quarter_info(company, year, month),

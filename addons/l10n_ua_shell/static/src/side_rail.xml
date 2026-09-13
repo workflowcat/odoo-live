@@ -4,14 +4,14 @@
     <nav class="o_ua_rail" aria-label="Застосунки">
       <t t-foreach="ourApps" t-as="app" t-key="app.id">
         <button type="button" t-attf-class="o_ua_rail_app #{isActiveApp(app) ? 'active' : ''}"
-                t-att-title="app.name" t-att-aria-label="app.name"
+                t-att-data-tooltip="app.name" data-tooltip-position="right" t-att-aria-label="app.name"
                 t-on-mouseenter="() => this.onEnter(app)" t-on-mouseleave="() => this.onLeave()"
                 t-on-click="() => this.openApp(app)" t-esc="short(app)"/>
       </t>
       <div class="o_ua_rail_sep" t-if="otherApps.length"/>
       <t t-foreach="otherApps" t-as="app" t-key="app.id">
         <button type="button" t-attf-class="o_ua_rail_app o_ua_rail_other #{isActiveApp(app) ? 'active' : ''}"
-                t-att-title="app.name" t-att-aria-label="app.name"
+                t-att-data-tooltip="app.name" data-tooltip-position="right" t-att-aria-label="app.name"
                 t-on-mouseenter="() => this.onEnter(app)" t-on-mouseleave="() => this.onLeave()"
                 t-on-click="() => this.openApp(app)" t-esc="short(app)"/>
       </t>
@@ -22,6 +22,7 @@
       <div class="o_ua_rail_panel_head">
         <span class="o_ua_rail_panel_title" t-esc="panelApp.name"/>
         <button type="button" class="o_ua_rail_pin" t-on-click="() => this.togglePin()"
+                data-tooltip="Закріплений перелік лишається відкритим і зсуває вміст праворуч"
                 t-att-aria-pressed="state.pinned ? 'true' : 'false'"
                 t-esc="state.pinned ? 'відкріпити' : 'закріпити'"/>
       </div>

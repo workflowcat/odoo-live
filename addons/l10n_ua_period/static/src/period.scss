@@ -402,3 +402,80 @@
     .o_ua_period .o_ua_pd_body { grid-template-columns: 220px minmax(0, 1fr); }
     .o_ua_period .o_ua_pd_side { grid-column: 1 / -1; }
 }
+
+// ===================================================================== режим підказок
+.o_ua_period {
+    // номер частини екрана: наведення пояснює, що це за частина
+    .o_ua_guide_no {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        margin-right: 6px;
+        border-radius: 50%;
+        background: var(--o-brand-primary, #714b67);
+        color: #fff;
+        font: 600 11px/1 ui-monospace, Menlo, Consolas, monospace;
+        vertical-align: middle;
+        cursor: help;
+    }
+
+    .o_ua_pd_strip { position: relative; }
+    .o_ua_guide_no_strip { position: absolute; top: -10px; left: -24px; z-index: 1; }
+
+    // перші кроки
+    .o_ua_pd_first {
+        margin: 0 0 18px;
+        padding: 10px 12px 12px;
+        border: 1px solid var(--ua-rule, #dee2e6);
+        background: var(--o-view-background-color, #fff);
+    }
+
+    .o_ua_pd_first_head {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        margin-bottom: 8px;
+
+        b { font-size: 14px; }
+    }
+
+    .o_ua_pd_first_grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 4px 18px;
+    }
+
+    .o_ua_pd_first_item {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+        padding: 5px 6px;
+
+        .o_ua_dot { margin: 6px 0 0; flex: 0 0 7px; }
+        .o_ua_pd_first_title { display: block; font-weight: 500; }
+        &.done .o_ua_pd_first_title { color: var(--ua-muted, #6c757d); font-weight: 400; }
+    }
+
+    // пояснення вибраного кроку
+    .o_ua_pd_help {
+        margin: -4px 0 14px;
+        padding: 8px 12px;
+        border-left: 2px solid var(--o-brand-primary, #714b67);
+        background: var(--o-gray-100, #f1f3f5);
+        max-width: 760px;
+
+        p { margin: 0 0 3px; }
+        p:last-child { margin: 0; }
+    }
+
+    .o_ua_pd_docs_title { font-size: 12px; font-weight: 600; color: var(--ua-muted, #6c757d); margin-bottom: 4px; }
+
+    [data-tooltip] { cursor: help; }
+    .o_ua_clickable[data-tooltip], button[data-tooltip], .o_ua_month[data-tooltip], .o_ua_pd_first_item[data-tooltip] { cursor: pointer; }
+}
+
+@media (max-width: 1399.98px) {
+    .o_ua_period .o_ua_pd_first_grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

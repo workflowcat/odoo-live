@@ -153,6 +153,22 @@ if data["turnover"]:
     lines = call("account.move.line", "search_count", row["domain"])
     check("домен рядка оборотів знаходить проводки", lines > 0, f"знайдено {lines}")
 
+# режим підказок: перші кроки з реальних даних і пояснення кожного кроку
+screen = call("ua.period.board", "get_screen_data", year=2026, month=9)
+first = screen.get("first_steps", [])
+check("перші кроки: 8 пунктів", len(first) == 8, str([f["key"] for f in first]))
+check("кожен перший крок має факт і куди перейти",
+      all(f["fact"] and (f["action"].get("xmlid") or f["action"].get("res_id")) for f in first))
+cpi_count = call("ua.cpi.index", "search_count", [["year", "=", 2026], ["month", "=", 8]])
+cpi = next((f for f in first if f["key"] == "cpi"), None)
+check("пункт індексу відповідає даним", cpi is not None and cpi["done"] == bool(cpi_count),
+      f"індексів за 08.2026: {cpi_count}, done={cpi and cpi['done']}")
+help_map = screen.get("help", {})
+missing_help = [st["key"] for st in screen["steps"] if st["key"] not in help_map]
+check("у кожного кроку є пояснення", not missing_help, str(missing_help))
+long = [k for k, h in help_map.items() for part in h.values() if len(part.split()) > 25]
+check("пояснення не довші за 25 слів у реченні", not long, str(long))
+
 print()
 if errors:
     print(f"ПЕРЕВІРКУ НЕ ПРОЙДЕНО: {len(errors)} з {total} пунктів провалено")
