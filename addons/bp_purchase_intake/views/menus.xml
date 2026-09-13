@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_purchase_intake" name="Вхідні рахунки" parent="purchase.menu_purchase_root"
+              action="action_purchase_intake" sequence="2"/>
+    <menuitem id="menu_purchase_intake_account" name="Вхідні рахунки" parent="account.menu_finance_payables"
+              action="action_purchase_intake" sequence="0"/>
+</odoo>

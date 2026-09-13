@@ -14,6 +14,7 @@ Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how it is built and how to
 | Odoo compute | `docker-compose.live.yml` on any Docker host; `odoo/Dockerfile` for Cloudflare Containers | stateless: nothing of value on its disk |
 | Integration bridge | Cloudflare Worker `odoo-live` (`worker/`) at https://odoo-live.botpartners.workers.dev | holds every vendor key; Odoo holds one token |
 | KYC product | `addons/bp_kyc` | cases, screening, checklist, decision, register sync, mail |
+| Incoming invoices | `addons/bp_purchase_intake` | email PDF → Workers AI → checks → unverified supplier → ЄДР → draft bill; see [docs/purchase-intake.md](docs/purchase-intake.md) |
 | Local dev | `docker-compose.yml` (Odoo + local Postgres, port 8100) | fast loop; same addons |
 
 ## Run

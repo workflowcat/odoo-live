@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_purchase_intake_list" model="ir.ui.view">
+        <field name="name">bp.purchase.intake.list</field>
+        <field name="model">bp.purchase.intake</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state == 'duplicate'" decoration-danger="state == 'error'">
+                <field name="name"/>
+                <field name="received_at"/>
+                <field name="supplier_name"/>
+                <field name="supplier_code" optional="show"/>
+                <field name="number"/>
+                <field name="date"/>
+                <field name="amount_total" sum="Всього"/>
+                <field name="partner_status" widget="badge" decoration-warning="partner_status == 'unverified'" decoration-success="partner_status == 'verified'"/>
+                <field name="source_kind" optional="show"/>
+                <field name="error_count" optional="show"/>
+                <field name="warn_count" optional="hide"/>
+                <field name="state" widget="badge" decoration-info="state == 'new'" decoration-warning="state == 'review'"
+                       decoration-success="state == 'bill'" decoration-danger="state == 'error'"/>
+                <field name="email_from" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_purchase_intake_form" model="ir.ui.view">
+        <field name="name">bp.purchase.intake.form</field>
+        <field name="model">bp.purchase.intake</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_create_bill" type="object" string="Створити чернетку рахунку"
+                            confirm="Документ має помилки в перевірках. Створити чернетку рахунку?"
+                            invisible="move_id or state in ('duplicate', 'new', 'error') or not partner_id"/>
+                    <button name="action_reprocess" type="object" string="Розібрати ще раз" invisible="move_id"/>
+                    <button name="action_refresh_registry" type="object" string="Оновити з ЄДР" invisible="not partner_id"/>
+                    <field name="state" widget="statusbar" statusbar_visible="new,review,bill"/>
+                </header>
+                <div class="alert alert-danger mb-0" role="alert" invisible="state != 'error'">
+                    <field name="error_message" readonly="1"/>
+                </div>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_bill" type="object" class="oe_stat_button" icon="fa-file-text-o" invisible="not move_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Рахунок</span>
+                                <field name="move_state" class="o_stat_value"/>
+                            </div>
+                        </button>
+                        <button name="action_open_partner" type="object" class="oe_stat_button" icon="fa-building-o" invisible="not partner_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Постачальник</span>
+                                <field name="partner_status" class="o_stat_value"/>
+                            </div>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Дублікат" bg_color="text-bg-secondary" invisible="state != 'duplicate'"/>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Документ">
+                            <field name="doc_type"/>
+                            <field name="number"/>
+                            <field name="date"/>
+                            <field name="due_date"/>
+                            <field name="contract"/>
+                            <field name="duplicate_of_id" invisible="not duplicate_of_id"/>
+                        </group>
+                        <group string="Суми">
+                            <field name="amount_untaxed"/>
+                            <field name="prices_include_vat"/>
+                            <field name="vat_rate"/>
+                            <field name="amount_tax"/>
+                            <field name="amount_total"/>
+                            <field name="currency_name"/>
+                        </group>
+                        <group string="Постачальник у документі">
+                            <field name="supplier_name"/>
+                            <field name="supplier_code"/>
+                            <field name="supplier_ipn"/>
+                            <field name="supplier_iban"/>
+                            <field name="supplier_bank"/>
+                            <field name="supplier_address"/>
+                            <field name="supplier_email"/>
+                        </group>
+                        <group string="Картка і лист">
+                            <field name="partner_id"/>
+                            <field name="move_id"/>
+                            <field name="buyer_name"/>
+                            <field name="buyer_code"/>
+                            <field name="email_from"/>
+                            <field name="received_at"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Перевірки" name="checks">
+                            <field name="check_ids" readonly="1">
+                                <list decoration-danger="level == 'error'" decoration-warning="level == 'warn'" decoration-success="level == 'ok'">
+                                    <field name="name"/>
+                                    <field name="level" widget="badge" decoration-danger="level == 'error'"
+                                           decoration-warning="level == 'warn'" decoration-success="level == 'ok'"/>
+                                    <field name="detail"/>
+                                    <field name="key" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Позиції" name="lines">
+                            <field name="line_ids">
+                                <list editable="bottom">
+                                    <field name="sequence"/>
+                                    <field name="name"/>
+                                    <field name="quantity"/>
+                                    <field name="uom_name"/>
+                                    <field name="price_unit"/>
+                                    <field name="amount" sum="Разом"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Текст документа" name="markdown">
+                            <field name="markdown" nolabel="1"/>
+                        </page>
+                        <page string="Розбір" name="ai">
+                            <group>
+                                <field name="source_kind"/>
+                                <field name="ai_model"/>
+                                <field name="ai_neurons"/>
+                                <field name="email_subject"/>
+                                <field name="attachment_id"/>
+                            </group>
+                            <field name="raw_json" nolabel="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="o_attachment_preview"/>
+                <chatter reload_on_attachment="True"/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_purchase_intake_search" model="ir.ui.view">
+        <field name="name">bp.purchase.intake.search</field>
+        <field name="model">bp.purchase.intake</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="supplier_name"/>
+                <field name="supplier_code"/>
+                <field name="number"/>
+                <field name="email_from"/>
+                <filter name="review" string="Потребує перевірки" domain="[('state', 'in', ('review', 'error'))]"/>
+                <filter name="bill" string="Чернетка рахунку" domain="[('state', '=', 'bill')]"/>
+                <filter name="unverified" string="Неперевірені постачальники" domain="[('partner_status', '=', 'unverified')]"/>
+                <filter name="duplicate" string="Дублікати" domain="[('state', '=', 'duplicate')]"/>
+                <separator/>
+                <filter name="group_state" string="Стан" context="{'group_by': 'state'}"/>
+                <filter name="group_partner" string="Постачальник" context="{'group_by': 'partner_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_purchase_intake" model="ir.actions.act_window">
+        <field name="name">Вхідні рахунки</field>
+        <field name="res_model">bp.purchase.intake</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_purchase_intake_search"/>
+    </record>
+</odoo>

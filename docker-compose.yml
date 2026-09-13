@@ -1,16 +1,16 @@
-# Local dev stack: Odoo 19 CE + Postgres 17 on this machine. Port 8100.
-# The LIVE database lives on Supabase; see docker-compose.live.yml and docs/ARCHITECTURE.md.
+# Local dev stack for the purchase-intake branch: Odoo 19 CE + Postgres 17. Port 8120, database "purchase".
+# Workers AI: CF_ACCOUNT_ID from .env; token from CF_API_TOKEN in .env, or .cf/token written by scripts/cf_token.sh.
 services:
   db:
     image: postgres:17
-    container_name: odoo-live-db
+    container_name: odoo-live-purchase-db
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=odoo
       - POSTGRES_PASSWORD=odoo
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
-      - odoo-live-db:/var/lib/postgresql/data/pgdata
+      - odoo-live-purchase-db:/var/lib/postgresql/data/pgdata
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "odoo"]
       interval: 5s
@@ -18,22 +18,27 @@ services:
       retries: 10
   odoo:
     image: odoo:19
-    container_name: odoo-live-web
+    container_name: odoo-live-purchase-web
     depends_on:
       db:
         condition: service_healthy
     ports:
-      - "127.0.0.1:8100:8069"
+      - "127.0.0.1:${ODOO_PORT:-8120}:8069"
     environment:
       - HOST=db
       - USER=odoo
       - PASSWORD=odoo
       - BP_BRIDGE_URL=https://odoo-live.botpartners.workers.dev
       - BP_BRIDGE_TOKEN=${BP_BRIDGE_TOKEN:-}
+      - CF_ACCOUNT_ID=${CF_ACCOUNT_ID:-}
+      - CF_API_TOKEN=${CF_API_TOKEN:-}
+      - CF_API_TOKEN_FILE=/run/cf/token
+      - BP_AI_MODEL=${BP_AI_MODEL:-@cf/meta/llama-4-scout-17b-16e-instruct}
     volumes:
-      - odoo-live-data:/var/lib/odoo
+      - odoo-live-purchase-data:/var/lib/odoo
       - ./addons:/mnt/extra-addons
       - ./odoo/odoo.local.conf:/etc/odoo/odoo.conf:ro
+      - ./.cf:/run/cf:ro
 volumes:
-  odoo-live-db:
-  odoo-live-data:
+  odoo-live-purchase-db:
+  odoo-live-purchase-data:

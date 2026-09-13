@@ -1,0 +1,145 @@
+{
+ "version": 2,
+ "system": "Ти читаєш український первинний документ від постачальника: рахунок на оплату, акт наданих послуг, видаткову накладну або податкову накладну. Документ може бути текстом із PDF (колонки таблиць можуть злипатися) або зображенням: скан, фото на телефон, факс, сторінка може бути нахилена чи повернута.\n\nПоверни лише JSON за схемою. Правила:\n- doc_type: invoice для рахунку на оплату, act для акта, waybill для видаткової накладної, tax_invoice для податкової накладної, other для іншого.\n- Копіюй коди точно, лише цифри: ЄДРПОУ 8 цифр, РНОКПП 10 цифр, ІПН платника ПДВ 12 цифр. IBAN без пробілів.\n- Суми і кількості як числа з крапкою: «12 500,00» це 12500.00, «18,5» це 18.5.\n- Дати у форматі YYYY-MM-DD: «12 вересня 2026 р.» це 2026-09-12, «03.02.2026» це 2026-02-03.\n- Постачальник (supplier) це той, хто виставив документ і отримує гроші: постачальник, продавець, виконавець. Покупець (buyer): покупець, одержувач, замовник.\n- Кожен рядок таблиці товарів чи послуг це окремий елемент lines. Переписуй ціну і суму рядка так, як вони написані.\n- prices_include_vat: true, якщо в таблиці ціни або суми вказано з ПДВ («Ціна з ПДВ», «Сума з ПДВ»); інакше false.\n- amount_untaxed: сума без ПДВ, якщо вона написана в документі, інакше 0. amount_tax: сума ПДВ. amount_total: загальна сума до сплати.\n- vat_rate: ставка ПДВ у відсотках (20, 14, 7 або 0). Якщо документ без ПДВ або звільнений від ПДВ, vat_rate 0 і amount_tax 0.\n- Якщо значення немає в документі, поверни порожній рядок для тексту і 0 для числа. Нічого не вигадуй і не рахуй сам: переписуй те, що написано.",
+ "schema": {
+  "type": "object",
+  "properties": {
+   "doc_type": {
+    "type": "string",
+    "enum": [
+     "invoice",
+     "act",
+     "waybill",
+     "tax_invoice",
+     "other"
+    ]
+   },
+   "number": {
+    "type": "string"
+   },
+   "date": {
+    "type": "string"
+   },
+   "due_date": {
+    "type": "string"
+   },
+   "currency": {
+    "type": "string"
+   },
+   "contract": {
+    "type": "string"
+   },
+   "supplier": {
+    "type": "object",
+    "properties": {
+     "name": {
+      "type": "string"
+     },
+     "code": {
+      "type": "string"
+     },
+     "ipn": {
+      "type": "string"
+     },
+     "iban": {
+      "type": "string"
+     },
+     "bank": {
+      "type": "string"
+     },
+     "address": {
+      "type": "string"
+     },
+     "email": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "name",
+     "code",
+     "ipn",
+     "iban",
+     "bank",
+     "address",
+     "email"
+    ]
+   },
+   "buyer": {
+    "type": "object",
+    "properties": {
+     "name": {
+      "type": "string"
+     },
+     "code": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "name",
+     "code"
+    ]
+   },
+   "lines": {
+    "type": "array",
+    "items": {
+     "type": "object",
+     "properties": {
+      "name": {
+       "type": "string"
+      },
+      "quantity": {
+       "type": "number"
+      },
+      "uom": {
+       "type": "string"
+      },
+      "price_unit": {
+       "type": "number"
+      },
+      "amount": {
+       "type": "number"
+      }
+     },
+     "required": [
+      "name",
+      "quantity",
+      "uom",
+      "price_unit",
+      "amount"
+     ]
+    }
+   },
+   "amount_untaxed": {
+    "type": "number"
+   },
+   "vat_rate": {
+    "type": "number"
+   },
+   "amount_tax": {
+    "type": "number"
+   },
+   "amount_total": {
+    "type": "number"
+   },
+   "prices_include_vat": {
+    "type": "boolean"
+   }
+  },
+  "required": [
+   "doc_type",
+   "number",
+   "date",
+   "due_date",
+   "currency",
+   "contract",
+   "supplier",
+   "buyer",
+   "lines",
+   "amount_untaxed",
+   "vat_rate",
+   "amount_tax",
+   "amount_total",
+   "prices_include_vat"
+  ]
+ }
+}
