@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_ua_hire" model="ir.actions.client">
+    <field name="name">Прийняття</field>
+    <field name="tag">ua_hire</field>
+  </record>
+  <menuitem id="menu_ua_hire" name="Прийняття" parent="l10n_ua_navigation.menu_ua_people_root"
+            action="action_ua_hire" sequence="0" groups="hr.group_hr_user"/>
+</odoo>

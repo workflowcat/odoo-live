@@ -1,0 +1,304 @@
+/** @odoo-module **/
+
+import { Component, onWillStart, useState } from "@odoo/owl";
+import { registry } from "@web/core/registry";
+import { useService } from "@web/core/utils/hooks";
+import { standardActionServiceProps } from "@web/webclient/actions/action_service";
+
+const GROUPS = [
+    ["candidate", "Кандидати"],
+    ["onboarding", "Оформлення"],
+    ["hired", "Прийнято"],
+    ["declined", "Відмова"],
+];
+const FIELD_TIP = {
+    missing: "Обов'язкове поле без значення",
+    proposed: "Є значення з документа. Підтвердіть або відхиліть.",
+    provided: "Заповнено",
+    empty: "Необов'язкове поле",
+};
+const CONF_LABEL = { high: "висока", medium: "середня", low: "низька" };
+const REQ_TIP = {
+    done: "Файл є в справі",
+    missing: "Кандидат має принести цей документ",
+    later: "Система створить документ під час прийняття",
+};
+
+export class UaHire extends Component {
+    static template = "l10n_ua_hire.Hire";
+    static props = { ...standardActionServiceProps };
+
+    setup() {
+        this.orm = useService("orm");
+        this.action = useService("action");
+        this.notification = useService("notification");
+        this.dialog = useService("dialog");
+        this.state = useState({
+            data: null, loading: true, busy: false, creating: false,
+            draft: { last_name: "", first_name: "", job_title: "" },
+            showClosed: false, helper: null, extracting: false, declining: false, declineReason: "",
+            openMilitary: false,
+        });
+        this.groups = GROUPS;
+        this.fieldTip = (s) => FIELD_TIP[s] || "";
+        this.confLabel = (c) => CONF_LABEL[c] || c;
+        this.reqTip = (s) => REQ_TIP[s] || "";
+        onWillStart(() => this.load());
+    }
+
+    get data() {
+        return this.state.data;
+    }
+
+    get caseData() {
+        return this.state.data && this.state.data.case;
+    }
+
+    async load(caseId) {
+        const current = caseId || (this.caseData && this.caseData.id) || null;
+        this.state.data = await this.orm.call("ua.hire.case", "get_screen_data", [], { case_id: current });
+        this.state.loading = false;
+        const c = this.caseData;
+        if (c && c.files.length && !this.state.helper) {
+            this.orm.call("ua.hire.case", "extract_status", []).then((s) => (this.state.helper = s));
+        }
+    }
+
+    casesIn(stage) {
+        return this.data.cases.filter((c) => c.stage === stage);
+    }
+
+    async select(id) {
+        this.state.declining = false;
+        this.state.openMilitary = false;
+        await this.load(id);
+    }
+
+    // ---- створення
+    startCreate() {
+        this.state.creating = true;
+        this.state.draft = { last_name: "", first_name: "", job_title: "" };
+    }
+
+    async create() {
+        const d = this.state.draft;
+        if (!d.last_name.trim()) {
+            this.notification.add("Вкажіть прізвище.", { type: "warning" });
+            return;
+        }
+        const id = await this.orm.call("ua.hire.case", "create_case", [], d);
+        this.state.creating = false;
+        await this.load(id);
+    }
+
+    // ---- поля
+    meta(name) {
+        return this.data.meta[name];
+    }
+
+    value(name) {
+        return this.caseData.values[name];
+    }
+
+    inputValue(name) {
+        const v = this.value(name);
+        const m = this.meta(name);
+        if (m.type === "many2one") {
+            return v ? String(v[0]) : "";
+        }
+        if (v === false || v === null || v === undefined) {
+            return "";
+        }
+        if ((m.type === "monetary" || m.type === "integer" || m.type === "float") && !v) {
+            return "";
+        }
+        return String(v);
+    }
+
+    get readonly() {
+        return ["hired", "declined"].includes(this.caseData.stage);
+    }
+
+    async save(name, ev) {
+        const m = this.meta(name);
+        const raw = m.type === "boolean" ? ev.target.checked : ev.target.value;
+        if (m.type !== "boolean" && raw === this.inputValue(name)) {
+            return;
+        }
+        try {
+            await this.orm.call("ua.hire.case", "set_value", [[this.caseData.id], name, raw]);
+        } finally {
+            await this.load();
+        }
+    }
+
+    sectionVisible(section) {
+        if (section.key !== "military") {
+            return true;
+        }
+        return this.caseData.military_required || this.value("mil_status") || this.state.openMilitary;
+    }
+
+    scrollTo(key) {
+        const el = document.getElementById(`ua_hire_sec_${key}`);
+        if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    }
+
+    // ---- пропозиції
+    async accept(p) {
+        await this.orm.call("ua.hire.proposal", "action_accept", [[p.id]]);
+        await this.load();
+    }
+
+    async reject(p) {
+        await this.orm.call("ua.hire.proposal", "action_reject", [[p.id]]);
+        await this.load();
+    }
+
+    async acceptAll() {
+        const ids = [];
+        for (const list of Object.values(this.caseData.proposals)) {
+            if (list.length === 1 && !list[0].conflict && list[0].confidence === "high") {
+                ids.push(list[0].id);
+            }
+        }
+        if (!ids.length) {
+            return;
+        }
+        await this.orm.call("ua.hire.proposal", "action_accept", [ids]);
+        await this.load();
+    }
+
+    get safeProposalCount() {
+        if (!this.caseData) {
+            return 0;
+        }
+        return Object.values(this.caseData.proposals).filter(
+            (l) => l.length === 1 && !l[0].conflict && l[0].confidence === "high"
+        ).length;
+    }
+
+    // ---- файли
+    async upload(ev) {
+        const files = [...ev.target.files];
+        ev.target.value = "";
+        if (!files.length) {
+            return;
+        }
+        this.state.busy = true;
+        try {
+            for (const file of files) {
+                const data = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(String(reader.result).split(",")[1] || "");
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+                await this.orm.call("ua.hire.case", "add_file", [[this.caseData.id], file.name, data, guessType(file.name)]);
+            }
+        } finally {
+            this.state.busy = false;
+            await this.load();
+        }
+    }
+
+    async setDocType(f, ev) {
+        await this.orm.call("ua.hire.file", "set_doc_type", [[f.id], ev.target.value]);
+        await this.load();
+    }
+
+    async removeFile(f) {
+        await this.orm.unlink("ua.hire.file", [f.id]);
+        await this.load();
+    }
+
+    openFile(f) {
+        window.open(`/web/content/ua.hire.file/${f.id}/file?download=false`, "_blank");
+    }
+
+    async extract() {
+        this.state.extracting = true;
+        try {
+            const res = await this.orm.call("ua.hire.case", "action_extract", [[this.caseData.id]]);
+            this.notification.add(`Пропозицій: ${res.created}`, { type: res.created ? "success" : "info" });
+        } finally {
+            this.state.extracting = false;
+            await this.load();
+        }
+    }
+
+    get extractBlock() {
+        const c = this.caseData;
+        if (!c.files.length) {
+            return "Завантажте файли";
+        }
+        if (!c.values.pd_consent) {
+            return "Потрібна згода на обробку персональних даних";
+        }
+        if (this.state.helper && !this.state.helper.ok) {
+            return this.state.helper.error || "Помічник розпізнавання недоступний";
+        }
+        return "";
+    }
+
+    // ---- етапи
+    async startOnboarding() {
+        await this.orm.call("ua.hire.case", "action_start_onboarding", [[this.caseData.id]]);
+        await this.load();
+    }
+
+    async decline() {
+        await this.orm.call("ua.hire.case", "action_decline", [[this.caseData.id]], { reason: this.state.declineReason });
+        this.state.declining = false;
+        this.state.declineReason = "";
+        await this.load();
+    }
+
+    async reopen() {
+        await this.orm.call("ua.hire.case", "action_reopen", [[this.caseData.id]]);
+        await this.load();
+    }
+
+    async hire() {
+        this.state.busy = true;
+        try {
+            await this.orm.call("ua.hire.case", "action_hire", [[this.caseData.id]]);
+            this.notification.add("Працівника прийнято.", { type: "success" });
+        } finally {
+            this.state.busy = false;
+            await this.load();
+        }
+    }
+
+    openResult(r) {
+        if (r.run_id) {
+            this.action.doAction({ type: "ir.actions.client", tag: "ua_reporting", params: { run_id: r.run_id } });
+            return;
+        }
+        this.action.doAction({ type: "ir.actions.act_window", res_model: r.model, res_id: r.res_id, views: [[false, "form"]] });
+    }
+
+    printResult(r) {
+        const items = encodeURIComponent(JSON.stringify([r.print]));
+        window.open(`/ua/print?items=${items}&title=${encodeURIComponent(r.print.t)}`, "_blank");
+    }
+}
+
+function guessType(name) {
+    const n = name.toLowerCase();
+    const rules = [
+        ["passport", /паспорт|passport|id.?card|id-карт/],
+        ["rnokpp", /рнокпп|ідентиф|інн|ipn|rnokpp|tax/],
+        ["military_id", /військов|military|резерв|reserve|приписн/],
+        ["diploma", /диплом|diploma/],
+        ["labor_book", /трудов|labor|labour/],
+        ["statement", /заява|statement|application/],
+        ["consent", /згода|consent/],
+    ];
+    const hit = rules.find(([, re]) => re.test(n));
+    return hit ? hit[0] : "other";
+}
+
+registry.category("actions").add("ua_hire", UaHire);

@@ -1,0 +1,159 @@
+// «Прийняття»: справи ліворуч, дані в центрі, перевірки і документи праворуч.
+.o_ua_hire {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr) 320px;
+    gap: 0 20px;
+    padding: 12px 16px;
+    font-size: 13px;
+    align-items: start;
+
+    h4 { margin: 0; }
+
+    .o_ua_hire_empty { padding: 24px 0; color: var(--o-gray-600, #6c757d); }
+    .o_ua_hire_muted { color: var(--o-gray-600, #6c757d); font-size: 12px; }
+    .o_ua_hire_num { font-variant-numeric: tabular-nums; }
+    .o_ua_hire_row_btns { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+    // ---- ліворуч
+    .o_ua_hire_list { position: sticky; top: 0; }
+    .o_ua_hire_list_head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .o_ua_hire_create { display: grid; gap: 6px; padding: 8px 0 12px; border-bottom: 1px solid var(--o-gray-200, #dee2e6); }
+    .o_ua_hire_group { margin-bottom: 12px; }
+    .o_ua_hire_group_title { font-size: 12px; color: var(--o-gray-600, #6c757d); padding: 4px 0; }
+    .o_ua_hire_count { font-variant-numeric: tabular-nums; }
+    .o_ua_hire_item {
+        padding: 6px 8px;
+        border-left: 2px solid transparent;
+        cursor: pointer;
+
+        &:hover { background: var(--o-action-hover-bg, rgba(0, 0, 0, 0.03)); }
+    }
+    .o_ua_hire_item_on { border-left-color: var(--o-gray-900, #191a1c); background: var(--o-action-hover-bg, rgba(0, 0, 0, 0.04)); }
+    .o_ua_hire_item_name { font-weight: 500; }
+    .o_ua_hire_item_sub { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; color: var(--o-gray-600, #6c757d); font-size: 12px; }
+    .o_ua_hire_closed { padding-left: 0; }
+
+    // ---- центр
+    .o_ua_hire_head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+    .o_ua_hire_actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .o_ua_hire_stepper { display: flex; gap: 4px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+    .o_ua_hire_step {
+        font-size: 12px;
+        padding: 1px 8px;
+        border: 1px solid var(--o-gray-300, #ced4da);
+        border-radius: 10px;
+        color: var(--o-gray-600, #6c757d);
+    }
+    .o_ua_hire_step_done { border-color: var(--ua-ok, #2f8f63); color: var(--ua-ok, #2f8f63); }
+    .o_ua_hire_step_on { border-color: var(--o-gray-900, #191a1c); color: var(--o-gray-900, #191a1c); font-weight: 600; }
+    .o_ua_hire_decline { display: flex; gap: 6px; margin-top: 8px; max-width: 480px; }
+
+    .o_ua_hire_secnav {
+        position: sticky;
+        top: -12px;
+        z-index: 2;
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin: 12px 0 0;
+        padding: 8px 0;
+        background-color: $o-webclient-background-color;
+        border-bottom: 1px solid var(--o-gray-200, #dee2e6);
+    }
+    .o_ua_hire_secbtn {
+        border: none;
+        background: none;
+        padding: 2px 8px;
+        display: inline-flex;
+        gap: 4px;
+        align-items: center;
+
+        &:hover { text-decoration: underline; }
+    }
+    .o_ua_hire_acceptall { margin-left: auto; }
+
+    .o_ua_hire_section { padding: 14px 0 6px; border-bottom: 1px solid var(--o-gray-200, #dee2e6); scroll-margin-top: 48px; }
+    .o_ua_hire_fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px 18px; }
+    .o_ua_hire_field {
+        display: grid;
+        gap: 3px;
+        align-content: start;
+
+        label { display: flex; gap: 6px; align-items: center; margin: 0; font-size: 12px; color: var(--o-gray-700, #495057); }
+    }
+    .o_ua_hire_field_text { grid-column: 1 / -1; }
+    .o_ua_hire_field_boolean {
+        grid-template-columns: auto 1fr;
+        align-items: center;
+
+        label { order: 2; }
+        .o_ua_hire_props { grid-column: 1 / -1; order: 3; }
+    }
+    .o_ua_hire_st_missing .form-control, .o_ua_hire_st_missing .form-select { border-color: var(--ua-crit, #c04f31); }
+
+    .o_ua_hire_mark {
+        display: inline-block;
+        flex: none;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        box-shadow: inset 0 0 0 1.5px var(--o-gray-300, #ced4da);
+    }
+    .o_ua_hire_mark_provided { background: var(--ua-ok, #2f8f63); box-shadow: none; }
+    .o_ua_hire_mark_proposed { background: var(--ua-warn, #96690a); box-shadow: none; }
+    .o_ua_hire_mark_missing { background: var(--ua-crit, #c04f31); box-shadow: none; }
+
+    .o_ua_hire_props { display: grid; gap: 3px; }
+    .o_ua_hire_prop {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        flex-wrap: wrap;
+        padding: 3px 6px;
+        border-left: 2px solid var(--ua-warn, #96690a);
+        background: var(--o-action-hover-bg, rgba(150, 105, 10, 0.06));
+
+        .btn { padding: 0 6px; }
+    }
+    .o_ua_hire_prop_val { font-weight: 600; }
+    .o_ua_hire_prop_src { color: var(--o-gray-600, #6c757d); font-size: 11px; }
+
+    // ---- праворуч
+    .o_ua_hire_side { position: sticky; top: 0; display: grid; gap: 16px; }
+    .o_ua_hire_block { display: grid; gap: 6px; }
+    .o_ua_hire_check, .o_ua_hire_req {
+        display: flex;
+        gap: 8px;
+        align-items: baseline;
+    }
+    .o_ua_hire_check { cursor: pointer; }
+    .o_ua_hire_req_later { color: var(--o-gray-600, #6c757d); }
+    .o_ua_hire_files { display: grid; gap: 4px; margin-top: 4px; }
+    .o_ua_hire_file {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 150px auto auto;
+        gap: 6px;
+        align-items: center;
+    }
+    .o_ua_hire_file_name { text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .o_ua_hire_result { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+    .o_ua_hire_log { font-size: 12px; }
+
+    @media (max-width: 1399px) {
+        grid-template-columns: 230px minmax(0, 1fr);
+
+        .o_ua_hire_side { grid-column: 2; position: static; }
+    }
+
+    @media (max-width: 1099px) {
+        grid-template-columns: minmax(0, 1fr);
+
+        .o_ua_hire_list, .o_ua_hire_side { grid-column: 1; position: static; }
+        .o_ua_hire_secnav { top: -12px; }
+        .o_ua_hire_file { grid-template-columns: minmax(0, 1fr) 140px auto auto; }
+    }
+}

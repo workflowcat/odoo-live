@@ -35,6 +35,7 @@ export const PAGE_HELP = {
     "l10n_ua_payroll_ui.menu_ua_payment_batch": "Відомості на виплату зарплати через банк і файли для банку.",
     "l10n_ua_payroll_ui.menu_ua_advance_sheet": "Відомості авансу за першу половину місяця.",
     "l10n_ua_changes.menu_ua_changes_root": "Кожна зміна суми, часу або стану після розрахунку: було, стало, хто.",
+    "l10n_ua_hire.menu_ua_hire": "Кандидати і прийняття: дані, документи, перевірки, наказ і повідомлення.",
     "l10n_ua_navigation.menu_ua_people_employees": "Картка працівника: договір, оклад, документи, відпустки, військовий облік.",
     "l10n_ua_navigation.menu_ua_people_org_chart": "Хто кому підпорядкований, від директора до працівників.",
     "l10n_ua_navigation.menu_ua_people_departments": "Підрозділи компанії, їхні керівники і кількість працівників.",

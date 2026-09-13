@@ -42,7 +42,10 @@ export class UaReporting extends Component {
         this.levelLabel = (lvl) => ({ ok: "ок", warn: "увага", error: "помилка" }[lvl] || lvl);
         this.stateLabel = (s) => STATE_LABEL[s] || s;
         this.stateSteps = STATE_STEPS;
-        onWillStart(() => this.load());
+        onWillStart(() => {
+            const runId = this.props.action && this.props.action.params && this.props.action.params.run_id;
+            return this.load(runId ? { run_id: runId } : {});
+        });
     }
 
     async load(kwargs = {}) {
