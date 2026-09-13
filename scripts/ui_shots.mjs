@@ -1,13 +1,15 @@
 // Screenshots of the intake screens on the local stand (Playwright from StoryKit). Usage: node scripts/ui_shots.mjs
 import { chromium } from "/Users/kit/Codius/StoryKit/node_modules/playwright/index.mjs";
 import fs from "node:fs";
-const env = Object.fromEntries(fs.readFileSync(new URL("../.env", import.meta.url), "utf8").split("\n")
+const env = Object.fromEntries(fs.readFileSync(process.env.ODOO_ENV_FILE || new URL("../.env", import.meta.url), "utf8").split("\n")
   .map((l) => l.split("#")[0].trim()).filter((l) => l.includes("=")).map((l) => [l.slice(0, l.indexOf("=")).trim(), l.slice(l.indexOf("=") + 1).trim()]));
-const base = `http://127.0.0.1:${env.ODOO_PORT || 8120}`;
+const base = process.env.ODOO_URL || `http://127.0.0.1:${env.ODOO_PORT || 8120}`;
+const db = process.env.ODOO_DB || "purchase";
+const prefix = process.env.SHOT_PREFIX || "";
 const out = new URL("../demo-out/", import.meta.url).pathname;
 const browser = await chromium.launch({ executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", headless: true });
 const ctx = await browser.newContext({ viewport: { width: 1500, height: 950 }, locale: "uk-UA" });
-const r = await ctx.request.post(`${base}/web/session/authenticate`, { data: { jsonrpc: "2.0", params: { db: "purchase", login: env.ODOO_ADMIN_USER_LOGIN || "admin", password: env.ODOO_ADMIN_USER_PASSWORD } } });
+const r = await ctx.request.post(`${base}/web/session/authenticate`, { data: { jsonrpc: "2.0", params: { db, login: env.ODOO_ADMIN_USER_LOGIN || "admin", password: env.ODOO_ADMIN_USER_PASSWORD } } });
 if (!(await r.json()).result) throw new Error("login failed");
 const page = await ctx.newPage();
 const errors = [];
@@ -31,7 +33,7 @@ for (const [name, url] of shots) {
     const tab = page.getByRole("tab", { name: "ЄДР" });
     if (await tab.count()) { await tab.click(); await page.waitForTimeout(600); } else errors.push("no ЄДР tab on supplier");
   }
-  await page.screenshot({ path: `${out}${name}.png` });
+  await page.screenshot({ path: `${out}${prefix}${name}.png` });
   const blocking = await page.locator(".o_error_dialog, .o_dialog .modal-title:has-text('Error')").count();
   console.log(name, "ok", blocking ? "ERROR DIALOG" : "");
 }

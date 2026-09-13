@@ -8,7 +8,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def env():
     vals = {}
-    for line in open(os.path.join(ROOT, ".env"), encoding="utf-8"):
+    for line in open(os.environ.get("ODOO_ENV_FILE") or os.path.join(ROOT, ".env"), encoding="utf-8"):
         line = line.split("#", 1)[0].strip()
         if "=" in line:
             k, v = line.split("=", 1)

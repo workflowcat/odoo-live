@@ -11,7 +11,7 @@ from email.message import EmailMessage
 from email.utils import formatdate
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "batch")
+OUT = os.environ.get("BATCH_DIR") or os.path.join(HERE, "batch")
 FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 FONTB = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 FONTS = "/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf"
@@ -50,7 +50,7 @@ def iban(mfo, acc19):
     return f"UA{98 - n % 97:02d}{bban}"
 
 
-BUYER = {"name": "ТОВ «Ясен Меблі»", "code": "43715285", "ipn": "437152813021", "address": "79018, м. Львів, вул. Городоцька, 172"}
+BUYER = {"name": "ТОВ «Ясен Меблі»", "code": os.environ.get("BUYER_CODE", "43715285"), "ipn": "437152813021", "address": "79018, м. Львів, вул. Городоцька, 172"}
 OTHER_BUYER = {"name": "ТОВ «Сосна Дім»", "code": edrpou("4402917"), "ipn": "", "address": "01054, м. Київ, вул. Гончара, 31"}
 S = {
     "epicentr": {"name": "ТОВ «Епіцентр К»", "code": "32490244", "ipn": "324902426531", "iban": iban("380805", "0000026001234560717"),

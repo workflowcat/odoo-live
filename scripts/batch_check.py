@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from mailgate import Odoo, deliver  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BATCH = os.path.join(ROOT, "scripts/fixtures/batch")
+BATCH = os.environ.get("BATCH_DIR") or os.path.join(ROOT, "scripts/fixtures/batch")
 EXP = json.load(open(os.path.join(BATCH, "expected.json"), encoding="utf-8"))
 only = sys.argv[1:]
 o = Odoo()
@@ -64,7 +64,7 @@ for k in ids:
         print("      failed:", rec["error_message"][:200])
 
 os.makedirs(os.path.join(ROOT, "demo-out"), exist_ok=True)
-json.dump(results, open(os.path.join(ROOT, "demo-out/batch_results.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+json.dump(results, open(os.path.join(ROOT, "demo-out", os.environ.get("RESULTS_FILE", "batch_results.json")), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 n = len(results)
 print(f"\nstate as expected {sum(r['as_expected'] for r in results)}/{n}; fields right {sum(r['fields_ok'] for r in results)}/{6 * n}; "
       f"neurons {sum(r['neurons'] for r in results):.0f}; time {sum(r['seconds'] for r in results):.0f}s")

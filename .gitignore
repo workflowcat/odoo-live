@@ -11,3 +11,4 @@ demo-out/
 worker/node_modules
 scripts/fixtures/batch/raster/
 scripts/fixtures/batch/view/
+scripts/fixtures/batch-payroll/
