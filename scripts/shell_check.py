@@ -63,6 +63,26 @@ check("l10n_ua_shell встановлено", bool(mod) and mod[0]["state"] == "
 code, bundle_js = get("/web/assets/debug/web.assets_backend.js")
 check("смуга навігації в збірці ресурсів", "l10n_ua_shell.SideRail" in bundle_js, f"code={code}")
 
+# стилі: помилка SCSS не ламає сторінку, а тихо лишає старі стилі - шукаємо її явно
+import re as _re
+code, home = get("/odoo")
+css_links = _re.findall(r'href="(/web/assets/[^"]+web\.assets_web[^"]*\.css)"', home)
+if css_links:
+    code, css = get(css_links[0])
+    err = _re.search(r"This error occurred while compiling the bundle[^\n]{0,160}", css)
+    check("стилі зібрано без помилок SCSS", not err and "o_ua_pd_body" in css, (err.group(0) if err else "")[:160])
+else:
+    check("стилі зібрано без помилок SCSS", False, "посилання на CSS не знайдено")
+
+# методи екранів - так, як їх викликає інтерфейс: без позиційних аргументів
+for model, method, kwargs in (("ua.period.board", "get_screen_data", {}), ("ua.dashboard", "get_data", {}),
+                              ("ua.bank.board", "get_screen_data", {}), ("ua.report.run", "get_screen_data", {}),
+                              ("ua.setup.profile", "screen", {})):
+    res = post("/web/dataset/call_kw", {"jsonrpc": "2.0", "method": "call",
+                                        "params": {"model": model, "method": method, "args": [], "kwargs": kwargs}})
+    err = res.get("error", {}).get("data", {}).get("message", "") if "error" in res else ""
+    check(f"екран {model}.{method} відкривається з інтерфейсу", "error" not in res, err[:120])
+
 # «Період»: документи кроків і строки
 data = call("ua.period.board", "get_screen_data", year=2026, month=9)
 docs = data.get("documents", {})

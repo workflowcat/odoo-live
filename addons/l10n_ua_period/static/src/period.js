@@ -217,6 +217,13 @@ export class UaPeriod extends Component {
         }
     }
 
+    /** Сусідній місяць: стрілки в шапці, коли перелік місяців не вміщається. */
+    shiftMonth(delta) {
+        const { year, month } = this.state.data.period;
+        const index = year * 12 + (month - 1) + delta;
+        return this.load({ year: Math.floor(index / 12), month: (index % 12) + 1 });
+    }
+
     selectPeriod(period) {
         return this.load({ year: period.year, month: period.month });
     }

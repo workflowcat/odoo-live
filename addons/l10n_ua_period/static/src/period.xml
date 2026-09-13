@@ -14,6 +14,10 @@
             <h4 t-esc="data.period.label"/>
             <span t-attf-class="o_ua_pd_state o_ua_tone_#{data.headline.tone}" t-esc="data.headline.title"/>
           </div>
+          <div class="o_ua_pd_month_nav">
+            <button type="button" class="o_ua_pd_icon" t-on-click="() => this.shiftMonth(-1)" aria-label="Попередній місяць" data-tooltip="Попередній місяць">‹</button>
+            <button type="button" class="o_ua_pd_icon" t-on-click="() => this.shiftMonth(1)" aria-label="Наступний місяць" data-tooltip="Наступний місяць">›</button>
+          </div>
           <div class="o_ua_months">
             <span t-foreach="data.periods" t-as="p" t-key="p.label"
                   t-attf-class="o_ua_month #{p.year === data.period.year and p.month === data.period.month ? 'active' : ''}"
@@ -32,12 +36,11 @@
 
         <!-- смуга строків -->
         <div class="o_ua_pd_strip" t-if="data.deadlines.length">
-          <span t-if="state.guide" class="o_ua_guide_no o_ua_guide_no_strip"
-                data-tooltip="Строки платежів і подань навколо місяця. Колір позначки - стан.">1</span>
           <div t-foreach="data.deadlines" t-as="d" t-key="d.date"
                t-attf-class="o_ua_pd_mark o_ua_pd_mark_#{d.state} #{d.past ? 'past' : ''}"
                t-att-data-tooltip="this.markTip(d)">
-            <b t-esc="d.date.slice(0, 5)"/>
+            <b><t t-esc="d.date.slice(0, 5)"/><span t-if="state.guide and d_first" class="o_ua_guide_no ms-2"
+                data-tooltip="Строки платежів і подань навколо місяця. Колір позначки - стан.">1</span></b>
             <span t-esc="d.label"/>
           </div>
         </div>
@@ -77,6 +80,7 @@
               <span t-if="state.guide" class="o_ua_guide_no" data-tooltip="Кроки місяця по порядку. Клік показує крок праворуч.">2</span>
               Кроки · <t t-esc="data.done"/> з <t t-esc="data.total"/>
             </div>
+            <div class="o_ua_pd_steps_list">
             <div t-foreach="data.steps" t-as="step" t-key="step.key"
                  t-attf-class="o_ua_pd_step #{this.selectedKey === step.key ? 'active' : ''}"
                  t-on-click="() => this.selectStep(step)">
@@ -87,6 +91,7 @@
                   <t t-esc="doc.kind === 'filing' ? '↗' : (doc.kind === 'file' ? '⇩' : '▤')"/>
                 </t>
               </span>
+            </div>
             </div>
           </div>
 

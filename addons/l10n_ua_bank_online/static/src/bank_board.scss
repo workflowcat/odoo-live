@@ -88,3 +88,24 @@
     .o_ua_bank_state_todo { color: var(--ua-crit, #c04f31); }
     .o_ua_bank_state_plan { color: var(--ua-muted, #6c757d); }
 }
+
+// ---------------------------------------------------------------- ширина вікна
+// До 1099 px ліва колонка стає рядом над рахунком: місяць, разом, картки рахунків поруч.
+@media (max-width: 1099.98px) {
+    .o_ua_bank {
+        flex-direction: column;
+        align-items: stretch;
+
+        .o_ua_bank_left {
+            flex: none;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 8px 12px;
+        }
+
+        .o_ua_bank_period, .o_ua_bank_total { flex: 0 0 auto; }
+        .o_ua_bank_account { flex: 1 1 220px; min-width: 0; }
+        .o_ua_bank_header { flex-wrap: wrap; gap: 8px; }
+    }
+}

@@ -163,3 +163,40 @@
         }
     }
 }
+
+// ---------------------------------------------------------------- ширина вікна
+// До 1099 px звіти і місяці стають рядами чипів над звітом; історія йде під звітом.
+@media (max-width: 1099.98px) {
+    .o_ua_reporting {
+        flex-direction: column;
+        align-items: stretch;
+
+        .o_ua_reporting_left {
+            flex: none;
+            display: contents;
+
+            .o_ua_reporting_reports, .o_ua_reporting_periods {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 4px;
+                order: 0;
+            }
+
+            .o_ua_reporting_report_item, .o_ua_reporting_period_item {
+                flex: 0 0 auto;
+                border: 1px solid var(--ua-rule, #dee2e6);
+                border-radius: 0;
+                padding: 3px 10px;
+                white-space: nowrap;
+            }
+
+            .o_ua_reporting_history { order: 2; }
+        }
+
+        .o_ua_reporting_right { order: 1; }
+        .o_ua_reporting_header { flex-wrap: wrap; gap: 8px; }
+    }
+}
+
+// стан на активному рядку: контур світлий, щоб читався на кольоровому тлі
+.o_ua_reporting .active .o_ua_pill { color: #fff; border-color: rgba(255, 255, 255, 0.7); }

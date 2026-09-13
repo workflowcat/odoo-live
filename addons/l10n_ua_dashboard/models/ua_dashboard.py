@@ -481,6 +481,8 @@ class UaDashboard(models.AbstractModel):
             unique.append(row)
         return unique[:14]
 
+    # ------------------------------------------------------------------ публічний метод
+    @api.model
     def get_data(self, year=None, month=None):
         today = fields.Date.context_today(self)
         year = int(year) if year else today.year

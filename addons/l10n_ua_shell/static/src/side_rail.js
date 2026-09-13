@@ -13,6 +13,8 @@ import { useService } from "@web/core/utils/hooks";
 import { browser } from "@web/core/browser/browser";
 
 const PIN_KEY = "ua_rail_pinned";
+// нижче цієї ширини закріплений перелік забирав би забагато місця: відкривається лише наведенням
+const PIN_MIN_WIDTH = 1200;
 
 // скорочення для значків; решта - перші дві літери назви
 const SHORT = {
@@ -38,20 +40,31 @@ export class UaSideRail extends Component {
 
     setup() {
         this.menu = useService("menu");
-        this.state = useState({ hoverId: null, pinned: readPin(), tick: 0 });
+        this.state = useState({ hoverId: null, pinned: readPin(), tick: 0, wide: browser.innerWidth >= PIN_MIN_WIDTH });
         this.closeTimer = null;
         const rerender = () => {
             this.state.tick++;
             this.applyBodyClass();
         };
         this.env.bus.addEventListener("MENUS:APP-CHANGED", rerender);
-        onWillUnmount(() => this.env.bus.removeEventListener("MENUS:APP-CHANGED", rerender));
+        const onResize = () => {
+            const wide = browser.innerWidth >= PIN_MIN_WIDTH;
+            if (wide !== this.state.wide) {
+                this.state.wide = wide;
+                this.applyBodyClass();
+            }
+        };
+        browser.addEventListener("resize", onResize);
+        onWillUnmount(() => {
+            this.env.bus.removeEventListener("MENUS:APP-CHANGED", rerender);
+            browser.removeEventListener("resize", onResize);
+        });
         this.applyBodyClass();
     }
 
     applyBodyClass() {
         document.body.classList.add("o_ua_rail_on");
-        document.body.classList.toggle("o_ua_rail_pinned", this.state.pinned && !!this.currentApp);
+        document.body.classList.toggle("o_ua_rail_pinned", this.state.pinned && this.state.wide && !!this.currentApp);
     }
 
     get apps() {
@@ -90,7 +103,7 @@ export class UaSideRail extends Component {
         if (id) {
             return this.menu.getMenu(id);
         }
-        return this.state.pinned ? this.currentApp : null;
+        return this.state.pinned && this.state.wide ? this.currentApp : null;
     }
 
     sections(app) {

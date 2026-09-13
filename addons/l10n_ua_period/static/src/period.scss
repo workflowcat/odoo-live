@@ -274,7 +274,7 @@
     }
 
     // ліворуч
-    .o_ua_pd_left { position: sticky; top: 0; }
+    .o_ua_pd_left { min-width: 0; }
 
     .o_ua_pd_nums {
         display: flex;
@@ -397,10 +397,60 @@
     }
 }
 
-// на вузькому екрані колонки стають одна під одною
-@media (max-width: 1199.98px) {
-    .o_ua_period .o_ua_pd_body { grid-template-columns: 220px minmax(0, 1fr); }
-    .o_ua_period .o_ua_pd_side { grid-column: 1 / -1; }
+// ---------------------------------------------------------------- ширина вікна
+// Вікно часто не на весь екран. Три компонування:
+//   від 1400 px - три колонки, ліва колонка закріплена при прокрутці;
+//   1100-1399 px - дві колонки, кошик і увага під вибраним кроком;
+//   до 1099 px - одна колонка, кроки стають рядом чипів над кроком.
+// Закріплення тільки в трьох колонках: інакше ліва колонка наїжджає на блоки нижче.
+.o_ua_period .o_ua_pd_month_nav { display: none; gap: 2px; }
+
+@media (min-width: 1400px) {
+    .o_ua_period .o_ua_pd_left { position: sticky; top: 0; }
+}
+
+@media (max-width: 1399.98px) {
+    .o_ua_period {
+        .o_ua_pd_body { grid-template-columns: 230px minmax(0, 1fr); }
+        .o_ua_pd_left { grid-row: 1 / span 2; }
+        .o_ua_pd_side { grid-column: 2; flex-direction: row; flex-wrap: wrap; gap: 18px 28px; }
+        .o_ua_pd_side_block { flex: 1 1 280px; min-width: 0; }
+    }
+}
+
+@media (max-width: 1099.98px) {
+    .o_ua_period {
+        .o_ua_pd_body { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+        .o_ua_pd_left { grid-row: auto; }
+        .o_ua_pd_side { grid-column: 1; }
+        .o_ua_pd_nums { flex-direction: row; flex-wrap: wrap; gap: 6px 28px; }
+        .o_ua_pd_steps_list { display: flex; flex-wrap: wrap; gap: 6px; }
+        .o_ua_pd_step {
+            grid-template-columns: 12px auto auto;
+            padding: 4px 10px;
+            border: 1px solid var(--ua-rule, #dee2e6);
+            &.active { border-color: var(--o-brand-primary, #714b67); border-left-width: 1px; }
+        }
+        .o_ua_pd_step_name { white-space: nowrap; overflow: visible; }
+        .o_ua_months { display: none; }
+        .o_ua_pd_month_nav { display: inline-flex; margin-left: auto; }
+        .o_ua_pd_doc { flex-wrap: wrap; }
+        .o_ua_pd_doc_acts { margin-left: 0; width: 100%; padding-left: 24px; }
+        .o_ua_period_close { align-items: flex-start; }
+    }
+
+    // панель працівника перекриває вміст, а не стискає його
+    .o_ua_period_with_panel { padding-right: 16px !important; }
+    .o_ua_person_panel { width: 420px; max-width: 100vw; }
+}
+
+@media (max-width: 767.98px) {
+    .o_ua_period {
+        .o_ua_pd_strip { overflow-x: auto; }
+        .o_ua_pd_mark { flex: 0 0 150px; }
+        .o_ua_pd_first_grid { grid-template-columns: minmax(0, 1fr); }
+        .o_ua_pd_title { flex-wrap: wrap; }
+    }
 }
 
 // ===================================================================== режим підказок
@@ -422,7 +472,6 @@
     }
 
     .o_ua_pd_strip { position: relative; }
-    .o_ua_guide_no_strip { position: absolute; top: -10px; left: -24px; z-index: 1; }
 
     // перші кроки
     .o_ua_pd_first {

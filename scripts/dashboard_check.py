@@ -58,7 +58,7 @@ def call(model, method, *a, **kw):
 
 
 # 1. get_data() повертає всі ключі
-data = call("ua.dashboard", "get_data", [])
+data = call("ua.dashboard", "get_data")
 expected_keys = {"company", "periods", "payroll_by_department", "turnover", "documents"}
 check("get_data() повертає всі очікувані ключі", expected_keys.issubset(data.keys()),
       f"відсутні: {expected_keys - set(data.keys())}" if not expected_keys.issubset(data.keys()) else
@@ -134,7 +134,7 @@ else:
 
         # lana може викликати get_data (перевірка прав ir.model.access)
         try:
-            lana_data = lana_call("ua.dashboard", "get_data", [])
+            lana_data = lana_call("ua.dashboard", "get_data")
             check(f"{LANA_LOGIN} може викликати ua.dashboard.get_data", isinstance(lana_data, dict) and "company" in lana_data)
         except SystemExit as exc:
             check(f"{LANA_LOGIN} може викликати ua.dashboard.get_data", False, str(exc)[:300])
