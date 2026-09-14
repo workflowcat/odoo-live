@@ -82,6 +82,17 @@
               <button class="btn btn-secondary btn-sm" t-on-click="decline">Закрити справу</button>
             </div>
 
+            <t t-if="state.preview">
+              <div class="o_ua_hire_preview_bar">
+                <b>Пакет першого дня</b>
+                <span class="o_ua_hire_muted"><t t-esc="packageItems.length"/> док.</span>
+                <button class="btn btn-primary btn-sm" t-on-click="printPackage">Друк</button>
+                <a class="btn btn-secondary btn-sm" t-att-href="packageUrl(false)" target="_blank">Відкрити окремо</a>
+                <button class="btn btn-link btn-sm" t-on-click="() => this.state.preview = false">Назад до даних</button>
+              </div>
+              <iframe t-ref="previewFrame" class="o_ua_hire_preview" t-att-src="packageUrl(true)"/>
+            </t>
+            <t t-else="">
             <nav class="o_ua_hire_secnav">
               <t t-foreach="c.sections" t-as="s" t-key="s.key">
                 <button class="o_ua_hire_secbtn" t-on-click="() => this.scrollTo(s.key)">
@@ -158,6 +169,7 @@
                 </div>
               </section>
             </t>
+            </t>
           </main>
 
           <!-- праворуч: перевірки, документи, результат -->
@@ -176,6 +188,20 @@
                   </div>
                 </div>
               </t>
+            </div>
+
+            <div t-if="c.stage !== 'declined'" class="o_ua_hire_block">
+              <h5>Пакет першого дня</h5>
+              <t t-foreach="c.package" t-as="d" t-key="d.key">
+                <label class="o_ua_hire_pkg">
+                  <input type="checkbox" class="form-check-input" t-att-checked="d.on" t-on-change="(ev) => this.togglePackageDoc(d, ev)"/>
+                  <t t-esc="d.label"/>
+                </label>
+              </t>
+              <div class="o_ua_hire_row_btns">
+                <button t-attf-class="btn btn-sm #{state.preview ? 'btn-secondary' : 'btn-primary'}" t-on-click="showPackage"
+                        data-tooltip="Документи для підпису, заповнені з даних справи. Порожні поля друкуються лінією.">Переглянути пакет</button>
+              </div>
             </div>
 
             <div t-if="!['hired'].includes(c.stage)" class="o_ua_hire_block">

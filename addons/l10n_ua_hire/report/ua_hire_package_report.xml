@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Пакет першого дня: документи для підпису, заповнені з даних справи прийняття.
+       Порожні дані друкуються лінією, щоб дописати від руки. -->
+  <record id="action_report_hire_statement" model="ir.actions.report">
+    <field name="name">Заява про прийняття</field>
+    <field name="model">ua.hire.case</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_hire.report_hire_statement</field>
+    <field name="print_report_name">'Заява %s' % object.name</field>
+    <field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4"/>
+  </record>
+  <record id="action_report_hire_order_draft" model="ir.actions.report">
+    <field name="name">Проєкт наказу про прийняття</field>
+    <field name="model">ua.hire.case</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_hire.report_hire_order_draft</field>
+    <field name="print_report_name">'Наказ %s' % object.name</field>
+    <field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4"/>
+  </record>
+  <record id="action_report_hire_contract" model="ir.actions.report">
+    <field name="name">Трудовий договір</field>
+    <field name="model">ua.hire.case</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_hire.report_hire_contract</field>
+    <field name="print_report_name">'Трудовий договір %s' % object.name</field>
+    <field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4"/>
+  </record>
+  <record id="action_report_hire_nda" model="ir.actions.report">
+    <field name="name">Договір про нерозголошення</field>
+    <field name="model">ua.hire.case</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_hire.report_hire_nda</field>
+    <field name="print_report_name">'NDA %s' % object.name</field>
+    <field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4"/>
+  </record>
+  <record id="action_report_hire_consent" model="ir.actions.report">
+    <field name="name">Згода на обробку персональних даних</field>
+    <field name="model">ua.hire.case</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_hire.report_hire_consent</field>
+    <field name="print_report_name">'Згода ПД %s' % object.name</field>
+    <field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4"/>
+  </record>
+  <record id="action_report_hire_ack" model="ir.actions.report">
+    <field name="name">Лист ознайомлення</field>
+    <field name="model">ua.hire.case</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_hire.report_hire_ack</field>
+    <field name="print_report_name">'Лист ознайомлення %s' % object.name</field>
+    <field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4"/>
+  </record>
+
+  <!-- ================================================================ спільні частини -->
+  <template id="hire_doc_style">
+    <style>
+      .ua-hd { font-family: DejaVu Serif, Georgia, serif; font-size: 11.5px; line-height: 1.45; color: #111; }
+      .ua-hd h3 { text-align: center; font-size: 14px; margin: 14px 0 2px; }
+      .ua-hd .sub { text-align: center; margin-bottom: 12px; }
+      .ua-hd .place { display: flex; justify-content: space-between; margin: 8px 0 14px; }
+      .ua-hd h4 { font-size: 12px; margin: 12px 0 4px; }
+      .ua-hd p { margin: 0 0 5px; text-align: justify; }
+      .ua-hd ol { margin: 0 0 6px 18px; padding: 0; }
+      .ua-hd li { margin-bottom: 3px; text-align: justify; }
+      .ua-hd .parties { width: 100%; border-collapse: collapse; margin-top: 18px; }
+      .ua-hd .parties td { width: 50%; vertical-align: top; padding-right: 16px; }
+      .ua-hd .sign { margin-top: 26px; }
+      .ua-hd table.grid { width: 100%; border-collapse: collapse; margin-top: 8px; }
+      .ua-hd table.grid th, .ua-hd table.grid td { border: 1px solid #555; padding: 5px 6px; vertical-align: top; }
+      .ua-hd table.grid td.sig { width: 26%; }
+      .ua-hd table.grid td.dt { width: 16%; }
+    </style>
+  </template>
+
+  <template id="hire_parties">
+    <table class="parties">
+      <tr>
+        <td>
+          <b>Роботодавець</b><br/>
+          <t t-out="company.name"/><br/>
+          Код ЄДРПОУ <t t-out="o._blank(company.company_registry, 10)"/><br/>
+          <t t-out="o._blank(', '.join(x for x in [company.zip, company.city, company.street] if x), 30)"/>
+          <div class="sign">Директор ____________ <t t-out="o._blank(company.ua_director_name, 18)"/></div>
+        </td>
+        <td>
+          <b>Працівник</b><br/>
+          <t t-out="o._blank(o.name if o.last_name else '', 30)"/><br/>
+          РНОКПП <t t-out="o._blank(o.rnokpp, 10)"/><br/>
+          <t t-out="o._id_doc_text()"/><br/>
+          Адреса: <t t-out="o._blank(o.reg_address, 30)"/><br/>
+          Телефон: <t t-out="o._blank(o.phone, 14)"/>
+          <div class="sign">____________ <t t-out="o._short_name()"/></div>
+        </td>
+      </tr>
+    </table>
+  </template>
+
+  <!-- ================================================================ 1. заява -->
+  <template id="report_hire_statement">
+    <t t-call="web.basic_layout"><t t-foreach="docs" t-as="o">
+      <t t-set="company" t-value="o.company_id"/>
+      <div class="page ua-hd">
+        <t t-call="l10n_ua_hire.hire_doc_style"/>
+        <div style="margin-left:52%;">
+          Директору <t t-out="company.name"/><br/>
+          <t t-out="o._blank(company.ua_director_name, 24)"/><br/>
+          <t t-out="o._blank(o.name if o.last_name else '', 30)"/>,<br/>
+          РНОКПП <t t-out="o._blank(o.rnokpp, 10)"/>,<br/>
+          що зареєстрований(а) за адресою: <t t-out="o._blank(o.reg_address, 30)"/>
+        </div>
+        <h3 style="margin-top:40px;">ЗАЯВА</h3>
+        <p style="margin-top:14px;">Прошу прийняти мене на роботу на посаду <b><t t-out="o._blank(o.job_title, 24)"/></b>
+          до підрозділу <b><t t-out="o._blank(o.department_id.name, 20)"/></b>
+          з <b><t t-out="o._date(o.date_from)"/></b> з посадовим окладом <b><t t-out="o._money(o.wage)"/></b> на місяць,
+          <t t-out="'за основним місцем роботи' if o.main_job else 'за сумісництвом'"/><t t-if="o.fte and o.fte != '1'">, <t t-out="o.fte.replace('.', ',')"/> ставки</t>.</p>
+        <p>З умовами праці, правилами внутрішнього трудового розпорядку і посадовою інструкцією ознайомлений(а) до початку роботи.</p>
+        <p>Трудова книжка: <t t-out="'ведеться в електронній формі' if o.electronic_labor_book else o._blank(o.labor_book_number and ('№ ' + o.labor_book_number), 20)"/>.</p>
+        <div class="place" style="margin-top:36px;">
+          <span><t t-out="o._date(False)"/></span>
+          <span>____________ <t t-out="o._short_name()"/></span>
+        </div>
+      </div>
+    </t></t>
+  </template>
+
+  <!-- ================================================================ 2. проєкт наказу -->
+  <template id="report_hire_order_draft">
+    <t t-call="web.basic_layout"><t t-foreach="docs" t-as="o">
+      <t t-set="company" t-value="o.company_id"/>
+      <div class="page ua-hd">
+        <t t-call="l10n_ua_hire.hire_doc_style"/>
+        <div style="text-align:center;">
+          <div style="font-weight:bold; font-size:13px;"><t t-out="company.name"/></div>
+          <div style="font-size:10px;">ЄДРПОУ <t t-out="company.company_registry or '-'"/></div>
+        </div>
+        <h3>НАКАЗ</h3>
+        <div class="place"><span><t t-out="o._blank(company.city, 10)"/></span><span>№ ______ від <t t-out="o._date(False)"/></span></div>
+        <p style="text-align:center;"><b>Про прийняття на роботу</b></p>
+        <p>ПРИЙНЯТИ <b><t t-out="o._blank(o.name if o.last_name else '', 30)"/></b> на посаду <b><t t-out="o._blank(o.job_title, 24)"/></b>
+          <t t-if="o.kp_code">(код КП <t t-out="o.kp_code"/>)</t>
+          до підрозділу <b><t t-out="o._blank(o.department_id.name, 20)"/></b> з <b><t t-out="o._date(o.date_from)"/></b>
+          з посадовим окладом <b><t t-out="o._money(o.wage)"/></b> на місяць<t t-if="o.fte and o.fte != '1'">, <t t-out="o.fte.replace('.', ',')"/> ставки</t>,
+          <t t-out="'за основним місцем роботи' if o.main_job else 'за сумісництвом'"/>, безстроково<t t-if="o.trial_date_end">, з випробувальним строком до <t t-out="o._date(o.trial_date_end)"/></t>.</p>
+        <p>Підстава: заява <t t-out="o._short_name()"/>, трудовий договір.</p>
+        <p>Бухгалтерії подати повідомлення про прийняття працівника на роботу (J3001005) до початку роботи.</p>
+        <div class="sign">Директор ____________ <t t-out="o._blank(company.ua_director_name, 18)"/></div>
+        <div class="place" style="margin-top:22px;"><span>З наказом ознайомлений(а) ____________ <t t-out="o._short_name()"/></span><span><t t-out="o._date(False)"/></span></div>
+      </div>
+    </t></t>
+  </template>
+
+  <!-- ================================================================ 3. трудовий договір -->
+  <template id="report_hire_contract">
+    <t t-call="web.basic_layout"><t t-foreach="docs" t-as="o">
+      <t t-set="company" t-value="o.company_id"/>
+      <div class="page ua-hd">
+        <t t-call="l10n_ua_hire.hire_doc_style"/>
+        <h3>ТРУДОВИЙ ДОГОВІР</h3>
+        <div class="place"><span>м. <t t-out="o._blank(company.city, 10)"/></span><span><t t-out="o._date(False)"/></span></div>
+        <p><b><t t-out="company.name"/></b> (далі - Роботодавець), в особі директора <t t-out="o._blank(company.ua_director_name, 24)"/>, який діє на підставі Статуту,
+          та <b><t t-out="o._blank(o.name if o.last_name else '', 30)"/></b> (далі - Працівник), разом - Сторони, уклали цей договір відповідно до Кодексу законів про працю України.</p>
+
+        <h4>1. Предмет договору</h4>
+        <ol>
+          <li>Працівник приймається на посаду <b><t t-out="o._blank(o.job_title, 24)"/></b><t t-if="o.kp_code"> (код КП <t t-out="o.kp_code"/>)</t> до підрозділу <t t-out="o._blank(o.department_id.name, 20)"/>.</li>
+          <li>Перший робочий день: <b><t t-out="o._date(o.date_from)"/></b>. Договір укладено на невизначений строк.</li>
+          <li>Робота є для Працівника <t t-out="'основним місцем роботи' if o.main_job else 'роботою за сумісництвом'"/>; обсяг: <t t-out="dict(o._fields['fte'].selection).get(o.fte, 'повна ставка')"/>.</li>
+          <li t-if="o.trial_date_end">Випробувальний строк триває до <t t-out="o._date(o.trial_date_end)"/> (ст. 26, 27 КЗпП).</li>
+        </ol>
+
+        <h4>2. Обов'язки Працівника</h4>
+        <ol>
+          <li>Сумлінно виконувати обов'язки за посадовою інструкцією, з якою Працівник ознайомлений до підписання договору.</li>
+          <li>Дотримуватися правил внутрішнього трудового розпорядку, вимог охорони праці і пожежної безпеки.</li>
+          <li>Не розголошувати конфіденційну інформацію Роботодавця відповідно до Договору про нерозголошення.</li>
+          <li>Дбайливо ставитися до майна Роботодавця і повернути його в день припинення трудових відносин.</li>
+          <li>Повідомляти Роботодавця про зміну персональних даних, даних військового обліку і обставин, що впливають на виконання роботи, протягом 5 робочих днів.</li>
+        </ol>
+
+        <h4>3. Обов'язки Роботодавця</h4>
+        <ol>
+          <li>Забезпечити Працівника роботою, робочим місцем і засобами праці, безпечними умовами праці.</li>
+          <li>Своєчасно і в повному обсязі виплачувати заробітну плату.</li>
+          <li>Надавати щорічну основну відпустку тривалістю не менше 24 календарних днів.</li>
+          <li>Сплачувати єдиний внесок і утримувати податки відповідно до законодавства.</li>
+        </ol>
+
+        <h4>4. Робочий час і час відпочинку</h4>
+        <ol>
+          <li>Нормальна тривалість робочого часу - 40 годин на тиждень, п'ятиденний робочий тиждень з двома вихідними днями<t t-if="o.fte and o.fte != '1'">, пропорційно ставці</t>.</li>
+          <li>Початок, закінчення роботи і перерва визначаються правилами внутрішнього трудового розпорядку.</li>
+        </ol>
+
+        <h4>5. Оплата праці</h4>
+        <ol>
+          <li>Посадовий оклад: <b><t t-out="o._money(o.wage)"/></b> на місяць.</li>
+          <li>Заробітна плата виплачується двічі на місяць: аванс і остаточний розрахунок, у строки, визначені правилами внутрішнього трудового розпорядку, безготівково на рахунок Працівника.</li>
+          <li>Премії і доплати встановлюються наказом Роботодавця.</li>
+        </ol>
+
+        <h4>6. Зміна і припинення договору</h4>
+        <ol>
+          <li>Умови договору змінюються за згодою Сторін у письмовій формі.</li>
+          <li>Договір припиняється з підстав, передбачених КЗпП України.</li>
+        </ol>
+
+        <h4>7. Інші умови</h4>
+        <ol>
+          <li>Спори між Сторонами вирішуються відповідно до законодавства України про працю.</li>
+          <li>Договір складено у двох примірниках, по одному для кожної Сторони.</li>
+        </ol>
+        <t t-call="l10n_ua_hire.hire_parties"/>
+      </div>
+    </t></t>
+  </template>
+
+  <!-- ================================================================ 4. NDA -->
+  <template id="report_hire_nda">
+    <t t-call="web.basic_layout"><t t-foreach="docs" t-as="o">
+      <t t-set="company" t-value="o.company_id"/>
+      <div class="page ua-hd">
+        <t t-call="l10n_ua_hire.hire_doc_style"/>
+        <h3>ДОГОВІР</h3>
+        <div class="sub">про нерозголошення конфіденційної інформації</div>
+        <div class="place"><span>м. <t t-out="o._blank(company.city, 10)"/></span><span><t t-out="o._date(False)"/></span></div>
+        <p><b><t t-out="company.name"/></b> (далі - Роботодавець), в особі директора <t t-out="o._blank(company.ua_director_name, 24)"/>, який діє на підставі Статуту,
+          та <b><t t-out="o._blank(o.name if o.last_name else '', 30)"/></b>, посада <t t-out="o._blank(o.job_title, 20)"/> (далі - Працівник), уклали цей договір.</p>
+
+        <h4>1. Конфіденційна інформація</h4>
+        <ol>
+          <li>Конфіденційна інформація - будь-які відомості, які Працівник отримує у зв'язку з роботою, у будь-якій формі, зокрема усно, на паперових або електронних носіях.</li>
+          <li>До неї належать: відомості про клієнтів, контрагентів і умови договорів з ними; фінансові, комерційні і маркетингові дані та плани; технічні дані, програмний код, ноу-хау, розробки і винаходи; персональні дані працівників і клієнтів; відомості про інформаційні системи, доступи і безпеку; розмір заробітної плати інших працівників.</li>
+          <li>Інформація є конфіденційною і без позначки «Конфіденційно». У разі сумніву Працівник звертається до керівника і до отримання відповіді вважає інформацію конфіденційною.</li>
+          <li>Конфіденційною не є інформація, яка є загальнодоступною не з вини Працівника, була законно відома Працівнику до початку роботи, або розкрита за письмовою згодою Роботодавця.</li>
+        </ol>
+
+        <h4>2. Обов'язки Працівника</h4>
+        <ol>
+          <li>Не розголошувати конфіденційну інформацію і не використовувати її в особистих інтересах або в інтересах третіх осіб.</li>
+          <li>Не публікувати і не обговорювати конфіденційну інформацію в мережі інтернет, соціальних мережах, інтерв'ю і коментарях.</li>
+          <li>Не копіювати документи і не пересилати їх на особисті пристрої, пошту чи сховища, якщо цього не вимагає робота.</li>
+          <li>Негайно повідомити Роботодавця про втрату носіїв, неправомірний доступ або загрозу розголошення.</li>
+          <li>Якщо органи влади вимагають розкрити інформацію, повідомити Роботодавця не пізніше наступного робочого дня і розкрити лише необхідний обсяг.</li>
+          <li>У день припинення трудових відносин повернути всі документи, носії і доступи, а копії знищити.</li>
+        </ol>
+
+        <h4>3. Відповідальність</h4>
+        <ol>
+          <li>За розголошення конфіденційної інформації Працівник несе дисциплінарну і матеріальну відповідальність відповідно до КЗпП України, а у випадках, передбачених законом, - адміністративну або кримінальну.</li>
+          <li>Розголошенням вважаються умисні і необережні дії або бездіяльність, унаслідок яких інформація стала відома третім особам без згоди Роботодавця.</li>
+        </ol>
+
+        <h4>4. Строк дії</h4>
+        <ol>
+          <li>Договір діє з дня підписання протягом усього строку трудових відносин.</li>
+          <li>Обов'язок не розголошувати конфіденційну інформацію діє ще 3 (три) роки після припинення трудових відносин.</li>
+          <li>Договір складено у двох примірниках, по одному для кожної Сторони.</li>
+        </ol>
+        <t t-call="l10n_ua_hire.hire_parties"/>
+      </div>
+    </t></t>
+  </template>
+
+  <!-- ================================================================ 5. згода на обробку ПД -->
+  <template id="report_hire_consent">
+    <t t-call="web.basic_layout"><t t-foreach="docs" t-as="o">
+      <t t-set="company" t-value="o.company_id"/>
+      <div class="page ua-hd">
+        <t t-call="l10n_ua_hire.hire_doc_style"/>
+        <h3>ЗГОДА</h3>
+        <div class="sub">на обробку персональних даних</div>
+        <p>Я, <b><t t-out="o._blank(o.name if o.last_name else '', 30)"/></b>, <t t-out="o._date(o.birthday)"/> року народження, <t t-out="o._id_doc_text()"/>,
+          відповідно до Закону України «Про захист персональних даних» надаю згоду <b><t t-out="company.name"/></b> (код ЄДРПОУ <t t-out="o._blank(company.company_registry, 10)"/>)
+          на обробку моїх персональних даних.</p>
+        <h4>Мета обробки</h4>
+        <p>Трудові відносини: оформлення прийняття, ведення кадрового обліку, нарахування і виплата заробітної плати, подання звітності до ДПС і ПФУ, ведення військового обліку, охорона праці.</p>
+        <h4>Склад даних</h4>
+        <p>Прізвище, ім'я, по батькові; дата народження; РНОКПП; дані документа, що посвідчує особу; адреса реєстрації і проживання; контактні дані; освіта і трудова діяльність; дані військового обліку; дані про склад сім'ї для пільг; банківські реквізити для виплати заробітної плати; відомості про стан здоров'я в межах, передбачених законом.</p>
+        <h4>Дії з даними</h4>
+        <p>Збирання, реєстрація, накопичення, зберігання, адаптування, зміна, поновлення, використання, передача органам влади у випадках, передбачених законом, знеособлення, знищення. Дані можуть оброблятися в електронних системах обліку, зокрема із застосуванням засобів розпізнавання документів.</p>
+        <h4>Строк</h4>
+        <p>Протягом трудових відносин і строків зберігання кадрових документів, встановлених законодавством.</p>
+        <p>Мене повідомлено про володільця персональних даних, мету їх обробки, осіб, яким можуть передаватися дані, і мої права за статтею 8 Закону України «Про захист персональних даних», зокрема право відкликати згоду.</p>
+        <div class="place" style="margin-top:30px;">
+          <span><t t-out="o._date(False)"/></span>
+          <span>____________ <t t-out="o._short_name()"/></span>
+        </div>
+      </div>
+    </t></t>
+  </template>
+
+  <!-- ================================================================ 6. лист ознайомлення -->
+  <template id="report_hire_ack">
+    <t t-call="web.basic_layout"><t t-foreach="docs" t-as="o">
+      <t t-set="company" t-value="o.company_id"/>
+      <div class="page ua-hd">
+        <t t-call="l10n_ua_hire.hire_doc_style"/>
+        <h3>ЛИСТ ОЗНАЙОМЛЕННЯ</h3>
+        <div class="sub">працівника до початку роботи (ст. 29 КЗпП України)</div>
+        <p>Працівник: <b><t t-out="o._blank(o.name if o.last_name else '', 30)"/></b>, посада <t t-out="o._blank(o.job_title, 24)"/>, підрозділ <t t-out="o._blank(o.department_id.name, 20)"/>, перший робочий день <t t-out="o._date(o.date_from)"/>.</p>
+        <table class="grid">
+          <thead><tr><th style="width:6%">№</th><th>Документ або інструктаж</th><th>Дата</th><th>Підпис працівника</th></tr></thead>
+          <tbody>
+            <t t-foreach="['Умови праці, права і обов\'язки, шкідливі та небезпечні виробничі фактори', 'Правила внутрішнього трудового розпорядку', 'Посадова інструкція', 'Положення про конфіденційну інформацію', 'Положення про обробку і захист персональних даних', 'Вступний інструктаж з охорони праці', 'Первинний інструктаж з охорони праці на робочому місці', 'Інструктаж з пожежної безпеки']" t-as="line">
+              <tr><td><t t-out="line_index + 1"/></td><td><t t-out="line"/></td><td class="dt"></td><td class="sig"></td></tr>
+            </t>
+          </tbody>
+        </table>
+        <div class="place" style="margin-top:26px;">
+          <span>Ознайомлення провів(ла) ____________ ______________________</span>
+          <span><t t-out="o._date(False)"/></span>
+        </div>
+      </div>
+    </t></t>
+  </template>
+</odoo>

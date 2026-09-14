@@ -49,6 +49,15 @@ EXTRACTABLE = [f for key, _t, names in SECTIONS if key in ("candidate", "identit
                                           "pd_consent", "screening_note")]
 
 DIGITS_ONLY = ("rnokpp", "id_doc_unzr")
+# Пакет першого дня: ключ, назва, звіт. Наказ після прийняття друкується з проведеного наказу.
+PACKAGE = [
+    ("statement", "Заява про прийняття", "l10n_ua_hire.report_hire_statement"),
+    ("order", "Наказ про прийняття", "l10n_ua_hire.report_hire_order_draft"),
+    ("contract", "Трудовий договір", "l10n_ua_hire.report_hire_contract"),
+    ("nda", "Договір про нерозголошення", "l10n_ua_hire.report_hire_nda"),
+    ("consent", "Згода на обробку персональних даних", "l10n_ua_hire.report_hire_consent"),
+    ("ack", "Лист ознайомлення", "l10n_ua_hire.report_hire_ack"),
+]
 EXTRACT_URL = os.environ.get("UA_EXTRACT_URL", "http://host.docker.internal:8765")
 
 
@@ -138,6 +147,7 @@ class UaHireCase(models.Model):
     kp_code = fields.Char("Код КП")
     trial_date_end = fields.Date("Випробувальний строк до")
 
+    package_skip = fields.Char("Не друкувати в пакеті", help="Ключі документів через кому")
     file_ids = fields.One2many("ua.hire.file", "case_id", "Файли")
     proposal_ids = fields.One2many("ua.hire.proposal", "case_id", "Пропозиції")
 
@@ -302,6 +312,53 @@ class UaHireCase(models.Model):
                 return key
         return ""
 
+    # ------------------------------------------------------------------ пакет першого дня
+    def _blank(self, value, width=16):
+        return value if value else "_" * width
+
+    def _date(self, day):
+        return day.strftime("%d.%m.%Y") if day else "«____» ____________ 20___ р."
+
+    def _money(self, amount):
+        if not amount:
+            return "__________ грн"
+        return "{:,.2f}".format(amount).replace(",", "\u00a0").replace(".", ",") + " грн"
+
+    def _short_name(self):
+        self.ensure_one()
+        if not self.last_name:
+            return "____________________"
+        initials = "".join("%s." % p[0] for p in [self.first_name, self.middle_name] if p)
+        return ("%s %s" % (initials, self.last_name.upper())).strip()
+
+    def _id_doc_text(self):
+        self.ensure_one()
+        kind = dict(self._fields["id_doc_type"].selection).get(self.id_doc_type, "документ, що посвідчує особу")
+        number = " ".join(p for p in [self.id_doc_series, self.id_doc_number] if p) or "__________"
+        issued = ", виданий %s %s" % (self.id_doc_issued_by or "__________", self._date(self.id_doc_date)) if (self.id_doc_issued_by or self.id_doc_date) else ""
+        return "%s № %s%s" % (kind, number, issued)
+
+    def _package(self):
+        self.ensure_one()
+        skip = set((self.package_skip or "").split(","))
+        rows = []
+        for key, label, report in PACKAGE:
+            item = {"r": report, "ids": [self.id], "t": label}
+            if key == "order" and self.order_id:
+                item = {"r": "l10n_ua_hr_orders.report_ua_hr_order", "ids": [self.order_id.id], "t": label}
+            rows.append({"key": key, "label": label, "on": key not in skip, "item": item})
+        return rows
+
+    def set_package_doc(self, key, on):
+        self.ensure_one()
+        skip = {k for k in (self.package_skip or "").split(",") if k}
+        if on:
+            skip.discard(key)
+        else:
+            skip.add(key)
+        self.package_skip = ",".join(sorted(skip)) or False
+        return True
+
     # ------------------------------------------------------------------ дані для екрана
     @api.model
     def _field_meta(self):
@@ -353,6 +410,7 @@ class UaHireCase(models.Model):
             "can_hire": self.stage == "onboarding" and not any(c["level"] == "error" for c in checks),
             "military_required": self._military_required(),
             "results": self._results(),
+            "package": self._package(),
             "log": [{"date": m.date.strftime("%d.%m.%Y %H:%M"), "author": m.author_id.name or "",
                      "body": re.sub(r"<[^>]+>", " ", m.body or "").strip()}
                     for m in self.message_ids.filtered(lambda m: m.body)[:8]],

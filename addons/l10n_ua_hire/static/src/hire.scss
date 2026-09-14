@@ -122,6 +122,10 @@
     .o_ua_hire_prop_val { font-weight: 600; }
     .o_ua_hire_prop_src { color: var(--o-gray-600, #6c757d); font-size: 11px; }
 
+    .o_ua_hire_preview_bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 12px 0 8px; }
+    .o_ua_hire_preview { width: 100%; height: calc(100vh - 190px); min-height: 480px; border: 1px solid var(--o-gray-300, #ced4da); background: #fff; }
+    .o_ua_hire_pkg { display: flex; gap: 8px; align-items: center; margin: 0; font-weight: normal; }
+
     // ---- праворуч
     .o_ua_hire_side { position: sticky; top: 0; display: grid; gap: 16px; }
     .o_ua_hire_block { display: grid; gap: 6px; }

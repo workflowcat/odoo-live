@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import { Component, onWillStart, useState } from "@odoo/owl";
+import { Component, onWillStart, useRef, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { standardActionServiceProps } from "@web/webclient/actions/action_service";
@@ -37,8 +37,9 @@ export class UaHire extends Component {
             data: null, loading: true, busy: false, creating: false,
             draft: { last_name: "", first_name: "", job_title: "" },
             showClosed: false, helper: null, extracting: false, declining: false, declineReason: "",
-            openMilitary: false,
+            openMilitary: false, preview: false,
         });
+        this.previewFrame = useRef("previewFrame");
         this.groups = GROUPS;
         this.fieldTip = (s) => FIELD_TIP[s] || "";
         this.confLabel = (c) => CONF_LABEL[c] || c;
@@ -70,6 +71,7 @@ export class UaHire extends Component {
 
     async select(id) {
         this.state.declining = false;
+        this.state.preview = false;
         this.state.openMilitary = false;
         await this.load(id);
     }
@@ -278,6 +280,40 @@ export class UaHire extends Component {
             return;
         }
         this.action.doAction({ type: "ir.actions.act_window", res_model: r.model, res_id: r.res_id, views: [[false, "form"]] });
+    }
+
+    // ---- пакет першого дня
+    get packageItems() {
+        return this.caseData.package.filter((d) => d.on).map((d) => d.item);
+    }
+
+    packageUrl(embed) {
+        const items = encodeURIComponent(JSON.stringify(this.packageItems));
+        const title = encodeURIComponent(`Пакет першого дня: ${this.caseData.name}`);
+        return `/ua/print?items=${items}&title=${title}${embed ? "&embed=1" : ""}`;
+    }
+
+    async togglePackageDoc(d, ev) {
+        await this.orm.call("ua.hire.case", "set_package_doc", [[this.caseData.id], d.key, ev.target.checked]);
+        await this.load();
+    }
+
+    showPackage() {
+        if (!this.packageItems.length) {
+            this.notification.add("Позначте хоча б один документ.", { type: "warning" });
+            return;
+        }
+        this.state.preview = true;
+    }
+
+    printPackage() {
+        const frame = this.previewFrame.el;
+        if (frame && frame.contentWindow) {
+            frame.contentWindow.focus();
+            frame.contentWindow.print();
+        } else {
+            window.open(this.packageUrl(false), "_blank");
+        }
     }
 
     printResult(r) {

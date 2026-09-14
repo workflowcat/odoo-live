@@ -98,6 +98,20 @@ try:
 except UserError:
     check("службові поля не редагуються з екрана", True)
 
+# ---- 4a. пакет першого дня
+pkg = case._package()
+check("пакет: 6 документів, усі позначені", len(pkg) == 6 and all(d["on"] for d in pkg), str([d["key"] for d in pkg]))
+case.set_package_doc("nda", False)
+check("пакет: документ можна зняти", [d["key"] for d in case._package() if not d["on"]] == ["nda"])
+case.set_package_doc("nda", True)
+Report = env["ir.actions.report"].sudo()
+for d in pkg:
+    html, _fmt = Report._render_qweb_html(d["item"]["r"], d["item"]["ids"])
+    text = html.decode()
+    check("пакет: «%s» містить ПІБ" % d["label"], "Перевірочний" in text or "ПЕРЕВІРОЧНИЙ" in text)
+contract_html = Report._render_qweb_html("l10n_ua_hire.report_hire_contract", [case.id])[0].decode()
+check("договір: оклад і перший день у тексті", "25" in contract_html and start.strftime("%d.%m.%Y") in contract_html)
+
 reqs = {r["code"]: r["state"] for r in case._requirements()}
 check("довідник: заява і паспорт бракує, наказ створить система",
       reqs.get("statement") == "missing" and reqs.get("passport_rnokpp") == "missing" and reqs.get("hire_order") == "later", str(reqs))
@@ -176,6 +190,7 @@ check("J3001005 за місяць першого дня", run.report_code == "j3
 check("повідомлення ТЦК містить працівника", emp in case.notice_id.line_ids.mapped("employee_id"))
 check("етап «Прийнято»", case.stage == "hired")
 payload = case._case_payload()
+check("пакет після прийняття друкує проведений наказ", [d["item"]["r"] for d in case._package() if d["key"] == "order"] == ["l10n_ua_hr_orders.report_ua_hr_order"])
 check("результати: картка, наказ, J30, ТЦК", [r["key"] for r in payload["results"]] == ["employee", "order", "j30", "notice"])
 try:
     case.set_value("phone", "123")
