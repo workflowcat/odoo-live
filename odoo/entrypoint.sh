@@ -33,7 +33,7 @@ if [ -n "${MODULE_OPS:-}" ] && [ -n "${MODULE_OPS_TAG:-}" ]; then
         x) out=$( { printf 'M = env["ir.module.module"]\nM.update_list()\nenv.cr.commit()\nm = M.search([("name", "in", "%s".split(",")), ("state", "=", "installed")])\ndown = m.downstream_dependencies() - m\nif down:\n    print("uninstall aborted, cascade:", down.mapped("name"))\nelse:\n    print("uninstall:", m.mapped("name"))\n    m.button_immediate_uninstall()\n    env.cr.commit()\n' "$mods" | \
              odoo shell -c /etc/odoo/odoo.conf -d "$DB_NAME" --no-http --db_host="$HOST" --db_port="${PORT:-5432}" --db_user="$USER" --db_password="$PASSWORD"; } 2>&1 || true)
            printf '%s\n' "$out"
-           case "$out" in *"uninstall aborted"*) ops_failed=1 ;; esac ;;
+           case "$out" in *"uninstall aborted"*|*"Traceback"*) ops_failed=1 ;; esac ;;
       esac
     done
     if [ -z "${ops_failed:-}" ]; then
