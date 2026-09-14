@@ -57,7 +57,12 @@ export class UaHire extends Component {
 
     async load(caseId) {
         const current = caseId || (this.caseData && this.caseData.id) || null;
-        this.state.data = await this.orm.call("ua.hire.case", "get_screen_data", [], { case_id: current });
+        const seq = (this.loadSeq = (this.loadSeq || 0) + 1);
+        const data = await this.orm.call("ua.hire.case", "get_screen_data", [], { case_id: current });
+        if (seq !== this.loadSeq) {
+            return; // уже є свіжіший запит - ця відповідь застаріла
+        }
+        this.state.data = data;
         this.state.loading = false;
         const c = this.caseData;
         if (c && c.files.length && !this.state.helper) {

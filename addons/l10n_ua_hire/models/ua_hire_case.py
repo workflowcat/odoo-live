@@ -449,7 +449,7 @@ class UaHireCase(models.Model):
                          "date_from": c.date_from.strftime("%d.%m") if c.date_from else "",
                          "missing": sum(1 for s in states.values() if s == "missing"),
                          "proposed": sum(1 for s in states.values() if s == "proposed")})
-        selected = self.browse(case_id).exists() if case_id else self.browse()
+        selected = cases.filtered(lambda c: c.id == case_id) if case_id else self.browse()  # лише зі своїх компаній
         if not selected and rows:
             first = next((r for r in rows if r["stage"] in ("candidate", "onboarding")), rows[0])
             selected = self.browse(first["id"])
@@ -553,7 +553,8 @@ class UaHireCase(models.Model):
                        "data": f.file.decode() if isinstance(f.file, bytes) else f.file} for f in files],
         }
         try:
-            resp = requests.post(EXTRACT_URL + "/extract", data=json.dumps(payload), timeout=600,
+            # limit_time_real = 240 с: відповідь має прийти раніше, інакше Odoo уб'є робочий процес разом із запитом
+            resp = requests.post(EXTRACT_URL + "/extract", data=json.dumps(payload), timeout=(5, 200),
                                  headers={"Content-Type": "application/json"})
             result = resp.json()
         except Exception as e:  # noqa: BLE001

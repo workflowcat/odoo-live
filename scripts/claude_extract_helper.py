@@ -20,7 +20,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 PORT = int(os.environ.get("UA_EXTRACT_PORT", "8765"))
 CLAUDE = os.environ.get("CLAUDE_BIN") or shutil.which("claude") or os.path.expanduser("~/.local/bin/claude")
 MODEL = os.environ.get("UA_EXTRACT_MODEL", "")
-TIMEOUT = int(os.environ.get("UA_EXTRACT_TIMEOUT", "540"))
+TIMEOUT = int(os.environ.get("UA_EXTRACT_TIMEOUT", "180"))  # менше за 200 с очікування Odoo (limit_time_real = 240)
 
 PROMPT = """You extract data for a Ukrainian employee hiring file.
 
@@ -96,7 +96,10 @@ def extract(payload):
         m = re.search(r"\{.*\}", text, flags=re.S)
         if not m:
             return {"error": "no JSON in answer: %s" % text[:300]}
-        data = json.loads(m.group())
+        try:
+            data = json.loads(m.group())
+        except json.JSONDecodeError:
+            return {"error": "answer is not valid JSON: %s" % m.group()[:300]}
         proposals = []
         for p in data.get("proposals") or []:
             if isinstance(p, dict) and p.get("field"):

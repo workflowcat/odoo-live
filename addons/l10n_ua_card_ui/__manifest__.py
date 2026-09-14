@@ -9,8 +9,9 @@
     # l10n_ua_military - лишаємо їх явними для прямих полів, якими користується get_card_data.
     # l10n_ua_hr_docs додано понад спеку: кнопка «Наказ» друкує П-1/П-4 саме звідти (єдині наявні звіти
     # наказів на hr.version); без цієї залежності env.ref на звіт наказу впав би помилкою.
-    "depends": ["l10n_ua_shell", 
+    "depends": ["l10n_ua_shell",
         "l10n_ua_hr_card",
+        "l10n_ua_hr_orders",
         "l10n_ua_military",
         "l10n_ua_payroll_rules",
         "l10n_ua_average",

@@ -79,7 +79,7 @@ class UaHireProposal(models.Model):
             case = p.case_id
             value = p.value
             if case._fields[p.field_name].type == "boolean":
-                value = True
+                value = p.value == "1"
             case.set_value(p.field_name, value)
             p._decide("accepted")
             others = case.proposal_ids.filtered(lambda o: o.field_name == p.field_name and o.state == "pending" and o != p)
