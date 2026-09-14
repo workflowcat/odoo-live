@@ -7,6 +7,13 @@ cd "$(dirname "$0")/.."
 if [ -n "${VERIFY_ON_CLOUD_COPY:-}" ]; then
   ( cd .. && docker compose exec -T odoo sh -c "odoo -c /etc/odoo/odoo.conf --db_host=db --db_user=odoo --db_password=odoo -d payroll_cloud -i $VERIFY_ON_CLOUD_COPY --stop-after-init --log-level=warn" ) || { echo "встановлення на копії хмарної бази провалилося, викладку зупинено"; exit 1; }
 fi
+# перед викладкою: локальні перевірки (check_all.sh) мають пройти; SKIP_CHECKS=1 пропускає цей крок
+if [ -z "${SKIP_CHECKS:-}" ]; then
+  if ! ../scripts/check_all.sh; then
+    echo "DEPLOY-PAYROLL: FAILED (checks)"
+    exit 1
+  fi
+fi
 # збірка образу інколи падає на push у реєстр; без цієї перевірки помилку ховає конвеєр
 if ! npx wrangler deploy -c wrangler.payroll.jsonc; then
   echo "DEPLOY-PAYROLL: FAILED (wrangler deploy)"
