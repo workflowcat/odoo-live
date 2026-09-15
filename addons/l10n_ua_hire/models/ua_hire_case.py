@@ -626,6 +626,20 @@ class UaHireCase(models.Model):
             Doc.create({"employee_id": employee.id, "type": f.doc_type if f.doc_type in doc_types else "other",
                         "name": f.name, "file": f.file, "filename": f.filename or f.name})
 
+        # Пакет першого дня (документи на підпис): усі ключі PACKAGE, крім "order" - проєкт наказу
+        # друкується лише до прийняття; після прийняття документ наказу веде вже проведений наказ
+        # (створює l10n_ua_card_ui, коли order.action_post() спрацює нижче). Знята в пакеті позначка
+        # (package_skip) переводить документ у "не потрібен" замість "на підпис".
+        skip = set((self.package_skip or "").split(","))
+        for key, label, report in PACKAGE:
+            if key == "order":
+                continue
+            Doc.create({
+                "employee_id": employee.id, "type": key, "name": label,
+                "state": "not_needed" if key in skip else "to_sign",
+                "report_xmlid": report, "res_model": "ua.hire.case", "res_id": self.id,
+            })
+
         order = self.env["ua.hr.order"].sudo().create({
             "order_type": "hire", "employee_id": employee.id, "company_id": self.company_id.id,
             "date": min(fields.Date.context_today(self), self.date_from), "date_from": self.date_from,
@@ -635,6 +649,13 @@ class UaHireCase(models.Model):
             "basis": _("Заява %s") % self.name,
         })
         order.action_post()
+        if "order" in skip:
+            # Документ наказу сам створює l10n_ua_card_ui на action_post (гачок на ua.hr.order,
+            # спільний для всіх видів наказу); тут лише знімаємо позначку, якщо в пакеті її прибрали.
+            order_doc = Doc.search([("res_model", "=", "ua.hr.order"), ("res_id", "=", order.id),
+                                    ("type", "=", "order")], limit=1)
+            if order_doc:
+                order_doc.state = "not_needed"
 
         run = self.env["ua.report.run"].sudo()._find_or_create("j30", self.company_id, self.date_from.year, month=self.date_from.month)
         if run.state == "draft":

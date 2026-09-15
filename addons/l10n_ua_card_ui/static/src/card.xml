@@ -68,12 +68,20 @@
           </table>
           <h6>Документи</h6>
           <table class="o_ua_card_table o_ua_card_docs">
-            <tr t-foreach="state.data.documents" t-as="doc" t-key="doc.id">
+            <tr t-foreach="state.documents" t-as="doc" t-key="doc.id">
               <td t-esc="doc.type"/>
               <td t-esc="doc.name"/>
               <td t-att-class="'o_ua_card_numeric ' + (doc.css || '')" t-esc="doc.valid_until"/>
+              <td>
+                <span t-att-class="'o_ua_badge ' + doc.state_css" t-esc="doc.state_label"/>
+                <span t-if="doc.signed_date" class="text-muted"> · <t t-esc="doc.signed_date"/></span>
+              </td>
+              <td class="o_ua_card_doc_actions">
+                <a t-if="doc.can_sign" href="#" class="o_ua_card_doc_link" t-on-click.prevent="() => this.onDocumentSign(doc)">Підписано</a>
+                <a t-if="doc.can_print" href="#" class="o_ua_card_doc_link" t-on-click.prevent="() => this.onDocumentPrint(doc)">Друк</a>
+              </td>
             </tr>
-            <tr t-if="!state.data.documents.length"><td colspan="3" class="text-muted">немає</td></tr>
+            <tr t-if="!state.documents.length"><td colspan="5" class="text-muted">немає</td></tr>
           </table>
         </div>
       </div>

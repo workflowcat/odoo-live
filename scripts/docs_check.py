@@ -14,7 +14,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ENV = dict(l.strip().split("=", 1) for l in open(os.path.join(ROOT, ".env")) if "=" in l and not l.startswith("#"))
 PORT = os.environ.get("ODOO_PORT") or ENV.get("ODOO_PORT", "8110").strip()
 BASE = f"http://127.0.0.1:{PORT}"
-DB = "payroll"
+DB = os.environ.get("PAYROLL_CHECK_DB", "payroll")
 PW = ENV["ODOO_ADMIN_USER_PASSWORD"].strip()
 RUN_NAME = "Зарплата за серпень 2026"
 

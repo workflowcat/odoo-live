@@ -82,3 +82,31 @@ def post_init_hook(env):
         rng = seq._get_current_sequence(date(year, 6, 15))
         if rng.number_next <= max_num:
             rng.write({"number_next": max_num + 1})
+
+
+def backfill_leave_orders(env):
+    """Ідемпотентно: (1) підтягує hr.leave.ua_order_id там, де вже є ua.hr.order з leave_id
+    на цю відпустку (наприклад - перенесене post_init_hook до появи поля ua_order_id), і
+    (2) створює й проводить наказ В-2 для вже підтверджених (state='validate') наказових
+    відпусток, які досі не мають жодного наказу.
+
+    Повертає {"linked": N, "created": N} - скільки записів кожного виду опрацьовано."""
+    Leave = env["hr.leave"].sudo()
+    Order = env["ua.hr.order"].sudo()
+
+    linked = 0
+    orders_with_leave = Order.search([("order_type", "=", "leave"), ("leave_id", "!=", False)])
+    for order in orders_with_leave:
+        if order.leave_id and not order.leave_id.ua_order_id:
+            order.leave_id.ua_order_id = order.id
+            linked += 1
+
+    created = 0
+    candidates = Leave.search([("state", "=", "validate"), ("ua_order_id", "=", False)])
+    for leave in candidates:
+        if not leave._ua_order_worthy():
+            continue
+        leave._ua_create_order()
+        created += 1
+
+    return {"linked": linked, "created": created}

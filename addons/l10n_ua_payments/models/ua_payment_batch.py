@@ -47,6 +47,8 @@ class UaPaymentBatch(models.Model):
     kind = fields.Selection(KINDS, "Вид виплати", default="salary", required=True, tracking=True)
     pay_date = fields.Date("Дата виплати", default=fields.Date.context_today, tracking=True)
     journal_id = fields.Many2one("account.journal", "Банк", domain=[("type", "=", "bank")], tracking=True)
+    number = fields.Char("Номер", tracking=True)
+    number_date = fields.Date("Дата затвердження", tracking=True)
     state = fields.Selection(STATES, "Стан", default="draft", required=True, tracking=True)
     line_ids = fields.One2many("ua.payment.line", "batch_id", "Рядки")
     total = fields.Monetary("Разом", compute="_compute_total", store=True)
@@ -160,6 +162,12 @@ class UaPaymentBatch(models.Model):
             if missing:
                 raise UserError(_("Без рахунку: %s. Впишіть IBAN у картці працівника або в рядку.")
                                 % ", ".join(missing.mapped("employee_id.name")[:10]))
+            if not doc.number:
+                today = fields.Date.context_today(doc)
+                doc.number = self.env["ir.sequence"].sudo().next_by_code("ua.payment.batch", sequence_date=today)
+                if not doc.number:
+                    raise UserError(_("Не налаштовано нумерацію відомостей. Зверніться до адміністратора."))
+                doc.number_date = today
             doc.state = "confirmed"
 
     def action_draft(self):

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Майстри друку: «Журнал реєстрації наказів» (за реєстром і роком) і «Пакет документів»
+"""Майстри друку: «Журнал реєстрації наказів» (за реєстром і роком) і «Перевірка документів»
 (матриця документ x працівник). Обидва просто відкривають звіт QWeb на собі самих (без
 проміжного персистентного документа)."""
 from datetime import date
@@ -27,7 +27,7 @@ class UaHrOrderRegisterWizard(models.TransientModel):
 
 class UaHrDocPackWizard(models.TransientModel):
     _name = "ua.hr.doc.pack.wizard"
-    _description = "Пакет документів"
+    _description = "Перевірка документів"
 
     company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
     employee_ids = fields.Many2many("hr.employee", string="Працівники",

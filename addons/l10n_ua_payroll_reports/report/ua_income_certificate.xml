@@ -22,6 +22,7 @@
             <span style="font-size:10px;">ЄДРПОУ <t t-out="company.company_registry or ''"/><t t-if="company.street"> · <t t-out="company.zip or ''"/>, <t t-out="company.city or ''"/>, <t t-out="company.street"/></t></span>
           </div>
           <h3 style="text-align:center; margin-top:18px;">ДОВІДКА ПРО ДОХОДИ</h3>
+          <p style="text-align:center;">Довідка № <t t-out="w.cert_number or '____'"/> від <t t-out="w.cert_date.strftime('%d.%m.%Y') if w.cert_date else '____________'"/></p>
           <p>Видана <b><t t-out="emp.name"/></b><t t-if="emp.ua_rnokpp">, РНОКПП <t t-out="emp.ua_rnokpp"/></t> про те,
              що він (вона) працює в <t t-out="company.name"/> на посаді «<t t-out="emp.job_title or emp.job_id.name or '-'"/>»
              <t t-if="emp.department_id">підрозділу <t t-out="emp.department_id.name"/></t>.</p>

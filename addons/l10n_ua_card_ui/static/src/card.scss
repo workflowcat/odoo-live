@@ -130,6 +130,19 @@
         font-size: 12px;
     }
 
+    .o_ua_card_doc_actions {
+        white-space: nowrap;
+    }
+
+    .o_ua_card_doc_link {
+        font-size: 12px;
+        margin-right: 8px;
+
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+
     .o_ua_card_timeline {
         margin-bottom: 16px;
     }

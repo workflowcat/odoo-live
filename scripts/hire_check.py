@@ -182,7 +182,7 @@ case.action_hire()
 emp = case.employee_id
 check("створено картку працівника", bool(emp) and emp.ua_rnokpp == good and emp.ua_middle_name == "Іванович", emp.name)
 check("військові дані перенесено", emp.ua_mil_status == "liable" and emp.ua_mil_tcc == "Шевченківський РТЦК та СП")
-check("файли стали документами працівника", len(emp.ua_document_ids) == 5, str(len(emp.ua_document_ids)))
+check("файли стали документами працівника", len(emp.ua_document_ids.filtered("file")) == 5, str(len(emp.ua_document_ids.filtered("file"))))
 check("наказ проведено з номером", case.order_id.state == "posted" and bool(case.order_id.name), case.order_id.name or "")
 check("одна версія контракту з першим днем і окладом", len(emp.version_ids) == 1 and emp.version_ids.contract_date_start == start and emp.version_ids.wage == 25000, str([(v.date_version, v.wage) for v in emp.version_ids]))
 run = case.j30_run_id
@@ -204,6 +204,35 @@ check("екран: справа в списку і обрана", any(r["id"] ==
 check("екран: метадані всіх полів", all(f in data["meta"] for _k, _t, names in hc.SECTIONS for f in names))
 check("екран: перелік підрозділів і видів документів", bool(data["departments"]) and bool(data["doc_types"]))
 check("меню «Прийняття» у «Працівниках»", env.ref("l10n_ua_hire.menu_ua_hire").parent_id == env.ref("l10n_ua_navigation.menu_ua_people_root"))
+
+# ---- 8. документи на підпис (пакет першого дня + наказ) - виконується після всіх перевірок
+# прийняття, щоб не зачепити «одна версія контракту» додатковим наказом про зміну окладу нижче.
+to_sign = emp.ua_document_ids.filtered(lambda d: d.state == "to_sign")
+check("5 документів пакета плюс наказ - на підпис", len(to_sign) == 6, str(sorted(to_sign.mapped("type"))))
+check("усі документи на підпис мають звіт і джерело", all(d.report_xmlid and d.res_id and d.res_model for d in to_sign))
+order_doc = emp.ua_document_ids.filtered(lambda d: d.type == "order")
+check("документ наказу веде на проведений наказ", order_doc.res_model == "ua.hr.order" and order_doc.res_id == case.order_id.id, order_doc.res_id)
+statement_doc = emp.ua_document_ids.filtered(lambda d: d.type == "statement" and d.state == "to_sign")
+statement_doc.action_mark_signed()
+check("«Підписано» проставляє стан і дату", statement_doc.state == "signed" and bool(statement_doc.signed_date))
+print_action = statement_doc.action_print()
+check("«Друк» відкриває пакет /ua/print з тим самим звітом", print_action["url"].startswith("/ua/print?") and "report_hire_statement" in print_action["url"])
+
+# ---- 8a. наказ поза прийняттям (зміна окладу): проведення створює документ, ознайомлення підписує
+Order = env["ua.hr.order"].sudo()
+wage_order = Order.create({
+    "order_type": "wage", "employee_id": emp.id, "company_id": case.company_id.id,
+    "date_from": start + timedelta(days=30), "wage": 27000,
+})
+wage_order.action_post()
+wage_doc = env["ua.employee.document"].sudo().search([("order_id", "=", wage_order.id)])
+check("проведення наказу створює документ на підпис", len(wage_doc) == 1 and wage_doc.state == "to_sign", str(len(wage_doc)))
+wage_order.action_acknowledge()
+check("ознайомлення підписує документ наказу", wage_doc.state == "signed" and wage_doc.signed_date == wage_order.ack_date)
+wage_order.action_cancel()
+wage_order.action_post()
+wage_doc2 = env["ua.employee.document"].sudo().search([("order_id", "=", wage_order.id)])
+check("повторне проведення не дублює документ", len(wage_doc2) == 1, str(len(wage_doc2)))
 
 env.cr.rollback()
 print()

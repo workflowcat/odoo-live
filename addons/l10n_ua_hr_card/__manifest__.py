@@ -1,7 +1,7 @@
 {
     "name": "Особова картка (Україна)",
     "summary": "Особова картка П-2, документи працівника зі строками, розділи форми працівника за змістом",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "license": "LGPL-3",
     "author": "Bot&Partners",
     "category": "Human Resources",
@@ -10,6 +10,7 @@
         "security/ir.model.access.csv",
         "report/ua_hr_card_report.xml",
         "views/hr_employee_views.xml",
+        "views/ua_employee_document_views.xml",
     ],
     "installable": True,
 }

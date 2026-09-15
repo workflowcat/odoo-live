@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+    <record id="seq_ua_income_certificate" model="ir.sequence">
+      <field name="name">Довідки про доходи</field>
+      <field name="code">ua.income.certificate</field>
+      <field name="implementation">standard</field>
+      <field name="padding">4</field>
+      <field name="prefix">Д-</field>
+      <field name="use_date_range" eval="True"/>
+      <field name="company_id" eval="False"/>
+    </record>
+  </data>
+</odoo>

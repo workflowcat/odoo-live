@@ -1,22 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+  <!-- Ці три звіти (П-1, П-4, П-3) - історичний резерв, не спосіб оформлення наказів.
+       Єдина система наказів - l10n_ua_hr_orders (ua.hr.order, друк l10n_ua_hr_order.report_ua_hr_order).
+       Ці шаблони лишаються для версій/відпусток, перенесених з історії (ua_order_ref/ua_end_order_ref
+       заповнено текстом «Наказ № ... від ...»), але для яких немає запису ua.hr.order - див.
+       l10n_ua_card_ui.hr_employee.action_ua_card_print_order, де це єдине місце виклику фолбеку.
+       Тому вони НЕ прив'язані до кнопки "Друк" (без binding_model_id) - користувач не бачить їх
+       поруч із наказом і не плутає зі свіжим ua.hr.order. -->
   <record id="action_report_ua_order_hire" model="ir.actions.report">
     <field name="name">Наказ про прийняття на роботу (П-1)</field><field name="model">hr.version</field><field name="report_type">qweb-pdf</field>
     <field name="report_name">l10n_ua_hr_docs.report_ua_order_hire</field><field name="report_file">l10n_ua_hr_docs.report_ua_order_hire</field>
     <field name="print_report_name">'Наказ про прийняття %s' % object.employee_id.name</field>
-    <field name="binding_model_id" ref="hr.model_hr_version"/><field name="binding_type">report</field><field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4"/>
+    <field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4"/><field name="binding_model_id" eval="False"/><field name="binding_type">report</field>
   </record>
   <record id="action_report_ua_order_dismiss" model="ir.actions.report">
     <field name="name">Наказ про припинення трудового договору (П-4)</field><field name="model">hr.version</field><field name="report_type">qweb-pdf</field>
     <field name="report_name">l10n_ua_hr_docs.report_ua_order_dismiss</field><field name="report_file">l10n_ua_hr_docs.report_ua_order_dismiss</field>
     <field name="print_report_name">'Наказ про звільнення %s' % object.employee_id.name</field>
-    <field name="binding_model_id" ref="hr.model_hr_version"/><field name="binding_type">report</field><field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4"/>
+    <field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4"/><field name="binding_model_id" eval="False"/><field name="binding_type">report</field>
   </record>
   <record id="action_report_ua_order_leave" model="ir.actions.report">
     <field name="name">Наказ про надання відпустки (П-3)</field><field name="model">hr.leave</field><field name="report_type">qweb-pdf</field>
     <field name="report_name">l10n_ua_hr_docs.report_ua_order_leave</field><field name="report_file">l10n_ua_hr_docs.report_ua_order_leave</field>
     <field name="print_report_name">'Наказ про відпустку %s' % object.employee_id.name</field>
-    <field name="binding_model_id" ref="hr_holidays.model_hr_leave"/><field name="binding_type">report</field><field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4"/>
+    <field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4"/><field name="binding_model_id" eval="False"/><field name="binding_type">report</field>
   </record>
 
   <template id="ua_order_head">

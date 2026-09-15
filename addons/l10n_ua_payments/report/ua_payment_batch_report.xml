@@ -15,7 +15,7 @@
     <t t-call="web.basic_layout">
       <t t-foreach="docs" t-as="doc">
         <div class="page" style="font-family: DejaVu Sans, sans-serif; font-size:11px;">
-          <h3 style="margin-bottom:2px;">Відомість на перерахування</h3>
+          <h3 style="margin-bottom:2px;">Відомість № <t t-out="doc.number or '____'"/> від <t t-out="doc.number_date.strftime('%d.%m.%Y') if doc.number_date else '____________'"/></h3>
           <div>
             <t t-out="doc.company_id.name"/> · <t t-out="doc.name"/>
             <t t-if="doc.pay_date"> · дата виплати <t t-out="doc.pay_date.strftime('%d.%m.%Y')"/></t>

@@ -33,15 +33,21 @@
         <xpath expr="//page[@name='ua_card']" position="after">
           <page name="ua_docs" string="Документи" groups="hr.group_hr_user">
             <field name="ua_document_ids">
-              <list editable="bottom">
+              <list editable="bottom" decoration-warning="state == 'to_sign'" decoration-success="state == 'signed'">
                 <field name="type"/>
                 <field name="name"/>
                 <field name="number"/>
                 <field name="date"/>
                 <field name="valid_until"/>
+                <field name="state" widget="badge" decoration-warning="state == 'to_sign'" decoration-success="state == 'signed'" decoration-muted="state == 'not_needed'"/>
+                <field name="signed_date"/>
                 <field name="file" filename="filename"/>
                 <field name="filename" column_invisible="1"/>
                 <field name="note"/>
+                <button name="action_mark_signed" type="object" string="Підписано" icon="fa-check"
+                        invisible="state != 'to_sign'"/>
+                <button name="action_print" type="object" string="Друк" icon="fa-print"
+                        invisible="not report_xmlid or not res_id"/>
               </list>
             </field>
           </page>

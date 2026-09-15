@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <record id="action_report_ua_hr_doc_pack" model="ir.actions.report">
-    <field name="name">Пакет документів</field>
+    <field name="name">Перевірка документів</field>
     <field name="model">ua.hr.doc.pack.wizard</field>
     <field name="report_type">qweb-pdf</field>
     <field name="report_name">l10n_ua_hr_orders.report_ua_hr_doc_pack</field>
     <field name="report_file">l10n_ua_hr_orders.report_ua_hr_doc_pack</field>
-    <field name="print_report_name">'Пакет документів'</field>
+    <field name="print_report_name">'Перевірка документів'</field>
     <field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4_landscape"/>
   </record>
 
@@ -16,7 +16,7 @@
         <t t-set="requirements" t-value="env['ua.hr.doc.requirement'].sudo().search([])"/>
         <t t-set="employees" t-value="w.employee_ids.sorted(lambda e: e.name)"/>
         <div class="page" style="font-family: DejaVu Sans, sans-serif; font-size: 9px;">
-          <h3 style="margin-bottom:2px;">Пакет документів</h3>
+          <h3 style="margin-bottom:2px;">Перевірка документів</h3>
           <div><t t-out="w.company_id.name"/></div>
           <table class="table table-sm" style="font-size:9px; margin-top:8px;">
             <thead>

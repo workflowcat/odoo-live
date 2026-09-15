@@ -11,6 +11,8 @@
           <field name="date_to"/>
           <field name="purpose" placeholder="для подання до банку"/>
           <field name="show_net"/>
+          <field name="cert_number" invisible="not cert_number"/>
+          <field name="cert_date" invisible="not cert_date"/>
         </group>
         <footer>
           <button name="action_print" type="object" string="Друк" class="btn-primary"/>

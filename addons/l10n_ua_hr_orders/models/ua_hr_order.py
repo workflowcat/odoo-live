@@ -262,8 +262,14 @@ class UaHrOrder(models.Model):
 
     def _post_leave(self):
         self.ensure_one()
+        if self.leave_id:
+            # наказ проводиться на вже наявну відпустку (гак hr.leave._action_validate) -
+            # другу відпустку не створюємо, лише фіксуємо слід для безпечного скасування.
+            self.write({"cancel_write_date": self.leave_id.write_date})
+            return
         Leave = self.env["hr.leave"].sudo().with_company(self.employee_id.company_id).with_context(
-            default_employee_id=self.employee_id.id, allowed_company_ids=[self.employee_id.company_id.id])
+            default_employee_id=self.employee_id.id, allowed_company_ids=[self.employee_id.company_id.id],
+            ua_order_posting=True)
         leave = Leave.create({
             "employee_id": self.employee_id.id,
             "holiday_status_id": self.leave_type_id.id,
@@ -273,6 +279,7 @@ class UaHrOrder(models.Model):
             "ua_sick_number": self.sick_number,
         })
         leave.action_approve()
+        leave.ua_order_id = self.id
         self.write({"leave_id": leave.id, "cancel_write_date": leave.write_date})
 
     def _post_dismissal(self):
@@ -357,7 +364,7 @@ class UaHrOrder(models.Model):
                 "Відпустку, яку створив наказ № %s, змінювали після проведення. "
                 "Виправте вручну і за потреби скасуйте відпустку «%s» самостійно."
             ) % (self.name, leave.display_name))
-        leave.sudo().action_refuse()
+        leave.sudo().with_context(ua_order_posting=True).action_refuse()
         leave.sudo().unlink()
         self.write({"state": "draft", "name": False, "leave_id": False, "ack_date": False, "ack_user_id": False, "cancel_write_date": False})
 

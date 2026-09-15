@@ -24,6 +24,8 @@ class UaIncomeCertificateWizard(models.TransientModel):
     date_to = fields.Date("По", required=True, default=lambda s: fields.Date.context_today(s).replace(day=1) - relativedelta(days=1))
     purpose = fields.Char("Для подання", default="за місцем вимоги")
     show_net = fields.Boolean("Показувати суму на руки", default=True)
+    cert_number = fields.Char("Номер довідки", readonly=True)
+    cert_date = fields.Date("Дата довідки", readonly=True)
 
     def _months(self):
         self.ensure_one()
@@ -56,6 +58,18 @@ class UaIncomeCertificateWizard(models.TransientModel):
         rows, _totals = self._months()
         if not rows:
             raise UserError(_("За цей період немає проведених розрахункових листків."))
+        if not self.cert_number:
+            today = fields.Date.context_today(self)
+            number = self.env["ir.sequence"].sudo().next_by_code("ua.income.certificate", sequence_date=today)
+            if not number:
+                raise UserError(_("Не налаштовано нумерацію довідок. Зверніться до адміністратора."))
+            self.cert_number = number
+            self.cert_date = today
+            self.env["ua.income.certificate.register"].sudo().create({
+                "name": number, "date": today, "company_id": self.employee_id.company_id.id,
+                "employee_id": self.employee_id.id, "date_from": self.date_from, "date_to": self.date_to,
+                "purpose": self.purpose,
+            })
         return self.env.ref("l10n_ua_payroll_reports.action_report_ua_income_certificate").report_action(self)
 
 

@@ -17,6 +17,8 @@ class UaStaffList(models.Model):
     currency_id = fields.Many2one(related="company_id.currency_id")
     date = fields.Date("На дату", default=fields.Date.today, required=True, tracking=True)
     order_ref = fields.Char("Затверджено наказом", tracking=True)
+    order_number = fields.Char("Номер наказу", tracking=True)
+    order_date = fields.Date("Дата наказу", tracking=True)
     state = fields.Selection(STATES, "Стан", default="draft", required=True, tracking=True)
     note = fields.Text("Примітка")
     line_ids = fields.One2many("ua.staff.list.line", "list_id", "Рядки")
@@ -73,6 +75,13 @@ class UaStaffList(models.Model):
         for doc in self:
             if not doc.line_ids:
                 raise UserError("Немає рядків. Натисніть «Перерахувати».")
+            if not doc.order_number:
+                doc.order_number = self.env["ir.sequence"].sudo().next_by_code(
+                    "ua.staff.list", sequence_date=doc.date)
+                if not doc.order_number:
+                    raise UserError("Не налаштовано нумерацію наказів. Зверніться до адміністратора.")
+            if not doc.order_date:
+                doc.order_date = doc.date
             doc.state = "confirmed"
 
     def action_draft(self):

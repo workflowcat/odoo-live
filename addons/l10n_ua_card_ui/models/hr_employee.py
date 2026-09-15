@@ -324,11 +324,30 @@ class HrEmployee(models.Model):
         return report.report_action(self)
 
     def action_ua_card_print_order(self):
+        """Друк наказу останньої кадрової події картки: якщо є проведений ua.hr.order - друкує
+        його (єдина система наказів); якщо працівника перенесено з історії (hr.version з
+        ua_order_ref/ua_end_order_ref, але без запису ua.hr.order) - друкує застарілою формою
+        l10n_ua_hr_docs як історичний резерв."""
         self.ensure_one()
         version = self.sudo().current_version_id
         if not version:
             raise UserError("У працівника немає жодної версії контракту.")
-        if version.contract_date_end and version.ua_end_order_ref:
+        is_dismissal = bool(version.contract_date_end and version.ua_end_order_ref)
+        Order = self.env["ua.hr.order"].sudo()
+        if is_dismissal:
+            order = Order.search([
+                ("employee_id", "=", self.id), ("order_type", "=", "dismissal"),
+                ("state", "in", ("posted", "acknowledged")),
+            ], limit=1, order="date desc")
+        else:
+            order = Order.search([
+                ("employee_id", "=", self.id), ("order_type", "=", "hire"),
+                ("state", "in", ("posted", "acknowledged")),
+            ], limit=1, order="date desc")
+        if order:
+            report = self.env.ref("l10n_ua_hr_orders.action_report_ua_hr_order")
+            return report.report_action(order)
+        if is_dismissal:
             xmlid = "l10n_ua_hr_docs.action_report_ua_order_dismiss"
         else:
             xmlid = "l10n_ua_hr_docs.action_report_ua_order_hire"

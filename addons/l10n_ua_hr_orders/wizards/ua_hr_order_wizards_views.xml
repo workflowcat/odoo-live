@@ -29,7 +29,7 @@
     <field name="name">ua.hr.doc.pack.wizard.form</field>
     <field name="model">ua.hr.doc.pack.wizard</field>
     <field name="arch" type="xml">
-      <form string="Пакет документів">
+      <form string="Перевірка документів">
         <group>
           <field name="company_id" groups="base.group_multi_company"/>
           <field name="employee_ids" widget="many2many_tags"/>
@@ -43,7 +43,7 @@
   </record>
 
   <record id="action_ua_hr_doc_pack_wizard" model="ir.actions.act_window">
-    <field name="name">Пакет документів</field>
+    <field name="name">Перевірка документів</field>
     <field name="res_model">ua.hr.doc.pack.wizard</field>
     <field name="view_mode">form</field>
     <field name="target">new</field>

@@ -18,6 +18,8 @@
             <group>
               <field name="date" readonly="state != 'draft'"/>
               <field name="order_ref" readonly="state != 'draft'"/>
+              <field name="order_number" readonly="state != 'draft'"/>
+              <field name="order_date" readonly="state != 'draft'"/>
             </group>
             <group>
               <field name="total_units"/>

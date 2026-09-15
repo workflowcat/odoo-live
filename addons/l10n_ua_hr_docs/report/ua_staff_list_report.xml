@@ -9,7 +9,7 @@
   <template id="report_ua_staff_list">
     <t t-call="web.basic_layout"><t t-foreach="docs" t-as="doc">
       <div class="page" style="font-family: DejaVu Sans, sans-serif; font-size: 11px;">
-        <table style="width:100%; font-size:10px;"><tr><td style="width:60%"></td><td>ЗАТВЕРДЖЕНО<br/><t t-out="doc.order_ref or 'наказ № ____ від ____________'"/><br/>Директор ____________ <t t-out="doc.company_id.ua_director_name or ''"/></td></tr></table>
+        <table style="width:100%; font-size:10px;"><tr><td style="width:60%"></td><td>ЗАТВЕРДЖЕНО<br/><t t-out="doc.order_ref or ('наказ № %s від %s' % (doc.order_number, doc.order_date.strftime('%d.%m.%Y')) if doc.order_number else 'наказ № ____ від ____________')"/><br/>Директор ____________ <t t-out="doc.company_id.ua_director_name or ''"/></td></tr></table>
         <h3 style="text-align:center; margin:14px 0 2px;">ШТАТНИЙ РОЗПИС</h3>
         <div style="text-align:center;"><t t-out="doc.company_id.name"/> станом на <t t-out="doc.date.strftime('%d.%m.%Y')"/></div>
         <table class="table table-sm" style="font-size:10px; margin-top:12px;">

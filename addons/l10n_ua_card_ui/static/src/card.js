@@ -12,7 +12,7 @@ export class UaEmployeeCard extends Component {
         this.action = useService("action");
         this.notification = useService("notification");
 
-        this.state = useState({ data: null, loading: true, avatarFailed: false });
+        this.state = useState({ data: null, documents: [], loading: true, avatarFailed: false });
 
         onWillStart(() => this.loadData(this.props.record.resId));
         onWillUpdateProps((nextProps) => {
@@ -30,7 +30,12 @@ export class UaEmployeeCard extends Component {
             this.state.loading = false;
             return;
         }
-        this.state.data = await this.orm.call("hr.employee", "get_card_data", [resId]);
+        const [data, documents] = await Promise.all([
+            this.orm.call("hr.employee", "get_card_data", [resId]),
+            this.orm.call("hr.employee", "get_card_documents", [resId]),
+        ]);
+        this.state.data = data;
+        this.state.documents = documents;
         this.state.loading = false;
     }
 
@@ -58,6 +63,20 @@ export class UaEmployeeCard extends Component {
             await this.action.doAction(result, { onClose: () => this.reload() });
         } else {
             await this.reload();
+        }
+    }
+
+    async onDocumentSign(doc) {
+        const resId = this.props.record.resId;
+        await this.orm.call("hr.employee", "action_ua_card_document_sign", [resId, doc.id]);
+        await this.reload();
+    }
+
+    async onDocumentPrint(doc) {
+        const resId = this.props.record.resId;
+        const result = await this.orm.call("hr.employee", "action_ua_card_document_print", [resId, doc.id]);
+        if (result && typeof result === "object") {
+            await this.action.doAction(result);
         }
     }
 }

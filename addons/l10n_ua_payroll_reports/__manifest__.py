@@ -1,7 +1,7 @@
 {
     "name": "Зарплата: об'єднана звітність (Україна)",
     "summary": "Податковий розрахунок ПДФО/ВЗ/ЄСВ з додатками Д1 і 4ДФ у XML за форматом ДПС; перевірка за схемою XSD; файл для FreeZvit, Електронного кабінету, M.E.Doc",
-    "version": "19.0.0.1.1",
+    "version": "19.0.0.1.2",
     "category": "Human Resources/Payroll",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -9,8 +9,10 @@
     "external_dependencies": {"python": ["lxml"]},
     "data": [
         "security/ir.model.access.csv",
+        "data/ir_sequence_data.xml",
         "views/res_company_views.xml",
         "views/hr_version_views.xml",
+        "views/ua_income_certificate_register_views.xml",
         "wizards/ua_report_wizard_views.xml",
         "wizards/ua_hire_notice_wizard_views.xml",
         "wizards/ua_income_certificate_views.xml",
