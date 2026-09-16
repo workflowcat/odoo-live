@@ -38,7 +38,7 @@
           <group>
             <group>
               <field name="order_type" readonly="state != 'draft'"/>
-              <field name="register" readonly="state != 'draft'"/>
+              <field name="register" readonly="1"/>
               <field name="date" readonly="state != 'draft'"/>
               <field name="employee_id" readonly="state != 'draft'"/>
               <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
@@ -66,6 +66,11 @@
               <field name="contract_type_id" readonly="state != 'draft'"/>
               <field name="trial_date_end" readonly="state != 'draft'"/>
             </group>
+            <group string="Умови оплати">
+              <field name="pay_advance_percent" readonly="state != 'draft'"/>
+              <field name="pay_advance_day" readonly="state != 'draft'"/>
+              <field name="pay_final_day" readonly="state != 'draft'"/>
+            </group>
           </group>
 
           <group string="Зміна окладу" invisible="order_type != 'wage'">
@@ -80,13 +85,15 @@
 
           <group string="Переведення" invisible="order_type != 'transfer'">
             <group>
-              <field name="date_from" readonly="state != 'draft'"/>
-              <field name="department_id" readonly="state != 'draft'"/>
-              <field name="job_title" readonly="state != 'draft'"/>
-              <field name="prof_name" readonly="state != 'draft'"/>
-              <field name="kp_code" readonly="state != 'draft'"/>
+              <field name="department_id_old" readonly="1"/>
+              <field name="job_title_old" readonly="1"/>
             </group>
             <group>
+              <field name="date_from" readonly="state != 'draft'"/>
+              <field name="department_id" readonly="state != 'draft'" string="Новий підрозділ"/>
+              <field name="job_title" readonly="state != 'draft'" string="Нова посада"/>
+              <field name="prof_name" readonly="state != 'draft'"/>
+              <field name="kp_code" readonly="state != 'draft'"/>
               <field name="wage" readonly="state != 'draft'"/>
             </group>
           </group>

@@ -18,6 +18,7 @@ from odoo.exceptions import UserError
 
 from odoo.addons.l10n_ua_hr_card.models.hr_employee import ID_DOC_TYPES
 from odoo.addons.l10n_ua_hr_orders.models.ua_hr_order import CONTRACT_KIND, FTE
+from odoo.addons.l10n_ua_military.models.hr_employee import CATEGORY as MIL_CATEGORY
 from odoo.addons.l10n_ua_military.models.hr_employee import DOC_TYPE as MIL_DOC_TYPE
 from odoo.addons.l10n_ua_military.models.hr_employee import FITNESS, LIABLE_STATUSES
 from odoo.addons.l10n_ua_military.models.hr_employee import STATUS as MIL_STATUS
@@ -40,8 +41,10 @@ SECTIONS = [
                            "id_doc_unzr", "id_doc_issued_by", "id_doc_date", "reg_address", "actual_address"]),
     ("education", "Освіта і трудова", ["diploma_number", "education_year", "labor_book_number", "electronic_labor_book"]),
     ("military", "Військовий облік", ["mil_status", "mil_category", "mil_rank", "mil_vos", "mil_tcc",
-                                      "mil_doc_type", "mil_doc_series", "mil_doc_number", "mil_doc_date", "mil_fitness"]),
-    ("terms", "Умови", ["date_from", "wage", "fte", "contract_kind", "main_job", "kp_code", "trial_date_end"]),
+                                      "mil_doc_type", "mil_doc_series", "mil_doc_number", "mil_doc_date", "mil_fitness",
+                                      "mil_reserve_number", "mil_reserve_date"]),
+    ("terms", "Умови", ["date_from", "wage", "fte", "contract_kind", "main_job", "kp_code", "trial_date_end",
+                       "pay_advance_percent", "pay_advance_day", "pay_final_day"]),
 ]
 # Поля, які можна взяти з документів. Умови роботи документи кандидата не містять.
 EXTRACTABLE = [f for key, _t, names in SECTIONS if key in ("candidate", "identity", "education", "military")
@@ -57,7 +60,11 @@ PACKAGE = [
     ("nda", "Договір про нерозголошення", "l10n_ua_hire.report_hire_nda"),
     ("consent", "Згода на обробку персональних даних", "l10n_ua_hire.report_hire_consent"),
     ("ack", "Лист ознайомлення", "l10n_ua_hire.report_hire_ack"),
+    ("inventory", "Опис документів особової справи", "l10n_ua_hire.report_hire_file_inventory"),
 ]
+# Кількість аркушів для документів, які система сама друкує (назва «Опис документів особової справи»
+# лишається робочою - уточнити з бухгалтерією/HR перед затвердженням форми).
+GENERATED_PAGES = {"statement": 1, "order": 1, "contract": 2, "nda": 2, "consent": 1, "ack": 1}
 EXTRACT_URL = os.environ.get("UA_EXTRACT_URL", "http://host.docker.internal:8765")
 HELPER_UNAVAILABLE = "Помічник розпізнавання недоступний"
 
@@ -128,8 +135,7 @@ class UaHireCase(models.Model):
 
     # військовий облік
     mil_status = fields.Selection(MIL_STATUS, "Стан обліку")
-    mil_category = fields.Selection([("officers", "Офіцери"), ("sergeants", "Сержанти і старшини"),
-                                     ("soldiers", "Солдати і матроси")], "Категорія обліку")
+    mil_category = fields.Selection(MIL_CATEGORY, "Категорія обліку")
     mil_rank = fields.Char("Військове звання")
     mil_vos = fields.Char("ВОС")
     mil_tcc = fields.Char("ТЦК та СП")
@@ -138,6 +144,11 @@ class UaHireCase(models.Model):
     mil_doc_number = fields.Char("Номер військового документа")
     mil_doc_date = fields.Date("Дата видачі військового документа")
     mil_fitness = fields.Selection(FITNESS, "Придатність")
+    # Резерв+ (витяг): необов'язковий блок, дзеркалить hr.employee.ua_reserve_*; переноситься на картку при прийнятті.
+    mil_reserve_number = fields.Char("Номер витягу Резерв+")
+    mil_reserve_date = fields.Date("Дата витягу Резерв+")
+    mil_reserve_filename = fields.Char("Файл витягу (назва)")
+    mil_reserve_file = fields.Binary("Файл витягу Резерв+", attachment=True)
 
     # умови
     date_from = fields.Date("Перший робочий день", tracking=True)
@@ -147,6 +158,9 @@ class UaHireCase(models.Model):
     main_job = fields.Boolean("Основне місце роботи", default=True)
     kp_code = fields.Char("Код КП")
     trial_date_end = fields.Date("Випробувальний строк до")
+    pay_advance_percent = fields.Float("Аванс, % окладу", default=lambda s: s.env.company.ua_pay_advance_percent)
+    pay_advance_day = fields.Integer("Аванс до числа", default=lambda s: s.env.company.ua_pay_advance_day)
+    pay_final_day = fields.Integer("Остаточний розрахунок до числа", default=lambda s: s.env.company.ua_pay_final_day)
 
     package_skip = fields.Char("Не друкувати в пакеті", help="Ключі документів через кому")
     file_ids = fields.One2many("ua.hire.file", "case_id", "Файли")
@@ -179,16 +193,17 @@ class UaHireCase(models.Model):
         return male_liable or self.mil_status in LIABLE_STATUSES
 
     def _required_fields(self):
+        """Обов'язкові за законом: РНОКПП, вид і номер документа особи, дата народження, адреса.
+        Ким виданий / дата видачі / УНЗР - корисні, але не обов'язкові для всіх; лишаються
+        «необов'язково», а не «бракує», доки їх не заповнили."""
         self.ensure_one()
         need = {"last_name", "first_name", "job_title"}
         if self.stage == "candidate":
             return need
-        need |= {"birthday", "sex", "rnokpp", "id_doc_type", "id_doc_number", "id_doc_issued_by", "id_doc_date",
+        need |= {"birthday", "sex", "rnokpp", "id_doc_type", "id_doc_number",
                  "reg_address", "date_from", "wage", "department_id", "pd_consent"}
         if self.id_doc_type == "passport_book":
             need.add("id_doc_series")
-        if self.id_doc_type == "id_card":
-            need.add("id_doc_unzr")
         if self._military_required():
             need.add("mil_status")
             if self.mil_status in LIABLE_STATUSES:
@@ -278,6 +293,9 @@ class UaHireCase(models.Model):
                 add("error", _("Серія паспорта: дві великі українські літери"), self.id_doc_series, "identity")
             if self.id_doc_number and not re.fullmatch(r"\d{6}", self.id_doc_number):
                 add("error", _("Номер паспорта-книжки має 6 цифр"), self.id_doc_number, "identity")
+        if self.mil_doc_type == "registration" and self.mil_status != "conscript":
+            add("error", _("«Посвідчення про приписку» - лише для призовників"),
+                dict(MIL_STATUS).get(self.mil_status, self.mil_status or "-"), "military")
         age = self._age_at(self.date_from)
         if age is not None and age < 16:
             add("error", _("Вік на перший робочий день менше 16 років"), str(age), "identity")
@@ -350,6 +368,42 @@ class UaHireCase(models.Model):
             rows.append({"key": key, "label": label, "on": key not in skip, "item": item})
         return rows
 
+    def _pdf_page_count(self, data, filename=""):
+        """Кількість сторінок для PDF (через pypdf); для решти форматів - 1 сторінка."""
+        if not data:
+            return 1
+        name = (filename or "").lower()
+        looks_pdf = name.endswith(".pdf") or (isinstance(data, bytes) and data[:200].find(b"%PDF-") != -1)
+        if not looks_pdf:
+            return 1
+        try:
+            import base64
+            import io
+
+            from pypdf import PdfReader
+            raw = data if isinstance(data, bytes) else base64.b64decode(data)
+            return max(1, len(PdfReader(io.BytesIO(raw)).pages))
+        except Exception:  # noqa: BLE001 - формат не PDF або бібліотека недоступна - 1 сторінка як безпечне припущення
+            return 1
+
+    def _file_inventory(self):
+        """Опис документів особової справи: завантажені файли кандидата (кількість сторінок
+        рахуємо для PDF, інакше 1) і документи, які друкує сама система (відома кількість
+        сторінок з GENERATED_PAGES)."""
+        self.ensure_one()
+        skip = set((self.package_skip or "").split(","))
+        rows = []
+        n = 0
+        for f in self.file_ids.filtered("file"):
+            n += 1
+            rows.append({"n": n, "name": f.name, "pages": self._pdf_page_count(f.file, f.filename or f.name)})
+        for key, label, _report in PACKAGE:
+            if key in ("inventory",) or key in skip:
+                continue
+            n += 1
+            rows.append({"n": n, "name": label, "pages": GENERATED_PAGES.get(key, 1)})
+        return rows
+
     def set_package_doc(self, key, on):
         self.ensure_one()
         skip = {k for k in (self.package_skip or "").split(",") if k}
@@ -362,14 +416,20 @@ class UaHireCase(models.Model):
 
     # ------------------------------------------------------------------ дані для екрана
     @api.model
-    def _field_meta(self):
+    def _field_meta(self, case=None):
+        """case - вибрана справа (щоб приховати «договір ЦПХ» у новому виборі, лишивши його видним,
+        якщо саме таке значення вже стоїть на старому записі)."""
         meta = {}
         for key, title, names in SECTIONS:
             for f in names:
                 fld = self._fields[f]
                 item = {"name": f, "label": fld.string, "type": fld.type, "section": key}
                 if fld.type == "selection":
-                    item["options"] = [[k, v] for k, v in fld._description_selection(self.env)]
+                    options = fld._description_selection(self.env)
+                    if f == "contract_kind":
+                        current = case.contract_kind if case else False
+                        options = [(k, v) for k, v in options if k == "employment" or k == current]
+                    item["options"] = [[k, v] for k, v in options]
                 meta[f] = item
         return meta
 
@@ -410,6 +470,8 @@ class UaHireCase(models.Model):
             "checks": checks,
             "can_hire": self.stage == "onboarding" and not any(c["level"] == "error" for c in checks),
             "military_required": self._military_required(),
+            "mil_reserve_filename": self.mil_reserve_filename or "",
+            "mil_reserve_has_file": bool(self.mil_reserve_file),
             "results": self._results(),
             "package": self._package(),
             "log": [{"date": m.date.strftime("%d.%m.%Y %H:%M"), "author": m.author_id.name or "",
@@ -457,7 +519,7 @@ class UaHireCase(models.Model):
         return {
             "cases": rows,
             "stages": [{"key": k, "label": v} for k, v in STAGES],
-            "meta": self._field_meta(),
+            "meta": self._field_meta(selected),
             "departments": [[d.id, d.display_name] for d in self.env["hr.department"].search([("company_id", "in", [False] + self.env.companies.ids)])],
             "doc_types": [[k, v] for k, v in self.env["ua.hire.file"]._fields["doc_type"]._description_selection(self.env)],
             "case": selected._case_payload() if selected else None,
@@ -528,6 +590,19 @@ class UaHireCase(models.Model):
         f = self.env["ua.hire.file"].create({"case_id": self.id, "name": name, "filename": name, "file": data,
                                              "doc_type": doc_type or "other"})
         return f.id
+
+    def set_reserve_file(self, filename, data):
+        """Файл витягу Резерв+: необов'язковий, не редагується через set_value (не в SECTIONS)."""
+        self.ensure_one()
+        if self.stage in ("hired", "declined"):
+            raise UserError(_("Справа закрита. Відкрийте її знову, щоб змінити дані."))
+        self.write({"mil_reserve_file": data, "mil_reserve_filename": filename or "витяг"})
+        return True
+
+    def clear_reserve_file(self):
+        self.ensure_one()
+        self.write({"mil_reserve_file": False, "mil_reserve_filename": False})
+        return True
 
     # ------------------------------------------------------------------ розпізнавання
     @api.model
@@ -621,8 +696,21 @@ class UaHireCase(models.Model):
             "ua_mil_vos": self.mil_vos, "ua_mil_tcc": self.mil_tcc, "ua_mil_doc_type": self.mil_doc_type,
             "ua_mil_doc_series": self.mil_doc_series, "ua_mil_doc_number": self.mil_doc_number,
             "ua_mil_doc_date": self.mil_doc_date, "ua_mil_fitness": self.mil_fitness,
+            "ua_reserve_number": self.mil_reserve_number, "ua_reserve_date": self.mil_reserve_date,
+            "ua_reserve_filename": self.mil_reserve_filename, "ua_reserve_file": self.mil_reserve_file,
         }
+        # Повторне прийняття = нова картка, не відновлення старої: якщо з цим РНОКПП уже є звільнений
+        # (архівний) працівник, або чинний зі звільненням у даних (нештатна ситуація) - стара картка
+        # лишається архівною, нова отримує на неї посилання «Попередня картка».
+        previous = self.env["hr.employee"].sudo().with_context(active_test=False).search([
+            ("ua_rnokpp", "=", self.rnokpp), ("id", "!=", self.employee_id.id or 0),
+        ], order="id desc") if self.rnokpp else self.env["hr.employee"]
+        previous = previous.filtered(lambda e: not e.active or e.ua_dismissal_date)[:1]
+        if previous:
+            emp_vals["ua_previous_employee_id"] = previous.id
         employee = self.env["hr.employee"].sudo().create(emp_vals)
+        if previous and previous.active:
+            previous.sudo().active = False
 
         Doc = self.env["ua.employee.document"].sudo()
         doc_types = dict(Doc._fields["type"]._description_selection(self.env))
@@ -650,6 +738,8 @@ class UaHireCase(models.Model):
             "department_id": self.department_id.id, "job_title": self.job_title, "wage": self.wage,
             "fte": self.fte, "contract_kind": self.contract_kind, "main_job": self.main_job,
             "kp_code": self.kp_code, "trial_date_end": self.trial_date_end,
+            "pay_advance_percent": self.pay_advance_percent, "pay_advance_day": self.pay_advance_day,
+            "pay_final_day": self.pay_final_day,
             "basis": _("Заява %s") % self.name,
         })
         order.action_post()

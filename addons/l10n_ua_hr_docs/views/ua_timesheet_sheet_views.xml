@@ -39,6 +39,7 @@
                   <field name="days_worked" sum="Факт"/>
                   <field name="norm_hours" readonly="1" optional="hide" sum="Норма"/>
                   <field name="hours" optional="show" sum="Факт"/>
+                  <field name="night_hours" string="Нічні" optional="show" sum="Нічні"/>
                   <field name="diff_days" readonly="1" decoration-danger="diff_days != 0" optional="hide"/>
                   <field name="days_vac" string="Відпустка" readonly="1" optional="show"/>
                   <field name="days_sick" string="Лікарняний" readonly="1" optional="show"/>

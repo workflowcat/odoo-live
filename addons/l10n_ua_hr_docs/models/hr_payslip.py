@@ -71,13 +71,36 @@ class HrPayslip(models.Model):
         line = self._ua_timesheet_line()
         ratio = -1.0
         if line:
-            # норма годин у графіку - на повну ставку; очікувані години працівника меншають разом зі ставкою
-            fte = values.get("fte") or 1.0
-            expected_hours = line.norm_hours * fte
+            # norm_hours у табелі вже враховує ставку (weekly_hours × робочі дні / 5 × fte,
+            # addons/l10n_ua_hr_docs/models/ua_timesheet_sheet.py::_compute_norm) - тут fte
+            # вдруге не множимо, інакше очікувані години заниження вдвічі і ratio впирається в 1.0
+            expected_hours = line.norm_hours
             if expected_hours and line.hours:
                 ratio = line.hours / expected_hours
             elif line.norm_days:
                 ratio = line.days_worked / line.norm_days
             ratio = min(max(ratio, 0.0), 1.0) if ratio >= 0 else -1.0
         values["time_ratio"] = ratio
+        values.update(self._ua_pay_type_values(contracts, line))
         return values
+
+    def _ua_pay_type_values(self, contracts, line):
+        """pay_type/hour_rate/fact_hours/night_hours для правил HOURLY і NIGHT.
+
+        hour_rate - завжди «грн/год»: для погодинних це ставка з версії контракту,
+        для окладних - еквівалент (оклад / норма годин місяця), потрібний лише для
+        нічної надбавки (ст. 108 КЗпП рахує від годинної ставки, не від окладу)."""
+        contract = contracts[:1]
+        pay_type = contract.ua_pay_type if contract else "monthly"
+        fact_hours = line.hours if line else 0.0
+        night_hours = line.night_hours if line else 0.0
+        if pay_type == "hourly":
+            hour_rate = contract.ua_hour_rate or 0.0
+        else:
+            norm_hours = line.norm_hours if line else 0.0
+            if not norm_hours:
+                weekly_hours = contract.ua_weekly_hours if contract and contract.ua_weekly_hours else 40.0
+                norm_hours = weekly_hours * 52.0 / 12.0
+            wage = contract.wage or 0.0
+            hour_rate = (wage / norm_hours) if norm_hours else 0.0
+        return {"pay_type": pay_type, "hour_rate": hour_rate, "fact_hours": fact_hours, "night_hours": night_hours}

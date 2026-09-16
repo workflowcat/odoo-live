@@ -36,6 +36,7 @@ class UaMilitaryReserved(models.Model):
             doc.line_ids.unlink()
             employees = self.env["hr.employee"].sudo().search([
                 ("company_id", "=", doc.company_id.id), ("ua_mil_reserved", "=", True),
+                ("ua_contract_kind", "not in", ["gph", "fop"]),
             ], order="name")
             vals_list = []
             for emp in employees:
@@ -66,7 +67,8 @@ class UaMilitaryReserved(models.Model):
         self.ensure_one()
         out = []
         expected = self.env["hr.employee"].sudo().search([
-            ("company_id", "=", self.company_id.id), ("ua_mil_reserved", "=", True)])
+            ("company_id", "=", self.company_id.id), ("ua_mil_reserved", "=", True),
+            ("ua_contract_kind", "not in", ["gph", "fop"])])
         have = self.line_ids.mapped("employee_id")
         missing = expected - have
         if missing:

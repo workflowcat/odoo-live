@@ -181,6 +181,15 @@
                       </div>
                     </div>
                   </t>
+                  <div t-if="s.key === 'military'" class="o_ua_hire_field">
+                    <label>Резерв+ (витяг), необов'язково</label>
+                    <div class="o_ua_hire_row_btns">
+                      <span t-if="c.mil_reserve_has_file" class="o_ua_hire_muted" t-esc="c.mil_reserve_filename"/>
+                      <button t-if="c.mil_reserve_has_file and !readonly" type="button" class="btn btn-link btn-sm" t-on-click="openReserveFile">Відкрити</button>
+                      <button t-if="c.mil_reserve_has_file and !readonly" type="button" class="btn btn-link btn-sm" t-on-click="clearReserveFile">Прибрати</button>
+                      <input t-if="!readonly" type="file" class="form-control form-control-sm" t-on-change="uploadReserveFile"/>
+                    </div>
+                  </div>
                 </div>
               </section>
             </t>

@@ -43,7 +43,9 @@ class UaMilitaryNotice(models.Model):
             if doc.state != "draft":
                 raise UserError("Перерахувати можна лише чернетку.")
             doc.line_ids.unlink()
-            employees = self.env["hr.employee"].sudo().search([("company_id", "=", doc.company_id.id), ("ua_mil_status", "in", list(LIABLE_STATUSES))])
+            employees = self.env["hr.employee"].sudo().search([
+                ("company_id", "=", doc.company_id.id), ("ua_mil_status", "in", list(LIABLE_STATUSES)),
+                ("ua_contract_kind", "not in", ["gph", "fop"])])
             rows = []
             if employees:
                 versions = self.env["hr.version"].sudo().search([
@@ -94,7 +96,8 @@ class UaMilitaryNotice(models.Model):
         self.ensure_one()
         out = []
         employees = self.env["hr.employee"].sudo().search([
-            ("company_id", "=", self.company_id.id), ("ua_mil_status", "in", list(LIABLE_STATUSES))])
+            ("company_id", "=", self.company_id.id), ("ua_mil_status", "in", list(LIABLE_STATUSES)),
+            ("ua_contract_kind", "not in", ["gph", "fop"])])
         expected_ids = set()
         if employees:
             versions = self.env["hr.version"].sudo().search([

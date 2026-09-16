@@ -10,6 +10,7 @@
           <group>
             <group string="Облік">
               <field name="ua_mil_status"/>
+              <field name="ua_mil_women_list" readonly="1" invisible="not ua_mil_women_list"/>
               <field name="ua_mil_category"/>
               <field name="ua_mil_group"/>
               <field name="ua_mil_rank"/>
@@ -21,6 +22,12 @@
               <field name="ua_mil_doc_series"/>
               <field name="ua_mil_doc_number"/>
               <field name="ua_mil_doc_date"/>
+            </group>
+            <group string="Резерв+ (витяг), необов'язково">
+              <field name="ua_reserve_number"/>
+              <field name="ua_reserve_date"/>
+              <field name="ua_reserve_file" filename="ua_reserve_filename"/>
+              <field name="ua_reserve_filename" invisible="1"/>
             </group>
             <group string="Придатність">
               <field name="ua_mil_fitness"/>
@@ -66,12 +73,36 @@
     </field>
   </record>
 
+  <record id="view_hr_employee_search_military" model="ir.ui.view">
+    <field name="name">hr.employee.search.military</field>
+    <field name="model">hr.employee</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="name"/>
+        <field name="ua_mil_tcc"/>
+        <filter string="Жінки, військовозобов'язані" name="women" domain="[('ua_mil_women_list', '=', True)]"/>
+        <filter string="Офіцерський склад" name="officers" domain="[('ua_mil_category', '=', 'officers')]"/>
+        <filter string="Рядовий і сержантський склад" name="ranks" domain="[('ua_mil_category', '=', 'ranks')]"/>
+        <filter string="Призовники" name="conscripts" domain="[('ua_mil_status', '=', 'conscript')]"/>
+        <filter string="Резервісти" name="reservists" domain="[('ua_mil_status', '=', 'reserve')]"/>
+        <filter string="Потребують звірки" name="needs_check" domain="[('ua_mil_needs_check', '=', True)]"/>
+        <group>
+          <filter string="ТЦК та СП" name="group_tcc" context="{'group_by': 'ua_mil_tcc'}"/>
+          <filter string="Категорія обліку" name="group_category" context="{'group_by': 'ua_mil_category'}"/>
+          <filter string="Стан обліку" name="group_status" context="{'group_by': 'ua_mil_status'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
   <record id="action_ua_military_liable" model="ir.actions.act_window">
     <field name="name">Військовозобов'язані</field>
     <field name="res_model">hr.employee</field>
     <field name="view_mode">list,form</field>
     <field name="view_id" ref="view_hr_employee_list_military"/>
+    <field name="search_view_id" ref="view_hr_employee_search_military"/>
     <field name="domain">[("ua_mil_status", "in", ["conscript", "liable", "reserve"])]</field>
+    <field name="context">{'search_default_group_tcc': 1}</field>
   </record>
 
   <record id="action_ua_military_needs_check" model="ir.actions.act_window">

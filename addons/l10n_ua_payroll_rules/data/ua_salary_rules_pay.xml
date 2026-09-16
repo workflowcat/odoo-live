@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="0">
+    <!-- Оклад (rule_basic, у ua_salary_structure.xml) рахується лише для окладних версій.
+         Той самий xmlid у цьому модулі = оновлення того самого запису, файл ua_salary_structure.xml
+         не чіпаємо: лише додаємо умову, формула суми лишається як була. -->
+    <record id="rule_basic" model="hr.salary.rule">
+      <field name="condition_select">python</field>
+      <field name="condition_python">result = payroll.ua.pay_type != 'hourly'</field>
+    </record>
+
+    <record id="rule_hourly" model="hr.salary.rule">
+      <field name="name">Погодинна оплата</field><field name="code">HOURLY</field><field name="sequence">2</field>
+      <field name="category_id" ref="cat_basic"/><field name="condition_select">python</field>
+      <field name="condition_python">result = payroll.ua.pay_type == 'hourly'</field>
+      <field name="amount_select">code</field>
+      <field name="amount_python_compute">result = tools.r2(payroll.ua.hour_rate * payroll.ua.fact_hours, 2)</field>
+      <field name="note">Замінює BASIC для версій із видом оплати «Погодинна» (hr.version.ua_pay_type). Факт годин - із затвердженого табеля.</field>
+    </record>
+
+    <record id="rule_night" model="hr.salary.rule">
+      <field name="name">Надбавка за нічні години</field><field name="code">NIGHT</field><field name="sequence">11</field>
+      <field name="category_id" ref="cat_alw"/><field name="condition_select">python</field>
+      <field name="condition_python">result = bool(payroll.ua.night_hours)</field>
+      <field name="amount_select">code</field>
+      <field name="amount_python_compute">result = tools.r2(payroll.ua.hour_rate * payroll.ua.night_hours * 0.20, 2)</field>
+      <field name="note">20 % годинної ставки за кожну нічну годину (ст. 108 КЗпП). Для окладних - еквівалентна годинна ставка = оклад / норма годин місяця.</field>
+    </record>
+
+    <record id="struct_ua_salary" model="hr.payroll.structure">
+      <field name="rule_ids" eval="[(4, ref('rule_hourly')), (4, ref('rule_night'))]"/>
+    </record>
+  </data>
+</odoo>

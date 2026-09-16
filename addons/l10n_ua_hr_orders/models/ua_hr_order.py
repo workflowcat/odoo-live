@@ -91,6 +91,16 @@ class UaHrOrder(models.Model):
     trial_date_end = fields.Date("Випробувальний строк до")
     main_job = fields.Boolean("Основне місце роботи", default=True)
     contract_kind = fields.Selection(CONTRACT_KIND, "Вид відносин", default="employment")
+    # Значення за замовчуванням - типові дні виплат компанії (res.company.ua_pay_*, цей модуль);
+    # наказ і трудовий договір друкують саме ці поля наказу/справи, а не звертаються до компанії
+    # напряму, щоб конкретний наказ можна було змінити окремо.
+    pay_advance_percent = fields.Float("Аванс, % окладу", default=lambda s: s.env.company.ua_pay_advance_percent)
+    pay_advance_day = fields.Integer("Аванс до числа", default=lambda s: s.env.company.ua_pay_advance_day)
+    pay_final_day = fields.Integer("Остаточний розрахунок до числа", default=lambda s: s.env.company.ua_pay_final_day)
+
+    # -- переведення: старі значення поруч із новими (для друку і форми) -------------------------------
+    department_id_old = fields.Many2one("hr.department", "Був підрозділ", compute="_compute_transfer_old")
+    job_title_old = fields.Char("Була посада", compute="_compute_transfer_old")
 
     leave_type_id = fields.Many2one("hr.leave.type", "Вид відпустки")
     days = fields.Integer("Днів (календарних)", compute="_compute_days")
@@ -116,6 +126,40 @@ class UaHrOrder(models.Model):
     def _compute_days(self):
         for order in self:
             order.days = (order.date_to - order.date_from).days + 1 if order.date_from and order.date_to else 0
+
+    @api.depends("employee_id", "order_type")
+    def _compute_transfer_old(self):
+        for order in self:
+            version = order.employee_id.sudo().version_id if order.order_type == "transfer" and order.employee_id else False
+            order.department_id_old = version.department_id if version else False
+            order.job_title_old = version.job_title if version else False
+
+    @api.onchange("order_type")
+    def _onchange_order_type_basis(self):
+        """Підстава за замовчуванням: заява - для прийняття, відпустки, звільнення. Не перебиває
+        те, що людина вже написала."""
+        if self.order_type in ("hire", "leave", "dismissal") and not self.basis:
+            self.basis = _("заява")
+
+    @api.onchange("employee_id")
+    def _onchange_employee_id_prefill(self):
+        """Статистичні поля наказу (код КП, назва професії, ставка, підрозділ) - з поточної версії
+        працівника, якщо їх ще не заповнили вручну."""
+        if not self.employee_id or self.order_type == "hire":
+            return
+        version = self.employee_id.sudo().version_id
+        if not version:
+            return
+        if not self.kp_code:
+            self.kp_code = version.ua_kp_code
+        if not self.prof_name:
+            self.prof_name = version.ua_prof_name
+        if not self.wage:
+            self.wage = version.wage
+        if not self.department_id:
+            self.department_id = version.department_id
+        if not self.job_title:
+            self.job_title = version.job_title
 
     # -- текст ------------------------------------------------------------------------------------------
     def _order_ref_text(self):

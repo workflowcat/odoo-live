@@ -242,6 +242,37 @@ export class UaHire extends Component {
         }
     }
 
+    // ---- Резерв+ (витяг): необов'язковий файл, не через ua.hire.file - окреме поле картки
+    async uploadReserveFile(ev) {
+        const file = ev.target.files[0];
+        ev.target.value = "";
+        if (!file) {
+            return;
+        }
+        this.state.busy = true;
+        try {
+            const data = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(String(reader.result).split(",")[1] || "");
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+            await this.orm.call("ua.hire.case", "set_reserve_file", [[this.caseData.id], file.name, data]);
+        } finally {
+            this.state.busy = false;
+            await this.load();
+        }
+    }
+
+    openReserveFile() {
+        window.open(`/web/content/ua.hire.case/${this.caseData.id}/mil_reserve_file?download=false&filename_field=mil_reserve_filename`, "_blank");
+    }
+
+    async clearReserveFile() {
+        await this.orm.call("ua.hire.case", "clear_reserve_file", [[this.caseData.id]]);
+        await this.load();
+    }
+
     async setDocType(f, ev) {
         await this.orm.call("ua.hire.file", "set_doc_type", [[f.id], ev.target.value]);
         await this.load();

@@ -44,7 +44,7 @@ class UaAdvanceSheet(models.Model):
         return sum(1 for i in range((b - a).days + 1) if (a + timedelta(days=i)).weekday() < 5) if b >= a else 0
 
     def _first_half_ratio(self, slip, h1, h2):
-        """Частка відпрацьованих робочих днів першої половини місяця (ст. 115 КЗпП: аванс за фактично відпрацьований час)."""
+        """Частка відпрацьованих робочих днів [h1, h2] за графіком (запасний варіант, коли табеля місяця немає)."""
         v = slip.contract_id.sudo()
         a = max(h1, v.contract_date_start) if v.contract_date_start else h1
         b = min(h2, v.contract_date_end) if v.contract_date_end else h2
@@ -59,28 +59,76 @@ class UaAdvanceSheet(models.Model):
             worked -= self._workdays(la, lb)
         return max(worked, 0) / total if total else 0.0
 
+    @staticmethod
+    def _ts_days_to_date(ts_line, h1, h2):
+        """Дні з кодом «Р» у табелі, у межах [h1, h2] (обидва в тому самому місяці, що й табель)."""
+        cells = ts_line._day_cells(h2.day)
+        return sum(1 for i in range(h1.day, h2.day + 1) if cells[i - 1] == "Р")
+
     def action_refill(self):
-        """Видалити рядки і заповнити знову з чернеток листків місяця. Лише для чернетки документа."""
+        """Видалити рядки і заповнити знову з чернеток листків місяця. Лише для чернетки документа.
+
+        Джерело факту - затверджений табель місяця, якщо він є (ua.timesheet.sheet); інакше
+        запасний варіант - робочі дні за графіком і відпустки, як раніше. Формули (ст. 115 КЗпП,
+        аванс не менший за оплату фактично відпрацьованого часу; ст. 108 КЗпП, надбавка за нічні):
+        оклад -> оклад × ставка × (дні факту до дня авансу / норма днів), не більше percent % окладу;
+        погодинна -> ставка/год × факт годин до дня авансу; нічні години обох видів - +20 % ставки/год."""
         for doc in self:
             if doc.state != "draft":
                 raise UserError("Перерахувати можна лише чернетку відомості.")
             doc.line_ids.unlink()
             d1 = date(doc.year, doc.month, 1)
-            d2 = date(doc.year, doc.month, calendar.monthrange(doc.year, doc.month)[1])
-            h1, h2 = d1, date(doc.year, doc.month, 15)
+            last_day = calendar.monthrange(doc.year, doc.month)[1]
+            d2 = date(doc.year, doc.month, last_day)
+            terms = doc.company_id._ua_pay_terms()
+            cutoff_day = min(max(terms["advance_day"] - 1, 1), last_day)
+            h1, h2 = d1, date(doc.year, doc.month, cutoff_day)
             slips = self.env["hr.payslip"].search([
                 ("company_id", "=", doc.company_id.id), ("state", "in", ("draft", "verify")),
                 ("date_from", ">=", d1), ("date_to", "<=", d2),
             ])
+            ts_sheet = self.env["ua.timesheet.sheet"].sudo().search([
+                ("company_id", "=", doc.company_id.id), ("year", "=", doc.year), ("month", "=", doc.month),
+                ("state", "=", "confirmed"),
+            ], limit=1)
+            ts_lines = {l.employee_id.id: l for l in ts_sheet.line_ids} if ts_sheet else {}
             lines = []
             for slip in slips:
                 emp = slip.employee_id.sudo()
                 if (emp.ua_contract_kind or "employment") != "employment":
                     continue
-                wage = slip.contract_id.wage or 0.0
+                contract = slip.contract_id.sudo()
+                pay_type = contract.ua_pay_type or "monthly"
+                wage = contract.wage or 0.0
                 fte = float(emp.ua_fte or "1")
-                ratio = doc._first_half_ratio(slip, h1, h2)
-                amount = round(wage * fte * doc.percent / 100.0 * ratio, 2)
+                ts_line = ts_lines.get(emp.id)
+                night_amount = 0.0
+                if pay_type == "hourly":
+                    hour_rate = contract.ua_hour_rate or 0.0
+                    if ts_line and ts_line.days_worked:
+                        days_to_date = doc._ts_days_to_date(ts_line, h1, h2)
+                        day_share = days_to_date / ts_line.days_worked
+                    else:
+                        day_share = doc._first_half_ratio(slip, h1, h2)
+                    fact_hours = round((ts_line.hours if ts_line else 0.0) * day_share, 2)
+                    night_hours = round((ts_line.night_hours if ts_line else 0.0) * day_share, 2)
+                    ratio = day_share
+                    amount = round(hour_rate * fact_hours, 2)
+                    night_amount = round(hour_rate * night_hours * 0.20, 2)
+                else:
+                    if ts_line and ts_line.norm_days:
+                        days_to_date = doc._ts_days_to_date(ts_line, h1, h2)
+                        ratio = days_to_date / ts_line.norm_days
+                        day_share = days_to_date / ts_line.days_worked if ts_line.days_worked else 0.0
+                        night_hours = round((ts_line.night_hours or 0.0) * day_share, 2)
+                        hour_rate = (wage / ts_line.norm_hours) if ts_line.norm_hours else 0.0
+                        night_amount = round(hour_rate * night_hours * 0.20, 2)
+                    else:
+                        ratio = doc._first_half_ratio(slip, h1, h2)
+                    amount = round(wage * fte * ratio, 2)
+                    cap = round(wage * fte * doc.percent / 100.0, 2)
+                    amount = min(amount, cap)
+                amount = round(amount + night_amount, 2)
                 if not amount:
                     continue
                 lines.append((0, 0, {

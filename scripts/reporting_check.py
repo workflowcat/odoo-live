@@ -6,7 +6,9 @@ PDF (%PDF); action_mark_submitted() ставить стан і дату; пов�
 
 Цілі перевірок: кожен рядок ua.report.check називає target_model/target_domain (JSON) або
 target_res_id, і ціль дійсно резолвиться (search/res_id). Вересень 2026, демо-компанія «Ясен
-Меблі»: 18 листків у стані verify дають перевірку "Чернетки листків у періоді" рівня warn.
+Меблі»: листки в періоді у стані draft/verify дають перевірку "Чернетки листків у періоді"
+рівня warn (якщо є проведені листки того ж періоду) або error (якщо проведених немає) -
+рівень і кількість рахуються з живих даних, не захардкоджені.
 Групування помилки/увага/ok у сумі дає всі рядки. ua.report.check не пишеться з UI -
 create()/write() звичайним користувачем (ir.model.access.csv) відхиляються.
 
@@ -223,8 +225,9 @@ else:
 
 # 8. Цілі перевірок (target_model/target_domain/target_res_id): кожен рядок перевірки, що
 # називає записи, має ціль, яка дійсно резолвиться; групування помилки/увага/ok = усі рядки.
-# Вересень 2026, демо-компанія: 18 листків у стані 'verify' у періоді дають щонайменше один warn
-# (перевірка "Чернетки листків у періоді" з ua.report.run._common_checks()).
+# Вересень 2026, демо-компанія: листки в періоді у стані draft/verify. Рівень залежить від того,
+# чи є вже проведені (done) листки того ж періоду - немає жодного done -> error, інакше warn.
+# Порівнюємо з живим числом чернеток/verify, а не жорстко закодованим - демо-дані змінюються.
 data_sep = call("ua.report.run", "get_screen_data", report_code="j05", year=2026, month=9)
 run_sep_id = data_sep["run"]["id"]
 call("ua.report.run", "action_refresh", [run_sep_id])
@@ -232,11 +235,18 @@ data_sep = call("ua.report.run", "get_screen_data", run_id=run_sep_id)
 checks_sep = data_sep["checks"]
 check("вересень 2026: перевірки побудовано", len(checks_sep) >= 5, f"{len(checks_sep)} перевірок")
 
+draft_sep_count = call("hr.payslip", "search_count", [
+    ["date_from", ">=", "2026-09-01"], ["date_from", "<=", "2026-09-30"], ["state", "in", ["draft", "verify"]]])
+done_sep_count = call("hr.payslip", "search_count", [
+    ["date_from", ">=", "2026-09-01"], ["date_from", "<=", "2026-09-30"], ["state", "=", "done"]])
+expected_level_sep = "error" if (draft_sep_count and not done_sep_count) else ("warn" if draft_sep_count else "ok")
+
 levels_sep = [c["level"] for c in checks_sep]
-check("вересень 2026: є щонайменше один warn (18 листків у verify)", "warn" in levels_sep, str(levels_sep))
+check(f"вересень 2026: є щонайменше один {expected_level_sep} ({draft_sep_count} листків у draft/verify)",
+      expected_level_sep in levels_sep, str(levels_sep))
 period_check = next((c for c in checks_sep if c["code"] == "period_closed"), None)
-check("вересень 2026: перевірка «Чернетки листків у періоді» - warn, 18 листків",
-      bool(period_check) and period_check["level"] == "warn" and period_check["value"] == "18",
+check(f"вересень 2026: перевірка «Чернетки листків у періоді» - {expected_level_sep}, {draft_sep_count} листків",
+      bool(period_check) and period_check["level"] == expected_level_sep and period_check["value"] == str(draft_sep_count),
       str(period_check))
 
 group_counts = {"error": 0, "warn": 0, "ok": 0}

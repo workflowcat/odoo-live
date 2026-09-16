@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Дані військового обліку на картці працівника."""
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 
 STATUS = [
     ("none", "Не підлягає обліку"),
@@ -11,7 +12,11 @@ STATUS = [
     ("excluded", "Виключений з обліку"),
 ]
 LIABLE_STATUSES = ("conscript", "liable", "reserve")
-CATEGORY = [("officers", "Офіцери"), ("sergeants", "Сержанти і старшини"), ("soldiers", "Солдати і матроси")]
+# Категорії за офіційним витягом зі списків персонального обліку (постанова КМУ № 1487): списки ведуться
+# окремо серед призовників, військовозобов'язаних і резервістів, а всередині - за офіцерським і
+# рядовим/сержантським складом. Стать (жінки) і стан обліку (призовник/резервіст) - не категорія, а фільтр.
+CATEGORY = [("officers", "Офіцерський склад"), ("ranks", "Рядовий, сержантський і старшинський склад")]
+CATEGORY_MIGRATE = {"sergeants": "ranks", "soldiers": "ranks"}
 GROUP = [("sv", "СВ"), ("vms", "ВМС"), ("other", "Інші")]
 DOC_TYPE = [("ticket", "Військовий квиток"), ("temp", "Тимчасове посвідчення"), ("registration", "Посвідчення про приписку")]
 FITNESS = [("fit", "Придатний"), ("limited", "Обмежено придатний"), ("unfit", "Непридатний"), ("undefined", "Не визначено")]
@@ -41,6 +46,17 @@ class HrEmployee(models.Model):
     ua_mil_note = fields.Text("Примітка", groups="hr.group_hr_user")
     ua_mil_event_ids = fields.One2many("ua.military.event", "employee_id", string="Події", groups="hr.group_hr_user")
     ua_mil_needs_check = fields.Boolean("Потребує звірки", compute="_compute_ua_mil_needs_check", store=True, groups="hr.group_hr_user")
+    ua_mil_women_list = fields.Boolean(
+        "У списку жінок", compute="_compute_ua_mil_women_list", store=True, groups="hr.group_hr_user",
+        help="Військовозобов'язана жінка: за офіційною формою ведеться в окремому списку, не за категорією.")
+
+    # Резерв+ (витяг): необов'язковий блок для тих, хто перебуває в оперативному резерві за програмою
+    # "Резерв+". Не пов'язано з "Заброньований" вище (те - звільнення від мобілізації, це - облік у резерві).
+    ua_reserve_number = fields.Char("Номер витягу Резерв+", groups="hr.group_hr_user")
+    ua_reserve_date = fields.Date("Дата витягу Резерв+", groups="hr.group_hr_user",
+                                   help="Дата видачі витягу з Резерв+, на дату прийняття на роботу.")
+    ua_reserve_filename = fields.Char("Файл витягу (назва)", groups="hr.group_hr_user")
+    ua_reserve_file = fields.Binary("Файл витягу Резерв+", attachment=True, groups="hr.group_hr_user")
 
     @api.depends("ua_mil_status", "ua_mil_last_check")
     def _compute_ua_mil_needs_check(self):
@@ -52,3 +68,16 @@ class HrEmployee(models.Model):
                 emp.ua_mil_needs_check = True
             else:
                 emp.ua_mil_needs_check = (today - emp.ua_mil_last_check).days > 365
+
+    @api.depends("sex", "ua_mil_status")
+    def _compute_ua_mil_women_list(self):
+        for emp in self:
+            emp.ua_mil_women_list = emp.sex == "female" and emp.ua_mil_status in LIABLE_STATUSES
+
+    @api.constrains("ua_mil_doc_type", "ua_mil_status")
+    def _check_ua_mil_doc_type(self):
+        for emp in self:
+            if emp.ua_mil_doc_type == "registration" and emp.ua_mil_status != "conscript":
+                raise ValidationError(_(
+                    "«Посвідчення про приписку» - лише для призовників. У %(name)s стан обліку: %(status)s."
+                ) % {"name": emp.name, "status": dict(STATUS).get(emp.ua_mil_status, emp.ua_mil_status or "-")})

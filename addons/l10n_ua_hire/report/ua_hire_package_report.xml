@@ -50,6 +50,14 @@
     <field name="print_report_name">'Лист ознайомлення %s' % object.name</field>
     <field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4"/>
   </record>
+  <record id="action_report_hire_file_inventory" model="ir.actions.report">
+    <field name="name">Опис документів особової справи</field>
+    <field name="model">ua.hire.case</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_hire.report_hire_file_inventory</field>
+    <field name="print_report_name">'Опис документів %s' % object.name</field>
+    <field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4"/>
+  </record>
 
   <!-- ================================================================ спільні частини -->
   <template id="hire_doc_style">
@@ -309,6 +317,34 @@
         <div class="place" style="margin-top:26px;">
           <span>Ознайомлення провів(ла) ____________ ______________________</span>
           <span><t t-out="o._date(False)"/></span>
+        </div>
+      </div>
+    </t></t>
+  </template>
+
+  <!-- ================================================================ 7. опис документів особової справи -->
+  <template id="report_hire_file_inventory">
+    <t t-call="web.basic_layout"><t t-foreach="docs" t-as="o">
+      <t t-set="company" t-value="o.company_id"/>
+      <t t-set="rows" t-value="o._file_inventory()"/>
+      <t t-set="hr_person" t-value="o.env.user.name"/>
+      <div class="page ua-hd">
+        <t t-call="l10n_ua_hire.hire_doc_style"/>
+        <h3>ОПИС ДОКУМЕНТІВ ОСОБОВОЇ СПРАВИ</h3>
+        <div class="sub" style="font-size:9px;">(робоча назва - уточнюється з кадровою службою)</div>
+        <p>Працівник: <b><t t-out="o._blank(o.name if o.last_name else '', 30)"/></b>, особова справа сформована <t t-out="o._date(o.date_from)"/>.</p>
+        <table class="grid">
+          <thead><tr><th style="width:6%">№</th><th>Назва документа</th><th style="width:16%">Кількість аркушів</th></tr></thead>
+          <tbody>
+            <t t-foreach="rows" t-as="row">
+              <tr><td><t t-out="row['n']"/></td><td><t t-out="row['name']"/></td><td><t t-out="row['pages']"/></td></tr>
+            </t>
+          </tbody>
+        </table>
+        <p style="margin-top:8px;">Разом документів: <b><t t-out="len(rows)"/></b>.</p>
+        <div class="place" style="margin-top:26px;">
+          <span><t t-out="o._date(o.date_from)"/></span>
+          <span>Особова справа сформована ____________ <t t-out="hr_person"/></span>
         </div>
       </div>
     </t></t>

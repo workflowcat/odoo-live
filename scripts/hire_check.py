@@ -70,6 +70,8 @@ case.action_start_onboarding()
 check("етап «Оформлення»", case.stage == "onboarding")
 states = case._field_states()
 check("оформлення: РНОКПП і перший день обов'язкові", states["rnokpp"] == "missing" and states["date_from"] == "missing")
+check("оформлення: ким виданий/дата видачі/УНЗР не обов'язкові", states["id_doc_issued_by"] == "empty" and states["id_doc_date"] == "empty" and states["id_doc_unzr"] == "empty")
+check("«Прийняття» пропонує лише трудовий договір", [k for k, _v in case._field_meta(case)["contract_kind"]["options"]] == ["employment"])
 check("оформлення: «Прийняти» заблоковано", case._case_payload()["can_hire"] is False)
 try:
     case.action_hire()
@@ -100,7 +102,10 @@ except UserError:
 
 # ---- 4a. пакет першого дня
 pkg = case._package()
-check("пакет: 6 документів, усі позначені", len(pkg) == 6 and all(d["on"] for d in pkg), str([d["key"] for d in pkg]))
+check("пакет: 7 документів (включно з описом справи), усі позначені",
+      len(pkg) == 7 and all(d["on"] for d in pkg), str([d["key"] for d in pkg]))
+check("умови оплати: значення за замовчуванням з компанії",
+      case.pay_advance_percent == case.company_id.ua_pay_advance_percent and case.pay_advance_day == case.company_id.ua_pay_advance_day)
 case.set_package_doc("nda", False)
 check("пакет: документ можна зняти", [d["key"] for d in case._package() if not d["on"]] == ["nda"])
 case.set_package_doc("nda", True)
@@ -111,6 +116,8 @@ for d in pkg:
     check("пакет: «%s» містить ПІБ" % d["label"], "Перевірочний" in text or "ПЕРЕВІРОЧНИЙ" in text)
 contract_html = Report._render_qweb_html("l10n_ua_hire.report_hire_contract", [case.id])[0].decode()
 check("договір: оклад і перший день у тексті", "25" in contract_html and start.strftime("%d.%m.%Y") in contract_html)
+inventory_html = Report._render_qweb_html("l10n_ua_hire.report_hire_file_inventory", [case.id])[0].decode()
+check("опис справи: назва звіту і документи в тексті", "ОПИС ДОКУМЕНТІВ" in inventory_html and "Заява про прийняття" in inventory_html)
 
 reqs = {r["code"]: r["state"] for r in case._requirements()}
 check("довідник: заява і паспорт бракує, наказ створить система",
@@ -204,11 +211,17 @@ check("екран: справа в списку і обрана", any(r["id"] ==
 check("екран: метадані всіх полів", all(f in data["meta"] for _k, _t, names in hc.SECTIONS for f in names))
 check("екран: перелік підрозділів і видів документів", bool(data["departments"]) and bool(data["doc_types"]))
 check("меню «Прийняття» у «Працівниках»", env.ref("l10n_ua_hire.menu_ua_hire").parent_id == env.ref("l10n_ua_navigation.menu_ua_people_root"))
+check("«Новий працівник» у списку відключено - оформлюють через «Прийняття»",
+      env.ref("l10n_ua_hire.hr_employee_view_list_no_create").exists())
 
 # ---- 8. документи на підпис (пакет першого дня + наказ) - виконується після всіх перевірок
 # прийняття, щоб не зачепити «одна версія контракту» додатковим наказом про зміну окладу нижче.
 to_sign = emp.ua_document_ids.filtered(lambda d: d.state == "to_sign")
-check("5 документів пакета плюс наказ - на підпис", len(to_sign) == 6, str(sorted(to_sign.mapped("type"))))
+check("6 документів пакета (включно з описом справи) плюс наказ - на підпис", len(to_sign) == 7, str(sorted(to_sign.mapped("type"))))
+inventory_rows = case._file_inventory()
+check("опис справи: файли кандидата і згенеровані документи пораховані",
+      len(inventory_rows) == len(case.file_ids.filtered("file")) + 6, str(len(inventory_rows)))
+check("опис справи: сторінки - число, не порожнє", all(isinstance(r["pages"], int) and r["pages"] >= 1 for r in inventory_rows))
 check("усі документи на підпис мають звіт і джерело", all(d.report_xmlid and d.res_id and d.res_model for d in to_sign))
 order_doc = emp.ua_document_ids.filtered(lambda d: d.type == "order")
 check("документ наказу веде на проведений наказ", order_doc.res_model == "ua.hr.order" and order_doc.res_id == case.order_id.id, order_doc.res_id)
@@ -233,6 +246,55 @@ wage_order.action_cancel()
 wage_order.action_post()
 wage_doc2 = env["ua.employee.document"].sudo().search([("order_id", "=", wage_order.id)])
 check("повторне проведення не дублює документ", len(wage_doc2) == 1, str(len(wage_doc2)))
+
+# ---- 8b. звільнення і повторне прийняття: нова картка, стара архівна, посилання «Попередня картка»
+# Окремий кандидат (не «emp» із секції 8a - у нього вже дві версії контракту через повторне
+# проведення наказу про оклад, і третя версія там штучно конфліктувала б за датами).
+bday3 = date(1985, 3, 20)
+good3 = make_rnokpp(bday3, False, mid="777")
+cid3 = Case.create_case(last_name="Рехайрна", first_name="Богдана", job_title="Комірниця")
+case3 = Case.browse(cid3)
+case3.action_start_onboarding()
+start3 = date.today() + timedelta(days=5)
+for f, v in [("birthday", bday3.isoformat()), ("sex", "female"), ("id_doc_type", "id_card"), ("id_doc_number", "223456789"),
+             ("reg_address", "м. Київ, вул. Перша, 2"), ("date_from", start3.isoformat()),
+             ("wage", "20000"), ("department_id", str(dept.id)), ("pd_consent", True), ("rnokpp", good3)]:
+    case3.set_value(f, v)
+for name, t in [("zayava3.png", "statement"), ("id3.png", "passport"), ("zgoda3.png", "consent")]:
+    case3.add_file(name, png, t)
+errs3 = [c["title"] for c in case3._checks() if c["level"] == "error"]
+check("перше прийняття кандидата для тесту рехайру: без помилок", not errs3, "; ".join(errs3))
+case3.action_hire()
+emp3 = case3.employee_id
+check("перша картка створена", bool(emp3))
+
+dismiss_order = Order.create({
+    "order_type": "dismissal", "employee_id": emp3.id, "company_id": case3.company_id.id,
+    "date_to": start3 + timedelta(days=60), "dismissal_basis": "п. 1 ст. 36 КЗпП",
+})
+dismiss_order.action_post()
+check("звільнення архівує працівника", not emp3.active, emp3.active)
+
+cid4 = Case.create_case(last_name="Рехайрна", first_name="Богдана", job_title="Комірниця")
+case4 = Case.browse(cid4)
+case4.action_start_onboarding()
+start4 = start3 + timedelta(days=120)
+for f, v in [("birthday", bday3.isoformat()), ("sex", "female"), ("id_doc_type", "id_card"), ("id_doc_number", "223456789"),
+             ("reg_address", "м. Київ, вул. Перша, 2"), ("date_from", start4.isoformat()),
+             ("wage", "21000"), ("department_id", str(dept.id)), ("pd_consent", True), ("rnokpp", good3)]:
+    case4.set_value(f, v)
+for name, t in [("zayava4.png", "statement"), ("id4.png", "passport"), ("zgoda4.png", "consent")]:
+    case4.add_file(name, png, t)
+errs4 = [c["title"] for c in case4._checks() if c["level"] == "error"]
+check("повторне прийняття: помилок немає", not errs4, "; ".join(errs4))
+case4.action_hire()
+emp4 = case4.employee_id
+check("повторне прийняття створює НОВУ картку", emp4.id != emp3.id, (emp4.id, emp3.id))
+check("нова картка посилається на попередню", emp4.ua_previous_employee_id.id == emp3.id, emp4.ua_previous_employee_id.id)
+check("стара картка лишається архівною", not emp3.active)
+card4 = emp4.get_card_data()
+check("шапка картки показує «Попередня картка»",
+      card4["header"]["previous_employee"] and card4["header"]["previous_employee"]["id"] == emp3.id, card4["header"].get("previous_employee"))
 
 env.cr.rollback()
 print()

@@ -51,6 +51,8 @@ if not oct_slips:
     seen = set()
     created = 0
     for v in versions:
+        if not v["employee_id"]:
+            continue
         eid = v["employee_id"][0]
         if eid in seen:
             continue

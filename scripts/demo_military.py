@@ -43,9 +43,18 @@ men = [e for e in employees if e["sex"] == "male" and e["birthday"] and 18 <= ag
 women = [e for e in employees if e["sex"] != "male"]
 print(f"компанія {COMPANY}: {len(employees)} працівників, {len(men)} чоловіків 18-60, {len(women)} жінок")
 
-# жінки і чоловіки поза віком - не підлягають обліку
+# жінки поза обліком, крім однієї - демонструє окремий список військовозобов'язаних жінок
+# (ua_mil_women_list рахується автоматично зі статі й стану обліку, категорія тут - лише для прикладу)
+woman_liable_id = women[0]["id"] if women else None
 for e in women:
-    call("hr.employee", "write", [e["id"]], {"ua_mil_status": "none"})
+    if e["id"] == woman_liable_id:
+        call("hr.employee", "write", [e["id"]], {
+            "ua_mil_status": "liable", "ua_mil_category": "ranks", "ua_mil_tcc": "Львівський районний ТЦК та СП",
+            "ua_mil_doc_type": "ticket", "ua_mil_doc_number": f"{200000 + e['id']}", "ua_mil_doc_date": "2018-03-01",
+            "ua_mil_fitness": "fit",
+        })
+    else:
+        call("hr.employee", "write", [e["id"]], {"ua_mil_status": "none"})
 
 # хто вже звільнений (контракт має дату закінчення) - не пропонуємо на бронювання/відстрочку
 dismissed_ids = set()
@@ -56,8 +65,11 @@ for e in men:
 
 RANKS = ["солдат", "старший солдат", "сержант", "старший сержант", "лейтенант"]
 VOS_BY_RANK = {"солдат": "021", "старший солдат": "021", "сержант": "100", "старший сержант": "100", "лейтенант": "021"}
-CATEGORY_BY_RANK = {"солдат": "soldiers", "старший солдат": "soldiers", "сержант": "sergeants", "старший сержант": "sergeants", "лейтенант": "officers"}
-TCC = "Львівський районний ТЦК та СП"
+# Лише дві офіційні категорії (постанова КМУ № 1487): лейтенант - офіцерський склад, решта - рядовий,
+# сержантський і старшинський склад.
+CATEGORY_BY_RANK = {"солдат": "ranks", "старший солдат": "ranks", "сержант": "ranks", "старший сержант": "ranks", "лейтенант": "officers"}
+# Два ТЦК та СП - список персонального обліку ведеться окремо по кожному.
+TCC_BY_PARITY = ["Львівський районний ТЦК та СП", "Галицький районний ТЦК та СП"]
 
 men_sorted = sorted(men, key=lambda e: e["name"])
 active_sorted = [e for e in men_sorted if e["id"] not in dismissed_ids] or men_sorted   # бронювання/відстрочка - лише для тих, хто працює
@@ -68,18 +80,22 @@ reserved_ids = {e["id"] for e in active_liable[:2]}          # двоє забр
 deferment_id = active_liable[2]["id"] if len(active_liable) > 2 else None   # один з відстрочкою
 unfit_id = active_liable[3]["id"] if len(active_liable) > 3 else (liable[-1]["id"] if liable else None)   # один непридатний
 
+# один резервіст (стан обліку, не бронювання) - для прикладу необов'язкового блоку «Резерв+ (витяг)»
+reserve_plus_id = active_liable[4]["id"] if len(active_liable) > 4 else (liable[0]["id"] if liable else None)
+
 events_created = 0
 checked = 0
 for i, e in enumerate(men_sorted):
     is_conscript = e["id"] == conscript_id
+    is_reserve_plus = e["id"] == reserve_plus_id and not is_conscript
     rank = "" if is_conscript else RANKS[i % len(RANKS)]
     vals = {
-        "ua_mil_status": "conscript" if is_conscript else "liable",
+        "ua_mil_status": "reserve" if is_reserve_plus else ("conscript" if is_conscript else "liable"),
         "ua_mil_category": None if is_conscript else CATEGORY_BY_RANK[rank],
         "ua_mil_group": "sv",
         "ua_mil_rank": rank,
         "ua_mil_vos": "" if is_conscript else VOS_BY_RANK[rank],
-        "ua_mil_tcc": TCC,
+        "ua_mil_tcc": TCC_BY_PARITY[i % len(TCC_BY_PARITY)],
         "ua_mil_doc_type": "registration" if is_conscript else "ticket",
         "ua_mil_doc_series": "" if is_conscript else "АА",
         "ua_mil_doc_number": f"{100000 + e['id']}",
@@ -91,6 +107,8 @@ for i, e in enumerate(men_sorted):
         "ua_mil_reserve_until": "2027-03-31" if e["id"] in reserved_ids else False,
         "ua_mil_deferment": "Відстрочка за сімейними обставинами (ст. 25 ЗУ «Про мобілізаційну підготовку...»)" if e["id"] == deferment_id else "",
         "ua_mil_deferment_until": "2027-06-30" if e["id"] == deferment_id else False,
+        "ua_reserve_number": f"РП-{10000 + e['id']}" if is_reserve_plus else False,
+        "ua_reserve_date": "2026-06-01" if is_reserve_plus else False,
     }
     # звірка в липні 2026 для половини
     if i % 2 == 0:

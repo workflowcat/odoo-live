@@ -46,6 +46,24 @@ class UaTimesheetSheet(models.Model):
         if any(doc.state != "draft" for doc in self):
             raise UserError("Видалити можна лише чернетку табеля.")
 
+    @api.model
+    def _ua_ensure_for(self, company, year, month):
+        """Забезпечити табель компанії за місяць: узяти наявний або створити чернетку і заповнити.
+
+        Ідемпотентно: другий виклик на той самий місяць не створює дубля. Табель, що вже
+        є (чернетка чи затверджений), лишається як є - метод його не чіпає і не перераховує.
+        Викликають сторінка «Період» (крок «Табель») і щоденний cron.
+        """
+        sheet = self.search([
+            ("company_id", "=", company.id), ("year", "=", year), ("month", "=", month),
+            ("department_id", "=", False),
+        ], limit=1)
+        if sheet:
+            return sheet
+        sheet = self.create({"company_id": company.id, "year": year, "month": month})
+        sheet.action_refill()
+        return sheet
+
     def action_refill(self):
         """Видалити рядки і заповнити знову: працівник за день - код (Р, ВХ, В, ТН, НА, ВП, «-»)."""
         for doc in self:
@@ -222,23 +240,35 @@ class UaTimesheetLine(models.Model):
     days_sick = fields.Integer("ТН", compute="_compute_totals", store=True)
     days_unpaid = fields.Integer("НА", compute="_compute_totals", store=True)
     days_mat = fields.Integer("ВП", compute="_compute_totals", store=True)
+    night_hours = fields.Float("Нічні години", help="Години в нічну зміну (22:00-6:00) за місяць - для надбавки 20 % (ст. 108 КЗпП)")
     note = fields.Char("Примітка")
 
     @api.depends("employee_id", "sheet_id.year", "sheet_id.month", "days_worked",
                  "days_vac", "days_sick", "days_unpaid", "days_mat")
     def _compute_norm(self):
-        """Норма місяця за графіком працівника: скільки днів і годин мав відпрацювати."""
+        """Норма місяця: робочі дні за виробничим календарем (свята - через відсутності
+        у resource.calendar), години = тижнева норма версії контракту × робочі дні / 5 × ставка.
+
+        Тижнева норма (40 типово, 38,5 медичні, 36 педагоги, менше - неповний робочий час)
+        живе на hr.version (ua_weekly_hours, addons/l10n_ua_payroll_rules/models/hr_version_pay.py),
+        не на графіку роботи - графік дає лише робочі/вихідні дні."""
         for line in self:
             sheet = line.sheet_id
             days = hours = 0.0
             if sheet and sheet.year and sheet.month and line.employee_id:
                 d1, d2 = sheet._period()
-                calendar_rec = (line.employee_id.sudo().resource_calendar_id
-                                or sheet.company_id.resource_calendar_id)
+                emp = line.employee_id.sudo()
+                calendar_rec = emp.resource_calendar_id or sheet.company_id.resource_calendar_id
+                working_days = 0.0
                 if calendar_rec:
                     data = calendar_rec.get_work_duration_data(
                         datetime.combine(d1, time.min), datetime.combine(d2, time.max), compute_leaves=False)
-                    days, hours = data.get("days", 0.0), data.get("hours", 0.0)
+                    working_days = data.get("days", 0.0)
+                version = emp.version_id
+                weekly_hours = version.ua_weekly_hours if version and version.ua_weekly_hours else 40.0
+                fte = float(emp.ua_fte or "1")
+                days = working_days
+                hours = round(weekly_hours * working_days / 5.0 * fte, 2) if working_days else 0.0
             line.norm_days = days
             line.norm_hours = hours
             absent = line.days_vac + line.days_sick + line.days_unpaid + line.days_mat

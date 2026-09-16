@@ -61,18 +61,16 @@ class UaPeriodBoard(models.AbstractModel):
                           {"xmlid": "l10n_ua_hr_orders.action_ua_hr_order"}, details)
 
     def _step_timesheet(self, company, year, month):
-        sheet = self.env["ua.timesheet.sheet"].search([
-            ("company_id", "=", company.id), ("year", "=", year), ("month", "=", month),
-        ], limit=1)
-        if not sheet:
-            return self._step("timesheet", "Табель", "todo", "не створено",
-                              {"xmlid": "l10n_ua_hr_docs.action_ua_timesheet_sheet"})
+        """Табель формується сам: якщо його ще немає, ua.timesheet.sheet._ua_ensure_for
+        створює чернетку і заповнює нормою/фактом, тому кроку завжди є що показати."""
+        sheet = self.env["ua.timesheet.sheet"]._ua_ensure_for(company, year, month)
         fact_days = sum(sheet.line_ids.mapped("days_worked"))
         norm_days = sum(sheet.line_ids.mapped("norm_days"))
-        state = "done" if sheet.state == "confirmed" else "warn"
-        fact = "%s з %s днів, %s" % (self._money(fact_days).replace(",00", ""),
-                                     self._money(norm_days).replace(",00", ""),
-                                     "затверджено" if sheet.state == "confirmed" else "чернетка")
+        summary = sheet._checks_summary()
+        state = "done" if (sheet.state == "confirmed" and summary["level"] != "error") else "warn"
+        fact = "%s працівників · норма %s днів · факт %s днів" % (
+            len(sheet.line_ids), self._money(norm_days).replace(",00", ""),
+            self._money(fact_days).replace(",00", ""))
         details = [{"id": line.id, "model": "ua.timesheet.line", "title": line.employee_id.name,
                     "note": "відхилення %s дн" % self._money(line.diff_days).replace(",00", "")}
                    for line in sheet.line_ids.filtered(lambda l: abs(l.diff_days) > 0.01)[:20]]

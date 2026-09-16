@@ -155,7 +155,39 @@ check("дія майстра перейменована", wizard_action.name == 
 menu = env.ref("l10n_ua_hr_orders.menu_ua_hr_doc_pack")
 check("пункт меню існує і веде на майстер", menu.action.id == wizard_action.id, str(menu.action))
 
-# ---- 11. backfill: ідемпотентність
+# ---- 11a. підстава за замовчуванням («заява») - для прийняття, відпустки, звільнення
+new_order = Order.new({"order_type": "hire"})
+new_order._onchange_order_type_basis()
+check("підстава за замовчуванням «заява» для прийняття", new_order.basis == "заява", new_order.basis)
+new_order2 = Order.new({"order_type": "wage"})
+new_order2._onchange_order_type_basis()
+check("зміна окладу без підстави за замовчуванням", not new_order2.basis, new_order2.basis)
+
+# ---- 11b. статистичні поля наказу підтягуються з поточної версії працівника
+version = emp.version_id
+prefill_order = Order.new({"order_type": "wage", "employee_id": emp.id})
+prefill_order._onchange_employee_id_prefill()
+check("наказ: код КП/посада/ставка/підрозділ з поточної версії", prefill_order.wage == version.wage and
+      prefill_order.department_id.id == version.department_id.id, (prefill_order.wage, prefill_order.department_id.id))
+
+# ---- 11c. переведення: форма показує стару і нову посаду/підрозділ разом
+dept2 = env["hr.department"].create({"name": "Другий підрозділ", "company_id": emp.company_id.id})
+transfer_order = Order.create({
+    "order_type": "transfer", "employee_id": emp.id, "company_id": emp.company_id.id,
+    "date_from": date(2026, 12, 15), "department_id": dept2.id, "job_title": "Старший тестувальник",
+})
+check("переведення: старий підрозділ/посада обчислені окремо від нових",
+      transfer_order.department_id_old.id == dept.id and transfer_order.job_title_old == "Тестувальник" and
+      transfer_order.department_id.id == dept2.id, (transfer_order.department_id_old.id, transfer_order.job_title_old))
+
+# ---- 11d. реєстр наказу лише обчислюється, не редагується з форми (readonly="1" у в'юсі)
+import re as _re
+form_view = env["ir.ui.view"].sudo().search([("model", "=", "ua.hr.order"), ("name", "=", "ua.hr.order.form")], limit=1)
+arch_text = form_view.arch_db or ""
+register_ro = bool(_re.search(r'<field name="register"[^>]*readonly="1"', arch_text))
+check("поле «Реєстр» readonly у формі наказу", register_ro, "readonly=1 знайдено" if register_ro else "не знайдено")
+
+# ---- 12. backfill: ідемпотентність
 from odoo.addons.l10n_ua_hr_orders.hooks import backfill_leave_orders
 res1 = backfill_leave_orders(env)
 res2 = backfill_leave_orders(env)

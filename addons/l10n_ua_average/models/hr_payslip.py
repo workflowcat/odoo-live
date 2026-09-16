@@ -139,6 +139,25 @@ class HrPayslip(models.Model):
         total, days = self._ua_average_trip()
         return (total / days) if days else 0.0
 
+    def _ua_comp_extra_days(self):
+        """Дні компенсації понад ручний ввід COMP_DAYS: невикористана соціальна відпустка на
+        дітей (усі роки, не згорає) і невикористані УБД / особливі умови праці поточного року -
+        лише в місяці звільнення (дата закінчення контракту у вікні цього листка).
+
+        Береться contract_id, якщо він уже записаний (форма листка проставляє його через
+        onchange_employee); інакше - той самий _get_employee_contracts(), яким рахує сама
+        get_lines_dict() - бо contract_id лишається порожнім, коли листок створено напряму
+        через API/скрипт, без спрацювання onchange."""
+        self.ensure_one()
+        contract = self.contract_id or self._get_employee_contracts()[:1]
+        if not (contract and contract.date_end and self.date_from <= contract.date_end <= self.date_to):
+            return 0.0
+        emp = self.employee_id.sudo()
+        soc_child = max(emp.ua_soc_child_balance or 0.0, 0.0)
+        vac_ubd = max(emp.ua_vac_ubd_balance or 0.0, 0.0)
+        special = max(emp.ua_special_balance or 0.0, 0.0)
+        return soc_child + vac_ubd + special
+
     def _ua_payroll_values(self, contracts):
         res = super()._ua_payroll_values(contracts)
         total, days = self._ua_average_base()
@@ -149,6 +168,7 @@ class HrPayslip(models.Model):
             "avg_trip_day": self._ua_trip_day(),
             "mat_shares": self._ua_mat_shares(),
             "sick_percent": self.employee_id.sudo().ua_sick_percent or 50.0,
+            "extra_comp_days": self._ua_comp_extra_days(),
             **self._ua_leave_calendar_days(),
         })
         return res

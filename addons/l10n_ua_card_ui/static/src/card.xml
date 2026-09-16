@@ -17,6 +17,11 @@
                   t-att-class="'o_ua_pill ' + badge.css" t-esc="badge.label"/>
           </div>
           <div class="o_ua_head_subtitle" t-esc="contextLine"/>
+          <div t-if="state.data.header.previous_employee" class="o_ua_head_subtitle">
+            Попередня картка:
+            <a href="#" t-on-click.prevent="() => this.openRecord('hr.employee', state.data.header.previous_employee.id)"
+               t-esc="state.data.header.previous_employee.name + (state.data.header.previous_employee.dates ? ' (' + state.data.header.previous_employee.dates + ')' : '')"/>
+          </div>
         </div>
         <div class="o_ua_card_print_buttons o_ua_head_actions">
           <t t-foreach="primaryActions" t-as="act" t-key="act.key">

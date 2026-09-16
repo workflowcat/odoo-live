@@ -5,6 +5,9 @@
 from datetime import date
 
 from odoo import fields, models
+from odoo.exceptions import UserError
+
+from ..models.ua_military_list import VARIANT
 
 
 class UaMilitaryListWizard(models.TransientModel):
@@ -13,14 +16,28 @@ class UaMilitaryListWizard(models.TransientModel):
 
     company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
     date = fields.Date("На дату", default=fields.Date.today, required=True)
+    tcc = fields.Char("ТЦК та СП", help="Порожньо для кнопки «Створити списки по всіх ТЦК» - тоді буде по одному списку на кожен ТЦК.")
+    variant = fields.Selection(VARIANT, "Розділ", default="all", required=True)
 
     def action_create(self):
         self.ensure_one()
-        doc = self.env["ua.military.list"].search([("company_id", "=", self.company_id.id), ("date", "=", self.date), ("state", "=", "draft")], limit=1)
+        if not self.tcc:
+            raise UserError("Вкажіть ТЦК та СП, або натисніть «Створити списки по всіх ТЦК».")
+        doc = self.env["ua.military.list"].search([
+            ("company_id", "=", self.company_id.id), ("date", "=", self.date),
+            ("tcc", "=", self.tcc), ("variant", "=", self.variant), ("state", "=", "draft")], limit=1)
         if not doc:
-            doc = self.env["ua.military.list"].create({"company_id": self.company_id.id, "date": self.date})
+            doc = self.env["ua.military.list"].create({
+                "company_id": self.company_id.id, "date": self.date, "tcc": self.tcc, "variant": self.variant})
             doc.action_refill()
         return {"type": "ir.actions.act_window", "res_model": "ua.military.list", "view_mode": "form", "res_id": doc.id, "target": "current"}
+
+    def action_create_all(self):
+        """Створити списки по всіх ТЦК, де є хоча б один військовозобов'язаний."""
+        self.ensure_one()
+        ids = self.env["ua.military.list"].action_create_all_tcc(self.company_id.id, self.date, self.variant)
+        return {"type": "ir.actions.act_window", "res_model": "ua.military.list", "view_mode": "list,form",
+                "domain": [("id", "in", ids)], "target": "current"}
 
 
 class UaMilitaryNoticeWizard(models.TransientModel):

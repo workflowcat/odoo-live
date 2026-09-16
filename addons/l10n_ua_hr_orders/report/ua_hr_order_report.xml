@@ -30,6 +30,8 @@
             <p>Умови роботи: <t t-out="'основне місце роботи' if o.main_job else 'за сумісництвом'"/>;
               <t t-out="o.contract_type_id.name or 'безстроковий трудовий договір'"/>;
               <t t-if="o.trial_date_end">випробувальний строк до <t t-out="o.trial_date_end.strftime('%d.%m.%Y')"/>;</t> нормальна тривалість робочого часу.</p>
+            <p>Оплата праці: аванс - <b><t t-out="o.pay_advance_percent"/>%</b> окладу до <b><t t-out="o.pay_advance_day"/></b> числа,
+              остаточний розрахунок - до <b><t t-out="o.pay_final_day"/></b> числа наступного місяця.</p>
             <p>Підстава: <t t-out="o.basis or 'заява %s, трудовий договір' % employee.name"/>.</p>
           </t>
 

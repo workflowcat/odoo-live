@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Виконавці за ЦПХ/ФОП - контрагенти (правило Лани, 2026-09-16): payroll їх оплачує
+       (GPH/FOP_PAY, 4ДФ), але вони не входять у кадровий облік. Окремий вузький екран,
+       окремі список і форма - без вкладок «Робота», «Військовий облік» тощо. -->
+  <record id="view_ua_gph_list" model="ir.ui.view">
+    <field name="name">hr.employee.list.ua.gph</field>
+    <field name="model">hr.employee</field>
+    <field name="arch" type="xml">
+      <list string="Договори ЦПХ" create="true" edit="true">
+        <field name="name" string="ПІБ"/>
+        <field name="ua_rnokpp" string="РНОКПП"/>
+        <field name="ua_contract_kind" string="Вид"/>
+        <field name="ua_gph_contract_ref" string="Договір №"/>
+        <field name="ua_gph_contract_date" string="Дата"/>
+        <field name="ua_gph_contract_end" string="Діє до"/>
+        <field name="ua_gph_contract_amount" string="Сума за договором"/>
+        <field name="ua_gph_currency_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_gph_form" model="ir.ui.view">
+    <field name="name">hr.employee.form.ua.gph</field>
+    <field name="model">hr.employee</field>
+    <field name="arch" type="xml">
+      <form string="Виконавець за договором ЦПХ">
+        <sheet>
+          <group>
+            <group>
+              <field name="name"/>
+              <field name="ua_rnokpp"/>
+              <field name="ua_contract_kind"/>
+              <field name="work_contact_id" string="Контрагент (res.partner)"/>
+            </group>
+            <group>
+              <field name="ua_gph_contract_ref"/>
+              <field name="ua_gph_contract_date"/>
+              <field name="ua_gph_contract_end"/>
+              <field name="ua_gph_contract_amount"/>
+              <field name="ua_gph_currency_id" invisible="1"/>
+            </group>
+          </group>
+          <group string="Банківський рахунок">
+            <field name="bank_account_ids" nolabel="1">
+              <list editable="bottom">
+                <field name="acc_number"/>
+                <field name="bank_id"/>
+              </list>
+            </field>
+          </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_gph" model="ir.actions.act_window">
+    <field name="name">Договори ЦПХ</field>
+    <field name="res_model">hr.employee</field>
+    <field name="view_mode">list,form</field>
+    <field name="domain">[("ua_contract_kind", "in", ["gph", "fop"])]</field>
+    <field name="context">{"default_employee_type": "contractor", "default_ua_contract_kind": "gph", "default_ua_main_job": False}</field>
+    <field name="view_ids" eval="[(5, 0, 0),
+        (0, 0, {'view_mode': 'list', 'view_id': ref('view_ua_gph_list')}),
+        (0, 0, {'view_mode': 'form', 'view_id': ref('view_ua_gph_form')})]"/>
+    <field name="help" type="html"><p class="o_view_nocontent_smiling_face">Немає договорів ЦПХ. Додайте виконавця.</p></field>
+  </record>
+
+  <!-- Розміщення: поруч із розрахунком зарплати, не під «Працівники» - контрагентів там не буде. -->
+  <menuitem id="menu_ua_gph" name="Договори ЦПХ" action="action_ua_gph"
+            parent="l10n_ua_period.menu_ua_period_root" sequence="6" groups="hr.group_hr_user"/>
+</odoo>

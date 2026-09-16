@@ -3,8 +3,19 @@
   <record id="view_ua_military_list_wizard" model="ir.ui.view">
     <field name="name">ua.military.list.wizard.form</field><field name="model">ua.military.list.wizard</field>
     <field name="arch" type="xml">
-      <form string="Список персонального обліку"><group><field name="company_id"/><field name="date"/></group>
-        <footer><button name="action_create" type="object" string="Створити" class="btn-primary"/><button string="Закрити" class="btn-secondary" special="cancel"/></footer></form>
+      <form string="Список персонального обліку">
+        <group>
+          <field name="company_id"/>
+          <field name="date"/>
+          <field name="tcc" placeholder="залиште порожнім для «Створити списки по всіх ТЦК»"/>
+          <field name="variant"/>
+        </group>
+        <footer>
+          <button name="action_create" type="object" string="Створити" class="btn-primary"/>
+          <button name="action_create_all" type="object" string="Створити списки по всіх ТЦК" class="btn-secondary"/>
+          <button string="Закрити" class="btn-secondary" special="cancel"/>
+        </footer>
+      </form>
     </field>
   </record>
   <record id="action_ua_military_list_wizard" model="ir.actions.act_window">

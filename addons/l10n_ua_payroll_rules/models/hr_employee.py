@@ -13,6 +13,10 @@ class HrEmployee(models.Model):
 
     ua_rnokpp = fields.Char("РНОКПП", groups="hr.group_hr_user")
     ua_contract_kind = fields.Selection(KIND, "Вид відносин", default="employment", groups="hr.group_hr_user")
+    ua_gph_contract_ref = fields.Char("Договір ЦПХ №", groups="hr.group_hr_user",
+                                      help="Номер договору цивільно-правового характеру (ЦПХ) або договору підряду з ФОП")
+    ua_gph_contract_date = fields.Date("Дата договору ЦПХ", groups="hr.group_hr_user")
+    ua_gph_contract_end = fields.Date("Договір діє до", groups="hr.group_hr_user")
     ua_main_job = fields.Boolean("Основне місце роботи", default=True, groups="hr.group_hr_user",
                                  help="Вимкнено для зовнішнього сумісника: ЄСВ без доплати до мінімалки")
     ua_esv_category = fields.Selection(ESV_CATEGORY, "Категорія ЄСВ", default="standard", groups="hr.group_hr_user")
@@ -33,10 +37,15 @@ class HrEmployee(models.Model):
     ua_vacation_opening_date = fields.Date("Дата впровадження обліку відпусток", groups="hr.group_hr_user",
                                            help="Накопичення рахується з цієї дати; до неї береться залишок вручну")
 
-    @api.depends("ua_disability_group")
+    @api.depends("ua_disability_group", "birthday")
     def _compute_ua_vacation_days_year(self):
+        today = date.today()
         for e in self:
-            e.ua_vacation_days_year = {"1": 30, "2": 30, "3": 26}.get(e.ua_disability_group or "none", 24)
+            minor = False
+            if e.birthday:
+                age = today.year - e.birthday.year - ((today.month, today.day) < (e.birthday.month, e.birthday.day))
+                minor = age < 18
+            e.ua_vacation_days_year = 31 if minor else {"1": 30, "2": 30, "3": 26}.get(e.ua_disability_group or "none", 24)
 
     def _compute_ua_vacation_balance(self):
         today = date.today()

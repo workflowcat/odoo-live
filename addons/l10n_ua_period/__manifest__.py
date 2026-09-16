@@ -9,6 +9,7 @@
     "data": [
         "security/ir.model.access.csv",
         "views/ua_period_views.xml",
+        "data/ir_cron_timesheet.xml",
     ],
     "assets": {
         "web.assets_backend": [

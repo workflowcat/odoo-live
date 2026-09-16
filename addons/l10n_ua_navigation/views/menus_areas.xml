@@ -10,11 +10,16 @@
 <odoo>
   <!-- Назва дії стоїть у стежці навігації, тому вирівнюємо її зі своїм словом:
        у системі людина - «працівник», не «співробітник». -->
+  <!-- Виконавці за договором ЦПХ/ФОП - контрагенти, не працівники: у кадровий облік не входять
+       (правило бухгалтера Лани, 2026-09-16). Прибираємо їх з карток і оргструктури; свій екран -
+       «Договори ЦПХ» - у модулі l10n_ua_gph. -->
   <record id="hr.open_view_employee_list_my" model="ir.actions.act_window">
     <field name="name">Картки працівників</field>
+    <field name="domain">[("ua_contract_kind", "not in", ["gph", "fop"])]</field>
   </record>
   <record id="hr_org_chart.action_hr_employee_org_chart" model="ir.actions.act_window">
     <field name="name">Оргструктура</field>
+    <field name="domain">[("ua_contract_kind", "not in", ["gph", "fop"])]</field>
   </record>
 
   <!-- «Відсутності» зі стандартною дією hr_holidays відкривались з фільтром «Очікує на мене»:

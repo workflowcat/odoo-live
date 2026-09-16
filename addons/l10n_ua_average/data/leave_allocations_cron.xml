@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+    <record id="ir_cron_ua_leave_allocations" model="ir.cron">
+      <field name="name">Відпустки: річне нарахування соціальної відпустки на дітей (ст. 19)</field>
+      <field name="model_id" ref="hr.model_hr_employee"/>
+      <field name="state">code</field>
+      <field name="code">model.search([("active", "=", True)]).ua_ensure_allocations()</field>
+      <field name="interval_number">12</field>
+      <field name="interval_type">months</field>
+      <!-- фіксована дата першого запуску: 2 січня 2027 - для перших нарахувань 2026 рік вже
+           заповнюється вручну через demo_company.py / _ua_ensure_allocations на вимогу -->
+      <field name="nextcall" eval="'2027-01-02 06:00:00'"/>
+      <field name="active">True</field>
+    </record>
+  </data>
+</odoo>

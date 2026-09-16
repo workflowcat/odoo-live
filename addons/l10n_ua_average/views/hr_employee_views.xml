@@ -8,6 +8,13 @@
         <group string="Лікарняні">
           <field name="ua_insurance_years"/><field name="ua_sick_full"/><field name="ua_sick_percent"/>
         </group>
+        <group string="Додаткові відпустки">
+          <field name="ua_war_disability"/>
+          <field name="ua_vac_ubd_days_year"/><field name="ua_vac_ubd_used"/><field name="ua_vac_ubd_balance"/>
+          <field name="ua_soc_child_disabled_child"/>
+          <field name="ua_soc_child_days_year"/><field name="ua_soc_child_allocated"/><field name="ua_soc_child_used"/><field name="ua_soc_child_balance"/>
+          <field name="ua_special_leave_days"/><field name="ua_special_used"/><field name="ua_special_balance"/>
+        </group>
       </group>
     </field>
   </record>

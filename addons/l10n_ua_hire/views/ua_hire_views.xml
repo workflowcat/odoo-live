@@ -6,4 +6,18 @@
   </record>
   <menuitem id="menu_ua_hire" name="Прийняття" parent="l10n_ua_navigation.menu_ua_people_root"
             action="action_ua_hire" sequence="0" groups="hr.group_hr_user"/>
+
+  <!-- «Новий працівник» зі списку працівників веде повз перевірки справи прийняття (обов'язкові
+       поля, документи, наказ). Поки немає клієнтського редиректу на список - ховаємо кнопку
+       створення і показуємо, де оформити прийняття. -->
+  <record id="hr_employee_view_list_no_create" model="ir.ui.view">
+    <field name="name">hr.employee.list.ua.hire.no.create</field>
+    <field name="model">hr.employee</field>
+    <field name="inherit_id" ref="hr.view_employee_tree"/>
+    <field name="arch" type="xml">
+      <xpath expr="//list" position="attributes">
+        <attribute name="create">false</attribute>
+      </xpath>
+    </field>
+  </record>
 </odoo>

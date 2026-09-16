@@ -114,8 +114,8 @@ P = [
  ("Стефанишин", "Оксана", "Ігорівна", "female", date(1983, 7, 21), "Головний бухгалтер", "Бухгалтерія", 45000, "1", "employment", True, "standard", "none", 0, 18.0, "married", 1, date(2016, 9, 1), "office", ("master", "Облік і аудит", "ЛНУ ім. Івана Франка"), "Львів", "privat", {"kp": "1231"}),
  ("Кушнір", "Галина", "Романівна", "female", date(1991, 11, 5), "Бухгалтер", "Бухгалтерія", 25000, "1", "employment", True, "standard", "none", 0, 8.2, "single", 0, date(2021, 3, 15), "office", ("bachelor", "Облік і оподаткування", "ЛТЕУ"), "Винники", "mono", {"kp": "3433", "BONUS": 3000}),
  ("Дзюба", "Ярослав", "Михайлович", "male", date(1988, 5, 30), "Менеджер із збуту", "Відділ продажу", 20000, "1", "employment", True, "standard", "none", 0, 12.0, "married", 1, date(2019, 6, 3), "office", ("bachelor", "Маркетинг", "ЛНУ ім. Івана Франка"), "Львів", "privat", {"kp": "1475.4", "BONUS": 8000}),
- ("Ковальчук", "Роман", "Васильович", "male", date(1985, 1, 17), "Столяр", "Виробництво", 22000, "1", "employment", True, "standard", "none", 0, 15.0, "married", 3, date(2017, 4, 10), "shop", ("other", "Столяр 4 розряду", "Львівське ВПУ деревообробки"), "Сокільники", "oschad", {"kp": "7422", "leaves": [("SICK", "2026-08-10", "2026-08-19")]}),
- ("Мельничук", "Андрій", "Петрович", "male", date(1979, 9, 9), "Столяр", "Виробництво", 22000, "1", "employment", True, "standard", "none", 0, 25.0, "married", 2, date(2015, 2, 2), "shop", ("other", "Столяр 5 розряду", "Львівське ВПУ деревообробки"), "Пустомити", "privat", {"kp": "7422", "leaves": [("VAC", "2026-08-03", "2026-08-16")]}),
+ ("Ковальчук", "Роман", "Васильович", "male", date(1985, 1, 17), "Столяр", "Виробництво", 22000, "1", "employment", True, "standard", "none", 0, 15.0, "married", 3, date(2017, 4, 10), "shop", ("other", "Столяр 4 розряду", "Львівське ВПУ деревообробки"), "Сокільники", "oschad", {"kp": "7422", "leaves": [("SICK", "2026-08-10", "2026-08-19")], "pay_type": "hourly", "hour_rate": 150.0, "night_shifts": True, "note": "погодинна оплата, нічні зміни"}),
+ ("Мельничук", "Андрій", "Петрович", "male", date(1979, 9, 9), "Столяр", "Виробництво", 22000, "1", "employment", True, "standard", "none", 0, 25.0, "married", 2, date(2015, 2, 2), "shop", ("other", "Столяр 5 розряду", "Львівське ВПУ деревообробки"), "Пустомити", "privat", {"kp": "7422", "leaves": [("VAC", "2026-08-03", "2026-08-16")], "weekly_hours": 20.0, "note": "неповний робочий тиждень, 20 год/тиждень"}),
  ("Іваничук", "Марія", "Степанівна", "female", date(1995, 4, 12), "Комірник", "Склад і логістика", 15000, "1", "employment", True, "standard", "none", 0, 6.0, "single", 0, date(2020, 7, 1), "shop", ("bachelor", "Логістика", "НУ «Львівська політехніка»"), "Львів", "mono", {"kp": "4131", "leaves": [("UNPAID", "2026-08-24", "2026-08-28")]}),
  ("Шевчук", "Віталій", "Олегович", "male", date(1982, 12, 1), "Водій автотранспортних засобів", "Склад і логістика", 18000, "1", "employment", True, "standard", "none", 0, 20.0, "divorced", 1, date(2018, 1, 15), "shop", ("other", "Водій категорії C", "Львівський автошкола ТСО"), "Львів", "privat", {"kp": "8322", "ALIM_PCT": 25}),
  ("Прокопів", "Наталія", "Богданівна", "female", date(1976, 6, 24), "Інженер-технолог", "Виробництво", 30000, "1", "employment", True, "disabled", "none", 0, 28.0, "married", 2, date(2016, 3, 1), "shop", ("master", "Технологія деревообробки", "НЛТУ України"), "Львів", "oschad", {"kp": "2149.2", "note": "інвалідність III групи, ЄСВ 8,41 %"}),
@@ -159,6 +159,13 @@ for i, (ln, fn, mn, sex, bd, job, dept, wage, fte, kind, main, esv, psp, pspk, y
     else:
         eid = call("hr.employee", "create", vals)
     created[i] = (eid, name, code, extra)
+    if kind in ("gph", "fop"):
+        # Лана, 2026-09-16: ЦПХ/ФОП - контрагенти, не кадровий облік; номер/дата/строк договору для екрана «Договори ЦПХ».
+        call("hr.employee", "write", [eid], {
+            "ua_gph_contract_ref": f"{'Договір ЦПХ' if kind == 'gph' else 'Договір підряду'} № {i}",
+            "ua_gph_contract_date": str(hire),
+            "ua_gph_contract_end": str(extra["end"]) if extra.get("end") else False,
+        })
     # версія контракту (Odoo 19: hr.version). Не version_id "поточної" версії: якщо працівник
     # уже отримав додаткову версію окремим кадровим наказом (переведення тощо), "поточна" на
     # сьогодні може бути саме вона, а не версія прийняття, - тоді запис ідемпотентності мав би
@@ -170,7 +177,11 @@ for i, (ln, fn, mn, sex, bd, job, dept, wage, fte, kind, main, esv, psp, pspk, y
     vvals = {"wage": wage, "date_version": str(hire), "contract_date_start": str(hire), "contract_date_end": str(extra["end"]) if extra.get("end") else False, "struct_id": STRUCT, "structure_type_id": STRUCT_TYPE,
              "resource_calendar_id": CAL, "contract_type_id": CT[extra.get("ct", "Permanent")], "job_title": job, "ua_order_ref": order, "ua_kp_code": extra.get("kp", ""), "ua_prof_name": job,
              "trial_date_end": str(extra["trial"]) if extra.get("trial") else False, "ua_internal_parttime": False,
-             "ua_end_order_ref": f"Наказ № 44-к від {extra['end'].strftime('%d.%m.%Y')}" if extra.get("dismissal") else False, "ua_dismissal_basis": extra.get("dismissal", False)}
+             "ua_end_order_ref": f"Наказ № 44-к від {extra['end'].strftime('%d.%m.%Y')}" if extra.get("dismissal") else False, "ua_dismissal_basis": extra.get("dismissal", False),
+             # погодинна оплата / скорочений тиждень (Лана, 2026-09-16): пільги за замовчуванням 40 год,
+             # тут лише два виробничих працівники з demo P - HOURLY і скорочений тиждень
+             "ua_pay_type": extra.get("pay_type", "monthly"), "ua_hour_rate": extra.get("hour_rate", 0.0),
+             "ua_weekly_hours": extra.get("weekly_hours", 40.0), "ua_night_shifts": extra.get("night_shifts", False)}
     if extra.get("rehire"):
         # перший період роботи: окрема версія з датою початку і кінця; поточна версія = повторне прийняття
         r1, r2 = extra["rehire"]
@@ -224,6 +235,20 @@ for i, (ln, fn, mn, sex, bd, job, dept, wage, fte, kind, main, esv, psp, pspk, y
                                               "ua_sick_number": extra.get("sick_number") or (f"2026-08{i:02d}-{random.randint(100000, 999999)}" if lcode in ("SICK", "MAT") else False)})
             call("hr.leave", "action_approve", [lid])
     print(f"{i:2d}. {name} ({code}) {job}, {dept}, оклад {wage}, ставка {fte}")
+
+# ---- табель вересня 2026: факт годин для погодинного (нічні зміни) і скороченого тижня -----
+TS_YEAR, TS_MONTH = 2026, 9
+ts_sheet = call("ua.timesheet.sheet", "search", [["year", "=", TS_YEAR], ["month", "=", TS_MONTH], ["department_id", "=", False]])
+ts_sheet = ts_sheet[0] if ts_sheet else call("ua.timesheet.sheet", "create", {"year": TS_YEAR, "month": TS_MONTH})
+if call("ua.timesheet.sheet", "read", [ts_sheet], ["state"])[0]["state"] != "draft":
+    call("ua.timesheet.sheet", "action_draft", [ts_sheet])
+call("ua.timesheet.sheet", "action_refill", [ts_sheet])
+for eid, hours, night in ((created[5][0], 170.0, 40.0), (created[6][0], 86.0, 0.0)):   # 5 Ковальчук (погодинна), 6 Мельничук (20 год/тиждень)
+    line = call("ua.timesheet.line", "search", [["sheet_id", "=", ts_sheet], ["employee_id", "=", eid]])
+    if line:
+        call("ua.timesheet.line", "write", [line[0]], {"hours": hours, "night_hours": night})
+call("ua.timesheet.sheet", "action_confirm", [ts_sheet])
+print(f"Табель {TS_MONTH:02d}.{TS_YEAR} заповнено (id={ts_sheet}): факт годин для погодинного і скороченого тижня.")
 
 # застарілі демо-картки (РНОКПП поза списком) прибираємо разом з листками. Працівників, узятих
 # через справу прийняття (scripts/demo_hire.py, напр. Мельник) сюди не заносимо - той скрипт
@@ -284,14 +309,20 @@ call("hr.employee", "write", [E[17]], {"ua_id_doc_type": "residence_permit"})   
 call("hr.employee", "write", [E[2]], {"ua_psp": "child150"})    # Стефанишин: ПСП на дітей 150 %
 call("hr.employee", "write", [E[16]], {"ua_psp": "s150"})       # Крамар: підвищена ПСП 150 %
 call("hr.employee", "write", [E[14]], {"ua_psp": "s200"})       # Данилюк: підвищена ПСП 200 %
-call("hr.employee", "write", [E[5]], {"ua_mil_status": "reserve", "ua_mil_category": "soldiers", "ua_mil_tcc": "Львівський РТЦК та СП"})   # Ковальчук
+# два різні ТЦК та СП - щоб список персонального обліку демонструвався окремо по кожному (l10n_ua_military
+# веде списки саме так). Категорія обліку - лише "officers" / "ranks" (офіційна форма, постанова № 1487).
+TCC1 = "Львівський РТЦК та СП"
+TCC2 = "Галицький РТЦК та СП"
+call("hr.employee", "write", [E[5]], {"ua_mil_status": "reserve", "ua_mil_category": "ranks", "ua_mil_tcc": TCC1})   # Ковальчук: резервіст
 call("hr.employee", "write", [E[6]], {"ua_mil_status": "removed"})   # Мельничук
 call("hr.employee", "write", [E[8]], {"ua_mil_status": "excluded"})   # Шевчук
-call("hr.employee", "write", [E[14]], {"ua_mil_status": "liable", "ua_mil_fitness": "limited"})   # Данилюк
-call("hr.employee", "write", [E[15]], {"ua_mil_status": "liable", "ua_mil_doc_type": "temp"})   # Гнатів
-call("hr.employee", "write", [E[16]], {"ua_mil_status": "liable", "ua_mil_group": "vms", "ua_mil_reserved": True,
+call("hr.employee", "write", [E[14]], {"ua_mil_status": "liable", "ua_mil_fitness": "limited", "ua_mil_category": "officers", "ua_mil_tcc": TCC2,
+                                       "ua_reserve_number": "РП-04521", "ua_reserve_date": "2026-08-15"})   # Данилюк: офіцер, резерв+ (юрисконсульт)
+call("hr.employee", "write", [E[15]], {"ua_mil_status": "liable", "ua_mil_doc_type": "temp", "ua_mil_category": "ranks", "ua_mil_tcc": TCC1})   # Гнатів
+call("hr.employee", "write", [E[16]], {"ua_mil_status": "liable", "ua_mil_group": "vms", "ua_mil_category": "officers", "ua_mil_tcc": TCC2, "ua_mil_reserved": True,
                                        "ua_mil_reserve_order": "Рішення КЄК № 12 від 01.08.2026", "ua_mil_reserve_until": "2027-02-01"})   # Крамар: заброньований
-call("hr.employee", "write", [E[17]], {"ua_mil_status": "liable", "ua_mil_group": "other"})   # Ткачук
+call("hr.employee", "write", [E[17]], {"ua_mil_status": "liable", "ua_mil_group": "other", "ua_mil_category": "ranks", "ua_mil_tcc": TCC1})   # Ткачук
+call("hr.employee", "write", [E[2]], {"ua_mil_status": "liable", "ua_mil_category": "ranks", "ua_mil_tcc": TCC1})   # Стефанишин: жінка, військовозобов'язана (окремий список)
 PRIOR = {
     1: [("ТОВ «Львівмеблі»", "Заступник директора", date(2010, 3, 1), date(2015, 1, 30))],
     2: [("ПП «Аудит-Сервіс»", "Бухгалтер", date(2012, 6, 1), date(2016, 8, 31))],
@@ -470,11 +501,11 @@ print("Штатний розпис (затверджено) записано.")
 # давав порожню відомість і action_confirm падав на «Немає рядків. Натисніть «Перерахувати»».
 
 # три документи військового обліку: список персонального обліку, список заброньованих, повідомлення
-mlist_ids = call("ua.military.list", "search", [["date", "=", "2026-09-15"]])
-mlist_id = mlist_ids[0] if mlist_ids else call("ua.military.list", "create", {"company_id": COMPANY, "date": "2026-09-15"})
-if call("ua.military.list", "read", [mlist_id], ["state"])[0]["state"] == "draft":
-    call("ua.military.list", "action_refill", [mlist_id])
-    call("ua.military.list", "action_confirm", [mlist_id])
+# список персонального обліку - по одному документу на кожен ТЦК (TCC1, TCC2 вище), розділ "Усі розділи"
+mlist_ids_all = call("ua.military.list", "action_create_all_tcc", COMPANY, "2026-09-15", "all")
+for mlist_id in mlist_ids_all:
+    if call("ua.military.list", "read", [mlist_id], ["state"])[0]["state"] == "draft":
+        call("ua.military.list", "action_confirm", [mlist_id])
 
 mres_ids = call("ua.military.reserved", "search", [["date", "=", "2026-09-15"]])
 mres_id = mres_ids[0] if mres_ids else call("ua.military.reserved", "create", {"company_id": COMPANY, "date": "2026-09-15"})
@@ -495,7 +526,7 @@ else:
     mnotice2_id = call("ua.military.notice", "create", {"company_id": COMPANY, "date_from": "2026-09-16", "date_to": "2026-09-30",
                                                          "line_ids": [(0, 0, {"employee_id": E[16], "full_name": created[16][1], "birthday": "1980-11-23",
                                                                               "rnokpp": created[16][2], "change_kind": "change",
-                                                                              "date": "2026-09-16", "tcc": "Львівський РТЦК та СП"})]})
+                                                                              "date": "2026-09-16", "tcc": TCC2})]})
 if call("ua.military.notice", "read", [mnotice2_id], ["state"])[0]["state"] == "draft":
     call("ua.military.notice", "action_confirm", [mnotice2_id])
 print("Три документи військового обліку (список обліку, заброньовані, повідомлення) затверджено; друге повідомлення (зміна даних) додано.")
@@ -608,6 +639,32 @@ if _jul_close:
 run_jul, jul = month_batch(2026, 7, "Зарплата за липень 2026", close=True)
 run_aug, aug = month_batch(2026, 8, "Зарплата за серпень 2026", close=True)
 month_batch(2026, 9, "Зарплата за вересень 2026", close=False, advance=False)
+
+
+def refill_pfu_claim(run_id):
+    """month_batch перераховує листки; заява-розрахунок ПФУ того ж місяця (якщо вже існує)
+    лишається зі старими сумами й розходиться з SICK_PFU+MAT листків. Перезаповнюємо її тут,
+    ідемпотентно: чернетку - просто «Перерахувати», підтверджену - draft, refill, confirm назад.
+    Заяву, що пішла далі (подано/прийнято/...), не займаємо - там уже реальний цикл фінансування."""
+    if not run_id:
+        return
+    claim_ids = call("ua.pfu.claim", "search", [["payslip_run_id", "=", run_id]])
+    if not claim_ids:
+        return
+    claim_id = claim_ids[0]
+    state = call("ua.pfu.claim", "read", [claim_id], ["state"])[0]["state"]
+    if state not in ("draft", "confirmed"):
+        return
+    was_confirmed = state == "confirmed"
+    if was_confirmed:
+        call("ua.pfu.claim", "action_draft", [claim_id])
+    call("ua.pfu.claim", "action_refill", [claim_id])
+    if was_confirmed:
+        call("ua.pfu.claim", "action_confirm", [claim_id])
+
+
+refill_pfu_claim(run_jul)
+refill_pfu_claim(run_aug)
 
 # ---- відомості на виплату: аванс за серпень (з рядків, наповнених у month_batch вище), інша за вересень (чернетка) ----
 for kind, ym in (("advance", (2026, 8)), ("other", (2026, 9))):
@@ -747,3 +804,17 @@ def set_vacation_opening_balances():
 
 
 set_vacation_opening_balances()
+
+# ---- додаткові відпустки за Законом «Про відпустки»: УБД (ст. 16-2), на дітей (ст. 19), особливі
+# умови праці (ст. 8) - по одному прикладу на кожну підставу, ідемпотентно (write/search-or-create) ------
+call("hr.employee", "write", [E[8]], {"ua_veteran": True})              # Шевчук: УБД, додаткова відпустка 14 днів (ст. 16-2)
+call("hr.employee", "write", [E[2]], {"ua_special_leave_days": 4})      # Стефанишин: особливий характер праці (бухгалтерія, комп'ютер), 4 дні (ст. 8)
+call("hr.employee", "write", [E[6]], {"ua_soc_child_disabled_child": True})  # Мельничук: дитина з інвалідністю - підстава ст. 19
+
+for child_name, child_bd in [("Ковальчук Тарас Романович", "2015-05-20"), ("Ковальчук Софія Романівна", "2018-09-02")]:
+    if not call("ua.employee.child", "search", [["employee_id", "=", E[5]], ["name", "=", child_name]]):
+        call("ua.employee.child", "create", {"employee_id": E[5], "name": child_name, "birthday": child_bd})   # Ковальчук: двоє дітей до 15 років - підстава ст. 19
+
+alloc_targets = [E[5], E[6], E[8], E[2], E[13]]   # Ковальчук (діти), Мельничук (дитина з інвалідністю), Шевчук (УБД), Стефанишин (особливі умови), Федорів (одинока мати)
+call("hr.employee", "ua_ensure_allocations", alloc_targets)
+print("Додаткові відпустки (УБД, на дітей, особливі умови праці): підстави записано, річне нарахування соціальної на дітей виконано.")

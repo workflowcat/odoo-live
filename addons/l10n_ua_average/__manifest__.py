@@ -11,6 +11,7 @@
         "security/ir.model.access.csv",
         "data/leave_types.xml",
         "data/rules.xml",
+        "data/leave_allocations_cron.xml",
         "views/ua_earnings_history_views.xml",
         "views/hr_employee_views.xml",
     ],

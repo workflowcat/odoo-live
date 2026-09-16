@@ -8,4 +8,5 @@ class UaEmployeeDocument(models.Model):
     type = fields.Selection(selection_add=[
         ("consent", "Згода на обробку персональних даних"),
         ("safety_briefing", "Інструктаж з охорони праці"),
-    ], ondelete={"consent": "set default", "safety_briefing": "set default"})
+        ("inventory", "Опис документів особової справи"),
+    ], ondelete={"consent": "set default", "safety_briefing": "set default", "inventory": "set default"})

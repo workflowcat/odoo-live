@@ -1,3 +1,4 @@
+from . import res_company
 from . import ua_hr_order
 from . import hr_leave
 from . import ua_hr_doc_requirement

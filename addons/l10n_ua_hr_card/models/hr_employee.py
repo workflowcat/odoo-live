@@ -38,6 +38,12 @@ class HrEmployee(models.Model):
     ua_id_doc_date = fields.Date("Дата видачі", groups="hr.group_hr_user")
     ua_id_doc_unzr = fields.Char("УНЗР", groups="hr.group_hr_user", help="Унікальний номер запису в реєстрі, 13 символів")
 
+    # -- Повторне прийняття ------------------------------------------------------------
+    # Нова справа з тим самим РНОКПП створює нову картку, не відновлює стару (l10n_ua_hire.action_hire);
+    # стара лишається архівною, ця посилається на неї для довідки.
+    ua_previous_employee_id = fields.Many2one("hr.employee", "Попередня картка", readonly=True, copy=False,
+                                              groups="hr.group_hr_user")
+
     # -- Адреси і контакти ------------------------------------------------------------
     ua_actual_address = fields.Char("Фактична адреса", groups="hr.group_hr_user")
 

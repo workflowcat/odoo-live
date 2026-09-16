@@ -109,6 +109,14 @@ class HrEmployee(models.Model):
             "since": _fmt_date(since) or "немає",
             "active": emp.active,
             "badges": badges,
+            "previous_employee": ({
+                "id": emp.ua_previous_employee_id.id,
+                "name": emp.ua_previous_employee_id.name,
+                "dates": " - ".join(x for x in (
+                    _fmt_date(emp.ua_previous_employee_id.ua_hire_date),
+                    _fmt_date(emp.ua_previous_employee_id.ua_dismissal_date),
+                ) if x),
+            } if emp.ua_previous_employee_id else None),
         }
 
         # -- Особа --------------------------------------------------------------------
@@ -177,12 +185,23 @@ class HrEmployee(models.Model):
         opening_date = emp.ua_vacation_opening_date or emp.company_id.ua_vacation_opening_date
         if opening_date:
             opening = "%s (на %s)" % (_fmt_num(emp.ua_vacation_opening_balance), _fmt_date(opening_date))
+        sick_line = None
+        if emp.ua_insurance_years or emp.ua_sick_full:
+            sick_line = "Страховий стаж %s років · лікарняні %s %%" % (
+                _fmt_num(emp.ua_insurance_years, 1), _fmt_num(emp.ua_sick_percent, 0))
         vacation = [
-            _row("Днів на рік", str(emp.ua_vacation_days_year) if emp.ua_vacation_days_year else None, numeric=True),
-            _row("Накопичено", _fmt_num(emp.ua_vacation_accrued), numeric=True),
-            _row("Використано", _fmt_num(emp.ua_vacation_used), numeric=True),
-            _row("Залишок", _fmt_num(emp.ua_vacation_balance), numeric=True),
+            _row("Щорічна: днів на рік", str(emp.ua_vacation_days_year) if emp.ua_vacation_days_year else None, numeric=True),
+            _row("Щорічна: накопичено", _fmt_num(emp.ua_vacation_accrued), numeric=True),
+            _row("Щорічна: використано", _fmt_num(emp.ua_vacation_used), numeric=True),
+            _row("Щорічна: залишок", _fmt_num(emp.ua_vacation_balance), numeric=True),
             _row("Залишок на дату впровадження", opening, numeric=True),
+            _row("УБД: днів на рік", str(emp.ua_vac_ubd_days_year) if emp.ua_vac_ubd_days_year else None, numeric=True),
+            _row("УБД: залишок (поточний рік)", _fmt_num(emp.ua_vac_ubd_balance) if emp.ua_vac_ubd_days_year else None, numeric=True),
+            _row("На дітей (ст. 19): днів на рік", str(emp.ua_soc_child_days_year) if emp.ua_soc_child_days_year else None, numeric=True),
+            _row("На дітей (ст. 19): залишок (з переносом)", _fmt_num(emp.ua_soc_child_balance) if emp.ua_soc_child_allocated else None, numeric=True),
+            _row("Особливі умови праці: днів на рік", str(emp.ua_special_allocated) if emp.ua_special_allocated else None, numeric=True),
+            _row("Особливі умови праці: залишок (поточний рік)", _fmt_num(emp.ua_special_balance) if emp.ua_special_allocated else None, numeric=True),
+            _row("Лікарняні", sick_line),
         ]
 
         # -- Військовий облік ---------------------------------------------------------------
@@ -207,8 +226,17 @@ class HrEmployee(models.Model):
         cat_group = " / ".join(x for x in (_sel_label(emp, "ua_mil_category"), _sel_label(emp, "ua_mil_group")) if x) or None
         rank_vos = ", ".join(x for x in (emp.ua_mil_rank, ("ВОС " + emp.ua_mil_vos) if emp.ua_mil_vos else None) if x) or None
 
+        reserve_plus = None
+        if emp.ua_reserve_number or emp.ua_reserve_date:
+            reserve_plus = ", ".join(x for x in (
+                ("№ " + emp.ua_reserve_number) if emp.ua_reserve_number else None,
+                ("від " + _fmt_date(emp.ua_reserve_date)) if emp.ua_reserve_date else None,
+                "файл є" if emp.ua_reserve_file else None,
+            ) if x) or None
+
         military = [
             _row("Стан обліку", _sel_label(emp, "ua_mil_status")),
+            _row("У списку жінок", "так" if emp.ua_mil_women_list else None),
             _row("Категорія / група", cat_group),
             _row("Звання, ВОС", rank_vos),
             _row("ТЦК та СП", emp.ua_mil_tcc),
@@ -217,6 +245,7 @@ class HrEmployee(models.Model):
             _row("Дата ВЛК", _fmt_date(emp.ua_mil_vlk_date)),
             _row("Бронювання", reserve),
             _row("Відстрочка", deferment),
+            _row("Резерв+ (витяг)", reserve_plus),
             _row("Дата звірки", _fmt_date(emp.ua_mil_last_check)),
             _row("Потребує звірки", "так" if emp.ua_mil_needs_check else "ні"),
         ]

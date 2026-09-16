@@ -29,8 +29,13 @@
     <record id="rule_comp_vac" model="hr.salary.rule">
       <field name="name">Компенсація за невикористану відпустку</field><field name="code">COMP_VAC</field><field name="sequence">24</field>
       <field name="category_id" ref="cat_avg"/><field name="condition_select">python</field>
-      <field name="condition_python">result = bool(inputs.COMP_DAYS and inputs.COMP_DAYS.amount)</field>
-      <field name="amount_select">code</field><field name="amount_python_compute">result = tools.r2(inputs.COMP_DAYS.amount * payroll.ua.avg100_day, 2)</field>
+      <!-- COMP_DAYS - ручний ввід (щорічна відпустка, наказ на звільнення); extra_comp_days -
+           додається автоматично в місяці звільнення: невикористана соціальна на дітей (усі роки)
+           і невикористані УБД / особливі умови праці поточного року (l10n_ua_average.hr_payslip) -->
+      <field name="condition_python">result = bool((inputs.COMP_DAYS and inputs.COMP_DAYS.amount) or payroll.ua.extra_comp_days)</field>
+      <field name="amount_select">code</field>
+      <field name="amount_python_compute">days = (inputs.COMP_DAYS.amount if inputs.COMP_DAYS else 0.0) + payroll.ua.extra_comp_days
+result = tools.r2(days * payroll.ua.avg100_day, 2)</field>
     </record>
     <record id="rule_study" model="hr.salary.rule">
       <field name="name">Оплата навчальної відпустки</field><field name="code">STUDY_PAY</field><field name="sequence">26</field>
