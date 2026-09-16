@@ -363,7 +363,7 @@ else:
     trip_oid = trip_orders[0]
 
 # одна відпустка на розгляді (state=confirm), не проведена - навмисно без action_approve
-pending_ids = call("hr.leave", "search", [["employee_id", "=", E[11]], ["holiday_status_id", "=", LT["UNPAID"]], ["request_date_from", "=", "2026-09-21"]])
+pending_ids = call("hr.leave", "search", [["employee_id", "=", E[11]], ["request_date_from", "<=", "2026-09-22"], ["request_date_to", ">=", "2026-09-21"], ["state", "not in", ["refuse", "cancel"]]])  # будь-яка відпустка, що перетинає ці дні
 if not pending_ids:
     call("hr.leave", "create", {"employee_id": E[11], "holiday_status_id": LT["UNPAID"], "request_date_from": "2026-09-21", "request_date_to": "2026-09-22"})   # Бойчук: заявка ще не розглянута
 
