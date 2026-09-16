@@ -323,10 +323,22 @@ class UaReportRun(models.Model):
         draft_slips = self.env["hr.payslip"].search([
             ("company_id", "=", c.id), ("date_from", ">=", d1), ("date_from", "<=", d2), ("state", "in", ("draft", "verify")),
         ])
+        done_slips = self.env["hr.payslip"].search([
+            ("company_id", "=", c.id), ("date_from", ">=", d1), ("date_from", "<=", d2), ("state", "=", "done"),
+        ])
+        if not done_slips and draft_slips:
+            level = "error"
+            detail = "Проведених листків у періоді немає"
+        elif draft_slips:
+            level = "warn"
+            detail = "Листків-чернеток: %s" % len(draft_slips)
+        else:
+            level = "ok"
+            detail = "Чернеток немає"
         yield dict({
             "code": "period_closed", "title": "Чернетки листків у періоді",
-            "level": "ok" if not draft_slips else "warn",
-            "detail": "Чернеток немає" if not draft_slips else "Листків-чернеток: %s" % len(draft_slips),
+            "level": level,
+            "detail": detail,
             "value": str(len(draft_slips)),
         }, **_target("hr.payslip", domain=[("company_id", "=", c.id), ("date_from", ">=", str(d1)), ("date_from", "<=", str(d2)),
                                           ("state", "in", ("draft", "verify"))]))

@@ -56,13 +56,13 @@
           </group>
           <notebook>
             <page string="Рядки" name="lines">
-              <field name="line_ids">
+              <field name="line_ids" readonly="state != 'draft'">
                 <list editable="bottom" readonly="parent.state != 'draft'">
                   <field name="employee_id"/>
                   <field name="kind"/>
                   <field name="sick_number"/>
-                  <field name="date_from"/>
-                  <field name="date_to"/>
+                  <field name="date_from" options="{'numeric': True}"/>
+                  <field name="date_to" options="{'numeric': True}"/>
                   <field name="days"/>
                   <field name="avg_day"/>
                   <field name="percent"/>

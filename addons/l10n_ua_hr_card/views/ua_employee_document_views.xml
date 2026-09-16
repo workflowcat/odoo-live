@@ -12,9 +12,9 @@
         <field name="employee_id"/>
         <field name="type"/>
         <field name="name"/>
-        <field name="date"/>
+        <field name="date" options="{'numeric': True}"/>
         <field name="state" widget="badge"/>
-        <field name="signed_date"/>
+        <field name="signed_date" options="{'numeric': True}"/>
         <field name="file" filename="filename"/>
         <field name="filename" column_invisible="1"/>
         <button name="action_mark_signed" type="object" string="Підписано" icon="fa-check"

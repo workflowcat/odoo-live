@@ -144,7 +144,17 @@
         gap: 6px;
         align-items: center;
     }
-    .o_ua_hire_file_name { text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    // Довгі назви файлів різались в один рядок; тепер два рядки, а повна назва
+    // видно в тултипі (data-tooltip) на наведення.
+    .o_ua_hire_file_name {
+        text-align: left;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        white-space: normal;
+        word-break: break-word;
+    }
     .o_ua_hire_result { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
     .o_ua_hire_log { font-size: 12px; }
 

@@ -59,6 +59,7 @@ PACKAGE = [
     ("ack", "Лист ознайомлення", "l10n_ua_hire.report_hire_ack"),
 ]
 EXTRACT_URL = os.environ.get("UA_EXTRACT_URL", "http://host.docker.internal:8765")
+HELPER_UNAVAILABLE = "Помічник розпізнавання недоступний"
 
 
 def rnokpp_problems(code, birthday=None, sex=None):
@@ -533,9 +534,11 @@ class UaHireCase(models.Model):
     def extract_status(self):
         try:
             r = requests.get(EXTRACT_URL + "/health", timeout=1.5)
-            return r.json() if r.ok else {"ok": False, "error": "HTTP %s" % r.status_code}
+            if r.ok:
+                return r.json()
+            return {"ok": False, "error": _(HELPER_UNAVAILABLE), "reason": "HTTP %s" % r.status_code}
         except Exception as e:  # noqa: BLE001 - будь-яка мережева помилка означає «помічник недоступний»
-            return {"ok": False, "error": str(e)[:200]}
+            return {"ok": False, "error": _(HELPER_UNAVAILABLE), "reason": str(e)[:200]}
 
     def action_extract(self):
         """Надіслати файли локальному помічнику Claude і записати пропозиції. Значення в поля не пишемо."""
@@ -558,8 +561,9 @@ class UaHireCase(models.Model):
                                  headers={"Content-Type": "application/json"})
             result = resp.json()
         except Exception as e:  # noqa: BLE001
-            files.write({"extract_state": "failed", "extract_note": str(e)[:200]})
-            raise UserError(_("Помічник розпізнавання недоступний. Запустіть scripts/claude_extract_helper.py на цьому комп'ютері.\n%s") % str(e)[:200])
+            files.write({"extract_state": "failed", "extract_note": _(HELPER_UNAVAILABLE)})
+            _logger.warning("Помічник розпізнавання недоступний: %s", str(e)[:200])
+            raise UserError(_("%s. Запустіть scripts/claude_extract_helper.py на цьому комп'ютері.") % _(HELPER_UNAVAILABLE))
         if not resp.ok or result.get("error"):
             files.write({"extract_state": "failed", "extract_note": (result.get("error") or "HTTP %s" % resp.status_code)[:200]})
             raise UserError(_("Розпізнавання не вдалося: %s") % (result.get("error") or resp.status_code))

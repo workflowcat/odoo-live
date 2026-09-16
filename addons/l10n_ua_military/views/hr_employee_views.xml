@@ -39,7 +39,7 @@
           <field name="ua_mil_note" placeholder="Примітка"/>
           <field name="ua_mil_event_ids">
             <list editable="bottom">
-              <field name="date"/>
+              <field name="date" options="{'numeric': True}"/>
               <field name="kind"/>
               <field name="note"/>
               <field name="user_id"/>
@@ -56,12 +56,12 @@
     <field name="arch" type="xml">
       <list>
         <field name="name"/>
-        <field name="department_id"/>
+        <field name="department_id" optional="hide"/>
         <field name="ua_mil_status"/>
-        <field name="ua_mil_rank"/>
-        <field name="ua_mil_vos"/>
-        <field name="ua_mil_tcc"/>
-        <field name="ua_mil_last_check"/>
+        <field name="ua_mil_rank" optional="hide"/>
+        <field name="ua_mil_vos" optional="hide"/>
+        <field name="ua_mil_tcc" widget="text" optional="show"/>
+        <field name="ua_mil_last_check" string="Звірено" options="{'numeric': True}"/>
       </list>
     </field>
   </record>

@@ -25,14 +25,14 @@
           </group>
           <notebook>
             <page string="Рядки" name="lines">
-              <field name="line_ids">
+              <field name="line_ids" readonly="state != 'draft'">
                 <list editable="bottom" readonly="parent.state != 'draft'">
                   <field name="full_name"/>
-                  <field name="birthday"/>
+                  <field name="birthday" options="{'numeric': True}"/>
                   <field name="rnokpp"/>
                   <field name="tcc"/>
                   <field name="change_kind"/>
-                  <field name="date"/>
+                  <field name="date" options="{'numeric': True}"/>
                   <field name="job_title"/>
                   <field name="reason"/>
                 </list>
@@ -57,8 +57,8 @@
     <field name="arch" type="xml">
       <list>
         <field name="name"/>
-        <field name="date_from"/>
-        <field name="date_to"/>
+        <field name="date_from" options="{'numeric': True}"/>
+        <field name="date_to" options="{'numeric': True}"/>
         <field name="state"/>
       </list>
     </field>

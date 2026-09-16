@@ -55,7 +55,7 @@ class UaPeriodBoard(models.AbstractModel):
         drafts = Order.search(domain + [("state", "=", "draft")])
         state = "warn" if drafts else ("done" if posted else "todo")
         fact = "%s проведено, %s чернеток" % (posted, len(drafts))
-        details = [{"id": o.id, "model": "ua.hr.order", "title": o.name or o.display_name,
+        details = [{"id": o.id, "model": "ua.hr.order", "title": o.name or "без номера",
                     "note": o.employee_id.name or ""} for o in drafts[:20]]
         return self._step("orders", "Кадрові накази", state, fact,
                           {"xmlid": "l10n_ua_hr_orders.action_ua_hr_order"}, details)

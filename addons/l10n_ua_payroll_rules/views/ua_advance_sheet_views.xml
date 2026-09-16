@@ -26,8 +26,8 @@
           </group>
           <notebook>
             <page string="Рядки" name="lines">
-              <field name="line_ids">
-                <list editable="bottom">
+              <field name="line_ids" readonly="state != 'draft'">
+                <list editable="bottom" readonly="parent.state != 'draft'">
                   <field name="employee_id" readonly="1"/>
                   <field name="payslip_id" readonly="1"/>
                   <field name="wage" readonly="1"/>
@@ -56,7 +56,7 @@
     <field name="arch" type="xml">
       <list string="Авансові відомості">
         <field name="name"/>
-        <field name="pay_date"/>
+        <field name="pay_date" options="{'numeric': True}"/>
         <field name="total" sum="Разом"/>
         <field name="state"/>
       </list>

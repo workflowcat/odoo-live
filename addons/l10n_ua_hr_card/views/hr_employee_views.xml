@@ -37,10 +37,10 @@
                 <field name="type"/>
                 <field name="name"/>
                 <field name="number"/>
-                <field name="date"/>
+                <field name="date" options="{'numeric': True}"/>
                 <field name="valid_until"/>
                 <field name="state" widget="badge" decoration-warning="state == 'to_sign'" decoration-success="state == 'signed'" decoration-muted="state == 'not_needed'"/>
-                <field name="signed_date"/>
+                <field name="signed_date" options="{'numeric': True}"/>
                 <field name="file" filename="filename"/>
                 <field name="filename" column_invisible="1"/>
                 <field name="note"/>
@@ -97,7 +97,7 @@
           <field name="ua_child_ids" colspan="2">
             <list editable="bottom">
               <field name="name"/>
-              <field name="birthday"/>
+              <field name="birthday" options="{'numeric': True}"/>
               <field name="note"/>
             </list>
           </field>
@@ -130,8 +130,8 @@
             <list editable="bottom">
               <field name="company_name"/>
               <field name="job_title"/>
-              <field name="date_from"/>
-              <field name="date_to"/>
+              <field name="date_from" options="{'numeric': True}"/>
+              <field name="date_to" options="{'numeric': True}"/>
               <field name="note"/>
             </list>
           </field>
@@ -245,7 +245,7 @@
                   <field name="type"/>
                   <field name="name"/>
                   <field name="number"/>
-                  <field name="date"/>
+                  <field name="date" options="{'numeric': True}"/>
                   <field name="valid_until"/>
                   <field name="ua_doc_state" column_invisible="1"/>
                 </list>
@@ -254,8 +254,8 @@
             <group string="Хроніка" name="ua_overview_grp_chronicle">
               <field name="version_ids" string="Контракти" colspan="1" readonly="1">
                 <list create="false" default_order="contract_date_start">
-                  <field name="contract_date_start"/>
-                  <field name="contract_date_end"/>
+                  <field name="contract_date_start" options="{'numeric': True}"/>
+                  <field name="contract_date_end" options="{'numeric': True}"/>
                   <field name="job_title"/>
                   <field name="wage"/>
                   <field name="ua_order_ref"/>
@@ -263,7 +263,7 @@
               </field>
               <field name="ua_mil_event_ids" string="Військові події" colspan="1" readonly="1">
                 <list create="false">
-                  <field name="date"/>
+                  <field name="date" options="{'numeric': True}"/>
                   <field name="kind"/>
                   <field name="note"/>
                 </list>

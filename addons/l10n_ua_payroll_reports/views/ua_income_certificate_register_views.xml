@@ -6,10 +6,10 @@
     <field name="arch" type="xml">
       <list create="0" edit="0" delete="0">
         <field name="name"/>
-        <field name="date"/>
+        <field name="date" options="{'numeric': True}"/>
         <field name="employee_id"/>
-        <field name="date_from"/>
-        <field name="date_to"/>
+        <field name="date_from" options="{'numeric': True}"/>
+        <field name="date_to" options="{'numeric': True}"/>
         <field name="purpose"/>
       </list>
     </field>

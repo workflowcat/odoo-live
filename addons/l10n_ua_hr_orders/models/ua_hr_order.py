@@ -241,12 +241,15 @@ class UaHrOrder(models.Model):
         current = self.employee_id.sudo().version_id
         if not current:
             raise UserError(_("У працівника немає поточної версії контракту."))
+        # Переведення без зміни окладу лишає order.wage порожнім (0,00) - копіюємо чинний оклад
+        # на сам наказ під час проведення, інакше друкована форма показує «Оклад 0,00».
+        effective_wage = self.wage or current.wage
         vals = {
             "employee_id": self.employee_id.id,
             "date_version": self.date_from,
             "contract_date_start": current.contract_date_start,
             "contract_date_end": current.contract_date_end,
-            "wage": self.wage or current.wage,
+            "wage": effective_wage,
             "job_title": self.prof_name or self.job_title or current.job_title,
             "department_id": (self.department_id or current.department_id).id,
             "struct_id": current.struct_id.id,
@@ -258,7 +261,7 @@ class UaHrOrder(models.Model):
             "ua_prof_name": self.prof_name or current.ua_prof_name,
         }
         version = self.env["hr.version"].sudo().with_context(sync_contract_dates=True).create(vals)
-        self.write({"version_id": version.id, "cancel_write_date": version.write_date})
+        self.write({"version_id": version.id, "cancel_write_date": version.write_date, "wage": effective_wage})
 
     def _post_leave(self):
         self.ensure_one()
@@ -292,7 +295,7 @@ class UaHrOrder(models.Model):
             "ua_end_order_ref": self._order_ref_text(),
             "ua_dismissal_basis": self.dismissal_basis,
         })
-        self.employee_id.sudo().write({"ua_dismissal_date": self.date_to})
+        self.employee_id.sudo().write({"ua_dismissal_date": self.date_to, "active": False})
         self.write({"version_id": current.id, "cancel_write_date": current.write_date})
         if self.comp_days:
             payslip = self.env["hr.payslip"].sudo().search([
@@ -382,7 +385,7 @@ class UaHrOrder(models.Model):
         version.with_context(sync_contract_dates=True).write({
             "contract_date_end": False, "ua_end_order_ref": False, "ua_dismissal_basis": False,
         })
-        self.employee_id.sudo().write({"ua_dismissal_date": False})
+        self.employee_id.sudo().write({"ua_dismissal_date": False, "active": True})
         if self.comp_days_input_id and self.comp_days_input_id.exists():
             self.comp_days_input_id.unlink()
         self.write({"state": "draft", "name": False, "ack_date": False, "ack_user_id": False, "cancel_write_date": False, "comp_days_input_id": False})

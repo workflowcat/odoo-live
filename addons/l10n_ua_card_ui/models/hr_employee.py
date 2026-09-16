@@ -81,6 +81,12 @@ class HrEmployee(models.Model):
             badges.append({"label": "Потребує звірки ТЦК", "css": "o_ua_pill_warn"})
         if emp.ua_docs_expiring:
             badges.append({"label": f"Документи спливають ({emp.ua_docs_expiring})", "css": "o_ua_pill_warn"})
+        expired_docs = emp.ua_document_ids.filtered(lambda d: d.ua_doc_state == "expired")
+        if expired_docs:
+            badges.append({"label": f"Документи прострочені ({len(expired_docs)})", "css": "o_ua_pill_crit"})
+        to_sign_docs = emp.ua_document_ids.filtered(lambda d: d.state == "to_sign")
+        if to_sign_docs:
+            badges.append({"label": f"Документи на підпис ({len(to_sign_docs)})", "css": "o_ua_pill_warn"})
         if not emp.ua_rnokpp:
             badges.append({"label": "Немає РНОКПП", "css": "o_ua_pill_crit"})
         if not badges:
@@ -156,7 +162,8 @@ class HrEmployee(models.Model):
         pay = [
             _row("Оклад (поточний)", _fmt_money(emp.ua_current_wage), numeric=True),
             _row("Вид відносин", _sel_label(emp, "ua_contract_kind")),
-            _row("Основне місце роботи", "так" if emp.ua_main_job else "ні"),
+            _row("Основне місце роботи", "внутрішнє сумісництво" if version and version.ua_internal_parttime
+                 else ("так" if emp.ua_main_job else "ні")),
             _row("Ставка", _sel_label(emp, "ua_fte")),
             _row("Категорія ЄСВ", _sel_label(emp, "ua_esv_category")),
             _row("ПСП", psp_label),
@@ -228,9 +235,34 @@ class HrEmployee(models.Model):
         } for d in emp.ua_document_ids]
 
         # -- Хроніка ------------------------------------------------------------------------
+        # Кожна зміна контракту (прийняття, зміна окладу, переведення) - окрема hr.version.
+        # contract_date_start лишається датою ПЕРШОГО прийняття на всіх версіях, а фактичну дату
+        # цієї конкретної зміни і її тип дає date_version + наказ, що цю версію провів - інакше
+        # зміна окладу за 2026 рік показувалась би як «Прийняття» датою прийняття 2012 року.
+        Order = emp.env["ua.hr.order"].sudo()
         timeline = []
         for v in emp.version_ids:
-            if v.contract_date_start:
+            order = Order.search([("version_id", "=", v.id), ("state", "!=", "draft")], limit=1)
+            order_type = order.order_type if order else (
+                "hire" if v.contract_date_start and v.contract_date_start == v.date_version else False)
+            event_date = v.date_version or v.contract_date_start
+            if order_type == "wage":
+                timeline.append({
+                    "date": event_date,
+                    "kind": "wage",
+                    "label": f"Зміна окладу: {_fmt_money(v.wage) or 'немає'}",
+                    "detail": _order(v.ua_order_ref),
+                    "res_model": "hr.version", "res_id": v.id,
+                })
+            elif order_type == "transfer":
+                timeline.append({
+                    "date": event_date,
+                    "kind": "transfer",
+                    "label": f"Переведення: {v.job_title or '-'} ({v.department_id.name or '-'})",
+                    "detail": f"{_order(v.ua_order_ref)}; оклад {_fmt_money(v.wage) or 'немає'}",
+                    "res_model": "hr.version", "res_id": v.id,
+                })
+            elif v.contract_date_start:
                 timeline.append({
                     "date": v.contract_date_start,
                     "kind": "hire",

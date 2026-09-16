@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Стан у списку «Відсутності» обрізався («Затвердж…», «Необхідн…»): бейдж
+     тиснувся у вузьку колонку. Ширша колонка й перенесення тексту замість крапок. -->
+<odoo>
+  <record id="hr_leave_view_tree_ua_wide_state" model="ir.ui.view">
+    <field name="name">hr.leave.list.ua.wide.state</field>
+    <field name="model">hr.leave</field>
+    <field name="inherit_id" ref="hr_holidays.hr_leave_view_tree"/>
+    <field name="arch" type="xml">
+      <list position="attributes">
+        <attribute name="class">o_ua_leaves_list</attribute>
+      </list>
+      <field name="state" position="attributes">
+        <attribute name="class">o_ua_leaves_state</attribute>
+      </field>
+      <!-- «25 вер.» проти «2 жовт. 2023 р.»: без options numeric Odoo сам обирає
+           формат і ховає рік у поточному році - в одному списку виходить різнобій.
+           dd.mm.yyyy завжди, узгоджено з форматом мови uk_UA. -->
+      <field name="date_from" position="attributes">
+        <attribute name="options">{'numeric': True}</attribute>
+      </field>
+      <field name="date_to" position="attributes">
+        <attribute name="options">{'numeric': True}</attribute>
+      </field>
+    </field>
+  </record>
+</odoo>

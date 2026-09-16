@@ -75,16 +75,20 @@ for e in sample:
     check(f"{e.name}: get_card_data повертає всі ключі", not missing, f"відсутні: {missing}" if missing else "")
     check(f"{e.name}: header.name заповнено", bool(data.get("header", {}).get("name")))
 
-# 2. Ткачук: у timeline є прийняття 01.03.2021, звільнення 31.05.2026, прийняття 17.08.2026
-tk = Employee.search([('name', 'ilike', 'Ткачук')], limit=1)
+# 2. Ткачук: у timeline є прийняття 01.03.2021, звільнення 31.05.2026, зміна окладу 17.08.2026
+# (наказ 17.08.2026 - зміна окладу, не нове прийняття: contract_date_start лишається 01.03.2021
+# на всіх версіях, а тип події бере наказ, що провів версію, - фікс мапінгу хроніки).
+# Ткачук має проведений наказ про звільнення (31.05.2026) - архівований по-справжньому (фікс
+# консистентності звільнення), тож шукаємо з active_test=False, як і будь-якого колишнього працівника.
+tk = Employee.with_context(active_test=False).search([('name', 'ilike', 'Ткачук')], limit=1)
 check("знайдено Ткачука Ігоря Володимировича", bool(tk))
 if tk:
     tdata = tk.get_card_data()
     events = [(ev['date'], ev['kind']) for ev in tdata['timeline']]
     check("у хроніці Ткачука є прийняття 01.03.2021", ('01.03.2021', 'hire') in events, str(events))
     check("у хроніці Ткачука є звільнення 31.05.2026", ('31.05.2026', 'dismiss') in events, str(events))
-    check("у хроніці Ткачука є прийняття 17.08.2026", ('17.08.2026', 'hire') in events, str(events))
-    order_details = [ev['detail'] for ev in tdata['timeline'] if ev['kind'] in ('hire', 'dismiss')]
+    check("у хроніці Ткачука є зміна окладу 17.08.2026", ('17.08.2026', 'wage') in events, str(events))
+    order_details = [ev['detail'] for ev in tdata['timeline'] if ev['kind'] in ('hire', 'dismiss', 'wage', 'transfer')]
     check("рядки наказів у хроніці не задвоюють слово «Наказ»",
           all(d.count('Наказ') <= 1 for d in order_details), str(order_details))
     check("actions містить дію «Стандартна форма»",
@@ -242,7 +246,8 @@ for e in emps:
 
 # бонус: наказ П-1 (l10n_ua_hr_docs) на поточну версію Ткачука теж рендериться - той самий звіт,
 # що його викликає кнопка «Наказ» картки
-tk = call("hr.employee", "search_read", [["name", "ilike", "Ткачук"]], fields=["id", "current_version_id"])
+tk = call("hr.employee", "search_read", [["name", "ilike", "Ткачук"]], fields=["id", "current_version_id"],
+         context={"active_test": False})
 if tk and tk[0].get("current_version_id"):
     version_id = tk[0]["current_version_id"][0]
     pdf = get_pdf("l10n_ua_hr_docs.report_ua_order_hire", version_id)

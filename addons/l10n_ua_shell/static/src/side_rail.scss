@@ -116,3 +116,15 @@ $ua-panel-w: 232px;
 @media (max-width: 767.98px) {
     .o_ua_rail, .o_ua_rail_panel { display: none; }
 }
+
+// Хлібна крихта листка нарахування («Розрахунковий листок працівника за
+// місяць-рік») обрізалась крапками посередині назви. Останній пункт хлібних
+// крихт може займати кілька рядків замість обрізання.
+.o_breadcrumb .o_last_breadcrumb_item {
+    .text-truncate {
+        max-width: none;
+        white-space: normal;
+        text-overflow: unset;
+        overflow: visible;
+    }
+}

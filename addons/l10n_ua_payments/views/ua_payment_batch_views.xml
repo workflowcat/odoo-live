@@ -72,7 +72,7 @@
       <list>
         <field name="name"/>
         <field name="number" optional="show"/>
-        <field name="pay_date"/>
+        <field name="pay_date" options="{'numeric': True}"/>
         <field name="employee_count"/>
         <field name="total" sum="Разом"/>
         <field name="state" widget="badge"/>

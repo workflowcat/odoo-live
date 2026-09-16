@@ -225,9 +225,15 @@ for i, (ln, fn, mn, sex, bd, job, dept, wage, fte, kind, main, esv, psp, pspk, y
             call("hr.leave", "action_approve", [lid])
     print(f"{i:2d}. {name} ({code}) {job}, {dept}, оклад {wage}, ставка {fte}")
 
-# застарілі демо-картки (РНОКПП поза списком) прибираємо разом з листками
+# застарілі демо-картки (РНОКПП поза списком) прибираємо разом з листками. Працівників, узятих
+# через справу прийняття (scripts/demo_hire.py, напр. Мельник) сюди не заносимо - той скрипт
+# веде їх сам, і без цього винятку цей блок архівував/видаляв би їх щоразу як «застарілих»,
+# бо їхній РНОКПП не входить у список demo_company.
 codes = {v[2] for v in created.values()}
-stale = [e for e in call("hr.employee", "search_read", [["department_id", "in", list(DEPTS.values())], ["active", "in", [True, False]]], fields=["id", "ua_rnokpp"]) if e["ua_rnokpp"] not in codes]
+hired_via_case = {c["employee_id"][0] for c in
+                  call("ua.hire.case", "search_read", [["employee_id", "!=", False]], fields=["employee_id"])}
+stale = [e for e in call("hr.employee", "search_read", [["department_id", "in", list(DEPTS.values())], ["active", "in", [True, False]]], fields=["id", "ua_rnokpp"])
+        if e["ua_rnokpp"] not in codes and e["id"] not in hired_via_case]
 for e in stale:
     for sl in call("hr.payslip", "search_read", [["employee_id", "=", e["id"]]], fields=["id", "state", "move_id"]):
         if sl["state"] == "done" and sl["move_id"]:
@@ -396,19 +402,35 @@ if call("ua.hr.order", "read", [transfer_id], ["state"])[0]["state"] == "draft":
 if call("ua.hr.order", "read", [transfer_id], ["state"])[0]["state"] == "posted":
     call("ua.hr.order", "action_acknowledge", [transfer_id])   # наказ, доведений до "ознайомлено"
 
-# звільнення Шевчука, потім скасоване (перше проведення - помилка кадровика)
-dismiss_id = order_upsert("dismissal", E[8], [["date_to", "=", "2026-09-30"]],
-                          {"date": "2026-09-25", "date_to": "2026-09-30", "dismissal_basis": "ст. 38 КЗпП (заява працівника)"})
-dstate = call("ua.hr.order", "read", [dismiss_id], ["state"])[0]["state"]
-if dstate == "draft":
+# звільнення Шевчука, потім скасоване (перше проведення - помилка кадровика). Проведення і
+# скасування скидають наказ назад у "чернетка", тому саму лише перевірку стану не можна брати
+# за ознаку "вже показали цей сценарій" - на повторному запуску вона знову провела б і
+# скасувала наказ. Ознака - чи знайдено ІСНУЮЧИЙ запис: дію робимо лише для щойно створеного.
+dismiss_ids = call("ua.hr.order", "search", [["employee_id", "=", E[8]], ["order_type", "=", "dismissal"],
+                                             ["date_to", "=", "2026-09-30"]])
+if dismiss_ids:
+    dismiss_id = dismiss_ids[0]
+else:
+    dismiss_id = call("ua.hr.order", "create", {"order_type": "dismissal", "employee_id": E[8], "company_id": COMPANY,
+                                                "date": "2026-09-25", "date_to": "2026-09-30",
+                                                "dismissal_basis": "ст. 38 КЗпП (заява працівника)"})
     call("ua.hr.order", "action_post", [dismiss_id])
-    dstate = "posted"
-if dstate == "posted":
     call("ua.hr.order", "action_cancel", [dismiss_id])   # наказ про звільнення скасовано
 
 # чернетка зміни окладу (Кушнір) - не проводиться навмисно
 wage_draft_id = order_upsert("wage", E[3], [["date_from", "=", "2026-10-01"]], {"date": "2026-09-22", "date_from": "2026-10-01", "wage": 28000})
 print("Накази поза автоматичними гаками (переведення, скасоване звільнення, чернетка окладу, ознайомлення) записано.")
+
+# розхідна консистентність: _post_dismissal тепер архівує працівника (фікс баг-репорту), але
+# накази, проведені ДО фіксу (напр. Гнатів, 44-к), лишились активними - виправляємо разово,
+# ідемпотентно, за будь-якого проведеного наказу про звільнення.
+posted_dismissals = call("ua.hr.order", "search_read", [["order_type", "=", "dismissal"], ["state", "=", "posted"]],
+                         fields=["employee_id"])
+still_active = [d["employee_id"][0] for d in posted_dismissals
+               if call("hr.employee", "read", [d["employee_id"][0]], ["active"])[0]["active"]]
+if still_active:
+    call("hr.employee", "write", still_active, {"active": False})
+    print("Архівовано за проведеним наказом про звільнення:", still_active)
 
 # ---- документи працівника (ua.employee.document): типи й стани підпису на чотирьох картках -------------
 def doc_upsert(eid, dtype, name, **extra):
@@ -540,15 +562,27 @@ def month_batch(year, month, name, close=True, advance=True):
             dupes = sheet_ids[1:]   # прибрати дублі з попередніх запусків до цього виправлення
             call("ua.advance.sheet", "write", dupes, {"state": "draft"})   # unlink вимагає чернетку
             call("ua.advance.sheet", "unlink", dupes)
+        target_pay_date = str(date(year, month, 20))
         if sheet_ids:
             sheet_id = sheet_ids[0]
-            if call("ua.advance.sheet", "read", [sheet_id], ["state"])[0]["state"] == "confirmed":
-                call("ua.advance.sheet", "action_draft", [sheet_id])
-            call("ua.advance.sheet", "write", [sheet_id], {"percent": 50.0, "pay_date": str(date(year, month, 20))})
+            cur = call("ua.advance.sheet", "read", [sheet_id], ["state", "percent", "pay_date", "line_ids"])[0]
+            # Ідемпотентність: на повторному запуску з тими самими даними відомість уже
+            # підтверджена з тими самими параметрами і рядками - не смикаємо
+            # чернетка/підтверджено знову, інакше кожен перезапуск додає ще один цикл у чатер.
+            already_done = (cur["state"] == "confirmed" and cur["percent"] == 50.0
+                            and cur["pay_date"] == target_pay_date and cur["line_ids"])
+            if already_done:
+                sheet_id = sheet_id  # нічого робити не треба
+            else:
+                if cur["state"] == "confirmed":
+                    call("ua.advance.sheet", "action_draft", [sheet_id])
+                call("ua.advance.sheet", "write", [sheet_id], {"percent": 50.0, "pay_date": target_pay_date})
+                call("ua.advance.sheet", "action_refill", [sheet_id])
+                call("ua.advance.sheet", "action_confirm", [sheet_id])
         else:
-            sheet_id = call("ua.advance.sheet", "create", {"company_id": COMPANY, "year": year, "month": month, "percent": 50.0, "pay_date": str(date(year, month, 20))})
-        call("ua.advance.sheet", "action_refill", [sheet_id])
-        call("ua.advance.sheet", "action_confirm", [sheet_id])
+            sheet_id = call("ua.advance.sheet", "create", {"company_id": COMPANY, "year": year, "month": month, "percent": 50.0, "pay_date": target_pay_date})
+            call("ua.advance.sheet", "action_refill", [sheet_id])
+            call("ua.advance.sheet", "action_confirm", [sheet_id])
     print(f"\n{name}: {'аванс → остаточний розрахунок' if close else 'чернетки'}")
     rows = {}
     for i, slip in slips.items():

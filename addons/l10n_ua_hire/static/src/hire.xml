@@ -239,7 +239,7 @@
               <div class="o_ua_hire_files">
                 <t t-foreach="c.files" t-as="x" t-key="x.id">
                   <div class="o_ua_hire_file">
-                    <button class="btn btn-link btn-sm p-0 o_ua_hire_file_name" t-on-click="() => this.openFile(x)" t-esc="x.name"/>
+                    <button class="btn btn-link btn-sm p-0 o_ua_hire_file_name" t-att-data-tooltip="x.name" t-on-click="() => this.openFile(x)" t-esc="x.name"/>
                     <select class="form-select form-select-sm" t-att-disabled="readonly" t-on-change="(ev) => this.setDocType(x, ev)">
                       <t t-foreach="data.doc_types" t-as="o" t-key="o[0]">
                         <option t-att-value="o[0]" t-att-selected="x.doc_type === o[0]" t-esc="o[1]"/>

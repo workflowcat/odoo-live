@@ -161,6 +161,11 @@ for cf, _label in Proposal._fields["confidence"].selection:
         print(" ", cf, n)
 
 melnyk = Case.search([("last_name", "=", "Мельник")], limit=1)
+# Мельник не звільнена - раніше demo_company.py помилково архівував її як «застарілу» демо-картку
+# (виправлено там). Тут - разова підстраховка на випадок, якщо запис уже встиг заархівуватись.
+if melnyk.employee_id and not melnyk.employee_id.active:
+    melnyk.employee_id.sudo().write({"active": True})
+    env.cr.commit()
 Doc = env["ua.employee.document"].sudo()
 print("Документи працівниці Мельник за станом:")
 for st, _label in Doc._fields["state"].selection:

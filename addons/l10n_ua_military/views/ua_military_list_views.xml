@@ -22,18 +22,18 @@
           </group>
           <notebook>
             <page string="Рядки" name="lines">
-              <field name="line_ids">
+              <field name="line_ids" readonly="state != 'draft'">
                 <list editable="bottom" readonly="parent.state != 'draft'">
                   <field name="full_name"/>
-                  <field name="birthday"/>
+                  <field name="birthday" options="{'numeric': True}"/>
                   <field name="rnokpp"/>
                   <field name="job_title"/>
                   <field name="rank"/>
                   <field name="vos"/>
                   <field name="tcc"/>
                   <field name="fitness"/>
-                  <field name="reserved_until"/>
-                  <field name="last_check"/>
+                  <field name="reserved_until" options="{'numeric': True}"/>
+                  <field name="last_check" options="{'numeric': True}"/>
                   <field name="reg_address" optional="hide"/>
                   <field name="actual_address" optional="hide"/>
                   <field name="category" optional="hide"/>
@@ -62,7 +62,7 @@
     <field name="arch" type="xml">
       <list>
         <field name="name"/>
-        <field name="date"/>
+        <field name="date" options="{'numeric': True}"/>
         <field name="state"/>
       </list>
     </field>

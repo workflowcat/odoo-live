@@ -11,6 +11,11 @@
         "l10n_ua_dashboard", "l10n_ua_index", "l10n_ua_bank_online",
         "l10n_ua_payroll_account", "l10n_ua_hr_orders", "l10n_ua_hr_docs", "l10n_ua_setup", "l10n_ua_average", "l10n_ua_onboarding", "l10n_ua_payroll_ui", "l10n_ua_military",
     ],
-    "data": ["views/menus_areas.xml"],
+    "data": ["views/menus_areas.xml", "views/hr_leave_views.xml", "data/res_lang_data.xml"],
+    "assets": {
+        "web.assets_backend": [
+            "l10n_ua_navigation/static/src/navigation.scss",
+        ],
+    },
     "installable": True,
 }

@@ -23,7 +23,7 @@ class UaAdvanceSheet(models.Model):
     month = fields.Integer("Місяць", required=True, default=lambda s: date.today().month, tracking=True)
     percent = fields.Float("Відсоток окладу", default=50.0, required=True)
     pay_date = fields.Date("Дата виплати")
-    state = fields.Selection([("draft", "Чернетка"), ("confirmed", "Затверджено")], default="draft", required=True, tracking=True)
+    state = fields.Selection([("draft", "Чернетка"), ("confirmed", "Затверджено")], "Стан", default="draft", required=True, tracking=True)
     note = fields.Text("Примітка")
     line_ids = fields.One2many("ua.advance.line", "sheet_id", string="Рядки")
     total = fields.Monetary("Разом", compute="_compute_total", store=True)

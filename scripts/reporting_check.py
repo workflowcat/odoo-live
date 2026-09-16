@@ -6,7 +6,7 @@ PDF (%PDF); action_mark_submitted() ставить стан і дату; пов�
 
 Цілі перевірок: кожен рядок ua.report.check називає target_model/target_domain (JSON) або
 target_res_id, і ціль дійсно резолвиться (search/res_id). Вересень 2026, демо-компанія «Ясен
-Меблі»: 19 листків у стані verify дають перевірку "Чернетки листків у періоді" рівня warn.
+Меблі»: 18 листків у стані verify дають перевірку "Чернетки листків у періоді" рівня warn.
 Групування помилки/увага/ok у сумі дає всі рядки. ua.report.check не пишеться з UI -
 create()/write() звичайним користувачем (ir.model.access.csv) відхиляються.
 
@@ -223,7 +223,7 @@ else:
 
 # 8. Цілі перевірок (target_model/target_domain/target_res_id): кожен рядок перевірки, що
 # називає записи, має ціль, яка дійсно резолвиться; групування помилки/увага/ok = усі рядки.
-# Вересень 2026, демо-компанія: 19 листків у стані 'verify' у періоді дають щонайменше один warn
+# Вересень 2026, демо-компанія: 18 листків у стані 'verify' у періоді дають щонайменше один warn
 # (перевірка "Чернетки листків у періоді" з ua.report.run._common_checks()).
 data_sep = call("ua.report.run", "get_screen_data", report_code="j05", year=2026, month=9)
 run_sep_id = data_sep["run"]["id"]
@@ -233,10 +233,10 @@ checks_sep = data_sep["checks"]
 check("вересень 2026: перевірки побудовано", len(checks_sep) >= 5, f"{len(checks_sep)} перевірок")
 
 levels_sep = [c["level"] for c in checks_sep]
-check("вересень 2026: є щонайменше один warn (19 листків у verify)", "warn" in levels_sep, str(levels_sep))
+check("вересень 2026: є щонайменше один warn (18 листків у verify)", "warn" in levels_sep, str(levels_sep))
 period_check = next((c for c in checks_sep if c["code"] == "period_closed"), None)
-check("вересень 2026: перевірка «Чернетки листків у періоді» - warn, 19 листків",
-      bool(period_check) and period_check["level"] == "warn" and period_check["value"] == "19",
+check("вересень 2026: перевірка «Чернетки листків у періоді» - warn, 18 листків",
+      bool(period_check) and period_check["level"] == "warn" and period_check["value"] == "18",
       str(period_check))
 
 group_counts = {"error": 0, "warn": 0, "ok": 0}

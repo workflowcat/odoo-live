@@ -142,7 +142,7 @@
     <field name="arch" type="xml">
       <list>
         <field name="name"/>
-        <field name="date"/>
+        <field name="date" options="{'numeric': True}"/>
         <field name="order_type"/>
         <field name="register"/>
         <field name="employee_id"/>
