@@ -439,28 +439,13 @@ if call("ua.staff.list", "read", [staff_id], ["state"])[0]["state"] == "draft":
     call("ua.staff.list", "action_refill", [staff_id])
     call("ua.staff.list", "action_confirm", [staff_id])
 
-for kind, ym in (("advance", (2026, 8)), ("other", (2026, 9))):
-    year_pb, month_pb = ym
-    pb_ids = call("ua.payment.batch", "search", [["year", "=", year_pb], ["month", "=", month_pb], ["kind", "=", kind]], order="id")
-    if len(pb_ids) > 1:
-        call("ua.payment.batch", "unlink", pb_ids[1:])   # прибрати дублі з попередніх запусків до цього виправлення
-    pb_id = pb_ids[0] if pb_ids else call("ua.payment.batch", "create", {"company_id": COMPANY, "year": year_pb, "month": month_pb, "kind": kind,
-                                                                         "pay_date": "2026-08-20" if kind == "advance" else "2026-09-25"})
-    if kind == "advance":
-        # на свіжій базі (хмара) авансової відомості за серпень ще може не бути: створити й затвердити її тут,
-        # інакше action_fill відмовляє «Немає авансової відомості за цей місяць».
-        if not call("ua.advance.sheet", "search", [["company_id", "=", COMPANY], ["year", "=", year_pb], ["month", "=", month_pb]]):
-            _sid = call("ua.advance.sheet", "create", {"company_id": COMPANY, "year": year_pb, "month": month_pb, "percent": 50.0, "pay_date": "%d-%02d-20" % (year_pb, month_pb)})
-            call("ua.advance.sheet", "action_refill", [_sid]); call("ua.advance.sheet", "action_confirm", [_sid])
-        # не пропускати, навіть якщо запис уже є: у чернетці могло не дійти до заповнення й
-        # затвердження в попередньому (перерваному) запуску - ідемпотентно доводимо до кінця.
-        if call("ua.payment.batch", "read", [pb_id], ["state"])[0]["state"] == "draft":
-            call("ua.payment.batch", "action_fill", [pb_id])
-            if call("ua.payment.batch", "read", [pb_id], ["line_ids"])[0]["line_ids"]:
-                call("ua.payment.batch", "action_confirm", [pb_id])   # аванс за серпень - затверджена відомість
-    else:
-        call("ua.payment.batch", "write", [pb_id], {"note": "Матеріальна допомога і компенсація за наказом окремо від зарплатного циклу"})   # інша виплата - чернетка
-print("Штатний розпис (затверджено) і відомості на виплату (аванс затверджена, інша - чернетка) записано.")
+print("Штатний розпис (затверджено) записано.")
+# Відомості на виплату (аванс за серпень, інша за вересень) заповнюються нижче, ПІСЛЯ
+# month_batch(2026, 8, ...): action_fill для kind="advance" читає рядки ua.advance.sheet за
+# рік/місяць, а та відомість наповнюється й затверджується лише всередині month_batch, коли
+# серпневі листки вже створені (advance=True, рядки 505+). На свіжій базі (хмара) до
+# month_batch тут ще нема жодного серпневого листка - виклик тут (до створення листків) завжди
+# давав порожню відомість і action_confirm падав на «Немає рядків. Натисніть «Перерахувати»».
 
 # три документи військового обліку: список персонального обліку, список заброньованих, повідомлення
 mlist_ids = call("ua.military.list", "search", [["date", "=", "2026-09-15"]])
@@ -589,6 +574,37 @@ if _jul_close:
 run_jul, jul = month_batch(2026, 7, "Зарплата за липень 2026", close=True)
 run_aug, aug = month_batch(2026, 8, "Зарплата за серпень 2026", close=True)
 month_batch(2026, 9, "Зарплата за вересень 2026", close=False, advance=False)
+
+# ---- відомості на виплату: аванс за серпень (з рядків, наповнених у month_batch вище), інша за вересень (чернетка) ----
+for kind, ym in (("advance", (2026, 8)), ("other", (2026, 9))):
+    year_pb, month_pb = ym
+    pb_ids = call("ua.payment.batch", "search", [["year", "=", year_pb], ["month", "=", month_pb], ["kind", "=", kind]], order="id")
+    if len(pb_ids) > 1:
+        call("ua.payment.batch", "unlink", pb_ids[1:])   # прибрати дублі з попередніх запусків до цього виправлення
+    pb_id = pb_ids[0] if pb_ids else call("ua.payment.batch", "create", {"company_id": COMPANY, "year": year_pb, "month": month_pb, "kind": kind,
+                                                                         "pay_date": "2026-08-20" if kind == "advance" else "2026-09-25"})
+    if kind == "advance":
+        # запасний варіант: якщо з якоїсь причини відомості за серпень усе ще нема (advance=False
+        # вище чи ручне втручання), створити її тут, але НЕ підтверджувати порожню - інакше
+        # action_confirm падає на «Немає рядків». Рядки заповнюються, лише коли вже є серпневі
+        # листки (draft/verify) - на цьому етапі вони вже є (month_batch(2026, 8, ...) вище).
+        sheet_ids = call("ua.advance.sheet", "search", [["company_id", "=", COMPANY], ["year", "=", year_pb], ["month", "=", month_pb]])
+        if not sheet_ids:
+            _sid = call("ua.advance.sheet", "create", {"company_id": COMPANY, "year": year_pb, "month": month_pb, "percent": 50.0, "pay_date": "%d-%02d-20" % (year_pb, month_pb)})
+            call("ua.advance.sheet", "action_refill", [_sid])
+            if call("ua.advance.sheet", "read", [_sid], ["line_ids"])[0]["line_ids"]:
+                call("ua.advance.sheet", "action_confirm", [_sid])
+            else:
+                print(f"Авансова відомість за {year_pb}-{month_pb:02d} без рядків (нема серпневих листків на цьому кроці) - лишена чернеткою.")
+        # не пропускати, навіть якщо запис уже є: у чернетці могло не дійти до заповнення й
+        # затвердження в попередньому (перерваному) запуску - ідемпотентно доводимо до кінця.
+        if call("ua.payment.batch", "read", [pb_id], ["state"])[0]["state"] == "draft":
+            call("ua.payment.batch", "action_fill", [pb_id])
+            if call("ua.payment.batch", "read", [pb_id], ["line_ids"])[0]["line_ids"]:
+                call("ua.payment.batch", "action_confirm", [pb_id])   # аванс за серпень - затверджена відомість
+    else:
+        call("ua.payment.batch", "write", [pb_id], {"note": "Матеріальна допомога і компенсація за наказом окремо від зарплатного циклу"})   # інша виплата - чернетка
+print("Відомості на виплату (аванс затверджена, інша - чернетка) записано.")
 
 # ---- закриття листкового пакета липня і закриття періодів (місяць і квартал) --------------------------
 if call("hr.payslip.run", "read", [run_jul], ["state"])[0]["state"] != "close":
