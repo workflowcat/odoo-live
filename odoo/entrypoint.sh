@@ -25,8 +25,9 @@ if [ -n "${MODULE_OPS:-}" ] && [ -n "${MODULE_OPS_TAG:-}" ]; then
     for op in "${OPS[@]}"; do
       kind="${op%%:*}"; mods="${op#*:}"
       case "$kind" in
-        i) odoo -c /etc/odoo/odoo.conf -d "$DB_NAME" --db_host="$HOST" --db_port="${PORT:-5432}" --db_user="$USER" --db_password="$PASSWORD" -i "$mods" --stop-after-init ;;
-        u) odoo -c /etc/odoo/odoo.conf -d "$DB_NAME" --db_host="$HOST" --db_port="${PORT:-5432}" --db_user="$USER" --db_password="$PASSWORD" -u "$mods" --i18n-overwrite --stop-after-init ;;
+        # i/u: якщо операція впала, контейнер усе одно стартує зі старими модулями, мітку не пишемо - операції повторяться на наступному старті
+        i) odoo -c /etc/odoo/odoo.conf -d "$DB_NAME" --db_host="$HOST" --db_port="${PORT:-5432}" --db_user="$USER" --db_password="$PASSWORD" -i "$mods" --stop-after-init || { echo "module ops: install failed for $mods"; ops_failed=1; } ;;
+        u) odoo -c /etc/odoo/odoo.conf -d "$DB_NAME" --db_host="$HOST" --db_port="${PORT:-5432}" --db_user="$USER" --db_password="$PASSWORD" -u "$mods" --i18n-overwrite --stop-after-init || { echo "module ops: update failed for $mods"; ops_failed=1; } ;;
         # x: видалити модулі (лише встановлені). Спершу оновити список модулів з коду образу, інакше старі залежності
         #    в базі тягнуть за собою власні модулі; якщо каскад зачіпає інші модулі, нічого не видаляти.
         #    Якщо видалення скасовано, мітку не пишемо - операції повторяться на наступному старті.

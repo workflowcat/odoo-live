@@ -615,22 +615,28 @@ class UaPeriodBoard(models.AbstractModel):
 
         kind: print - друкується; filing - подається в держорган; file - машинний файл.
         report + ids відкривають перегляд /ua/print, target - запис, де документ ведуть.
-        checks - перевірки самого документа (ua.checks.mixin._checks()), якщо запис їх рахує.
+        checks_available - чи рахує запис перевірки (ua.checks.mixin._checks()); самі перевірки
+        board більше не рахує на завантаженні - фронт бере їх лениво через get_doc_checks,
+        коли відкриває перегляд саме цього документа (раніше board рахував checks() для
+        КОЖНОГО документа кожного кроку при кожному завантаженні сторінки).
         """
         ids = records.ids if records else []
+        checks_available = bool(records and len(records) == 1 and "_checks" in dir(records))
         return {"kind": kind, "name": name, "report": report or "", "ids": ids,
                 "deadline": deadline.strftime("%d.%m.%Y") if deadline else "",
-                "target": target or {}, "state": state or "", "checks": checks or []}
+                "target": target or {}, "state": state or "",
+                "checks_available": checks_available}
 
-    @staticmethod
-    def _doc_checks(record):
-        """Перевірки одного запису (ua.checks.mixin), якщо модель їх рахує."""
-        if record and hasattr(record, "_checks") and "_checks" in dir(record) and len(record) == 1:
-            try:
-                return record._checks()
-            except Exception:
-                return []
-        return []
+    @api.model
+    def get_doc_checks(self, model, res_id):
+        """Перевірки одного документа, порахувані лише коли фронт відкриває його перегляд."""
+        record = self.env[model].browse(int(res_id))
+        if not record.exists() or "_checks" not in dir(record):
+            return []
+        try:
+            return record._checks()
+        except Exception:
+            return []
 
     @staticmethod
     def _doc_state(records):
@@ -658,20 +664,20 @@ class UaPeriodBoard(models.AbstractModel):
                 docs.append(self._doc("filing", "Повідомлення ТЦК", "l10n_ua_military.report_ua_military_notice", notice,
                                       deadline=notice.date_to + timedelta(days=7),
                                       target={"model": "ua.military.notice", "res_id": notice.id},
-                                      state=self._doc_state(notice), checks=self._doc_checks(notice)))
+                                      state=self._doc_state(notice)))
         out["orders"] = docs
 
         sheet = self.env["ua.timesheet.sheet"].search([("company_id", "=", company.id), ("year", "=", year),
                                                        ("month", "=", month), ("department_id", "=", False)], limit=1)
         out["timesheet"] = [self._doc("print", "Табель П-5", "l10n_ua_hr_docs.report_ua_timesheet", sheet,
                                       target={"model": "ua.timesheet.sheet", "res_id": sheet.id},
-                                      state=self._doc_state(sheet), checks=self._doc_checks(sheet))] if sheet else []
+                                      state=self._doc_state(sheet))] if sheet else []
 
         advance = self.env["ua.advance.sheet"].search([("company_id", "=", company.id), ("year", "=", year),
                                                        ("month", "=", month)], limit=1)
         out["advance"] = [self._doc("print", "Авансова відомість", "l10n_ua_payroll_reports.report_ua_advance_sheet",
                                     advance, target={"model": "ua.advance.sheet", "res_id": advance.id},
-                                    state=self._doc_state(advance), checks=self._doc_checks(advance))] if advance else []
+                                    state=self._doc_state(advance))] if advance else []
 
         slips = self.env["hr.payslip"].search([("company_id", "=", company.id), ("date_from", ">=", first),
                                                ("date_from", "<=", last), ("state", "!=", "cancel")])
@@ -694,7 +700,7 @@ class UaPeriodBoard(models.AbstractModel):
         for batch in batches:
             docs.append(self._doc("print", batch.name, "l10n_ua_payments.report_ua_payment_batch", batch,
                                   target={"model": "ua.payment.batch", "res_id": batch.id},
-                                  state=self._doc_state(batch), checks=self._doc_checks(batch)))
+                                  state=self._doc_state(batch)))
             docs.append(self._doc("file", "Файл для банку · %s" % batch.name,
                                   target={"model": "ua.payment.batch", "res_id": batch.id}))
         out["payment"] = docs
@@ -713,7 +719,7 @@ class UaPeriodBoard(models.AbstractModel):
         for claim in claims:
             docs.append(self._doc("filing", "Заява-розрахунок ПФУ", "l10n_ua_hr_docs.report_ua_pfu_claim", claim,
                                   deadline=deadline, target={"model": "ua.pfu.claim", "res_id": claim.id},
-                                  state=self._doc_state(claim), checks=self._doc_checks(claim)))
+                                  state=self._doc_state(claim)))
         out["reporting"] = docs
         return out
 

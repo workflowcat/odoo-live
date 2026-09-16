@@ -128,11 +128,15 @@ if not mres:
     mres.action_refill()
 check_record_checks(mres, f"Заброньовані {mres.name}")
 
-# ---- Сторінка «Період»: документи вересня несуть checks
+# ---- Сторінка «Період»: документи вересня позначені checks_available, а get_doc_checks
+# рахує перевірки лениво (документи більше не несуть готовий checks на завантаженні -
+# інакше board рахував би _checks() для кожного документа кожного кроку щоразу).
 board = env["ua.period.board"]
 docs = board._documents(company, 2026, 9, __import__("datetime").date(2026, 9, 1), __import__("datetime").date(2026, 9, 30))
-carries_checks = any(d.get("checks") for group in docs.values() for d in group)
-check("документи сторінки «Період» несуть перевірки (хоч один)", carries_checks)
+markable = [d for group in docs.values() for d in group if d.get("checks_available")]
+lazy_checks = any(board.get_doc_checks(d["target"]["model"], d["target"]["res_id"]) for d in markable)
+check("документи сторінки «Період» позначають checks_available", bool(markable))
+check("документи сторінки «Період» несуть перевірки (хоч один)", lazy_checks)
 
 check("серед перевірених документів є хоч один warn/error", any_warn_or_error)
 

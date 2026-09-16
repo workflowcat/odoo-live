@@ -137,10 +137,19 @@ export class UaPeriod extends Component {
         return `/ua/print?${params.toString()}`;
     }
 
-    previewDoc(doc) {
+    async previewDoc(doc) {
         const item = { r: doc.report, ids: doc.ids, t: doc.name };
+        // Перевірки документа board більше не рахує заздалегідь для кожного документа кроку -
+        // лише зараз, для того одного, що відкриваємо (target.model/res_id ставить _doc()).
         this.state.preview = { ...item, report: doc.report, name: doc.name, url: this.printUrl([item], true),
-                               checks: doc.checks || [] };
+                               checks: [] };
+        if (doc.checks_available && doc.target && doc.target.model && doc.target.res_id) {
+            const checks = await this.orm.call("ua.period.board", "get_doc_checks",
+                [doc.target.model, doc.target.res_id]);
+            if (this.state.preview && this.state.preview.report === doc.report) {
+                this.state.preview.checks = checks;
+            }
+        }
     }
 
     isPreviewed(doc) {
