@@ -170,16 +170,33 @@ else:
     except Exception as exc:
         check("GET /web/assets/debug/web.assets_backend.js", False, str(exc)[:300])
 
-# 12. Коригування об'єднаної звітності: створення прогону і зрозуміла відмова без розбіжностей
+# 12. Коригування об'єднаної звітності: створення прогону і зрозуміла відмова без розбіжностей.
+# База (поданий/сформований розрахунок) могла застаріти відносно поточних листків (демо-дані
+# рухаються далі). Тому спершу освіжаємо базовий прогін під поточні дані - action_generate() не
+# чіпає листки, лише перечитує їх і перезаписує XML прогону. Після цього коригування зіставляється
+# зі свіжою базою, тож розбіжностей бути не повинно, і відмова детермінована. Якщо освіжити не
+# вдалося (немає підтверджених листків того місяця тощо), перевірка приймає обидва результати, але
+# вимагає узгодженості: відмова <=> розбіжностей немає, формування <=> розбіжності є і названі.
 j05_run = call("ua.report.run", "search_read",
                [["report_code", "=", "j05"], ["state", "in", ["generated", "submitted"]], ["doc_kind", "=", "HZ"]],
-               fields=["id", "name"], limit=1)
+               fields=["id", "name", "state"], limit=1)
 if not j05_run:
     print("[--] немає сформованого звітного розрахунку, перевірку коригування пропущено")
 else:
-    screen = call("ua.report.run", "get_screen_data", run_id=j05_run[0]["id"])
+    base_id = j05_run[0]["id"]
+    refreshed = False
+    if j05_run[0]["state"] == "generated":
+        try:
+            call("ua.report.run", "action_generate", [base_id])
+            refreshed = True
+        except SystemExit as exc:
+            print(f"[--] не вдалося освіжити базовий прогін перед коригуванням: {str(exc)[:200]}")
+    else:
+        print(f"[--] базовий прогін уже '{j05_run[0]['state']}' - не перегенеровуємо подане, коригування звіряємо як є")
+
+    screen = call("ua.report.run", "get_screen_data", run_id=base_id)
     check("сформований розрахунок можна коригувати", screen["run"].get("can_correct") is True)
-    created = call("ua.report.run", "create_correction", j05_run[0]["id"], "HZU")
+    created = call("ua.report.run", "create_correction", base_id, "HZU")
     check("коригування створюється з позначкою типу", "уточнюючий" in created["name"], created["name"])
     corr = call("ua.report.run", "read", [created["id"]], ["doc_kind", "base_run_id", "state", "correction_no"])[0]
     check("у коригуванні вказано тип, основу і номер",
@@ -187,9 +204,20 @@ else:
           f"{corr['doc_kind']}, основа {corr['base_run_id'][1] if corr['base_run_id'] else '-'}, № {corr['correction_no']}")
     try:
         call("ua.report.run", "action_generate", [created["id"]])
-        check("без змін коригування не формується", False, "файли сформувалися, хоча змін немає")
     except SystemExit as exc:
-        check("без змін коригування не формується і пояснює чому", "Розбіжностей" in str(exc), str(exc)[:90])
+        no_diff_refused = "Розбіжностей" in str(exc)
+        if refreshed:
+            check("без змін коригування не формується і пояснює чому", no_diff_refused, str(exc)[:90])
+        else:
+            check("відмова без розбіжностей пояснює причину (узгоджено: розбіжностей не було)",
+                  no_diff_refused, str(exc)[:90])
+    else:
+        corr_screen = call("ua.report.run", "get_screen_data", run_id=created["id"])
+        appendices = corr_screen.get("appendices") or []
+        named = [a for a in appendices if a.get("rows", 0) > 0 and a.get("attachment_id") and a.get("name")]
+        check("формування без освіження бази узгоджене: розбіжності є і кожна названа записом (додатком)",
+              bool(appendices) and len(named) == len(appendices),
+              f"{len(appendices)} додатків, {len(named)} з рядками і назвою")
     call("ua.report.run", "unlink", [created["id"]])
     check("тестове коригування прибрано", not call("ua.report.run", "search", [["id", "=", created["id"]]]))
 
