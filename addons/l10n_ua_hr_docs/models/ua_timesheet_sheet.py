@@ -13,7 +13,7 @@ STATES = [("draft", "Чернетка"), ("confirmed", "Затверджено")
 
 class UaTimesheetSheet(models.Model):
     _name = "ua.timesheet.sheet"
-    _inherit = ["mail.thread"]
+    _inherit = ["mail.thread", "ua.checks.mixin"]
     _description = "Табель обліку робочого часу"
     _order = "year desc, month desc, id desc"
 
@@ -114,6 +114,58 @@ class UaTimesheetSheet(models.Model):
 
     def action_draft(self):
         self.state = "draft"
+
+    # ------------------------------------------------------------------ перевірки
+    def _checks(self):
+        self.ensure_one()
+        out = []
+        if not self.line_ids:
+            out.append(self._check_error("Немає рядків табеля", target=self._target_record(self)))
+            return out
+        d1, d2 = self._period()
+        dom = [("company_id", "=", self.company_id.id)]
+        if self.department_id:
+            dom.append(("department_id", "=", self.department_id.id))
+        expected = self.env["hr.employee"].sudo().search(dom)
+        expected = expected.filtered(lambda e: (e.ua_contract_kind or "employment") == "employment"
+                                     and any(v.contract_date_start and v.contract_date_start <= d2
+                                            and (not v.contract_date_end or v.contract_date_end >= d1)
+                                            for v in e.version_ids))
+        have = self.line_ids.mapped("employee_id")
+        missing = expected - have
+        if missing:
+            out.append(self._check_error(
+                "Немає рядка табеля для працівника з активним трудовим договором", fact=len(missing),
+                target=self._target_records(missing, "hr.employee")))
+        else:
+            out.append(self._check_ok("Кожен працівник місяця має рядок табеля", fact=len(have)))
+
+        leaves = self.env["hr.leave"].sudo().search([
+            ("employee_id", "in", have.ids), ("state", "=", "validate"),
+            ("request_date_from", "<=", d2), ("request_date_to", ">=", d1),
+        ])
+        leave_employees = leaves.mapped("employee_id")
+        lines_by_emp = {line.employee_id: line for line in self.line_ids}
+        mismatched = leave_employees.filtered(
+            lambda e: (lines_by_emp[e].days_vac + lines_by_emp[e].days_sick
+                      + lines_by_emp[e].days_unpaid + lines_by_emp[e].days_mat) == 0 if e in lines_by_emp else False)
+        if mismatched:
+            out.append(self._check_warn(
+                "Затверджена відсутність не відображена в днях табеля", fact=len(mismatched),
+                target=self._target_records(mismatched, "hr.employee")))
+
+        over_norm = self.line_ids.filtered(lambda l: l.diff_days > 0.01)
+        if over_norm:
+            out.append(self._check_warn(
+                "Факт плюс відсутність перевищує норму місяця", fact=len(over_norm),
+                target=self._target_records(over_norm, "ua.timesheet.line")))
+        under_norm = self.line_ids.filtered(lambda l: l.diff_days < -0.01)
+        if under_norm:
+            out.append(self._check_warn(
+                "Факт плюс відсутність менші за норму місяця", fact=len(under_norm),
+                target=self._target_records(under_norm, "ua.timesheet.line")))
+        out.append(self._check_ok("Стан документа", fact=dict(STATES).get(self.state, self.state)))
+        return out
 
 
 class UaTimesheetLine(models.Model):

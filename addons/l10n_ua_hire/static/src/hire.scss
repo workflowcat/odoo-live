@@ -50,6 +50,7 @@
     .o_ua_hire_step_done { border-color: var(--ua-ok, #2f8f63); color: var(--ua-ok, #2f8f63); }
     .o_ua_hire_step_on { border-color: var(--o-gray-900, #191a1c); color: var(--o-gray-900, #191a1c); font-weight: 600; }
     .o_ua_hire_decline { display: flex; gap: 6px; margin-top: 8px; max-width: 480px; }
+    .o_ua_hire_context a { color: inherit; text-decoration: underline; }
 
     .o_ua_hire_secnav {
         position: sticky;

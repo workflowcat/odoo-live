@@ -8,7 +8,7 @@ STATES = [("draft", "Чернетка"), ("confirmed", "Затверджено")
 
 class UaStaffList(models.Model):
     _name = "ua.staff.list"
-    _inherit = ["mail.thread"]
+    _inherit = ["mail.thread", "ua.checks.mixin"]
     _description = "Штатний розпис"
     _order = "date desc, id desc"
 
@@ -86,6 +86,62 @@ class UaStaffList(models.Model):
 
     def action_draft(self):
         self.state = "draft"
+
+    # ------------------------------------------------------------------ перевірки
+    def _checks(self):
+        self.ensure_one()
+        out = []
+        if not self.line_ids:
+            out.append(self._check_error("Немає рядків штатного розпису", target=self._target_record(self)))
+            return out
+        versions = self.env["hr.version"].sudo().search([
+            ("employee_id.company_id", "=", self.company_id.id),
+            ("contract_date_start", "<=", self.date), ("date_version", "<=", self.date),
+            "|", ("contract_date_end", "=", False), ("contract_date_end", ">=", self.date),
+        ], order="employee_id, date_version desc")
+        seen = set()
+        active_jobs = set()
+        for v in versions:
+            if v.employee_id.id in seen:
+                continue
+            seen.add(v.employee_id.id)
+            emp = v.employee_id.sudo()
+            if (emp.ua_contract_kind or "employment") != "employment":
+                continue
+            dept = v.department_id or emp.department_id
+            job = v.ua_prof_name or v.job_title or emp.job_title or "-"
+            active_jobs.add((dept.id, job))
+        listed_jobs = {(line.department_id.id, line.job_title) for line in self.line_ids}
+        missing_jobs = active_jobs - listed_jobs
+        if missing_jobs:
+            out.append(self._check_error(
+                "Посади зі штатного розкладу не покривають усі активні версії працівників",
+                fact=len(missing_jobs), target=self._target_record(self)))
+        else:
+            out.append(self._check_ok("Кожна активна посада є в розписі", fact=len(active_jobs)))
+
+        param = self.env["ua.payroll.param"].sudo().search(
+            [("key", "=", "min_wage"), ("valid_from", "<=", str(self.date))],
+            order="valid_from desc", limit=1)
+        if param:
+            below = self.line_ids.filtered(lambda l: l.wage and l.wage < param.value)
+            if below:
+                out.append(self._check_error(
+                    "Оклад нижчий за мінімальну зарплату", fact="%s рядків, МЗП %.2f" % (len(below), param.value),
+                    target=self._target_records(below, "ua.staff.list.line")))
+            else:
+                out.append(self._check_ok("Усі оклади не нижчі за МЗП", fact="%.2f" % param.value))
+        else:
+            out.append(self._check_warn("Не знайдено параметра мінімальної зарплати на цю дату"))
+
+        zero_units = self.line_ids.filtered(lambda l: not l.units)
+        if zero_units:
+            out.append(self._check_warn(
+                "Рядки без штатних одиниць", fact=len(zero_units),
+                target=self._target_records(zero_units, "ua.staff.list.line")))
+        out.append(self._check_ok("Штатних одиниць, разом", fact="%.2f" % self.total_units))
+        out.append(self._check_ok("Місячний фонд, разом", fact="%.2f" % self.total_fund))
+        return out
 
 
 class UaStaffListLine(models.Model):

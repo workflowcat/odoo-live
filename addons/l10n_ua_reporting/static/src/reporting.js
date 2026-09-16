@@ -39,7 +39,7 @@ export class UaReporting extends Component {
         this.orm = useService("orm");
         this.action = useService("action");
         this.notification = useService("notification");
-        this.state = useState({ data: null, loading: true, busy: false });
+        this.state = useState({ data: null, loading: true, busy: false, showOkChecks: false });
         this.levelColor = (l) => LEVEL_COLOR[l] || "";
         this.levelPill = (lvl) => ({ ok: "o_ua_pill_ok", warn: "o_ua_pill_warn", error: "o_ua_pill_crit" }[lvl] || "");
         this.levelLabel = (lvl) => ({ ok: "ок", warn: "увага", error: "помилка" }[lvl] || lvl);
@@ -56,9 +56,29 @@ export class UaReporting extends Component {
         try {
             const data = await this.orm.call("ua.report.run", "get_screen_data", [], kwargs);
             this.state.data = data;
+            this.state.showOkChecks = false;
         } finally {
             this.state.loading = false;
         }
+    }
+
+    /** Перевірки, згруповані за рівнем: помилки й увага завжди розгорнуті, ok - за посиланням. */
+    get checksByLevel() {
+        const checks = (this.state.data && this.state.data.checks) || [];
+        return {
+            error: checks.filter((c) => c.level === "error"),
+            warn: checks.filter((c) => c.level === "warn"),
+            ok: checks.filter((c) => c.level === "ok"),
+        };
+    }
+
+    get checkCounts() {
+        const g = this.checksByLevel;
+        return { error: g.error.length, warn: g.warn.length, ok: g.ok.length };
+    }
+
+    toggleOkChecks() {
+        this.state.showOkChecks = !this.state.showOkChecks;
     }
 
     async selectReport(code) {
@@ -115,14 +135,21 @@ export class UaReporting extends Component {
         return this._runAction("action_reset");
     }
 
-    async openCheck(check) {
-        if (!check.action_model) {
+    /** Клік по рядку перевірки: відкриває ціль напряму через action-сервіс, без RPC -
+     *  дані вже прийшли з get_screen_data() (target_model/target_domain/target_res_id). */
+    async openCheckTarget(check) {
+        if (!check.target_model) {
             return;
         }
-        const action = await this.orm.call("ua.report.check", "action_open", [[check.id]]);
-        if (action) {
-            this.action.doAction(action);
-        }
+        await this.action.doAction({
+            type: "ir.actions.act_window",
+            res_model: check.target_model,
+            res_id: check.target_res_id || false,
+            domain: check.target_res_id ? false : (check.target_domain || []),
+            views: check.target_res_id ? [[false, "form"]] : [[false, "list"], [false, "form"]],
+            target: "current",
+            name: check.title || "",
+        });
     }
 
     /** Ціль рядка «Дані»: запис, який правлять, щоб число змінилося. */

@@ -10,7 +10,7 @@ STATES = [("draft", "Чернетка"), ("confirmed", "Затверджено")
 
 class UaMilitaryList(models.Model):
     _name = "ua.military.list"
-    _inherit = ["mail.thread"]
+    _inherit = ["mail.thread", "ua.checks.mixin"]
     _description = "Список персонального військового обліку"
     _order = "date desc, id desc"
 
@@ -81,6 +81,43 @@ class UaMilitaryList(models.Model):
 
     def action_draft(self):
         self.state = "draft"
+
+    # ------------------------------------------------------------------ перевірки
+    def _checks(self):
+        self.ensure_one()
+        out = []
+        expected = self.env["hr.employee"].sudo().search([
+            ("company_id", "=", self.company_id.id), ("ua_mil_status", "in", list(LIABLE_STATUSES)),
+        ])
+        have = self.line_ids.mapped("employee_id")
+        missing = expected - have
+        if missing:
+            out.append(self._check_error(
+                "Військовозобов'язаний працівник відсутній у списку", fact=len(missing),
+                target=self._target_records(missing, "hr.employee")))
+        else:
+            out.append(self._check_ok("Усі військовозобов'язані працівники у списку", fact=len(have)))
+
+        no_rnokpp = self.line_ids.filtered(lambda l: not l.rnokpp)
+        if no_rnokpp:
+            out.append(self._check_error(
+                "Рядки без РНОКПП", fact=len(no_rnokpp), target=self._target_records(no_rnokpp, "ua.military.list.line")))
+        no_doc = self.line_ids.filtered(lambda l: not l.doc_info)
+        if no_doc:
+            out.append(self._check_warn(
+                "Рядки без даних військового документа", fact=len(no_doc),
+                target=self._target_records(no_doc, "ua.military.list.line")))
+        no_tcc = self.line_ids.filtered(lambda l: not l.tcc)
+        if no_tcc:
+            out.append(self._check_warn(
+                "Рядки без ТЦК та СП", fact=len(no_tcc), target=self._target_records(no_tcc, "ua.military.list.line")))
+        stale = have.filtered(lambda e: e.ua_mil_needs_check)
+        if stale:
+            out.append(self._check_warn(
+                "Дата звірки даних відсутня або старша за рік", fact=len(stale),
+                target=self._target_records(stale, "hr.employee")))
+        out.append(self._check_ok("Стан документа", fact=dict(STATES).get(self.state, self.state)))
+        return out
 
 
 class UaMilitaryListLine(models.Model):

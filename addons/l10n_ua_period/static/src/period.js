@@ -139,7 +139,8 @@ export class UaPeriod extends Component {
 
     previewDoc(doc) {
         const item = { r: doc.report, ids: doc.ids, t: doc.name };
-        this.state.preview = { ...item, report: doc.report, name: doc.name, url: this.printUrl([item], true) };
+        this.state.preview = { ...item, report: doc.report, name: doc.name, url: this.printUrl([item], true),
+                               checks: doc.checks || [] };
     }
 
     isPreviewed(doc) {
@@ -210,14 +211,25 @@ export class UaPeriod extends Component {
         browser.open(url, "_blank");
     }
 
-    async openDocTarget(doc) {
-        const target = doc.target || {};
+    async openDocTarget(target) {
+        target = target.target || target;
         if (target.xmlid) {
             return this.open({ action: { xmlid: target.xmlid } });
         }
         if (target.model && target.res_id) {
             return this.openRecord({ model: target.model, id: target.res_id });
         }
+        if (target.model && target.domain) {
+            return this.openList(target.model, target.domain, "");
+        }
+    }
+
+    /** Клік по рядку перевірки: та сама ціль, що й «Правити дані» документа. */
+    openCheck(check) {
+        if (!check.target) {
+            return;
+        }
+        return this.openDocTarget(check.target);
     }
 
     /** Сусідній місяць: стрілки в шапці, коли перелік місяців не вміщається. */

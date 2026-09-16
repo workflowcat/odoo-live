@@ -66,20 +66,39 @@
           </div>
 
           <div class="o_ua_reporting_section">
-            <h5>Перевірки</h5>
-            <table class="o_ua_table">
+            <div class="o_ua_sec_head">
+              <h5>Перевірки</h5>
+              <span class="o_ua_reporting_check_counts text-muted small" t-if="data.checks.length">
+                помилки <t t-esc="this.checkCounts.error"/> · увага <t t-esc="this.checkCounts.warn"/> · ok <t t-esc="this.checkCounts.ok"/>
+              </span>
+            </div>
+            <table class="o_ua_table" t-if="this.checksByLevel.error.length or this.checksByLevel.warn.length">
               <thead><tr><th>Рівень</th><th>Перевірка</th><th class="text-end">Значення</th></tr></thead>
               <tbody>
-                <tr t-foreach="data.checks" t-as="c" t-key="c.id"
-                    t-attf-class="#{c.action_model ? 'o_ua_clickable' : ''}"
-                    t-on-click="() => this.openCheck(c)">
+                <t t-foreach="this.checksByLevel.error.concat(this.checksByLevel.warn)" t-as="c" t-key="c.id">
+                  <tr t-attf-class="#{c.target_model ? 'o_ua_clickable' : ''}" t-on-click="() => this.openCheckTarget(c)">
+                    <td><span t-attf-class="o_ua_pill #{this.levelPill(c.level)}" t-esc="this.levelLabel(c.level)"/></td>
+                    <td><div t-esc="c.title"/><div class="text-muted small" t-esc="c.detail"/></td>
+                    <td class="text-end" t-esc="c.value"/>
+                  </tr>
+                </t>
+              </tbody>
+            </table>
+            <div t-if="this.checksByLevel.ok.length and !state.showOkChecks" class="o_ua_reporting_show_ok">
+              <a href="#" t-on-click.prevent="() => this.toggleOkChecks()">показати ok (<t t-esc="this.checksByLevel.ok.length"/>)</a>
+            </div>
+            <table class="o_ua_table" t-if="this.checksByLevel.ok.length and state.showOkChecks">
+              <tbody>
+                <tr t-foreach="this.checksByLevel.ok" t-as="c" t-key="c.id"
+                    t-attf-class="#{c.target_model ? 'o_ua_clickable' : ''}"
+                    t-on-click="() => this.openCheckTarget(c)">
                   <td><span t-attf-class="o_ua_pill #{this.levelPill(c.level)}" t-esc="this.levelLabel(c.level)"/></td>
                   <td><div t-esc="c.title"/><div class="text-muted small" t-esc="c.detail"/></td>
                   <td class="text-end" t-esc="c.value"/>
                 </tr>
-                <tr t-if="!data.checks.length"><td colspan="3" class="text-muted">Натисніть «Перерахувати».</td></tr>
               </tbody>
             </table>
+            <div t-if="!data.checks.length" class="text-muted">Натисніть «Перерахувати».</div>
           </div>
 
           <div class="o_ua_reporting_section" t-if="data.summary.rows and data.summary.rows.length">

@@ -4,6 +4,12 @@
 PDF (%PDF); action_mark_submitted() ставить стан і дату; повторне створення прогону на той самий
 період відкриває наявний, а не дублює; бандл web.assets_backend містить l10n_ua_reporting.Reporting.
 
+Цілі перевірок: кожен рядок ua.report.check називає target_model/target_domain (JSON) або
+target_res_id, і ціль дійсно резолвиться (search/res_id). Вересень 2026, демо-компанія «Ясен
+Меблі»: 19 листків у стані verify дають перевірку "Чернетки листків у періоді" рівня warn.
+Групування помилки/увага/ok у сумі дає всі рядки. ua.report.check не пишеться з UI -
+create()/write() звичайним користувачем (ir.model.access.csv) відхиляються.
+
 HTTP-перевірка збірки ресурсів працює лише коли PAYROLL_DB=payroll - dbfilter стенду (^payroll$)
 блокує HTTP-доступ до інших баз (payroll_cloud, payroll_test). Коли це так, перевірку пропущено
 з поясненням, як у scripts/dashboard_check.py; збірку на payroll_cloud перевірено окремо в odoo
@@ -186,6 +192,74 @@ else:
         check("без змін коригування не формується і пояснює чому", "Розбіжностей" in str(exc), str(exc)[:90])
     call("ua.report.run", "unlink", [created["id"]])
     check("тестове коригування прибрано", not call("ua.report.run", "search", [["id", "=", created["id"]]]))
+
+# 8. Цілі перевірок (target_model/target_domain/target_res_id): кожен рядок перевірки, що
+# називає записи, має ціль, яка дійсно резолвиться; групування помилки/увага/ok = усі рядки.
+# Вересень 2026, демо-компанія: 19 листків у стані 'verify' у періоді дають щонайменше один warn
+# (перевірка "Чернетки листків у періоді" з ua.report.run._common_checks()).
+data_sep = call("ua.report.run", "get_screen_data", report_code="j05", year=2026, month=9)
+run_sep_id = data_sep["run"]["id"]
+call("ua.report.run", "action_refresh", [run_sep_id])
+data_sep = call("ua.report.run", "get_screen_data", run_id=run_sep_id)
+checks_sep = data_sep["checks"]
+check("вересень 2026: перевірки побудовано", len(checks_sep) >= 5, f"{len(checks_sep)} перевірок")
+
+levels_sep = [c["level"] for c in checks_sep]
+check("вересень 2026: є щонайменше один warn (19 листків у verify)", "warn" in levels_sep, str(levels_sep))
+period_check = next((c for c in checks_sep if c["code"] == "period_closed"), None)
+check("вересень 2026: перевірка «Чернетки листків у періоді» - warn, 19 листків",
+      bool(period_check) and period_check["level"] == "warn" and period_check["value"] == "19",
+      str(period_check))
+
+group_counts = {"error": 0, "warn": 0, "ok": 0}
+target_ok = True
+target_bad = []
+for c in checks_sep:
+    group_counts[c["level"]] = group_counts.get(c["level"], 0) + 1
+    tm = c.get("target_model")
+    if not tm:
+        target_ok = False
+        target_bad.append((c["code"], "немає target_model"))
+        continue
+    tid = c.get("target_res_id")
+    if tid:
+        found = call(tm, "search_count", [["id", "=", tid]])
+        if found != 1:
+            target_ok = False
+            target_bad.append((c["code"], f"target_res_id={tid} на {tm} не знайдено"))
+    else:
+        dom = c.get("target_domain") or []
+        try:
+            found = call(tm, "search_count", dom)
+        except SystemExit as exc:
+            target_ok = False
+            target_bad.append((c["code"], f"домен {dom} на {tm} не резолвиться: {exc}"))
+            continue
+        if not isinstance(found, int):
+            target_ok = False
+            target_bad.append((c["code"], f"домен {dom} на {tm} не резолвиться"))
+check("вересень 2026: кожен рядок перевірки має ціль, яка резолвиться (search/res_id)", target_ok, str(target_bad[:5]))
+check("вересень 2026: суму груп помилки+увага+ok дорівнює кількості перевірок",
+      sum(group_counts.values()) == len(checks_sep), f"{group_counts} проти {len(checks_sep)} рядків")
+
+# XSD-перевірка (не про записи) ціллю має сам прогін
+xsd_check = next((c for c in checks_sep if c["code"] == "j05_xsd"), None)
+check("вересень 2026: перевірка XSD ціллю має сам прогін (ua.report.run)",
+      bool(xsd_check) and xsd_check["target_model"] == "ua.report.run" and xsd_check["target_res_id"] == run_sep_id,
+      str(xsd_check))
+
+# ua.report.check не редагується з UI: create/write/unlink закриті для звичайного користувача
+try:
+    call("ua.report.check", "create", {"run_id": run_sep_id, "code": "x", "title": "x", "level": "ok"})
+    check("ua.report.check: create() заборонено звичайному користувачу", False, "запис створено, хоча мав бути відхилений")
+except SystemExit as exc:
+    check("ua.report.check: create() заборонено звичайному користувачу", True, str(exc)[:80])
+if checks_sep:
+    try:
+        call("ua.report.check", "write", [checks_sep[0]["id"]], {"title": "змінено"})
+        check("ua.report.check: write() заборонено звичайному користувачу", False, "запис змінено, хоча мав бути відхилений")
+    except SystemExit as exc:
+        check("ua.report.check: write() заборонено звичайному користувачу", True, str(exc)[:80])
 
 # рядок «Дані» веде в запис, який правлять
 for code in ("j05", "timesheet", "orders", "trial"):

@@ -447,6 +447,11 @@ for kind, ym in (("advance", (2026, 8)), ("other", (2026, 9))):
     pb_id = pb_ids[0] if pb_ids else call("ua.payment.batch", "create", {"company_id": COMPANY, "year": year_pb, "month": month_pb, "kind": kind,
                                                                          "pay_date": "2026-08-20" if kind == "advance" else "2026-09-25"})
     if kind == "advance":
+        # на свіжій базі (хмара) авансової відомості за серпень ще може не бути: створити й затвердити її тут,
+        # інакше action_fill відмовляє «Немає авансової відомості за цей місяць».
+        if not call("ua.advance.sheet", "search", [["company_id", "=", COMPANY], ["year", "=", year_pb], ["month", "=", month_pb]]):
+            _sid = call("ua.advance.sheet", "create", {"company_id": COMPANY, "year": year_pb, "month": month_pb, "percent": 50.0, "pay_date": "%d-%02d-20" % (year_pb, month_pb)})
+            call("ua.advance.sheet", "action_refill", [_sid]); call("ua.advance.sheet", "action_confirm", [_sid])
         # не пропускати, навіть якщо запис уже є: у чернетці могло не дійти до заповнення й
         # затвердження в попередньому (перерваному) запуску - ідемпотентно доводимо до кінця.
         if call("ua.payment.batch", "read", [pb_id], ["state"])[0]["state"] == "draft":

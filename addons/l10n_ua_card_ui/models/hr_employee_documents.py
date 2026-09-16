@@ -8,6 +8,9 @@ from odoo import models
 STATE_LABELS = {"to_sign": "На підпис", "signed": "Підписано", "not_needed": "Не потрібен"}
 STATE_CSS = {"to_sign": "text-warning", "signed": "text-success", "not_needed": "text-muted"}
 DOC_STATE_CSS = {"ok": "text-success", "warning": "text-warning", "expired": "text-danger"}
+# Пігулка картки «Документи»: одна пігулка на рядок, найважливіший стан виграє. На підпис і
+# прострочено - однаково критичні (coral), спливає - жовта (warn), підписано - зелена (mint).
+DOC_PILL_LABELS = {"warning": "Спливає", "expired": "Прострочено"}
 
 
 def _sel_label(record, field):
@@ -24,6 +27,17 @@ class HrEmployeeCardDocuments(models.Model):
         self.ensure_one()
         rows = []
         for d in self.ua_document_ids:
+            # Пігулка: підпис виграє, поки не підписано; далі виграє строк дії.
+            if d.state == "to_sign":
+                pill_label, pill_css = "На підпис", "o_ua_pill_crit"
+            elif d.ua_doc_state == "expired":
+                pill_label, pill_css = DOC_PILL_LABELS["expired"], "o_ua_pill_crit"
+            elif d.ua_doc_state == "warning":
+                pill_label, pill_css = DOC_PILL_LABELS["warning"], "o_ua_pill_warn"
+            elif d.state == "signed":
+                pill_label, pill_css = "Підписано", "o_ua_pill_ok"
+            else:
+                pill_label, pill_css = STATE_LABELS.get(d.state, d.state), "o_ua_pill"
             rows.append({
                 "id": d.id,
                 "type": _sel_label(d, "type") or "немає",
@@ -33,6 +47,8 @@ class HrEmployeeCardDocuments(models.Model):
                 "state": d.state,
                 "state_label": STATE_LABELS.get(d.state, d.state),
                 "state_css": STATE_CSS.get(d.state, ""),
+                "pill_label": pill_label,
+                "pill_css": pill_css,
                 "signed_date": d.signed_date.strftime("%d.%m.%Y") if d.signed_date else None,
                 "can_sign": d.state == "to_sign",
                 "can_print": bool(d.report_xmlid and d.res_id),

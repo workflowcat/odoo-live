@@ -72,20 +72,24 @@ class HrEmployee(models.Model):
         version = emp.current_version_id
         today = fields.Date.context_today(self)
 
+        # Пігулки шапки: перша - головна (status pill), решта - додаткові прапорці поруч.
+        # Критичні (coral) переважають над попереджувальними (warn), «усе гаразд» - mint.
         badges = []
         if not emp.active:
-            badges.append({"label": "Звільнений(а)", "css": "text-danger"})
+            badges.append({"label": "Звільнений(а)", "css": "o_ua_pill_crit"})
         if emp.ua_mil_needs_check:
-            badges.append({"label": "Потребує звірки ТЦК", "css": "text-warning"})
+            badges.append({"label": "Потребує звірки ТЦК", "css": "o_ua_pill_warn"})
         if emp.ua_docs_expiring:
-            badges.append({"label": f"Документи спливають ({emp.ua_docs_expiring})", "css": "text-warning"})
+            badges.append({"label": f"Документи спливають ({emp.ua_docs_expiring})", "css": "o_ua_pill_warn"})
         if not emp.ua_rnokpp:
-            badges.append({"label": "Немає РНОКПП", "css": "text-danger"})
+            badges.append({"label": "Немає РНОКПП", "css": "o_ua_pill_crit"})
         if not badges:
-            badges.append({"label": "Усе гаразд", "css": "text-success"})
+            badges.append({"label": "Усе гаразд", "css": "o_ua_pill_ok"})
 
         name_parts = (emp.name or "").split()
         initials = "".join(p[0] for p in name_parts[:2]).upper() or "?"
+
+        since = version.contract_date_start if version else None
 
         header = {
             "name": emp.name or "",
@@ -96,6 +100,7 @@ class HrEmployee(models.Model):
             "company": emp.company_id.name or "немає",
             "manager": emp.parent_id.name or "немає",
             "badge_number": emp.barcode or str(emp.id),
+            "since": _fmt_date(since) or "немає",
             "active": emp.active,
             "badges": badges,
         }
@@ -231,6 +236,7 @@ class HrEmployee(models.Model):
                     "kind": "hire",
                     "label": f"Прийняття: {v.job_title or '-'} ({v.department_id.name or '-'})",
                     "detail": f"{_order(v.ua_order_ref)}; оклад {_fmt_money(v.wage) or 'немає'}",
+                    "res_model": "hr.version", "res_id": v.id,
                 })
             if v.contract_date_end:
                 timeline.append({
@@ -238,6 +244,7 @@ class HrEmployee(models.Model):
                     "kind": "dismiss",
                     "label": f"Звільнення: {v.ua_dismissal_basis or 'підстава не вказана'}",
                     "detail": _order(v.ua_end_order_ref),
+                    "res_model": "hr.version", "res_id": v.id,
                 })
 
         leaves = emp.env["hr.leave"].search([("employee_id", "=", emp.id), ("state", "=", "validate")])
@@ -251,6 +258,7 @@ class HrEmployee(models.Model):
                 "kind": "leave",
                 "label": f"Відпустка: {lv.holiday_status_id.name or '-'} ({days:g} дн.)",
                 "detail": detail,
+                "res_model": "hr.leave", "res_id": lv.id,
             })
 
         slips = emp.env["hr.payslip"].search([("employee_id", "=", emp.id)])
@@ -263,6 +271,7 @@ class HrEmployee(models.Model):
                 "kind": "payslip",
                 "label": f"Листок за {_fmt_date(slip.date_from)} - {_fmt_date(slip.date_to)} ({PAYSLIP_STATE_LABELS.get(slip.state, slip.state)})",
                 "detail": f"Нараховано {_fmt_money(gross)}, на руки {_fmt_money(net)}",
+                "res_model": "hr.payslip", "res_id": slip.id,
             })
 
         for ev in emp.ua_mil_event_ids:
@@ -271,6 +280,7 @@ class HrEmployee(models.Model):
                 "kind": "military",
                 "label": f"Військовий облік: {_sel_label(ev, 'kind')}",
                 "detail": ev.note or "",
+                "res_model": "ua.military.event", "res_id": ev.id,
             })
 
         for d in emp.ua_document_ids:
@@ -280,6 +290,7 @@ class HrEmployee(models.Model):
                     "kind": "document",
                     "label": f"Документ: {d.name}",
                     "detail": d.number or "",
+                    "res_model": "ua.employee.document", "res_id": d.id,
                 })
 
         timeline.sort(key=lambda e: e["date"] or date.min, reverse=True)

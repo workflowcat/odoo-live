@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Повідомлення про зміну облікових даних за період: прийняті, звільнені і ті, у кого є подія «зміна даних»,
 серед працівників, що підлягають військовому обліку. Відповідає обов'язку повідомляти ТЦК протягом 7 днів."""
+from datetime import timedelta
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
@@ -12,7 +14,7 @@ CHANGE_KIND = [("hire", "Прийняття"), ("dismiss", "Звільнення
 
 class UaMilitaryNotice(models.Model):
     _name = "ua.military.notice"
-    _inherit = ["mail.thread"]
+    _inherit = ["mail.thread", "ua.checks.mixin"]
     _description = "Повідомлення про зміну облікових даних"
     _order = "date_to desc, id desc"
 
@@ -86,6 +88,48 @@ class UaMilitaryNotice(models.Model):
 
     def action_draft(self):
         self.state = "draft"
+
+    # ------------------------------------------------------------------ перевірки
+    def _checks(self):
+        self.ensure_one()
+        out = []
+        employees = self.env["hr.employee"].sudo().search([
+            ("company_id", "=", self.company_id.id), ("ua_mil_status", "in", list(LIABLE_STATUSES))])
+        expected_ids = set()
+        if employees:
+            versions = self.env["hr.version"].sudo().search([
+                ("employee_id", "in", employees.ids),
+                "|",
+                "&", ("contract_date_start", ">=", self.date_from), ("contract_date_start", "<=", self.date_to),
+                "&", ("contract_date_end", ">=", self.date_from), ("contract_date_end", "<=", self.date_to),
+            ])
+            expected_ids = {v.employee_id.id for v in versions if v.employee_id in employees}
+            events = self.env["ua.military.event"].sudo().search([
+                ("employee_id", "in", employees.ids), ("kind", "=", "update"),
+                ("date", ">=", self.date_from), ("date", "<=", self.date_to),
+            ])
+            expected_ids |= {ev.employee_id.id for ev in events}
+        have_ids = set(self.line_ids.mapped("employee_id.id"))
+        missing = expected_ids - have_ids
+        if missing:
+            out.append(self._check_error(
+                "Подія військового обліку за період не потрапила в повідомлення", fact=len(missing),
+                target=self._target_domain("hr.employee", [("id", "in", list(missing))])))
+        elif expected_ids:
+            out.append(self._check_ok("Усі події періоду в повідомленні", fact=len(expected_ids)))
+        else:
+            out.append(self._check_ok("Подій військового обліку за період немає"))
+
+        deadline = self.date_to + timedelta(days=7) if self.date_to else False
+        today = fields.Date.context_today(self)
+        if deadline and self.state == "draft" and self.line_ids and today > deadline:
+            out.append(self._check_error(
+                "Строк подання повідомлення ТЦК (7 днів від події) минув", fact=deadline.strftime("%d.%m.%Y"),
+                target=self._target_record(self)))
+        elif deadline:
+            out.append(self._check_ok("Строк подання повідомлення ТЦК", fact=deadline.strftime("%d.%m.%Y")))
+        out.append(self._check_ok("Стан документа", fact=dict(STATES).get(self.state, self.state)))
+        return out
 
 
 class UaMilitaryNoticeLine(models.Model):

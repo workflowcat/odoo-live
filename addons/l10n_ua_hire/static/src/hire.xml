@@ -62,19 +62,34 @@
                   </t>
                   <span t-if="c.stage === 'declined'" class="o_ua_pill o_ua_pill_crit">Відмова<t t-if="c.decline_reason">: <t t-esc="c.decline_reason"/></t></span>
                 </div>
+                <div class="o_ua_head_subtitle o_ua_hire_context">
+                  <t t-if="c.values.job_title"><t t-esc="c.values.job_title"/></t>
+                  <t t-if="dateFromLabel"> · перший день <t t-esc="dateFromLabel"/></t>
+                  <t t-if="missingCount"> · бракує даних: <t t-esc="missingCount"/></t>
+                  <t t-if="proposedCount"> · пропозицій: <t t-esc="proposedCount"/></t>
+                  <t t-if="safeProposalCount"> · <a href="#" t-on-click.prevent="acceptAll">Прийняти певні (<t t-esc="safeProposalCount"/>)</a></t>
+                  <t t-if="hireBlockedReason"> · <t t-esc="hireBlockedReason"/></t>
+                </div>
               </div>
               <div class="o_ua_hire_actions o_ua_head_actions">
-                <t t-if="c.stage === 'candidate'">
-                  <button class="btn btn-primary btn-sm" t-on-click="startOnboarding"
-                          data-tooltip="Кандидат підходить. Далі: документи, умови, перевірки.">Взяти в оформлення</button>
-                </t>
+                <button t-if="['candidate','onboarding'].includes(c.stage)" class="btn btn-secondary btn-sm"
+                        t-on-click="() => this.state.declining = !state.declining">Відмовити</button>
+                <button t-if="c.stage !== 'declined'" class="btn btn-secondary btn-sm" t-on-click="showPackage"
+                        data-tooltip="Документи для підпису, заповнені з даних справи. Порожні поля друкуються лінією.">Переглянути пакет</button>
                 <t t-if="c.stage === 'onboarding'">
                   <button class="btn btn-primary btn-sm" t-att-disabled="!c.can_hire or state.busy" t-on-click="hire"
                           t-att-data-tooltip="c.can_hire ? 'Створить картку, документи, проведений наказ, чернетку J3001005 і, за потреби, повідомлення ТЦК' : 'Спершу виправте помилки в перевірках'">Прийняти на роботу</button>
                 </t>
-                <button t-if="['candidate','onboarding'].includes(c.stage)" class="btn btn-secondary btn-sm"
-                        t-on-click="() => this.state.declining = !state.declining">Відмовити</button>
-                <button t-if="c.stage === 'declined'" class="btn btn-secondary btn-sm" t-on-click="reopen">Відкрити знову</button>
+                <div t-if="c.stage === 'candidate' or c.stage === 'declined'" class="btn-group">
+                  <button class="btn btn-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Ще</button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li t-if="c.stage === 'candidate'">
+                      <a class="dropdown-item" href="#" t-on-click.prevent="startOnboarding"
+                         data-tooltip="Кандидат підходить. Далі: документи, умови, перевірки.">Взяти в оформлення</a>
+                    </li>
+                    <li t-if="c.stage === 'declined'"><a class="dropdown-item" href="#" t-on-click.prevent="reopen">Відкрити знову</a></li>
+                  </ul>
+                </div>
               </div>
             </div>
             <div t-if="state.declining" class="o_ua_hire_decline">
@@ -198,10 +213,6 @@
                   <t t-esc="d.label"/>
                 </label>
               </t>
-              <div class="o_ua_hire_row_btns">
-                <button t-attf-class="btn btn-sm #{state.preview ? 'btn-secondary' : 'btn-primary'}" t-on-click="showPackage"
-                        data-tooltip="Документи для підпису, заповнені з даних справи. Порожні поля друкуються лінією.">Переглянути пакет</button>
-              </div>
             </div>
 
             <div t-if="!['hired'].includes(c.stage)" class="o_ua_hire_block">
@@ -218,7 +229,7 @@
             </div>
 
             <div class="o_ua_hire_block">
-              <h5>Документи</h5>
+              <h5>Документи · <t t-esc="c.files.length"/> файлів</h5>
               <t t-foreach="c.requirements" t-as="q" t-key="q.code">
                 <div t-attf-class="o_ua_hire_req o_ua_hire_req_#{q.state}" t-att-data-tooltip="reqTip(q.state)">
                   <span t-attf-class="o_ua_hire_mark o_ua_hire_mark_#{q.state === 'done' ? 'provided' : (q.state === 'missing' ? 'missing' : 'empty')}"/>
@@ -236,6 +247,7 @@
                     </select>
                     <span t-if="x.extract_state === 'done'" class="o_ua_pill o_ua_pill_ok" data-tooltip="Файл уже розпізнано">розпізнано</span>
                     <span t-if="x.extract_state === 'failed'" class="o_ua_pill o_ua_pill_crit" t-att-data-tooltip="x.extract_note">помилка</span>
+                    <span t-if="x.extract_state === 'none'" class="o_ua_pill" data-tooltip="Файл ще не розпізнано">не розпізнано</span>
                     <button t-if="!readonly" class="btn btn-link btn-sm p-0" t-on-click="() => this.removeFile(x)" data-tooltip="Видалити файл зі справи">×</button>
                   </div>
                 </t>

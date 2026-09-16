@@ -169,17 +169,31 @@
               </div>
             </div>
 
-            <!-- перегляд документа: папір, друк браузером -->
-            <div class="o_ua_pd_preview" t-if="state.preview">
-              <div class="o_ua_pd_preview_bar">
-                <b t-esc="state.preview.name"/>
-                <span class="flex-grow-1"/>
-                <button class="btn btn-sm btn-primary" t-on-click="() => this.printPreview()" data-tooltip="Друк браузера. Там само можна зберегти PDF.">Друк</button>
-                <button class="btn btn-sm btn-secondary" t-on-click="() => this.addToBasket(state.preview)"
-                        t-att-disabled="this.inBasket(state.preview)" t-esc="this.inBasket(state.preview) ? 'у кошику' : 'До кошика'"/>
-                <button class="btn btn-sm btn-link" t-on-click="() => this.closePreview()">Закрити перегляд</button>
+            <!-- перегляд документа: папір, друк браузером, перевірки поруч -->
+            <div class="o_ua_pd_preview_wrap" t-if="state.preview">
+              <div class="o_ua_pd_preview">
+                <div class="o_ua_pd_preview_bar">
+                  <b t-esc="state.preview.name"/>
+                  <span class="flex-grow-1"/>
+                  <button class="btn btn-sm btn-primary" t-on-click="() => this.printPreview()" data-tooltip="Друк браузера. Там само можна зберегти PDF.">Друк</button>
+                  <button class="btn btn-sm btn-secondary" t-on-click="() => this.addToBasket(state.preview)"
+                          t-att-disabled="this.inBasket(state.preview)" t-esc="this.inBasket(state.preview) ? 'у кошику' : 'До кошика'"/>
+                  <button class="btn btn-sm btn-link" t-on-click="() => this.closePreview()">Закрити перегляд</button>
+                </div>
+                <iframe class="o_ua_pd_frame" t-att-src="state.preview.url" t-ref="previewFrame" title="Перегляд документа"/>
               </div>
-              <iframe class="o_ua_pd_frame" t-att-src="state.preview.url" t-ref="previewFrame" title="Перегляд документа"/>
+              <div class="o_ua_pd_checks" t-if="state.preview.checks.length">
+                <div class="o_ua_pd_side_title">Перевірки</div>
+                <div t-foreach="state.preview.checks" t-as="check" t-key="check_index"
+                     t-attf-class="o_ua_pd_check #{check.target ? 'o_ua_clickable' : ''}"
+                     t-on-click="() => this.openCheck(check)">
+                  <span t-attf-class="o_ua_dot o_ua_dot_#{check.level === 'error' ? 'crit' : (check.level === 'warn' ? 'warn' : 'done')}"/>
+                  <span class="o_ua_pd_check_text">
+                    <t t-esc="check.text"/>
+                    <span t-if="check.fact" class="o_ua_lbl" t-esc="check.fact"/>
+                  </span>
+                </div>
+              </div>
             </div>
 
             <t t-else="">

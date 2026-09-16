@@ -36,7 +36,7 @@ STATES = [("draft", "Чернетка"), ("confirmed", "Затверджено")
 class UaPaymentBatch(models.Model):
     _name = "ua.payment.batch"
     _description = "Відомість на перерахування"
-    _inherit = ["mail.thread"]
+    _inherit = ["mail.thread", "ua.checks.mixin"]
     _order = "year desc, month desc, id desc"
 
     name = fields.Char("Назва", compute="_compute_name", store=True)
@@ -178,6 +178,60 @@ class UaPaymentBatch(models.Model):
             if doc.state != "confirmed":
                 raise UserError(_("Позначити оплаченою можна лише затверджену відомість."))
             doc.state = "paid"
+
+    # ------------------------------------------------------------------ перевірки
+    def _checks(self):
+        self.ensure_one()
+        out = []
+        if not self.line_ids:
+            out.append(self._check_error("Немає рядків відомості", target=self._target_record(self)))
+            return out
+        no_iban = self.line_ids.filtered(lambda l: not l.account_number)
+        if no_iban:
+            out.append(self._check_error(
+                "Рядки без IBAN", fact=len(no_iban), target=self._target_records(no_iban, "ua.payment.line")))
+        else:
+            out.append(self._check_ok("Усі рядки мають IBAN"))
+
+        first, last = self._period()
+        if self.kind == "salary":
+            slips = self.env["hr.payslip"].search([
+                ("company_id", "=", self.company_id.id), ("state", "in", ("done", "verify")),
+                ("date_from", ">=", first), ("date_from", "<", last),
+            ])
+            net_total = round(sum(slips.line_ids.filtered(lambda l: l.code == "NET").mapped("total")), 2)
+            if abs(net_total - self.total) > 0.01:
+                out.append(self._check_error(
+                    "Сума відомості не збігається з «до виплати» листків місяця",
+                    fact="%.2f ≠ %.2f" % (self.total, net_total),
+                    target=self._target_records(slips, "hr.payslip")))
+            else:
+                out.append(self._check_ok("Сума відомості збігається з листками місяця", fact="%.2f" % self.total))
+            if self.state != "draft":
+                not_done = slips.filtered(lambda s: s.state != "done")
+                if not_done:
+                    out.append(self._check_warn(
+                        "Відомість затверджена, а листок ще не проведений остаточно", fact=len(not_done),
+                        target=self._target_records(not_done, "hr.payslip")))
+        elif self.kind == "advance":
+            sheet = self.env["ua.advance.sheet"].search([
+                ("company_id", "=", self.company_id.id), ("year", "=", self.year), ("month", "=", self.month),
+            ], limit=1)
+            if not sheet:
+                out.append(self._check_error("Немає авансової відомості за цей місяць", target=self._target_record(self)))
+            else:
+                sheet_total = round(sum(sheet.line_ids.filtered(lambda l: l.amount > 0).mapped("amount")), 2)
+                if abs(sheet_total - self.total) > 0.01:
+                    out.append(self._check_error(
+                        "Сума відомості не збігається з авансовою відомістю",
+                        fact="%.2f ≠ %.2f" % (self.total, sheet_total), target=self._target_record(sheet)))
+                else:
+                    out.append(self._check_ok("Сума відомості збігається з авансовою відомістю", fact="%.2f" % self.total))
+
+        if self.state == "paid" and not self.number:
+            out.append(self._check_error("Оплачена відомість без номера", target=self._target_record(self)))
+        out.append(self._check_ok("Стан документа", fact=dict(STATES).get(self.state, self.state)))
+        return out
 
     # ------------------------------------------------------------------ файл для банку
     def action_export(self):

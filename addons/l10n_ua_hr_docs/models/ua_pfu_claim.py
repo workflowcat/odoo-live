@@ -27,7 +27,7 @@ DAYS_KEY = {"SICK_PFU": "sick_pfu_days", "SICK_CARE_PAY": "sick_care_days", "MAT
 
 class UaPfuClaim(models.Model):
     _name = "ua.pfu.claim"
-    _inherit = ["mail.thread"]
+    _inherit = ["mail.thread", "ua.checks.mixin"]
     _description = "Заява-розрахунок до ПФУ"
     _order = "date desc, id desc"
 
@@ -187,6 +187,46 @@ class UaPfuClaim(models.Model):
             if doc.unfunded > 0.005:
                 raise UserError("Лишилося непрофінансовано: %s. Завершити не можна." % doc.unfunded)
             doc.state = "done"
+
+    # ------------------------------------------------------------------ перевірки
+    def _checks(self):
+        self.ensure_one()
+        out = []
+        if not self.line_ids:
+            out.append(self._check_error("Немає рядків заяви-розрахунку", target=self._target_record(self)))
+            return out
+        no_number = self.line_ids.filtered(lambda l: l.kind in ("sick", "care") and not l.sick_number)
+        if no_number:
+            out.append(self._check_error(
+                "Рядки без номера електронного листка непрацездатності", fact=len(no_number),
+                target=self._target_records(no_number, "ua.pfu.claim.line")))
+        else:
+            out.append(self._check_ok("Усі лікарняні рядки мають номер е-ЛН"))
+        no_dates = self.line_ids.filtered(lambda l: not l.date_from or not l.date_to)
+        if no_dates:
+            out.append(self._check_error(
+                "Рядки без дат періоду непрацездатності", fact=len(no_dates),
+                target=self._target_records(no_dates, "ua.pfu.claim.line")))
+        else:
+            out.append(self._check_ok("Усі рядки мають дати періоду"))
+        no_days = self.line_ids.filtered(lambda l: l.amount and not l.days)
+        if no_days:
+            out.append(self._check_warn(
+                "Сума нарахована, але днів за рахунок ПФУ немає", fact=len(no_days),
+                target=self._target_records(no_days, "ua.pfu.claim.line")))
+        if self.state == "paid" and self.notice_deadline:
+            today = fields.Date.context_today(self)
+            if today > self.notice_deadline:
+                out.append(self._check_error(
+                    "Строк подання повідомлення про виплату минув", fact=self.notice_deadline.strftime("%d.%m.%Y"),
+                    target=self._target_record(self)))
+            else:
+                out.append(self._check_ok(
+                    "Строк подання повідомлення про виплату", fact=self.notice_deadline.strftime("%d.%m.%Y")))
+        if self.unfunded:
+            out.append(self._check_warn("Не профінансовано", fact="%.2f" % self.unfunded, target=self._target_record(self)))
+        out.append(self._check_ok("Стан документа", fact=dict(self._fields["state"].selection).get(self.state, self.state)))
+        return out
 
 
 class UaPfuClaimLine(models.Model):

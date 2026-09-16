@@ -8,7 +8,7 @@ STATES = [("draft", "Чернетка"), ("confirmed", "Затверджено")
 
 class UaMilitaryReserved(models.Model):
     _name = "ua.military.reserved"
-    _inherit = ["mail.thread"]
+    _inherit = ["mail.thread", "ua.checks.mixin"]
     _description = "Список заброньованих"
     _order = "date desc, id desc"
 
@@ -60,6 +60,38 @@ class UaMilitaryReserved(models.Model):
 
     def action_draft(self):
         self.state = "draft"
+
+    # ------------------------------------------------------------------ перевірки
+    def _checks(self):
+        self.ensure_one()
+        out = []
+        expected = self.env["hr.employee"].sudo().search([
+            ("company_id", "=", self.company_id.id), ("ua_mil_reserved", "=", True)])
+        have = self.line_ids.mapped("employee_id")
+        missing = expected - have
+        if missing:
+            out.append(self._check_error(
+                "Заброньований працівник відсутній у списку", fact=len(missing),
+                target=self._target_records(missing, "hr.employee")))
+        else:
+            out.append(self._check_ok("Усі заброньовані працівники у списку", fact=len(have)))
+        no_order = self.line_ids.filtered(lambda l: not l.reserve_order)
+        if no_order:
+            out.append(self._check_error(
+                "Рядки без підстави бронювання", fact=len(no_order),
+                target=self._target_records(no_order, "ua.military.reserved.line")))
+        expired = self.line_ids.filtered(lambda l: l.reserve_until and l.days_left is not False and l.days_left < 0)
+        if expired:
+            out.append(self._check_error(
+                "Бронювання прострочене", fact=len(expired),
+                target=self._target_records(expired, "ua.military.reserved.line")))
+        soon = self.line_ids.filtered(lambda l: l.days_left is not False and 0 <= l.days_left <= 14)
+        if soon:
+            out.append(self._check_warn(
+                "Бронювання закінчується протягом 14 днів", fact=len(soon),
+                target=self._target_records(soon, "ua.military.reserved.line")))
+        out.append(self._check_ok("Стан документа", fact=dict(STATES).get(self.state, self.state)))
+        return out
 
 
 class UaMilitaryReservedLine(models.Model):

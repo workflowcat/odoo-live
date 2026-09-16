@@ -13,7 +13,7 @@ from odoo.exceptions import UserError
 class UaAdvanceSheet(models.Model):
     _name = "ua.advance.sheet"
     _description = "Авансова відомість"
-    _inherit = ["mail.thread"]
+    _inherit = ["mail.thread", "ua.checks.mixin"]
     _order = "year desc, month desc"
 
     name = fields.Char("Назва", compute="_compute_name", store=True)
@@ -143,6 +143,38 @@ class UaAdvanceSheet(models.Model):
     def _unlink_except_draft(self):
         if any(doc.state != "draft" for doc in self):
             raise UserError("Видалити можна лише чернетку відомості.")
+
+    # ------------------------------------------------------------------ перевірки
+    def _checks(self):
+        self.ensure_one()
+        out = []
+        if not self.line_ids:
+            out.append(self._check_error("Немає рядків авансу", target=self._target_record(self)))
+            return out
+        if not (0 < self.percent <= 100):
+            out.append(self._check_warn("Відсоток окладу поза межами 0-100", fact="%.1f%%" % self.percent))
+        else:
+            out.append(self._check_ok("Відсоток окладу", fact="%.1f%%" % self.percent))
+        bad_ratio = self.line_ids.filtered(lambda l: l.ratio < 0 or l.ratio > 1)
+        if bad_ratio:
+            out.append(self._check_error(
+                "Частка відпрацьованих днів (1-15) поза межами 0-1", fact=len(bad_ratio),
+                target=self._target_records(bad_ratio, "ua.advance.line")))
+        zero_worked = self.line_ids.filtered(lambda l: l.ratio == 0 and l.amount)
+        if zero_worked:
+            out.append(self._check_warn(
+                "Сума нарахована при нульовій частці відпрацьованих днів", fact=len(zero_worked),
+                target=self._target_records(zero_worked, "ua.advance.line")))
+        if self.state == "draft":
+            broken = self.line_ids.filtered(lambda l: l.payslip_id.state not in ("draft", "verify"))
+            if broken:
+                out.append(self._check_error(
+                    "Листок уже проведений, а рядок авансу лишився в чернетці", fact=len(broken),
+                    target=self._target_records(broken.mapped("payslip_id"), "hr.payslip")))
+        out.append(self._check_ok("Рядків у відомості", fact=len(self.line_ids),
+                                  target=self._target_records(self.line_ids, "ua.advance.line")))
+        out.append(self._check_ok("Стан документа", fact=dict(self._fields["state"].selection).get(self.state, self.state)))
+        return out
 
 
 class UaAdvanceLine(models.Model):

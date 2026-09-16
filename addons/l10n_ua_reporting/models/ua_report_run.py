@@ -3,12 +3,12 @@
 l10n_ua_payroll_reports і l10n_ua_hr_docs / l10n_ua_hr_orders і забирає в себе готові вкладення."""
 import base64
 import calendar
+import json
 import re
 from datetime import date
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
-from odoo.tools.safe_eval import safe_eval
 
 from odoo.addons.l10n_ua_dashboard.models.ua_dashboard import MONTHS_UA
 
@@ -38,6 +38,19 @@ ROWNUM_RE = re.compile(rb'ROWNUM="(\d+)"')
 # рядки Д1 за вагітність/пологи розбиваються на місячні сегменти, кожен окремо r2(), і сума часток
 # може відрізнятися від суми листка на 1-2 копійки навіть без жодної помилки в даних.
 AMOUNT_TOLERANCE = 0.05
+
+
+def _target(model, domain=None, res_id=None):
+    """Фрагмент рядка перевірки: запис(и), які вона стосується.
+
+    Кожна перевірка, що називає записи, має ціль - hr.employee, hr.payslip, res.company тощо
+    (домен або конкретний res_id). Перевірка не про записи (напр. валідність XML) ціллю має сам
+    прогін (ua.report.run), а не порожню ціль."""
+    return {
+        "target_model": model,
+        "target_domain": json.dumps(domain) if domain is not None else False,
+        "target_res_id": res_id or False,
+    }
 
 
 def _period_key_value(report_code, year, quarter, month, date_):
@@ -255,12 +268,16 @@ class UaReportRun(models.Model):
 
     # ------------------------------------------------------------------ дії
     def action_refresh(self):
+        # ua.report.check не редагується з UI (ir.model.access.csv забороняє create/write/unlink
+        # звичайним користувачам) - рядки перевірок пише лише цей метод, через sudo().
+        Check = self.env["ua.report.check"].sudo()
         for run in self:
-            run.check_ids.unlink()
+            run.check_ids.sudo().unlink()
             rows = run._build_checks()
             for i, row in enumerate(rows, 1):
                 row.setdefault("sequence", i * 10)
-            run.check_ids = [(0, 0, row) for row in rows]
+                row["run_id"] = run.id
+            Check.create(rows)
             run.state = "draft" if any(r["level"] == "error" for r in rows) else "checked"
         return True
 
@@ -306,23 +323,22 @@ class UaReportRun(models.Model):
         draft_slips = self.env["hr.payslip"].search([
             ("company_id", "=", c.id), ("date_from", ">=", d1), ("date_from", "<=", d2), ("state", "in", ("draft", "verify")),
         ])
-        yield {
+        yield dict({
             "code": "period_closed", "title": "Чернетки листків у періоді",
             "level": "ok" if not draft_slips else "warn",
             "detail": "Чернеток немає" if not draft_slips else "Листків-чернеток: %s" % len(draft_slips),
             "value": str(len(draft_slips)),
-            "action_model": "hr.payslip" if draft_slips else "", "action_domain": str([("id", "in", draft_slips.ids)]) if draft_slips else "",
-        }
+        }, **_target("hr.payslip", domain=[("company_id", "=", c.id), ("date_from", ">=", str(d1)), ("date_from", "<=", str(d2)),
+                                          ("state", "in", ("draft", "verify"))]))
 
         emps = self.env["hr.employee"].search([("company_id", "=", c.id), ("active", "=", True)])
         bad = emps.filtered(lambda e: not (e.sudo().ua_rnokpp and len(e.sudo().ua_rnokpp) == 10 and e.sudo().ua_rnokpp.isdigit()))
-        yield {
+        yield dict({
             "code": "rnokpp", "title": "Усі РНОКПП заповнені і мають 10 цифр",
             "level": "ok" if not bad else "error",
             "detail": "Усі заповнені" if not bad else "Без коректного РНОКПП: %s" % ", ".join(bad.mapped("name")[:5]),
             "value": str(len(bad)),
-            "action_model": "hr.employee" if bad else "", "action_domain": str([("id", "in", bad.ids)]) if bad else "",
-        }
+        }, **_target("hr.employee", domain=[("id", "in", (bad or emps).ids)]))
 
         missing = []
         if not c.company_registry:
@@ -331,12 +347,12 @@ class UaReportRun(models.Model):
             missing.append("код ДПІ")
         if not c.ua_director_name:
             missing.append("керівник")
-        yield {
+        yield dict({
             "code": "company_signers", "title": "Компанія має ЄДРПОУ, код ДПІ і підписантів",
             "level": "ok" if not missing else "error",
             "detail": "Заповнено" if not missing else "Немає: %s" % ", ".join(missing),
-            "value": "", "action_model": "res.company", "action_domain": str([("id", "=", c.id)]),
-        }
+            "value": "",
+        }, **_target("res.company", res_id=c.id))
 
     # ------------------------------------------------------------------ перевірки: j05
     def _checks_j05(self):
@@ -385,64 +401,60 @@ class UaReportRun(models.Model):
 
         expected_d1 = round(gross_total_d1 + mat_total, 2)
         d1_total = round(d1_total, 2)
-        yield {
+        payslip_domain = [("company_id", "=", c.id), ("state", "=", "done"),
+                          ("date_from", ">=", str(self._period_bounds()[0])), ("date_to", "<=", str(self._period_bounds()[1]))]
+        yield dict({
             "code": "j05_d1_amount", "title": "Сума нарахувань у Д1 дорівнює сумі листків за квартал",
             "level": "ok" if abs(d1_total - expected_d1) <= AMOUNT_TOLERANCE else "error",
             "detail": "Д1: %s, листки (без ФОП): %s" % (self._m(d1_total), self._m(expected_d1)), "value": self._m(d1_total),
-            "action_model": "hr.payslip", "action_domain": str([("company_id", "=", c.id), ("state", "=", "done")]),
-        }
+        }, **_target("hr.payslip", domain=payslip_domain))
 
         d1_esv_total = round(d1_esv_total, 2)
         esv_total = round(esv_total, 2)
-        yield {
+        yield dict({
             "code": "j05_d1_esv", "title": "ЄСВ у Д1 дорівнює нарахованому ЄСВ",
             "level": "ok" if abs(d1_esv_total - esv_total) <= AMOUNT_TOLERANCE else "error",
             "detail": "Д1: %s, нараховано: %s" % (self._m(d1_esv_total), self._m(esv_total)), "value": self._m(d1_esv_total),
-            "action_model": "hr.payslip", "action_domain": str([("company_id", "=", c.id), ("state", "=", "done")]),
-        }
+        }, **_target("hr.payslip", domain=payslip_domain))
 
         fourdf_gross = round(fourdf_gross, 2)
-        yield {
+        yield dict({
             "code": "j05_4df_amount", "title": "Сума 4ДФ дорівнює сумі листків",
             "level": "ok" if abs(fourdf_gross - round(gross_total, 2)) <= AMOUNT_TOLERANCE else "error",
             "detail": "4ДФ: %s, листки: %s" % (self._m(fourdf_gross), self._m(gross_total)), "value": self._m(fourdf_gross),
-            "action_model": "hr.payslip", "action_domain": str([("company_id", "=", c.id), ("state", "=", "done")]),
-        }
+        }, **_target("hr.payslip", domain=payslip_domain))
 
         d1, d2 = self._period_bounds()
-        order_count = self.env["ua.hr.order"].search_count([
-            ("company_id", "=", c.id), ("order_type", "in", ("hire", "dismissal")),
-            ("state", "in", ("posted", "acknowledged")), ("date", ">=", d1), ("date", "<=", d2),
-        ])
-        yield {
+        order_domain = [("company_id", "=", c.id), ("order_type", "in", ("hire", "dismissal")),
+                        ("state", "in", ("posted", "acknowledged")), ("date", ">=", str(d1)), ("date", "<=", str(d2))]
+        order_count = self.env["ua.hr.order"].search_count(order_domain)
+        yield dict({
             "code": "j05_d5_count", "title": "Кількість рядків Д5 дорівнює кількості прийнять і звільнень за наказами",
             "level": "ok" if d5_count == order_count else "warn",
             "detail": "Д5: %s, наказів: %s" % (d5_count, order_count), "value": str(d5_count),
-            "action_model": "ua.hr.order", "action_domain": str([
-                ("company_id", "=", c.id), ("order_type", "in", ("hire", "dismissal")), ("date", ">=", d1), ("date", "<=", d2)]),
-        }
+        }, **_target("ua.hr.order", domain=order_domain))
 
-        yield {
+        yield dict({
             "code": "j05_xsd", "title": "XML валідний за XSD",
             "level": "ok" if not xml_errors else "error",
             "detail": "Валідний" if not xml_errors else "; ".join(xml_errors[:5]), "value": str(len(xml_errors)),
-            "action_model": "", "action_domain": "",
-        }
+        }, **_target("ua.report.run", res_id=self.id))
 
     # ------------------------------------------------------------------ перевірки: j30
     def _checks_j30(self):
         self.ensure_one()
         c = self.company_id
         d1, d2 = self._period_bounds()
+        version_domain = [("employee_id.company_id", "=", c.id), ("contract_date_start", ">=", str(d1)), ("contract_date_start", "<=", str(d2))]
         versions = self.env["hr.version"].sudo().search([
             ("employee_id.company_id", "=", c.id), ("contract_date_start", ">=", d1), ("contract_date_start", "<=", d2),
         ])
         if not versions:
-            yield {
+            yield dict({
                 "code": "j30_none", "title": "Прийняті працівники в періоді",
                 "level": "warn", "detail": "Немає прийнятих працівників у цьому періоді - подавати повідомлення нема про кого",
-                "value": "0", "action_model": "", "action_domain": "",
-            }
+                "value": "0",
+            }, **_target("hr.version", domain=version_domain))
             return
         missing_order = self.env["hr.employee"]
         for v in versions:
@@ -452,23 +464,21 @@ class UaReportRun(models.Model):
             ], limit=1)
             if not order:
                 missing_order |= v.employee_id
-        yield {
+        yield dict({
             "code": "j30_orders", "title": "Усі працівники повідомлення прийняті в періоді і мають наказ",
             "level": "ok" if not missing_order else "error",
             "detail": "Усі мають наказ" if not missing_order else "Без наказу: %s" % ", ".join(missing_order.mapped("name")),
             "value": str(len(versions)),
-            "action_model": "hr.employee" if missing_order else "", "action_domain": str([("id", "in", missing_order.ids)]) if missing_order else "",
-        }
+        }, **_target("hr.employee", domain=[("id", "in", (missing_order or versions.mapped("employee_id")).ids)]))
 
         today = fields.Date.context_today(self)
         late = versions.filtered(lambda v: v.contract_date_start and today > v.contract_date_start)
-        yield {
+        yield dict({
             "code": "j30_timing", "title": "Дата подання не пізніша за перший робочий день",
             "level": "ok" if not late else "warn",
             "detail": "У строк" if not late else "Запізнення для %s версій контракту" % len(late),
             "value": str(len(late)),
-            "action_model": "hr.version" if late else "", "action_domain": str([("id", "in", late.ids)]) if late else "",
-        }
+        }, **_target("hr.version", domain=[("id", "in", (late or versions).ids)]))
 
     # ------------------------------------------------------------------ перевірки: pfu
     def _checks_pfu(self):
@@ -477,43 +487,41 @@ class UaReportRun(models.Model):
         d1, d2 = self._period_bounds()
         run_rec = self.env["hr.payslip.run"].search([("company_id", "=", c.id), ("date_start", ">=", d1), ("date_start", "<=", d2)], limit=1)
         if not run_rec:
-            yield {
+            yield dict({
                 "code": "pfu_run", "title": "Пакет листків періоду знайдено", "level": "error",
                 "detail": "Немає пакета листків за цей місяць", "value": "",
-                "action_model": "hr.payslip.run", "action_domain": str([("company_id", "=", c.id)]),
-            }
+            }, **_target("hr.payslip.run", domain=[("company_id", "=", c.id), ("date_start", ">=", str(d1)), ("date_start", "<=", str(d2))]))
             return
         claim = self.env["ua.pfu.claim"].search([("payslip_run_id", "=", run_rec.id)], limit=1)
         if not claim or not claim.line_ids:
-            yield {
+            yield dict({
                 "code": "pfu_lines", "title": "Рядки заяви-розрахунку заповнені", "level": "warn",
                 "detail": "Заяву ще не заповнено (натисніть «Перерахувати»)", "value": "0",
-                "action_model": "hr.payslip.run", "action_domain": str([("id", "=", run_rec.id)]),
-            }
+            }, **_target("hr.payslip.run", res_id=run_rec.id))
             return
         no_number = claim.line_ids.filtered(lambda l: not l.sick_number)
-        yield {
+        yield dict({
             "code": "pfu_sick_number", "title": "У кожному рядку є номер е-лікарняного",
             "level": "ok" if not no_number else "error",
             "detail": "Заповнено" if not no_number else "Без номера: %s рядків" % len(no_number),
             "value": str(len(no_number)),
-            "action_model": "ua.pfu.claim" if no_number else "", "action_domain": str([("id", "=", claim.id)]) if no_number else "",
-        }
+        }, **_target("ua.pfu.claim", res_id=claim.id))
         lines = run_rec.slip_ids.mapped("line_ids")
         slip_total = round(sum(lines.filtered(lambda l: l.code in ("SICK_PFU", "MAT")).mapped("total")), 2)
         claim_total = round(sum(claim.line_ids.mapped("amount")), 2)
-        yield {
+        yield dict({
             "code": "pfu_amounts", "title": "Суми дорівнюють рядкам листків SICK_PFU і MAT",
             "level": "ok" if abs(claim_total - slip_total) <= AMOUNT_TOLERANCE else "error",
             "detail": "Заява: %s, листки: %s" % (self._m(claim_total), self._m(slip_total)), "value": self._m(claim_total),
-            "action_model": "ua.pfu.claim", "action_domain": str([("id", "=", claim.id)]),
-        }
+        }, **_target("ua.pfu.claim", res_id=claim.id))
 
     # ------------------------------------------------------------------ перевірки: timesheet
     def _checks_timesheet(self):
         self.ensure_one()
         c = self.company_id
         d1, d2 = self._period_bounds()
+        version_domain = [("employee_id.company_id", "=", c.id), ("contract_date_start", "<=", str(d2)),
+                          "|", ("contract_date_end", "=", False), ("contract_date_end", ">=", str(d1))]
         versions = self.env["hr.version"].sudo().search([
             ("employee_id.company_id", "=", c.id), ("contract_date_start", "<=", d2),
             "|", ("contract_date_end", "=", False), ("contract_date_end", ">=", d1),
@@ -521,22 +529,21 @@ class UaReportRun(models.Model):
         staff_count = len(versions.filtered(lambda v: (v.employee_id.ua_contract_kind or "employment") == "employment").mapped("employee_id"))
         sheet = self.env["ua.timesheet.sheet"].search([("company_id", "=", c.id), ("year", "=", self.year), ("month", "=", self.month), ("department_id", "=", False)], limit=1)
         row_count = len(sheet.line_ids) if sheet else 0
-        yield {
+        row_target = _target("ua.timesheet.sheet", res_id=sheet.id) if sheet else _target("hr.version", domain=version_domain)
+        yield dict({
             "code": "timesheet_rows", "title": "Кількість рядків дорівнює кількості працівників у штаті",
             "level": "ok" if row_count == staff_count else "warn",
             "detail": "Табель: %s, у штаті: %s" % (row_count, staff_count), "value": str(row_count),
-            "action_model": "ua.timesheet.sheet" if sheet else "", "action_domain": str([("id", "=", sheet.id)]) if sheet else "",
-        }
+        }, **row_target)
         if sheet:
             days_sheet = sum(sheet.line_ids.mapped("days_worked"))
             slips = self.env["hr.payslip"].search([("company_id", "=", c.id), ("date_from", ">=", d1), ("date_from", "<=", d2), ("state", "=", "done")])
             days_slips = sum(slips.mapped("worked_days_line_ids").filtered(lambda w: w.code == "WORK100").mapped("number_of_days"))
-            yield {
+            yield dict({
                 "code": "timesheet_days", "title": "Сума відпрацьованих днів збігається з листками",
                 "level": "ok" if abs(days_sheet - days_slips) <= 0.5 else "warn",
                 "detail": "Табель: %s, листки: %s" % (days_sheet, days_slips), "value": str(days_sheet),
-                "action_model": "ua.timesheet.sheet", "action_domain": str([("id", "=", sheet.id)]),
-            }
+            }, **_target("ua.timesheet.sheet", res_id=sheet.id))
 
     # ------------------------------------------------------------------ перевірки: staff
     def _checks_staff(self):
@@ -544,19 +551,17 @@ class UaReportRun(models.Model):
         c = self.company_id
         sheet = self.env["ua.staff.list"].search([("company_id", "=", c.id), ("date", "=", self.date)], limit=1)
         if not sheet:
-            yield {
+            yield dict({
                 "code": "staff_missing", "title": "Документ штатного розпису існує", "level": "warn",
                 "detail": "Ще не сформовано (натисніть «Перерахувати»)", "value": "",
-                "action_model": "", "action_domain": "",
-            }
+            }, **_target("hr.employee", domain=[("company_id", "=", c.id), ("active", "=", True)]))
             return
         no_kp = sheet.line_ids.filtered(lambda l: not l.kp_code)
-        yield {
+        yield dict({
             "code": "staff_kp", "title": "Усі посади мають код КП",
             "level": "ok" if not no_kp else "warn",
             "detail": "Заповнено" if not no_kp else "Без коду КП: %s" % len(no_kp), "value": str(len(no_kp)),
-            "action_model": "ua.staff.list" if no_kp else "", "action_domain": str([("id", "=", sheet.id)]) if no_kp else "",
-        }
+        }, **_target("ua.staff.list", res_id=sheet.id))
         versions = self.env["hr.version"].sudo().search([
             ("employee_id.company_id", "=", c.id), ("contract_date_start", "<=", self.date), ("date_version", "<=", self.date),
             "|", ("contract_date_end", "=", False), ("contract_date_end", ">=", self.date),
@@ -569,12 +574,11 @@ class UaReportRun(models.Model):
             wage_sum += v.wage * float(v.employee_id.ua_fte or "1")
         wage_sum = round(wage_sum, 2)
         fund = round(sheet.total_fund, 2)
-        yield {
+        yield dict({
             "code": "staff_fund", "title": "Фонд дорівнює сумі окладів чинних версій",
             "level": "ok" if abs(fund - wage_sum) <= 0.01 else "warn",
             "detail": "Штатний розпис: %s, розрахунок: %s" % (self._m(fund), self._m(wage_sum)), "value": self._m(fund),
-            "action_model": "ua.staff.list", "action_domain": str([("id", "=", sheet.id)]),
-        }
+        }, **_target("ua.staff.list", res_id=sheet.id))
 
     # ------------------------------------------------------------------ перевірки: orders
     def _checks_orders(self):
@@ -583,12 +587,11 @@ class UaReportRun(models.Model):
         d1, d2 = self._period_bounds()
         orders = self.env["ua.hr.order"].search([("company_id", "=", c.id), ("date", ">=", d1), ("date", "<=", d2)])
         drafts = orders.filtered(lambda o: o.state == "draft")
-        yield {
+        yield dict({
             "code": "orders_draft", "title": "Усі накази періоду проведені",
             "level": "ok" if not drafts else "warn",
             "detail": "Немає чернеток" if not drafts else "Чернеток: %s" % len(drafts), "value": str(len(drafts)),
-            "action_model": "ua.hr.order" if drafts else "", "action_domain": str([("id", "in", drafts.ids)]) if drafts else "",
-        }
+        }, **_target("ua.hr.order", domain=[("id", "in", (drafts or orders).ids)]))
 
         posted = orders.filtered(lambda o: o.state in ("posted", "acknowledged") and o.name)
         for register in ("k1", "v2"):
@@ -597,21 +600,18 @@ class UaReportRun(models.Model):
             # реєстри К-1/В-2 наскрізні (не обнуляються щороку), тож рахуємо прогалини від першого
             # номера цього року, а не від 1 - інакше номери минулих років завжди «бракуватимуть»
             gaps = [n for n in range(nums[0], nums[-1] + 1) if n not in nums] if len(nums) > 1 else []
-            yield {
+            yield dict({
                 "code": "orders_gaps_%s" % register, "title": "Немає прогалин у нумерації (%s)" % register,
                 "level": "ok" if not gaps else "warn",
                 "detail": "Прогалин немає" if not gaps else "Пропущені номери: %s" % gaps, "value": str(len(gaps)),
-                "action_model": "ua.hr.order" if gaps else "",
-                "action_domain": str([("company_id", "=", c.id), ("register", "=", register), ("date", ">=", d1), ("date", "<=", d2)]) if gaps else "",
-            }
+            }, **_target("ua.hr.order", domain=[("company_id", "=", c.id), ("register", "=", register), ("date", ">=", str(d1)), ("date", "<=", str(d2))]))
 
         not_ack = orders.filtered(lambda o: o.state == "posted")
-        yield {
+        yield dict({
             "code": "orders_ack", "title": "Усі проведені накази мають ознайомлення",
             "level": "ok" if not not_ack else "warn",
             "detail": "Усі ознайомлені" if not not_ack else "Без ознайомлення: %s" % len(not_ack), "value": str(len(not_ack)),
-            "action_model": "ua.hr.order" if not_ack else "", "action_domain": str([("id", "in", not_ack.ids)]) if not_ack else "",
-        }
+        }, **_target("ua.hr.order", domain=[("id", "in", (not_ack or orders).ids)]))
 
     # ------------------------------------------------------------------ формування: j05
     def _base_files_for_month(self, month):
@@ -827,20 +827,20 @@ class UaReportRun(models.Model):
         self.ensure_one()
         d1, d2 = self._month_range()
         checks = []
+        move_domain = [("company_id", "=", self.company_id.id), ("state", "=", "draft"), ("date", ">=", str(d1)), ("date", "<=", str(d2))]
         drafts = self.env["account.move"].search_count([
             ("company_id", "=", self.company_id.id), ("state", "=", "draft"),
             ("date", ">=", d1), ("date", "<=", d2)])
-        checks.append({"code": "moves_draft", "title": "Усі проводки періоду проведені",
+        checks.append(dict({"code": "moves_draft", "title": "Усі проводки періоду проведені",
                        "level": "ok" if not drafts else "warn",
-                       "detail": "Чернеток проводок: %s" % drafts, "value": str(drafts),
-                       "action_model": "account.move" if drafts else False,
-                       "action_domain": str([("state", "=", "draft"), ("date", ">=", str(d1)), ("date", "<=", str(d2))]) if drafts else False})
+                       "detail": "Чернеток проводок: %s" % drafts, "value": str(drafts)},
+                      **_target("account.move", domain=move_domain)))
         total_d = total_c = 0.0
         for code, name, slip_codes, side, scope in PAYROLL_ACCOUNTS:
             account = self._account_by_code(code)
             if not account:
-                checks.append({"code": "acc_%s" % code, "title": "Рахунок %s є в плані" % code, "level": "error",
-                               "detail": "Рахунку немає", "value": "-"})
+                checks.append(dict({"code": "acc_%s" % code, "title": "Рахунок %s є в плані" % code, "level": "error",
+                               "detail": "Рахунку немає", "value": "-"}, **_target("ua.report.run", res_id=self.id)))
                 continue
             debit, credit = self._turnover(account, d1, d2)
             total_d += debit
@@ -848,29 +848,33 @@ class UaReportRun(models.Model):
             expected = self._slip_amount(d1, d2, slip_codes, scope)
             actual = credit if side == "credit" else debit
             diff = round(actual - expected, 2)
-            checks.append({
+            line_domain = [("account_id", "=", account.id), ("parent_state", "=", "posted"),
+                           ("date", ">=", str(d1)), ("date", "<=", str(d2)), ("company_id", "=", self.company_id.id)]
+            checks.append(dict({
                 "code": "turnover_%s" % code,
                 "title": "Оборот %s (%s) дорівнює листкам" % (code, name),
                 "level": "ok" if abs(diff) <= 0.01 else "error",
                 "detail": "Проводки: %s; листки: %s; різниця: %s" % (self._m(actual), self._m(expected), self._m(diff)),
                 "value": self._m(actual),
-                "action_model": "account.move.line" if abs(diff) > 0.01 else False,
-                "action_domain": str([("account_id", "=", account.id), ("date", ">=", str(d1)), ("date", "<=", str(d2))]) if abs(diff) > 0.01 else False})
+            }, **_target("account.move.line", domain=line_domain)))
+        all_lines_domain = [("company_id", "=", self.company_id.id), ("parent_state", "=", "posted"),
+                            ("date", ">=", str(d1)), ("date", "<=", str(d2))]
         all_lines = self.env["account.move.line"].search([
             ("company_id", "=", self.company_id.id), ("parent_state", "=", "posted"),
             ("date", ">=", d1), ("date", "<=", d2)])
         sd, sc = round(sum(all_lines.mapped("debit")), 2), round(sum(all_lines.mapped("credit")), 2)
-        checks.append({"code": "balance", "title": "Дебет дорівнює кредиту за період",
+        checks.append(dict({"code": "balance", "title": "Дебет дорівнює кредиту за період",
                        "level": "ok" if abs(sd - sc) <= 0.01 else "error",
-                       "detail": "Дебет %s, кредит %s" % (self._m(sd), self._m(sc)), "value": self._m(sd)})
+                       "detail": "Дебет %s, кредит %s" % (self._m(sd), self._m(sc)), "value": self._m(sd)},
+                      **_target("account.move.line", domain=all_lines_domain)))
+        unrec_domain = [("company_id", "=", self.company_id.id), ("is_reconciled", "=", False), ("date", ">=", str(d1)), ("date", "<=", str(d2))]
         unrec = self.env["account.bank.statement.line"].search_count([
             ("company_id", "=", self.company_id.id), ("is_reconciled", "=", False),
             ("date", ">=", d1), ("date", "<=", d2)])
-        checks.append({"code": "unreconciled", "title": "Рядки виписки звірені",
+        checks.append(dict({"code": "unreconciled", "title": "Рядки виписки звірені",
                        "level": "ok" if not unrec else "warn",
-                       "detail": "Незвірених рядків: %s" % unrec, "value": str(unrec),
-                       "action_model": "account.bank.statement.line" if unrec else False,
-                       "action_domain": str([("is_reconciled", "=", False), ("date", ">=", str(d1)), ("date", "<=", str(d2))]) if unrec else False})
+                       "detail": "Незвірених рядків: %s" % unrec, "value": str(unrec)},
+                      **_target("account.bank.statement.line", domain=unrec_domain)))
         return checks
 
     def _checks_trial(self):
@@ -1010,6 +1014,9 @@ class UaReportRun(models.Model):
 
 
 class UaReportCheck(models.Model):
+    """Рядок перевірки звітного прогону. Лише для читання з UI - рядки пише сам прогін
+    (action_refresh(), через sudo()); ir.model.access.csv забороняє create/write/unlink звичайним
+    користувачам, форма і список (якщо відкриті технічно) також readonly."""
     _name = "ua.report.check"
     _description = "Перевірка звітного прогону"
     _order = "sequence, id"
@@ -1021,23 +1028,23 @@ class UaReportCheck(models.Model):
     level = fields.Selection([("ok", "Ок"), ("warn", "Увага"), ("error", "Помилка")], required=True)
     detail = fields.Char()
     value = fields.Char()
-    action_model = fields.Char()
-    action_domain = fields.Char()
+    # ціль перевірки: запис(и), яких вона стосується - hr.employee, hr.payslip, res.company тощо.
+    # Кожна перевірка, що називає записи, має ціль; та, що не про записи (напр. валідність XML),
+    # ціллю має сам прогін (ua.report.run). Заповнюється кодом, що будує перевірку - див. _target().
+    target_model = fields.Char()
+    target_domain = fields.Text(help="Домен цілі, JSON-список.")
+    target_res_id = fields.Integer()
 
     def _screen_data(self):
         self.ensure_one()
+        domain = []
+        if self.target_domain:
+            try:
+                domain = json.loads(self.target_domain)
+            except ValueError:
+                domain = []
         return {
             "id": self.id, "sequence": self.sequence, "code": self.code, "title": self.title,
             "level": self.level, "detail": self.detail or "", "value": self.value or "",
-            "action_model": self.action_model or "", "action_domain": self.action_domain or "",
-        }
-
-    def action_open(self):
-        self.ensure_one()
-        if not self.action_model:
-            return False
-        domain = safe_eval(self.action_domain or "[]")
-        return {
-            "type": "ir.actions.act_window", "res_model": self.action_model, "domain": domain,
-            "views": [[False, "list"], [False, "form"]], "name": self.title, "target": "current",
+            "target_model": self.target_model or "", "target_domain": domain, "target_res_id": self.target_res_id or False,
         }

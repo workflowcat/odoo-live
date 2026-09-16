@@ -187,6 +187,37 @@ export class UaHire extends Component {
         ).length;
     }
 
+    get dateFromLabel() {
+        const v = this.caseData && this.caseData.values.date_from;
+        if (!v) {
+            return "";
+        }
+        const [y, m, d] = v.split("-");
+        return `${d}.${m}.${y}`;
+    }
+
+    get missingCount() {
+        if (!this.caseData) {
+            return 0;
+        }
+        return Object.values(this.caseData.states).filter((s) => s === "missing").length;
+    }
+
+    get proposedCount() {
+        if (!this.caseData) {
+            return 0;
+        }
+        return Object.values(this.caseData.states).filter((s) => s === "proposed").length;
+    }
+
+    get hireBlockedReason() {
+        const c = this.caseData;
+        if (c && c.stage === "onboarding" && !c.can_hire) {
+            return "неможливо прийняти: спершу виправте помилки в перевірках";
+        }
+        return "";
+    }
+
     // ---- файли
     async upload(ev) {
         const files = [...ev.target.files];

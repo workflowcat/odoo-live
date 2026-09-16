@@ -35,6 +35,9 @@
             <page string="Примітка" name="note">
               <field name="note"/>
             </page>
+            <page string="Перевірки" name="ua_checks">
+              <field name="checks_text" readonly="1" nolabel="1"/>
+            </page>
           </notebook>
         </sheet>
         <chatter/>
