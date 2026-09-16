@@ -1,10 +1,13 @@
 """Наповнення стенду даними, схожими на реальні: ТОВ «Ясен Меблі», 17 працівників, усі поля, серпень 2026.
 Ідемпотентно: працівників шукає за РНОКПП, компанію і довідники оновлює. Запуск: python3 scripts/demo_company.py"""
-import json, urllib.request, random
+import json, os, urllib.request, random
 from datetime import date, timedelta
 
 ENV = dict(l.split("=", 1) for l in open(".env").read().splitlines() if "=" in l and not l.startswith("#"))
-URL = "http://127.0.0.1:8110/jsonrpc"; DB = "payroll"; PW = ENV["ODOO_ADMIN_USER_PASSWORD"].strip()
+URL = os.environ.get("ODOO_URL", "http://127.0.0.1:8110").rstrip("/") + "/jsonrpc"  # ODOO_URL=https://... для хмари
+DB = "payroll"; PW = ENV["ODOO_ADMIN_USER_PASSWORD"].strip()
+# браузерний User-Agent: Cloudflare відкидає urllib на хмарній адресі
+_opener = urllib.request.build_opener(); _opener.addheaders = [("User-Agent", "Mozilla/5.0 (Macintosh) AppleWebKit/537.36 Chrome/128 Safari/537.36")]; urllib.request.install_opener(_opener)
 random.seed(2026)
 
 
