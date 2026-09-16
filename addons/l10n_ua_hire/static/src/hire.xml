@@ -53,8 +53,8 @@
           <t t-set="c" t-value="caseData"/>
           <!-- центр: дані справи -->
           <main class="o_ua_hire_main">
-            <div class="o_ua_hire_head">
-              <div>
+            <div class="o_ua_hire_head o_ua_head">
+              <div class="o_ua_head_title">
                 <h4 t-esc="c.name"/>
                 <div class="o_ua_hire_stepper">
                   <t t-foreach="[['candidate','Кандидат'],['onboarding','Оформлення'],['hired','Прийнято']]" t-as="s" t-key="s[0]">
@@ -63,18 +63,18 @@
                   <span t-if="c.stage === 'declined'" class="o_ua_pill o_ua_pill_crit">Відмова<t t-if="c.decline_reason">: <t t-esc="c.decline_reason"/></t></span>
                 </div>
               </div>
-              <div class="o_ua_hire_actions">
+              <div class="o_ua_hire_actions o_ua_head_actions">
                 <t t-if="c.stage === 'candidate'">
-                  <button class="btn btn-primary" t-on-click="startOnboarding"
+                  <button class="btn btn-primary btn-sm" t-on-click="startOnboarding"
                           data-tooltip="Кандидат підходить. Далі: документи, умови, перевірки.">Взяти в оформлення</button>
                 </t>
                 <t t-if="c.stage === 'onboarding'">
-                  <button class="btn btn-primary" t-att-disabled="!c.can_hire or state.busy" t-on-click="hire"
+                  <button class="btn btn-primary btn-sm" t-att-disabled="!c.can_hire or state.busy" t-on-click="hire"
                           t-att-data-tooltip="c.can_hire ? 'Створить картку, документи, проведений наказ, чернетку J3001005 і, за потреби, повідомлення ТЦК' : 'Спершу виправте помилки в перевірках'">Прийняти на роботу</button>
                 </t>
-                <button t-if="['candidate','onboarding'].includes(c.stage)" class="btn btn-secondary"
+                <button t-if="['candidate','onboarding'].includes(c.stage)" class="btn btn-secondary btn-sm"
                         t-on-click="() => this.state.declining = !state.declining">Відмовити</button>
-                <button t-if="c.stage === 'declined'" class="btn btn-secondary" t-on-click="reopen">Відкрити знову</button>
+                <button t-if="c.stage === 'declined'" class="btn btn-secondary btn-sm" t-on-click="reopen">Відкрити знову</button>
               </div>
             </div>
             <div t-if="state.declining" class="o_ua_hire_decline">
@@ -101,7 +101,7 @@
                   <span t-if="s.proposed" class="o_ua_pill o_ua_pill_warn" data-tooltip="Пропозиції з документів" t-esc="s.proposed"/>
                 </button>
               </t>
-              <button t-if="safeProposalCount and !readonly" class="btn btn-secondary btn-sm o_ua_hire_acceptall" t-on-click="acceptAll"
+              <button t-if="safeProposalCount and !readonly" class="btn btn-link btn-sm o_ua_hire_acceptall" t-on-click="acceptAll"
                       data-tooltip="Прийняти пропозиції з високою впевненістю, де поле порожнє і немає інших варіантів">
                 Прийняти певні (<t t-esc="safeProposalCount"/>)
               </button>

@@ -9,11 +9,11 @@
         <t t-set="data" t-value="state.data"/>
 
         <!-- Заголовок -->
-        <div class="o_ua_dashboard_header">
-          <div class="o_ua_dashboard_title">
+        <div class="o_ua_dashboard_header o_ua_head">
+          <div class="o_ua_dashboard_title o_ua_head_title">
             <h3 t-esc="data.company.name"/>
-            <span class="text-muted" t-if="data.company.edrpou">ЄДРПОУ <t t-esc="data.company.edrpou"/></span>
-            <span class="text-muted"><t t-esc="data.company.employee_count"/> активних працівників</span>
+            <span class="o_ua_head_subtitle" t-if="data.company.edrpou">ЄДРПОУ <t t-esc="data.company.edrpou"/> · <t t-esc="data.company.employee_count"/> активних працівників</span>
+            <span class="o_ua_head_subtitle" t-else=""><t t-esc="data.company.employee_count"/> активних працівників</span>
           </div>
           <div class="o_ua_months">
             <t t-foreach="data.periods" t-as="period" t-key="period.year + '-' + period.month">

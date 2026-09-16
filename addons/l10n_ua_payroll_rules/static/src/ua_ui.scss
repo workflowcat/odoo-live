@@ -12,6 +12,55 @@
     --ua-crit: #c04f31;
 }
 
+// Шапка екрана: один рядок, назва+стан ліворуч, дії праворуч. Один патерн на всіх екранах.
+.o_ua_head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+    margin-bottom: 14px;
+
+    h4 { margin: 0; }
+}
+
+.o_ua_head_title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+
+    .o_ua_head_title_row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .o_ua_head_subtitle {
+        font-size: 12px;
+        color: var(--ua-muted);
+    }
+}
+
+.o_ua_head_actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+// Заголовок секції: назва ліворуч, одна дія праворуч. Дії секції лишаються у своїй секції.
+.o_ua_sec_head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+
+    h5 { margin: 0; }
+}
+
 // Заголовок розділу: один розмір і один відступ на всіх екранах
 .o_ua_period, .o_ua_dashboard, .o_ua_bank, .o_ua_reporting, .o_ua_setup, .o_ua_hire {
     h5 {

@@ -87,9 +87,6 @@
 
     .o_ua_card_print_buttons {
         flex: 0 0 auto;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
     }
 
     .o_ua_card_columns {
@@ -151,11 +148,4 @@
         width: 90px;
     }
 
-    .o_ua_card_footer {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        padding-top: 12px;
-        border-top: 1px solid #dee2e6;
-    }
 }

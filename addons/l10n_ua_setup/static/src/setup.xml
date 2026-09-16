@@ -8,18 +8,22 @@
       <t t-elif="state.data">
         <t t-set="data" t-value="state.data"/>
 
-        <div class="o_ua_setup_head">
-          <div>
+        <div class="o_ua_setup_head o_ua_head">
+          <div class="o_ua_head_title">
             <h4>Анкета компанії</h4>
-            <div class="text-muted small"><t t-esc="data.company"/></div>
+            <div class="o_ua_head_subtitle"><t t-esc="data.company"/></div>
           </div>
-          <div class="o_ua_setup_actions">
-            <button class="btn btn-sm btn-outline-secondary" t-att-disabled="state.busy"
-                    t-on-click="() => this.run('fill')">Заповнити з каталогу</button>
-            <button class="btn btn-sm btn-outline-secondary" t-att-disabled="state.busy"
-                    t-on-click="() => this.run('test')">Пробний місяць</button>
+          <div class="o_ua_setup_actions o_ua_head_actions">
             <button class="btn btn-sm btn-primary" t-att-disabled="state.busy or data.counters.required_missing"
                     t-on-click="() => this.run('activate')">Затвердити</button>
+            <button class="btn btn-sm btn-secondary" t-att-disabled="state.busy"
+                    t-on-click="() => this.run('fill')">Заповнити з каталогу</button>
+            <Dropdown>
+              <button class="btn btn-sm btn-outline-secondary">Ще</button>
+              <t t-set-slot="content">
+                <DropdownItem onSelected="() => this.run('test')">Пробний місяць</DropdownItem>
+              </t>
+            </Dropdown>
           </div>
         </div>
 
@@ -28,7 +32,7 @@
             <div class="o_ua_setup_headline_title" t-esc="data.headline.title"/>
             <div class="text-muted small" t-esc="data.headline.detail"/>
           </div>
-          <button t-if="data.headline.label" class="btn btn-primary" t-att-disabled="state.busy"
+          <button t-if="data.headline.label and data.headline.action !== 'propose'" class="btn btn-sm btn-primary" t-att-disabled="state.busy"
                   t-on-click="() => this.run(data.headline.action)" t-esc="data.headline.label"/>
         </div>
 
@@ -57,7 +61,7 @@
         </div>
 
         <div class="o_ua_setup_apply" t-if="data.apply.length">
-          <div class="o_ua_setup_apply_head">
+          <div class="o_ua_setup_apply_head o_ua_sec_head">
             <span>Готово записати в налаштування: <t t-esc="data.apply.length"/></span>
             <button class="btn btn-sm btn-primary" t-att-disabled="state.busy"
                     t-on-click="() => this.run('apply')">Застосувати</button>

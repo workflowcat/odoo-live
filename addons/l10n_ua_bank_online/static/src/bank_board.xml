@@ -44,16 +44,16 @@
         </div>
 
         <div class="o_ua_bank_right" t-if="this.account">
-          <div class="o_ua_bank_header">
-            <div>
+          <div class="o_ua_bank_header o_ua_head">
+            <div class="o_ua_head_title">
               <h4 t-esc="this.account.name"/>
-              <div class="text-muted small">
+              <div class="o_ua_head_subtitle">
                 <span t-esc="this.account.iban || 'рахунок у з\'єднанні не вказано'"/>
                 <span t-if="!this.account.provider_id"> · підключення: <t t-esc="this.account.connect.label"/></span>
               </div>
             </div>
             <!-- одна головна кнопка: наступний крок. Решта - у «Ще». -->
-            <div class="o_ua_bank_actions">
+            <div class="o_ua_bank_actions o_ua_head_actions">
               <t t-if="this.account.provider_id">
                 <button class="btn btn-sm btn-primary" t-att-disabled="state.busy" t-on-click="pullMonth">Завантажити за місяць</button>
               </t>

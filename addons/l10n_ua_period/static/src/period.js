@@ -5,6 +5,8 @@ import { browser } from "@web/core/browser/browser";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { standardActionServiceProps } from "@web/webclient/actions/action_service";
+import { Dropdown } from "@web/core/dropdown/dropdown";
+import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 
 const STATE_LABEL = { done: "готово", warn: "потребує уваги", todo: "не почато" };
 const BASKET_KEY = "ua_print_basket";
@@ -45,6 +47,7 @@ function readBasket() {
 export class UaPeriod extends Component {
     static template = "l10n_ua_period.Period";
     static props = { ...standardActionServiceProps };
+    static components = { Dropdown, DropdownItem };
 
     setup() {
         this.orm = useService("orm");
@@ -279,14 +282,55 @@ export class UaPeriod extends Component {
         }
     }
 
+    // ---------------------------------------------------------------- квартал і рік у «Ще»
+    quarterBlocked(data) {
+        return !!(data.quarter.closed || data.quarter.blockers.length);
+    }
+
+    quarterTip(data) {
+        if (data.quarter.closed) {
+            return `${data.quarter.label} закрито: податкова дата блокування стоїть.`;
+        }
+        if (data.quarter.blockers.length) {
+            return `${data.quarter.label} закрити не можна: ${data.quarter.blockers.join("; ")}.`;
+        }
+        return `${data.quarter.label} готовий до закриття.`;
+    }
+
+    yearBlocked(data) {
+        return !!(data.year_close.closed || data.year_close.blockers.length);
+    }
+
+    yearCloseTip(data) {
+        if (data.year_close.closed) {
+            return `${data.year_close.label} закрито остаточно.`;
+        }
+        if (data.year_close.blockers.length) {
+            return `${data.year_close.label} закрити не можна: ${data.year_close.blockers.join("; ")}.`;
+        }
+        return `${data.year_close.label} готовий до остаточного закриття.`;
+    }
+
+    attrsFor(tooltip) {
+        return { "data-tooltip": tooltip };
+    }
+
     async closeQuarter() {
-        const period = this.state.data.period;
-        await this.runClose("action_close_quarter", [period.year, this.state.data.quarter.quarter],
-                            `Квартал закрито: ${this.state.data.quarter.label}`);
+        const data = this.state.data;
+        if (this.quarterBlocked(data)) {
+            return;
+        }
+        const period = data.period;
+        await this.runClose("action_close_quarter", [period.year, data.quarter.quarter],
+                            `Квартал закрито: ${data.quarter.label}`);
     }
 
     async closeYear() {
-        const period = this.state.data.period;
+        const data = this.state.data;
+        if (this.yearBlocked(data)) {
+            return;
+        }
+        const period = data.period;
         await this.runClose("action_close_year", [period.year], `Рік закрито: ${period.year}`);
     }
 

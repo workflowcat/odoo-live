@@ -4,6 +4,8 @@ import { Component, onWillStart, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { standardActionServiceProps } from "@web/webclient/actions/action_service";
+import { Dropdown } from "@web/core/dropdown/dropdown";
+import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 
 const LEVEL_COLOR = { ok: "text-success", warn: "text-warning", error: "text-danger" };
 const STATE_LABEL = { draft: "Чернетка", checked: "Перевірено", generated: "Сформовано", submitted: "Подано" };
@@ -22,6 +24,7 @@ function fmtCell(v, money) {
 export class UaReporting extends Component {
     static template = "l10n_ua_reporting.Reporting";
     static props = { ...standardActionServiceProps };
+    static components = { Dropdown, DropdownItem };
 
     fmt(value, money) {
         return fmtCell(value, money);

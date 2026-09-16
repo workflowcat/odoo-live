@@ -4,12 +4,12 @@
     <div t-if="state.loading" class="o_ua_card_loading">Завантаження…</div>
     <div t-elif="!state.data" class="o_ua_card_empty text-muted">Немає даних.</div>
     <t t-else="">
-      <div class="o_ua_card_header">
+      <div class="o_ua_card_header o_ua_head">
         <div class="o_ua_card_avatar">
           <img t-if="!state.avatarFailed" t-att-src="state.data.header.avatar_url" t-on-error="onAvatarError" alt=""/>
           <div t-else="" class="o_ua_card_initials" t-esc="state.data.header.initials"/>
         </div>
-        <div class="o_ua_card_identity">
+        <div class="o_ua_card_identity o_ua_head_title">
           <div class="o_ua_card_name" t-esc="state.data.header.name"/>
           <div class="o_ua_card_role">
             <t t-esc="state.data.header.job_title"/> · <t t-esc="state.data.header.department"/>
@@ -24,9 +24,20 @@
                   t-att-class="'o_ua_badge ' + badge.css" t-esc="badge.label"/>
           </div>
         </div>
-        <div class="o_ua_card_print_buttons">
-          <button t-foreach="headerActions" t-as="act" t-key="act.key" type="button"
-                  class="btn btn-secondary btn-sm" t-on-click="() => this.onActionClick(act)" t-esc="act.label"/>
+        <div class="o_ua_card_print_buttons o_ua_head_actions">
+          <t t-foreach="primaryActions" t-as="act" t-key="act.key">
+            <button type="button" class="btn btn-primary btn-sm" t-on-click="() => this.onActionClick(act)" t-esc="act.label"/>
+          </t>
+          <t t-foreach="secondaryActions" t-as="act" t-key="act.key">
+            <button type="button" class="btn btn-secondary btn-sm" t-on-click="() => this.onActionClick(act)" t-esc="act.label"/>
+          </t>
+          <Dropdown t-if="moreActions.length">
+            <button class="btn btn-sm btn-outline-secondary">Ще</button>
+            <t t-set-slot="content">
+              <DropdownItem t-foreach="moreActions" t-as="act" t-key="act.key"
+                            onSelected="() => this.onActionClick(act)" t-esc="act.label"/>
+            </t>
+          </Dropdown>
         </div>
       </div>
 
@@ -98,10 +109,6 @@
         </table>
       </div>
 
-      <div class="o_ua_card_footer">
-        <button t-foreach="footerActions" t-as="act" t-key="act.key" type="button"
-                class="btn btn-primary btn-sm" t-on-click="() => this.onActionClick(act)" t-esc="act.label"/>
-      </div>
     </t>
   </div>
 </templates>

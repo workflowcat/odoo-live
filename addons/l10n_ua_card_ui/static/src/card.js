@@ -2,10 +2,18 @@ import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { standardWidgetProps } from "@web/views/widgets/standard_widget_props";
 import { Component, useState, onWillStart, onWillUpdateProps } from "@odoo/owl";
+import { Dropdown } from "@web/core/dropdown/dropdown";
+import { DropdownItem } from "@web/core/dropdown/dropdown_item";
+
+// Ключі дій у порядку появи в шапці картки: одна головна, дві другорядні, решта під «Ще».
+const PRIMARY_KEYS = ["new_leave"];
+const SECONDARY_KEYS = ["change_wage", "new_document"];
+const LABEL_OVERRIDES = { doc_pack: "Перевірка документів" };
 
 export class UaEmployeeCard extends Component {
     static template = "l10n_ua_card_ui.EmployeeCard";
     static props = { ...standardWidgetProps };
+    static components = { Dropdown, DropdownItem };
 
     setup() {
         this.orm = useService("orm");
@@ -43,12 +51,21 @@ export class UaEmployeeCard extends Component {
         this.state.avatarFailed = true;
     }
 
-    get headerActions() {
-        return (this.state.data && this.state.data.actions || []).filter((a) => a.group === "header");
+    get allActions() {
+        const actions = (this.state.data && this.state.data.actions) || [];
+        return actions.map((a) => (LABEL_OVERRIDES[a.key] ? { ...a, label: LABEL_OVERRIDES[a.key] } : a));
     }
 
-    get footerActions() {
-        return (this.state.data && this.state.data.actions || []).filter((a) => a.group === "footer");
+    get primaryActions() {
+        return this.allActions.filter((a) => PRIMARY_KEYS.includes(a.key));
+    }
+
+    get secondaryActions() {
+        return this.allActions.filter((a) => SECONDARY_KEYS.includes(a.key));
+    }
+
+    get moreActions() {
+        return this.allActions.filter((a) => !PRIMARY_KEYS.includes(a.key) && !SECONDARY_KEYS.includes(a.key));
     }
 
     async reload() {

@@ -9,10 +9,15 @@
         <t t-set="data" t-value="state.data"/>
 
         <!-- шапка: місяць, стан одним рядком, наступний крок -->
-        <div class="o_ua_pd_head">
-          <div class="o_ua_pd_title">
-            <h4 t-esc="data.period.label"/>
-            <span t-attf-class="o_ua_pd_state o_ua_tone_#{data.headline.tone}" t-esc="data.headline.title"/>
+        <div class="o_ua_pd_head o_ua_head">
+          <div class="o_ua_head_title">
+            <div class="o_ua_head_title_row">
+              <h4 t-esc="data.period.label"/>
+              <span t-attf-class="o_ua_pd_state o_ua_tone_#{data.headline.tone}" t-esc="data.headline.title"/>
+            </div>
+            <div t-if="data.close.state !== 'closed' and data.blockers.length" class="o_ua_head_subtitle">
+              Закрити місяць не можна: <t t-esc="data.blockers.join('; ')"/>.
+            </div>
           </div>
           <div class="o_ua_pd_month_nav">
             <button type="button" class="o_ua_pd_icon" t-on-click="() => this.shiftMonth(-1)" aria-label="Попередній місяць" data-tooltip="Попередній місяць">‹</button>
@@ -24,14 +29,39 @@
                   t-on-click="() => this.selectPeriod(p)" t-esc="p.label"
                   t-att-data-tooltip="'Перейти до місяця ' + p.label"/>
           </div>
-          <button type="button" t-attf-class="btn btn-sm #{state.guide ? 'btn-outline-primary' : 'btn-outline-secondary'}"
-                  t-att-aria-pressed="state.guide ? 'true' : 'false'" t-on-click="() => this.toggleGuide()"
-                  data-tooltip="Показати або сховати перші кроки, пояснення кроків і номери частин екрана">
-            <t t-esc="state.guide ? 'Сховати підказки' : 'Підказки'"/>
-          </button>
-          <button t-if="data.headline.label and data.headline.action !== 'exceptions'" class="btn btn-sm btn-primary"
-                  t-att-disabled="state.busy" t-on-click="() => this.runHeadline()" t-esc="data.headline.label"
-                  data-tooltip="Наступний крок місяця"/>
+          <div class="o_ua_head_actions">
+            <button type="button" t-attf-class="btn btn-sm #{state.guide ? 'btn-outline-primary' : 'btn-outline-secondary'}"
+                    t-att-aria-pressed="state.guide ? 'true' : 'false'" t-on-click="() => this.toggleGuide()"
+                    data-tooltip="Показати або сховати перші кроки, пояснення кроків і номери частин екрана">
+              <t t-esc="state.guide ? 'Сховати підказки' : 'Підказки'"/>
+            </button>
+            <button t-if="data.headline.label and data.headline.action !== 'exceptions'" class="btn btn-sm btn-primary"
+                    t-att-disabled="state.busy" t-on-click="() => this.runHeadline()" t-esc="data.headline.label"
+                    data-tooltip="Наступний крок місяця"/>
+            <button t-if="data.close.state === 'closed' and !data.close.hard" class="btn btn-sm btn-secondary"
+                    t-att-disabled="state.busy" t-on-click="() => this.openClose()">Відкрити знову</button>
+            <t t-if="data.close.state !== 'closed'">
+              <button class="btn btn-sm btn-secondary" t-if="data.new_changes"
+                      t-att-disabled="state.busy" t-on-click="() => this.acceptAll()">
+                Прийняти всі зміни (<t t-esc="data.new_changes"/>)
+              </button>
+              <button class="btn btn-sm btn-secondary" t-att-disabled="state.busy or data.blockers.length"
+                      t-on-click="() => this.closeMonth()" data-tooltip="Ставить дату блокування: після неї суми місяця не змінюються">Закрити місяць</button>
+            </t>
+            <Dropdown t-if="data.quarter.label or data.year_close.label">
+              <button class="btn btn-sm btn-outline-secondary">Ще</button>
+              <t t-set-slot="content">
+                <DropdownItem t-if="data.quarter.label" closingMode="'none'"
+                    class="this.quarterBlocked(data) ? 'disabled' : ''"
+                    attrs="this.attrsFor(this.quarterTip(data))"
+                    onSelected="() => this.closeQuarter()">Закрити квартал</DropdownItem>
+                <DropdownItem t-if="data.year_close.label" closingMode="'none'"
+                    class="this.yearBlocked(data) ? 'disabled' : ''"
+                    attrs="this.attrsFor(this.yearCloseTip(data))"
+                    onSelected="() => this.closeYear()">Закрити рік остаточно</DropdownItem>
+              </t>
+            </Dropdown>
+          </div>
         </div>
 
         <!-- смуга строків -->
@@ -98,12 +128,12 @@
           <!-- у центрі: вибраний крок -->
           <div class="o_ua_pd_main" t-if="this.selectedStep">
             <t t-set="step" t-value="this.selectedStep"/>
-            <div class="o_ua_pd_main_head">
+            <div class="o_ua_pd_main_head o_ua_sec_head">
               <div>
                 <h5 class="o_ua_pd_main_title" t-esc="step.title"/>
                 <div class="o_ua_lbl" t-esc="step.fact"/>
               </div>
-              <button class="btn btn-sm btn-secondary" t-att-disabled="state.busy" t-on-click="() => this.open(step)"
+              <button class="btn btn-link btn-sm" t-att-disabled="state.busy" t-on-click="() => this.open(step)"
                       data-tooltip="Перехід до всіх записів цього кроку">
                 <t t-esc="step.button or 'Відкрити перелік'"/>
               </button>
@@ -241,47 +271,10 @@
           </div>
         </div>
 
-        <div class="o_ua_period_close">
-          <t t-if="data.close.state === 'closed'">
-            <span class="o_ua_period_locked">Місяць закрито <t t-esc="data.close.closed_date"/><t t-if="data.close.closed_by"> · <t t-esc="data.close.closed_by"/></t><t t-if="data.close.hard"> · остаточно</t></span>
-            <button class="btn btn-sm btn-secondary" t-if="!data.close.hard"
-                    t-att-disabled="state.busy" t-on-click="() => this.openClose()">Відкрити знову</button>
-          </t>
-          <t t-else="">
-            <span t-if="data.blockers.length" class="o_ua_period_blockers">
-              Закрити місяць не можна: <t t-esc="data.blockers.join('; ')"/>.
-            </span>
-            <span t-else="" class="o_ua_period_blockers ok">Усі умови закриття виконані.</span>
-            <button class="btn btn-sm btn-secondary" t-if="data.new_changes"
-                    t-att-disabled="state.busy" t-on-click="() => this.acceptAll()">
-              Прийняти всі зміни (<t t-esc="data.new_changes"/>)
-            </button>
-            <button class="btn btn-sm btn-secondary" t-att-disabled="state.busy or data.blockers.length"
-                    t-on-click="() => this.closeMonth()" data-tooltip="Ставить дату блокування: після неї суми місяця не змінюються">Закрити місяць</button>
-          </t>
+        <div class="o_ua_head_subtitle" t-if="data.close.state === 'closed'">
+          Місяць закрито <t t-esc="data.close.closed_date"/><t t-if="data.close.closed_by"> · <t t-esc="data.close.closed_by"/></t><t t-if="data.close.hard"> · остаточно</t>
         </div>
 
-        <div class="o_ua_period_close" t-if="data.quarter.label">
-          <span class="o_ua_period_blockers">
-            <t t-if="data.quarter.closed"><t t-esc="data.quarter.label"/> закрито: податкова дата блокування стоїть.</t>
-            <t t-elif="data.quarter.blockers.length"><t t-esc="data.quarter.label"/> закрити не можна: <t t-esc="data.quarter.blockers.join('; ')"/>.</t>
-            <t t-else=""><t t-esc="data.quarter.label"/> готовий до закриття.</t>
-          </span>
-          <button class="btn btn-sm btn-secondary" t-if="!data.quarter.closed"
-                  t-att-disabled="state.busy or data.quarter.blockers.length"
-                  t-on-click="() => this.closeQuarter()">Закрити квартал</button>
-        </div>
-
-        <div class="o_ua_period_close" t-if="data.year_close.label">
-          <span class="o_ua_period_blockers">
-            <t t-if="data.year_close.closed"><t t-esc="data.year_close.label"/> закрито остаточно.</t>
-            <t t-elif="data.year_close.blockers.length"><t t-esc="data.year_close.label"/> закрити не можна: <t t-esc="data.year_close.blockers.join('; ')"/>.</t>
-            <t t-else=""><t t-esc="data.year_close.label"/> готовий до остаточного закриття.</t>
-          </span>
-          <button class="btn btn-sm btn-secondary" t-if="!data.year_close.closed"
-                  t-att-disabled="state.busy or data.year_close.blockers.length"
-                  t-on-click="() => this.closeYear()">Закрити рік остаточно</button>
-        </div>
         <div class="o_ua_person_panel" t-if="state.person">
           <div class="o_ua_person_panel_head">
             <div>
