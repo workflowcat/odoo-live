@@ -127,6 +127,9 @@ export class UaHome extends Component {
             guide: readGuide(),
             collapsed: readPanelCollapsed(),
             flowLines: [], // рахується з реальних rect'ів карток - див. measureFlows()
+            recentExpanded: false, // «ще» під «Свіже» - показати решту відфільтрованого списку
+            showAutomatic: false, // перемикач: включити рядки від ботів/службових акаунтів
+            draftsOpen: false, // «Ваші чернетки» - згорнутий блок, розгортається кліком
         });
         this.badgeWord = (level) => BADGE_WORD[level] || level;
         this.regionHint = (key) => REGION_HINT[key] || "";
@@ -188,6 +191,42 @@ export class UaHome extends Component {
         } catch {
             // приватне вікно
         }
+    }
+
+    // ------------------------------------------------------------------ панель «Моє»: Свіже і чернетки
+    /** «Свіже» без рядків автоматики (OdooBot тощо), доки перемикач не увімкнено - див. рядок.automatic,
+     * що рахує бекенд (ua.home._is_automatic). */
+    get filteredRecent() {
+        const rows = (this.state.data && this.state.data.recent) || [];
+        return this.state.showAutomatic ? rows : rows.filter((row) => !row.automatic);
+    }
+
+    /** Перші п'ять рядків «Свіжого», або всі відфільтровані - після «ще». */
+    get visibleRecent() {
+        const rows = this.filteredRecent;
+        return this.state.recentExpanded ? rows : rows.slice(0, 5);
+    }
+
+    expandRecent() {
+        this.state.recentExpanded = true;
+    }
+
+    toggleAutomatic() {
+        this.state.showAutomatic = !this.state.showAutomatic;
+    }
+
+    toggleDrafts() {
+        if (this.state.data.drafts.length) {
+            this.state.draftsOpen = !this.state.draftsOpen;
+        }
+    }
+
+    // ------------------------------------------------------------------ карта: пункти розділу
+    /** Перші шість пунктів розділу - решта ховається за «ще N», що відкриває корінь розділу
+     * (та сама ціль, що й клік по картці). Чотири були довільним лімітом; шість тримає картку
+     * компактною навіть для найбільшого розділу (Працівники - 14 пунктів). */
+    visibleItems(region) {
+        return region.items.slice(0, 6);
     }
 
     // ------------------------------------------------------------------ карта і стрілки потоку

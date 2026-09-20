@@ -192,6 +192,24 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+
+        // кожен пункт - своя ціль: наведення показує посилання, а не просто текст рядка карти.
+        li.o_ua_home_item_link {
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-color: transparent;
+
+            &:hover { text-decoration-color: currentColor; }
+        }
+
+        li.o_ua_home_item_more {
+            cursor: pointer;
+            color: var(--ua-muted, #6c757d);
+            text-decoration: underline;
+            text-decoration-color: transparent;
+
+            &:hover { text-decoration-color: currentColor; }
+        }
     }
 
     .o_ua_home_badges {
@@ -208,7 +226,6 @@
 
         b {
             font: 700 11px ui-monospace, Menlo, Consolas, monospace;
-            text-transform: uppercase;
             letter-spacing: .3px;
         }
 
@@ -232,31 +249,32 @@
 
     .o_ua_home_panel_title {
         font: 700 12px ui-monospace, Menlo, Consolas, monospace;
-        text-transform: uppercase;
         letter-spacing: .5px;
         color: var(--ua-muted, #6c757d);
-        margin-bottom: 10px;
+        margin-bottom: 8px;
     }
 
+    // один тонкий роздільник між блоками, без подвійних ліній: рамка лише знизу блоку,
+    // рядки всередині блоку - без власних рамок чи зайвих полів.
     .o_ua_home_panel_block {
-        margin-bottom: 18px;
-        padding-bottom: 14px;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
         border-bottom: 1px solid var(--ua-rule, #dee2e6);
 
-        &:last-child { border-bottom: none; margin-bottom: 0; }
+        &:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
     }
 
     .o_ua_home_panel_head {
         font: 600 12px ui-monospace, Menlo, Consolas, monospace;
         color: var(--ua-muted, #6c757d);
-        margin-bottom: 6px;
+        margin-bottom: 4px;
     }
 
     .o_ua_home_todo {
         display: flex;
         gap: 8px;
         align-items: flex-start;
-        padding: 5px 4px;
+        padding: 3px 4px;
 
         .o_ua_dot { margin-top: 5px; }
         .o_ua_home_todo_text { min-width: 0; font-size: 13px; }
@@ -275,23 +293,50 @@
         vertical-align: 1px;
     }
 
+    // один рядок на запис: «що» тисне і обрізається, «хто · коли» лишається справа, приглушене -
+    // разом на одному рядку, коли влазить, тому список не подвоюється у висоту.
     .o_ua_home_recent {
-        padding: 5px 4px;
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        padding: 3px 4px;
         font-size: 13px;
 
-        .o_ua_home_recent_what { display: block; }
+        .o_ua_home_recent_what {
+            min-width: 0;
+            flex: 1 1 auto;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .o_ua_home_recent_meta {
+            flex: 0 0 auto;
+            font-size: 12px;
+            color: var(--ua-muted, #6c757d);
+        }
     }
 
+    // «ще» під «Свіже» і перемикач автоматичних записів - тихі, як рядок журналу змін нижче,
+    // не окремий блок.
+    .o_ua_home_more, .o_ua_home_panel_toggle {
+        margin-top: 2px;
+        padding: 3px 4px;
+        font-size: 12px;
+        color: var(--ua-muted, #6c757d);
+    }
+    .o_ua_home_more { text-decoration: underline; }
+
     .o_ua_home_changelog {
-        margin-top: 4px;
-        padding: 5px 4px;
+        margin-top: 2px;
+        padding: 3px 4px;
         font-size: 12px;
         text-decoration: underline;
         color: var(--ua-muted, #6c757d);
     }
 
     .o_ua_home_draft {
-        padding: 5px 4px;
+        padding: 3px 4px;
         font-size: 13px;
     }
 

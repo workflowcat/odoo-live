@@ -88,7 +88,16 @@
                 <div class="o_ua_lbl" t-esc="this.itemsLabel(region.count)"/>
 
                 <ul class="o_ua_home_items" t-if="region.items.length">
-                  <li t-foreach="region.items" t-as="item" t-key="item_index" t-esc="item"/>
+                  <li t-foreach="this.visibleItems(region)" t-as="item" t-key="item_index"
+                      t-attf-class="#{item.target ? 'o_ua_home_item_link' : ''} #{this.isOpening(region.key + '-i' + item_index) ? 'o_ua_home_busy' : ''}"
+                      t-att-data-tooltip="item.target ? ('Відкрити ' + item.name) : ''"
+                      t-on-click.stop="() => item.target and this.openTarget(item.target, region.key + '-i' + item_index)"
+                      t-esc="item.name"/>
+                  <li t-if="region.items.length > 6" class="o_ua_home_item_more"
+                      t-att-data-tooltip="'Відкрити ' + region.name"
+                      t-on-click.stop="() => region.action and this.openTarget(region.action, region.key + '-more')">
+                    ще <t t-esc="region.items.length - 6"/>
+                  </li>
                 </ul>
 
                 <div class="o_ua_home_badges" t-if="region.badges.length">
@@ -116,7 +125,7 @@
                   <span class="o_ua_home_todo_text">
                     <span t-esc="row.text"/>
                     <span t-if="row_index === 0" class="o_ua_home_now_mark"
-                          data-tooltip="Те саме, що кнопка вгорі">ЗАРАЗ</span>
+                          data-tooltip="Те саме, що кнопка вгорі">зараз</span>
                     <span t-if="state.guide and row.hint" class="o_ua_lbl" t-esc="row.hint"/>
                   </span>
                 </div>
@@ -124,14 +133,23 @@
 
               <section class="o_ua_home_panel_block">
                 <div class="o_ua_home_panel_head">Свіже</div>
-                <div t-if="!data.recent.length" class="o_ua_lbl">Ще немає змін цього місяця.</div>
-                <div t-foreach="data.recent" t-as="row" t-key="row_index"
+                <div t-if="!this.filteredRecent.length" class="o_ua_lbl">
+                  <t t-esc="data.recent.length ? 'Усе - автоматичні записи, зараз сховані.' : 'Ще немає змін цього місяця.'"/>
+                </div>
+                <div t-foreach="this.visibleRecent" t-as="row" t-key="row_index"
                      t-attf-class="o_ua_home_recent #{row.target ? 'o_ua_clickable' : ''} #{this.isOpening('recent-' + row_index) ? 'o_ua_home_busy' : ''}"
                      t-on-click="() => row.target and this.openTarget(row.target, 'recent-' + row_index)">
                   <span class="o_ua_home_recent_what">
                     <t t-esc="row.what"/><t t-if="row.name"> · <t t-esc="row.name"/></t>
                   </span>
-                  <span class="o_ua_lbl"><t t-esc="row.who"/> · <t t-esc="row.when"/></span>
+                  <span class="o_ua_home_recent_meta"><t t-esc="row.who"/> · <t t-esc="row.when"/></span>
+                </div>
+                <div t-if="!state.recentExpanded and this.filteredRecent.length > 5" class="o_ua_home_more o_ua_clickable"
+                     t-on-click="() => this.expandRecent()">
+                  ще <t t-esc="this.filteredRecent.length - 5"/>
+                </div>
+                <div class="o_ua_home_panel_toggle o_ua_clickable" t-on-click="() => this.toggleAutomatic()">
+                  <t t-esc="state.showAutomatic ? 'сховати автоматичні' : 'показати автоматичні'"/>
                 </div>
                 <div class="o_ua_home_changelog o_ua_clickable" t-on-click="() => this.openChangeLog()">
                   Журнал змін · <t t-esc="data.unseen_changes"/> непереглянутих
@@ -139,14 +157,19 @@
               </section>
 
               <section class="o_ua_home_panel_block">
-                <div class="o_ua_home_panel_head">Ваші чернетки</div>
-                <div t-if="!data.drafts.length" class="o_ua_lbl">Чернеток немає.</div>
-                <div t-foreach="data.drafts" t-as="row" t-key="row_index"
-                     t-attf-class="o_ua_home_draft o_ua_clickable #{this.isOpening('draft-' + row_index) ? 'o_ua_home_busy' : ''}"
-                     t-on-click="() => this.openTarget(row.target, 'draft-' + row_index)">
-                  <span t-esc="row.title"/>
-                  <span t-if="row.subtitle" class="o_ua_lbl" t-esc="row.subtitle"/>
+                <div t-attf-class="o_ua_home_panel_head #{data.drafts.length ? 'o_ua_clickable' : ''}"
+                     t-on-click="() => this.toggleDrafts()">
+                  Ваші чернетки<t t-if="data.drafts.length"> · <t t-esc="data.drafts.length"/></t>
                 </div>
+                <div t-if="!data.drafts.length" class="o_ua_lbl">Чернеток немає.</div>
+                <t t-elif="state.draftsOpen">
+                  <div t-foreach="data.drafts" t-as="row" t-key="row_index"
+                       t-attf-class="o_ua_home_draft o_ua_clickable #{this.isOpening('draft-' + row_index) ? 'o_ua_home_busy' : ''}"
+                       t-on-click="() => this.openTarget(row.target, 'draft-' + row_index)">
+                    <span t-esc="row.title"/>
+                    <span t-if="row.subtitle" class="o_ua_lbl" t-esc="row.subtitle"/>
+                  </div>
+                </t>
               </section>
             </div>
           </aside>

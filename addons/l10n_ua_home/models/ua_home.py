@@ -13,7 +13,7 @@ l10n_ua_period.ua_period_board (`action_open` / `action_open_record` / `action_o
 """
 from datetime import date, timedelta
 
-from odoo import _, api, fields, models
+from odoo import SUPERUSER_ID, _, api, fields, models
 from odoo.exceptions import UserError
 
 MONTHS_UA = {
@@ -38,6 +38,12 @@ WHAT_NOUN = {
     "Стан авансу": ("аванс", "аванси", "авансів"),
     "Стан звіту": ("звіт", "звіти", "звітів"),
 }
+# Логіни службових акаунтів цієї бази - не людей за клавіатурою, а інтеграцій (чат-помічник
+# працівників, перегляд payroll-review). Odoo не має поля "бот чи людина": ні share, ні active,
+# ні hr.employee, ні res.users.apikeys цих акаунтів від людських (admin/lana) не відрізняють -
+# перевірено прямим запитом до бази. Сам бот ядра (OdooBot) розпізнається надійно через
+# SUPERUSER_ID, тому в списку лишається тільки те, чого код сам не знає.
+AUTOMATIC_LOGINS = {"assistant", "viewer_tmp"}
 
 
 class UaHome(models.AbstractModel):
@@ -75,6 +81,11 @@ class UaHome(models.AbstractModel):
         if 2 <= r <= 4:
             return few
         return many
+
+    @staticmethod
+    def _is_automatic(user):
+        """Чи належить запис журналу не людині, а автоматиці - див. AUTOMATIC_LOGINS вище."""
+        return user.id == SUPERUSER_ID or user.login in AUTOMATIC_LOGINS
 
     @staticmethod
     def _feat(region, level, badge, target, todo=None, hint=None):
@@ -331,7 +342,9 @@ class UaHome(models.AbstractModel):
             out.append({
                 "key": key, "mark": mark, "name": name,
                 "count": len(leaves),
-                "items": [leaf.name for leaf in leaves[:4]],
+                # Кожен пункт - своя ціль (той самий xmlid, що й у action вище), не просто текст:
+                # список повний (усі листки меню), скільки з них показати картці - вирішує фронт.
+                "items": [{"name": leaf.name, "target": self._menu_target(leaf)} for leaf in leaves],
                 "action": action,
                 "tasks": sum(1 for f in region_feats if f.get("todo")),
                 "badges": [{"level": f["level"], "text": f["badge"], "target": f["target"]} for f in badges],
@@ -368,6 +381,7 @@ class UaHome(models.AbstractModel):
                 "when": log.date.strftime("%d.%m") if log.date else "",
                 "area": AREA_MAP.get(log.area, log.area),
                 "target": target,
+                "automatic": self._is_automatic(log.user_id),
             })
 
         groups = []
@@ -394,6 +408,7 @@ class UaHome(models.AbstractModel):
                 "when": when,
                 "area": row["area"],
                 "target": row["target"],
+                "automatic": row["automatic"],
             })
         return rows
 
