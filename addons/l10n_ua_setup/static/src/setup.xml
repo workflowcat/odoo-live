@@ -62,7 +62,7 @@
 
         <div class="o_ua_setup_apply" t-if="data.apply.length">
           <div class="o_ua_setup_apply_head o_ua_sec_head">
-            <span>Готово записати в налаштування: <t t-esc="data.apply.length"/></span>
+            <span>Буде записано в налаштування: <t t-esc="data.apply.length"/></span>
             <button class="btn btn-sm btn-primary" t-att-disabled="state.busy"
                     t-on-click="() => this.run('apply')">Застосувати</button>
           </div>

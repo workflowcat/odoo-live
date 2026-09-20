@@ -20,6 +20,7 @@ const PIN_MIN_WIDTH = 1200;
 const SHORT = {
     "l10n_ua_home.menu_ua_home_root": "ДМ",
     "l10n_ua_period.menu_ua_period_root": "ЗП",
+    "l10n_ua_papers.menu_ua_papers_root": "ПП",
     "l10n_ua_navigation.menu_ua_people_root": "ПР",
     "l10n_ua_bank_online.menu_ua_bank_board": "БН",
     "l10n_ua_reporting.menu_ua_reporting_root": "ЗВ",
@@ -31,6 +32,7 @@ const OURS = Object.keys(SHORT);
 export const PAGE_HELP = {
     "l10n_ua_home.menu_ua_home_screen": "Карта п'яти розділів, потік між ними і особиста панель: що зробити зараз, що змінилося.",
     "l10n_ua_navigation.menu_ua_period_screen": "Робоче місце місяця: кроки, документи, строки і закриття.",
+    "l10n_ua_papers.menu_ua_papers_screen": "Усі папери одним екраном: поля, готовий вигляд до друку і що в папір входить.",
     "l10n_ua_dashboard.menu_ua_dashboard_root": "Нарахування по підрозділах, обороти рахунків і документи місяця.",
     "payroll.hr_payslip_menu": "Листок кожного працівника за місяць: нарахування, податки, сума до виплати.",
     "payroll.hr_payslip_run_menu": "Листки всіх працівників за місяць однією групою для розрахунку і затвердження.",

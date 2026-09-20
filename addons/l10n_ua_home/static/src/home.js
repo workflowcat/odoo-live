@@ -127,9 +127,9 @@ export class UaHome extends Component {
             guide: readGuide(),
             collapsed: readPanelCollapsed(),
             flowLines: [], // рахується з реальних rect'ів карток - див. measureFlows()
-            recentExpanded: false, // «ще» під «Свіже» - показати решту відфільтрованого списку
+            recentExpanded: false, // «ще» під «Останні зміни» - показати решту відфільтрованого списку
             showAutomatic: false, // перемикач: включити рядки від ботів/службових акаунтів
-            draftsOpen: false, // «Ваші чернетки» - згорнутий блок, розгортається кліком
+            draftsOpen: false, // «Чернетки» - згорнутий блок, розгортається кліком
         });
         this.badgeWord = (level) => BADGE_WORD[level] || level;
         this.regionHint = (key) => REGION_HINT[key] || "";
@@ -137,7 +137,7 @@ export class UaHome extends Component {
 
         // Стрілки потоку йдуть від реальних країв карток (не від фіксованих відсотків), тому
         // перераховуємо після кожного перемальовування даних і при будь-якій зміні розміру карти
-        // (вікно, згортання панелі «Моє» - карта тоді стає ширшою).
+        // (вікно, згортання правої панелі - карта тоді стає ширшою).
         useEffect(() => this.measureFlows(), () => [this.state.data]);
         onMounted(() => {
             this.flowResizeObserver = new ResizeObserver(() => this.measureFlows());
@@ -193,8 +193,8 @@ export class UaHome extends Component {
         }
     }
 
-    // ------------------------------------------------------------------ панель «Моє»: Свіже і чернетки
-    /** «Свіже» без рядків автоматики (OdooBot тощо), доки перемикач не увімкнено - див. рядок.automatic,
+    // ------------------------------------------------------------------ права панель: останні зміни і чернетки
+    /** «Останні зміни» без рядків автоматики (OdooBot тощо), доки перемикач не увімкнено - див. рядок.automatic,
      * що рахує бекенд (ua.home._is_automatic). */
     get filteredRecent() {
         const rows = (this.state.data && this.state.data.recent) || [];

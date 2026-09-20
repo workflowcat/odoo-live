@@ -50,6 +50,7 @@ run_check docs_check.py    payroll
 run_check payroll_check.py payroll_test PAYROLL_CHECK_DB=payroll_test
 run_check advance_check.py payroll_test PAYROLL_CHECK_DB=payroll_test
 run_check explain_check.py payroll      PAYROLL_DB=payroll
+run_check papers_check.py  payroll      PAYROLL_DB=payroll
 
 echo "Час виконання: ${SECONDS} с"
 
