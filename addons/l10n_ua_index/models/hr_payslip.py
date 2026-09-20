@@ -23,9 +23,28 @@ from odoo.addons.l10n_ua_payroll_rules.models.hr_payslip import ua_round
 
 THRESHOLD_DEFAULT = 103.0
 
+_UA_MONTHS_GEN = {1: "січня", 2: "лютого", 3: "березня", 4: "квітня", 5: "травня", 6: "червня",
+                  7: "липня", 8: "серпня", 9: "вересня", 10: "жовтня", 11: "листопада", 12: "грудня"}
+
 
 def _next_month(year, month):
     return (year + 1, 1) if month == 12 else (year, month + 1)
+
+
+def _ua_ym_label(ym):
+    """(рік, місяць) у родовому відмінку - "вересня 2026"."""
+    year, month = ym
+    return "%s %d" % (_UA_MONTHS_GEN.get(month, str(month)), year)
+
+
+def _entry(label, kind, state, source=None, note=None):
+    """Один запис _ua_payroll_sources: label/kind/state завжди, source і/або note - за наявності."""
+    out = {"label": label, "kind": kind, "state": state}
+    if source is not None:
+        out["source"] = source
+    if note is not None:
+        out["note"] = note
+    return out
 
 
 class HrPayslip(models.Model):
@@ -105,6 +124,50 @@ class HrPayslip(models.Model):
         values = super()._ua_payroll_values(contracts)
         values["index_amount"] = self.ua_index_amount()
         return values
+
+    def _ua_payroll_sources(self, contracts):
+        """Джерело index_amount. Не перераховує ua_index_detail() двома різними шляхами -
+        викликає той самий метод, яким рахується саме значення."""
+        res = super()._ua_payroll_sources(contracts)
+        employee = self.employee_id.sudo()
+        label = "Сума індексації"
+
+        if employee.ua_index_off:
+            res["index_amount"] = _entry(label, "money", "not_applicable",
+                                         note="Індексацію вимкнено для працівника (ua_index_off = True).")
+            return res
+
+        base = self._ua_index_base_month()
+        if not base:
+            res["index_amount"] = _entry(label, "money", "not_applicable",
+                                         note="Немає базового місяця індексації - ні ua_index_base, "
+                                              "ні дати прийняття на роботу не визначено.")
+            return res
+
+        months = self._ua_index_months(base)
+        if not months:
+            res["index_amount"] = _entry(label, "money", "not_applicable",
+                                         note="Немає місяців у вікні індексації - базовий місяць збігається "
+                                              "з місяцем листка або пізніший за нього.")
+            return res
+
+        amount, percent, missing = self.ua_index_detail()
+        if amount <= 0:
+            res["index_amount"] = _entry(label, "money", "not_applicable",
+                                         note="Наростаючий індекс %.1f %% не перевищує поріг - права на "
+                                              "виплату індексації ще немає." % percent)
+            return res
+
+        source = {"model": "ua.cpi.index",
+                  "domain": [("year", ">=", months[0][0]), ("year", "<=", months[-1][0])],
+                  "label": "індекси Держстату %s - %s" % (_ua_ym_label(months[0]), _ua_ym_label(months[-1])),
+                  "basis": "Постанова КМУ № 1078 (Порядок індексації грошових доходів населення)"}
+        note = None
+        if missing:
+            note = ("Індекс не враховано для %d міс. у вікні (ще не оприлюднений на дату листка) - "
+                    "наростаючий відсоток порахований без них." % len(missing))
+        res["index_amount"] = _entry(label, "money", "calculated", source=source, note=note)
+        return res
 
     def action_payslip_done(self):
         """Виплачена індексація починає новий цикл: базовим стає місяць листка."""

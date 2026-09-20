@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_explain_user,ua.explain user,model_ua_explain,base.group_user,1,0,0,0
+access_ua_explain_trace_user,ua.explain.trace user,model_ua_explain_trace,base.group_user,1,0,0,0
+access_ua_explain_trace_manager,ua.explain.trace manager,model_ua_explain_trace,hr.group_hr_manager,1,1,1,1

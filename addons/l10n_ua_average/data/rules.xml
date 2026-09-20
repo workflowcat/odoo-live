@@ -7,24 +7,28 @@
       <field name="category_id" ref="cat_avg"/><field name="condition_select">python</field>
       <field name="condition_python">result = payroll.ua.vac_days &gt; 0</field>
       <field name="amount_select">code</field><field name="amount_python_compute">result = tools.r2(payroll.ua.vac_days * payroll.ua.avg100_day, 2)</field>
+      <field name="note">Оплата днів щорічної відпустки, за рахунок підприємства. Рахується як дні відпустки, помножені на середньоденний заробіток за календарний день за 12 повних місяців перед місяцем листка (Постанова КМУ № 100).</field>
     </record>
     <record id="rule_sick_emp" model="hr.salary.rule">
       <field name="name">Лікарняні за рахунок підприємства, перші 5 днів</field><field name="code">SICK_EMP</field><field name="sequence">22</field>
       <field name="category_id" ref="cat_avg"/><field name="condition_select">python</field>
       <field name="condition_python">result = payroll.ua.sick_emp_days &gt; 0</field>
       <field name="amount_select">code</field><field name="amount_python_compute">result = tools.r2(payroll.ua.sick_emp_days * payroll.ua.avg1266_day * payroll.ua.sick_percent / 100.0, 2)</field>
+      <field name="note">Лікарняні за перші 5 днів хвороби, за рахунок підприємства, а не ПФУ. Рахуються як дні лікарняного, помножені на середньоденний заробіток за календарний день за 12 місяців (Постанова КМУ № 1266) і на відсоток оплати за страховим стажем працівника.</field>
     </record>
     <record id="rule_sick_pfu" model="hr.salary.rule">
       <field name="name">Лікарняні за рахунок ПФУ, з 6-го дня</field><field name="code">SICK_PFU</field><field name="sequence">23</field>
       <field name="category_id" ref="cat_avg"/><field name="condition_select">python</field>
       <field name="condition_python">result = payroll.ua.sick_pfu_days &gt; 0</field>
       <field name="amount_select">code</field><field name="amount_python_compute">result = tools.r2(payroll.ua.sick_pfu_days * payroll.ua.avg1266_day * payroll.ua.sick_percent / 100.0, 2)</field>
+      <field name="note">Лікарняні починаючи з 6-го дня хвороби, за рахунок Пенсійного фонду (ПФУ), а не підприємства. Рахуються так само, як перші 5 днів: дні лікарняного, помножені на середньоденний заробіток за календарний день (Постанова КМУ № 1266) і на відсоток оплати за страховим стажем.</field>
     </record>
     <record id="rule_mat" model="hr.salary.rule">
       <field name="name">Допомога по вагітності та пологах</field><field name="code">MAT</field><field name="sequence">25</field>
       <field name="category_id" ref="l10n_ua_payroll_rules.cat_mat"/><field name="condition_select">python</field>
       <field name="condition_python">result = payroll.ua.mat_days &gt; 0</field>
       <field name="amount_select">code</field><field name="amount_python_compute">result = tools.r2(payroll.ua.mat_days * payroll.ua.avg1266_day, 2)</field>
+      <field name="note">Допомога по вагітності та пологах за дні декретної відпустки (типово 126 календарних днів), за рахунок фонду соціального страхування (ПФУ), не підприємства. Рахується як дні декретної відпустки, помножені на середньоденний заробіток за календарний день за 12 місяців, без обмеження відсотком страхового стажу (100 %).</field>
     </record>
     <record id="rule_comp_vac" model="hr.salary.rule">
       <field name="name">Компенсація за невикористану відпустку</field><field name="code">COMP_VAC</field><field name="sequence">24</field>
@@ -36,18 +40,21 @@
       <field name="amount_select">code</field>
       <field name="amount_python_compute">days = (inputs.COMP_DAYS.amount if inputs.COMP_DAYS else 0.0) + payroll.ua.extra_comp_days
 result = tools.r2(days * payroll.ua.avg100_day, 2)</field>
+      <field name="note">Грошова компенсація за невикористані дні відпустки, найчастіше при звільненні, за рахунок підприємства. Дні беруться з ручного вводу плюс автоматично додані невикористана соціальна відпустка на дітей і УБД чи особливі умови праці поточного року; сума = дні, помножені на середньоденний заробіток за календарний день (Постанова КМУ № 100).</field>
     </record>
     <record id="rule_study" model="hr.salary.rule">
       <field name="name">Оплата навчальної відпустки</field><field name="code">STUDY_PAY</field><field name="sequence">26</field>
       <field name="category_id" ref="cat_avg"/><field name="condition_select">python</field>
       <field name="condition_python">result = payroll.ua.study_days &gt; 0</field>
       <field name="amount_select">code</field><field name="amount_python_compute">result = tools.r2(payroll.ua.study_days * payroll.ua.avg100_day, 2)</field>
+      <field name="note">Оплата днів навчальної відпустки, за рахунок підприємства. Рахується як дні відпустки, помножені на середньоденний заробіток за календарний день за 12 місяців (Постанова КМУ № 100).</field>
     </record>
     <record id="rule_child_vac" model="hr.salary.rule">
       <field name="name">Оплата додаткової відпустки на дітей</field><field name="code">CHILD_VAC_PAY</field><field name="sequence">27</field>
       <field name="category_id" ref="cat_avg"/><field name="condition_select">python</field>
       <field name="condition_python">result = payroll.ua.child_vac_days &gt; 0</field>
       <field name="amount_select">code</field><field name="amount_python_compute">result = tools.r2(payroll.ua.child_vac_days * payroll.ua.avg100_day, 2)</field>
+      <field name="note">Оплата днів додаткової соціальної відпустки працівникам з дітьми, за рахунок підприємства. Рахується як дні відпустки, помножені на середньоденний заробіток за календарний день за 12 місяців (Постанова КМУ № 100).</field>
     </record>
     <record id="rule_trip" model="hr.salary.rule">
       <field name="name">Середній заробіток за час відрядження</field><field name="code">TRIP_PAY</field><field name="sequence">28</field>
@@ -56,18 +63,21 @@ result = tools.r2(days * payroll.ua.avg100_day, 2)</field>
       <field name="amount_select">code</field>
       <field name="amount_python_compute">day_wage = (contract.wage * payroll.ua.fte / payroll.ua.month_workdays) if payroll.ua.month_workdays else 0.0
 result = tools.r2(payroll.ua.trip_work_days * max(payroll.ua.avg_trip_day, day_wage), 2)</field>
+      <field name="note">Оплата робочих днів відрядження за середнім заробітком, за рахунок підприємства (ст. 121 КЗпП). Береться більше з двох чисел: середній заробіток за робочий день за 2 повні місяці перед відрядженням (Постанова КМУ № 100 у редакції 1213) або поточний денний оклад, якщо середньої немає або вона нижча.</field>
     </record>
     <record id="rule_sick_care" model="hr.salary.rule">
       <field name="name">Допомога по догляду за хворим (ПФУ, з першого дня)</field><field name="code">SICK_CARE_PAY</field><field name="sequence">29</field>
       <field name="category_id" ref="cat_avg"/><field name="condition_select">python</field>
       <field name="condition_python">result = payroll.ua.sick_care_days &gt; 0</field>
       <field name="amount_select">code</field><field name="amount_python_compute">result = tools.r2(payroll.ua.sick_care_days * payroll.ua.avg1266_day * payroll.ua.sick_percent / 100.0, 2)</field>
+      <field name="note">Допомога по догляду за хворою дитиною або членом сім'ї, за рахунок Пенсійного фонду (ПФУ) з першого дня, на відміну від звичайного лікарняного, де перші 5 днів платить підприємство. Рахується як дні догляду, помножені на середньоденний заробіток за календарний день і на відсоток оплати за страховим стажем працівника.</field>
     </record>
     <record id="rule_daily" model="hr.salary.rule">
       <field name="name">Добові за відрядження (не оподатковуються)</field><field name="code">DAILY</field><field name="sequence">30</field>
       <field name="category_id" ref="l10n_ua_payroll_rules.cat_notax"/><field name="condition_select">python</field>
       <field name="condition_python">result = bool(inputs.DAILY and inputs.DAILY.amount)</field>
       <field name="amount_select">code</field><field name="amount_python_compute">result = tools.r2(inputs.DAILY.amount, 2)</field>
+      <field name="note">Добові за відрядження, сума вводиться вручну в рядку введення «Добові за відрядження». Не оподатковуються ПДФО і військовим збором і не входять у базу ЄСВ, за рахунок підприємства.</field>
     </record>
     <record id="input_daily" model="hr.rule.input"><field name="name">Добові за відрядження</field><field name="code">DAILY</field><field name="input_id" ref="rule_daily"/></record>
     <record id="input_comp_days" model="hr.rule.input"><field name="name">Невикористані дні відпустки</field><field name="code">COMP_DAYS</field><field name="input_id" ref="rule_comp_vac"/></record>

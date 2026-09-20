@@ -23,8 +23,8 @@
       <field name="category_id" ref="cat_alw"/><field name="condition_select">python</field>
       <field name="condition_python">result = bool(payroll.ua.night_hours)</field>
       <field name="amount_select">code</field>
-      <field name="amount_python_compute">result = tools.r2(payroll.ua.hour_rate * payroll.ua.night_hours * 0.20, 2)</field>
-      <field name="note">20 % годинної ставки за кожну нічну годину (ст. 108 КЗпП). Для окладних - еквівалентна годинна ставка = оклад / норма годин місяця.</field>
+      <field name="amount_python_compute">result = tools.r2(payroll.ua.hour_rate * payroll.ua.night_hours * payroll.ua.night_rate / 100.0, 2)</field>
+      <field name="note">Доплата за кожну нічну годину: годинна ставка × ставка доплати (параметр «Доплата за нічні години», ст. 108 КЗпП). Для окладних - еквівалентна годинна ставка = оклад / норма годин місяця.</field>
     </record>
 
     <record id="struct_ua_salary" model="hr.payroll.structure">

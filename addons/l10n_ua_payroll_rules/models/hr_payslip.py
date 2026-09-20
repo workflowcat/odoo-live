@@ -52,7 +52,7 @@ class HrPayslip(models.Model):
         contract = contracts[:1]
         return {
             "min_wage": p["min_wage"], "living_wage": p["living_wage"],
-            "pdfo_rate": p["pdfo_rate"], "vz_rate": p["vz_rate"],
+            "pdfo_rate": p["pdfo_rate"], "vz_rate": p["vz_rate"], "night_rate": p["night_rate"],
             "esv_rate": p["esv_rate_disabled"] if emp.ua_esv_category == "disabled" else p["esv_rate"],
             "esv_max_base": p["min_wage"] * p["esv_max_multiplier"],
             "esv_min_applies": bool(emp.ua_main_job) and emp.ua_contract_kind == "employment",
@@ -114,3 +114,115 @@ class HrPayslip(models.Model):
         values["min_sal_target"] = self._ua_min_sal_target(values)
         res["ua"] = BaseBrowsableObject(values)
         return res
+
+    def _ua_param_source(self, key, date, company, label, kind="amount"):
+        """Джерело одного параметра закону: діючий запис ua.payroll.param на дату
+        (той самий запит, що й ua.payroll.param.get()). Не падає, коли параметра
+        немає - "missing" з причиною, як і решта методу нижче."""
+        Param = self.env["ua.payroll.param"]
+        domain = [("key", "=", key), ("valid_from", "<=", date)]
+        if company:
+            domain += ["|", ("company_id", "=", company.id), ("company_id", "=", False)]
+        rec = Param.search(domain, order="company_id desc, valid_from desc", limit=1)
+        if not rec:
+            return {"label": label, "state": "missing", "kind": kind, "value": None,
+                    "source": None, "note": "Немає запису параметра «%s» на %s." % (key, date)}
+        return {"label": label, "state": "supplied", "kind": kind, "value": rec.value,
+                "source": {"model": "ua.payroll.param", "res_id": rec.id, "label": rec.name,
+                           "basis": rec.source or "", "valid_from": str(rec.valid_from)}}
+
+    def _ua_payroll_sources(self, contracts):
+        """Джерела всіх ключів, які цей модуль кладе у payroll.ua (_ua_payroll_values
+        і min_sal_target з get_payroll_dict). Форма запису - docs/payroll/explain-model.md.
+        Інші модулі, що доповнюють _ua_payroll_values (середні, індексація, табель),
+        доповнюють і цей словник тим самим прийомом: super() + update()."""
+        date = self.date_to
+        company = self.company_id
+        emp = self.employee_id.sudo()
+        emp_source = {"model": "hr.employee", "res_id": emp.id, "label": emp.name} if emp else None
+        out = {}
+
+        out["min_wage"] = self._ua_param_source("min_wage", date, company, "Мінімальна зарплата")
+        out["living_wage"] = self._ua_param_source("living_wage", date, company, "Прожитковий мінімум")
+        out["pdfo_rate"] = self._ua_param_source("pdfo_rate", date, company, "Ставка ПДФО, %", kind="rate")
+        out["vz_rate"] = self._ua_param_source("vz_rate", date, company, "Ставка військового збору, %", kind="rate")
+        out["night_rate"] = self._ua_param_source("night_rate", date, company,
+                                                   "Ставка доплати за нічні години, %", kind="rate")
+
+        esv_key = "esv_rate_disabled" if emp.ua_esv_category == "disabled" else "esv_rate"
+        esv_entry = self._ua_param_source(esv_key, date, company, "Ставка ЄСВ, %", kind="rate")
+        esv_entry["note"] = ("Пільгова ставка: працівник з інвалідністю." if emp.ua_esv_category == "disabled"
+                             else "Загальна ставка.")
+        out["esv_rate"] = esv_entry
+
+        multiplier = self._ua_param_source("esv_max_multiplier", date, company, "Множник максимальної бази ЄСВ")
+        if multiplier["state"] == "supplied" and out["min_wage"]["state"] == "supplied":
+            out["esv_max_base"] = {"label": "Максимальна база ЄСВ", "state": "calculated", "kind": "amount",
+                                   "source": None,
+                                   "note": "мінімальна зарплата × множник максимальної бази ЄСВ (%s × %s)" % (
+                                       out["min_wage"]["value"], multiplier["value"])}
+        else:
+            out["esv_max_base"] = {"label": "Максимальна база ЄСВ", "state": "missing", "kind": "amount",
+                                   "source": None, "note": "не порахувати: немає мінімальної зарплати або множника."}
+
+        out["esv_min_applies"] = {
+            "label": "Доплата ЄСВ до мінімального внеску застосовується", "state": "calculated", "kind": "flag",
+            "source": None,
+            "note": "основне місце роботи (%s) і трудовий договір (%s)" % (bool(emp.ua_main_job), emp.ua_contract_kind),
+        }
+
+        psp_base = self._ua_param_source("psp_base", date, company, "Базова податкова соціальна пільга")
+        if psp_base["state"] == "supplied":
+            out["psp_amount"] = {"label": "Податкова соціальна пільга", "state": "calculated", "kind": "amount",
+                                 "source": None,
+                                 "note": "базова пільга × коефіцієнт пільги «%s», дітей: %s" % (
+                                     emp.ua_psp or "none", emp.ua_psp_children)}
+        else:
+            out["psp_amount"] = {"label": "Податкова соціальна пільга", "state": "missing", "kind": "amount",
+                                 "source": None, "note": "немає запису «psp_base»."}
+
+        psp_threshold = self._ua_param_source("psp_threshold", date, company, "Межа доходу для ПСП (база)")
+        if psp_threshold["state"] == "supplied":
+            out["psp_threshold"] = {"label": "Межа доходу для ПСП", "state": "calculated", "kind": "amount",
+                                    "source": None,
+                                    "note": "базова межа × коефіцієнт дітей, якщо пільга «на дітей»"}
+        else:
+            out["psp_threshold"] = {"label": "Межа доходу для ПСП", "state": "missing", "kind": "amount",
+                                    "source": None, "note": "немає запису «psp_threshold»."}
+
+        out["month_workdays"] = {"label": "Норма робочих днів місяця", "state": "calculated", "kind": "count",
+                                 "source": None,
+                                 "note": "графік контракту (або типовий п'ятиденний тиждень), період листка"}
+
+        out["contract_kind"] = {"label": "Вид відносин", "state": "supplied", "kind": "text",
+                                "value": emp.ua_contract_kind or "employment", "source": emp_source}
+
+        holidays = self._ua_param_source("holidays_per_year", date, company, "Святкових днів на рік у нормі")
+        if holidays["state"] != "supplied":
+            holidays["note"] = "Немає запису - вважається 0 (воєнний стан, святкові не віднімаються)."
+        out["holidays_per_year"] = holidays
+
+        out["fte"] = {"label": "Ставка (частка)", "state": "supplied", "kind": "rate",
+                      "value": float(emp.ua_fte or "1"), "source": emp_source}
+
+        out["reserve_rate"] = self._ua_param_source("reserve_rate", date, company, "Ставка резерву відпусток, %", kind="rate")
+        out["aid_charity_limit"] = self._ua_param_source("aid_charity_limit", date, company,
+                                                          "Річна межа неоподатковуваної матдопомоги")
+        out["gift_limit_share"] = self._ua_param_source("gift_limit_share", date, company,
+                                                         "Межа неоподатковуваного подарунка, частка МЗП", kind="rate")
+
+        out["aid_used_year"] = {"label": "Матдопомога, вже отримана цього року", "state": "calculated", "kind": "amount",
+                                "source": None, "note": "сума рядків AID_FREE проведених листків з початку року"}
+
+        # mat_cover_days і time_ratio: тут - заглушки get_payroll_dict (0 і -1.0 відповідно),
+        # реальні джерела дає l10n_ua_average і l10n_ua_hr_docs, якщо модулі встановлено -
+        # вони доповнюють цей словник через super(), так само як доповнюють _ua_payroll_values.
+        out["mat_cover_days"] = {"label": "Днів декрету в цьому місяці", "state": "not_applicable", "kind": "count",
+                                 "source": None, "note": "рахує l10n_ua_average, якщо модуль встановлено"}
+        out["time_ratio"] = {"label": "Частка відпрацьованого часу за табелем", "state": "not_applicable", "kind": "rate",
+                             "source": None, "note": "-1 = табель не задіяно; рахує l10n_ua_hr_docs, якщо модуль встановлено"}
+
+        out["min_sal_target"] = {"label": "Цільова мінімальна зарплата за місяць", "state": "calculated", "kind": "amount",
+                                 "source": None,
+                                 "note": "мінімальна зарплата × ставка × частка часу (ст. 3-1 ЗУ про оплату праці)"}
+        return out

@@ -9,6 +9,24 @@
 """
 from odoo import models
 
+_UA_MONTHS = {1: "січень", 2: "лютий", 3: "березень", 4: "квітень", 5: "травень", 6: "червень",
+              7: "липень", 8: "серпень", 9: "вересень", 10: "жовтень", 11: "листопад", 12: "грудень"}
+
+
+def _ua_sheet_label(sheet):
+    """Назва табеля людською мовою: «табель за вересень 2026». Після «за» - знахідний відмінок."""
+    return "табель за %s %d" % (_UA_MONTHS.get(sheet.month, str(sheet.month)), sheet.year)
+
+
+def _entry(label, kind, state, source=None, note=None):
+    """Один запис _ua_payroll_sources: label/kind/state завжди, source і/або note - за наявності."""
+    out = {"label": label, "kind": kind, "state": state}
+    if source is not None:
+        out["source"] = source
+    if note is not None:
+        out["note"] = note
+    return out
+
 
 class HrPayslip(models.Model):
     _inherit = "hr.payslip"
@@ -104,3 +122,70 @@ class HrPayslip(models.Model):
             wage = contract.wage or 0.0
             hour_rate = (wage / norm_hours) if norm_hours else 0.0
         return {"pay_type": pay_type, "hour_rate": hour_rate, "fact_hours": fact_hours, "night_hours": night_hours}
+
+    def _ua_payroll_sources(self, contracts):
+        """Джерела входів, які додає цей модуль: time_ratio і все, що повертає _ua_pay_type_values().
+
+        Викликає _ua_timesheet_line() - той самий метод, яким рахуються самі значення,
+        і не робить окремого важкого запиту."""
+        res = super()._ua_payroll_sources(contracts)
+        line = self._ua_timesheet_line()
+        contract = contracts[:1]
+
+        sheet_source = None
+        if line:
+            sheet_source = {"model": "ua.timesheet.sheet", "res_id": line.sheet_id.id,
+                            "label": _ua_sheet_label(line.sheet_id),
+                            "basis": "Затверджений табель обліку робочого часу (форма П-5)"}
+
+        # time_ratio: сентинел -1, коли табеля немає - розрахунок мовчки переходить на графік контракту.
+        if not line:
+            res["time_ratio"] = _entry(
+                "Частка відпрацьованого часу з табеля", "share", "missing",
+                note="Немає затвердженого табеля за місяць листка - time_ratio = -1, і мінімальна "
+                     "зарплата/оклад рахуються від графіка контракту, а не від табеля.")
+        else:
+            res["time_ratio"] = _entry("Частка відпрацьованого часу з табеля", "share", "supplied",
+                                       source=sheet_source)
+
+        # pay_type і hour_rate: залежать від контракту (версії), не від табеля.
+        if not contract:
+            no_contract_note = "Немає активного контракту (версії) на дату листка."
+            res["pay_type"] = _entry("Вид оплати", "flag", "missing", note=no_contract_note)
+            res["hour_rate"] = _entry("Годинна ставка", "money", "missing", note=no_contract_note)
+            pay_type = "monthly"
+        else:
+            contract_source = {"model": "hr.version", "res_id": contract.id,
+                               "label": "версія контракту працівника", "basis": "Умови оплати праці (hr.version)"}
+            pay_type = contract.ua_pay_type or "monthly"
+            res["pay_type"] = _entry("Вид оплати", "flag", "supplied", source=contract_source)
+            if pay_type == "hourly":
+                res["hour_rate"] = _entry("Годинна ставка", "money", "supplied", source=contract_source)
+            else:
+                res["hour_rate"] = _entry(
+                    "Годинна ставка (еквівалент окладу)", "money", "calculated",
+                    note="Оклад контракту поділено на норму годин місяця; потрібна лише для нічної "
+                         "надбавки (ст. 108 КЗпП рахує від годинної ставки, не від окладу).")
+
+        # fact_hours: застосовується лише до погодинної оплати (правило HOURLY, ua_salary_rules_pay.xml).
+        if pay_type != "hourly":
+            res["fact_hours"] = _entry(
+                "Фактичні години з табеля", "hours", "not_applicable",
+                note="Погодинні ключі не застосовуються: контракт на окладі (BASIC), не погодинна оплата.")
+        elif not line:
+            res["fact_hours"] = _entry(
+                "Фактичні години з табеля", "hours", "missing",
+                note="Немає затвердженого табеля - фактичні години невідомі, погодинний розрахунок піде з нулем.")
+        else:
+            res["fact_hours"] = _entry("Фактичні години з табеля", "hours", "supplied", source=sheet_source)
+
+        # night_hours: діє для обох видів оплати (умова правила NIGHT - лише bool(night_hours)).
+        if not line:
+            res["night_hours"] = _entry(
+                "Нічні години з табеля", "hours", "missing",
+                note="Немає затвердженого табеля - нічні години невідомі (0), надбавка не нарахується, "
+                     "навіть якщо нічні зміни фактично були.")
+        else:
+            res["night_hours"] = _entry("Нічні години з табеля", "hours", "supplied", source=sheet_source)
+
+        return res

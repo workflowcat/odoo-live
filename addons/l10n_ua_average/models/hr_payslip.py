@@ -11,6 +11,25 @@ def _add_months(d, n):
     return date(d.year + y, m + 1, 1)
 
 
+_UA_MONTHS_GEN = {1: "січня", 2: "лютого", 3: "березня", 4: "квітня", 5: "травня", 6: "червня",
+                  7: "липня", 8: "серпня", 9: "вересня", 10: "жовтня", 11: "листопада", 12: "грудня"}
+
+
+def _ua_month_label(d):
+    """Місяць і рік у родовому відмінку - "вересня 2026", для людських назв вікон розрахунку."""
+    return "%s %d" % (_UA_MONTHS_GEN.get(d.month, str(d.month)), d.year)
+
+
+def _entry(label, kind, state, source=None, note=None):
+    """Один запис _ua_payroll_sources: label/kind/state завжди, source і/або note - за наявності."""
+    out = {"label": label, "kind": kind, "state": state}
+    if source is not None:
+        out["source"] = source
+    if note is not None:
+        out["note"] = note
+    return out
+
+
 class HrPayslip(models.Model):
     _inherit = "hr.payslip"
 
@@ -171,6 +190,117 @@ class HrPayslip(models.Model):
             "extra_comp_days": self._ua_comp_extra_days(),
             **self._ua_leave_calendar_days(),
         })
+        return res
+
+    def _ua_average_source(self, basis):
+        """Джерело середньої за Постановою 100/1266: домен на ua.earnings.history вікна розрахунку.
+
+        Той самий домен, що читає _ua_average_base() - тут лише перевіряємо, чи є рядки,
+        не перераховуємо середню вдруге.
+
+        Коли рядків історії немає, середня не порожня і не нульова: _ua_average_base()
+        підставляє оклад за п. 4 Постанови 100. Це підстановка, а не факт, і саме так її
+        треба показати - стан calculated і рядок про те, звідки взялося число. Назвати це
+        "missing" було б неправдою: число є. Назвати "supplied" - теж, бо заробітку не було."""
+        start, end = self._ua_average_window()
+        domain = [("employee_id", "=", self.employee_id.id), ("month", ">=", start), ("month", "<", end)]
+        has_rows = bool(self.env["ua.earnings.history"].search_count(domain))
+        label = "заробіток за 12 місяців до %s" % _ua_month_label(end)
+        if not has_rows:
+            contract = self.contract_id or self._get_employee_contracts()[:1]
+            source = {"model": "hr.version", "res_id": contract.id, "label": "оклад версії контракту",
+                      "basis": basis} if contract else None
+            return source, "calculated", (
+                "Немає рядків ua.earnings.history за %s - середня порахована від окладу "
+                "за п. 4 Постанови 100, а не від фактичного заробітку." % label)
+        return {"model": "ua.earnings.history", "domain": domain, "label": label, "basis": basis}, "supplied", None
+
+    def _ua_trip_source(self):
+        """Джерело середньої для відрядження: вікно двох місяців, ua.earnings.history.work_days.
+
+        Викликає _ua_average_trip() - те саме обчислення, яким рахується сам avg_trip_day -
+        не дублює пошук рядків окремою формулою."""
+        start, end = self._ua_trip_window()
+        domain = [("employee_id", "=", self.employee_id.id), ("month", ">=", start), ("month", "<", end)]
+        label = "заробіток за 2 місяці до %s" % _ua_month_label(end)
+        total, days = self._ua_average_trip()
+        if days <= 0:
+            return None, ("Немає рядків ua.earnings.history з відпрацьованими робочими днями за %s - "
+                          "avg_trip_day лишається 0, відрядження порахується за денним окладом." % label)
+        return {"model": "ua.earnings.history", "domain": domain, "label": label,
+                "basis": "Постанова КМУ № 100 (в редакції 1213)"}, None
+
+    def _ua_payroll_sources(self, contracts):
+        """Джерела входів, які додає цей модуль. Ключі ті самі, що в _ua_payroll_values."""
+        res = super()._ua_payroll_sources(contracts)
+
+        src100, state100, note100 = self._ua_average_source("Постанова КМУ № 100")
+        res["avg100_day"] = _entry("Середня грн/календарний день (Постанова 100)", "money",
+                                   state100, source=src100, note=note100)
+
+        src1266, state1266, note1266 = self._ua_average_source("Постанова КМУ № 1266 (лікарняні)")
+        res["avg1266_day"] = _entry("Середня грн/календарний день (Постанова 1266, лікарняні)", "money",
+                                    state1266, source=src1266, note=note1266)
+
+        src_trip, note_trip = self._ua_trip_source()
+        res["avg_trip_day"] = _entry("Середня грн/робочий день для відрядження", "money",
+                                     "supplied" if src_trip else "missing", source=src_trip, note=note_trip)
+
+        leave_days = self._ua_leave_calendar_days()  # один виклик, використовуємо і для mat_shares, і для днів нижче
+        if leave_days.get("mat_days"):
+            res["mat_shares"] = _entry(
+                "Частки декретної допомоги за місяцями", "money", "calculated",
+                note="Пораховано як avg100_day x календарні дні декретної відпустки в кожному місяці "
+                     "листка, розподілено пропорційно (роз'яснення ДПС про мінімальний внесок).")
+        else:
+            res["mat_shares"] = _entry(
+                "Частки декретної допомоги за місяцями", "money", "not_applicable",
+                note="У цьому листку немає декретної відпустки, що почалася в періоді (mat_days = 0).")
+
+        res["sick_percent"] = _entry(
+            "Відсоток оплати лікарняного (страховий стаж)", "rate", "supplied",
+            source={"model": "hr.employee", "res_id": self.employee_id.id,
+                    "label": self.employee_id.name or "Картка працівника",
+                    "basis": "ЗУ «Про загальнообов'язкове державне соціальне страхування» (страховий стаж)"})
+
+        res["extra_comp_days"] = _entry(
+            "Дні компенсації понад ручний ввід (COMP_DAYS)", "days", "calculated",
+            note="Сума залишків картки працівника: невикористана соціальна відпустка на дітей (усі роки) "
+                 "+ УБД/особливі умови поточного року; застосовується лише в місяці звільнення, інакше 0.")
+
+        leave_specs = [
+            ("vac_days", "VAC", "Дні щорічної відпустки в періоді листка",
+             "Заява на щорічну відпустку, затверджена HR"),
+            ("unpaid_days", "UNPAID", "Дні відпустки без збереження зарплати",
+             "Заява на відпустку без збереження зарплати, затверджена HR"),
+            ("mat_days", "MAT", "Дні декретної відпустки, що почалася в цьому листку",
+             "Листок непрацездатності у зв'язку з вагітністю та пологами, затверджений HR"),
+            ("mat_cover_days", "MAT", "Календарні дні декретного покриття в місяці листка",
+             "Листок непрацездатності у зв'язку з вагітністю та пологами, затверджений HR"),
+            ("study_days", "STUDY", "Дні навчальної відпустки",
+             "Довідка навчального закладу, відпустка затверджена HR"),
+            ("child_vac_days", "CHILD_VAC", "Дні соціальної відпустки на дітей",
+             "Заява на соціальну відпустку на дітей, затверджена HR"),
+            ("child3_days", "CHILD3", "Дні відпустки для батьків трьох і більше дітей",
+             "Заява на відпустку для батьків трьох і більше дітей, затверджена HR"),
+            ("sick_care_days", "SICK_CARE", "Дні лікарняного по догляду за хворим",
+             "Лікарняний листок по догляду за хворим, затверджений HR"),
+            ("trip_days", "TRIP", "Календарні дні відрядження",
+             "Наказ про відрядження, затверджений HR"),
+            ("trip_work_days", "TRIP", "Робочі дні відрядження (оплата за середньою, ст. 121 КЗпП)",
+             "Наказ про відрядження, затверджений HR"),
+            ("sick_emp_days", "SICK", "Дні лікарняного за рахунок роботодавця (1-5)",
+             "Лікарняний листок, затверджений HR"),
+            ("sick_pfu_days", "SICK", "Дні лікарняного за рахунок ПФУ (6 і далі)",
+             "Лікарняний листок, затверджений HR"),
+        ]
+        for key, code, label, basis in leave_specs:
+            domain = [("employee_id", "=", self.employee_id.id), ("state", "=", "validate"),
+                      ("request_date_from", "<=", self.date_to), ("request_date_to", ">=", self.date_from),
+                      ("holiday_status_id.work_entry_type_id.code", "=", code)]
+            res[key] = _entry(label, "days", "calculated",
+                              source={"model": "hr.leave", "domain": domain,
+                                      "label": "затверджені відсутності листка (%s)" % code, "basis": basis})
         return res
 
     def action_payslip_done(self):

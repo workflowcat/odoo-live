@@ -26,6 +26,7 @@ result = tools.r2(max(min(inputs.AID.amount, limit), 0.0), 2)</field>
       <field name="amount_python_compute">limit = payroll.ua.aid_charity_limit - payroll.ua.aid_used_year
 free = max(min(inputs.AID.amount, limit), 0.0)
 result = tools.r2(inputs.AID.amount - free, 2)</field>
+      <field name="note">Частина нецільової благодійної допомоги понад неоподатковувану межу року (пп. 170.7.3 ПКУ), сума вводиться разом з межею допомоги в рядку введення «Матеріальна допомога». Оподатковується ПДФО і військовим збором, ЄСВ не нараховується (п. 14 розд. I Переліку 1170).</field>
     </record>
 
     <!-- Подарунки, пп. 165.1.39 ПКУ: 25 % мінімальної зарплати на місяць -->
@@ -45,6 +46,7 @@ result = tools.r2(min(inputs.GIFT.amount, limit), 2)</field>
       <field name="amount_select">code</field>
       <field name="amount_python_compute">limit = payroll.ua.min_wage * payroll.ua.gift_limit_share / 100.0
 result = tools.r2(max(inputs.GIFT.amount - limit, 0.0), 2)</field>
+      <field name="note">Частина вартості подарунка понад неоподатковувану межу, 25 % мінімальної зарплати на місяць (пп. 165.1.39 ПКУ), сума вводиться разом з межею подарунка в рядку введення «Подарунок». Оподатковується ПДФО і військовим збором, у базу ЄСВ не входить.</field>
     </record>
 
     <!-- Вихідна допомога, ст. 44 КЗпП -->
