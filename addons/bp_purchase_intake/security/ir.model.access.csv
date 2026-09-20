@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_intake_purchase_user,intake purchase user,model_bp_purchase_intake,purchase.group_purchase_user,1,1,1,0
+access_intake_purchase_manager,intake purchase manager,model_bp_purchase_intake,purchase.group_purchase_manager,1,1,1,1
+access_intake_invoice,intake invoicing,model_bp_purchase_intake,account.group_account_invoice,1,1,1,0
+access_intake_line_purchase_user,intake line purchase user,model_bp_purchase_intake_line,purchase.group_purchase_user,1,1,1,1
+access_intake_line_invoice,intake line invoicing,model_bp_purchase_intake_line,account.group_account_invoice,1,1,1,1
+access_intake_check_purchase_user,intake check purchase user,model_bp_purchase_intake_check,purchase.group_purchase_user,1,1,1,1
+access_intake_check_invoice,intake check invoicing,model_bp_purchase_intake_check,account.group_account_invoice,1,1,1,1

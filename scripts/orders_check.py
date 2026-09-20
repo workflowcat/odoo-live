@@ -138,8 +138,8 @@ check("картка: резерв П-1 для перенесеної істор�
       "l10n_ua_hr_docs.report_ua_order_hire", str(legacy_action))
 
 # ---- 9. застарілі звіти П-1/П-3/П-4 без прив'язки до кнопки "Друк"
-for xmlid in ("l10n_ua_hr_docs.action_report_ua_order_hire", "l10n_ua_hr_docs.action_report_ua_order_dismiss",
-              "l10n_ua_hr_docs.action_report_ua_order_leave"):
+# наказ про відпустку друкується з ua.hr.order, окремого резервного звіту більше немає
+for xmlid in ("l10n_ua_hr_docs.action_report_ua_order_hire", "l10n_ua_hr_docs.action_report_ua_order_dismiss"):
     act = env.ref(xmlid)
     check(f"{xmlid}: без binding_model_id", not act.binding_model_id, str(act.binding_model_id))
 

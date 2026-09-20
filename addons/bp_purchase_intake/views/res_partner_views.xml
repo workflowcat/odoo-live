@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_supplier_status" model="ir.ui.view">
+        <field name="name">res.partner.form.bp.supplier.status</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//widget[@name='web_ribbon']" position="after">
+                <widget name="web_ribbon" title="Не перевірено" bg_color="text-bg-warning" invisible="bp_supplier_status != 'unverified'"/>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_bp_open_intakes" type="object" class="oe_stat_button" icon="fa-inbox" invisible="not bp_intake_count">
+                    <field name="bp_intake_count" widget="statinfo" string="Вхідні рахунки"/>
+                </button>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="ЄДР" name="bp_registry" invisible="not bp_supplier_status and not bp_registry_checked_at">
+                    <div class="d-flex gap-2 mb-3">
+                        <button name="action_bp_mark_verified" type="object" string="Позначити перевіреним" class="btn-primary"
+                                invisible="bp_supplier_status != 'unverified'"/>
+                        <button name="action_bp_mark_unverified" type="object" string="Зняти позначку" class="btn-secondary"
+                                invisible="bp_supplier_status != 'verified'" groups="purchase.group_purchase_manager"/>
+                        <button name="action_bp_refresh_registry" type="object" string="Оновити з ЄДР" class="btn-secondary"/>
+                    </div>
+                    <group>
+                        <group string="Статус">
+                            <field name="bp_supplier_status"/>
+                            <field name="bp_verified_by" invisible="not bp_verified_by"/>
+                            <field name="bp_verified_at" invisible="not bp_verified_at"/>
+                            <field name="bp_intake_id" invisible="not bp_intake_id"/>
+                        </group>
+                        <group string="Реєстр">
+                            <field name="bp_registry_name"/>
+                            <field name="bp_registry_status"/>
+                            <field name="bp_registry_date"/>
+                            <field name="bp_registry_head"/>
+                            <field name="bp_registry_kved"/>
+                            <field name="bp_registry_vat"/>
+                            <field name="bp_registry_address"/>
+                            <field name="bp_registry_checked_at"/>
+                        </group>
+                    </group>
+                    <group string="Маркери">
+                        <field name="bp_registry_markers" nolabel="1" colspan="2"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_partner_list_supplier_status" model="ir.ui.view">
+        <field name="name">res.partner.list.bp.supplier.status</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="inside">
+                <field name="bp_supplier_status" optional="show" widget="badge"
+                       decoration-warning="bp_supplier_status == 'unverified'" decoration-success="bp_supplier_status == 'verified'"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

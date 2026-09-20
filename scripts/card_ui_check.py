@@ -131,8 +131,9 @@ if act2 and card_view:
 if tk:
     for method, res_model in [
         ('action_ua_card_open_payslips', 'hr.payslip'),
-        ('action_ua_card_new_version', 'hr.version'),
-        ('action_ua_card_dismiss', 'hr.version'),
+        ('action_ua_card_new_version', 'ua.hr.order'),
+        ('action_ua_card_transfer', 'ua.hr.order'),
+        ('action_ua_card_dismiss', 'ua.hr.order'),
         ('action_ua_card_new_leave', 'hr.leave'),
         ('action_ua_card_new_document', 'ua.employee.document'),
         ('action_ua_card_open_standard_form', 'hr.employee'),

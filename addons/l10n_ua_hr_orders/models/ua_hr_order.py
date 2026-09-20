@@ -9,6 +9,8 @@ import re
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
+from .hr_leave import ORDER_WORTHY_LEAVE_CODES, is_leave_type_order_worthy
+
 ORDER_TYPES = [
     ("hire", "Прийняття на роботу"),
     ("wage", "Зміна окладу"),
@@ -102,7 +104,12 @@ class UaHrOrder(models.Model):
     department_id_old = fields.Many2one("hr.department", "Був підрозділ", compute="_compute_transfer_old")
     job_title_old = fields.Char("Була посада", compute="_compute_transfer_old")
 
-    leave_type_id = fields.Many2one("hr.leave.type", "Вид відпустки")
+    # Домен - лише UX-підказка у формі (many2one domain не блокує write()/create() через RPC),
+    # тому реальна заборона - в _check_required() нижче, яка викликається з action_post().
+    leave_type_id = fields.Many2one(
+        "hr.leave.type", "Вид відпустки",
+        domain=lambda model: [("work_entry_type_id.code", "in", sorted(ORDER_WORTHY_LEAVE_CODES))],
+    )
     days = fields.Integer("Днів (календарних)", compute="_compute_days")
     sick_number = fields.Char("Номер лікарняного")
 
@@ -200,6 +207,11 @@ class UaHrOrder(models.Model):
             missing.append(_("Посада"))
         if missing:
             raise UserError(_("Заповніть поля: %s") % ", ".join(missing))
+        if self.order_type == "leave" and not is_leave_type_order_worthy(self.leave_type_id):
+            raise UserError(_(
+                "Вид відпустки «%s» не потребує наказу за КЗпП - оформіть відсутність напряму, "
+                "без наказу."
+            ) % self.leave_type_id.name)
 
     def action_post(self):
         for order in self:

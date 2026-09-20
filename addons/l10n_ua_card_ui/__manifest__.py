@@ -1,7 +1,7 @@
 {
     "name": "Картка працівника (OWL)",
     "summary": "Основний екран картки працівника на OWL: особа, оплата, відпустка, військовий облік, документи, хроніка",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.2.0",
     "license": "LGPL-3",
     "author": "Bot&Partners",
     "category": "Human Resources/Payroll",
@@ -20,7 +20,6 @@
     ],
     "data": [
         "views/hr_employee_views.xml",
-        "views/hr_version_views.xml",
         "views/ua_employee_document_views.xml",
     ],
     "assets": {

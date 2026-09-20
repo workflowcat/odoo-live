@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <!-- Ці три звіти (П-1, П-4, П-3) - історичний резерв, не спосіб оформлення наказів.
+  <!-- Ці два звіти (П-1, П-4) - історичний резерв, не спосіб оформлення наказів.
        Єдина система наказів - l10n_ua_hr_orders (ua.hr.order, друк l10n_ua_hr_order.report_ua_hr_order).
-       Ці шаблони лишаються для версій/відпусток, перенесених з історії (ua_order_ref/ua_end_order_ref
+       Ці шаблони лишаються для версій, перенесених з історії (ua_order_ref/ua_end_order_ref
        заповнено текстом «Наказ № ... від ...»), але для яких немає запису ua.hr.order - див.
        l10n_ua_card_ui.hr_employee.action_ua_card_print_order, де це єдине місце виклику фолбеку.
        Тому вони НЕ прив'язані до кнопки "Друк" (без binding_model_id) - користувач не бачить їх
-       поруч із наказом і не плутає зі свіжим ua.hr.order. -->
+       поруч із наказом і не плутає зі свіжим ua.hr.order.
+
+       Третій, П-3 (report_ua_order_leave), був тут з тієї ж причини, але для нього не було жодного
+       виклику - action_ua_card_print_order обробляє лише прийняття і звільнення, для відпустки
+       фолбеку немає і не було. Видалено 2026-09-20 як осиротілий звіт (перевірено repo-wide grep:
+       немає ні report_action(), ні прив'язки до кнопки, ні виклику з жодного py/xml/js). -->
   <record id="action_report_ua_order_hire" model="ir.actions.report">
     <field name="name">Наказ про прийняття на роботу (П-1)</field><field name="model">hr.version</field><field name="report_type">qweb-pdf</field>
     <field name="report_name">l10n_ua_hr_docs.report_ua_order_hire</field><field name="report_file">l10n_ua_hr_docs.report_ua_order_hire</field>
@@ -19,13 +24,6 @@
     <field name="print_report_name">'Наказ про звільнення %s' % object.employee_id.name</field>
     <field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4"/><field name="binding_model_id" eval="False"/><field name="binding_type">report</field>
   </record>
-  <record id="action_report_ua_order_leave" model="ir.actions.report">
-    <field name="name">Наказ про надання відпустки (П-3)</field><field name="model">hr.leave</field><field name="report_type">qweb-pdf</field>
-    <field name="report_name">l10n_ua_hr_docs.report_ua_order_leave</field><field name="report_file">l10n_ua_hr_docs.report_ua_order_leave</field>
-    <field name="print_report_name">'Наказ про відпустку %s' % object.employee_id.name</field>
-    <field name="paperformat_id" ref="l10n_ua_payroll_reports.paperformat_ua_a4"/><field name="binding_model_id" eval="False"/><field name="binding_type">report</field>
-  </record>
-
   <template id="ua_order_head">
     <div style="text-align:center; margin-bottom:14px;">
       <div style="font-weight:bold; font-size:13px;"><t t-out="company.name"/></div>
@@ -77,20 +75,4 @@
     </t></t>
   </template>
 
-  <template id="report_ua_order_leave">
-    <t t-call="web.basic_layout"><t t-foreach="docs" t-as="lv">
-      <t t-set="company" t-value="lv.employee_id.company_id"/><t t-set="employee" t-value="lv.employee_id"/><t t-set="order_ref" t-value="lv.ua_order_ref"/>
-      <t t-set="code" t-value="lv.holiday_status_id.work_entry_type_id.code or ''"/>
-      <div class="page" style="font-family: DejaVu Sans, sans-serif; font-size: 11px;">
-        <t t-call="l10n_ua_hr_docs.ua_order_head"/>
-        <p style="text-align:center;"><b>Про надання відпустки</b></p>
-        <p>НАДАТИ <b><t t-out="employee.name"/></b>, <t t-out="employee.job_title or '-'"/> підрозділу <t t-out="employee.department_id.name or '-'"/>,
-          <b><t t-out="{'VAC': 'щорічну основну відпустку', 'UNPAID': 'відпустку без збереження заробітної плати (ст. 26 ЗУ про відпустки)', 'MAT': 'відпустку у зв’язку з вагітністю та пологами'}.get(code, lv.holiday_status_id.name)"/></b>
-          тривалістю <b><t t-out="(lv.request_date_to - lv.request_date_from).days + 1"/> календарних днів</b> з <b><t t-out="lv.request_date_from.strftime('%d.%m.%Y')"/></b> по <b><t t-out="lv.request_date_to.strftime('%d.%m.%Y')"/></b><t t-if="code == 'VAC'"> за період роботи <t t-out="lv.request_date_from.year"/> року</t>.</p>
-        <t t-if="code == 'VAC'"><p>Бухгалтерії виплатити відпускні не пізніше ніж за три дні до початку відпустки (ст. 115 КЗпП).</p></t>
-        <p>Підстава: заява <t t-out="employee.name"/><t t-if="code == 'MAT'">, листок непрацездатності <t t-out="lv.ua_sick_number or ''"/></t>.</p>
-        <t t-call="l10n_ua_hr_docs.ua_order_foot"/>
-      </div>
-    </t></t>
-  </template>
 </odoo>

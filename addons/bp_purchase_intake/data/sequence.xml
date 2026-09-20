@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_purchase_intake" model="ir.sequence">
+        <field name="name">Вхідні рахунки</field>
+        <field name="code">bp.purchase.intake</field>
+        <field name="prefix">ВР/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

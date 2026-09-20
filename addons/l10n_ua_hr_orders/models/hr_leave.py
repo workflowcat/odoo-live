@@ -14,6 +14,15 @@ from odoo import _, fields, models
 ORDER_WORTHY_LEAVE_CODES = {"VAC", "UNPAID", "MAT", "STUDY", "CHILD_VAC", "CHILD3", "SICK_CARE"}
 
 
+def is_leave_type_order_worthy(leave_type):
+    """True, коли вид відпустки/відсутності leave_type (hr.leave.type) має код із
+    ORDER_WORTHY_LEAVE_CODES - тобто потребує кадрового наказу за КЗпП (див. докстрінг модуля).
+    Єдине джерело правди для цієї перевірки: викликається і з боку hr.leave (_ua_order_worthy),
+    і з боку ua.hr.order (форма/дозвіл на проведення наказу типу "leave")."""
+    code = leave_type.work_entry_type_id.code
+    return bool(code) and code in ORDER_WORTHY_LEAVE_CODES
+
+
 class HrLeave(models.Model):
     _inherit = "hr.leave"
 
@@ -21,8 +30,7 @@ class HrLeave(models.Model):
 
     def _ua_order_worthy(self):
         self.ensure_one()
-        code = self.holiday_status_id.work_entry_type_id.code
-        return bool(code) and code in ORDER_WORTHY_LEAVE_CODES
+        return is_leave_type_order_worthy(self.holiday_status_id)
 
     def _ua_create_order(self):
         self.ensure_one()

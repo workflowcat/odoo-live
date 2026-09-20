@@ -367,6 +367,7 @@ class HrEmployee(models.Model):
         ]
         if can_manage:
             actions.append({"key": "change_wage", "label": "Змінити оклад", "method": "action_ua_card_new_version", "group": "footer"})
+            actions.append({"key": "transfer", "label": "Перевести", "method": "action_ua_card_transfer", "group": "footer"})
         actions.append({"key": "new_leave", "label": "Оформити відпустку", "method": "action_ua_card_new_leave", "group": "footer"})
         actions.append({"key": "new_document", "label": "Додати документ", "method": "action_ua_card_new_document", "group": "footer"})
         actions.append({"key": "mil_check", "label": "Записати звірку ТЦК", "method": "action_ua_card_register_mil_check", "group": "footer"})
@@ -396,29 +397,25 @@ class HrEmployee(models.Model):
         return report.report_action(self)
 
     def action_ua_card_print_order(self):
-        """Друк наказу останньої кадрової події картки: якщо є проведений ua.hr.order - друкує
-        його (єдина система наказів); якщо працівника перенесено з історії (hr.version з
-        ua_order_ref/ua_end_order_ref, але без запису ua.hr.order) - друкує застарілою формою
-        l10n_ua_hr_docs як історичний резерв."""
+        """Друк наказу останньої кадрової події картки: друкує найновіший ПРОВЕДЕНИЙ ua.hr.order
+        працівника (найбільша дата, тоді найбільший id) - яким би не був його вид (прийняття,
+        зміна окладу, переведення, звільнення...), бо саме такий наказ і є останньою кадровою
+        подією. Якщо проведеного наказу взагалі немає (працівника перенесено з історії - hr.version
+        з ua_order_ref/ua_end_order_ref, але без запису ua.hr.order) - друкує застарілою формою
+        l10n_ua_hr_docs як історичний резерв, з тим самим розрізненням прийняття/звільнення, що й
+        раніше."""
         self.ensure_one()
         version = self.sudo().current_version_id
         if not version:
             raise UserError("У працівника немає жодної версії контракту.")
-        is_dismissal = bool(version.contract_date_end and version.ua_end_order_ref)
         Order = self.env["ua.hr.order"].sudo()
-        if is_dismissal:
-            order = Order.search([
-                ("employee_id", "=", self.id), ("order_type", "=", "dismissal"),
-                ("state", "in", ("posted", "acknowledged")),
-            ], limit=1, order="date desc")
-        else:
-            order = Order.search([
-                ("employee_id", "=", self.id), ("order_type", "=", "hire"),
-                ("state", "in", ("posted", "acknowledged")),
-            ], limit=1, order="date desc")
+        order = Order.search([
+            ("employee_id", "=", self.id), ("state", "in", ("posted", "acknowledged")),
+        ], limit=1, order="date desc, id desc")
         if order:
             report = self.env.ref("l10n_ua_hr_orders.action_report_ua_hr_order")
             return report.report_action(order)
+        is_dismissal = bool(version.contract_date_end and version.ua_end_order_ref)
         if is_dismissal:
             xmlid = "l10n_ua_hr_docs.action_report_ua_order_dismiss"
         else:
@@ -439,39 +436,41 @@ class HrEmployee(models.Model):
             "context": {"default_employee_id": self.id},
         }
 
-    def action_ua_card_new_version(self):
+    def _action_ua_open_hr_order_form(self, order_type, name):
+        """Відкрити справжню форму ua.hr.order (l10n_ua_hr_orders) у діалозі: заповнення полів і
+        проведення (action_post) - все на самому наказі, тут лише передвстановлений контекст.
+        Кнопка "Провести" повертає True; web-клієнт трактує це як ir.actions.act_window_close,
+        діалог закривається сам, а onClose картки (static/src/card.js, onActionClick) перечитує
+        картку - окремого коду для "закрити і оновити" не треба."""
         self.ensure_one()
-        emp = self.sudo()
-        view = self.env.ref("l10n_ua_card_ui.view_hr_version_form_new")
+        view = self.env.ref("l10n_ua_hr_orders.view_ua_hr_order_form")
         return {
             "type": "ir.actions.act_window",
-            "name": f"Нова версія контракту: {self.name}",
-            "res_model": "hr.version",
+            "name": name,
+            "res_model": "ua.hr.order",
             "views": [(view.id, "form")],
             "target": "new",
             "context": {
+                "default_order_type": order_type,
                 "default_employee_id": self.id,
-                "default_contract_date_start": fields.Date.context_today(self),
-                "default_job_id": emp.job_id.id,
-                "default_department_id": emp.department_id.id,
-                "default_wage": emp.ua_current_wage,
+                "default_date": fields.Date.context_today(self),
             },
         }
+
+    def action_ua_card_new_version(self):
+        self.ensure_one()
+        return self._action_ua_open_hr_order_form("wage", f"Зміна окладу: {self.name}")
+
+    def action_ua_card_transfer(self):
+        self.ensure_one()
+        return self._action_ua_open_hr_order_form("transfer", f"Переведення: {self.name}")
 
     def action_ua_card_dismiss(self):
         self.ensure_one()
         version = self.sudo().current_version_id
         if not version:
             raise UserError("У працівника немає активної версії контракту.")
-        view = self.env.ref("l10n_ua_card_ui.view_hr_version_form_dismiss")
-        return {
-            "type": "ir.actions.act_window",
-            "name": f"Звільнення: {self.name}",
-            "res_model": "hr.version",
-            "res_id": version.id,
-            "views": [(view.id, "form")],
-            "target": "new",
-        }
+        return self._action_ua_open_hr_order_form("dismissal", f"Звільнення: {self.name}")
 
     def action_ua_card_new_leave(self):
         self.ensure_one()

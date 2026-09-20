@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <record id="view_employee_form_ua_account" model="ir.ui.view">
-    <field name="name">hr.employee.form.ua.account</field><field name="model">hr.employee</field>
+  <record id="view_employee_form_ua_account_alimony" model="ir.ui.view">
+    <field name="name">hr.employee.form.ua.account.alimony</field><field name="model">hr.employee</field>
     <field name="inherit_id" ref="l10n_ua_payroll_rules.view_employee_form_ua"/>
     <field name="arch" type="xml">
       <field name="ua_psp_children" position="after"><field name="ua_alimony_partner_id"/></field>
