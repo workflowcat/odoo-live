@@ -128,6 +128,41 @@ class UaKpCode(models.Model):
             })
         return True
 
+    # ------------------------------------------------------------------ звірка версій
+    @api.model
+    def audit_versions(self):
+        """Версії, де посада змінилася, а код професії лишився від попередньої.
+
+        Саме так неправильний код потрапляє в штатний розпис: наказ про переведення
+        підставляв код зі старої версії, і його ніхто не звіряв."""
+        Version = self.env["hr.version"].sudo()
+        rows = []
+        versions = Version.search([("employee_id", "!=", False)], order="employee_id, date_version")
+        previous = {}
+        for version in versions:
+            key = version.employee_id.id
+            before = previous.get(key)
+            previous[key] = version
+            if not before:
+                continue
+            prof_now = (version.ua_prof_name or version.job_title or "").strip()
+            prof_before = (before.ua_prof_name or before.job_title or "").strip()
+            if not prof_now or prof_now == prof_before:
+                continue
+            if (version.ua_kp_code or "") != (before.ua_kp_code or ""):
+                continue
+            rows.append({
+                "level": "crit",
+                "employee": version.employee_id.name,
+                "from": prof_before,
+                "to": prof_now,
+                "code": version.ua_kp_code or "",
+                "date": str(version.date_version or ""),
+                "text": "посада змінилася, код професії лишився від попередньої",
+                "target": {"model": "hr.version", "res_id": version.id},
+            })
+        return rows
+
     # ------------------------------------------------------------------ звірка розпису
     @api.model
     def audit_staff_lists(self):

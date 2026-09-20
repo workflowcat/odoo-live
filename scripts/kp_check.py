@@ -122,6 +122,11 @@ else:
     check("немає позицій, чий код не підтверджується назвою", not warn,
           "; ".join(f'{r["title"]} ({r["code"]}) -> {(r.get("suggested") or {}).get("code")}' for r in warn[:4]))
 
+    versions = call("ua.kp.code", "audit_versions")
+    # Причина, а не наслідок: наказ про переведення підставляв код зі старої версії.
+    check("немає версій, де посада змінилася, а код лишився старим", not versions,
+          "; ".join(f'{v["employee"]}: {v["from"]} -> {v["to"]} ({v["code"]})' for v in versions[:3]))
+
     sug = call("ua.kp.code", "suggest", "менеджерка з персоналу", 3)
     first = (sug.get("items") or [None])[0]
     check("підказка розуміє фемінітив", bool(first) and first["code"] == "1477.1",

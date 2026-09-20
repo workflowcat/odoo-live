@@ -148,6 +148,23 @@ class UaHrOrder(models.Model):
         if self.order_type in ("hire", "leave", "dismissal") and not self.basis:
             self.basis = _("заява")
 
+    @api.onchange("prof_name")
+    def _onchange_prof_name_clears_kp(self):
+        """Змінюється посада - код професії більше не підставляється зі старої версії.
+
+        Панчишин Христина була «Технік-конструктор» (3118), наказом стала «Менеджер
+        із збуту», а код 3118 («Креслярі») переїхав разом з нею і пішов у штатний розпис.
+        Код мусить бути обраний свідомо, тому поле очищається; якщо професія та сама
+        і код правильний, людина вписує його знову."""
+        for order in self:
+            if order.order_type == "hire" or not order.employee_id or not order.prof_name:
+                continue
+            version = order.employee_id.sudo().version_id
+            if not version:
+                continue
+            if order.prof_name != version.ua_prof_name and order.kp_code == version.ua_kp_code:
+                order.kp_code = False
+
     @api.onchange("employee_id")
     def _onchange_employee_id_prefill(self):
         """Статистичні поля наказу (код КП, назва професії, ставка, підрозділ) - з поточної версії
