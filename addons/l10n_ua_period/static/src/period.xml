@@ -45,8 +45,8 @@
                       t-att-disabled="state.busy" t-on-click="() => this.acceptAll()">
                 Прийняти всі зміни (<t t-esc="data.new_changes"/>)
               </button>
-              <button class="btn btn-sm btn-secondary" t-att-disabled="state.busy or data.blockers.length"
-                      t-on-click="() => this.closeMonth()" data-tooltip="Ставить дату блокування: після неї суми місяця не змінюються">Закрити місяць</button>
+              <button class="btn btn-sm btn-secondary" t-att-disabled="state.busy"
+                      t-on-click="() => this.closeMonth()" data-tooltip="Показує план перед закриттям: дату блокування і перешкоди, якщо є">Закрити місяць</button>
             </t>
             <Dropdown t-if="data.quarter.label or data.year_close.label">
               <button class="btn btn-sm btn-outline-secondary">Ще</button>

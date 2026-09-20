@@ -60,8 +60,9 @@ class HrEmployeeCardDocuments(models.Model):
         doc = self.env["ua.employee.document"].sudo().browse(document_id)
         if not doc.exists() or doc.employee_id.id != self.id:
             return False
-        doc.action_mark_signed()
-        return True
+        # action_mark_signed тепер повертає {"done": [...]} для ua_act (act-model.md) - той
+        # самий рядок наслідку, з якого card.js читає, що саме сталося.
+        return doc.action_mark_signed()
 
     def action_ua_card_document_print(self, document_id):
         self.ensure_one()

@@ -48,6 +48,7 @@ export class UaEmployeeCard extends Component {
         this.orm = useService("orm");
         this.action = useService("action");
         this.notification = useService("notification");
+        this.act = useService("ua_act");
 
         const showAll = {};
         for (const key of FIELD_SECTIONS) {
@@ -181,10 +182,26 @@ export class UaEmployeeCard extends Component {
         }
     }
 
-    async onDocumentSign(doc) {
-        const resId = this.props.record.resId;
-        await this.orm.call("hr.employee", "action_ua_card_document_sign", [resId, doc.id]);
-        await this.reload();
+    // «Підписано» - клас «узгодження» з docs/payroll/action-model.md: жодного діалогу плану
+    // (це не проведення), сама дія лишає смугу «Скасувати» на 20 с через action_unmark_signed
+    // (зворотна дія живе на самому документі - тому run() і undo метод звертаються до
+    // ua.employee.document/doc.id, а не до hr.employee/resId). Рядок таблиці підсвічується
+    // service-хелпером markChanged після перемальовки.
+    async onDocumentSign(doc, ev) {
+        const rowEl = ev.currentTarget.closest(".o_ua_card_docrow");
+        await this.act.run({
+            model: "ua.employee.document",
+            id: doc.id,
+            method: "action_mark_signed",
+            undo: "action_unmark_signed",
+            onDone: async () => {
+                await this.reload();
+                if (rowEl && rowEl.isConnected) {
+                    this.act.markChanged(rowEl);
+                }
+            },
+            openTarget: (target) => this.openRecord(target.res_model, target.res_id),
+        });
     }
 
     async onDocumentPrint(doc) {

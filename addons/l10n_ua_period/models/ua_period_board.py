@@ -852,15 +852,152 @@ class UaPeriodBoard(models.AbstractModel):
         return {"type": "ir.actions.act_window", "res_model": model, "res_id": int(res_id),
                 "view_mode": view, "views": [(False, view)], "target": "current"}
 
-    @api.model
-    def action_accept_changes(self, year, month):
-        """Прийняти всі нові зміни місяця."""
-        return self.env["ua.change.log"].accept_period(year, month)
+    @staticmethod
+    def _decode_period(ids, year, month):
+        """Рік і місяць: прямий виклик (odoo shell, action_headline) дає їх окремо.
+
+        Кнопки, підключені через ua_act (l10n_ua_shell), звуть план-метод без жодних
+        kwargs (сервіс так влаштований: docs/payroll/action-model.md, «Як
+        користуватися»), тому клієнт (period.js) пакує рік і місяць в один-єдиний
+        параметр id, який RPC доносить сюди як список з одним числом - рік*100+місяць.
+        Виклик із kwargs (є рік і місяць) завжди має перевагу над запакованим ids.
+        """
+        if year is not None and month is not None:
+            return int(year), int(month)
+        code = ids[0] if isinstance(ids, (list, tuple)) and ids else ids
+        return divmod(int(code), 100)
 
     @api.model
-    def action_close_month(self, year, month, hard=False):
-        """Закрити місяць: перевірити блокери і поставити дату блокування."""
-        return self.env["ua.period.close"].close_period(year, month, hard)
+    def action_accept_changes(self, ids=False, year=None, month=None):
+        """Прийняти всі нові зміни місяця.
+
+        Клас «узгодження» (action-model.md): без плану, зі скасуванням 20 с -
+        action_undo_accept_changes нижче справді повертає щойно прийняті рядки
+        назад у стан «нова», а не просто ховає повідомлення."""
+        year, month = self._decode_period(ids, year, month)
+        company = self._company()
+        n = self.env["ua.change.log"].accept_period(year, month)
+        text = _("Прийнято змін: %s.") % n if n else _("Приймати не було чого: нових змін немає.")
+        return {"done": [{
+            "text": text,
+            "target": {"model": "ua.change.log",
+                      "domain": [("company_id", "=", company.id), ("year", "=", year), ("month", "=", month)]},
+        }]}
+
+    @api.model
+    def action_undo_accept_changes(self, ids=False, year=None, month=None):
+        """Скасування «Прийняти всі зміни»: чесний відкат тих самих рядків журналу назад
+        у «нова», не приховування результату (action-model.md, «Вікно скасування»).
+
+        ua_act кличе цей метод без жодних kwargs (лише ids), тому які рядки повертати
+        назад визначаємо за вікном часу: прийняті цим користувачем за останні 25 с -
+        з запасом над 20-секундною смугою скасування на екрані."""
+        year, month = self._decode_period(ids, year, month)
+        since = fields.Datetime.now() - timedelta(seconds=25)
+        rows = self.env["ua.change.log"].search([
+            ("company_id", "=", self._company().id), ("year", "=", year), ("month", "=", month),
+            ("state", "=", "accepted"), ("accepted_user_id", "=", self.env.uid),
+            ("accepted_date", ">=", since),
+        ])
+        rows.action_reset()
+        return True
+
+    @api.model
+    def action_close_month_plan(self, ids=False, year=None, month=None):
+        """План перед закриттям місяця (action-model.md, клас «проведення»).
+
+        Читає ті самі перевірки, що й ua.period.close.blockers()/close_period() -
+        не викликає їх, а дзеркалить: кожна перешкода тут стає рядком рівня "crit"
+        із ціллю, що відкриває саме ті записи, які заважають, щоб їх можна було
+        поправити просто з діалогу."""
+        year, month = self._decode_period(ids, year, month)
+        company = self._company()
+        first, last = self._bounds(year, month)
+        Close = self.env["ua.period.close"]
+        rec = Close.search([("company_id", "=", company.id), ("year", "=", year),
+                            ("month", "=", month), ("kind", "=", "month")], limit=1)
+        if rec and rec.state == "closed":
+            return [{"text": _("Місяць %s уже закрито %s.") % (
+                        rec.name, rec.lock_date.strftime("%d.%m.%Y") if rec.lock_date else ""),
+                     "level": "info"}]
+
+        lines = [{
+            "text": _("Дата блокування обліку стане %s: проводки й листки з датою до цього дня "
+                      "більше не можна буде створити, провести чи змінити.") % last.strftime("%d.%m.%Y"),
+            "level": "info",
+        }]
+
+        new_changes = self.env["ua.change.log"].count_new(company, year, month)
+        if new_changes:
+            lines.append({
+                "text": _("У журналі змін %s непереглянутих рядків - спершу прийміть їх.") % new_changes,
+                "level": "crit",
+                "target": {"model": "ua.change.log",
+                          "domain": [("company_id", "=", company.id), ("year", "=", year),
+                                     ("month", "=", month), ("state", "=", "new")]},
+            })
+
+        drafts = self.env["account.move"].search([
+            ("company_id", "=", company.id), ("date", ">=", first), ("date", "<=", last),
+            ("state", "=", "draft"),
+        ])
+        if drafts:
+            lines.append({
+                "text": _("Чернеток проводок місяця: %s - їх треба провести або скасувати.") % len(drafts),
+                "level": "crit",
+                "target": {"model": "account.move", "domain": [("id", "in", drafts.ids)]},
+            })
+
+        slips = self.env["hr.payslip"].search([
+            ("company_id", "=", company.id), ("date_from", ">=", first), ("date_from", "<=", last),
+            ("state", "not in", ("done", "cancel")),
+        ])
+        if slips:
+            lines.append({
+                "text": _("Непроведених листків: %s.") % len(slips),
+                "level": "crit",
+                "target": {"model": "hr.payslip", "domain": [("id", "in", slips.ids)]},
+            })
+
+        sheet = self.env["ua.timesheet.sheet"].search([
+            ("company_id", "=", company.id), ("year", "=", year), ("month", "=", month),
+        ], limit=1)
+        if sheet and sheet.state != "confirmed":
+            lines.append({
+                "text": _("Табель місяця не затверджено."),
+                "level": "crit",
+                "target": {"model": "ua.timesheet.sheet", "res_id": sheet.id},
+            })
+
+        has_blockers = any(l["level"] == "crit" for l in lines)
+        if has_blockers:
+            lines.append({
+                "text": _("Поки ці перешкоди лишаються, сервіс не дасть закрити місяць - "
+                          "кнопка підтвердження нічого не змінить."),
+                "level": "warn",
+            })
+        lines.append({
+            "text": _("Після закриття лишаються доступні: перегляд і друк документів місяця, "
+                      "звірка банку, подання звітності. Відкрити місяць знову зможе лише головний "
+                      "бухгалтер - окремою дією, з причиною."),
+            "level": "info",
+        })
+        return lines
+
+    @api.model
+    def action_close_month(self, ids=False, year=None, month=None, hard=False):
+        """Закрити місяць: перевірити блокери і поставити дату блокування.
+
+        Перешкоди перевіряє ua.period.close.close_period() - і відмовляє (UserError),
+        якщо вони є, навіть якщо діалог плану якось обійшли."""
+        year, month = self._decode_period(ids, year, month)
+        close_id = self.env["ua.period.close"].close_period(year, month, hard)
+        rec = self.env["ua.period.close"].browse(close_id)
+        return {"done": [{
+            "text": _("Місяць %s закрито: дата блокування обліку %s.") % (
+                rec.name, rec.lock_date.strftime("%d.%m.%Y") if rec.lock_date else ""),
+            "target": {"model": "ua.period.close", "res_id": close_id},
+        }]}
 
     @api.model
     def action_open_close_record(self, year, month):

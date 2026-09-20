@@ -1,0 +1,189 @@
+// Модель дії (docs/payroll/action-model.md): план перед проведенням, показ
+// наслідків, вікно скасування. Один візуальний реєстр на всі екрани, що
+// підключать ua_act: папір і чорнило, mono для хроми, radius 0, без тіней,
+// без градієнтів, стан - словом і кольором разом.
+//
+// Значення змінних тут - запасні (fallback у var()): якщо l10n_ua_payroll_rules
+// не встановлено чи не завантажено першим, ці блоки все одно виглядають
+// правильно самі по собі.
+
+.o_ua_act_dialog {
+    border-radius: 0;
+    box-shadow: none;
+
+    .modal-header, .modal-footer {
+        border-radius: 0;
+    }
+
+    .btn {
+        border-radius: 0;
+        box-shadow: none;
+        background-image: none;
+    }
+}
+
+.o_ua_act_plan {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.o_ua_act_plan_line {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--ua-rule, #dee2e6);
+    font-size: 13px;
+
+    &:last-child { border-bottom: none; }
+}
+
+.o_ua_act_plan_text {
+    color: var(--o-gray-900, #212529);
+}
+
+// Пігулка стану: слово і колір разом, ніколи колір сам по собі.
+.o_ua_act_pill {
+    flex: 0 0 auto;
+    display: inline-block;
+    padding: 1px 7px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    white-space: nowrap;
+    border: 1px solid currentColor;
+    border-radius: 0;
+    color: var(--ua-muted, #6c757d);
+}
+
+.o_ua_act_pill_warn { color: var(--ua-warn, #96690a); }
+.o_ua_act_pill_crit { color: var(--ua-crit, #c04f31); }
+
+// Смуга наслідків і скасування, заякорена внизу екрана. Ніколи не блокує:
+// position fixed поверх вмісту, а не оверлей на весь екран.
+.o_ua_act_dock {
+    position: fixed;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    z-index: 1030;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: stretch;
+    width: max-content;
+    max-width: 560px;
+}
+
+// Odoo's SCSS compiler chokes on calc() inside a native CSS min(), so the
+// narrow-viewport cap is a plain media query instead.
+@media (max-width: 623.98px) {
+    .o_ua_act_dock { max-width: calc(100vw - 32px); }
+}
+
+.o_ua_act_panel, .o_ua_act_undo {
+    background: var(--o-view-background-color, #fff);
+    border: 1px solid var(--ua-rule-strong, #ced4da);
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.o_ua_act_panel {
+    padding: 8px 10px;
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+
+    .o_ua_act_panel_list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+}
+
+.o_ua_act_panel_line {
+    padding: 3px 0;
+    font-size: 13px;
+    color: var(--o-gray-900, #212529);
+    animation: ua-act-line-in 160ms ease-out;
+
+    &.o_ua_act_line_clickable {
+        cursor: pointer;
+        text-decoration: underline;
+        text-decoration-color: var(--ua-rule-strong, #ced4da);
+
+        &:hover { color: var(--o-brand-primary, #714b67); text-decoration-color: currentColor; }
+    }
+}
+
+.o_ua_act_skip {
+    flex: 0 0 auto;
+    border: none;
+    background: none;
+    padding: 2px 0;
+    font-size: 12px;
+    color: var(--ua-muted, #6c757d);
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover { color: var(--o-gray-900, #212529); }
+}
+
+// Смуга скасування: помітна, але тиха - без кольору тривоги, лічильник
+// mono й приглушений.
+.o_ua_act_undo {
+    padding: 7px 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+}
+
+.o_ua_act_undo_btn {
+    border: 1px solid var(--o-gray-900, #212529);
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--o-gray-900, #212529);
+    cursor: pointer;
+
+    &:hover { background: var(--ua-hover, rgba(0, 0, 0, 0.03)); }
+}
+
+.o_ua_act_undo_count {
+    margin-left: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    color: var(--ua-muted, #6c757d);
+}
+
+// Підсвічення щойно зміненого рядка: 1200 мс, згасає (specced у action-model.md).
+@keyframes ua-act-flash {
+    from { background-color: var(--ua-act-flash, rgba(113, 75, 103, .16)); }
+    to { background-color: transparent; }
+}
+
+.o_ua_act_flash {
+    animation: ua-act-flash 1200ms ease-in-out;
+}
+
+@keyframes ua-act-line-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+// Рух ніколи не блокує роботу, і на prefers-reduced-motion зникає повністю:
+// наслідки з'являються одразу переліком, підсвічення - без переходу.
+@media (prefers-reduced-motion: reduce) {
+    .o_ua_act_panel_line { animation: none; }
+    .o_ua_act_flash { animation: none; }
+    .o_action_manager { transition: none !important; }
+}

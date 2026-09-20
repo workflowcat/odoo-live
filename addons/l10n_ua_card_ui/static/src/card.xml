@@ -124,7 +124,7 @@
                   <span t-else="">Діє до <t t-esc="doc.valid_until"/></span>
                 </div>
                 <div class="o_ua_card_doc_actions">
-                  <a t-if="doc.can_sign" href="#" class="o_ua_card_doc_link" t-on-click.prevent="() => this.onDocumentSign(doc)">Підписано</a>
+                  <a t-if="doc.can_sign" href="#" class="o_ua_card_doc_link" t-on-click.prevent="(ev) => this.onDocumentSign(doc, ev)">Підписано</a>
                   <a t-if="doc.can_print" href="#" class="o_ua_card_doc_link" t-on-click.prevent="() => this.onDocumentPrint(doc)">Друк</a>
                 </div>
               </li>

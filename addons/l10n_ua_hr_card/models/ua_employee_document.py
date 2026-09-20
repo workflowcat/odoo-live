@@ -78,6 +78,43 @@ class UaEmployeeDocument(models.Model):
     def action_mark_signed(self):
         today = fields.Date.context_today(self)
         self.write({"state": "signed", "signed_date": today})
+        # "done" для ua_act (docs/payroll/action-model.md): один рядок на документ, ціль -
+        # сам документ, щоб рядок наслідку на картці вів на нього.
+        return {
+            "done": [
+                {
+                    "text": _("Документ «%s» підписано.") % (doc.name or _("без назви")),
+                    "target": {"res_model": "ua.employee.document", "res_id": doc.id},
+                }
+                for doc in self
+            ],
+        }
+
+    def action_unmark_signed(self):
+        """Чесний зворотний бік action_mark_signed - для вікна скасування «узгодження»
+        (docs/payroll/action-model.md): знімає дату підпису й повертає документ у «на підпис».
+
+        Відмовляє, коли підпис уже використано в спосіб, що робить тихий відкат нечесним:
+        документ наказу (order_id - поле з l10n_ua_hr_orders, тут лише за наявності модуля),
+        чий наказ уже ознайомлено. Ознайомлення (ua.hr.order.action_acknowledge) саме на
+        підставі підпису цього документа пише order.ack_date/ack_user_id; тихе повернення
+        документа в "на підпис" лишило б наказ "ознайомленим" без документа, що це
+        підтверджує - двоє записів розійшлися б без сліду. Правильний шлях - спершу
+        скасувати наказ (action_cancel, що й чистить ack_date), а вже тоді знімати підпис
+        документа. Звичайні документи (без order_id, або чий наказ ще не ознайомлено)
+        відкату не бояться - нижче них нічого не стоїть."""
+        for doc in self:
+            if doc.state != "signed":
+                raise UserError(
+                    _("Документ «%s» не підписано - скасовувати нема чого.") % (doc.name or _("без назви"))
+                )
+            if "order_id" in doc._fields and doc.order_id and doc.order_id.state == "acknowledged":
+                raise UserError(_(
+                    "Наказ «%s» вже ознайомлено на підставі цього документа. "
+                    "Спершу скасуйте наказ - це так само очистить ознайомлення - а тоді "
+                    "підпис документа можна буде зняти."
+                ) % doc.order_id.display_name)
+            doc.write({"state": "to_sign", "signed_date": False})
         return True
 
     def action_print(self):

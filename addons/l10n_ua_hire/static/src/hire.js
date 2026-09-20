@@ -33,6 +33,7 @@ export class UaHire extends Component {
         this.action = useService("action");
         this.notification = useService("notification");
         this.dialog = useService("dialog");
+        this.act = useService("ua_act");
         this.state = useState({
             data: null, loading: true, busy: false, creating: false,
             draft: { last_name: "", first_name: "", job_title: "" },
@@ -333,11 +334,16 @@ export class UaHire extends Component {
     async hire() {
         this.state.busy = true;
         try {
-            await this.orm.call("ua.hire.case", "action_hire", [[this.caseData.id]]);
-            this.notification.add("Працівника прийнято.", { type: "success" });
+            // Модель дії (docs/payroll/action-model.md): план перед проведенням, потім
+            // наслідки рядок за рядком. Немає чесного скасування прийняття - undo не передаємо.
+            await this.act.run({
+                model: "ua.hire.case", id: this.caseData.id, method: "action_hire",
+                plan: "action_hire_plan", confirm: "Прийняти на роботу",
+                openTarget: (target) => this.openResult(target),
+                onDone: () => this.load(),
+            });
         } finally {
             this.state.busy = false;
-            await this.load();
         }
     }
 

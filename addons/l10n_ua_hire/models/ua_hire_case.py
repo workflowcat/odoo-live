@@ -17,7 +17,7 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
 from odoo.addons.l10n_ua_hr_card.models.hr_employee import ID_DOC_TYPES
-from odoo.addons.l10n_ua_hr_orders.models.ua_hr_order import CONTRACT_KIND, FTE
+from odoo.addons.l10n_ua_hr_orders.models.ua_hr_order import CONTRACT_KIND, FTE, REGISTER_BY_TYPE, REGISTERS
 from odoo.addons.l10n_ua_military.models.hr_employee import CATEGORY as MIL_CATEGORY
 from odoo.addons.l10n_ua_military.models.hr_employee import DOC_TYPE as MIL_DOC_TYPE
 from odoo.addons.l10n_ua_military.models.hr_employee import FITNESS, LIABLE_STATUSES
@@ -672,6 +672,118 @@ class UaHireCase(models.Model):
             "n": len(files), "p": created, "m": result.get("model") or "-"})
         return {"created": created}
 
+    # ------------------------------------------------------------------ план і наслідки прийняття
+    # Модель дії (docs/payroll/action-model.md): action_hire_plan() дзеркалить гілки action_hire
+    # нижче один в один - той самий пошук «попередньої картки», той самий реєстр наказу, той
+    # самий підрахунок документів, той самий період J3001005, той самий пошук повідомлення ТЦК.
+    # Спільні гілки винесені в приватні методи, якими користуються обидва - план ніколи не
+    # обіцяє того, чого дія не виконає, бо рахує тим самим кодом.
+    def _rehire_previous(self):
+        """Картка з тим самим РНОКПП, яка вже архівна або звільнена - «попередня картка» при
+        повторному прийнятті. Той самий пошук, що і в action_hire."""
+        self.ensure_one()
+        if not self.rnokpp:
+            return self.env["hr.employee"]
+        previous = self.env["hr.employee"].sudo().with_context(active_test=False).search([
+            ("ua_rnokpp", "=", self.rnokpp), ("id", "!=", self.employee_id.id or 0),
+        ], order="id desc")
+        return previous.filtered(lambda e: not e.active or e.ua_dismissal_date)[:1]
+
+    def _hire_register_label(self):
+        return dict(REGISTERS).get(REGISTER_BY_TYPE.get("hire", "k1"), "К-1")
+
+    def _hire_to_sign_count(self):
+        """Скільки документів піде «на підпис»: пакет першого дня (мінус зняті позначкою і
+        мінус сам наказ - його друкують з проведеного наказу) плюс документ самого наказу,
+        який завжди створює гачок l10n_ua_card_ui при проведенні (ua_hr_order.action_post)."""
+        self.ensure_one()
+        skip = set((self.package_skip or "").split(","))
+        package_to_sign = sum(1 for key, _label, _report in PACKAGE if key != "order" and key not in skip)
+        return package_to_sign + 1
+
+    def _j30_period_key(self):
+        self.ensure_one()
+        return "%s-%02d" % (self.date_from.year, self.date_from.month)
+
+    def _j30_existing_run(self):
+        """Прогін J3001005, який _find_or_create нижче або знайде, або створить на цьому місці."""
+        self.ensure_one()
+        if not self.date_from:
+            return self.env["ua.report.run"]
+        return self.env["ua.report.run"].sudo().search([
+            ("report_code", "=", "j30"), ("company_id", "=", self.company_id.id),
+            ("period_key", "=", self._j30_period_key()),
+        ], limit=1)
+
+    def _notice_window(self):
+        self.ensure_one()
+        if not self.date_from:
+            return False, False
+        return self.date_from, self.date_from + timedelta(days=6)
+
+    def _existing_notice(self):
+        """Чернетка повідомлення ТЦК, що вже покриває перший робочий день - той самий пошук,
+        що і в action_hire нижче."""
+        self.ensure_one()
+        d1, _d2 = self._notice_window()
+        if not d1:
+            return self.env["ua.military.notice"]
+        return self.env["ua.military.notice"].sudo().search([
+            ("company_id", "=", self.company_id.id), ("state", "=", "draft"),
+            ("date_from", "<=", d1), ("date_to", ">=", d1),
+        ], limit=1)
+
+    def action_hire_plan(self):
+        """План перед «Прийняти на роботу»: перелік того, що action_hire нижче справді зробить
+        для ЦІЄЇ справи, у майбутньому часі. Порожній план (справа не готова) - без діалогу;
+        action_hire сама відмовить із поясненням."""
+        self.ensure_one()
+        if self.stage != "onboarding" or any(c["level"] == "error" for c in self._checks()):
+            return []
+        lines = []
+        previous = self._rehire_previous()
+        if previous and previous.active:
+            lines.append({"text": _("Попередню картку «%s» (той самий РНОКПП) буде заархівовано") % previous.name,
+                          "level": "warn"})
+            lines.append({"text": _("Створиться нова картка працівника «%s», пов'язана з попередньою") % self.name,
+                          "level": "info"})
+        elif previous:
+            lines.append({"text": _("Створиться картка працівника «%s», пов'язана з попередньою архівною карткою «%s»")
+                          % (self.name, previous.name), "level": "info"})
+        else:
+            lines.append({"text": _("Створиться картка працівника «%s»") % self.name, "level": "info"})
+
+        lines.append({"text": _("Наказ про прийняття буде проведено і отримає номер з реєстру «%s»")
+                      % self._hire_register_label(), "level": "info"})
+        lines.append({"text": _("На підпис буде створено документів: %s") % self._hire_to_sign_count(), "level": "info"})
+
+        if self.date_from:
+            existing_run = self._j30_existing_run()
+            period = self.date_from.strftime("%m.%Y")
+            deadline = self.date_from - timedelta(days=1)
+            today = fields.Date.context_today(self)
+            verb = _("поповниться цим прийняттям") if existing_run else _("буде створено")
+            if self.date_from <= today:
+                lines.append({"text": _("Подання J3001005 за %(period)s %(verb)s; строк подання (%(deadline)s) уже минув")
+                              % {"period": period, "verb": verb, "deadline": deadline.strftime("%d.%m.%Y")},
+                              "level": "warn"})
+            else:
+                lines.append({"text": _("Подання J3001005 за %(period)s %(verb)s; подати до %(deadline)s")
+                              % {"period": period, "verb": verb, "deadline": deadline.strftime("%d.%m.%Y")},
+                              "level": "info"})
+
+        if self.mil_status in LIABLE_STATUSES:
+            existing_notice = self._existing_notice()
+            if existing_notice:
+                lines.append({"text": _("Повідомлення ТЦК «%s» поповниться цим прийняттям") % existing_notice.name,
+                              "level": "info"})
+            else:
+                d1, d2 = self._notice_window()
+                lines.append({"text": _("Створиться повідомлення ТЦК на тиждень %(d1)s - %(d2)s")
+                              % {"d1": d1.strftime("%d.%m.%Y"), "d2": d2.strftime("%d.%m.%Y")},
+                              "level": "info"})
+        return lines
+
     # ------------------------------------------------------------------ прийняття
     def action_hire(self):
         self.ensure_one()
@@ -702,15 +814,26 @@ class UaHireCase(models.Model):
         # Повторне прийняття = нова картка, не відновлення старої: якщо з цим РНОКПП уже є звільнений
         # (архівний) працівник, або чинний зі звільненням у даних (нештатна ситуація) - стара картка
         # лишається архівною, нова отримує на неї посилання «Попередня картка».
-        previous = self.env["hr.employee"].sudo().with_context(active_test=False).search([
-            ("ua_rnokpp", "=", self.rnokpp), ("id", "!=", self.employee_id.id or 0),
-        ], order="id desc") if self.rnokpp else self.env["hr.employee"]
-        previous = previous.filtered(lambda e: not e.active or e.ua_dismissal_date)[:1]
+        previous = self._rehire_previous()
+        archived_previous = bool(previous and previous.active)
         if previous:
             emp_vals["ua_previous_employee_id"] = previous.id
         employee = self.env["hr.employee"].sudo().create(emp_vals)
-        if previous and previous.active:
+        if archived_previous:
             previous.sudo().active = False
+
+        # Наслідки (docs/payroll/action-model.md): те саме, що action_hire_plan() вище обіцяла,
+        # тепер у минулому часі, з посиланням на щойно створений чи змінений запис.
+        done = []
+        if archived_previous:
+            done.append({"text": _("Попередню картку «%s» заархівовано") % previous.name,
+                        "target": {"model": "hr.employee", "res_id": previous.id}})
+        if previous:
+            done.append({"text": _("Створено картку працівника «%s», пов'язану з попередньою") % employee.name,
+                        "target": {"model": "hr.employee", "res_id": employee.id}})
+        else:
+            done.append({"text": _("Створено картку працівника «%s»") % employee.name,
+                        "target": {"model": "hr.employee", "res_id": employee.id}})
 
         Doc = self.env["ua.employee.document"].sudo()
         doc_types = dict(Doc._fields["type"]._description_selection(self.env))
@@ -750,22 +873,37 @@ class UaHireCase(models.Model):
                                     ("type", "=", "order")], limit=1)
             if order_doc:
                 order_doc.state = "not_needed"
+        done.append({"text": _("Наказ № %(num)s проведено (реєстр «%(reg)s»)")
+                    % {"num": order.name, "reg": dict(REGISTERS).get(order.register, order.register)},
+                    "target": {"model": "ua.hr.order", "res_id": order.id}})
+        to_sign_count = Doc.search_count([("employee_id", "=", employee.id), ("state", "=", "to_sign")])
+        done.append({"text": _("Створено документів на підпис: %s") % to_sign_count,
+                    "target": {"model": "hr.employee", "res_id": employee.id}})
 
+        existing_run = self._j30_existing_run()
         run = self.env["ua.report.run"].sudo()._find_or_create("j30", self.company_id, self.date_from.year, month=self.date_from.month)
         if run.state == "draft":
             run.action_refresh()
+        if existing_run:
+            j30_text = _("Подання J3001005 «%s» поповнено цим прийняттям") % run.name
+        else:
+            j30_text = _("Створено подання J3001005 «%s»") % run.name
+        done.append({"text": j30_text, "target": {"model": "ua.report.run", "res_id": run.id}})
 
         notice = self.env["ua.military.notice"]
         if employee.ua_mil_status in LIABLE_STATUSES:
             Notice = self.env["ua.military.notice"].sudo()
-            notice = Notice.search([("company_id", "=", self.company_id.id), ("state", "=", "draft"),
-                                    ("date_from", "<=", self.date_from), ("date_to", ">=", self.date_from)], limit=1)
-            if not notice:
-                notice = Notice.create({"company_id": self.company_id.id, "date_from": self.date_from,
-                                        "date_to": self.date_from + timedelta(days=6)})
+            existing_notice = self._existing_notice()
+            notice = existing_notice or Notice.create({"company_id": self.company_id.id, "date_from": self.date_from,
+                                                        "date_to": self.date_from + timedelta(days=6)})
             notice.action_refill()
+            if existing_notice:
+                notice_text = _("Повідомлення ТЦК «%s» поповнено цим прийняттям") % notice.name
+            else:
+                notice_text = _("Створено повідомлення ТЦК «%s»") % notice.name
+            done.append({"text": notice_text, "target": {"model": "ua.military.notice", "res_id": notice.id}})
 
         self.write({"stage": "hired", "employee_id": employee.id, "order_id": order.id, "j30_run_id": run.id,
                     "notice_id": notice.id or False, "hired_date": fields.Date.context_today(self)})
         self.message_post(body=_("Прийнято: картка %(e)s, наказ № %(o)s.") % {"e": employee.name, "o": order.name})
-        return True
+        return {"done": done}

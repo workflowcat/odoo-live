@@ -53,6 +53,7 @@ export class UaPeriod extends Component {
         this.orm = useService("orm");
         this.action = useService("action");
         this.notification = useService("notification");
+        this.act = useService("ua_act");
         this.state = useState({ data: null, loading: true, busy: false, open: {}, people: [], person: null,
                                 selected: null, preview: null, basket: readBasket(), guide: readGuide() });
         this.dotTip = (state) => DOT_TIP[state] || "";
@@ -275,13 +276,23 @@ export class UaPeriod extends Component {
         }
     }
 
+    /** «Прийняти всі зміни»: клас «узгодження» (action-model.md) - коротка дія,
+     * без плану, зі смугою скасування 20 с (action_undo_accept_changes на сервері
+     * реально повертає щойно прийняті рядки журналу назад у «нові», не ховає результат). */
     async acceptAll() {
         this.state.busy = true;
         try {
             const period = this.state.data.period;
-            const n = await this.orm.call("ua.period.board", "action_accept_changes", [period.year, period.month]);
-            this.notification.add(`Прийнято змін: ${n}`, { type: "success" });
-            await this.load({ year: period.year, month: period.month });
+            await this.act.run({
+                model: "ua.period.board",
+                id: period.year * 100 + period.month,
+                method: "action_accept_changes",
+                undo: "action_undo_accept_changes",
+                undoLabel: "Скасувати",
+                kwargs: { year: period.year, month: period.month },
+                openTarget: (target) => this.openDocTarget(target),
+                onDone: () => this.load({ year: period.year, month: period.month }),
+            });
         } catch (e) {
             this.notification.add((e.data && e.data.message) || e.message || "Помилка", { type: "danger" });
         } finally {
@@ -289,13 +300,25 @@ export class UaPeriod extends Component {
         }
     }
 
+    /** «Закрити місяць»: клас «проведення» (action-model.md) - план перед дією,
+     * наслідки після, без скасування (відкрити місяць знову - окрема свідома дія,
+     * див. openClose()). `id` - рік і місяць запаковані в одне число (рік*100+місяць):
+     * план-крок сервісу ua_act викликає ORM без жодних kwargs, тому єдиний спосіб
+     * донести період до action_close_month_plan - через сам id. */
     async closeMonth() {
         this.state.busy = true;
         try {
             const period = this.state.data.period;
-            await this.orm.call("ua.period.board", "action_close_month", [period.year, period.month]);
-            this.notification.add(`Місяць закрито: ${period.label}`, { type: "success" });
-            await this.load({ year: period.year, month: period.month });
+            await this.act.run({
+                model: "ua.period.board",
+                id: period.year * 100 + period.month,
+                method: "action_close_month",
+                plan: "action_close_month_plan",
+                confirm: "Закрити місяць",
+                kwargs: { year: period.year, month: period.month },
+                openTarget: (target) => this.openDocTarget(target),
+                onDone: () => this.load({ year: period.year, month: period.month }),
+            });
         } catch (e) {
             this.notification.add((e.data && e.data.message) || e.message || "Помилка", { type: "danger" });
         } finally {
@@ -375,6 +398,11 @@ export class UaPeriod extends Component {
         if (action === "exceptions") {
             document.querySelector(".o_ua_period_section h5")?.scrollIntoView({ behavior: "smooth" });
             return;
+        }
+        // Закриття місяця - зобов'язання: воно йде тим самим шляхом, що й кнопка «Закрити місяць»,
+        // з планом і наслідками, а не тихо з головної кнопки.
+        if (action === "close") {
+            return this.closeMonth();
         }
         this.state.busy = true;
         try {
