@@ -18,6 +18,7 @@ const PIN_MIN_WIDTH = 1200;
 
 // скорочення для значків; решта - перші дві літери назви
 const SHORT = {
+    "l10n_ua_home.menu_ua_home_root": "ДМ",
     "l10n_ua_period.menu_ua_period_root": "ЗП",
     "l10n_ua_navigation.menu_ua_people_root": "ПР",
     "l10n_ua_bank_online.menu_ua_bank_board": "БН",
@@ -28,6 +29,7 @@ const OURS = Object.keys(SHORT);
 
 // Що робить кожна сторінка: одне речення в підказці переліку сторінок.
 export const PAGE_HELP = {
+    "l10n_ua_home.menu_ua_home_screen": "Карта п'яти розділів, потік між ними і особиста панель: що зробити зараз, що змінилося.",
     "l10n_ua_navigation.menu_ua_period_screen": "Робоче місце місяця: кроки, документи, строки і закриття.",
     "l10n_ua_dashboard.menu_ua_dashboard_root": "Нарахування по підрозділах, обороти рахунків і документи місяця.",
     "payroll.hr_payslip_menu": "Листок кожного працівника за місяць: нарахування, податки, сума до виплати.",

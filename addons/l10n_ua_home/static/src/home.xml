@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+  <t t-name="l10n_ua_home.Home" owl="1">
+    <div t-attf-class="o_ua_home #{state.collapsed ? 'o_ua_home_collapsed' : ''}">
+      <t t-if="state.loading and !state.data">
+        <div class="text-muted p-4">Завантаження…</div>
+      </t>
+      <t t-elif="state.data">
+        <t t-set="data" t-value="state.data"/>
+
+        <!-- шапка: назва, контекстний рядок, перемикач місяця, одна головна дія -->
+        <div class="o_ua_head o_ua_home_head">
+          <div class="o_ua_head_title">
+            <div class="o_ua_head_title_row">
+              <h4>Домівка</h4>
+            </div>
+            <div class="o_ua_head_subtitle">
+              <t t-esc="data.company.name"/> · <t t-esc="this.employeeLabel"/> · <t t-esc="data.period.label"/>
+              <t t-if="data.period.closed"> · закрито</t>
+            </div>
+          </div>
+
+          <div class="o_ua_home_month_nav">
+            <button type="button" class="o_ua_home_icon" t-att-disabled="state.loading" t-on-click="() => this.shiftMonth(-1)"
+                    aria-label="Попередній місяць" data-tooltip="Попередній місяць">‹</button>
+            <button type="button" class="o_ua_home_icon" t-att-disabled="state.loading" t-on-click="() => this.shiftMonth(1)"
+                    aria-label="Наступний місяць" data-tooltip="Наступний місяць">›</button>
+          </div>
+          <div t-attf-class="o_ua_months o_ua_home_months #{state.loading ? 'o_ua_home_busy' : ''}">
+            <span t-foreach="data.period.periods" t-as="p" t-key="p.label"
+                  t-attf-class="o_ua_month #{p.year === data.period.year and p.month === data.period.month ? 'active' : ''}"
+                  t-on-click="() => this.selectPeriod(p)"
+                  t-att-data-tooltip="(p.closed ? 'Місяць закрито. ' : '') + 'Перейти до місяця ' + p.label">
+              <t t-esc="p.label"/><span t-if="p.closed" class="o_ua_home_closed_mark">•</span>
+            </span>
+          </div>
+
+          <div class="o_ua_head_actions">
+            <button t-if="this.primaryTodo" type="button" class="btn btn-sm btn-primary"
+                    t-att-disabled="state.busy"
+                    t-on-click="() => this.openTarget(this.primaryTodo.target, 'primary')"
+                    t-esc="this.primaryTodo.text"/>
+            <button type="button" t-attf-class="btn btn-sm #{state.guide ? 'btn-outline-primary' : 'btn-outline-secondary'}"
+                    t-att-aria-pressed="state.guide ? 'true' : 'false'" t-on-click="() => this.toggleGuide()"
+                    data-tooltip="Пояснення розділів карти і підказки під кроками">
+              <t t-esc="state.guide ? 'Сховати підказки' : 'Підказки'"/>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" t-on-click="() => this.togglePanel()"
+                    data-tooltip="Сховати або показати панель «Моє» праворуч">
+              <t t-esc="state.collapsed ? 'Показати панель' : 'Згорнути панель'"/>
+            </button>
+          </div>
+        </div>
+
+        <!-- тіло: карта розділів ліворуч, панель «Моє» праворуч (панель прокручується сама) -->
+        <div class="o_ua_home_body">
+          <div class="o_ua_home_map" t-ref="map">
+            <svg class="o_ua_home_flows" aria-hidden="true">
+              <defs>
+                <marker id="ua_home_arrowhead" markerWidth="6" markerHeight="6" refX="4.5" refY="3" orient="auto">
+                  <path d="M0,0 L6,3 L0,6 Z"/>
+                </marker>
+                <marker id="ua_home_arrowhead_light" markerWidth="6" markerHeight="6" refX="4.5" refY="3" orient="auto">
+                  <path d="M0,0 L6,3 L0,6 Z"/>
+                </marker>
+              </defs>
+              <line t-foreach="this.flowLines" t-as="flow" t-key="flow.key"
+                    t-att-x1="flow.x1" t-att-y1="flow.y1" t-att-x2="flow.x2" t-att-y2="flow.y2"
+                    t-attf-class="o_ua_home_flow #{flow.light ? 'o_ua_home_flow_light' : ''}"
+                    t-attf-marker-end="url(#ua_home_arrowhead#{flow.light ? '_light' : ''})"/>
+            </svg>
+
+            <div class="o_ua_home_grid">
+              <div t-foreach="data.regions" t-as="region" t-key="region.key"
+                   t-attf-class="o_ua_home_region o_ua_home_region_#{region.key} #{region.action ? 'o_ua_clickable' : ''} #{this.isOpening(region.key) ? 'o_ua_home_busy' : ''}"
+                   t-on-click="() => region.action and this.openTarget(region.action, region.key)"
+                   t-att-data-tooltip="region.action ? ('Відкрити ' + region.name) : ''">
+                <span t-if="region.tasks" class="o_ua_home_region_count" t-esc="region.tasks"
+                      data-tooltip="Скільки задач цього розділу чекає на дію"/>
+
+                <div class="o_ua_home_region_head">
+                  <span class="o_ua_home_mark" t-esc="region.mark"/>
+                  <span class="o_ua_home_name" t-esc="region.name"/>
+                </div>
+
+                <div t-if="state.guide" class="o_ua_lbl o_ua_home_region_hint" t-esc="this.regionHint(region.key)"/>
+
+                <div class="o_ua_lbl" t-esc="this.itemsLabel(region.count)"/>
+
+                <ul class="o_ua_home_items" t-if="region.items.length">
+                  <li t-foreach="region.items" t-as="item" t-key="item_index" t-esc="item"/>
+                </ul>
+
+                <div class="o_ua_home_badges" t-if="region.badges.length">
+                  <span t-foreach="region.badges" t-as="badge" t-key="badge_index"
+                        t-attf-class="o_ua_home_badge o_ua_home_tone_#{badge.level} #{badge.target ? 'o_ua_clickable' : ''} #{this.isOpening(region.key + '-b' + badge_index) ? 'o_ua_home_busy' : ''}"
+                        t-on-click.stop="() => badge.target and this.openTarget(badge.target, region.key + '-b' + badge_index)">
+                    <b t-esc="this.badgeWord(badge.level)"/> <t t-esc="badge.text"/>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="o_ua_home_panel" t-if="!state.collapsed">
+            <div class="o_ua_home_panel_inner">
+              <h5 class="o_ua_home_panel_title">Моє</h5>
+
+              <section class="o_ua_home_panel_block">
+                <div class="o_ua_home_panel_head">Ваш хід</div>
+                <div t-if="!data.todo.length" class="o_ua_lbl">Задач немає.</div>
+                <div t-foreach="data.todo" t-as="row" t-key="row_index"
+                     t-attf-class="o_ua_home_todo o_ua_clickable #{this.isOpening('todo-' + row_index) ? 'o_ua_home_busy' : ''}"
+                     t-on-click="() => this.openTarget(row.target, 'todo-' + row_index)">
+                  <span t-attf-class="o_ua_dot o_ua_dot_#{row.level}" t-att-data-tooltip="this.badgeWord(row.level)"/>
+                  <span class="o_ua_home_todo_text">
+                    <span t-esc="row.text"/>
+                    <span t-if="row_index === 0" class="o_ua_home_now_mark"
+                          data-tooltip="Те саме, що кнопка вгорі">ЗАРАЗ</span>
+                    <span t-if="state.guide and row.hint" class="o_ua_lbl" t-esc="row.hint"/>
+                  </span>
+                </div>
+              </section>
+
+              <section class="o_ua_home_panel_block">
+                <div class="o_ua_home_panel_head">Свіже</div>
+                <div t-if="!data.recent.length" class="o_ua_lbl">Ще немає змін цього місяця.</div>
+                <div t-foreach="data.recent" t-as="row" t-key="row_index"
+                     t-attf-class="o_ua_home_recent #{row.target ? 'o_ua_clickable' : ''} #{this.isOpening('recent-' + row_index) ? 'o_ua_home_busy' : ''}"
+                     t-on-click="() => row.target and this.openTarget(row.target, 'recent-' + row_index)">
+                  <span class="o_ua_home_recent_what">
+                    <t t-esc="row.what"/><t t-if="row.name"> · <t t-esc="row.name"/></t>
+                  </span>
+                  <span class="o_ua_lbl"><t t-esc="row.who"/> · <t t-esc="row.when"/></span>
+                </div>
+                <div class="o_ua_home_changelog o_ua_clickable" t-on-click="() => this.openChangeLog()">
+                  Журнал змін · <t t-esc="data.unseen_changes"/> непереглянутих
+                </div>
+              </section>
+
+              <section class="o_ua_home_panel_block">
+                <div class="o_ua_home_panel_head">Ваші чернетки</div>
+                <div t-if="!data.drafts.length" class="o_ua_lbl">Чернеток немає.</div>
+                <div t-foreach="data.drafts" t-as="row" t-key="row_index"
+                     t-attf-class="o_ua_home_draft o_ua_clickable #{this.isOpening('draft-' + row_index) ? 'o_ua_home_busy' : ''}"
+                     t-on-click="() => this.openTarget(row.target, 'draft-' + row_index)">
+                  <span t-esc="row.title"/>
+                  <span t-if="row.subtitle" class="o_ua_lbl" t-esc="row.subtitle"/>
+                </div>
+              </section>
+            </div>
+          </aside>
+        </div>
+      </t>
+    </div>
+  </t>
+</templates>
