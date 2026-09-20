@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_kp_code_list" model="ir.ui.view">
+    <field name="name">ua.kp.code.list</field>
+    <field name="model">ua.kp.code</field>
+    <field name="arch" type="xml">
+      <list editable="bottom">
+        <field name="code"/>
+        <field name="names_count" string="Професій"/>
+        <field name="group" optional="show"/>
+        <field name="checked" string="Звірено"/>
+        <field name="source" optional="hide"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_kp_code" model="ir.actions.act_window">
+    <field name="name">Коди професій</field>
+    <field name="res_model">ua.kp.code</field>
+    <field name="view_mode">list,form</field>
+  </record>
+
+  <menuitem id="menu_ua_kp_code" name="Коди професій"
+            parent="l10n_ua_navigation.menu_ua_setup_root"
+            action="action_ua_kp_code" sequence="35"/>
+</odoo>
