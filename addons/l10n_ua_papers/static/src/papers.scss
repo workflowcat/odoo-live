@@ -1,0 +1,293 @@
+// «Папери»: один екран замість дванадцяти майстрів. Смуга періоду на всю ширину,
+// нижче три колонки - перелік паперів, поле+перегляд, що входить.
+//
+// .o_ua_papers навмисно не додано до спільного списку в l10n_ua_payroll_rules/static/src/ua_ui.scss
+// (.o_ua_period, .o_ua_dashboard, .o_ua_bank, .o_ua_reporting, .o_ua_setup, .o_ua_hire) - цей
+// модуль володіє лише файлами static/src/papers.*, тому клас .o_ua_lbl/.o_ua_clickable нижче
+// продубльовано під .o_ua_papers, як home.scss дублює їх під .o_ua_home. Кольори (--ua-*) - зі
+// спільного :root у ua_ui.scss, зі своїми запасними значеннями на випадок іншого порядку
+// завантаження бандла, як і в home.scss/period.scss.
+.o_ua_papers {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 12px 16px;
+    font-size: 13px;
+
+    h4 { margin: 0; }
+
+    // ---- продубльовані спільні класи (див. примітку вище)
+    .o_ua_papers_lbl { display: block; font-size: 12px; color: var(--ua-muted, #6c757d); }
+    .o_ua_papers_clickable { cursor: pointer; }
+    .o_ua_papers_clickable:hover { background: var(--ua-hover, rgba(0, 0, 0, 0.03)); }
+    [data-tooltip] { cursor: help; }
+    .o_ua_papers_clickable[data-tooltip] { cursor: pointer; }
+
+    // маленький індикатор зайнятості саме на тому, що зараз вантажиться - не на всьому екрані
+    .o_ua_papers_busy { opacity: .5; pointer-events: none; }
+
+    // ---- 1. шапка: назва паперу + підзаголовок/стан ліворуч, дії праворуч (спільний .o_ua_head
+    // з ua_ui.scss - той селектор не в списку вище, він завжди глобальний)
+    .o_ua_papers_head { margin-bottom: 10px; }
+
+    // ---- 2. смуга періоду: одна на весь екран, під шапкою
+    .o_ua_papers_period_bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        margin-bottom: 14px;
+        background: var(--ua-hover, rgba(0, 0, 0, 0.03));
+        border: 1px solid var(--ua-rule, #dee2e6);
+    }
+
+    .o_ua_papers_arrow {
+        width: 22px;
+        height: 22px;
+        padding: 0;
+        border: 1px solid transparent;
+        background: none;
+        color: var(--ua-muted, #6c757d);
+        cursor: pointer;
+
+        &:hover { border-color: var(--ua-rule-strong, #ced4da); color: var(--o-gray-900, #212529); }
+        &:disabled { opacity: .5; cursor: default; }
+    }
+
+    .o_ua_papers_period_now { font-size: 14px; font-weight: 600; }
+
+    .o_ua_papers_period_state { font-variant-numeric: tabular-nums; }
+
+    .o_ua_papers_months {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2px;
+        margin-left: auto;
+    }
+
+    .o_ua_papers_month {
+        position: relative;
+        padding: 3px 9px;
+        cursor: pointer;
+        font-size: 13px;
+        color: var(--ua-muted, #6c757d);
+        border: 1px solid transparent;
+
+        &:hover { background: var(--ua-hover, rgba(0, 0, 0, 0.03)); }
+        &.active {
+            color: var(--o-brand-primary, #714b67);
+            border-color: var(--o-brand-primary, #714b67);
+            font-weight: 600;
+        }
+    }
+
+    .o_ua_papers_closed_mark {
+        margin-left: 2px;
+        color: var(--ua-warn, #96690a);
+        font-weight: 700;
+    }
+
+    // ---- 3. три колонки: ліва 232px, середина тягнеться, права 288px
+    .o_ua_papers_cols {
+        display: grid;
+        grid-template-columns: 232px minmax(0, 1fr) 288px;
+        align-items: start;
+        gap: 0;
+    }
+    .o_ua_papers_cols > * { min-width: 0; }
+
+    // ---- ліва колонка: перелік паперів по групах
+    .o_ua_papers_list {
+        border-right: 1px solid var(--ua-rule, #dee2e6);
+        padding: 0 14px 16px 0;
+    }
+
+    .o_ua_papers_group_head {
+        padding: 12px 0 5px;
+
+        &:first-child { padding-top: 0; }
+    }
+
+    .o_ua_papers_item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 8px;
+        font-size: 13.5px;
+        cursor: pointer;
+
+        &:hover { background: var(--ua-hover, rgba(0, 0, 0, 0.03)); }
+
+        &.o_ua_papers_item_sel {
+            background: var(--o-gray-900, #212529);
+            color: var(--o-view-background-color, #fff);
+
+            &:hover { background: var(--o-gray-900, #212529); }
+            .o_ua_papers_item_n { color: inherit; }
+            .o_ua_papers_mark { box-shadow: 0 0 0 1px var(--o-view-background-color, #fff); }
+        }
+    }
+
+    .o_ua_papers_item_name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .o_ua_papers_item_n { flex: 0 0 auto; font-size: 11px; color: var(--ua-muted, #6c757d); font-variant-numeric: tabular-nums; }
+
+    // квадратик-позначка кольору - не крапка, як деінде: тут це кольорова "мітка стану" паперу
+    .o_ua_papers_mark {
+        width: 8px;
+        height: 8px;
+        flex: 0 0 auto;
+        background: var(--ua-rule-strong, #ced4da);
+    }
+    .o_ua_papers_mark_ok { background: var(--ua-ok, #2f8f63); }
+    .o_ua_papers_mark_warn { background: var(--ua-warn, #96690a); }
+    .o_ua_papers_mark_crit { background: var(--ua-crit, #c04f31); }
+
+    // ---- середина: поля, перегляд, дії, зроблено раніше
+    .o_ua_papers_main { padding: 0 14px; }
+
+    .o_ua_papers_fields {
+        border: 1px solid var(--ua-rule, #dee2e6);
+        padding: 11px 12px 12px;
+        margin-bottom: 12px;
+    }
+
+    .o_ua_papers_fields_h { margin-bottom: 9px; }
+
+    .o_ua_papers_field {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 7px;
+
+        &:last-child { margin-bottom: 0; }
+    }
+
+    .o_ua_papers_field_name { font-size: 13px; flex: 0 0 118px; }
+    .o_ua_papers_field_in { max-width: 320px; }
+    .form-check.o_ua_papers_field_in { max-width: none; margin: 0; }
+
+    // поле, якого бракує для паперу - позначене кольором crit, а не діалогом після кнопки
+    .o_ua_papers_field_missing {
+        .o_ua_papers_field_name { color: var(--ua-crit, #c04f31); }
+        .o_ua_papers_field_in.form-control,
+        .o_ua_papers_field_in.form-select { border-color: var(--ua-crit, #c04f31); }
+    }
+
+    .o_ua_papers_field_note { flex: 0 0 100%; margin-top: -3px; }
+
+    .o_ua_papers_preview_h { margin-bottom: 7px; }
+
+    // повний HTML звіту в своєму CSS, без зіткнення зі стилями Odoo - див. spec-papers.md
+    .o_ua_papers_preview_frame {
+        display: block;
+        width: 100%;
+        // Папір читають, а не підглядають: висота на добрий шмат сторінки,
+        // решта прокручується всередині рамки.
+        height: 560px;
+        border: 1px solid var(--ua-rule-strong, #ced4da);
+        background: var(--o-view-background-color, #fff);
+    }
+
+    .o_ua_papers_preview_empty {
+        padding: 16px 14px;
+        border: 1px solid var(--ua-rule, #dee2e6);
+        text-align: center;
+    }
+
+    .o_ua_papers_under {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+    }
+
+    .o_ua_papers_under_note { flex: 0 0 auto; }
+
+    .o_ua_papers_earlier {
+        margin-top: 12px;
+        padding-top: 9px;
+        border-top: 1px solid var(--ua-rule, #dee2e6);
+
+        a {
+            color: var(--o-brand-primary, #714b67);
+            text-decoration: none;
+            border-bottom: 1px solid currentColor;
+            cursor: pointer;
+        }
+    }
+
+    // ---- права колонка: спокійна, один рядок на джерело, без карток і рамок навколо кожного
+    .o_ua_papers_side {
+        border-left: 1px solid var(--ua-rule, #dee2e6);
+        padding: 0 0 16px 14px;
+    }
+
+    .o_ua_papers_side_h {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .o_ua_papers_side_toggle { color: var(--o-brand-primary, #714b67); font-size: 12px; }
+
+    .o_ua_papers_src {
+        padding: 7px 0;
+        border-bottom: 1px solid var(--ua-rule, #dee2e6);
+
+        &:last-of-type { border-bottom: none; }
+    }
+
+    .o_ua_papers_src_label { font-size: 13px; }
+    .o_ua_papers_src_text { font-size: 11.5px; color: var(--ua-muted, #6c757d); }
+    // стан джерела: missing/stale - crit, not_applicable - приглушений, решта - звичайним кольором
+    .o_ua_papers_src_missing, .o_ua_papers_src_stale { color: var(--ua-crit, #c04f31); }
+    .o_ua_papers_src_not_applicable { color: var(--ua-muted, #6c757d); opacity: .7; }
+
+    .o_ua_papers_side_sec {
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid var(--ua-rule-strong, #ced4da);
+    }
+
+    .o_ua_papers_chk {
+        display: flex;
+        gap: 7px;
+        align-items: flex-start;
+        padding: 5px 0;
+        font-size: 12.5px;
+
+        .o_ua_papers_mark { margin-top: 5px; }
+    }
+
+    // ---- мобільна ширина: колонки складаються в одну, рамки між ними йдуть згори, не збоку
+    @media (max-width: 899.98px) {
+        .o_ua_papers_cols { grid-template-columns: minmax(0, 1fr); }
+
+        .o_ua_papers_list {
+            border-right: none;
+            padding: 0 0 14px;
+        }
+
+        .o_ua_papers_main { padding: 14px 0; }
+
+        .o_ua_papers_side {
+            border-left: none;
+            border-top: 1px solid var(--ua-rule, #dee2e6);
+            padding: 14px 0 0;
+        }
+    }
+}
+
+// навігація миттєва, без анімації: жодних переходів у цьому екрані, і явно вимикаємо їх,
+// якщо колись додадуться, для тих, хто просить менше руху
+@media (prefers-reduced-motion: reduce) {
+    .o_ua_papers, .o_ua_papers * {
+        transition: none !important;
+        animation: none !important;
+    }
+}

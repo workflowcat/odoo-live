@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+  <t t-name="l10n_ua_papers.Papers" owl="1">
+    <div class="o_ua_papers">
+      <t t-if="state.loading and !state.data">
+        <div class="text-muted p-4">Завантаження…</div>
+      </t>
+      <t t-elif="state.data">
+        <t t-set="data" t-value="state.data"/>
+
+        <!-- 1. шапка: назва паперу, підзаголовок+стан, дії -->
+        <div class="o_ua_head o_ua_papers_head">
+          <div class="o_ua_head_title">
+            <div class="o_ua_head_title_row"><h4 t-esc="data.paper.name"/></div>
+            <div class="o_ua_head_subtitle">
+              <t t-esc="data.paper.subtitle"/><t t-if="data.paper.state_text"> · <t t-esc="data.paper.state_text"/></t>
+            </div>
+          </div>
+          <!-- У шапці лише головна дія: решта стоїть під папером, щоб не малювати
+               ту саму смугу кнопок двічі на одному екрані. -->
+          <div class="o_ua_head_actions">
+            <t t-foreach="data.paper.actions" t-as="a" t-key="a.key">
+              <button t-if="a.primary" type="button" class="btn btn-sm btn-primary"
+                      t-att-disabled="!a.enabled || state.busy"
+                      t-att-data-tooltip="!a.enabled ? a.reason : ''"
+                      t-on-click="() => this.runAction(a)" t-esc="a.label"/>
+            </t>
+          </div>
+        </div>
+
+        <!-- 2. смуга періоду: одна на весь екран, перемикає всі папери разом -->
+        <div t-attf-class="o_ua_papers_period_bar #{state.loading ? 'o_ua_papers_busy' : ''}">
+          <span class="o_ua_papers_lbl">Період</span>
+          <button type="button" class="o_ua_papers_arrow" t-att-disabled="state.loading"
+                  t-on-click="() => this.shiftMonth(-1)" aria-label="Попередній місяць" data-tooltip="Попередній місяць">‹</button>
+          <span class="o_ua_papers_period_now" t-esc="data.period.label"/>
+          <button type="button" class="o_ua_papers_arrow" t-att-disabled="state.loading"
+                  t-on-click="() => this.shiftMonth(1)" aria-label="Наступний місяць" data-tooltip="Наступний місяць">›</button>
+          <span class="o_ua_papers_period_state o_ua_papers_lbl">
+            <t t-esc="data.period.closed ? 'закритий' : 'відкритий'"/> · <t t-esc="this.employeeLabel"/>
+          </span>
+          <div class="o_ua_papers_months">
+            <span t-foreach="data.period.periods" t-as="p" t-key="p.label"
+                  t-attf-class="o_ua_papers_month #{p.year === data.period.year and p.month === data.period.month ? 'active' : ''}"
+                  t-on-click="() => this.selectPeriod(p)"
+                  t-att-data-tooltip="'Перейти до місяця ' + p.label">
+              <t t-esc="p.label"/><span t-if="p.closed" class="o_ua_papers_closed_mark">•</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- 3. три колонки -->
+        <div class="o_ua_papers_cols">
+
+          <!-- ліва: перелік паперів по групах -->
+          <div class="o_ua_papers_list">
+            <t t-foreach="this.paperGroups" t-as="g" t-key="g.key">
+              <div class="o_ua_papers_group_head o_ua_papers_lbl" t-esc="g.label"/>
+              <div t-foreach="g.papers" t-as="p" t-key="p.key"
+                   t-attf-class="o_ua_papers_item #{p.key === data.paper.key ? 'o_ua_papers_item_sel' : ''}"
+                   t-on-click="() => this.selectPaper(p.key)">
+                <span t-attf-class="o_ua_papers_mark o_ua_papers_mark_#{p.mark}"/>
+                <span class="o_ua_papers_item_name" t-esc="p.name"/>
+                <span t-if="p.count" class="o_ua_papers_item_n" t-esc="p.count"/>
+              </div>
+            </t>
+          </div>
+
+          <!-- середина: поля, перегляд, дії, зроблено раніше -->
+          <div class="o_ua_papers_main">
+            <div class="o_ua_papers_fields">
+              <div class="o_ua_papers_lbl o_ua_papers_fields_h">Що вказати</div>
+              <div t-foreach="data.paper.fields" t-as="f" t-key="f.key"
+                   t-attf-class="o_ua_papers_field #{f.missing ? 'o_ua_papers_field_missing' : ''}">
+                <label t-attf-for="'ua_papers_f_' + f.key" class="o_ua_papers_field_name" t-esc="f.label"/>
+
+                <t t-if="f.kind === 'choice' or f.kind === 'record'">
+                  <select class="o_ua_papers_field_in form-select form-select-sm" t-att-id="'ua_papers_f_' + f.key"
+                          t-att-disabled="state.busy"
+                          t-on-change="(ev) => this.changeField(f.key, f.options[ev.target.selectedIndex].value)">
+                    <t t-foreach="f.options" t-as="o" t-key="o_index">
+                      <option t-att-value="o_index" t-att-selected="o.value === f.value" t-esc="o.label"/>
+                    </t>
+                  </select>
+                </t>
+                <t t-elif="f.kind === 'date'">
+                  <input type="date" class="o_ua_papers_field_in form-control form-control-sm" t-att-id="'ua_papers_f_' + f.key"
+                         t-att-disabled="state.busy" t-att-value="f.value || ''"
+                         t-on-change="(ev) => this.changeField(f.key, ev.target.value || false)"/>
+                </t>
+                <t t-elif="f.kind === 'bool'">
+                  <div class="form-check form-switch o_ua_papers_field_in">
+                    <input class="form-check-input" type="checkbox" role="switch" t-att-id="'ua_papers_f_' + f.key"
+                           t-att-disabled="state.busy" t-att-checked="!!f.value"
+                           t-on-change="(ev) => this.changeField(f.key, ev.target.checked)"/>
+                  </div>
+                </t>
+                <t t-else="">
+                  <input type="text" class="o_ua_papers_field_in form-control form-control-sm" t-att-id="'ua_papers_f_' + f.key"
+                         t-att-disabled="state.busy" t-att-value="f.value || ''"
+                         t-on-change="(ev) => this.changeField(f.key, ev.target.value)"/>
+                </t>
+
+                <span t-if="f.note" class="o_ua_papers_lbl o_ua_papers_field_note" t-esc="f.note"/>
+              </div>
+            </div>
+
+            <div class="o_ua_papers_lbl o_ua_papers_preview_h">Перегляд</div>
+            <iframe t-if="data.paper.preview.html" class="o_ua_papers_preview_frame"
+                    t-att-srcdoc="data.paper.preview.html" sandbox="allow-same-origin"/>
+            <div t-else="" class="o_ua_papers_preview_empty o_ua_papers_lbl" t-esc="data.paper.preview.empty_text"/>
+
+            <!-- Під папером - усе, крім головної дії: вона вже стоїть у шапці.
+                 Стан паперу теж не повторюємо, він у підзаголовку. -->
+            <div class="o_ua_papers_under" t-if="this.secondaryActions.length">
+              <t t-foreach="this.secondaryActions" t-as="a" t-key="a.key">
+                <button type="button" class="btn btn-sm btn-outline-secondary"
+                        t-att-disabled="!a.enabled || state.busy"
+                        t-att-data-tooltip="!a.enabled ? a.reason : ''"
+                        t-on-click="() => this.runAction(a)" t-esc="a.label"/>
+              </t>
+            </div>
+
+            <div class="o_ua_papers_earlier o_ua_papers_lbl" t-if="data.paper.earlier.length">
+              Раніше:
+              <t t-foreach="data.paper.earlier" t-as="e" t-key="e_index">
+                <a href="#" t-on-click.prevent="() => this.openTarget(e.target, 'earlier-' + e_index)" t-esc="e.label"/>
+                <t t-if="e.note"> (<t t-esc="e.note"/>)</t>
+                <t t-if="e_index !== data.paper.earlier.length - 1">, </t>
+              </t>
+            </div>
+          </div>
+
+          <!-- права: що входить, перевірки - згортається разом -->
+          <div class="o_ua_papers_side">
+            <div class="o_ua_papers_side_h">
+              <span class="o_ua_papers_lbl">Звідки дані</span>
+              <span class="o_ua_papers_side_toggle o_ua_papers_clickable" t-on-click="() => this.toggleSide()">
+                <t t-esc="state.sideCollapsed ? 'показати' : 'сховати'"/>
+              </span>
+            </div>
+            <t t-if="!state.sideCollapsed">
+              <div t-foreach="data.paper.sources" t-as="s" t-key="s_index"
+                   t-attf-class="o_ua_papers_src #{s.target ? 'o_ua_papers_clickable' : ''}"
+                   t-on-click="() => s.target and this.openTarget(s.target, 'src-' + s_index)">
+                <div class="o_ua_papers_src_label" t-esc="s.label"/>
+                <div t-attf-class="o_ua_papers_src_text o_ua_papers_src_#{s.state}" t-esc="s.text"/>
+              </div>
+
+              <div class="o_ua_papers_side_sec" t-if="data.paper.checks.length">
+                <div class="o_ua_papers_lbl">Перевірки</div>
+                <div t-foreach="data.paper.checks" t-as="c" t-key="c_index"
+                     t-attf-class="o_ua_papers_chk #{c.target ? 'o_ua_papers_clickable' : ''}"
+                     t-on-click="() => c.target and this.openTarget(c.target, 'chk-' + c_index)">
+                  <span t-attf-class="o_ua_papers_mark o_ua_papers_mark_#{c.level}"/>
+                  <span t-esc="c.text"/>
+                </div>
+              </div>
+            </t>
+          </div>
+
+        </div>
+      </t>
+    </div>
+  </t>
+</templates>
