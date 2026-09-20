@@ -13,8 +13,8 @@
 способом побудувати поля/джерела. Новий папір - новий запис реєстру.
 
 Слова в інтерфейсі - за нормою docs/payroll/words.md: назва речі, не розповідь про неї,
-без «ми»/«ви», кнопка одним дієсловом («Друк», «Створити», «Редагувати»), причина
-вимкненої кнопки - один факт без вибачень.
+без «ми»/«ви», кнопка одним дієсловом («Друк», «Створити», «Затвердити», «Відкрити»),
+причина вимкненої кнопки - один факт без вибачень.
 """
 from datetime import date, timedelta
 
@@ -81,6 +81,8 @@ class UaPapers(models.AbstractModel):
                 "composable": True, "compose_fn": self._compose_timesheet,
                 "missing_text": "Немає табеля за {m}", "empty_action": "Створити",
                 "sources_fn": self._src_timesheet,
+                "line_model": "ua.timesheet.line", "line_inverse": "sheet_id",
+                "line_view_xmlid": "l10n_ua_papers.view_ua_papers_timesheet_line_list",
             },
             {
                 "key": "staff_list", "group": "month", "group_label": "За місяць",
@@ -97,6 +99,8 @@ class UaPapers(models.AbstractModel):
                 "compose_fill": "action_refill",
                 "missing_text": "Немає штатного розпису на цю дату", "empty_action": "Створити",
                 "sources_fn": self._src_staff_list,
+                "line_model": "ua.staff.list.line", "line_inverse": "list_id",
+                "line_view_xmlid": "l10n_ua_papers.view_ua_papers_staff_list_line_list",
             },
             {
                 "key": "advance", "group": "month", "group_label": "За місяць",
@@ -112,6 +116,8 @@ class UaPapers(models.AbstractModel):
                 "compose_fill": "action_refill",
                 "missing_text": "Аванс за {m} не розраховано", "empty_action": "Створити",
                 "sources_fn": self._src_advance,
+                "line_model": "ua.advance.line", "line_inverse": "sheet_id",
+                "line_view_xmlid": "l10n_ua_papers.view_ua_papers_advance_line_list",
             },
             {
                 "key": "payment_batch", "group": "month", "group_label": "За місяць",
@@ -128,6 +134,8 @@ class UaPapers(models.AbstractModel):
                 "compose_fill": "action_fill",
                 "missing_text": "Немає відомості цього виду за {m}", "empty_action": "Створити",
                 "sources_fn": self._src_payment_batch,
+                "line_model": "ua.payment.line", "line_inverse": "batch_id",
+                "line_view_xmlid": "l10n_ua_papers.view_ua_papers_payment_line_list",
             },
             {
                 "key": "payroll_sheet", "group": "month", "group_label": "За місяць",
@@ -199,6 +207,8 @@ class UaPapers(models.AbstractModel):
                 "composable": True, "compose_fn": self._compose_pfu,
                 "missing_text": "Немає заяви-розрахунку за {m}", "empty_action": "Створити",
                 "sources_fn": self._src_pfu,
+                "line_model": "ua.pfu.claim.line", "line_inverse": "claim_id",
+                "line_view_xmlid": "l10n_ua_papers.view_ua_papers_pfu_claim_line_list",
             },
             {
                 "key": "military_list", "group": "state", "group_label": "Для держави",
@@ -211,8 +221,10 @@ class UaPapers(models.AbstractModel):
                 "find_order": "date desc, id desc",
                 "composable": False, "compose_block_reason": "Потрібно вказати ТЦК та СП",
                 "edit_fallback": {"xmlid": "l10n_ua_military.action_ua_military_list"},
-                "missing_text": "Немає списку військового обліку на цю дату", "empty_action": "Редагувати",
+                "missing_text": "Немає списку військового обліку на цю дату", "empty_action": "Відкрити",
                 "sources_fn": self._src_military_list,
+                "line_model": "ua.military.list.line", "line_inverse": "list_id",
+                "line_view_xmlid": "l10n_ua_papers.view_ua_papers_military_list_line_list",
             },
             {
                 "key": "military_reserved", "group": "state", "group_label": "Для держави",
@@ -229,6 +241,8 @@ class UaPapers(models.AbstractModel):
                 "compose_fill": "action_refill",
                 "missing_text": "Немає списку заброньованих на цю дату", "empty_action": "Створити",
                 "sources_fn": self._src_military_reserved,
+                "line_model": "ua.military.reserved.line", "line_inverse": "reserved_id",
+                "line_view_xmlid": "l10n_ua_papers.view_ua_papers_military_reserved_line_list",
             },
             # ------------------------------------------------------------ журнали
             {
@@ -616,25 +630,81 @@ class UaPapers(models.AbstractModel):
             return {"html": "", "empty_text": "%s." % self._fact(entry, month)}
         return {"html": "", "empty_text": self._empty_text(entry, month)}
 
+    # ------------------------------------------------------------------ режим «Дані» (List, task 4)
+    def _build_edit(self, entry, record):
+        """'edit' - модель рядка + домен + вузький вигляд для режиму «Дані»: список рядків
+        документа (`editable="bottom"`), не форма (spec-papers.md, «Спершу дані, потім
+        бланк» - вбудована повна форма пробувалася і виявилася непридатною: своя переписка,
+        свої кнопки в шапці, свої копії полів «Що вказати»).
+
+        None для паперів без `line_model` у реєстрі (на людину, журнал - рядків не мають,
+        для них бланк і є даними) і завжди, коли запису ще немає: правити рядки нема чого,
+        поки немає самого документа."""
+        line_model = entry.get("line_model")
+        if not record or not line_model:
+            return None
+        inverse = entry["line_inverse"]
+        view_id = self.env.ref(entry["line_view_xmlid"]).id
+        count = self.env[line_model].search_count([(inverse, "=", record.id)])
+        return {
+            "model": line_model,
+            "domain": [[inverse, "=", record.id]],
+            "view_id": view_id,
+            "context": {"default_%s" % inverse: record.id},
+            "editable": self._state_bucket(entry, record) == "draft",
+            "count": count,
+            "doc": {"model": entry["model"], "res_id": record.id},
+        }
+
     # ------------------------------------------------------------------ дії
     def _build_actions(self, entry, record, month):
+        """Головна дія залежить від стану документа (spec-papers.md, «Спершу дані, потім
+        бланк»): немає запису - Створити; чернетка - Затвердити; затверджено - Друк.
+        confirm/to_draft ідуть лише туди, де запис і справді має action_confirm/action_draft
+        (табель, штатний розпис, аванс, відомість, ПФУ, обидва військові списки). Там, де
+        методів з такими іменами немає - hr.payslip.run (є лише close_payslip_run, без дії
+        назад), hr.payslip (action_payslip_done/_draft - інша пара, і "done" зазвичай тягне
+        бухгалтерські проведення), ua.hr.order (action_post/action_cancel - не те саме, що
+        "повернути в чернетку") - дію свідомо не пропонуємо, а не малюємо вимкненою:
+        головною лишається Друк, як і до цього зрізу. Журнал (register) - виняток за формою
+        реєстру: запису в нього немає ніколи (spec-papers.md, «Перелік паперів»), і Друк
+        відкриває майстер одразу, без проміжного «Створити», яке б довіку стояло вимкненим."""
         fact = self._fact(entry, month)
         can_print = bool(record) or bool(entry.get("print_fallback"))
-        can_edit = bool(record) or bool(entry.get("edit_fallback"))
-        if record and entry.get("composable"):
-            compose_enabled, compose_reason = False, "Папір уже є"
-        elif entry.get("composable"):
-            compose_enabled, compose_reason = True, None
+        can_open = bool(record) or bool(entry.get("edit_fallback"))
+        bucket = self._state_bucket(entry, record)
+        can_confirm = bool(record) and bucket == "draft" and hasattr(record, "action_confirm")
+        can_to_draft = bool(record) and bucket == "confirmed" and hasattr(record, "action_draft")
+
+        actions = []
+        if not record:
+            if entry["group"] == "register":
+                actions.append({"key": "print", "label": "Друк", "primary": True,
+                                 "enabled": can_print, "reason": None if can_print else fact})
+            else:
+                composable = bool(entry.get("composable"))
+                actions.append({"key": "compose", "label": "Створити", "primary": True,
+                                 "enabled": composable,
+                                 "reason": None if composable else entry.get("compose_block_reason")})
+                actions.append({"key": "print", "label": "Друк", "primary": False,
+                                 "enabled": can_print, "reason": None if can_print else fact})
+        elif can_confirm:
+            actions.append({"key": "confirm", "label": "Затвердити", "primary": True,
+                             "enabled": True, "reason": None})
+            actions.append({"key": "print", "label": "Друк", "primary": False,
+                             "enabled": can_print, "reason": None if can_print else fact})
+        elif can_to_draft:
+            actions.append({"key": "print", "label": "Друк", "primary": True,
+                             "enabled": can_print, "reason": None if can_print else fact})
+            actions.append({"key": "to_draft", "label": "Повернути в чернетку", "primary": False,
+                             "enabled": True, "reason": None})
         else:
-            compose_enabled, compose_reason = False, entry["compose_block_reason"]
-        return [
-            {"key": "print", "label": "Друк", "primary": can_print, "enabled": can_print,
-             "reason": None if can_print else fact},
-            {"key": "compose", "label": "Створити", "primary": compose_enabled, "enabled": compose_enabled,
-             "reason": compose_reason},
-            {"key": "edit", "label": "Редагувати", "primary": False, "enabled": can_edit,
-             "reason": None if can_edit else fact},
-        ]
+            actions.append({"key": "print", "label": "Друк", "primary": True,
+                             "enabled": can_print, "reason": None if can_print else fact})
+
+        actions.append({"key": "open", "label": "Відкрити", "primary": False, "enabled": can_open,
+                         "reason": None if can_open else fact})
+        return actions
 
     # ------------------------------------------------------------------ джерела
     def _build_sources(self, entry, record, company, first, last):
@@ -678,6 +748,7 @@ class UaPapers(models.AbstractModel):
         else:
             fields_list = self._extra_fields(entry, company, params, record)
 
+        edit = self._build_edit(entry, record)
         return {
             "key": entry["key"],
             "name": entry["full_name"],
@@ -686,6 +757,8 @@ class UaPapers(models.AbstractModel):
             "state_text": self._state_text(entry, record),
             "record": self._t_record(record),
             "fields": fields_list,
+            "edit": edit,
+            "default_mode": "edit" if edit else "print",
             "preview": self._preview(entry, record, month),
             "actions": self._build_actions(entry, record, month),
             "sources": self._build_sources(entry, record, company, first, last),
@@ -783,12 +856,24 @@ class UaPapers(models.AbstractModel):
                 return self.open_target(entry["print_fallback"])
             raise UserError(_("Немає паперу за цей період"))
 
-        if action_key == "edit":
+        if action_key == "open":
             if record:
                 return self.open_target({"model": entry["model"], "res_id": record.id})
             if entry.get("edit_fallback"):
                 return self.open_target(entry["edit_fallback"])
-            raise UserError(_("Немає запису для редагування"))
+            raise UserError(_("Немає запису для відкриття"))
+
+        if action_key == "confirm":
+            if not record or not hasattr(record, "action_confirm"):
+                raise UserError(_("Затвердження недоступне для цього паперу"))
+            record.action_confirm()
+            return {"reload": True}
+
+        if action_key == "to_draft":
+            if not record or not hasattr(record, "action_draft"):
+                raise UserError(_("Повернення в чернетку недоступне для цього паперу"))
+            record.action_draft()
+            return {"reload": True}
 
         raise UserError(_("Невідома дія: %s") % action_key)
 

@@ -21,6 +21,7 @@
     ],
     "data": [
         "security/ir.model.access.csv",
+        "views/ua_papers_line_views.xml",
         "views/ua_papers_views.xml",
     ],
     "assets": {

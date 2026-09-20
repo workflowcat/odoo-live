@@ -9,6 +9,7 @@
 Запуск: PAYROLL_DB=payroll python3 scripts/papers_check.py"""
 import json
 import os
+import re
 import urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -144,6 +145,64 @@ shape = [k for k, paper in previews.items()
          if not (paper.get("name") and "fields" in paper and "preview" in paper
                  and "actions" in paper and "sources" in paper and "checks" in paper)]
 check("кожен папір має поля, перегляд, дії, джерела і перевірки", not shape, str(shape[:5]))
+
+# 4b. «Спершу дані, потім бланк» (spec-papers.md): edit/default_mode за наявністю
+# рядків, головна дія - за станом. edit тепер - модель рядка + домен + вузький вигляд
+# (task 4: список рядків, а не форма запису документа).
+own_doc = {k: paper for k, paper in previews.items() if (paper.get("edit") or {}).get("model")}
+no_doc = {k: paper for k, paper in previews.items() if not paper.get("edit")}
+check("є хоч один папір із рядками (edit)", bool(own_doc), f"{len(own_doc)} з {len(previews)}")
+
+bad_edit_mode = [k for k, paper in own_doc.items() if paper.get("default_mode") != "edit"]
+check("папір із рядками має edit і default_mode 'edit'", not bad_edit_mode, str(bad_edit_mode[:5]))
+
+bad_edit_shape = [k for k, paper in own_doc.items()
+                   if not isinstance((paper["edit"]).get("doc", {}).get("res_id"), int)
+                   or not isinstance((paper["edit"]).get("editable"), bool)
+                   or not isinstance((paper["edit"]).get("view_id"), int)
+                   or not isinstance((paper["edit"]).get("count"), int)
+                   or not paper["edit"].get("domain")
+                   or not paper["edit"].get("model")]
+check("edit має модель рядка, domain, view_id, count, editable і doc.res_id",
+      not bad_edit_shape, str(bad_edit_shape[:5]))
+
+bad_line_model = [k for k, paper in own_doc.items()
+                   if paper["edit"]["model"] == (paper["edit"].get("doc") or {}).get("model")]
+check("у паперу з рядками edit.model - модель рядка, не документа", not bad_line_model, str(bad_line_model[:5]))
+
+view_ids = sorted({paper["edit"]["view_id"] for paper in own_doc.values()})
+found_views = call("ir.ui.view", "search_count", [("id", "in", view_ids)]) if view_ids else 0
+check("view_id вузького вигляду існує в ir.ui.view", found_views == len(view_ids),
+      f"{found_views} з {len(view_ids)}")
+
+if view_ids:
+    archs = call("ir.ui.view", "read", view_ids, ["arch"])
+    day_fields = re.compile(r"""name=["']d\d\d["']""")
+    bad_days = [a["id"] for a in archs if day_fields.search(a.get("arch") or "")]
+    check("вузький вигляд не містить полів d01..d31", not bad_days, str(bad_days[:5]))
+
+bad_print_mode = [k for k, paper in no_doc.items() if paper.get("default_mode") != "print"]
+check("папір без edit має default_mode 'print'", not bad_print_mode, str(bad_print_mode[:5]))
+
+
+def _primary_key(paper):
+    return next((a["key"] for a in (paper.get("actions") or []) if a.get("primary")), None)
+
+
+bad_state_action = []
+for k, paper in previews.items():
+    primary = _primary_key(paper)
+    if not paper.get("record"):
+        # журнал (order_register) - виняток задокументований у spec-papers.md/звіті: немає
+        # запису в принципі, головна дія одразу "print" через майстер, не "compose".
+        if primary not in ("compose", "print"):
+            bad_state_action.append((k, "немає", primary))
+    elif paper.get("state") == "draft" and primary not in ("confirm", "print"):
+        bad_state_action.append((k, "чернетка", primary))
+    elif paper.get("state") == "confirmed" and primary != "print":
+        bad_state_action.append((k, "затверджено", primary))
+check("головна дія відповідає стану документа (немає/чернетка/затверджено)",
+      not bad_state_action, str(bad_state_action[:6]))
 
 # 5. кнопка, яку не можна натиснути, пояснює чому
 mute = [(k, a.get("key")) for k, paper in previews.items() for a in (paper.get("actions") or [])

@@ -66,7 +66,7 @@
             </t>
           </div>
 
-          <!-- середина: поля, перегляд, дії, зроблено раніше -->
+          <!-- середина: поля, режим (Дані|Друк), дії, зроблено раніше -->
           <div class="o_ua_papers_main">
             <div class="o_ua_papers_fields">
               <div class="o_ua_papers_lbl o_ua_papers_fields_h">Що вказати</div>
@@ -105,10 +105,33 @@
               </div>
             </div>
 
-            <div class="o_ua_papers_lbl o_ua_papers_preview_h">Перегляд</div>
-            <iframe t-if="data.paper.preview.html" class="o_ua_papers_preview_frame"
-                    t-att-srcdoc="data.paper.preview.html" sandbox="allow-same-origin"/>
-            <div t-else="" class="o_ua_papers_preview_empty o_ua_papers_lbl" t-esc="data.paper.preview.empty_text"/>
+            <!-- перемикач режиму: лише коли папір має власний документ (paper.edit не None) -->
+            <div class="o_ua_papers_mode_switch" t-if="data.paper.edit">
+              <button type="button" t-attf-class="o_ua_papers_mode_btn #{state.mode === 'edit' ? 'active' : ''}"
+                      t-on-click="() => this.setMode('edit')">Дані</button>
+              <button type="button" t-attf-class="o_ua_papers_mode_btn #{state.mode === 'print' ? 'active' : ''}"
+                      t-on-click="() => this.setMode('print')">Друк</button>
+            </div>
+
+            <!-- режим «Дані»: список рядків документа за вузьким виглядом самого модуля -
+                 не форма запису (spec-papers.md, task 4: вбудована повна форма приносила
+                 свою переписку, свої кнопки, свої копії полів «Що вказати»). Повна форма
+                 лишається за кнопкою «Відкрити». -->
+            <t t-if="data.paper.edit and state.mode === 'edit'">
+              <t t-if="data.paper.edit.count">
+                <View t-props="this.editViewProps" t-key="this.editViewKey" class="o_ua_papers_edit_view"/>
+              </t>
+              <t t-else="">
+                <div class="o_ua_papers_edit_empty o_ua_papers_lbl">Рядків немає.</div>
+              </t>
+            </t>
+
+            <!-- режим «Друк»: наявний звіт у своєму CSS, через iframe srcdoc -->
+            <t t-else="">
+              <iframe t-if="data.paper.preview.html" class="o_ua_papers_preview_frame"
+                      t-att-srcdoc="data.paper.preview.html" sandbox="allow-same-origin"/>
+              <div t-else="" class="o_ua_papers_preview_empty o_ua_papers_lbl" t-esc="data.paper.preview.empty_text"/>
+            </t>
 
             <!-- Під папером - усе, крім головної дії: вона вже стоїть у шапці.
                  Стан паперу теж не повторюємо, він у підзаголовку. -->

@@ -5,6 +5,7 @@ import { browser } from "@web/core/browser/browser";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { standardActionServiceProps } from "@web/webclient/actions/action_service";
+import { View } from "@web/views/view";
 
 const SIDE_KEY = "ua_papers_side_collapsed";
 
@@ -36,6 +37,7 @@ function plural(n, one, few, many) {
 
 export class UaPapers extends Component {
     static template = "l10n_ua_papers.Papers";
+    static components = { View };
     static props = { ...standardActionServiceProps };
 
     setup() {
@@ -48,7 +50,14 @@ export class UaPapers extends Component {
             busy: false,
             opening: null, // ключ елемента, що зараз відкривається - для маленького індикатора саме на ньому
             sideCollapsed: readSideCollapsed(),
+            mode: null, // "edit" | "print" - режим середньої колонки, за paper.default_mode (spec-papers.md)
         });
+        // Кеш props для <View>: об'єкт мусить лишатися тим самим, поки модель і res_id
+        // документа ті самі, інакше список рядків перемонтовується на кожен рендер і
+        // губить правку (task 4).
+        this._editViewProps = null;
+        this._editViewModel = null;
+        this._editViewDocResId = null;
         onWillStart(() => this.load());
     }
 
@@ -59,9 +68,17 @@ export class UaPapers extends Component {
     async load(kwargs = {}) {
         this.state.loading = true;
         const seq = (this.loadSeq = (this.loadSeq || 0) + 1);
+        const previousPaperKey = this.state.data && this.state.data.paper.key;
         const data = await this.orm.call("ua.papers", "get_screen_data", [], kwargs);
         if (seq !== this.loadSeq) {
             return; // прийшла свіжіша відповідь, поки чекали цю - застаріле відкидаємо
+        }
+        // Режим пам'ятається на час сесії екрана (не localStorage - спека, "Спершу дані,
+        // потім бланк"): лишається, поки папір той самий (зміна місяця чи поля його не
+        // чіпає), і скидається на paper.default_mode щойно вибрано інший папір - так само,
+        // як при першому завантаженні, коли previousPaperKey ще немає.
+        if (data.paper.key !== previousPaperKey) {
+            this.state.mode = data.paper.default_mode;
         }
         this.state.data = data;
         this.state.loading = false;
@@ -120,10 +137,61 @@ export class UaPapers extends Component {
         return this.load({ year, month, paper: this.state.data.paper.key, params });
     }
 
+    // ------------------------------------------------------------------ режим «Дані | Друк»
+    /** Перемикач над середньою колонкою: лише коли paper.edit не None (task 3). Вибір
+     *  живе в state.mode на час сесії екрана, а не в localStorage. */
+    setMode(mode) {
+        if (this.state.busy || mode === this.state.mode) {
+            return;
+        }
+        if (mode === "edit" && !this.state.data.paper.edit) {
+            return; // паперу без власного документа режиму «Дані» немає - перемикач і не малюється
+        }
+        this.state.mode = mode;
+    }
+
+    /** Стабільні props для <View> (список рядків документа, не форма - task 4): та сама
+     *  модель+res_id документа повертає той самий об'єкт props, тому батьківський рендер
+     *  (наприклад, від busy-індикатора) не змушує список перемонтуватись і губити правку.
+     *  Новий об'єкт - лише коли модель рядка або документ справді інші; на цей випадок
+     *  у шаблоні ще й t-key, що перемонтовує View свідомо. */
+    get editViewProps() {
+        const edit = this.state.data && this.state.data.paper.edit;
+        if (!edit) {
+            this._editViewProps = null;
+            this._editViewModel = null;
+            this._editViewDocResId = null;
+            return null;
+        }
+        const docResId = edit.doc && edit.doc.res_id;
+        if (this._editViewProps && this._editViewModel === edit.model && this._editViewDocResId === docResId) {
+            return this._editViewProps;
+        }
+        const props = {
+            type: "list",
+            resModel: edit.model,
+            domain: edit.domain,
+            context: edit.context,
+            viewId: edit.view_id,
+            display: { controlPanel: false },
+            searchMenuTypes: [],
+            allowSelectors: false,
+        };
+        this._editViewProps = props;
+        this._editViewModel = edit.model;
+        this._editViewDocResId = docResId;
+        return props;
+    }
+
+    get editViewKey() {
+        const edit = this.state.data && this.state.data.paper.edit;
+        return edit ? `${edit.model}:${edit.doc.res_id}` : "";
+    }
+
     // ------------------------------------------------------------------ дії паперу
     /** Кнопки з paper.actions (шапка і повтор під переглядом - однакові, той самий метод).
-     *  Усі три дії зрізу (print/compose/edit) - огляд або чернетка, жодна не проведення:
-     *  без діалогу плану, просто виклик і або reload, або дія action-сервісу. */
+     *  Дії зрізу (print/compose/confirm/to_draft/open) - огляд, чернетка чи одне проведення
+     *  без плану: без діалогу, просто виклик і або reload, або дія action-сервісу. */
     get secondaryActions() {
         // Головна дія малюється в шапці, тут - лише решта.
         return (this.state.data?.paper?.actions || []).filter((a) => !a.primary);
