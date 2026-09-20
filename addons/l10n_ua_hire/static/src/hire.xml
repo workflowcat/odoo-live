@@ -108,9 +108,11 @@
               <iframe t-ref="previewFrame" class="o_ua_hire_preview" t-att-src="packageUrl(true)"/>
             </t>
             <t t-else="">
-            <nav class="o_ua_hire_secnav">
+            <nav class="o_ua_hire_secnav" role="tablist">
               <t t-foreach="c.sections" t-as="s" t-key="s.key">
-                <button class="o_ua_hire_secbtn" t-on-click="() => this.scrollTo(s.key)">
+                <button role="tab" t-att-aria-selected="s.key === activeTab ? 'true' : 'false'"
+                        t-attf-class="o_ua_hire_secbtn #{s.key === activeTab ? 'o_ua_hire_secbtn_on' : ''}"
+                        t-on-click="() => this.setTab(s.key)">
                   <t t-esc="s.title"/>
                   <span t-if="s.missing" class="o_ua_pill o_ua_pill_crit" data-tooltip="Бракує обов'язкових полів" t-esc="s.missing"/>
                   <span t-if="s.proposed" class="o_ua_pill o_ua_pill_warn" data-tooltip="Пропозиції з документів" t-esc="s.proposed"/>
@@ -123,7 +125,7 @@
             </nav>
 
             <t t-foreach="c.sections" t-as="s" t-key="s.key">
-              <section t-att-id="'ua_hire_sec_' + s.key" class="o_ua_hire_section">
+              <section t-if="s.key === activeTab" role="tabpanel" class="o_ua_hire_section">
                 <h5 t-esc="s.title"/>
                 <t t-if="!sectionVisible(s)">
                   <div class="o_ua_hire_muted">
@@ -214,65 +216,159 @@
               </t>
             </div>
 
-            <div t-if="c.stage !== 'declined'" class="o_ua_hire_block">
-              <h5>Пакет першого дня</h5>
-              <t t-foreach="c.package" t-as="d" t-key="d.key">
-                <label class="o_ua_hire_pkg">
-                  <input type="checkbox" class="form-check-input" t-att-checked="d.on" t-on-change="(ev) => this.togglePackageDoc(d, ev)"/>
-                  <t t-esc="d.label"/>
-                </label>
-              </t>
-            </div>
-
-            <div t-if="!['hired'].includes(c.stage)" class="o_ua_hire_block">
-              <h5>Перевірки</h5>
-              <t t-foreach="c.checks" t-as="k" t-key="k_index">
-                <div t-attf-class="o_ua_hire_check o_ua_hire_check_#{k.level}" t-on-click="() => k.section and k.section !== 'files' ? this.scrollTo(k.section) : null">
-                  <span t-attf-class="o_ua_hire_mark o_ua_hire_mark_#{k.level === 'error' ? 'missing' : (k.level === 'warn' ? 'proposed' : 'provided')}"/>
-                  <div>
-                    <div t-esc="k.title"/>
-                    <div t-if="k.detail" class="o_ua_hire_muted" t-esc="k.detail"/>
+            <!-- package_split (docs/payroll/spec-intake.md, 2026-09-21): документи за джерелом,
+                 а не за станом. Поки бекенд не віддає цей ключ, нижче лишається старий вигляд
+                 без змін - t-else. -->
+            <t t-if="c.package_split">
+              <div class="o_ua_hire_block">
+                <h5>Від працівника · <t t-esc="c.package_split.employee.have"/> з <t t-esc="c.package_split.employee.need"/></h5>
+                <t t-foreach="c.package_split.employee.rows" t-as="row" t-key="row.code">
+                  <div t-attf-class="o_ua_hire_pkrow #{row.target ? 'o_ua_clickable' : ''}"
+                       t-on-click="() => row.target and this.openRowTarget(row.target)">
+                    <span t-attf-class="o_ua_hire_mark o_ua_hire_mark_#{rowMark(row.state)}"/>
+                    <span class="o_ua_hire_pkrow_name" t-esc="row.name"/>
+                    <span class="o_ua_hire_pkrow_status" t-esc="employeeRowText(row)"/>
                   </div>
+                </t>
+                <div t-if="!readonly" class="o_ua_hire_row_btns">
+                  <label class="btn btn-secondary btn-sm mb-0">
+                    Завантажити файли
+                    <input type="file" multiple="multiple" accept=".pdf,.png,.jpg,.jpeg,.webp" class="d-none" t-on-change="upload"/>
+                  </label>
+                  <button class="btn btn-secondary btn-sm" t-att-disabled="extractBlock or state.extracting" t-on-click="extract"
+                          t-att-data-tooltip="extractBlock or 'Claude прочитає файли і запропонує значення полів. Значення потрапляють у поля лише після підтвердження.'">
+                    <t t-if="state.extracting">Розпізнавання…</t><t t-else="">Розпізнати</t>
+                  </button>
                 </div>
-              </t>
-            </div>
+                <div t-if="extractBlock and c.files.length" class="o_ua_hire_muted" t-esc="extractBlock"/>
+              </div>
 
-            <div class="o_ua_hire_block">
-              <h5>Документи · <t t-esc="c.files.length"/> файлів</h5>
-              <t t-foreach="c.requirements" t-as="q" t-key="q.code">
-                <div t-attf-class="o_ua_hire_req o_ua_hire_req_#{q.state}" t-att-data-tooltip="reqTip(q.state)">
-                  <span t-attf-class="o_ua_hire_mark o_ua_hire_mark_#{q.state === 'done' ? 'provided' : (q.state === 'missing' ? 'missing' : 'empty')}"/>
-                  <t t-esc="q.name"/>
+              <div t-if="c.other_files and c.other_files.length" class="o_ua_hire_block">
+                <div class="o_ua_hire_pkrow o_ua_clickable" t-on-click="() => this.state.otherFilesOpen = !state.otherFilesOpen">
+                  <span class="o_ua_hire_pkrow_name">Інші файли · <t t-esc="c.other_files.length"/></span>
+                  <span class="o_ua_hire_pkrow_status" t-esc="state.otherFilesOpen ? 'сховати' : 'показати'"/>
                 </div>
-              </t>
-              <div class="o_ua_hire_files">
-                <t t-foreach="c.files" t-as="x" t-key="x.id">
-                  <div class="o_ua_hire_file">
-                    <button class="btn btn-link btn-sm p-0 o_ua_hire_file_name" t-att-data-tooltip="x.name" t-on-click="() => this.openFile(x)" t-esc="x.name"/>
-                    <select class="form-select form-select-sm" t-att-disabled="readonly" t-on-change="(ev) => this.setDocType(x, ev)">
-                      <t t-foreach="data.doc_types" t-as="o" t-key="o[0]">
-                        <option t-att-value="o[0]" t-att-selected="x.doc_type === o[0]" t-esc="o[1]"/>
-                      </t>
-                    </select>
-                    <span t-if="x.extract_state === 'done'" class="o_ua_pill o_ua_pill_ok" data-tooltip="Файл уже розпізнано">розпізнано</span>
-                    <span t-if="x.extract_state === 'failed'" class="o_ua_pill o_ua_pill_crit" t-att-data-tooltip="x.extract_note">помилка</span>
-                    <span t-if="x.extract_state === 'none'" class="o_ua_pill" data-tooltip="Файл ще не розпізнано">не розпізнано</span>
-                    <button t-if="!readonly" class="btn btn-link btn-sm p-0" t-on-click="() => this.removeFile(x)" data-tooltip="Видалити файл зі справи">×</button>
+                <div t-if="state.otherFilesOpen" class="o_ua_hire_files">
+                  <t t-foreach="c.other_files" t-as="x" t-key="x_index">
+                    <t t-set="of" t-value="otherFileRecord(x)"/>
+                    <div class="o_ua_hire_file">
+                      <button class="btn btn-link btn-sm p-0 o_ua_hire_file_name" t-att-disabled="!of.id"
+                              t-att-data-tooltip="x.name" t-on-click="() => of.id and this.openFile(of)" t-esc="x.name"/>
+                      <select class="form-select form-select-sm" t-att-disabled="readonly or !of.id" t-on-change="(ev) => this.setDocType(of, ev)">
+                        <t t-foreach="data.doc_types" t-as="o" t-key="o[0]">
+                          <option t-att-value="o[0]" t-att-selected="x.doc_type === o[0]" t-esc="o[1]"/>
+                        </t>
+                      </select>
+                      <button t-if="!readonly and of.id" class="btn btn-link btn-sm p-0" t-on-click="() => this.removeFile(of)" data-tooltip="Видалити файл зі справи">×</button>
+                    </div>
+                  </t>
+                </div>
+              </div>
+
+              <div class="o_ua_hire_block">
+                <h5>Від компанії · <t t-esc="c.package_split.company.done"/> з <t t-esc="c.package_split.company.need"/> · підписано <t t-esc="c.package_split.company.signed"/></h5>
+                <t t-foreach="c.package_split.company.rows" t-as="row" t-key="row.code">
+                  <div t-attf-class="o_ua_hire_pkrow #{row.target ? 'o_ua_clickable' : ''}"
+                       t-on-click="() => row.target and this.openRowTarget(row.target)">
+                    <span t-attf-class="o_ua_hire_mark o_ua_hire_mark_#{rowMark(row.state)}"/>
+                    <span class="o_ua_hire_pkrow_name" t-esc="row.name"/>
+                    <span class="o_ua_hire_pkrow_status" t-esc="companyRowText(row)"/>
                   </div>
                 </t>
               </div>
-              <div t-if="!readonly" class="o_ua_hire_row_btns">
-                <label class="btn btn-secondary btn-sm mb-0">
-                  Завантажити файли
-                  <input type="file" multiple="multiple" accept=".pdf,.png,.jpg,.jpeg,.webp" class="d-none" t-on-change="upload"/>
-                </label>
-                <button class="btn btn-secondary btn-sm" t-att-disabled="extractBlock or state.extracting" t-on-click="extract"
-                        t-att-data-tooltip="extractBlock or 'Claude прочитає файли і запропонує значення полів. Значення потрапляють у поля лише після підтвердження.'">
-                  <t t-if="state.extracting">Розпізнавання…</t><t t-else="">Розпізнати</t>
-                </button>
+
+              <div t-if="c.stage !== 'declined'" class="o_ua_hire_block">
+                <div class="o_ua_hire_pkrow o_ua_clickable" t-on-click="() => this.state.printOpen = !state.printOpen">
+                  <span class="o_ua_hire_pkrow_name">Що друкувати</span>
+                  <span class="o_ua_hire_pkrow_status" t-esc="state.printOpen ? 'сховати' : 'показати'"/>
+                </div>
+                <t t-if="state.printOpen">
+                  <t t-foreach="c.package" t-as="d" t-key="d.key">
+                    <label class="o_ua_hire_pkg">
+                      <input type="checkbox" class="form-check-input" t-att-checked="d.on" t-on-change="(ev) => this.togglePackageDoc(d, ev)"/>
+                      <t t-esc="d.label"/>
+                    </label>
+                  </t>
+                </t>
               </div>
-              <div t-if="extractBlock and c.files.length" class="o_ua_hire_muted" t-esc="extractBlock"/>
-            </div>
+
+              <div t-if="!['hired'].includes(c.stage)" class="o_ua_hire_block">
+                <h5>Перевірки</h5>
+                <t t-foreach="c.checks" t-as="k" t-key="k_index">
+                  <div t-attf-class="o_ua_hire_check o_ua_hire_check_#{k.level}" t-on-click="() => k.section and k.section !== 'files' ? this.setTab(k.section) : null">
+                    <span t-attf-class="o_ua_hire_mark o_ua_hire_mark_#{k.level === 'error' ? 'missing' : (k.level === 'warn' ? 'proposed' : 'provided')}"/>
+                    <div>
+                      <div t-esc="k.title"/>
+                      <div t-if="k.detail" class="o_ua_hire_muted" t-esc="k.detail"/>
+                    </div>
+                  </div>
+                </t>
+              </div>
+
+              <div t-if="c.package_split.settings" class="o_ua_hire_settings_link o_ua_clickable"
+                   t-on-click="() => this.openRowTarget(c.package_split.settings)">Які документи потрібні →</div>
+            </t>
+            <t t-else="">
+              <div t-if="c.stage !== 'declined'" class="o_ua_hire_block">
+                <h5>Пакет першого дня</h5>
+                <t t-foreach="c.package" t-as="d" t-key="d.key">
+                  <label class="o_ua_hire_pkg">
+                    <input type="checkbox" class="form-check-input" t-att-checked="d.on" t-on-change="(ev) => this.togglePackageDoc(d, ev)"/>
+                    <t t-esc="d.label"/>
+                  </label>
+                </t>
+              </div>
+
+              <div t-if="!['hired'].includes(c.stage)" class="o_ua_hire_block">
+                <h5>Перевірки</h5>
+                <t t-foreach="c.checks" t-as="k" t-key="k_index">
+                  <div t-attf-class="o_ua_hire_check o_ua_hire_check_#{k.level}" t-on-click="() => k.section and k.section !== 'files' ? this.setTab(k.section) : null">
+                    <span t-attf-class="o_ua_hire_mark o_ua_hire_mark_#{k.level === 'error' ? 'missing' : (k.level === 'warn' ? 'proposed' : 'provided')}"/>
+                    <div>
+                      <div t-esc="k.title"/>
+                      <div t-if="k.detail" class="o_ua_hire_muted" t-esc="k.detail"/>
+                    </div>
+                  </div>
+                </t>
+              </div>
+
+              <div class="o_ua_hire_block">
+                <h5>Документи · <t t-esc="c.files.length"/> файлів</h5>
+                <t t-foreach="c.requirements" t-as="q" t-key="q.code">
+                  <div t-attf-class="o_ua_hire_req o_ua_hire_req_#{q.state}" t-att-data-tooltip="reqTip(q.state)">
+                    <span t-attf-class="o_ua_hire_mark o_ua_hire_mark_#{q.state === 'done' ? 'provided' : (q.state === 'missing' ? 'missing' : 'empty')}"/>
+                    <t t-esc="q.name"/>
+                  </div>
+                </t>
+                <div class="o_ua_hire_files">
+                  <t t-foreach="c.files" t-as="x" t-key="x.id">
+                    <div class="o_ua_hire_file">
+                      <button class="btn btn-link btn-sm p-0 o_ua_hire_file_name" t-att-data-tooltip="x.name" t-on-click="() => this.openFile(x)" t-esc="x.name"/>
+                      <select class="form-select form-select-sm" t-att-disabled="readonly" t-on-change="(ev) => this.setDocType(x, ev)">
+                        <t t-foreach="data.doc_types" t-as="o" t-key="o[0]">
+                          <option t-att-value="o[0]" t-att-selected="x.doc_type === o[0]" t-esc="o[1]"/>
+                        </t>
+                      </select>
+                      <span t-if="x.extract_state === 'done'" class="o_ua_pill o_ua_pill_ok" data-tooltip="Файл уже розпізнано">розпізнано</span>
+                      <span t-if="x.extract_state === 'failed'" class="o_ua_pill o_ua_pill_crit" t-att-data-tooltip="x.extract_note">помилка</span>
+                      <span t-if="x.extract_state === 'none'" class="o_ua_pill" data-tooltip="Файл ще не розпізнано">не розпізнано</span>
+                      <button t-if="!readonly" class="btn btn-link btn-sm p-0" t-on-click="() => this.removeFile(x)" data-tooltip="Видалити файл зі справи">×</button>
+                    </div>
+                  </t>
+                </div>
+                <div t-if="!readonly" class="o_ua_hire_row_btns">
+                  <label class="btn btn-secondary btn-sm mb-0">
+                    Завантажити файли
+                    <input type="file" multiple="multiple" accept=".pdf,.png,.jpg,.jpeg,.webp" class="d-none" t-on-change="upload"/>
+                  </label>
+                  <button class="btn btn-secondary btn-sm" t-att-disabled="extractBlock or state.extracting" t-on-click="extract"
+                          t-att-data-tooltip="extractBlock or 'Claude прочитає файли і запропонує значення полів. Значення потрапляють у поля лише після підтвердження.'">
+                    <t t-if="state.extracting">Розпізнавання…</t><t t-else="">Розпізнати</t>
+                  </button>
+                </div>
+                <div t-if="extractBlock and c.files.length" class="o_ua_hire_muted" t-esc="extractBlock"/>
+              </div>
+            </t>
 
             <div t-if="c.log.length" class="o_ua_hire_block">
               <h5>Журнал</h5>

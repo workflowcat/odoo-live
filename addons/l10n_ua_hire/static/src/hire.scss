@@ -65,19 +65,29 @@
         background-color: $o-webclient-background-color;
         border-bottom: 1px solid var(--o-gray-200, #dee2e6);
     }
+    // Справжні вкладки (спека 2026-09-21, п.3): border знизу позначає вибрану, а не
+    // просто "останню проскрольовану" - секнав більше не список якорів.
     .o_ua_hire_secbtn {
         border: none;
+        border-bottom: 2px solid transparent;
         background: none;
-        padding: 2px 8px;
+        padding: 2px 8px 6px;
         display: inline-flex;
         gap: 4px;
         align-items: center;
+        color: var(--ua-muted, #6c757d);
 
         &:hover { text-decoration: underline; }
     }
+    .o_ua_hire_secbtn_on {
+        border-bottom-color: var(--o-gray-900, #191a1c);
+        color: var(--o-gray-900, #191a1c);
+        font-weight: 600;
+    }
     .o_ua_hire_acceptall { margin-left: auto; }
 
-    .o_ua_hire_section { padding: 14px 0 6px; border-bottom: 1px solid var(--o-gray-200, #dee2e6); scroll-margin-top: 48px; }
+    // Одна вкладка видно за раз - секція вже не сусідить з наступною, тож без лінії знизу.
+    .o_ua_hire_section { padding: 14px 0 6px; }
     .o_ua_hire_fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px 18px; }
     .o_ua_hire_field {
         display: grid;
@@ -137,6 +147,30 @@
     }
     .o_ua_hire_check { cursor: pointer; }
     .o_ua_hire_req_later { color: var(--o-gray-600, #6c757d); }
+
+    // Рядок пакета за джерелом (package_split, спека 2026-09-21): позначка, назва,
+    // стан праворуч дрібним - той самий рядок і для «від працівника», і для «від компанії»,
+    // і для згорнутих заголовків «Інші файли»/«Що друкувати».
+    .o_ua_hire_pkrow {
+        display: flex;
+        gap: 8px;
+        align-items: baseline;
+        padding: 1px 0;
+    }
+    .o_ua_hire_pkrow_name { flex: 1 1 auto; }
+    .o_ua_hire_pkrow_status {
+        flex: none;
+        color: var(--o-gray-600, #6c757d);
+        font-size: 12px;
+        text-align: right;
+        white-space: nowrap;
+    }
+    .o_ua_hire_settings_link {
+        color: var(--o-gray-600, #6c757d);
+        font-size: 12px;
+        text-decoration: underline;
+    }
+
     .o_ua_hire_files { display: grid; gap: 4px; margin-top: 4px; }
     .o_ua_hire_file {
         display: grid;

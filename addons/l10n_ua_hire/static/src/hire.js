@@ -39,6 +39,7 @@ export class UaHire extends Component {
             draft: { last_name: "", first_name: "", job_title: "" },
             showClosed: false, helper: null, extracting: false, declining: false, declineReason: "",
             openMilitary: false, preview: false,
+            tab: null, otherFilesOpen: false, printOpen: false,
         });
         this.previewFrame = useRef("previewFrame");
         this.groups = GROUPS;
@@ -79,6 +80,9 @@ export class UaHire extends Component {
         this.state.declining = false;
         this.state.preview = false;
         this.state.openMilitary = false;
+        this.state.tab = null;
+        this.state.otherFilesOpen = false;
+        this.state.printOpen = false;
         await this.load(id);
     }
 
@@ -147,11 +151,19 @@ export class UaHire extends Component {
         return this.caseData.military_required || this.value("mil_status") || this.state.openMilitary;
     }
 
-    scrollTo(key) {
-        const el = document.getElementById(`ua_hire_sec_${key}`);
-        if (el) {
-            el.scrollIntoView({ behavior: "smooth", block: "start" });
+    // ---- вкладки середини (спека 2026-09-21, п.3): справжні вкладки, не якорі.
+    // Вибір тримається в state компонента, скидається лише при виборі іншої справи (select()).
+    get activeTab() {
+        const c = this.caseData;
+        if (!c || !c.sections.length) {
+            return null;
         }
+        const keys = c.sections.map((s) => s.key);
+        return keys.includes(this.state.tab) ? this.state.tab : keys[0];
+    }
+
+    setTab(key) {
+        this.state.tab = key;
     }
 
     // ---- пропозиції
@@ -369,6 +381,73 @@ export class UaHire extends Component {
     async togglePackageDoc(d, ev) {
         await this.orm.call("ua.hire.case", "set_package_doc", [[this.caseData.id], d.key, ev.target.checked]);
         await this.load();
+    }
+
+    // ---- пакет за джерелом (спека docs/payroll/spec-intake.md, 2026-09-21): package_split
+    // ділить документи на «від працівника» і «від компанії». Поки бекенд не додав ключ -
+    // caseData.package_split відсутній, і шаблон малює старі чотири стовпчики без змін.
+    rowMark(state) {
+        if (state === "have") {
+            return "provided";
+        }
+        if (state === "expired") {
+            // є, але недійсний - та сама мова кольору, що й «пропозиція чекає підтвердження»
+            return "proposed";
+        }
+        if (state === "missing") {
+            return "missing";
+        }
+        return "empty"; // not_needed - те саме порожнє кільце, що й у полів без стану
+    }
+
+    employeeRowText(row) {
+        if (row.state === "missing") {
+            return "немає";
+        }
+        if (row.state === "not_needed") {
+            return "не потрібен";
+        }
+        return row.note || row.when || "";
+    }
+
+    companyRowText(row) {
+        if (row.sign === "signed") {
+            return row.when ? `підписано ${row.when}` : "підписано";
+        }
+        if (row.sign === "to_sign") {
+            return "не підписано";
+        }
+        if (row.sign === "not_needed") {
+            return "не потрібен";
+        }
+        // sign відсутній - документ не підписний (наприклад наказ - "проведено", опис -
+        // "не створено"); слово вже готове в note з бекенда.
+        return row.note || row.when || "";
+    }
+
+    // «Інші файли» дає лише {name, doc_type, target}: обгортка дає id, яким уже вміють
+    // користуватися setDocType/removeFile/openFile нижче.
+    otherFileRecord(x) {
+        return { id: x.target && x.target.res_id, name: x.name, doc_type: x.doc_type };
+    }
+
+    // Єдиний прохід для будь-якого "target" з пакета (рядок вимоги, інший файл, посилання
+    // на довідник у settings) - та сама дорога, якою openResult вище відкриває цілі.
+    openRowTarget(target) {
+        if (!target) {
+            return;
+        }
+        if (target.section) {
+            this.setTab(target.section);
+            return;
+        }
+        if (target.model && target.res_id) {
+            this.action.doAction({ type: "ir.actions.act_window", res_model: target.model, res_id: target.res_id, views: [[false, "form"]] });
+            return;
+        }
+        if (target.xmlid) {
+            this.action.doAction(target.xmlid);
+        }
     }
 
     showPackage() {
