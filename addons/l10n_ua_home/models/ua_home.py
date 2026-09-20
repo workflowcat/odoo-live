@@ -351,9 +351,42 @@ class UaHome(models.AbstractModel):
             })
         return out
 
-    def _todo(self, features):
+    # Рівень із «Зведення» словами «Домівки»: danger - критично, решта - увага.
+    ATTENTION_LEVEL = {"danger": "crit", "warning": "warn", "info": "warn"}
+
+    def _todo(self, features, company=None):
         rows = sorted((f for f in features if f.get("todo")), key=lambda f: SEVERITY.get(f["level"], 9))
-        return [{"level": f["level"], "text": f["todo"], "hint": f["hint"], "target": f["target"]} for f in rows]
+        out = [{"level": f["level"], "text": f["todo"], "hint": f["hint"], "target": f["target"]} for f in rows]
+        return out + self._todo_attention(company, out)
+
+    def _todo_attention(self, company, already):
+        """Те, що не прив'язане до місяця: документи спливають, бракує індексу цін,
+        закінчується строковий договір або випробування, немає РНОКПП.
+
+        Раніше це стояло чергою «Увага» на екрані місяця. Місяць звівся до кроків
+        (docs/payroll/spec-period-v2.md), і речі, які місяця не стосуються, переїхали
+        сюди: «Домівка» і є тим місцем, де написано, що зробити. Рядки, які «Домівка»
+        вже рахує сама (ТЦК, анкета, виписка), не дублюємо."""
+        if not company:
+            return []
+        Dashboard = self.env["ua.dashboard"].sudo()
+        if not hasattr(Dashboard, "_get_attention"):
+            return []
+        seen = {(row["text"] or "").lower() for row in already}
+        out = []
+        for row in Dashboard._get_attention(company):
+            title = (row.get("title") or "").strip()
+            if not title or title.lower() in seen:
+                continue
+            target = None
+            if row.get("res_model"):
+                target = {"model": row["res_model"], "domain": row.get("domain") or []}
+            elif row.get("action"):
+                target = {"xmlid": row["action"]} if isinstance(row["action"], str) else None
+            out.append({"level": self.ATTENTION_LEVEL.get(row.get("level"), "warn"),
+                        "text": title, "hint": row.get("detail") or "", "target": target})
+            seen.add(title.lower())
+        return out
 
     # ------------------------------------------------------------------ нещодавнє і чернетки
     def _recent(self, company, year, month):
@@ -517,7 +550,7 @@ class UaHome(models.AbstractModel):
             "company": {"name": company.name, "employees": employees, "gph": gph},
             "regions": self._regions(features),
             "flows": [["people", "payroll"], ["payroll", "bank"], ["payroll", "reporting"], ["setup", "payroll"]],
-            "todo": self._todo(features),
+            "todo": self._todo(features, company),
             "recent": self._recent(company, year, month),
             "drafts": self._drafts(company),
             "unseen_changes": self.env["ua.change.log"].count_new(company, year, month),

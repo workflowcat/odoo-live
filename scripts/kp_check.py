@@ -65,8 +65,11 @@ def call(model, method, *a, **kw):
 
 
 def service_up():
+    # Обовʼязково свій User-Agent: Cloudflare відмовляє типовому Python-urllib 403-ю,
+    # і це вже кусало нас у kyc-service. Сам модуль Odoo свій UA ставить.
+    request = urllib.request.Request(SERVICE + "/health", headers={"User-Agent": "profkod-check"})
     try:
-        with urllib.request.urlopen(SERVICE + "/health", timeout=8) as r:
+        with urllib.request.urlopen(request, timeout=8) as r:
             return json.loads(r.read()).get("ok") is True
     except Exception:
         return False
@@ -105,7 +108,8 @@ if not service_up():
     skip("звірка зі службою класифікатора", f"служба {SERVICE} недоступна")
     skip("позиції без коду", "потрібна служба, щоб запропонувати код")
 else:
-    audit = call("ua.kp.code", "audit_staff_lists")
+    audit = call("ua.kp.code", "audit_staff_lists")   # лише чернетки: затверджене - історія
+    historical = call("ua.kp.code", "audit_staff_lists", True)
     check("звірка повертає перелік", isinstance(audit, list), f"{len(audit)} рядків")
     bad_level = [r.get("level") for r in audit if r.get("level") not in LEVELS]
     check("рівень кожного рядка звірки зі списку", not bad_level, str(bad_level[:4]))
@@ -126,6 +130,10 @@ else:
     # Причина, а не наслідок: наказ про переведення підставляв код зі старої версії.
     check("немає версій, де посада змінилася, а код лишився старим", not versions,
           "; ".join(f'{v["employee"]}: {v["from"]} -> {v["to"]} ({v["code"]})' for v in versions[:3]))
+
+    older = len(historical) - len(audit)
+    check("помилки в затверджених розписах не вимагають правки заднім числом", older >= 0,
+          f"{older} рядків у вже затверджених розписах, їх виправляє новий розпис")
 
     sug = call("ua.kp.code", "suggest", "менеджерка з персоналу", 3)
     first = (sug.get("items") or [None])[0]

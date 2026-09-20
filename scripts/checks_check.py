@@ -128,15 +128,20 @@ if not mres:
     mres.action_refill()
 check_record_checks(mres, f"Заброньовані {mres.name}")
 
-# ---- Сторінка «Період»: документи вересня позначені checks_available, а get_doc_checks
-# рахує перевірки лениво (документи більше не несуть готовий checks на завантаженні -
-# інакше board рахував би _checks() для кожного документа кожного кроку щоразу).
-board = env["ua.period.board"]
-docs = board._documents(company, 2026, 9, __import__("datetime").date(2026, 9, 1), __import__("datetime").date(2026, 9, 30))
-markable = [d for group in docs.values() for d in group if d.get("checks_available")]
-lazy_checks = any(board.get_doc_checks(d["target"]["model"], d["target"]["res_id"]) for d in markable)
-check("документи сторінки «Період» позначають checks_available", bool(markable))
-check("документи сторінки «Період» несуть перевірки (хоч один)", lazy_checks)
+# ---- Перевірки документів тепер показує екран «Папери», а не «Період»: сторінка місяця
+# звелася до смуги кроків і тіла одного кроку (docs/payroll/spec-period-v2.md), а документ
+# із його перевірками живе там, де його дивляться і друкують.
+papers = env["ua.papers"]
+data = papers.get_screen_data(2026, 9)
+with_checks, levels = [], set()
+for paper in data["papers"]:
+    one = papers.get_screen_data(2026, 9, paper["key"])["paper"]
+    rows = one.get("checks") or []
+    if rows:
+        with_checks.append(paper["key"])
+        levels |= {r.get("level") for r in rows}
+check("екран «Папери» показує перевірки документів", bool(with_checks), ", ".join(with_checks[:6]))
+check("рівень кожної перевірки зі списку", levels <= {"ok", "warn", "crit"}, str(sorted(levels)))
 
 check("серед перевірених документів є хоч один warn/error", any_warn_or_error)
 

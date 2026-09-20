@@ -56,20 +56,26 @@
             parent="l10n_ua_period.menu_ua_period_root" sequence="8"/>
 
   <!-- ================================================================= 2. Працівники -->
+  <!-- «Люди»: один екран замість чотирьох пунктів нижче (spec-people.md). Пункти лишаються
+       вимкненими (active="False"), не видаленими - самі дії лишаються, бо на них ведуть
+       цілі з інших екранів (наприклад, «Штатний розпис» цього екрана відкриває чинний
+       ua.staff.list через ту саму дію, що стояла за пунктом «Штатні розписи»). -->
+  <menuitem id="menu_ua_people_screen" name="Люди" parent="menu_ua_people_root"
+            action="l10n_ua_people.action_ua_people" sequence="0" groups="hr.group_hr_user"/>
   <menuitem id="menu_ua_people_employees" name="Картки працівників" parent="menu_ua_people_root"
-            action="hr.open_view_employee_list_my" sequence="1" groups="hr.group_hr_user"/>
+            action="hr.open_view_employee_list_my" sequence="1" groups="hr.group_hr_user" active="False"/>
   <menuitem id="menu_ua_people_orders" name="Накази" parent="menu_ua_people_root"
             action="l10n_ua_hr_orders.action_ua_hr_order" sequence="4" groups="hr.group_hr_user"/>
   <menuitem id="menu_ua_people_leaves" name="Відсутності" parent="menu_ua_people_root"
             action="action_ua_leaves" sequence="5" groups="hr.group_hr_user"/>
   <menuitem id="menu_ua_people_org_chart" name="Оргструктура" parent="menu_ua_people_root"
-            action="hr_org_chart.action_hr_employee_org_chart" sequence="2" groups="hr.group_hr_user"/>
+            action="hr_org_chart.action_hr_employee_org_chart" sequence="2" groups="hr.group_hr_user" active="False"/>
   <menuitem id="menu_ua_people_departments" name="Підрозділи" parent="menu_ua_people_root"
-            action="hr.hr_department_kanban_action" sequence="3" groups="hr.group_hr_user"/>
+            action="hr.hr_department_kanban_action" sequence="3" groups="hr.group_hr_user" active="False"/>
   <menuitem id="menu_ua_people_timesheet" name="Табелі" parent="menu_ua_people_root"
             action="l10n_ua_hr_docs.action_ua_timesheet_sheet" sequence="6" groups="hr.group_hr_user"/>
   <menuitem id="l10n_ua_payroll_ui.menu_ua_staff_list_docs" name="Штатні розписи"
-            parent="menu_ua_people_root" sequence="5"/>
+            parent="menu_ua_people_root" sequence="5" active="False"/>
   <menuitem id="l10n_ua_hr_orders.menu_ua_hr_doc_requirement" name="Обов'язкові документи"
             parent="menu_ua_people_root" sequence="6"/>
   <menuitem id="l10n_ua_hr_orders.menu_ua_hr_doc_pack" active="False"/>

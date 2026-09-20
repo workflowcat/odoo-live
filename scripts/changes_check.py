@@ -180,7 +180,11 @@ call("res.company", "write", [1], {"fiscalyear_lock_date": False, "tax_lock_date
 data = call("ua.period.board", "get_screen_data", year=YEAR, month=MONTH)
 step = [s for s in data["steps"] if s["key"] == "changes"]
 check("на сторінці «Період» є крок «Перевірка змін»", bool(step), str([s["key"] for s in data["steps"]]))
-check("крок знає число змін", bool(step and step[0]["fact"]), str(step[0]["fact"]) if step else "")
+# Крок більше не носить окремого «fact»: факти стали підзаголовком і рядками кроку
+# (docs/payroll/spec-period-v2.md), тому питаємо саме їх.
+body = step[0] if step else {}
+check("крок знає число змін", bool(body.get("subtitle") or body.get("rows")),
+      str(body.get("subtitle") or [r.get("text") for r in (body.get("rows") or [])][:2]))
 check("сторінка віддає стан закриття", "close" in data and "state" in data["close"], str(data.get("close")))
 check("сторінка віддає число непереглянутих змін", "new_changes" in data, str(data.get("new_changes")))
 

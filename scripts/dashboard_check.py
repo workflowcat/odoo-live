@@ -99,11 +99,17 @@ if turnover:
     found = call("account.move.line", "search_count", row["domain"])
     check("домен рядка оборотів знаходить проводки", found > 0, f"знайдено {found}")
 
-# платежі і попередження лишаються в моделі: їх читає «Період»
-attention = call("ua.period.board", "get_screen_data")["exceptions"]
-check("черга уваги «Періоду» не дублює кроків місяця",
-      all("Розрахунок листків" != a.get("title") for a in attention),
-      f"{len(attention)} рядків: {[a.get('title') for a in attention]}")
+# Черга уваги пішла з екрана місяця разом із третьою колонкою
+# (docs/payroll/spec-period-v2.md): те, що стосується кроку, стало рядком кроку,
+# а те, що місяця не стосується, лишилося на «Домівці». Сам постачальник даних
+# нікуди не дівся, тому перевіряємо його, а не екран, з якого він пішов.
+todo = call("ua.home", "get_screen_data")["todo"]
+texts = {(t.get("text") or "").lower() for t in todo}
+check("«Домівка» підхопила чергу уваги", len(todo) >= 5, f"{len(todo)} рядків")
+check("рівні рядків «зробити» зі списку",
+      {t.get("level") for t in todo} <= {"crit", "warn", "info", "done"},
+      str(sorted({t.get("level") for t in todo})))
+check("рядки черги не дублюються", len(texts) == len(todo), f"{len(todo)} рядків, {len(texts)} різних")
 
 # 3. клієнтська дія існує (тег ua_dashboard)
 action = call("ir.actions.client", "search_read", [["tag", "=", "ua_dashboard"]], fields=["id", "name"])

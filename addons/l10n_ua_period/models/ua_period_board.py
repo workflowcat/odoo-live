@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
-"""Сторінка «Період»: місяць зарплати як чек-лист із восьми кроків.
+"""Сторінка «Період»: місяць зарплати як смуга з дев'яти кроків і один відкритий крок.
 
-Кожен крок знає свій стан, коротке число і що відкрити. Проблемні кроки розкриваються
-на місці: під рядком видно самі записи, з якими треба щось зробити, без переходу на
-інший екран.
+Кожен крок знає свій стан (`mark`) і короткий факт (`subtitle`). Відкритий крок показує
+своє тіло на всю ширину: документи, проблеми і записи - одним переліком `rows`, кожен
+рядок із рівнем, текстом і ціллю. Перемикання кроку клієнтське (`current` лише підказує
+дефолт при завантаженні) - усі дев'ять тіл уже в першій відповіді, нового запиту не треба
+(docs/payroll/spec-period-v2.md).
 
 Дані беруться з уже наявних моделей: накази, табель, аванс, листки, проводки, відомості
-на перерахування, рядки виписки, прогони звітності. Своїх даних модуль не тримає.
+на перерахування, рядки виписки, журнал змін, прогони звітності, заяви ПФУ. Своїх даних
+модуль не тримає.
 """
 from datetime import date, timedelta
 
@@ -43,9 +46,56 @@ class UaPeriodBoard(models.AbstractModel):
         return self.env.company
 
     @staticmethod
-    def _step(key, title, state, fact, action=None, details=None, button=None):
-        return {"key": key, "title": title, "state": state, "fact": fact,
-                "action": action or {}, "details": details or [], "button": button or ""}
+    def _step(key, name, state, subtitle, action=None, rows=None, button=None):
+        return {"key": key, "name": name, "state": state, "subtitle": subtitle,
+                "action": action or {}, "rows": rows or [], "button": button or ""}
+
+    def _detail_row(self, names, model, ids, noun, level="warn", count=None, domain=None):
+        """Один рядок кроку, що підсумовує кілька проблемних записів разом:
+        «5 листків у чернетках: Гнатюк, Ковальчук, Литвин, ще 2» замість п'яти
+        окремих рядків. Ціль (`domain`) веде на весь перелік, не лише на показані імена."""
+        if not ids:
+            return None
+        n = count if count is not None else len(ids)
+        shown = [x for x in names[:3] if x]
+        extra = max(n - len(shown), 0)
+        tail = _(", ще %s") % extra if extra else ""
+        return {"level": level, "text": "%s %s: %s%s" % (n, noun, ", ".join(shown), tail),
+                "target": {"model": model, "domain": domain if domain is not None else [("id", "in", list(ids))]},
+                "action": _("показати")}
+
+    DOC_STATE_LEVEL = {"немає": "idle", "чернетка": "warn", "сформовано": "warn",
+                       "створено": "ok", "подано": "ok"}
+
+    def _doc_row(self, doc):
+        """Документ кроку як рядок тіла: рівень - зі стану документа, ціль - на запис,
+        де його ведуть (список за доменом, якщо запис не один)."""
+        level = self.DOC_STATE_LEVEL.get(doc.get("state") or "", "idle")
+        text = doc["name"]
+        if doc.get("deadline"):
+            text = "%s · до %s" % (text, doc["deadline"])
+        target = doc.get("target") or {}
+        if not target and doc.get("ids") and doc.get("model"):
+            target = {"model": doc["model"], "domain": [("id", "in", doc["ids"])]}
+        action = _("відкрити") if (target.get("model") or target.get("xmlid")) else ""
+        return {"level": level, "text": text, "target": target, "action": action}
+
+    @staticmethod
+    def _join_ua(items):
+        """«4, 5 і 8»: кома між усіма, крім останнього - там «і» (норма мови, не Oxford comma)."""
+        items = [str(i) for i in items]
+        if len(items) <= 1:
+            return "".join(items)
+        return "%s і %s" % (", ".join(items[:-1]), items[-1])
+
+    @staticmethod
+    def _plural(n, one, few, many):
+        n10, n100 = n % 10, n % 100
+        if n10 == 1 and n100 != 11:
+            return one
+        if 2 <= n10 <= 4 and not (12 <= n100 <= 14):
+            return few
+        return many
 
     # ------------------------------------------------------------------ кроки
     def _step_orders(self, company, first, last):
@@ -55,10 +105,10 @@ class UaPeriodBoard(models.AbstractModel):
         drafts = Order.search(domain + [("state", "=", "draft")])
         state = "warn" if drafts else ("done" if posted else "todo")
         fact = "%s проведено, %s чернеток" % (posted, len(drafts))
-        details = [{"id": o.id, "model": "ua.hr.order", "title": o.name or "без номера",
-                    "note": o.employee_id.name or ""} for o in drafts[:20]]
+        row = self._detail_row([o.name or "без номера" for o in drafts], "ua.hr.order",
+                               drafts.ids, "наказів у чернетках")
         return self._step("orders", "Кадрові накази", state, fact,
-                          {"xmlid": "l10n_ua_hr_orders.action_ua_hr_order"}, details)
+                          {"xmlid": "l10n_ua_hr_orders.action_ua_hr_order"}, [row] if row else [])
 
     def _step_timesheet(self, company, year, month):
         """Табель формується сам: якщо його ще немає, ua.timesheet.sheet._ua_ensure_for
@@ -71,11 +121,18 @@ class UaPeriodBoard(models.AbstractModel):
         fact = "%s працівників · норма %s днів · факт %s днів" % (
             len(sheet.line_ids), self._money(norm_days).replace(",00", ""),
             self._money(fact_days).replace(",00", ""))
-        details = [{"id": line.id, "model": "ua.timesheet.line", "title": line.employee_id.name,
-                    "note": "відхилення %s дн" % self._money(line.diff_days).replace(",00", "")}
-                   for line in sheet.line_ids.filtered(lambda l: abs(l.diff_days) > 0.01)[:20]]
+        rows = []
+        if sheet.state != "confirmed":
+            rows.append({"level": "warn", "text": _("Табель не затверджено"),
+                        "target": {"model": "ua.timesheet.sheet", "res_id": sheet.id},
+                        "action": _("відкрити")})
+        dev_lines = sheet.line_ids.filtered(lambda l: abs(l.diff_days) > 0.01)
+        row = self._detail_row([line.employee_id.name for line in dev_lines], "ua.timesheet.line",
+                               dev_lines.ids, "відхилень у табелі")
+        if row:
+            rows.append(row)
         return self._step("timesheet", "Табель", state, fact,
-                          {"model": "ua.timesheet.sheet", "res_id": sheet.id}, details)
+                          {"model": "ua.timesheet.sheet", "res_id": sheet.id}, rows)
 
     def _step_advance(self, company, year, month):
         sheet = self.env["ua.advance.sheet"].search([
@@ -101,10 +158,10 @@ class UaPeriodBoard(models.AbstractModel):
                               {"xmlid": "payroll.action_hr_payslip_run_tree"})
         state = "done" if not open_slips else "warn"
         fact = "%s проведено · %s" % (len(done), self._money(gross))
-        details = [{"id": s.id, "model": "hr.payslip", "title": s.employee_id.name,
-                    "note": dict(s._fields["state"].selection).get(s.state, s.state)} for s in open_slips[:20]]
+        row = self._detail_row([s.employee_id.name for s in open_slips], "hr.payslip",
+                               open_slips.ids, "листків у чернетках")
         return self._step("payslips", "Розрахунок листків", state, fact,
-                          {"xmlid": "payroll.action_hr_payslip_run_tree"}, details)
+                          {"xmlid": "payroll.action_hr_payslip_run_tree"}, [row] if row else [])
 
     def _step_moves(self, company, first, last):
         Move = self.env["account.move"]
@@ -119,10 +176,10 @@ class UaPeriodBoard(models.AbstractModel):
         balanced = abs(self._r2(debit) - self._r2(credit)) < 0.01
         state = "done" if (balanced and not drafts) else "warn"
         fact = "%s, чернеток %s" % ("дебет = кредит" if balanced else "дебет ≠ кредит", len(drafts))
-        details = [{"id": m.id, "model": "account.move", "title": m.name or m.ref or "-",
-                    "note": self._money(m.amount_total)} for m in drafts[:20]]
+        row = self._detail_row([m.name or m.ref or "-" for m in drafts], "account.move",
+                               drafts.ids, "чернеток проводок")
         return self._step("moves", "Проводки", state, fact,
-                          {"xmlid": "account.action_move_journal_line"}, details)
+                          {"xmlid": "account.action_move_journal_line"}, [row] if row else [])
 
     def _step_payment(self, company, year, month):
         batches = self.env["ua.payment.batch"].search([
@@ -146,12 +203,25 @@ class UaPeriodBoard(models.AbstractModel):
         amount = sum(abs(line.amount) for line in lines)
         state = "done" if not lines else "warn"
         fact = "звірено все" if not lines else "%s рядків · %s" % (len(lines), self._money(amount))
-        details = [{"id": line.id, "model": "account.bank.statement.line",
-                    "title": (line.payment_ref or "")[:60],
-                    "note": self._money(line.amount)} for line in lines[:20]]
+        row = self._detail_row([(line.payment_ref or "")[:40] for line in lines],
+                               "account.bank.statement.line", lines.ids, "рядків виписки не звірено")
         return self._step("bank", "Звірка банку", state, fact,
-                          {"xmlid": "l10n_ua_bank_online.action_ua_bank_board"}, details,
+                          {"xmlid": "l10n_ua_bank_online.action_ua_bank_board"}, [row] if row else [],
                           button="Звірити" if lines else "")
+
+    # заявка ПФУ, за станом: те саме, що раніше показувала черга «Увага» (тепер розкладена
+    # по кроках, docs/payroll/spec-period-v2.md, п.1) - тут, бо документ заявки вже стоїть
+    # серед паперів цього ж кроку в _documents().
+    PFU_STAGE = {
+        "draft": "заяву не подано", "confirmed": "заяву не подано",
+        "submitted": "ПФУ ще не прийняв заяву",
+        "rejected": "ПФУ відмовив",
+        "accepted": "кошти від ПФУ не надійшли",
+        "funded_partial": "профінансовано частково",
+        "funded": "допомогу не виплачено працівникам",
+        "paid": "повідомлення не подано",
+        "notified": "заяву не завершено",
+    }
 
     def _step_reporting(self, company, year, month):
         """Податковий розрахунок подається щомісяця: 20 днів після закінчення місяця."""
@@ -166,32 +236,52 @@ class UaPeriodBoard(models.AbstractModel):
             state, fact = "warn", "сформовано, не подано · строк %s" % deadline.strftime("%d.%m.%Y")
         else:
             state, fact = "todo", "строк %s" % deadline.strftime("%d.%m.%Y")
+        rows = []
+        first, last = self._bounds(year, month)
+        claim = self.env["ua.pfu.claim"].search([
+            ("company_id", "=", company.id),
+            ("payslip_run_id.date_start", ">=", first), ("payslip_run_id.date_start", "<=", last),
+        ], limit=1)
+        if claim and claim.state != "done":
+            rows.append({"level": "crit" if claim.state == "rejected" else "warn",
+                        "text": "Фінансування ПФУ: %s" % self.PFU_STAGE.get(claim.state, claim.state),
+                        "target": {"model": "ua.pfu.claim", "res_id": claim.id}, "action": _("відкрити")})
         return self._step("reporting", "Податковий розрахунок за місяць", state, fact,
-                          {"xmlid": "l10n_ua_reporting.action_ua_reporting"})
+                          {"xmlid": "l10n_ua_reporting.action_ua_reporting"}, rows)
 
+    def _step_changes(self, company, year, month, first, last):
+        """Скільки змін місяця ще не переглянув бухгалтер.
 
-    def _step_changes(self, company, year, month):
-        """Скільки змін місяця ще не переглянув бухгалтер."""
+        Розбивка за видом («5 прийнято», «2 відпустки» - раніше окремий блок «Зміни
+        місяця») тепер теж тут: рядками, разом із новими неприйнятими (spec-period-v2.md,
+        п.1 - «Зміни місяця» належать цьому кроку)."""
         Log = self.env["ua.change.log"]
         total = Log.search_count([("company_id", "=", company.id), ("year", "=", year), ("month", "=", month)])
         new = Log.count_new(company, year, month)
         action = {"xmlid": "l10n_ua_changes.action_ua_change_log",
                   "domain": [("year", "=", year), ("month", "=", month)],
                   "context": {"search_default_f_new": 1, "search_default_g_area": 1}}
-        if not total:
-            return self._step("changes", "Перевірка змін", "done", "змін немає", action)
+        rows = []
         if new:
-            rows = Log.search([("company_id", "=", company.id), ("year", "=", year),
-                               ("month", "=", month), ("state", "=", "new")], limit=20)
-            details = [{"id": r.id, "model": "ua.change.log",
-                        "title": "%s · %s" % (r.res_name, r.what or dict(r._fields["operation"].selection).get(r.operation, "")),
-                        "note": ("%s → %s" % (r.old_value or "—", r.new_value or "—")) if r.what else r.user_id.name}
-                       for r in rows]
-            return self._step("changes", "Перевірка змін", "warn",
-                              "%s нових з %s" % (new, total), action, details)
-        return self._step("changes", "Перевірка змін", "done", "%s змін прийнято" % total, action)
-
-
+            new_recs = Log.search([("company_id", "=", company.id), ("year", "=", year),
+                                   ("month", "=", month), ("state", "=", "new")], limit=20)
+            names = ["%s · %s" % (r.res_name, r.what or dict(r._fields["operation"].selection).get(r.operation, ""))
+                     for r in new_recs]
+            row = self._detail_row(names, "ua.change.log", new_recs.ids, "нових змін", count=new,
+                                   domain=[("company_id", "=", company.id), ("year", "=", year),
+                                          ("month", "=", month), ("state", "=", "new")])
+            if row:
+                rows.append(row)
+        for item in self._changes(company, first, last):
+            rows.append({"level": "idle", "text": "%s %s" % (item["count"], item["label"]),
+                        "target": {"model": item["model"], "domain": item["domain"]}, "action": _("показати")})
+        if not total:
+            state, fact = "done", "змін немає"
+        elif new:
+            state, fact = "warn", "%s нових з %s" % (new, total)
+        else:
+            state, fact = "done", "%s змін прийнято" % total
+        return self._step("changes", "Перевірка змін", state, fact, action, rows)
 
     def _steps(self, company, year, month, first, last):
         """Кроки місяця в порядку роботи."""
@@ -203,9 +293,57 @@ class UaPeriodBoard(models.AbstractModel):
             self._step_moves(company, first, last),
             self._step_payment(company, year, month),
             self._step_bank(company, first, last),
-            self._step_changes(company, year, month),
+            self._step_changes(company, year, month, first, last),
             self._step_reporting(company, year, month),
         ]
+
+    # Порядок і номер кроку, що відповідає ua.period.close.blockers(): яка з чотирьох умов
+    # на якому кроці. blockers() лишається єдиним джерелом істини «чи можна закрити» -
+    # тут той самий порядок умов лише дзеркалиться, щоб рядок під кроком знав свій номер
+    # (так само дзеркалить action_close_month_plan нижче, для діалогу плану).
+    BLOCKER_STEPS = {"changes": 8, "moves": 5, "payslips": 4, "timesheet": 2}
+
+    def _blocker_rows(self, company, year, month):
+        """Причини, що заважають закрити місяць, кожна зі своїм кроком."""
+        first, last = self._bounds(year, month)
+        out = []
+        new_changes = self.env["ua.change.log"].count_new(company, year, month)
+        if new_changes:
+            out.append({"key": "changes", "n": self.BLOCKER_STEPS["changes"],
+                       "text": _("непереглянутих змін: %s") % new_changes})
+        drafts = self.env["account.move"].search_count([
+            ("company_id", "=", company.id), ("date", ">=", first), ("date", "<=", last),
+            ("state", "=", "draft"),
+        ])
+        if drafts:
+            out.append({"key": "moves", "n": self.BLOCKER_STEPS["moves"],
+                       "text": _("чернеток проводок: %s") % drafts})
+        slips = self.env["hr.payslip"].search_count([
+            ("company_id", "=", company.id), ("date_from", ">=", first), ("date_from", "<=", last),
+            ("state", "not in", ("done", "cancel")),
+        ])
+        if slips:
+            out.append({"key": "payslips", "n": self.BLOCKER_STEPS["payslips"],
+                       "text": _("непроведених листків: %s") % slips})
+        sheet = self.env["ua.timesheet.sheet"].search([
+            ("company_id", "=", company.id), ("year", "=", year), ("month", "=", month),
+        ], limit=1)
+        if sheet and sheet.state != "confirmed":
+            out.append({"key": "timesheet", "n": self.BLOCKER_STEPS["timesheet"], "text": _("табель не затверджено")})
+        return out
+
+    def _blockers_summary(self, blocker_rows):
+        """Рядок унизу кроку: «Заважає закрити місяць: N причин» + деталь, звідки саме -
+        те саме на всіх дев'яти кроках (spec-period-v2.md, п.3: єдине місце про перешкоди)."""
+        if not blocker_rows:
+            return {"count": 0, "word": "", "text": "", "target": {}}
+        nums = sorted({row["n"] for row in blocker_rows})
+        count = len(blocker_rows)
+        detail = (_("Крок %s.") % nums[0] if len(nums) == 1
+                  else _("Усі - на кроках %s.") % self._join_ua(nums))
+        first_key = min(blocker_rows, key=lambda r: r["n"])["key"]
+        return {"count": count, "word": self._plural(count, "причина", "причини", "причин"),
+                "text": detail, "target": {"step": first_key}}
 
     # ------------------------------------------------------------------ робоче місце місяця
     def _slip_domain(self, company, first, last):
@@ -222,8 +360,9 @@ class UaPeriodBoard(models.AbstractModel):
             ("state", "!=", "cancel"),
         ])
 
-    def _estimate(self, company, first, last):
-        """Три числа місяця: нараховано, до виплати, внески підприємства."""
+    def _totals(self, company, first, last):
+        """Три числа місяця: нараховано, до виплати, ЄСВ підприємства. У шапці, не в
+        кроці - вони про місяць у цілому (spec-period-v2.md, п.4)."""
         slips = self._slips(company, first, last)
         lines = slips.mapped("line_ids")
 
@@ -235,7 +374,7 @@ class UaPeriodBoard(models.AbstractModel):
         return {
             "gross": self._money(gross),
             "net": self._money(total(("NET",))),
-            "employer": self._money(total(("ESV",))),
+            "esv": self._money(total(("ESV",))),
             "people": len(slips),
             "draft": len(slips.filtered(lambda s: s.state != "done")),
             "model": "hr.payslip",
@@ -271,89 +410,33 @@ class UaPeriodBoard(models.AbstractModel):
                                         ("holiday_status_id.work_entry_type_id.code", "in", list(codes))]})
         return rows
 
-    def _exceptions(self, company, steps, year, month):
-        """Черга уваги: тільки те, чого немає в кроках місяця.
+    def _headline(self, company, steps, close, blockers, totals):
+        """Одна головна дія, яка змінюється зі станом місяця.
 
-        Кроки вже показують свій стан у своєму переліку, тому дублювати їх тут
-        не треба: раніше чотири рядки з дев'яти повторювалися.
-        """
-        out = []
-        claim = self.env["ua.pfu.claim"].search([
-            ("company_id", "=", company.id),
-            ("payslip_run_id.date_start", ">=", self._bounds(year, month)[0]),
-            ("payslip_run_id.date_start", "<=", self._bounds(year, month)[1]),
-        ], limit=1)
-        if claim and claim.state != "done":
-            stage = {
-                "draft": "заяву не подано", "confirmed": "заяву не подано",
-                "submitted": "ПФУ ще не прийняв заяву",
-                "rejected": "ПФУ відмовив: %s" % (claim.reject_reason or ""),
-                "accepted": "кошти від ПФУ не надійшли",
-                "funded_partial": "профінансовано частково, залишок %s" % self._money(claim.unfunded),
-                "funded": "допомогу не виплачено працівникам",
-                "paid": "повідомлення не подано, строк %s" % (
-                    claim.notice_deadline.strftime("%d.%m.%Y") if claim.notice_deadline else ""),
-                "notified": "заяву не завершено",
-            }.get(claim.state, claim.state)
-            out.append({"title": "Фінансування ПФУ", "detail": stage, "level": "warning",
-                        "action": {"model": "ua.pfu.claim", "res_id": claim.id}, "key": "pfu"})
-        # Анкета компанії: поки є обов'язкові питання без відповіді, реальний розрахунок
-        # робити рано. Модуль анкети необов'язковий, тому перевіряємо його наявність.
-        if "ua.setup.profile" in self.env:
-            profile = self.env["ua.setup.profile"].search([("company_id", "=", company.id)], limit=1)
-            if profile and profile.required_missing:
-                out.append({"title": "Анкета компанії",
-                            "detail": "%s обов'язкових питань без відповіді" % profile.required_missing,
-                            "level": "danger",
-                            "action": {"model": "ua.setup.profile", "res_id": profile.id},
-                            "key": "setup"})
-        for row in self.env["ua.dashboard"]._get_attention(company):
-            detail = row["detail"]
-            if row.get("count") and str(row["count"]) not in detail:
-                detail = "%s %s" % (row["count"], detail)
-            out.append({"title": row["title"], "detail": detail,
-                        "level": "danger" if row.get("level") == "danger" else "warning",
-                        "action": {"model": row.get("res_model"), "domain": row.get("domain")},
-                        "key": "attention"})
-        return out
-
-    def _headline(self, company, steps, exceptions, close, blockers, estimate):
-        """Одна головна дія, яка змінюється зі станом місяця."""
+        Черга «Увага» більше не існує окремо (spec-period-v2.md, п.1): ПФУ-виняток
+        переїхав рядком у крок «reporting», тому власної гілки тут більше нема -
+        реальні проблеми і так зупиняють один із кроків нижче по каскаду."""
         by_key = {step["key"]: step for step in steps}
         if close.get("state") == "closed":
             return {"title": "Місяць закрито", "detail": close.get("closed_date") or "",
                     "action": "", "label": "", "tone": "ok"}
-        if not estimate["people"]:
+        if not totals["people"]:
             return {"title": "Місяць не підготовлено", "detail": "листків ще немає",
                     "action": "prepare", "label": "Підготувати місяць", "tone": "todo"}
-        if exceptions:
-            count = len(exceptions)
-            verb = "потребує" if count == 1 else "потребують"
-            return {"title": "Підготовка неповна",
-                    "detail": "%s %s рішення" % (self._plural_items(count), verb),
-                    "action": "exceptions", "label": "Переглянути винятки", "tone": "warn"}
-        if estimate["draft"]:
-            return {"title": "Розрахунок попередній", "detail": "%s листків не проведено" % estimate["draft"],
+        if totals["draft"]:
+            return {"title": "Розрахунок попередній", "detail": "%s листків не проведено" % totals["draft"],
                     "action": "payslips", "label": "Затвердити розрахунок", "tone": "warn"}
         if by_key.get("payment", {}).get("state") != "done":
-            return {"title": "Виплата не підготовлена", "detail": by_key.get("payment", {}).get("fact", ""),
+            return {"title": "Виплата не підготовлена", "detail": by_key.get("payment", {}).get("subtitle", ""),
                     "action": "payment", "label": "Підготувати виплати", "tone": "todo"}
         if by_key.get("reporting", {}).get("state") != "done":
-            return {"title": "Звітність не подана", "detail": by_key.get("reporting", {}).get("fact", ""),
+            return {"title": "Звітність не подана", "detail": by_key.get("reporting", {}).get("subtitle", ""),
                     "action": "reporting", "label": "Переглянути звітність", "tone": "todo"}
         if blockers:
             return {"title": "Місяць майже готовий", "detail": "; ".join(blockers),
                     "action": "", "label": "", "tone": "warn"}
         return {"title": "Місяць готовий до закриття", "detail": "усі кроки виконані",
                 "action": "close", "label": "Закрити місяць", "tone": "ok"}
-
-    @staticmethod
-    def _plural_items(count):
-        if count == 1:
-            return "1 позиція"
-        if 2 <= count <= 4:
-            return "%s позиції" % count
-        return "%s позицій" % count
 
 
     # ------------------------------------------------------------------ люди і суми
@@ -548,95 +631,20 @@ class UaPeriodBoard(models.AbstractModel):
         },
     }
 
-    def _first_steps(self, company, year, month):
-        """Перші кроки для нової компанії. Кожен пункт перевіряє справжні дані."""
-        Employee = self.env["hr.employee"]
-        steps = []
-
-        def item(key, title, done, fact, action):
-            steps.append({"key": key, "title": title, "done": bool(done), "fact": fact, "action": action})
-
-        missing = [label for field, label in (
-            ("company_registry", "ЄДРПОУ"), ("ua_sti_code", "код ДПІ"),
-            ("ua_director_name", "керівник"), ("ua_accountant_name", "головний бухгалтер"),
-        ) if field in company._fields and not company[field]]
-        item("company", "Реквізити компанії", not missing,
-             "заповнено" if not missing else "бракує: %s" % ", ".join(missing),
-             {"model": "res.company", "res_id": company.id})
-
-        if "ua.setup.profile" in self.env:
-            profile = self.env["ua.setup.profile"].search([("company_id", "=", company.id)], limit=1)
-            left = profile.required_missing if profile else None
-            item("setup", "Анкета компанії", profile and not left,
-                 "не почато" if not profile else ("усі обов'язкові відповіді є" if not left else "%s обов'язкових питань без відповіді" % left),
-                 {"xmlid": "l10n_ua_setup.action_ua_setup_board"})
-
-        first, _last = self._bounds(year, month)
-        min_wage = self.env["ua.payroll.param"].search([("key", "=", "min_wage"), ("valid_from", "<=", str(first)),
-                                                         ("valid_from", ">=", "%s-01-01" % year)], limit=1)
-        item("params", "Законодавчі числа на %s рік" % year, min_wage,
-             "мінімальна зарплата %s" % self._money(min_wage.value) if min_wage else "немає мінімальної зарплати на рік",
-             {"xmlid": "l10n_ua_payroll_rules.action_ua_payroll_param"})
-
-        if "ua.cpi.index" in self.env:
-            py, pm = (year - 1, 12) if month == 1 else (year, month - 1)
-            cpi = self.env["ua.cpi.index"].sudo().search_count([("year", "=", py), ("month", "=", pm)])
-            item("cpi", "Індекс цін за %s %s" % (MONTHS_UA[pm], py), cpi,
-                 "внесено" if cpi else "немає - індексація рахується як нуль",
-                 {"xmlid": "l10n_ua_index.action_ua_cpi_index"})
-
-        employees = Employee.search([("company_id", "=", company.id), ("active", "=", True)])
-        no_code = employees.filtered(lambda e: "ua_rnokpp" in e._fields and not e.ua_rnokpp)
-        item("employees", "Працівники", employees and not no_code,
-             "немає - почніть з імпорту" if not employees else ("%s працівників" % len(employees) +
-                                                            (", без РНОКПП: %s" % len(no_code) if no_code else "")),
-             {"xmlid": "l10n_ua_onboarding.action_ua_employee_import"} if not employees
-             else {"xmlid": "hr.open_view_employee_list_my"})
-
-        no_terms = employees.filtered(lambda e: not e.resource_calendar_id or not (e.version_id and e.version_id.wage))
-        item("terms", "Оклади і графіки", employees and not no_terms,
-             "у всіх працівників" if employees and not no_terms else "без окладу або графіка: %s" % len(no_terms),
-             {"xmlid": "hr.open_view_employee_list_my"})
-
-        banks = company.partner_id.bank_ids
-        item("bank", "Рахунок компанії в банку", banks,
-             ", ".join(banks.mapped("acc_number"))[:40] if banks else "немає рахунку",
-             {"xmlid": "l10n_ua_bank_online.action_ua_bank_board"})
-
-        run = self.env["hr.payslip.run"].search_count([("company_id", "=", company.id)])
-        item("first_month", "Перший розрахунок", run,
-             "є пакет листків" if run else "ще не рахували",
-             {"xmlid": "payroll.action_hr_payslip_run_tree"})
-        return steps
-
     # ------------------------------------------------------------------ документи кроків
-    def _doc(self, kind, name, report=None, records=None, deadline=None, target=None, state=None, checks=None):
-        """Документ біля кроку місяця.
+    def _doc(self, kind, name, report=None, records=None, deadline=None, target=None, state=None):
+        """Документ біля кроку місяця, перетворюється на рядок кроку через _doc_row().
 
         kind: print - друкується; filing - подається в держорган; file - машинний файл.
-        report + ids відкривають перегляд /ua/print, target - запис, де документ ведуть.
-        checks_available - чи рахує запис перевірки (ua.checks.mixin._checks()); самі перевірки
-        board більше не рахує на завантаженні - фронт бере їх лениво через get_doc_checks,
-        коли відкриває перегляд саме цього документа (раніше board рахував checks() для
-        КОЖНОГО документа кожного кроку при кожному завантаженні сторінки).
+        `model` - модель records, щоб _doc_row() міг побудувати ціль-список, коли явної
+        `target` немає (документ на кілька записів, а не на один). Перегляд на папері і
+        кошик друку сюди більше не належать - для цього є «Папери» (l10n_ua_papers).
         """
         ids = records.ids if records else []
-        checks_available = bool(records and len(records) == 1 and "_checks" in dir(records))
         return {"kind": kind, "name": name, "report": report or "", "ids": ids,
+                "model": records._name if records else "",
                 "deadline": deadline.strftime("%d.%m.%Y") if deadline else "",
-                "target": target or {}, "state": state or "",
-                "checks_available": checks_available}
-
-    @api.model
-    def get_doc_checks(self, model, res_id):
-        """Перевірки одного документа, порахувані лише коли фронт відкриває його перегляд."""
-        record = self.env[model].browse(int(res_id))
-        if not record.exists() or "_checks" not in dir(record):
-            return []
-        try:
-            return record._checks()
-        except Exception:
-            return []
+                "target": target or {}, "state": state or ""}
 
     @staticmethod
     def _doc_state(records):
@@ -757,6 +765,11 @@ class UaPeriodBoard(models.AbstractModel):
             r["past"] = y + m + d < today
         return merged
 
+    # позначка кроку зі стану: done/warn/todo (внутрішній розрахунок кожного _step_*) ->
+    # ok/warn/crit/idle (спека, ті самі слова, що й у рядків кроку). "crit" - не свій
+    # стан кроку, а надбудова: крок, який справді заважає закрити місяць, тепер червоний.
+    MARK_MAP = {"done": "ok", "warn": "warn", "todo": "idle"}
+
     # ------------------------------------------------------------------ екран
     @api.model
     def get_screen_data(self, year=None, month=None):
@@ -766,11 +779,30 @@ class UaPeriodBoard(models.AbstractModel):
         month = int(month or today.month)
         first, last = self._bounds(year, month)
         steps = self._steps(company, year, month, first, last)
+        done = sum(1 for s in steps if s["state"] == "done")
         blockers = self.env["ua.period.close"].blockers(company, year, month)
         close = self.env["ua.period.close"].state_of(company, year, month)
-        estimate = self._estimate(company, first, last)
-        exceptions = self._exceptions(company, steps, year, month)
-        done = sum(1 for s in steps if s["state"] == "done")
+        totals = self._totals(company, first, last)
+        headline = self._headline(company, steps, close, blockers, totals)
+
+        documents = self._documents(company, year, month, first, last)
+        blocker_rows = self._blocker_rows(company, year, month)
+        blocking_keys = {row["key"] for row in blocker_rows}
+        blockers_summary = self._blockers_summary(blocker_rows)
+        for index, step in enumerate(steps):
+            step["n"] = index + 1
+            mark = self.MARK_MAP.get(step.pop("state"), "idle")
+            if mark == "warn" and step["key"] in blocking_keys:
+                mark = "crit"
+            step["mark"] = mark
+            step["rows"] = [self._doc_row(doc) for doc in documents.get(step["key"], [])] + step["rows"]
+            step["blockers"] = blockers_summary
+        current_key = (next((s["key"] for s in steps if s["mark"] == "crit"), None)
+                      or next((s["key"] for s in steps if s["mark"] == "warn"), None)
+                      or steps[0]["key"])
+        for step in steps:
+            step["current"] = step["key"] == current_key
+
         periods = []
         y, m = year, month
         for _i in range(6):
@@ -788,14 +820,10 @@ class UaPeriodBoard(models.AbstractModel):
             "blockers": blockers,
             "close": close,
             "new_changes": self.env["ua.change.log"].count_new(company, year, month),
-            "estimate": estimate,
-            "changes": self._changes(company, first, last),
-            "exceptions": exceptions,
-            "documents": self._documents(company, year, month, first, last),
-            "first_steps": self._first_steps(company, year, month),
+            "totals": totals,
             "help": self.STEP_HELP,
             "deadlines": self._deadlines(company, year, month),
-            "headline": self._headline(company, steps, exceptions, close, blockers, estimate),
+            "headline": headline,
             "quarter": self._quarter_info(company, year, month),
             "year_close": self._year_info(company, year, month),
         }
@@ -1098,7 +1126,12 @@ class UaPeriodBoard(models.AbstractModel):
 
     @api.model
     def action_open_exception(self, row):
-        """Відкрити те, що стоїть за винятком."""
+        """Відкрити ціль за xmlid/запис/домен.
+
+        Сама черга «Увага» на цьому екрані більше не існує (spec-period-v2.md, п.1) - тут
+        метод лишається неспожитим цим екраном, бо l10n_ua_home документує його як спільний
+        взірець відкриття цілі (action_open / action_open_record / action_open_exception)
+        для обох екранів; прибирати - окреме рішення, не в цій зміні."""
         action = row.get("action") or {}
         if action.get("xmlid") or (action.get("model") and action.get("res_id")):
             return self.action_open(action)

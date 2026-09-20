@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+  <t t-name="l10n_ua_people.People" owl="1">
+    <div class="o_ua_people">
+      <t t-if="state.loading and !state.data">
+        <div class="text-muted p-4">Завантаження…</div>
+      </t>
+      <t t-elif="state.data">
+        <t t-set="data" t-value="state.data"/>
+
+        <!-- шапка: назва, контекст ліворуч, головна дія праворуч (за поглядом) -->
+        <div class="o_ua_head o_ua_people_head">
+          <div class="o_ua_head_title">
+            <div class="o_ua_head_title_row"><h4>Люди</h4></div>
+            <div class="o_ua_head_subtitle">
+              <t t-if="data.view === 'staff'" t-esc="this.staffContextLabel"/>
+              <t t-else="" t-esc="this.summaryLabel"/>
+            </div>
+          </div>
+          <div class="o_ua_head_actions">
+            <button t-if="data.view === 'staff'" type="button" class="btn btn-sm btn-primary"
+                    t-att-disabled="state.busy" t-on-click="() => this.createStaffList()">Створити розпис</button>
+            <button t-else="" type="button" class="btn btn-sm btn-primary"
+                    t-att-disabled="state.busy" t-on-click="() => this.newEmployee()">Новий працівник</button>
+          </div>
+        </div>
+
+        <!-- пошук над усіма чотирма поглядами -->
+        <div class="o_ua_people_search">
+          <input type="text" class="form-control form-control-sm"
+                 placeholder="пошук: прізвище, посада, підрозділ, РНОКПП"
+                 t-att-value="state.searchInput" t-att-disabled="state.busy"
+                 t-on-input="(ev) => this.onSearchInput(ev)"
+                 t-on-keydown="(ev) => this.onSearchKeydown(ev)"
+                 t-on-blur="() => this.runSearch()"/>
+        </div>
+
+        <!-- перемикач поглядів: назви за docs/payroll/words.md -->
+        <div class="o_ua_people_vswitch">
+          <button t-foreach="this.views" t-as="v" t-key="v.key" type="button"
+                  t-attf-class="o_ua_people_vtab #{v.key === data.view ? 'active' : ''}"
+                  t-att-disabled="state.busy" t-on-click="() => this.selectView(v.key)" t-esc="v.label"/>
+        </div>
+
+        <t t-if="state.loading">
+          <div class="text-muted p-4">Завантаження…</div>
+        </t>
+        <t t-else="">
+
+          <!-- ПЕРЕЛІК -->
+          <t t-if="data.view === 'list'">
+            <t t-if="!data.rows.length">
+              <div class="o_ua_people_empty o_ua_people_lbl">Нікого не знайдено.</div>
+            </t>
+            <div t-else="" class="o_ua_people_list">
+              <div class="o_ua_people_row o_ua_people_row_head o_ua_people_lbl">
+                <span class="name">Працівник</span><span class="job">Посада</span>
+                <span class="dept">Підрозділ</span><span class="num">Ставка</span><span class="num">Оклад</span>
+              </div>
+              <div t-foreach="data.rows" t-as="r" t-key="r.id"
+                   class="o_ua_people_row o_ua_people_clickable"
+                   t-on-click="() => this.openTarget(r.target, 'row-' + r.id)">
+                <span class="name" t-esc="r.name"/>
+                <span class="job" t-esc="r.job"/>
+                <span class="dept" t-esc="r.department"/>
+                <span class="num" t-esc="this.fmtNum(r.fte)"/>
+                <span class="num" t-esc="this.fmtMoney(r.wage)"/>
+              </div>
+            </div>
+          </t>
+
+          <!-- ЗА ПІДРОЗДІЛАМИ -->
+          <t t-elif="data.view === 'departments'">
+            <t t-if="!data.departments.length">
+              <div class="o_ua_people_empty o_ua_people_lbl">Нікого не знайдено.</div>
+            </t>
+            <div t-foreach="data.departments" t-as="d" t-key="d.id || 'none'" class="o_ua_people_dept">
+              <div t-attf-class="o_ua_people_dept_head #{d.target ? 'o_ua_people_clickable' : ''}"
+                   t-on-click="() => d.target and this.openTarget(d.target, 'dept-' + (d.id || 'none'))">
+                <b t-esc="d.name"/>
+                <span class="o_ua_people_lbl">
+                  <t t-esc="d.people"/> <t t-esc="this.wordPeople(d.people)"/> ·
+                  <t t-esc="this.fmtNum(d.units)"/> од. · <t t-esc="this.fmtMoney(d.fund)"/> грн
+                </span>
+              </div>
+              <div t-foreach="d.rows" t-as="r" t-key="r.id" class="o_ua_people_prow o_ua_people_clickable"
+                   t-on-click="() => this.openTarget(r.target, 'drow-' + r.id)">
+                <span class="name" t-esc="r.name"/>
+                <span class="job" t-esc="r.job"/>
+                <span class="num" t-esc="this.fmtNum(r.fte)"/>
+                <span class="num" t-esc="this.fmtMoney(r.wage)"/>
+              </div>
+            </div>
+          </t>
+
+          <!-- СХЕМА: вкладені рядки з відступом, підпорядкування від parent_id -->
+          <t t-elif="data.view === 'chart'">
+            <t t-if="!this.chartRows.length">
+              <div class="o_ua_people_empty o_ua_people_lbl">Нікого не знайдено.</div>
+            </t>
+            <div t-foreach="this.chartRows" t-as="r" t-key="r.id"
+                 class="o_ua_people_crow o_ua_people_clickable"
+                 t-attf-style="padding-left: #{14 + r.depth * 20}px"
+                 t-on-click="() => this.openTarget(r.target, 'chart-' + r.id)">
+              <span class="name" t-esc="r.name"/>
+              <span class="job" t-esc="r.job"/>
+            </div>
+          </t>
+
+          <!-- ШТАТНИЙ РОЗПИС: той самий склад у формі документа -->
+          <t t-elif="data.view === 'staff'">
+            <div class="o_ua_people_sheet_wrap">
+              <div class="o_ua_people_sheet">
+                <div class="o_ua_people_sheet_h">Штатний розпис</div>
+                <div class="o_ua_people_sheet_sub" t-esc="'склад на ' + data.staff.as_of"/>
+                <table class="o_ua_people_doc">
+                  <thead>
+                    <tr>
+                      <th>Підрозділ</th><th>Посада</th><th>Код КП</th>
+                      <th>Одиниць</th><th>Оклад</th><th>Фонд</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr t-if="!data.staff.lines.length">
+                      <td colspan="6" class="o_ua_people_lbl">Рядків немає.</td>
+                    </tr>
+                    <tr t-foreach="data.staff.lines" t-as="l" t-key="l_index">
+                      <td t-esc="l.department"/>
+                      <td t-esc="l.job"/>
+                      <td t-esc="l.kp_code || '-'"/>
+                      <td class="n" t-esc="this.fmtNum(l.units)"/>
+                      <td class="n" t-esc="this.fmtMoney(l.wage)"/>
+                      <td class="n" t-esc="this.fmtMoney(l.fund)"/>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="o_ua_people_sheet_foot">
+                  <span/>
+                  <span>разом <t t-esc="this.fmtNum(data.staff.totals.units)"/> од. ·
+                    <t t-esc="this.fmtMoney(data.staff.totals.fund)"/> грн</span>
+                </div>
+              </div>
+            </div>
+            <div class="o_ua_people_under">
+              <button type="button" class="btn btn-sm btn-primary" t-att-disabled="state.busy"
+                      t-on-click="() => this.createStaffList()">Створити розпис</button>
+              <span t-if="data.staff.current" class="o_ua_people_under_note o_ua_people_lbl">
+                Чинний розпис
+                <a href="#" t-on-click.prevent="() => this.openTarget(data.staff.current.target, 'current-staff')"
+                   t-esc="data.staff.current.name"/>
+                <t t-esc="' ' + data.staff.current.diff_text"/>.
+              </span>
+            </div>
+          </t>
+
+        </t>
+      </t>
+    </div>
+  </t>
+</templates>

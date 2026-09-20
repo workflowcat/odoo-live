@@ -70,7 +70,7 @@ css_links = _re.findall(r'href="(/web/assets/[^"]+web\.assets_web[^"]*\.css)"', 
 if css_links:
     code, css = get(css_links[0])
     err = _re.search(r"This error occurred while compiling the bundle[^\n]{0,160}", css)
-    check("стилі зібрано без помилок SCSS", not err and "o_ua_pd_body" in css, (err.group(0) if err else "")[:160])
+    check("стилі зібрано без помилок SCSS", not err and "o_ua_pd_row" in css, (err.group(0) if err else "")[:160])
 else:
     check("стилі зібрано без помилок SCSS", False, "посилання на CSS не знайдено")
 
@@ -83,26 +83,41 @@ for model, method, kwargs in (("ua.period.board", "get_screen_data", {}), ("ua.d
     err = res.get("error", {}).get("data", {}).get("message", "") if "error" in res else ""
     check(f"екран {model}.{method} відкривається з інтерфейсу", "error" not in res, err[:120])
 
-# «Період»: документи кроків і строки
+# «Період»: тіло кроку і строки. Екран більше не віддає документи всіх кроків одним
+# словником: видно один крок за раз (docs/payroll/spec-period-v2.md), тому питаємо
+# кожен крок окремо і збираємо його рядки.
 data = call("ua.period.board", "get_screen_data", year=2026, month=9)
-docs = data.get("documents", {})
-flat = [d for items in docs.values() for d in items]
-check("«Період» віддає документи кроків", len(flat) >= 3, f"{len(flat)} документів у {len(docs)} кроках")
-step_keys = {s["key"] for s in data["steps"]}
-check("документи прив'язані до наявних кроків", set(docs) <= step_keys, str(sorted(set(docs) - step_keys)))
-check("кожен документ має вид print, filing або file", all(d["kind"] in ("print", "filing", "file") for d in flat))
-check("документ для друку має шаблон і записи", all(d["report"] and d["ids"] for d in flat if d["kind"] == "print"))
-filings = [d for d in flat if d["kind"] == "filing"]
-check("подання мають строк", all(d["deadline"] for d in filings), f"{len(filings)} подань")
+step_keys = [s["key"] for s in data["steps"]]
+check("«Період» віддає дев'ять кроків", len(step_keys) == 9, f"{len(step_keys)} кроків")
+check("рівно один крок відкритий", sum(1 for s in data["steps"] if s.get("current")) == 1,
+      str([s["key"] for s in data["steps"] if s.get("current")]))
+
+# Крок перемикається на клієнті, тому всі дев'ять приходять разом зі своїми рядками.
+rows = [r for step in data["steps"] for r in (step.get("rows") or [])]
+with_rows = [s["key"] for s in data["steps"] if s.get("rows")]
+check("кроки разом дають рядки", len(rows) >= 3,
+      f"{len(rows)} рядків у {len(with_rows)} кроках з {len(step_keys)}")
+check("кожен рядок кроку має рівень і текст",
+      all(r.get("level") and r.get("text") for r in rows),
+      str([r for r in rows if not (r.get("level") and r.get("text"))][:2]))
 dl = data.get("deadlines", [])
 check("смуга строків не порожня", len(dl) >= 2, f"{len(dl)} позначок")
 keys = [(d["date"][6:], d["date"][3:5], d["date"][:2]) for d in dl]
 check("строки йдуть за датою", keys == sorted(keys), str([d["date"] for d in dl]))
 check("квартальний дубль прибрано зі смуги", not any("квартал" in d["label"] for d in dl))
 
-# /ua/print: один документ
-timesheet = next((d for d in docs.get("timesheet", []) if d["kind"] == "print"), None)
-payslips = next((d for d in docs.get("payslips", []) if d["kind"] == "print"), None)
+# /ua/print: один документ. Раніше звіт і записи бралися з документів кроку «Періоду»;
+# екран місяця їх більше не віддає, тому беремо прямо з моделей - перевіряємо сам
+# контролер друку, а не те, звідки його викликали. Параметр r - це report_name
+# (шаблон QWeb), а не xmlid дії звіту: _get_report_from_name шукає саме його.
+sheet_ids = call("ua.timesheet.sheet", "search", [["year", "=", 2026], ["month", "=", 9]])
+slip_ids = call("hr.payslip", "search", [["date_from", ">=", "2026-09-01"], ["date_to", "<=", "2026-09-30"]])
+timesheet = ({"report": "l10n_ua_hr_docs.report_ua_timesheet", "ids": sheet_ids, "kind": "print"}
+             if sheet_ids else None)
+payslips = ({"report": "l10n_ua_payroll_reports.report_ua_payslip", "ids": slip_ids, "kind": "print"}
+            if slip_ids else None)
+check("є табель і листки вересня для друку", bool(timesheet) and bool(payslips),
+      f"табелів {len(sheet_ids)}, листків {len(slip_ids)}")
 if timesheet:
     q = urllib.parse.urlencode({"items": json.dumps([{"r": timesheet["report"], "ids": timesheet["ids"]}])})
     code, html = get("/ua/print?" + q)

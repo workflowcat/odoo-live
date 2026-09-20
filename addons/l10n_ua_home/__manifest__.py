@@ -13,6 +13,7 @@
         "l10n_ua_hr_card",
         "l10n_ua_reporting",
         "l10n_ua_payroll_ui",
+        "l10n_ua_dashboard",
         # моделі, які читає цей модуль напряму, а не лише через навігацію
         "l10n_ua_hire",
         "l10n_ua_military",

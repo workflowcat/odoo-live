@@ -8,49 +8,33 @@
       <t t-elif="state.data">
         <t t-set="data" t-value="state.data"/>
 
-        <!-- шапка: місяць, стан одним рядком, наступний крок -->
+        <!-- шапка: місяць, стан одним рядком, дії -->
         <div class="o_ua_pd_head o_ua_head">
           <div class="o_ua_head_title">
             <div class="o_ua_head_title_row">
               <h4 t-esc="data.period.label"/>
               <span t-attf-class="o_ua_pd_state o_ua_tone_#{data.headline.tone}" t-esc="data.headline.title"/>
             </div>
-            <div t-if="data.close.state !== 'closed' and data.blockers.length" class="o_ua_head_subtitle">
-              Закрити місяць не можна: <t t-esc="data.blockers.join('; ')"/>.
-            </div>
           </div>
-          <div class="o_ua_pd_month_nav">
-            <button type="button" class="o_ua_pd_icon" t-on-click="() => this.shiftMonth(-1)" aria-label="Попередній місяць" data-tooltip="Попередній місяць">‹</button>
-            <button type="button" class="o_ua_pd_icon" t-on-click="() => this.shiftMonth(1)" aria-label="Наступний місяць" data-tooltip="Наступний місяць">›</button>
-          </div>
-          <div class="o_ua_months">
-            <span t-foreach="data.periods" t-as="p" t-key="p.label"
-                  t-attf-class="o_ua_month #{p.year === data.period.year and p.month === data.period.month ? 'active' : ''}"
-                  t-on-click="() => this.selectPeriod(p)" t-esc="p.label"
-                  t-att-data-tooltip="'Перейти до місяця ' + p.label"/>
-          </div>
+          <!-- Одна головна дія на екран. Місяць закінчується закриттям місяця, тому воно
+               і стоїть у шапці; дія самого кроку живе в тілі кроку, поруч зі своїми рядками,
+               а решта - під «Ще». П'ять кнопок в один ряд не читаються. -->
           <div class="o_ua_head_actions">
-            <button type="button" t-attf-class="btn btn-sm #{state.guide ? 'btn-outline-primary' : 'btn-outline-secondary'}"
-                    t-att-aria-pressed="state.guide ? 'true' : 'false'" t-on-click="() => this.toggleGuide()"
-                    data-tooltip="Показати або сховати перші кроки, пояснення кроків і номери частин екрана">
-              <t t-esc="state.guide ? 'Сховати підказки' : 'Підказки'"/>
-            </button>
-            <button t-if="data.headline.label and data.headline.action !== 'exceptions'" class="btn btn-sm btn-primary"
-                    t-att-disabled="state.busy" t-on-click="() => this.runHeadline()" t-esc="data.headline.label"
-                    data-tooltip="Наступний крок місяця"/>
             <button t-if="data.close.state === 'closed' and !data.close.hard" class="btn btn-sm btn-secondary"
                     t-att-disabled="state.busy" t-on-click="() => this.openClose()">Відкрити знову</button>
-            <t t-if="data.close.state !== 'closed'">
-              <button class="btn btn-sm btn-secondary" t-if="data.new_changes"
-                      t-att-disabled="state.busy" t-on-click="() => this.acceptAll()">
-                Прийняти всі зміни (<t t-esc="data.new_changes"/>)
-              </button>
-              <button class="btn btn-sm btn-secondary" t-att-disabled="state.busy"
-                      t-on-click="() => this.closeMonth()" data-tooltip="Показує план перед закриттям: дату блокування і перешкоди, якщо є">Закрити місяць</button>
-            </t>
-            <Dropdown t-if="data.quarter.label or data.year_close.label">
+            <button t-if="data.close.state !== 'closed'" class="btn btn-sm btn-primary"
+                    t-att-disabled="state.busy" t-on-click="() => this.closeMonth()"
+                    data-tooltip="Показує план перед закриттям: дату блокування і перешкоди, якщо є">Закрити місяць</button>
+            <Dropdown>
               <button class="btn btn-sm btn-outline-secondary">Ще</button>
               <t t-set-slot="content">
+                <DropdownItem closingMode="'none'" onSelected="() => this.toggleGuide()">
+                  <t t-esc="state.guide ? 'Сховати підказки' : 'Показати підказки'"/>
+                </DropdownItem>
+                <DropdownItem t-if="data.new_changes and data.close.state !== 'closed'" closingMode="'none'"
+                    onSelected="() => this.acceptAll()">
+                  Прийняти всі зміни (<t t-esc="data.new_changes"/>)
+                </DropdownItem>
                 <DropdownItem t-if="data.quarter.label" closingMode="'none'"
                     class="this.quarterBlocked(data) ? 'disabled' : ''"
                     attrs="this.attrsFor(this.quarterTip(data))"
@@ -61,6 +45,19 @@
                     onSelected="() => this.closeYear()">Закрити рік остаточно</DropdownItem>
               </t>
             </Dropdown>
+          </div>
+        </div>
+
+        <!-- смуга місяців: окремим рядком під шапкою -->
+        <div class="o_ua_pd_period_bar">
+          <button type="button" class="o_ua_pd_icon" t-on-click="() => this.shiftMonth(-1)" aria-label="Попередній місяць" data-tooltip="Попередній місяць">‹</button>
+          <span class="o_ua_pd_period_now" t-esc="data.period.label"/>
+          <button type="button" class="o_ua_pd_icon" t-on-click="() => this.shiftMonth(1)" aria-label="Наступний місяць" data-tooltip="Наступний місяць">›</button>
+          <div class="o_ua_months">
+            <span t-foreach="data.periods" t-as="p" t-key="p.label"
+                  t-attf-class="o_ua_month #{p.year === data.period.year and p.month === data.period.month ? 'active' : ''}"
+                  t-on-click="() => this.selectPeriod(p)" t-esc="p.label"
+                  t-att-data-tooltip="'Перейти до місяця ' + p.label"/>
           </div>
         </div>
 
@@ -75,213 +72,106 @@
           </div>
         </div>
 
-        <!-- перші кроки: видно в режимі підказок, поки щось не зроблено -->
-        <div class="o_ua_pd_first" t-if="state.guide and this.firstStepsLeft">
-          <div class="o_ua_pd_first_head">
-            <b>Перші кроки</b>
-            <span class="o_ua_lbl">готово <t t-esc="data.first_steps.length - this.firstStepsLeft"/> з <t t-esc="data.first_steps.length"/></span>
-          </div>
-          <div class="o_ua_pd_first_grid">
-            <div t-foreach="data.first_steps" t-as="item" t-key="item.key"
-                 t-attf-class="o_ua_pd_first_item o_ua_clickable #{item.done ? 'done' : ''}"
-                 t-on-click="() => this.openFirstStep(item)"
-                 t-att-data-tooltip="item.done ? 'Готово. Клік відкриває, щоб перевірити.' : 'Клік відкриває місце, де це заповнюють.'">
-              <span t-attf-class="o_ua_dot o_ua_dot_#{item.done ? 'done' : 'todo'}"/>
-              <span>
-                <span class="o_ua_pd_first_title" t-esc="item.title"/>
-                <span class="o_ua_lbl" t-esc="item.fact"/>
-              </span>
+        <!-- три числа місяця -->
+        <div class="o_ua_pd_nums">
+          <div class="o_ua_clickable" t-on-click="() => this.openTotals('gross')" data-tooltip="Сума «Усього нараховано» в листках місяця. Клік відкриває листки.">
+            <span class="o_ua_num" t-esc="data.totals.gross"/><span class="o_ua_lbl">нараховано</span></div>
+          <div class="o_ua_clickable" t-on-click="() => this.openTotals('net')" data-tooltip="Сума «До виплати» після ПДФО, військового збору і утримань. Клік відкриває листки.">
+            <span class="o_ua_num" t-esc="data.totals.net"/><span class="o_ua_lbl">до виплати</span></div>
+          <div class="o_ua_clickable" t-on-click="() => this.openTotals('esv')" data-tooltip="ЄСВ 22 % за рахунок підприємства. Клік відкриває листки.">
+            <span class="o_ua_num o_ua_num_sm" t-esc="data.totals.esv"/><span class="o_ua_lbl">ЄСВ підприємства</span></div>
+        </div>
+
+        <!-- смуга кроків: дев'ять в один ряд, клік відкриває крок без перезавантаження місяця -->
+        <div class="o_ua_pd_steps" role="tablist">
+          <div t-foreach="data.steps" t-as="step" t-key="step.key"
+               t-attf-class="o_ua_pd_step #{this.selectedKey === step.key ? 'on' : ''}"
+               role="tab" t-att-aria-selected="this.selectedKey === step.key ? 'true' : 'false'"
+               t-on-click="() => this.selectStep(step)" t-att-data-tooltip="step.subtitle">
+            <div class="o_ua_pd_step_n" t-esc="step.n"/>
+            <div class="o_ua_pd_step_name">
+              <span t-attf-class="o_ua_dot o_ua_dot_#{step.mark}" t-att-data-tooltip="this.dotTip(step.mark)"/>
+              <t t-esc="step.name"/>
             </div>
           </div>
         </div>
 
-        <div class="o_ua_pd_body">
-          <!-- ліворуч: числа і кроки -->
-          <div class="o_ua_pd_left">
-            <div class="o_ua_pd_nums">
-              <div class="o_ua_clickable" t-on-click="() => this.openEstimate('gross')" data-tooltip="Сума «Усього нараховано» в листках місяця. Клік відкриває листки.">
-                <span class="o_ua_num" t-esc="data.estimate.gross"/><span class="o_ua_lbl">нараховано</span></div>
-              <div class="o_ua_clickable" t-on-click="() => this.openEstimate('net')" data-tooltip="Сума «До виплати» після ПДФО, військового збору і утримань. Клік відкриває листки.">
-                <span class="o_ua_num" t-esc="data.estimate.net"/><span class="o_ua_lbl">до виплати</span></div>
-              <div class="o_ua_clickable" t-on-click="() => this.openEstimate('esv')" data-tooltip="ЄСВ 22 % за рахунок підприємства. Клік відкриває листки.">
-                <span class="o_ua_num o_ua_num_sm" t-esc="data.estimate.employer"/><span class="o_ua_lbl">ЄСВ підприємства</span></div>
+        <!-- тіло відкритого кроку: на всю ширину -->
+        <div class="o_ua_pd_stepbody" t-if="this.selectedStep">
+          <t t-set="step" t-value="this.selectedStep"/>
+          <div class="o_ua_pd_stepbody_head o_ua_sec_head">
+            <div>
+              <h5 class="o_ua_pd_stepbody_title" t-esc="step.name"/>
+              <div class="o_ua_lbl" t-esc="step.subtitle"/>
             </div>
-            <div class="o_ua_pd_steps_title">
-              <span t-if="state.guide" class="o_ua_guide_no" data-tooltip="Кроки місяця по порядку. Клік показує крок праворуч.">2</span>
-              Кроки · <t t-esc="data.done"/> з <t t-esc="data.total"/>
-            </div>
-            <div class="o_ua_pd_steps_list">
-            <div t-foreach="data.steps" t-as="step" t-key="step.key"
-                 t-attf-class="o_ua_pd_step #{this.selectedKey === step.key ? 'active' : ''}"
-                 t-on-click="() => this.selectStep(step)">
-              <span t-attf-class="o_ua_dot o_ua_dot_#{step.state}" t-att-data-tooltip="this.dotTip(step.state)"/>
-              <span class="o_ua_pd_step_name" t-att-data-tooltip="step.title + ': ' + step.fact" t-esc="step.title"/>
-              <span class="o_ua_pd_step_docs" t-if="this.docsFor(step).length">
-                <t t-foreach="this.docsFor(step)" t-as="doc" t-key="doc_index">
-                  <t t-esc="doc.kind === 'filing' ? '↗' : (doc.kind === 'file' ? '⇩' : '▤')"/>
-                </t>
-              </span>
-            </div>
-            </div>
-          </div>
-
-          <!-- у центрі: вибраний крок -->
-          <div class="o_ua_pd_main" t-if="this.selectedStep">
-            <t t-set="step" t-value="this.selectedStep"/>
-            <div class="o_ua_pd_main_head o_ua_sec_head">
-              <div>
-                <h5 class="o_ua_pd_main_title" t-esc="step.title"/>
-                <div class="o_ua_lbl" t-esc="step.fact"/>
-              </div>
+            <div class="o_ua_pd_stepbody_actions">
+              <!-- Дія кроку стоїть біля самого кроку, а не в шапці екрана: там уже є
+                   закриття місяця, і дві головні кнопки поруч сперечалися б між собою. -->
+              <button t-if="data.headline.label and step.current" class="btn btn-sm btn-primary"
+                      t-att-disabled="state.busy" t-on-click="() => this.runHeadline()"
+                      t-esc="data.headline.label" data-tooltip="Наступна дія цього кроку"/>
               <button class="btn btn-link btn-sm" t-att-disabled="state.busy" t-on-click="() => this.open(step)"
                       data-tooltip="Перехід до всіх записів цього кроку">
                 <t t-esc="step.button or 'Відкрити перелік'"/>
               </button>
             </div>
-
-            <div class="o_ua_pd_help" t-if="state.guide and this.helpFor(step)">
-              <t t-set="help" t-value="this.helpFor(step)"/>
-              <p t-esc="help.what"/>
-              <p t-esc="help.done"/>
-              <p class="o_ua_lbl" t-esc="help.next"/>
-            </div>
-
-            <div class="o_ua_pd_docs_title" t-if="state.guide and this.docsFor(step).length">
-              <span class="o_ua_guide_no" data-tooltip="Документи, які створює цей крок: ▤ друк, ↗ подання, ⇩ файл.">3</span>
-              Документи кроку
-            </div>
-            <div class="o_ua_pd_docs" t-if="this.docsFor(step).length">
-              <div t-foreach="this.docsFor(step)" t-as="doc" t-key="doc_index"
-                   t-attf-class="o_ua_pd_doc o_ua_pd_doc_#{doc.kind} #{this.isPreviewed(doc) ? 'active' : ''}">
-                <span class="o_ua_pd_doc_icon" t-att-data-tooltip="this.docTip(doc)" t-esc="doc.kind === 'filing' ? '↗' : (doc.kind === 'file' ? '⇩' : '▤')"/>
-                <span class="o_ua_pd_doc_name" t-esc="doc.name"/>
-                <span t-if="doc.deadline" class="o_ua_lbl">до <t t-esc="doc.deadline"/></span>
-                <span t-if="doc.state" t-att-data-tooltip="this.stateTip(doc.state)" t-attf-class="o_ua_pill #{doc.state === 'створено' or doc.state === 'подано' ? 'o_ua_pill_ok' : (doc.state === 'немає' ? '' : 'o_ua_pill_warn')}" t-esc="doc.state"/>
-                <span class="o_ua_pd_doc_acts">
-                  <button t-if="doc.report" class="btn btn-sm btn-link p-0" t-on-click="() => this.previewDoc(doc)" data-tooltip="Показати документ на папері тут, на екрані">Переглянути</button>
-                  <button t-if="doc.report" class="btn btn-sm btn-link p-0" t-att-disabled="this.inBasket(doc)"
-                          t-on-click="() => this.addToBasket(doc)" t-esc="this.inBasket(doc) ? 'у кошику' : 'До кошика'"
-                          data-tooltip="Додати документ у пакет, щоб надрукувати кілька документів разом"/>
-                  <button t-if="doc.target and (doc.target.model or doc.target.xmlid)" class="btn btn-sm btn-link p-0"
-                          t-on-click="() => this.openDocTarget(doc)" t-esc="doc.kind === 'print' ? 'Правити дані' : 'Відкрити'"
-                          data-tooltip="Перехід до запису, з якого документ бере числа"/>
-                </span>
-              </div>
-            </div>
-
-            <!-- перегляд документа: папір, друк браузером, перевірки поруч -->
-            <div class="o_ua_pd_preview_wrap" t-if="state.preview">
-              <div class="o_ua_pd_preview">
-                <div class="o_ua_pd_preview_bar">
-                  <b t-esc="state.preview.name"/>
-                  <span class="flex-grow-1"/>
-                  <button class="btn btn-sm btn-primary" t-on-click="() => this.printPreview()" data-tooltip="Друк браузера. Там само можна зберегти PDF.">Друк</button>
-                  <button class="btn btn-sm btn-secondary" t-on-click="() => this.addToBasket(state.preview)"
-                          t-att-disabled="this.inBasket(state.preview)" t-esc="this.inBasket(state.preview) ? 'у кошику' : 'До кошика'"/>
-                  <button class="btn btn-sm btn-link" t-on-click="() => this.closePreview()">Закрити перегляд</button>
-                </div>
-                <iframe class="o_ua_pd_frame" t-att-src="state.preview.url" t-ref="previewFrame" title="Перегляд документа"/>
-              </div>
-              <div class="o_ua_pd_checks" t-if="state.preview.checks.length">
-                <div class="o_ua_pd_side_title">Перевірки</div>
-                <div t-foreach="state.preview.checks" t-as="check" t-key="check_index"
-                     t-attf-class="o_ua_pd_check #{check.target ? 'o_ua_clickable' : ''}"
-                     t-on-click="() => this.openCheck(check)">
-                  <span t-attf-class="o_ua_dot o_ua_dot_#{check.level === 'error' ? 'crit' : (check.level === 'warn' ? 'warn' : 'done')}"/>
-                  <span class="o_ua_pd_check_text">
-                    <t t-esc="check.text"/>
-                    <span t-if="check.fact" class="o_ua_lbl" t-esc="check.fact"/>
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <t t-else="">
-              <!-- записи кроку -->
-              <div class="o_ua_wide" t-if="step.key === 'payslips' and state.people.length">
-                <table class="o_ua_table">
-                  <thead>
-                    <tr>
-                      <th>Працівник</th><th>Підрозділ</th><th class="text-end">Дні</th>
-                      <th class="text-end">Нараховано</th><th class="text-end">До виплати</th>
-                      <th class="text-end">ЄСВ</th><th>Листок</th><th>Виплата</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr t-foreach="state.people" t-as="row" t-key="row.employee_id"
-                        t-attf-class="o_ua_clickable #{state.person and state.person.employee_id === row.employee_id ? 'active' : ''}"
-                        t-on-click="() => this.openPerson(row)">
-                      <td>
-                        <t t-esc="row.name"/>
-                        <span t-if="row.flags.length" class="o_ua_person_flag" t-esc="row.flags.join(' · ')"/>
-                      </td>
-                      <td class="text-muted" t-esc="row.department"/>
-                      <td class="text-end" t-esc="row.days"/>
-                      <td class="text-end" t-esc="row.gross"/>
-                      <td class="text-end" t-esc="row.net"/>
-                      <td class="text-end" t-esc="row.esv"/>
-                      <td><span t-attf-class="o_ua_pill #{row.done ? 'o_ua_pill_ok' : 'o_ua_pill_warn'}" t-esc="row.state"/></td>
-                      <td><span t-if="row.payment" t-attf-class="o_ua_pill #{row.paid ? 'o_ua_pill_ok' : 'o_ua_pill_warn'}"
-                                t-esc="row.paid ? 'оплачено' : 'у відомості'"/></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <table class="o_ua_table" t-elif="step.details.length">
-                <tbody>
-                  <tr t-foreach="step.details" t-as="row" t-key="row.model + '-' + row.id"
-                      class="o_ua_clickable" t-on-click="() => this.openRecord(row)">
-                    <td t-esc="row.title"/>
-                    <td class="text-muted" t-esc="row.note"/>
-                    <td class="text-end text-muted">›</td>
-                  </tr>
-                </tbody>
-              </table>
-
-            </t>
           </div>
 
-          <!-- праворуч: кошик друку, увага, зміни -->
-          <div class="o_ua_pd_side">
-            <div class="o_ua_pd_side_block" t-if="state.basket.length or state.guide">
-              <div class="o_ua_pd_side_title">
-                <span t-if="state.guide" class="o_ua_guide_no" data-tooltip="Пакет документів для одного друку. Порядок змінюють стрілки. Кошик пам'ятає цей браузер.">4</span>
-                Кошик друку · <t t-esc="state.basket.length"/>
-              </div>
-              <div t-if="!state.basket.length" class="o_ua_lbl">Додайте документ кнопкою «До кошика».</div>
-              <div t-foreach="state.basket" t-as="item" t-key="item.r + '-' + item.ids.join(',')" class="o_ua_pd_basket_row">
-                <span class="o_ua_pd_basket_name" t-esc="item.t"/>
-                <button class="o_ua_pd_icon" t-att-disabled="item_index === 0" t-on-click="() => this.moveBasket(item_index, -1)" aria-label="Вище">↑</button>
-                <button class="o_ua_pd_icon" t-att-disabled="item_index === state.basket.length - 1" t-on-click="() => this.moveBasket(item_index, 1)" aria-label="Нижче">↓</button>
-                <button class="o_ua_pd_icon" t-on-click="() => this.removeFromBasket(item_index)" aria-label="Прибрати">×</button>
-              </div>
-              <div class="o_ua_pd_basket_acts" t-if="state.basket.length">
-                <button class="btn btn-sm btn-secondary" t-on-click="() => this.openBundle()" data-tooltip="Відкрити всі документи кошика в новій вкладці і надрукувати разом">Переглянути пакет</button>
-                <button class="btn btn-sm btn-link" t-on-click="() => this.clearBasket()">Очистити</button>
-              </div>
-            </div>
+          <div class="o_ua_pd_help" t-if="state.guide and this.helpFor(step)">
+            <t t-set="help" t-value="this.helpFor(step)"/>
+            <p t-esc="help.what"/>
+            <p t-esc="help.done"/>
+            <p class="o_ua_lbl" t-esc="help.next"/>
+          </div>
 
-            <div class="o_ua_pd_side_block" t-if="data.exceptions.length">
-              <div class="o_ua_pd_side_title">
-                <span t-if="state.guide" class="o_ua_guide_no" data-tooltip="Те, що потребує рішення поза кроками місяця. Клік відкриває записи.">5</span>
-                Увага · <t t-esc="data.exceptions.length"/>
-              </div>
-              <div t-foreach="data.exceptions" t-as="row" t-key="row.key + '-' + row.title"
-                   class="o_ua_pd_attn o_ua_clickable" t-on-click="() => this.openException(row)">
-                <span t-attf-class="o_ua_dot o_ua_dot_#{row.level === 'danger' ? 'crit' : 'warn'}" t-att-data-tooltip="row.level === 'danger' ? 'Терміново' : 'Потребує уваги'"/>
-                <span><t t-esc="row.title"/><span class="o_ua_lbl" t-esc="row.detail"/></span>
-              </div>
+          <!-- рядки кроку: документи, проблеми, записи разом, кожен зі своїм рівнем -->
+          <div class="o_ua_pd_rows" t-if="step.rows.length">
+            <div t-foreach="step.rows" t-as="row" t-key="row_index"
+                 t-attf-class="o_ua_pd_row #{row.action and row.target and (row.target.model or row.target.xmlid) ? 'o_ua_clickable' : ''}"
+                 t-on-click="() => this.openRow(row)">
+              <span t-attf-class="o_ua_dot o_ua_dot_#{row.level}" t-att-data-tooltip="this.dotTip(row.level)"/>
+              <span class="o_ua_pd_row_text" t-esc="row.text"/>
+              <span t-if="row.action" class="o_ua_pd_row_act" t-esc="row.action"/>
             </div>
+          </div>
 
-            <div class="o_ua_pd_side_block" t-if="data.changes.length">
-              <div class="o_ua_pd_side_title">Зміни місяця</div>
-              <div class="o_ua_period_changes">
-                <span t-foreach="data.changes" t-as="row" t-key="row.label" class="o_ua_period_chip"
-                      t-on-click="() => this.openChange(row)">
-                  <t t-esc="row.count"/> <t t-esc="row.label"/>
-                </span>
-              </div>
-            </div>
+          <!-- крок «Розрахунок листків»: люди місяця, на всю ширину -->
+          <div class="o_ua_wide" t-if="step.key === 'payslips' and state.people.length">
+            <table class="o_ua_table">
+              <thead>
+                <tr>
+                  <th>Працівник</th><th>Підрозділ</th><th class="text-end">Дні</th>
+                  <th class="text-end">Нараховано</th><th class="text-end">До виплати</th>
+                  <th class="text-end">ЄСВ</th><th>Листок</th><th>Виплата</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr t-foreach="state.people" t-as="row" t-key="row.employee_id"
+                    t-attf-class="o_ua_clickable #{state.person and state.person.employee_id === row.employee_id ? 'active' : ''}"
+                    t-on-click="() => this.openPerson(row)">
+                  <td>
+                    <t t-esc="row.name"/>
+                    <span t-if="row.flags.length" class="o_ua_person_flag" t-esc="row.flags.join(' · ')"/>
+                  </td>
+                  <td class="text-muted" t-esc="row.department"/>
+                  <td class="text-end" t-esc="row.days"/>
+                  <td class="text-end" t-esc="row.gross"/>
+                  <td class="text-end" t-esc="row.net"/>
+                  <td class="text-end" t-esc="row.esv"/>
+                  <td><span t-attf-class="o_ua_pill #{row.done ? 'o_ua_pill_ok' : 'o_ua_pill_warn'}" t-esc="row.state"/></td>
+                  <td><span t-if="row.payment" t-attf-class="o_ua_pill #{row.paid ? 'o_ua_pill_ok' : 'o_ua_pill_warn'}"
+                            t-esc="row.paid ? 'оплачено' : 'у відомості'"/></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- єдине місце, де сказано про перешкоди закриття (spec-period-v2.md, п.3) -->
+          <div class="o_ua_pd_blockline" t-if="data.close.state !== 'closed' and step.blockers.count">
+            Заважає закрити місяць:
+            <a href="#" t-on-click.prevent="() => this.openDocTarget(step.blockers.target)">
+              <t t-esc="step.blockers.count"/> <t t-esc="step.blockers.word"/>
+            </a>. <t t-esc="step.blockers.text"/>
           </div>
         </div>
 

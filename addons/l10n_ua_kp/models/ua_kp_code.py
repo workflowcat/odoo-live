@@ -165,14 +165,20 @@ class UaKpCode(models.Model):
 
     # ------------------------------------------------------------------ звірка розпису
     @api.model
-    def audit_staff_lists(self):
+    def audit_staff_lists(self, include_posted=False):
         """Що не так із кодами в штатних розписах: кожен рядок - факт і ціль.
 
         Три види проблем: коду немає зовсім; код є, але такої професії в класифікаторі
-        немає; назва посади стоїть у класифікаторі під іншим кодом."""
+        немає; назва посади стоїть у класифікаторі під іншим кодом.
+
+        Типово дивимося лише чернетки. Затверджений розпис - це історія: він був
+        підписаний саме таким, і переписувати його заднім числом не можна. Помилку
+        в затвердженому розписі виправляє новий розпис, а не правка старого.
+        include_posted=True показує і їх, коли треба побачити повну картину."""
         Line = self.env["ua.staff.list.line"].sudo()
+        domain = [] if include_posted else [("list_id.state", "=", "draft")]
         rows, seen = [], set()
-        for line in Line.search([]):
+        for line in Line.search(domain):
             title = (line.job_title or "").strip()
             code = (line.kp_code or "").strip()
             key = (title.lower(), code)
