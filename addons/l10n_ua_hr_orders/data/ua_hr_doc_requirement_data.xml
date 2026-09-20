@@ -4,39 +4,64 @@
     <record id="req_statement" model="ua.hr.doc.requirement">
       <field name="name">Заява про прийняття</field><field name="code">statement</field>
       <field name="applies_to">employment</field><field name="sequence">10</field>
+      <field name="source">company</field>
     </record>
     <record id="req_hire_order" model="ua.hr.doc.requirement">
       <field name="name">Наказ про прийняття</field><field name="code">hire_order</field>
       <field name="applies_to">all</field><field name="sequence">20</field>
+      <field name="source">company</field>
     </record>
     <record id="req_contract" model="ua.hr.doc.requirement">
       <field name="name">Трудовий договір</field><field name="code">contract</field>
       <field name="applies_to">employment</field><field name="sequence">30</field>
+      <field name="source">company</field>
     </record>
     <record id="req_passport_rnokpp" model="ua.hr.doc.requirement">
       <field name="name">Копія паспорта і РНОКПП</field><field name="code">passport_rnokpp</field>
       <field name="applies_to">all</field><field name="sequence">40</field>
+      <field name="source">employee</field>
     </record>
     <record id="req_military_id" model="ua.hr.doc.requirement">
       <field name="name">Військово-обліковий документ</field><field name="code">military_id</field>
       <field name="applies_to">all</field><field name="sequence">50</field>
+      <field name="source">employee</field>
     </record>
     <record id="req_consent" model="ua.hr.doc.requirement">
       <field name="name">Згода на обробку персональних даних</field><field name="code">consent</field>
       <field name="applies_to">all</field><field name="sequence">60</field>
+      <field name="source">company</field>
     </record>
     <record id="req_safety_briefing" model="ua.hr.doc.requirement">
       <field name="name">Інструктаж з охорони праці</field><field name="code">safety_briefing</field>
       <field name="applies_to">employment</field><field name="sequence">70</field>
+      <field name="source">company</field>
     </record>
     <record id="req_gph_contract" model="ua.hr.doc.requirement">
       <field name="name">Договір ЦПХ</field><field name="code">gph_contract</field>
       <field name="applies_to">gph</field><field name="sequence">80</field>
+      <field name="source">company</field>
     </record>
     <record id="req_medical" model="ua.hr.doc.requirement">
       <field name="name">Медичний огляд</field><field name="code">medical</field>
       <field name="applies_to">employment</field><field name="sequence">90</field>
       <field name="active" eval="False"/>
+      <field name="source">employee</field>
     </record>
+  </data>
+
+  <!-- Джерело для вже встановлених стендів (docs/payroll/spec-intake.md): записи вище під
+       noupdate="1" не перезаписуються при -u на базі, де довідник уже стоїть, тож нове поле
+       "source" на ці 9 записів проставляємо ще раз тут, поза noupdate - виконується щоразу,
+       безпечно повторювати. Від компанії: наказ, трудовий договір, договір ЦПХ, згода,
+       заява, інструктаж з охорони праці - усе це складає і підписує компанія, а не приносить
+       людина. Від працівника лишається те, що ми тільки приймаємо і зберігаємо. -->
+  <data>
+    <function model="ua.hr.doc.requirement" name="write"
+              eval="[[ref('req_statement'), ref('req_hire_order'), ref('req_contract'), ref('req_consent'),
+                      ref('req_safety_briefing'), ref('req_gph_contract')],
+                     {'source': 'company'}]"/>
+    <function model="ua.hr.doc.requirement" name="write"
+              eval="[[ref('req_passport_rnokpp'), ref('req_military_id'), ref('req_medical')],
+                     {'source': 'employee'}]"/>
   </data>
 </odoo>

@@ -444,6 +444,18 @@ class UaHireCase(models.Model):
             return value or ""
         return value
 
+    def _other_files(self):
+        """Файли справи, що не підпадають під жодну вимогу пакета (docs/payroll/spec-intake.md):
+        package_used_file_ids рахує це так само, як рядки employee-блоку package_for - файл,
+        що покриває вимогу разом з іншим (паспорт + РНОКПП), не "інший", навіть якщо в рядку
+        ціль веде на інший файл із тієї самої пари."""
+        self.ensure_one()
+        used_ids = self.env["ua.hr.doc.requirement"].package_used_file_ids(self)
+        return [
+            {"name": f.name, "doc_type": f.doc_type, "target": {"model": "ua.hire.file", "res_id": f.id}}
+            for f in self.file_ids if f.id not in used_ids
+        ]
+
     def _case_payload(self):
         self.ensure_one()
         states = self._field_states()
@@ -459,6 +471,11 @@ class UaHireCase(models.Model):
             proposed = sum(1 for f in names if states[f] == "proposed")
             sections.append({"key": key, "title": title, "fields": names, "missing": missing, "proposed": proposed})
         checks = self._checks()
+        # package_split - пакет за формою зі спеки (docs/payroll/spec-intake.md), спільний метод
+        # ua.hr.doc.requirement.package_for, яким користується і картка працівника. Ключі
+        # requirements/package/checks лишаються - екран переходить на package_split окремим
+        # комітом, щоб не поламати його між двома комітами.
+        package_split = self.env["ua.hr.doc.requirement"].package_for(case=self)
         return {
             "id": self.id, "name": self.name, "stage": self.stage,
             "stage_label": dict(STAGES)[self.stage], "decline_reason": self.decline_reason or "",
@@ -467,6 +484,8 @@ class UaHireCase(models.Model):
             "files": [{"id": x.id, "name": x.name, "doc_type": x.doc_type, "extract_state": x.extract_state,
                        "extract_note": x.extract_note or ""} for x in self.file_ids],
             "requirements": self._requirements(),
+            "package_split": package_split,
+            "other_files": self._other_files(),
             "checks": checks,
             "can_hire": self.stage == "onboarding" and not any(c["level"] == "error" for c in checks),
             "military_required": self._military_required(),

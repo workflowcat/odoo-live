@@ -185,6 +185,56 @@ payload = case._case_payload()
 errs = [c["title"] + ": " + c["detail"] for c in payload["checks"] if c["level"] == "error"]
 check("після даних і файлів помилок немає", not errs, "; ".join(errs))
 check("«Прийняти» доступне", payload["can_hire"] is True)
+
+# ---- 5a. пакет документів (package_for) до прийняття: справжня справа, документів ще нема
+Requirement = env["ua.hr.doc.requirement"].sudo()
+all_reqs = Requirement.search([], order="sequence")
+check("довідник: усі вимоги мають джерело employee/company",
+      all(r.source in ("employee", "company") for r in all_reqs), str(all_reqs.mapped("source")))
+# Від компанії - усе, що вона складає і підписує сама: заява, наказ, трудовий договір,
+# договір ЦПХ, згода, інструктаж з охорони праці. Від працівника лишається те, що ми
+# тільки приймаємо і зберігаємо (паспорт із РНОКПП, військовий документ, медогляд).
+check("довідник: «від компанії» - те, що компанія складає сама",
+      set(all_reqs.filtered(lambda r: r.source == "company").mapped("code"))
+      == {"statement", "hire_order", "contract", "consent", "safety_briefing", "gph_contract"},
+      str(all_reqs.filtered(lambda r: r.source == "company").mapped("code")))
+# Медогляд у довіднику вимкнений (active=False), тому серед чинних вимог його немає.
+check("довідник: «від працівника» - лише те, що приносять",
+      set(all_reqs.filtered(lambda r: r.source == "employee").mapped("code"))
+      == {"passport_rnokpp", "military_id"},
+      str(all_reqs.filtered(lambda r: r.source == "employee").mapped("code")))
+
+pkg_pre = Requirement.package_for(case=case)
+pre_emp_codes = {r["code"] for r in pkg_pre["employee"]["rows"]}
+pre_co_codes = {r["code"] for r in pkg_pre["company"]["rows"]}
+check("пакет до прийняття: коди employee і company не перетинаються",
+      not (pre_emp_codes & pre_co_codes), str(pre_emp_codes & pre_co_codes))
+check("пакет до прийняття: company - пакет першого дня і папери компанії",
+      pre_co_codes == {"statement", "hire_order", "contract", "nda", "consent", "ack",
+                       "inventory", "safety_briefing", "gph_contract"}, str(pre_co_codes))
+# Підпис до прийняття має рівно одне джерело: повернутий підписаний скан. Типи файлів
+# справи так і звуться («Трудовий договір, підписаний»), тому такий рядок стоїть signed,
+# а решта company-рядків лишається без підпису, бо документа ще нема.
+signed_pre = {r["code"] for r in pkg_pre["company"]["rows"] if r["sign"] == "signed"}
+scan_types = {f.doc_type for f in case.file_ids}
+alias = {"acknowledgement": "ack"}
+expect_signed = {alias.get(t, t) for t in scan_types} & pre_co_codes
+check("пакет до прийняття: signed лише там, де є підписаний скан",
+      signed_pre == expect_signed, f"{sorted(signed_pre)} проти {sorted(expect_signed)}")
+check("пакет до прийняття: решта company без підпису",
+      all(r["sign"] is None for r in pkg_pre["company"]["rows"] if r["code"] not in signed_pre),
+      str([(r["code"], r["sign"]) for r in pkg_pre["company"]["rows"]
+           if r["code"] not in signed_pre and r["sign"] is not None]))
+gph_row_pre = next((r for r in pkg_pre["company"]["rows"] if r["code"] == "gph_contract"), None)
+check("пакет до прийняття: ЦПХ-договір для штатного - not_needed",
+      gph_row_pre is not None and gph_row_pre["state"] == "not_needed", gph_row_pre)
+check("пакет до прийняття: not_needed не рахується в need",
+      pkg_pre["company"]["need"] == sum(1 for r in pkg_pre["company"]["rows"] if r["state"] != "not_needed")
+      and pkg_pre["company"]["need"] < len(pkg_pre["company"]["rows"]),
+      (pkg_pre["company"]["need"], len(pkg_pre["company"]["rows"])))
+check("пакет до прийняття: стани лише have/missing/expired/not_needed",
+      {r["state"] for b in (pkg_pre["employee"], pkg_pre["company"]) for r in b["rows"]} <= {"have", "missing", "expired", "not_needed"})
+
 case.action_hire()
 emp = case.employee_id
 check("створено картку працівника", bool(emp) and emp.ua_rnokpp == good and emp.ua_middle_name == "Іванович", emp.name)
@@ -192,6 +242,56 @@ check("військові дані перенесено", emp.ua_mil_status == "
 check("файли стали документами працівника", len(emp.ua_document_ids.filtered("file")) == 5, str(len(emp.ua_document_ids.filtered("file"))))
 check("наказ проведено з номером", case.order_id.state == "posted" and bool(case.order_id.name), case.order_id.name or "")
 check("одна версія контракту з першим днем і окладом", len(emp.version_ids) == 1 and emp.version_ids.contract_date_start == start and emp.version_ids.wage == 25000, str([(v.date_version, v.wage) for v in emp.version_ids]))
+
+# ---- 5b. пакет документів після прийняття: картка й справа дають однакові рядки
+pkg_emp = Requirement.package_for(employee=emp)
+pkg_case_after = Requirement.package_for(case=case)
+
+
+def _counts_ok(pkg):
+    e, c = pkg["employee"], pkg["company"]
+    e_have = sum(1 for r in e["rows"] if r["state"] == "have")
+    e_need = sum(1 for r in e["rows"] if r["state"] != "not_needed")
+    c_done = sum(1 for r in c["rows"] if r["state"] == "have")
+    c_need = sum(1 for r in c["rows"] if r["state"] != "not_needed")
+    c_signed = sum(1 for r in c["rows"] if r["sign"] == "signed")
+    return (e["have"], e["need"], c["done"], c["need"], c["signed"]) == (e_have, e_need, c_done, c_need, c_signed)
+
+
+check("пакет: have/need/done/signed збігаються з рядками", _counts_ok(pkg_emp))
+check("пакет: sign заповнений лише в company", all(r["sign"] is None for r in pkg_emp["employee"]["rows"]))
+
+
+def _target_opens(row):
+    t = row.get("target")
+    return t is None or bool(env[t["model"]].sudo().browse(t["res_id"]).exists())
+
+
+all_rows = pkg_emp["employee"]["rows"] + pkg_emp["company"]["rows"]
+bad_targets = [r["code"] for r in all_rows if not _target_opens(r)]
+check("пакет: кожен target відкривається", not bad_targets, str(bad_targets))
+
+
+def _rows_by_code(pkg):
+    return {r["code"]: {k: v for k, v in r.items() if k != "target"}
+            for block in ("employee", "company") for r in pkg[block]["rows"]}
+
+
+rows_emp, rows_case = _rows_by_code(pkg_emp), _rows_by_code(pkg_case_after)
+diff = {k: (v, rows_case.get(k)) for k, v in rows_emp.items() if v != rows_case.get(k)}
+check("пакет: картка й справа того самого працівника дають однакові рядки", not diff, str(diff))
+
+card_pkg = emp.get_ua_doc_package()
+check("hr.employee.get_ua_doc_package - той самий спільний метод, не копія", card_pkg == pkg_emp)
+
+payload_after = case._case_payload()
+check("справа: package_split у payload", payload_after["package_split"] == pkg_case_after)
+check("справа: requirements/package/checks лишились у payload",
+      all(k in payload_after for k in ("requirements", "package", "checks")))
+check("справа: other_files - список {name, doc_type, target}",
+      isinstance(payload_after["other_files"], list)
+      and all({"name", "doc_type", "target"} <= set(f) for f in payload_after["other_files"]))
+
 run = case.j30_run_id
 check("J3001005 за місяць першого дня", run.report_code == "j30" and run.month == start.month, run.name)
 check("повідомлення ТЦК містить працівника", emp in case.notice_id.line_ids.mapped("employee_id"))

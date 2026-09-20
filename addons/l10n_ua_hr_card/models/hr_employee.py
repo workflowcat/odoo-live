@@ -154,3 +154,17 @@ class HrEmployee(models.Model):
             "domain": [("employee_id", "=", self.id)],
             "context": {"default_employee_id": self.id},
         }
+
+    def get_ua_doc_package(self):
+        """Пакет документів картки (docs/payroll/spec-intake.md) - той самий package_for, яким
+        користується і справа прийняття (l10n_ua_hire.ua_hire_case._case_payload, "package_split");
+        один спільний метод, не копія його логіки тут.
+
+        l10n_ua_hr_card не залежить від l10n_ua_hr_orders (залежність лише у зворотний бік -
+        як і з order_id у ua_employee_document.py), тож довідник вимог може бути не встановлений;
+        тоді пакет порожній, а не помилка."""
+        self.ensure_one()
+        if "ua.hr.doc.requirement" not in self.env:
+            return {"employee": {"rows": [], "have": 0, "need": 0},
+                    "company": {"rows": [], "done": 0, "need": 0, "signed": 0}, "settings": {}}
+        return self.env["ua.hr.doc.requirement"].package_for(employee=self)

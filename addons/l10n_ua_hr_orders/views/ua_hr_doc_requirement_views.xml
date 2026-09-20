@@ -9,15 +9,35 @@
         <field name="name"/>
         <field name="code"/>
         <field name="applies_to"/>
+        <field name="source"/>
         <field name="active" widget="boolean_toggle"/>
       </list>
+    </field>
+  </record>
+
+  <record id="view_ua_hr_doc_requirement_form" model="ir.ui.view">
+    <field name="name">ua.hr.doc.requirement.form</field>
+    <field name="model">ua.hr.doc.requirement</field>
+    <field name="arch" type="xml">
+      <form>
+        <sheet>
+          <group>
+            <field name="name"/>
+            <field name="code"/>
+            <field name="applies_to"/>
+            <field name="source"/>
+            <field name="sequence"/>
+            <field name="active"/>
+          </group>
+        </sheet>
+      </form>
     </field>
   </record>
 
   <record id="action_ua_hr_doc_requirement" model="ir.actions.act_window">
     <field name="name">Обов'язкові документи</field>
     <field name="res_model">ua.hr.doc.requirement</field>
-    <field name="view_mode">list</field>
+    <field name="view_mode">list,form</field>
     <field name="context">{'active_test': False}</field>
   </record>
 </odoo>
