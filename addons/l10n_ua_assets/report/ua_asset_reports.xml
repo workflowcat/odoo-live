@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- Спільні стилі друкованих форм: моноширинні числа, дрібний шрифт, рамки -->
+  <template id="ua_asset_styles">
+    <style>
+      .ua-form { font-family: DejaVu Sans, sans-serif; font-size: 10px; color: #000; }
+      .ua-form h3 { font-size: 13px; text-align: center; margin: 6px 0 2px 0; }
+      .ua-form .ua-sub { text-align: center; font-size: 9px; margin-bottom: 8px; }
+      .ua-form table.ua-grid { width: 100%; border-collapse: collapse; margin-top: 6px; }
+      .ua-form table.ua-grid th, .ua-form table.ua-grid td { border: 1px solid #000; padding: 2px 3px; vertical-align: top; }
+      .ua-form table.ua-grid th { font-weight: normal; font-size: 9px; text-align: center; }
+      .ua-form .ua-head td { padding: 1px 3px; font-size: 10px; }
+      .ua-form .ua-num { text-align: right; white-space: nowrap; }
+      .ua-form .ua-sign { margin-top: 14px; font-size: 10px; }
+      .ua-form .ua-line { border-bottom: 1px solid #000; display: inline-block; min-width: 150px; }
+    </style>
+  </template>
+
+  <!-- Шапка підприємства, спільна для ОЗ-1, ОЗ-3, ОЗ-6 -->
+  <template id="ua_asset_company_head">
+    <table class="ua-head" style="width:100%;">
+      <tr>
+        <td style="width:60%">Підприємство <span class="ua-line"><t t-out="doc.company_id.name"/></span></td>
+        <td>Код за ЄДРПОУ <span class="ua-line"><t t-out="doc.company_id.company_registry or ''"/></span></td>
+      </tr>
+      <tr>
+        <td>Цех, відділ, дільниця <span class="ua-line"><t t-out="doc.ua_location or ''"/></span></td>
+        <td>Типова форма <t t-out="form_code"/></td>
+      </tr>
+    </table>
+  </template>
+
+  <!-- ================= ОЗ-1: акт приймання-передачі (введення в експлуатацію) -->
+  <record id="action_report_ua_asset_oz1" model="ir.actions.report">
+    <field name="name">ОЗ-1 Акт введення в експлуатацію</field>
+    <field name="model">account.asset</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_assets.report_ua_asset_oz1</field>
+    <field name="report_file">l10n_ua_assets.report_ua_asset_oz1</field>
+    <field name="print_report_name">'ОЗ-1 %s' % (object.code or object.name)</field>
+    <field name="binding_model_id" ref="account_asset_management.model_account_asset"/>
+    <field name="binding_type">report</field>
+  </record>
+
+  <template id="report_ua_asset_oz1">
+    <t t-call="web.basic_layout">
+      <t t-foreach="docs" t-as="doc">
+        <div class="page ua-form">
+          <t t-call="l10n_ua_assets.ua_asset_styles"/>
+          <t t-set="form_code" t-value="'ОЗ-1'"/>
+          <t t-call="l10n_ua_assets.ua_asset_company_head"/>
+          <div style="text-align:right; margin-top:6px;">
+            ЗАТВЕРДЖУЮ<br/>
+            Керівник <span class="ua-line"/> <span class="ua-line"/><br/>
+            <span style="font-size:8px;">(підпис, прізвище)</span><br/>
+            «___» ____________ 20___ р.
+          </div>
+          <h3>АКТ № <t t-out="doc.code or '______'"/><br/>приймання-передачі (внутрішнього переміщення) основних засобів</h3>
+          <div class="ua-sub">складений «<t t-out="doc.date_start and doc.date_start.strftime('%d') or '__'"/>»
+            <t t-out="doc.date_start and doc.date_start.strftime('%m.%Y') or '____________ 20___'"/> р.
+            про введення об'єкта в експлуатацію
+          </div>
+
+          <table class="ua-grid">
+            <thead>
+              <tr>
+                <th>Дебет рахунку</th>
+                <th>Кредит рахунку</th>
+                <th>Первісна вартість, грн</th>
+                <th>Строк корисного використання, міс.</th>
+                <th>Сума зносу, грн</th>
+                <th>Норма амортизації за місяць, грн</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="ua-num"><t t-out="doc.profile_id.account_asset_id.code or ''"/></td>
+                <td class="ua-num">152</td>
+                <td class="ua-num"><t t-out="'{:,.2f}'.format(doc.purchase_value).replace(',', '&#160;')"/></td>
+                <td class="ua-num"><t t-out="doc.ua_life_months"/></td>
+                <td class="ua-num"><t t-out="'{:,.2f}'.format(doc.value_depreciated).replace(',', '&#160;')"/></td>
+                <td class="ua-num">
+                  <t t-if="doc.ua_life_months">
+                    <t t-out="'{:,.2f}'.format(doc.depreciation_base / doc.ua_life_months).replace(',', '&#160;')"/>
+                  </t>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <table class="ua-grid">
+            <thead>
+              <tr>
+                <th>Назва об'єкта</th>
+                <th>Інвентарний номер</th>
+                <th>Заводський номер</th>
+                <th>Номер паспорта</th>
+                <th>Виробник</th>
+                <th>Рік випуску (побудови)</th>
+                <th>Дата введення в експлуатацію</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><t t-out="doc.name"/></td>
+                <td><t t-out="doc.code or ''"/></td>
+                <td><t t-out="doc.ua_factory_number or ''"/></td>
+                <td><t t-out="doc.ua_passport_number or ''"/></td>
+                <td><t t-out="doc.ua_manufacturer or ''"/></td>
+                <td><t t-out="doc.ua_year_built or ''"/></td>
+                <td><t t-out="doc.date_start and doc.date_start.strftime('%d.%m.%Y') or ''"/></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="margin-top:6px;">
+            Податкова група: <t t-out="doc.profile_id.name or ''"/>.
+            Амортизація з <t t-out="doc.ua_depreciation_start and doc.ua_depreciation_start.strftime('%m.%Y') or ''"/>
+            (п. 29 П(С)БО 7 - з місяця, наступного за місяцем введення в експлуатацію).
+          </div>
+          <div t-if="doc.ua_life_warning" style="margin-top:4px;">
+            <t t-out="doc.ua_life_warning"/>
+          </div>
+
+          <div style="margin-top:8px;">Висновок комісії: об'єкт відповідає технічним умовам і придатний до експлуатації.</div>
+          <div class="ua-sign">
+            Голова комісії <span class="ua-line"/> <span class="ua-line"/><br/>
+            <t t-if="doc.ua_commission">
+              <t t-foreach="doc.ua_commission.splitlines()" t-as="member">
+                Член комісії <span class="ua-line"><t t-out="member"/></span> <span class="ua-line"/><br/>
+              </t>
+            </t>
+            <t t-else="">
+              Член комісії <span class="ua-line"/> <span class="ua-line"/><br/>
+              Член комісії <span class="ua-line"/> <span class="ua-line"/><br/>
+            </t>
+            Об'єкт прийняв <span class="ua-line"><t t-out="doc.ua_responsible or ''"/></span> <span class="ua-line"/><br/>
+            Головний бухгалтер <span class="ua-line"/> <span class="ua-line"/>
+          </div>
+        </div>
+      </t>
+    </t>
+  </template>
+
+  <!-- ================= ОЗ-3: акт списання основних засобів ================= -->
+  <record id="action_report_ua_asset_oz3" model="ir.actions.report">
+    <field name="name">ОЗ-3 Акт списання</field>
+    <field name="model">account.asset</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_assets.report_ua_asset_oz3</field>
+    <field name="report_file">l10n_ua_assets.report_ua_asset_oz3</field>
+    <field name="print_report_name">'ОЗ-3 %s' % (object.code or object.name)</field>
+    <field name="binding_model_id" ref="account_asset_management.model_account_asset"/>
+    <field name="binding_type">report</field>
+  </record>
+
+  <template id="report_ua_asset_oz3">
+    <t t-call="web.basic_layout">
+      <t t-foreach="docs" t-as="doc">
+        <div class="page ua-form">
+          <t t-call="l10n_ua_assets.ua_asset_styles"/>
+          <t t-set="form_code" t-value="'ОЗ-3'"/>
+          <t t-call="l10n_ua_assets.ua_asset_company_head"/>
+          <div style="text-align:right; margin-top:6px;">
+            ЗАТВЕРДЖУЮ<br/>
+            Керівник <span class="ua-line"/> <span class="ua-line"/><br/>
+            «___» ____________ 20___ р.
+          </div>
+          <h3>АКТ № <t t-out="doc.code or '______'"/><br/>на списання основних засобів</h3>
+          <div class="ua-sub">складений «<t t-out="doc.date_remove and doc.date_remove.strftime('%d') or '__'"/>»
+            <t t-out="doc.date_remove and doc.date_remove.strftime('%m.%Y') or '____________ 20___'"/> р.
+          </div>
+
+          <table class="ua-grid">
+            <thead>
+              <tr>
+                <th>Назва об'єкта</th>
+                <th>Інвентарний номер</th>
+                <th>Дата введення в експлуатацію</th>
+                <th>Первісна вартість, грн</th>
+                <th>Сума зносу, грн</th>
+                <th>Залишкова вартість, грн</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><t t-out="doc.name"/></td>
+                <td><t t-out="doc.code or ''"/></td>
+                <td><t t-out="doc.date_start and doc.date_start.strftime('%d.%m.%Y') or ''"/></td>
+                <td class="ua-num"><t t-out="'{:,.2f}'.format(doc.purchase_value).replace(',', '&#160;')"/></td>
+                <td class="ua-num"><t t-out="'{:,.2f}'.format(doc.value_depreciated).replace(',', '&#160;')"/></td>
+                <td class="ua-num"><t t-out="'{:,.2f}'.format(doc.value_residual).replace(',', '&#160;')"/></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="margin-top:6px;">Причина списання: <t t-out="doc.ua_disposal_reason or '________________________________________'"/></div>
+          <div style="margin-top:4px;">
+            Проводка списання: Дт <t t-out="doc.profile_id.account_depreciation_id.code or ''"/> (знос),
+            Дт <t t-out="doc.profile_id.account_residual_value_id.code or '976'"/> (залишкова вартість),
+            Кт <t t-out="doc.profile_id.account_asset_id.code or ''"/>.
+          </div>
+
+          <h3 style="margin-top:10px; font-size:11px;">Розрахунок результатів списання</h3>
+          <table class="ua-grid">
+            <thead>
+              <tr>
+                <th>Витрати на списання, грн</th>
+                <th>Вартість одержаних матеріальних цінностей, грн</th>
+                <th>Результат, грн</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="ua-num"></td><td class="ua-num"></td><td class="ua-num"></td></tr>
+            </tbody>
+          </table>
+
+          <div class="ua-sign">
+            Голова комісії <span class="ua-line"/> <span class="ua-line"/><br/>
+            <t t-if="doc.ua_commission">
+              <t t-foreach="doc.ua_commission.splitlines()" t-as="member">
+                Член комісії <span class="ua-line"><t t-out="member"/></span> <span class="ua-line"/><br/>
+              </t>
+            </t>
+            <t t-else="">
+              Член комісії <span class="ua-line"/> <span class="ua-line"/><br/>
+              Член комісії <span class="ua-line"/> <span class="ua-line"/><br/>
+            </t>
+            Головний бухгалтер <span class="ua-line"/> <span class="ua-line"/>
+          </div>
+        </div>
+      </t>
+    </t>
+  </template>
+
+  <!-- ================= ОЗ-6: інвентарна картка ============================= -->
+  <record id="action_report_ua_asset_oz6" model="ir.actions.report">
+    <field name="name">ОЗ-6 Інвентарна картка</field>
+    <field name="model">account.asset</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_assets.report_ua_asset_oz6</field>
+    <field name="report_file">l10n_ua_assets.report_ua_asset_oz6</field>
+    <field name="print_report_name">'ОЗ-6 %s' % (object.code or object.name)</field>
+    <field name="binding_model_id" ref="account_asset_management.model_account_asset"/>
+    <field name="binding_type">report</field>
+  </record>
+
+  <template id="report_ua_asset_oz6">
+    <t t-call="web.basic_layout">
+      <t t-foreach="docs" t-as="doc">
+        <div class="page ua-form">
+          <t t-call="l10n_ua_assets.ua_asset_styles"/>
+          <t t-set="form_code" t-value="'ОЗ-6'"/>
+          <t t-call="l10n_ua_assets.ua_asset_company_head"/>
+          <h3>ІНВЕНТАРНА КАРТКА № <t t-out="doc.code or '______'"/><br/>обліку основних засобів</h3>
+
+          <table class="ua-grid">
+            <tbody>
+              <tr>
+                <td style="width:25%">Назва об'єкта</td>
+                <td style="width:25%"><t t-out="doc.name"/></td>
+                <td style="width:25%">Рахунок, субрахунок</td>
+                <td><t t-out="doc.profile_id.account_asset_id.code or ''"/> <t t-out="doc.profile_id.account_asset_id.name or ''"/></td>
+              </tr>
+              <tr>
+                <td>Інвентарний номер</td>
+                <td><t t-out="doc.code or ''"/></td>
+                <td>Рахунок зносу</td>
+                <td><t t-out="doc.profile_id.account_depreciation_id.code or ''"/></td>
+              </tr>
+              <tr>
+                <td>Заводський номер</td>
+                <td><t t-out="doc.ua_factory_number or ''"/></td>
+                <td>Рахунок витрат</td>
+                <td><t t-out="doc.profile_id.account_expense_depreciation_id.code or ''"/></td>
+              </tr>
+              <tr>
+                <td>Виробник, рік випуску</td>
+                <td><t t-out="doc.ua_manufacturer or ''"/> <t t-out="doc.ua_year_built or ''"/></td>
+                <td>Податкова група</td>
+                <td><t t-out="doc.profile_id.name or ''"/></td>
+              </tr>
+              <tr>
+                <td>Місцезнаходження</td>
+                <td><t t-out="doc.ua_location or ''"/></td>
+                <td>Матеріально відповідальна особа</td>
+                <td><t t-out="doc.ua_responsible or ''"/></td>
+              </tr>
+              <tr>
+                <td>Дата введення в експлуатацію</td>
+                <td><t t-out="doc.date_start and doc.date_start.strftime('%d.%m.%Y') or ''"/></td>
+                <td>Строк корисного використання, міс.</td>
+                <td><t t-out="doc.ua_life_months"/></td>
+              </tr>
+              <tr>
+                <td>Первісна вартість, грн</td>
+                <td class="ua-num"><t t-out="'{:,.2f}'.format(doc.purchase_value).replace(',', '&#160;')"/></td>
+                <td>Ліквідаційна вартість, грн</td>
+                <td class="ua-num"><t t-out="'{:,.2f}'.format(doc.salvage_value).replace(',', '&#160;')"/></td>
+              </tr>
+              <tr>
+                <td>Накопичений знос, грн</td>
+                <td class="ua-num"><t t-out="'{:,.2f}'.format(doc.value_depreciated).replace(',', '&#160;')"/></td>
+                <td>Залишкова вартість, грн</td>
+                <td class="ua-num"><t t-out="'{:,.2f}'.format(doc.value_residual).replace(',', '&#160;')"/></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 style="margin-top:10px; font-size:11px;">Нарахування амортизації</h3>
+          <table class="ua-grid">
+            <thead>
+              <tr>
+                <th>Період</th>
+                <th>Сума амортизації, грн</th>
+                <th>Накопичено, грн</th>
+                <th>Залишок, грн</th>
+                <th>Проведено</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr t-foreach="doc.depreciation_line_ids.filtered(lambda l: l.type == 'depreciate').sorted(key=lambda l: l.line_date)" t-as="line">
+                <td><t t-out="line.line_date.strftime('%m.%Y')"/></td>
+                <td class="ua-num"><t t-out="'{:,.2f}'.format(line.amount).replace(',', '&#160;')"/></td>
+                <td class="ua-num"><t t-out="'{:,.2f}'.format(line.depreciated_value + line.amount).replace(',', '&#160;')"/></td>
+                <td class="ua-num"><t t-out="'{:,.2f}'.format(line.remaining_value).replace(',', '&#160;')"/></td>
+                <td><t t-out="'так' if line.move_check else ''"/></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="ua-sign">
+            Картку заповнив <span class="ua-line"/> <span class="ua-line"/><br/>
+            «___» ____________ 20___ р.
+          </div>
+        </div>
+      </t>
+    </t>
+  </template>
+
+</odoo>

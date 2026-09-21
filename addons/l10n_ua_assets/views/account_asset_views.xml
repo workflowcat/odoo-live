@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="view_account_asset_form_ua" model="ir.ui.view">
+    <field name="name">account.asset.form.ua</field>
+    <field name="model">account.asset</field>
+    <field name="inherit_id" ref="account_asset_management.account_asset_view_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='date_start']" position="after">
+        <field name="ua_depreciation_start" readonly="1"/>
+        <field name="ua_start_next_month" readonly="state != 'draft'"/>
+      </xpath>
+      <xpath expr="//notebook" position="inside">
+        <page string="Українські реквізити" name="ua_paper">
+          <group>
+            <group string="Об'єкт">
+              <field name="ua_factory_number"/>
+              <field name="ua_passport_number"/>
+              <field name="ua_manufacturer"/>
+              <field name="ua_year_built"/>
+            </group>
+            <group string="Облік і відповідальність">
+              <field name="ua_location"/>
+              <field name="ua_responsible"/>
+              <field name="ua_life_months" readonly="1"/>
+              <field name="ua_life_warning" readonly="1" invisible="not ua_life_warning"/>
+            </group>
+          </group>
+          <group>
+            <field name="ua_commission" placeholder="Посада і прізвище, по одному в рядку"/>
+            <field name="ua_disposal_reason"/>
+          </group>
+        </page>
+      </xpath>
+    </field>
+  </record>
+
+</odoo>

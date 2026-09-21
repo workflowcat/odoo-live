@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="action_report_ua_depreciation_sheet" model="ir.actions.report">
+    <field name="name">Відомість нарахування амортизації</field>
+    <field name="model">ua.depreciation.sheet</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_assets.report_ua_depreciation_sheet</field>
+    <field name="report_file">l10n_ua_assets.report_ua_depreciation_sheet</field>
+    <field name="print_report_name">'Відомість амортизації %s-%s' % (object.year, object.month)</field>
+  </record>
+
+  <template id="report_ua_depreciation_sheet">
+    <t t-call="web.basic_layout">
+      <t t-foreach="docs" t-as="doc">
+        <div class="page" style="font-family: DejaVu Sans, sans-serif; font-size:10px;">
+          <t t-set="rows" t-value="doc.sheet_rows()"/>
+          <div><t t-out="doc.company_id.name"/></div>
+          <h3 style="text-align:center; font-size:13px; margin:6px 0;">
+            ВІДОМІСТЬ нарахування амортизації за <t t-out="doc.month_name()"/> <t t-out="doc.year"/> р.
+          </h3>
+          <table class="table table-sm" style="font-size:10px; width:100%; border-collapse:collapse;">
+            <thead>
+              <tr style="border-bottom:1px solid #000;">
+                <th>№</th>
+                <th>Інв. номер</th>
+                <th>Об'єкт</th>
+                <th>Група</th>
+                <th class="text-end">Первісна вартість</th>
+                <th class="text-end">Амортизація за місяць</th>
+                <th class="text-end">Накопичено</th>
+                <th class="text-end">Залишок</th>
+                <th>Дт</th>
+                <th>Кт</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr t-foreach="rows" t-as="row">
+                <td><t t-out="row_index + 1"/></td>
+                <td><t t-out="row['code']"/></td>
+                <td><t t-out="row['name']"/></td>
+                <td><t t-out="row['group']"/></td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(row['purchase_value']).replace(',', '&#160;')"/></td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(row['amount']).replace(',', '&#160;')"/></td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(row['depreciated']).replace(',', '&#160;')"/></td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(row['residual']).replace(',', '&#160;')"/></td>
+                <td><t t-out="row['expense']"/></td>
+                <td><t t-out="row['depreciation']"/></td>
+              </tr>
+              <tr style="font-weight:bold; border-top:2px solid #333;">
+                <td colspan="5">Разом</td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(doc.total()).replace(',', '&#160;')"/></td>
+                <td colspan="4"></td>
+              </tr>
+            </tbody>
+          </table>
+          <div t-if="not rows" style="margin-top:8px;">За цей місяць амортизації не нараховано.</div>
+          <table style="width:100%; margin-top:24px; font-size:10px;"><tr>
+            <td style="width:50%">Склав ____________________</td>
+            <td>Головний бухгалтер ____________________</td>
+          </tr></table>
+        </div>
+      </t>
+    </t>
+  </template>
+
+</odoo>

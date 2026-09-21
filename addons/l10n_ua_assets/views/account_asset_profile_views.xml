@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="view_account_asset_profile_form_ua" model="ir.ui.view">
+    <field name="name">account.asset.profile.form.ua</field>
+    <field name="model">account.asset.profile</field>
+    <field name="inherit_id" ref="account_asset_management.account_asset_profile_view_form"/>
+    <field name="arch" type="xml">
+      <field name="method_number" position="after">
+        <field name="ua_tax_group"/>
+        <field name="ua_rule"/>
+        <field name="ua_min_months"/>
+        <field name="ua_start_next_month"/>
+      </field>
+    </field>
+  </record>
+
+  <record id="view_account_asset_profile_list_ua" model="ir.ui.view">
+    <field name="name">account.asset.profile.list.ua</field>
+    <field name="model">account.asset.profile</field>
+    <field name="inherit_id" ref="account_asset_management.account_asset_profile_view_tree"/>
+    <field name="arch" type="xml">
+      <field name="name" position="after">
+        <field name="ua_tax_group" optional="show"/>
+        <field name="ua_min_months" optional="hide"/>
+      </field>
+    </field>
+  </record>
+
+</odoo>
