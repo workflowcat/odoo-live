@@ -54,12 +54,18 @@
             action="l10n_ua_changes.action_ua_period_close" sequence="7" active="False"/>
   <menuitem id="l10n_ua_changes.menu_ua_changes_root" name="Журнал змін"
             parent="l10n_ua_period.menu_ua_period_root" sequence="8"/>
+  <!-- Пункт оголошено в логічному модулі l10n_ua_gph без батька: розділ-батько живе тут,
+       в інтерфейсі. Ідентифікатор лишається за своїм модулем, тому в базі нічого не переїжджає. -->
+  <menuitem id="l10n_ua_gph.menu_ua_gph" name="Договори ЦПХ"
+            parent="l10n_ua_period.menu_ua_period_root" sequence="6"/>
 
   <!-- ================================================================= 2. Працівники -->
   <!-- «Люди»: один екран замість чотирьох пунктів нижче (spec-people.md). Пункти лишаються
        вимкненими (active="False"), не видаленими - самі дії лишаються, бо на них ведуть
        цілі з інших екранів (наприклад, «Штатний розпис» цього екрана відкриває чинний
        ua.staff.list через ту саму дію, що стояла за пунктом «Штатні розписи»). -->
+  <menuitem id="l10n_ua_hire.menu_ua_hire" name="Прийняття"
+            parent="menu_ua_people_root" sequence="0"/>
   <menuitem id="menu_ua_people_screen" name="Люди" parent="menu_ua_people_root"
             action="l10n_ua_people.action_ua_people" sequence="0" groups="hr.group_hr_user"/>
   <menuitem id="menu_ua_people_employees" name="Картки працівників" parent="menu_ua_people_root"
@@ -78,7 +84,8 @@
             parent="menu_ua_people_root" sequence="5" active="False"/>
   <menuitem id="l10n_ua_hr_orders.menu_ua_hr_doc_requirement" name="Обов'язкові документи"
             parent="menu_ua_people_root" sequence="6"/>
-  <menuitem id="l10n_ua_hr_orders.menu_ua_hr_doc_pack" active="False"/>
+  <menuitem id="l10n_ua_hr_orders.menu_ua_hr_doc_pack"
+            parent="l10n_ua_payroll_ui.menu_ua_payroll_docs" active="False"/>
   <!-- військовий облік лишається групою: свого екрана в нього ще немає -->
   <menuitem id="l10n_ua_payroll_ui.menu_ua_military" name="Військовий облік"
             parent="menu_ua_people_root" sequence="9"/>
@@ -116,6 +123,9 @@
             action="l10n_ua_payroll_rules.action_ua_payroll_param" sequence="2"/>
   <menuitem id="menu_ua_setup_cpi" name="Індекси споживчих цін" parent="menu_ua_setup_root"
             action="l10n_ua_index.action_ua_cpi_index" sequence="3"/>
+  <!-- Довідник кодів професій оголошено в l10n_ua_kp без батька: розділ-батько живе тут. -->
+  <menuitem id="l10n_ua_kp.menu_ua_kp_code" name="Коди професій"
+            parent="menu_ua_setup_root" sequence="35"/>
   <menuitem id="menu_ua_setup_accounts" name="Проводки зарплати" parent="menu_ua_setup_root"
             action="l10n_ua_payroll_account.action_ua_payroll_account_map" sequence="4"/>
   <menuitem id="l10n_ua_average.menu_ua_earnings_history" name="Історія заробітку"
@@ -160,7 +170,8 @@
   <menuitem id="l10n_ua_payroll_reports.menu_ua_hire_notice" active="False"/>
   <menuitem id="l10n_ua_hr_docs.menu_ua_staff_list" active="False"/>
   <menuitem id="l10n_ua_hr_docs.menu_ua_timesheet" active="False"/>
-  <menuitem id="l10n_ua_hr_orders.menu_ua_hr_order_register" active="False"/>
+  <menuitem id="l10n_ua_hr_orders.menu_ua_hr_order_register"
+            parent="l10n_ua_payroll_ui.menu_ua_payroll_docs" active="False"/>
   <menuitem id="l10n_ua_payroll_rules.menu_ua_advance" active="False"/>
 
   <!-- Стандартні застосунки, яких бухгалтер не використовує: лише в режимі розробника.
@@ -190,9 +201,11 @@
 
   <!-- Пункти-дублі: та сама дія вже є в новому розділі або в картці працівника. -->
   <menuitem id="l10n_ua_payroll_ui.menu_ua_income_certificate" active="False"/>
-  <menuitem id="l10n_ua_hr_orders.menu_ua_hr_order" active="False"/>
+  <menuitem id="l10n_ua_hr_orders.menu_ua_hr_order"
+            parent="l10n_ua_payroll_ui.menu_ua_payroll_docs" active="False"/>
   <menuitem id="l10n_ua_payroll_ui.menu_ua_timesheet_docs" active="False"/>
-  <menuitem id="l10n_ua_changes.menu_ua_period_close" active="False"/>
+  <menuitem id="l10n_ua_changes.menu_ua_period_close"
+            parent="l10n_ua_payroll_ui.menu_ua_payroll_calc" active="False"/>
   <menuitem id="l10n_ua_index.menu_ua_cpi_index" active="False"/>
   <menuitem id="l10n_ua_payroll_rules.menu_ua_payroll_param" active="False"/>
   <menuitem id="l10n_ua_payroll_account.menu_ua_payroll_account_map" active="False"/>

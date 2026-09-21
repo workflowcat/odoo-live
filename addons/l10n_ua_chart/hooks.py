@@ -12,6 +12,8 @@ import re
 
 _logger = logging.getLogger(__name__)
 
+UK = "uk_UA"
+
 JOURNALS = {
     "Sales": "Реалізація", "Purchases": "Придбання", "Miscellaneous Operations": "Інші операції",
     "Cash Basis Taxes": "Податки за касовим методом", "Exchange Difference": "Курсові різниці",
@@ -20,9 +22,28 @@ JOURNALS = {
 }
 
 
+def _ensure_uk_lang(env):
+    """Увімкнути uk_UA разом із перекладами.
+
+    На порожній базі Odoo ставиться англійською, і uk_UA лежить у res.lang вимкненою:
+    будь-який with_context(lang="uk_UA") нижче падає з «Invalid language code». Той самий
+    запобіжник стоїть у l10n_ua_payroll_rules - це дві різні гілки графа залежностей."""
+    Lang = env["res.lang"].with_context(active_test=False)
+    lang = Lang.search([("code", "=", UK)], limit=1)
+    if not lang or lang.active:
+        return lang
+    try:
+        env["base.language.install"].create({
+            "lang_ids": [(6, 0, lang.ids)], "overwrite": False,
+        }).lang_install()
+    except Exception as e:   # переклади недоступні - достатньо самої мови
+        _logger.warning("Не вдалося завантажити переклади uk_UA (%s); вмикаємо мову без них", e)
+        env["res.lang"]._activate_lang(UK)
+    return Lang.search([("code", "=", UK)], limit=1)
+
+
 def _load_uk_names(env):
-    lang = env["res.lang"].with_context(active_test=False).search([("code", "=", "uk_UA")])
-    if not lang:
+    if not _ensure_uk_lang(env):
         return
     try:
         env["account.chart.template"]._load_translations(langs=["uk_UA"], companies=env["res.company"].search([]))
@@ -56,6 +77,8 @@ def _short_codes(env):
 
 
 def _journal_names(env):
+    if not _ensure_uk_lang(env):
+        return
     for journal in env["account.journal"].sudo().search([]):
         uk = JOURNALS.get(journal.name)
         if uk:
@@ -71,6 +94,8 @@ CORE_ACCOUNTS = {
 
 
 def _core_account_names(env):
+    if not _ensure_uk_lang(env):
+        return
     Account = env["account.account"].sudo()
     for code, uk in CORE_ACCOUNTS.items():
         for account in Account.search([("code", "=", code)]):
@@ -79,6 +104,7 @@ def _core_account_names(env):
 
 
 def post_init_hook(env):
+    _ensure_uk_lang(env)
     _load_uk_names(env)
     _short_codes(env)
     _journal_names(env)

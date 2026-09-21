@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
 """Список заброньованих на дату: документ з рядками по кожному із ua_mil_reserved."""
+from datetime import date as date_type, timedelta
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
 STATES = [("draft", "Чернетка"), ("confirmed", "Затверджено")]
+
+
+def _month_end(year, month):
+    """Останній день місяця."""
+    return date_type(year + (month == 12), month % 12 + 1, 1) - timedelta(days=1)
 
 
 class UaMilitaryReserved(models.Model):
@@ -28,6 +35,22 @@ class UaMilitaryReserved(models.Model):
     def _unlink_except_draft(self):
         if any(doc.state != "draft" for doc in self):
             raise UserError("Видалити можна лише чернетку списку заброньованих.")
+
+    @api.model
+    def ua_compose(self, company, year=None, month=None, date=None, **params):
+        """Новий список заброньованих на дату, одразу заповнений.
+
+        Дата - явна, якщо її передали, інакше останній день місяця («Папери» складають
+        список періоду). Що в список входить - питання до самого списку, не до екрана."""
+        if isinstance(company, int):
+            company = self.env["res.company"].browse(company)
+        company = company or self.env.company
+        if not date:
+            date = (_month_end(int(year), int(month)) if year and month
+                    else fields.Date.context_today(self))
+        doc = self.create({"company_id": company.id, "date": date})
+        doc.action_refill()
+        return doc
 
     def action_refill(self):
         for doc in self:

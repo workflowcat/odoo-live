@@ -12,7 +12,9 @@ import os
 import urllib.request
 
 ENV = dict(l.split("=", 1) for l in open(".env").read().splitlines() if "=" in l and not l.startswith("#"))
-BASE = "http://127.0.0.1:8110"
+# Порт стенду береться з .env цього ж дерева: інакше скрипт стукав у сусідній стенд на 8110.
+PORT = (os.environ.get("ODOO_PORT") or ENV.get("ODOO_PORT", "8110")).strip()
+BASE = os.environ.get("ODOO_URL", f"http://127.0.0.1:{PORT}").rstrip("/")
 URL = f"{BASE}/jsonrpc"
 DB = os.environ.get("PAYROLL_CHECK_DB", "payroll_test")
 PW = ENV["ODOO_ADMIN_USER_PASSWORD"].strip()

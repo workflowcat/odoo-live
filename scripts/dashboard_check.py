@@ -133,10 +133,9 @@ else:
         check(f"{LANA_LOGIN} бачить меню «Зведення» (load_menus)", dash_menu is not None,
               "" if dash_menu else "меню не знайдено серед видимих")
 
-        # Пульт команд тепер лише внизу «Зведення»; окреме меню хабу бачить тільки адміністратор
-        hub_menu = next((m for m in menus.values() if isinstance(m, dict) and m.get("xmlid") == "l10n_ua_hub.menu_ua_hub_root"), None)
-        check(f"{LANA_LOGIN} не бачить окремого меню хабу", hub_menu is None,
-              "сховано" if hub_menu is None else "меню видно, хоча має бути лише в адміністратора")
+        # Модуль «Пульт команд» (l10n_ua_hub) видалено: ні меню, ні блоку на панелі.
+        check("модуля пульта команд немає в системі",
+              not call("ir.module.module", "search_count", [["name", "=", "l10n_ua_hub"], ["state", "=", "installed"]]))
         check("пульту команд більше немає ні в меню, ні на панелі", "hub" not in data, str("hub" in data))
 
         # lana може викликати get_data (перевірка прав ir.model.access)

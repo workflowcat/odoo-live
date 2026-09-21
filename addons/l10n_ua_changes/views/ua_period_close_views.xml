@@ -63,7 +63,8 @@
     <field name="view_mode">list,form</field>
   </record>
 
+  <!-- Батьківський розділ живе в інтерфейсі (l10n_ua_payroll_ui), тому місце пункту
+       ставить l10n_ua_navigation: журнал змін - логіка і від інтерфейсу не залежить. -->
   <menuitem id="menu_ua_period_close" name="Закриті періоди"
-            parent="l10n_ua_payroll_ui.menu_ua_payroll_calc"
             action="action_ua_period_close" sequence="80" groups="account.group_account_manager"/>
 </odoo>

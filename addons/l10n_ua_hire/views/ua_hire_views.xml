@@ -4,7 +4,10 @@
     <field name="name">Прийняття</field>
     <field name="tag">ua_hire</field>
   </record>
-  <menuitem id="menu_ua_hire" name="Прийняття" parent="l10n_ua_navigation.menu_ua_people_root"
+  <!-- Місце пункту в розділі «Працівники» ставить l10n_ua_navigation: справа прийняття -
+       логіка, і на модулі інтерфейсу не спирається. Запис лишається тут, тож
+       ідентифікатор l10n_ua_hire.menu_ua_hire не змінюється. -->
+  <menuitem id="menu_ua_hire" name="Прийняття"
             action="action_ua_hire" sequence="0" groups="hr.group_hr_user"/>
 
   <!-- «Новий працівник» зі списку працівників веде повз перевірки справи прийняття (обов'язкові

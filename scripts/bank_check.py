@@ -82,7 +82,7 @@ check("служба «Monobank» є у списку", services.get("ua_mono") ==
 # 3. З'єднання: створюємо дією екрана, вмикаємо демо-режим
 provider_ids = call("online.bank.statement.provider", "search", [["journal_id", "=", journal_id]])
 if not provider_ids:
-    action = call("ua.bank.board", "action_create_provider", journal_id, "ua_privat")
+    action = call("ua.bank.ops", "action_create_provider", journal_id, "ua_privat")
     check("action_create_provider повертає форму з'єднання", action.get("res_model") == "online.bank.statement.provider")
     provider_ids = [action["res_id"]]
 else:
@@ -95,17 +95,17 @@ check("з'єднання прив'язане до журналу і в демо-
       provider["ua_demo"] and provider["journal_id"][0] == journal_id, f"служба {provider['service']}")
 
 # 4. Перевірка зв'язку в демо-режимі не ходить у мережу
-result = call("ua.bank.board", "action_test", journal_id)
+result = call("ua.bank.ops", "action_test", journal_id)
 check("action_test у демо-режимі відповідає без мережі", bool(result), str(result)[:120])
 
 # 5. Завантаження в порожній місяць (два місяці вперед, щоб не чіпати дані стенду)
 TEST_YEAR, TEST_MONTH = (YEAR + 1, MONTH + 2 - 12) if MONTH + 2 > 12 else (YEAR, MONTH + 2)
 before = call("account.bank.statement.line", "search_count", [["journal_id", "=", journal_id]])
-pull = call("ua.bank.board", "action_pull_month", journal_id, TEST_YEAR, TEST_MONTH)
+pull = call("ua.bank.ops", "action_pull_month", journal_id, TEST_YEAR, TEST_MONTH)
 check("завантаження створило рядки виписки", pull.get("created", 0) >= 8, pull.get("message", ""))
 
 # 6. Повторне завантаження не дублює (unique_import_id)
-again = call("ua.bank.board", "action_pull_month", journal_id, TEST_YEAR, TEST_MONTH)
+again = call("ua.bank.ops", "action_pull_month", journal_id, TEST_YEAR, TEST_MONTH)
 check("повторне завантаження не дублює рядків", again.get("created", 0) == 0, f"створено {again.get('created')}")
 after = call("account.bank.statement.line", "search_count", [["journal_id", "=", journal_id]])
 check("кількість рядків зросла рівно на завантажене", after - before == pull.get("created", 0),

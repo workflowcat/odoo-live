@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Пункти меню наказів. Батьківського розділу тут немає навмисно: розділи меню живуть
+     в інтерфейсі (l10n_ua_payroll_ui, l10n_ua_navigation), а модуль наказів - логіка і
+     від інтерфейсу не залежить. Місце кожного пункту ставить l10n_ua_navigation. -->
 <odoo>
-  <menuitem id="menu_ua_hr_order" name="Накази" parent="l10n_ua_payroll_ui.menu_ua_payroll_docs"
+  <menuitem id="menu_ua_hr_order" name="Накази"
             action="action_ua_hr_order" sequence="1" groups="hr.group_hr_user"/>
-  <menuitem id="menu_ua_hr_order_register" name="Журнал реєстрації" parent="l10n_ua_payroll_ui.menu_ua_payroll_docs"
+  <menuitem id="menu_ua_hr_order_register" name="Журнал реєстрації"
             action="l10n_ua_hr_orders.action_ua_hr_order_register_wizard" sequence="2" groups="hr.group_hr_user"/>
-  <menuitem id="menu_ua_hr_doc_pack" name="Перевірка документів" parent="l10n_ua_payroll_ui.menu_ua_payroll_docs"
+  <menuitem id="menu_ua_hr_doc_pack" name="Перевірка документів"
             action="l10n_ua_hr_orders.action_ua_hr_doc_pack_wizard" sequence="3" groups="hr.group_hr_user"/>
-  <menuitem id="menu_ua_hr_doc_requirement" name="Обов'язкові документи" parent="l10n_ua_payroll_ui.menu_ua_payroll_docs"
+  <menuitem id="menu_ua_hr_doc_requirement" name="Обов'язкові документи"
             action="action_ua_hr_doc_requirement" sequence="4" groups="hr.group_hr_manager"/>
 </odoo>

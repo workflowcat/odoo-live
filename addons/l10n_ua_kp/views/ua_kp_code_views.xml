@@ -20,7 +20,9 @@
     <field name="view_mode">list,form</field>
   </record>
 
+  <!-- Місце пункту в розділі «Налаштування зарплати» ставить l10n_ua_navigation:
+       довідник кодів - логіка, і на інтерфейс не спирається. Запис лишається тут,
+       тож ідентифікатор l10n_ua_kp.menu_ua_kp_code не змінюється. -->
   <menuitem id="menu_ua_kp_code" name="Коди професій"
-            parent="l10n_ua_navigation.menu_ua_setup_root"
             action="action_ua_kp_code" sequence="35"/>
 </odoo>

@@ -514,15 +514,9 @@ class HrEmployee(models.Model):
         }
 
     def action_ua_card_register_mil_check(self):
+        """Кнопка картки. Саме правило звірки - у l10n_ua_military."""
         self.ensure_one()
-        today = fields.Date.context_today(self)
-        self.env["ua.military.event"].sudo().create({
-            "employee_id": self.id,
-            "date": today,
-            "kind": "check",
-            "note": "Звірка через картку працівника",
-        })
-        self.sudo().write({"ua_mil_last_check": today})
+        self.ua_mil_register_check(note="Звірка через картку працівника")
         return False
 
     def action_ua_card_open_standard_form(self):

@@ -1,4 +1,6 @@
 """Українські назви довідників OCA і ядра, зайві додатки лише для адміністратора. Дані, не код: OCA-модулі не змінюються."""
+from odoo.addons.l10n_ua_payroll_rules.hooks import ensure_uk_lang
+
 UK = "uk_UA"
 RENAMES = {
     "hr.payroll.structure.type": {"Employee": "Працівник", "Worker": "Робітник"},
@@ -36,6 +38,8 @@ ADMIN_ONLY_MENUS = ["base.menu_management", "mail.menu_root_discuss", "calendar.
 
 
 def post_init_hook(env):
+    # На порожній базі uk_UA ще вимкнена, і перший же with_context(lang=UK) падає.
+    ensure_uk_lang(env)
     for model, pairs in RENAMES.items():
         Model = env[model].with_context(active_test=False)
         for en, uk in pairs.items():

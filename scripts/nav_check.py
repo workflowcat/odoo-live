@@ -1,8 +1,9 @@
 """Перевірка навігації і слів інтерфейсу.
 
-Навігація мусить існувати один раз: п'ять наших розділів, жодної однакової назви
-на корені, жодної дії у двох пунктах. Стара навігація модуля payroll, «Пульт
-команд» і пункти-чарівники мусять бути вимкнені.
+Навігація мусить існувати один раз: сім наших розділів (стільки ж, скільки смуга
+ліворуч у l10n_ua_shell веде корінням), жодної однакової назви на корені, жодної дії
+у двох пунктах. Стара навігація модуля payroll, «Пульт команд» і пункти-чарівники
+мусять бути вимкнені.
 
 Слова: одна дія - одне слово. Перелік нижче - канон. Скрипт шукає в XML кнопки
 з забороненими написами.
@@ -17,14 +18,21 @@ import re
 import urllib.request
 
 ENV = dict(l.split("=", 1) for l in open(".env").read().splitlines() if "=" in l and not l.startswith("#"))
-URL = os.environ.get("ODOO_URL", "http://127.0.0.1:8110").rstrip("/") + "/jsonrpc"
+# Порт стенду береться з .env цього ж дерева: інакше скрипт стукав у сусідній стенд на 8110.
+PORT = (os.environ.get("ODOO_PORT") or ENV.get("ODOO_PORT", "8110")).strip()
+URL = os.environ.get("ODOO_URL", f"http://127.0.0.1:{PORT}").rstrip("/") + "/jsonrpc"
 DB = os.environ.get("PAYROLL_DB", "payroll").strip()
 LOGIN = ENV["ODOO_ADMIN_USER_LOGIN"].strip()
 PW = ENV["ODOO_ADMIN_USER_PASSWORD"].strip()
 LANA_LOGIN = ENV.get("LANA_LOGIN", "lana").strip()
 LANA_PW = ENV.get("LANA_PASSWORD", "").strip()
 
-AREAS = ["Зарплата", "Працівники", "Банк", "Звітність", "Налаштування зарплати"]
+# Сім розділів у тому порядку, у якому їх віддає меню (sequence, потім id).
+AREAS = ["Домівка", "Зарплата", "Працівники", "Папери", "Банк", "Звітність", "Налаштування зарплати"]
+# Ті самі сім коренів, як їх знає смуга ліворуч: перелік беремо з самого side_rail.js,
+# щоб меню і смуга не розійшлися мовчки.
+RAIL_JS = open("addons/l10n_ua_shell/static/src/side_rail.js", encoding="utf-8").read()
+RAIL_ROOTS = re.findall(r'"(l10n_ua_[a-z_]+\.menu_[a-z_]+root|l10n_ua_bank_online\.menu_ua_bank_board)":\s*"[^"]{2}"', RAIL_JS)
 OFF_MENUS = [
     "payroll.payroll_menu_root",
     "l10n_ua_payroll_reports.menu_ua_payroll_report", "l10n_ua_payroll_reports.menu_ua_hire_notice",
@@ -79,7 +87,8 @@ def call(model, method, *args, **kw):
 menus = call("ir.ui.menu", "search_read", [], fields=["name", "parent_id", "sequence", "action"], order="sequence,id")
 roots = [m for m in menus if not m["parent_id"]]
 ours = [m for m in roots if m["name"] in AREAS]
-check("усі п'ять розділів на місці", len(ours) == 5, ", ".join(m["name"] for m in ours))
+check("усі сім розділів на місці", len(ours) == len(AREAS), ", ".join(m["name"] for m in ours))
+check("смуга ліворуч знає ті самі сім коренів", len(RAIL_ROOTS) == len(AREAS), str(RAIL_ROOTS))
 order = [m["name"] for m in sorted(ours, key=lambda x: (x["sequence"], x["id"]))]
 check("порядок розділів правильний", order == AREAS, str(order))
 names = collections.Counter(m["name"] for m in roots)
@@ -108,7 +117,7 @@ for m in items:
         by_action[m["action"]].append(m["name"])
 double = {a: ns for a, ns in by_action.items() if len(ns) > 1}
 check("жодна дія не має двох пунктів меню", not double, str(double))
-check("пунктів у наших розділах не більше 40", len(items) <= 40, f"{len(items)}")
+check("пунктів у наших розділах не більше 45", len(items) <= 45, f"{len(items)}")
 by_name = collections.Counter(m["name"] for m in items)
 same = [n for n, c in by_name.items() if c > 1]
 check("немає двох пунктів з однаковою назвою", not same, str(same))
@@ -180,7 +189,7 @@ if LANA_PW:
         check(f"{LANA_LOGIN} бачить робочі розділи", need <= seen, str(sorted(need & seen)))
 
 # 8. прибирання: зайві модулі видалено, стандартні розділи сховано, оргструктура в «Працівниках»
-REMOVED = ["bp_kyc", "l10n_ua_partner_edr", "l10n_ua_hub", "spreadsheet_dashboard", "spreadsheet", "sms", "snailmail",
+REMOVED = ["bp_kyc", "l10n_ua_partner_edr", "spreadsheet_dashboard", "spreadsheet", "sms", "snailmail",
            "partner_autocomplete", "iap", "mail_bot", "google_gmail", "microsoft_outlook", "hr_homeworking",
            "web_unsplash", "auth_passkey", "account_edi_ubl_cii", "account_payment", "payment", "hr_skills"]
 still = call("ir.module.module", "search_read", [["name", "in", REMOVED], ["state", "=", "installed"]], fields=["name"])
@@ -220,9 +229,7 @@ def _post(path, params):
 if LANA_PW:
     _post("/web/session/authenticate", {"db": DB, "login": LANA_LOGIN, "password": LANA_PW})
     menus = json.loads(_op.open(_base + "/web/webclient/load_menus", timeout=60).read())
-    OUR_ROOTS = {"l10n_ua_period.menu_ua_period_root", "l10n_ua_navigation.menu_ua_people_root",
-                 "l10n_ua_bank_online.menu_ua_bank_board", "l10n_ua_reporting.menu_ua_reporting_root",
-                 "l10n_ua_navigation.menu_ua_setup_root"}
+    OUR_ROOTS = set(RAIL_ROOTS)
     leaves = []
 
     def _walk(mid):

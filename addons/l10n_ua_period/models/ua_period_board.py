@@ -687,7 +687,7 @@ class UaPeriodBoard(models.AbstractModel):
         state_map = {"ok": "ok", "warn": "warn", "todo": "crit", "plan": "todo"}
         rows = []
         import re
-        for row in self.env["ua.dashboard"]._get_payments(company, year, month):
+        for row in self.env["ua.payments.plan"].month_rows(company, year, month):
             # квартальний рядок - залишок старої схеми; розрахунок подається щомісяця
             if not row.get("date") or "квартал" in row["label"]:
                 continue

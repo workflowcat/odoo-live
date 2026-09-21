@@ -245,7 +245,9 @@ for name, efields, wage, inputs, expect in S:
         efields["ua_index_base"] = index_base or False
         efields["ua_index_paid_month"] = False            # новий цикл: сценарій має бути повторюваним
     efields["ua_insurance_years"] = years
-    n = int(name.split()[0]); efields.update({"ua_rnokpp": f"30000000{n:02d}", "sex": "male" if n % 2 else "female"})
+    # Стать беремо з таблиці імен (NAMES), а не з парності номера: декретну відпустку
+    # (сценарії 15 і 30) l10n_ua_average дозволяє лише жінці, а за парністю 15-й виходив чоловіком.
+    n = int(name.split()[0]); efields.update({"ua_rnokpp": f"30000000{n:02d}"})
     efields.update({"ua_hire_date": start, "ua_dismissal_date": end or False} if "ua_hire_date" in EMP_FIELDS else {})
     # Шукаємо за РНОКПП, а не за іменем: ім'я тепер звичайне, і в базі може бути тезка.
     eid = call("hr.employee", "search", [["ua_rnokpp", "=", efields["ua_rnokpp"]],

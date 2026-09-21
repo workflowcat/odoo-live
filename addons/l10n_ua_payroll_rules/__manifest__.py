@@ -1,7 +1,7 @@
 {
     "name": "Зарплата: правила України",
     "summary": "Параметри з датами (МЗП, ПМ, ПСП, ставки), поля працівника, структура «Україна: оклад», правила ПДФО, ВЗ, ЄСВ",
-    "version": "19.0.0.5.1",
+    "version": "19.0.0.5.2",
     "category": "Human Resources/Payroll",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -17,10 +17,7 @@
         "views/ua_advance_sheet_views.xml",
         "wizards/ua_advance_wizard_views.xml",
     ],
-    "assets": {
-        "web.assets_backend": [
-            "l10n_ua_payroll_rules/static/src/ua_ui.scss",
-        ],
-    },
+    # вмикає uk_UA: без неї гачки інших модулів падають на порожній базі
+    "post_init_hook": "post_init_hook",
     "installable": True,
 }

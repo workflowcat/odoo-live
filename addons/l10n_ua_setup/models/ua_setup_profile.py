@@ -165,11 +165,14 @@ class UaSetupProfile(models.Model):
         return True
 
     def action_test_month(self):
-        """Пробний місяць: система готує табель і чернетки листків за поточний місяць."""
+        """Пробний місяць: система готує табель і чернетки листків за поточний місяць.
+
+        Кличемо саму процедуру відкриття місяця (hr.payslip.run.ua_prepare_month), а не
+        екран «Період»: анкета - логіка, і на модулі інтерфейсу не спирається."""
         self.ensure_one()
         today = fields.Date.context_today(self)
-        result = self.env["ua.period.board"].with_company(self.company_id).action_prepare_month(
-            today.year, today.month)
+        result = self.env["hr.payslip.run"].with_company(self.company_id).ua_prepare_month(
+            self.company_id, today.year, today.month)
         self.message_post(body=_("Пробний місяць: %s") % result.get("message", ""))
         return result
 

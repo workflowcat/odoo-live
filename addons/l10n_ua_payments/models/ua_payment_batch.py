@@ -88,6 +88,21 @@ class UaPaymentBatch(models.Model):
         return "Виплата за %s %s" % (month_name, self.year)
 
     # ------------------------------------------------------------------ наповнення
+    @api.model
+    def ua_compose(self, company, year=None, month=None, kind=None, **params):
+        """Нова відомість на перерахування за місяць, одразу заповнена.
+
+        Що в неї входить - питання до самої відомості, не до екрана «Папери»."""
+        if isinstance(company, int):
+            company = self.env["res.company"].browse(company)
+        company = company or self.env.company
+        doc = self.create({
+            "company_id": company.id, "year": int(year), "month": int(month),
+            "kind": kind or "salary",
+        })
+        doc.action_fill()
+        return doc
+
     def action_fill(self):
         for doc in self:
             if doc.state != "draft":

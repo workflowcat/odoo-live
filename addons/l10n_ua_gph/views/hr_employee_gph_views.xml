@@ -66,7 +66,10 @@
     <field name="help" type="html"><p class="o_view_nocontent_smiling_face">Немає договорів ЦПХ. Додайте виконавця.</p></field>
   </record>
 
-  <!-- Розміщення: поруч із розрахунком зарплати, не під «Працівники» - контрагентів там не буде. -->
+  <!-- Розміщення: поруч із розрахунком зарплати, не під «Працівники» - контрагентів там не буде.
+       Сам розділ-батько живе в інтерфейсі (l10n_ua_period), тому місце пункту ставить
+       l10n_ua_navigation: логіка не залежить від інтерфейсу. Запис лишається тут, тож
+       ідентифікатор l10n_ua_gph.menu_ua_gph не змінюється. -->
   <menuitem id="menu_ua_gph" name="Договори ЦПХ" action="action_ua_gph"
-            parent="l10n_ua_period.menu_ua_period_root" sequence="6" groups="hr.group_hr_user"/>
+            sequence="6" groups="hr.group_hr_user"/>
 </odoo>

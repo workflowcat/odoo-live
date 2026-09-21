@@ -74,6 +74,23 @@ class HrEmployee(models.Model):
         for emp in self:
             emp.ua_mil_women_list = emp.sex == "female" and emp.ua_mil_status in LIABLE_STATUSES
 
+    def ua_mil_register_check(self, note=None):
+        """Записати звірку з ТЦК: подія обліку плюс дата останньої звірки.
+
+        Правило одне на всю систему - і для картки працівника, і для списку персонального
+        обліку. Екран лише каже, звідки звірка прийшла (note)."""
+        today = fields.Date.context_today(self)
+        Event = self.env["ua.military.event"].sudo()
+        for emp in self:
+            Event.create({
+                "employee_id": emp.id,
+                "date": today,
+                "kind": "check",
+                "note": note or _("Звірка з ТЦК"),
+            })
+        self.sudo().write({"ua_mil_last_check": today})
+        return today
+
     @api.constrains("ua_mil_doc_type", "ua_mil_status")
     def _check_ua_mil_doc_type(self):
         for emp in self:

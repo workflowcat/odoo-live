@@ -1,7 +1,7 @@
 {
     "name": "Зведення: головна панель на OWL (Україна)",
     "summary": "Аналітика періоду: нарахування по підрозділах, обороти, документи",
-    "version": "19.0.1.1.1",
+    "version": "19.0.1.2.0",
     "category": "Human Resources/Payroll",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -10,6 +10,8 @@
         "l10n_ua_payroll_account",
         "l10n_ua_hr_docs",
         "l10n_ua_military",
+        # ua.payments.plan: домен листків місяця і календар виплат
+        "l10n_ua_payments",
         "web",
     ],
     "data": [

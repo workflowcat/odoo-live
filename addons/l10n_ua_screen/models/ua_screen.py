@@ -94,6 +94,18 @@ class UaScreen(models.AbstractModel):
     def _r2(value):
         return round(value or 0.0, 2)
 
+    @staticmethod
+    def _month_add(year, month, delta):
+        """Місяць через delta місяців від (year, month). Від'ємне delta - назад."""
+        m = month - 1 + delta
+        return year + m // 12, m % 12 + 1
+
+    def _xmlid_target(self, xmlid):
+        """Ціль на наявну дію Odoo, якщо дія існує, інакше False.
+
+        М'яке посилання: модуль дії може бути не встановлений, і це не помилка."""
+        return {"xmlid": xmlid} if self.env.ref(xmlid, raise_if_not_found=False) else False
+
     # ------------------------------------------------------------------ смуга періоду
     def _month_name(self, month):
         return self.MONTHS_UA.get(month, "")
