@@ -7,11 +7,12 @@
                    "реєстром і роком, кореспондуючий рахунок, від кого прийнято / кому видано, "
                    "документ одержувача, друковані форми КО-1 і КО-2, аркуш касової книги КО-4 з "
                    "контролем ліміту та авансовий звіт, що закриває 372.",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Accounting",
     "author": "Bot&Partners",
     "license": "LGPL-3",
     "depends": ["account", "l10n_ua"],
+    "post_init_hook": "post_init_hook",
     "data": [
         "security/ir.model.access.csv",
         "data/ir_sequence_data.xml",

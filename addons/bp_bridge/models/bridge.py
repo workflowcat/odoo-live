@@ -1,4 +1,4 @@
-"""One door to the outside world: the odoo-live Worker. Odoo holds one token, no vendor keys."""
+"""Єдині двері назовні: Worker odoo-live. Odoo тримає один токен, ключів постачальників у нього немає."""
 import json
 import logging
 import os
@@ -16,12 +16,16 @@ class Bridge(models.AbstractModel):
     _description = "Міст інтеграцій (odoo-live Worker)"
 
     def _settings(self):
+        # Спершу змінні середовища, далі нові ключі bp_bridge.*, далі старі bp_kyc.* - на стендах вони вже є.
         icp = self.env["ir.config_parameter"].sudo()
-        url = os.environ.get("BP_BRIDGE_URL") or icp.get_param("bp_kyc.bridge_url") or ""
-        token = os.environ.get("BP_BRIDGE_TOKEN") or icp.get_param("bp_kyc.bridge_token") or ""
+        url = (os.environ.get("BP_BRIDGE_URL") or icp.get_param("bp_bridge.url")
+               or icp.get_param("bp_kyc.bridge_url") or "")
+        token = (os.environ.get("BP_BRIDGE_TOKEN") or icp.get_param("bp_bridge.token")
+                 or icp.get_param("bp_kyc.bridge_token") or "")
         if not url or not token:
             raise UserError("Міст інтеграцій не налаштовано: задайте BP_BRIDGE_URL і BP_BRIDGE_TOKEN "
-                            "(змінні середовища або параметри bp_kyc.bridge_url / bp_kyc.bridge_token).")
+                            "(змінні середовища або параметри bp_bridge.url / bp_bridge.token, "
+                            "старі ключі bp_kyc.bridge_url / bp_kyc.bridge_token теж читаються).")
         return url.rstrip("/"), token
 
     def call(self, method, path, payload=None, params=None, timeout=60):

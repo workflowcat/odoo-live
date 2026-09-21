@@ -12,7 +12,7 @@ class UaStaffListWizard(models.TransientModel):
     _description = "Штатний розпис"
 
     company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
-    date = fields.Date("На дату", default=fields.Date.today, required=True)
+    date = fields.Date("На дату", default=lambda s: fields.Date.context_today(s), required=True)
     order_ref = fields.Char("Затверджено наказом (№ і дата)")
 
     def action_create(self):

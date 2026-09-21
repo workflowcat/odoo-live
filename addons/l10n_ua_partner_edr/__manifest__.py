@@ -4,7 +4,7 @@
                "КВЕД, керівник, ПДВ, стан реєстрації, маркери ризику",
     "description": "Один крок замість ручного набору реквізитів: вводимо код, картка "
                    "заповнюється з ЄДР. Назовні модуль сам не ходить - запит іде через "
-                   "міст інтеграцій bp.bridge з модуля bp_kyc, де лежить єдиний токен "
+                   "міст інтеграцій bp.bridge з модуля bp_bridge, де лежить єдиний токен "
                    "(BP_BRIDGE_URL і BP_BRIDGE_TOKEN), а вже міст звертається до "
                    "OpenDataBot. Заповнюються лише порожні поля картки: те, що бухгалтер "
                    "уточнив руками, запит з реєстру не затирає. Опис у "
@@ -13,7 +13,7 @@
     "category": "Accounting/Localizations",
     "author": "Bot&Partners",
     "license": "LGPL-3",
-    "depends": ["bp_kyc", "contacts"],
+    "depends": ["bp_bridge", "contacts", "mail"],
     "data": [
         "security/ir.model.access.csv",
         "views/res_partner_views.xml",

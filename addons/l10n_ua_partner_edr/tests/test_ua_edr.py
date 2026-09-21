@@ -12,7 +12,7 @@ from unittest.mock import patch
 from odoo.exceptions import UserError
 from odoo.tests import TransactionCase, tagged
 
-BRIDGE = "odoo.addons.bp_kyc.models.bridge.Bridge.call"
+BRIDGE = "odoo.addons.bp_bridge.models.bridge.Bridge.call"
 
 
 def registry_payload(**over):
@@ -124,7 +124,8 @@ class TestUaPartnerEdr(TransactionCase):
     # ------------------------------------------------------------------
     def test_04_no_token(self):
         self.env["ir.config_parameter"].sudo().search([
-            ("key", "in", ("bp_kyc.bridge_url", "bp_kyc.bridge_token"))]).unlink()
+            ("key", "in", ("bp_bridge.url", "bp_bridge.token",
+                           "bp_kyc.bridge_url", "bp_kyc.bridge_token"))]).unlink()
         with patch.dict(os.environ, {"BP_BRIDGE_URL": "", "BP_BRIDGE_TOKEN": ""}):
             with self.assertRaises(UserError):
                 self.partner.action_fill_from_edr()

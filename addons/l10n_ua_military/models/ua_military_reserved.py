@@ -21,7 +21,7 @@ class UaMilitaryReserved(models.Model):
 
     name = fields.Char("Назва", compute="_compute_name", store=True)
     company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
-    date = fields.Date("На дату", default=fields.Date.today, required=True, tracking=True)
+    date = fields.Date("На дату", default=lambda s: fields.Date.context_today(s), required=True, tracking=True)
     state = fields.Selection(STATES, "Стан", default="draft", required=True, tracking=True)
     note = fields.Text("Примітка")
     line_ids = fields.One2many("ua.military.reserved.line", "reserved_id", "Рядки")

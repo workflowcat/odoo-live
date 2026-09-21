@@ -14,13 +14,11 @@ default_code товару, partner_ref замовлення, code активу, 
 Змінні: ODOO_URL (типово http://127.0.0.1:8131), DEMO_DB (типово demo),
         SKIP_PAYROLL=1 - не переганяти будівники зарплати.
 """
-import base64
 import json
 import os
 import re
 import subprocess
 import sys
-import tempfile
 import urllib.request
 from datetime import date, timedelta
 
@@ -106,6 +104,12 @@ def iban_ua(mfo, acc19):
 # 1. План рахунків і країна (запобіжник; звичайно це вже зробив demo_server.sh)
 # =====================================================================================
 def ensure_chart():
+    """Запобіжник; звичайно це вже зробив demo_server.sh.
+
+    Короткі коди, українські назви, правила звірки і журнал каси навішують самі модулі
+    на завантаження плану (_post_load_data у l10n_ua_chart, l10n_ua_bank, l10n_ua_cash),
+    тому тут нічого доробляти не треба.
+    """
     co = call("res.company", "read", [COMPANY], ["country_id", "chart_template"])[0]
     ua = call("res.country", "search", [["code", "=", "UA"]])[0]
     if not co["country_id"] or co["country_id"][0] != ua:
@@ -113,135 +117,16 @@ def ensure_chart():
     if co["chart_template"] != "ua_psbo":
         say("План рахунків ua_psbo ще не завантажено - завантажуємо через try_loading.")
         call("account.chart.template", "try_loading", "ua_psbo", COMPANY, False)
-        short_codes()
     say("План рахунків: ua_psbo, країна: Україна.")
-
-
-def short_codes():
-    """Код рахунку = код із шаблону (те саме, що робить hooks._short_codes)."""
-    changed = 0
-    data = call("ir.model.data", "search_read",
-                [["model", "=", "account.account"], ["name", "like", "ua_psbp_"]],
-                fields=["name", "res_id"])
-    for d in data:
-        m = re.search(r"ua_psbp_(\d+)$", d["name"])
-        if not m:
-            continue
-        target = m.group(1)
-        acc = call("account.account", "read", [d["res_id"]], ["code"])
-        if not acc or acc[0]["code"] == target:
-            continue
-        if call("account.account", "search_count", [["code", "=", target]]):
-            continue
-        try:
-            call("account.account", "write", [d["res_id"]], {"code": target})
-            changed += 1
-        except RpcError:
-            pass
-    say(f"Скорочено кодів рахунків: {changed}.")
 
 
 # =====================================================================================
 # 2. Будівники зарплати і кадрів (не дублюємо - проганяємо як є)
 # =====================================================================================
-# demo_company.py і demo_card.py зашивають DB = "payroll", demo_hire.py заходить
-# у довгоживучий контейнер через `docker compose exec`. Ці скрипти нам не належать,
-# тому правимо не їх, а тимчасову копію: три підстановки в тексті.
-PAYROLL_PATCHES = {
-    "demo_company.py": [('DB = "payroll";', 'DB = os.environ.get("PAYROLL_DB", "payroll");', 1)],
-    "demo_card.py": [('DB = "payroll"', 'DB = os.environ.get("PAYROLL_DB", "payroll")', 1)],
-    "demo_hire.py": [('["docker", "compose", "exec", "-T", "odoo",',
-                      '["docker", "compose", "run", "--rm", "--no-deps", "-T", "odoo",', 1)],
-    # Банківські дії переїхали з екрана ua.bank.board у ua.bank.ops (l10n_ua_bank_online);
-    # екран лишив по собі лише run_action(key). demo_bank.py кличе старі імена напряму.
-    "demo_bank.py": [('call("ua.bank.board", "action_', 'call("ua.bank.ops", "action_', 0)],
-}
-
-
-def repair_versions():
-    """Обхід помилки l10n_ua_hr_card/models/hr_employee.py:115.
-
-    `_compute_ua_first_hire_date` робить min() над списком, у якому може бути
-    False: версія контракту без contract_date_start. На чистій базі така версія
-    завжди є - Odoo заводить її разом із карткою працівника, - і щойно
-    demo_company.py додає працівникові другу версію (повторне прийняття),
-    обчислення падає з TypeError. Тут проставляємо дату початку тим версіям,
-    де її немає; після цього min() отримує самі дати.
-    """
-    vers = call("hr.version", "search_read", [["contract_date_start", "=", False]],
-                fields=["employee_id", "date_version"])
-    if not vers:
-        return 0
-    emps = call("hr.employee", "read",
-                sorted({v["employee_id"][0] for v in vers if v["employee_id"]}),
-                ["ua_hire_date"])
-    hire = {e["id"]: e.get("ua_hire_date") for e in emps}
-    by_date = {}
-    for v in vers:
-        eid = v["employee_id"][0] if v["employee_id"] else False
-        day = hire.get(eid) or v["date_version"]
-        if day:
-            by_date.setdefault(day, []).append(v["id"])
-    for day, ids in by_date.items():
-        call("hr.version", "write", ids, {"contract_date_start": day})
-    say(f"   обхід l10n_ua_hr_card:115 - дату початку проставлено {len(vers)} версіям")
-    return len(vers)
-
-
-CERT_STUB = "тимчасовий запис демо (довідку видамо після листків)"
-
-
-def repair_income_certificate():
-    """Обхід порядку в scripts/demo_company.py.
-
-    Майстер довідки про доходи (ua.income.certificate.wizard.action_print) там
-    викликається за 60 рядків до того, як з'являються пакети розрахункових
-    листків. На базі, де листки вже є від попереднього прогону, це непомітно;
-    на чистій базі майстер щоразу падає з «За цей період немає проведених
-    розрахункових листків», і скрипт не доходить до самих листків. Кладемо
-    в реєстр запис-заглушку, щоб demo_company.py пропустив майстер, а
-    справжню довідку видамо після того, як листки будуть на місці.
-    """
-    emp = call("hr.employee", "search", [["name", "like", "Гаврилюк"]], limit=1)
-    if not emp:
-        return 0
-    if call("ua.income.certificate.register", "search_count",
-            [["employee_id", "=", emp[0]], ["date_from", "=", "2026-02-01"]]):
-        return 0
-    call("ua.income.certificate.register", "create", {
-        "name": "тимчасово", "date": "2026-09-15", "company_id": COMPANY,
-        "employee_id": emp[0], "date_from": "2026-02-01", "date_to": "2026-07-31",
-        "purpose": CERT_STUB})
-    say("   обхід порядку в demo_company.py - заглушка в реєстрі довідок про доходи")
-    return 1
-
-
-def issue_income_certificate():
-    """Замінити заглушку справжньою довідкою - листки вже проведені."""
-    stub = call("ua.income.certificate.register", "search", [["purpose", "=", CERT_STUB]])
-    if not stub:
-        return
-    rec = call("ua.income.certificate.register", "read", stub, ["employee_id"])[0]
-    try:
-        wid = call("ua.income.certificate.wizard", "create", {
-            "employee_id": rec["employee_id"][0], "date_from": "2026-03-01",
-            "date_to": "2026-08-31", "purpose": "для подання до банку"})
-        call("ua.income.certificate.wizard", "action_print", [wid])
-        # заглушку не видаляємо (у реєстрі немає права на видалення) - дописуємо їй
-        # звичайні реквізити, і вона читається як ще одна раніше видана довідка
-        call("ua.income.certificate.register", "write", stub, {
-            "name": "1", "date": "2026-08-03", "purpose": "для подання до банку"})
-        say("Довідка про доходи видана майстром; заглушку дописано як раніше видану довідку.")
-    except RpcError as e:
-        say(f"Довідка про доходи: {str(e)[:150]}")
-
-
-def repair(stdout):
-    """Полагодити те, що заважає будівникам зарплати стати на чисту базу."""
-    n = repair_versions()
-    if "розрахункових листків" in (stdout or ""):
-        n += repair_income_certificate()
-    return n
+# Будівники беруть базу зі змінної PAYROLL_DB, а адресу - з ODOO_URL, тому запускаємо
+# самі скрипти, без тимчасових копій і підстановок у тексті.
+PAYROLL_BUILDERS = ["demo_company.py", "demo_hire.py", "demo_military.py",
+                    "demo_bank.py", "demo_card.py"]
 
 
 def run_payroll_builders():
@@ -249,39 +134,16 @@ def run_payroll_builders():
         say("Будівники зарплати пропущено (SKIP_PAYROLL=1).")
         return
     env = dict(os.environ, PAYROLL_DB=DB, ODOO_URL=URL)
-    # Копії кладемо в demo-out/ (тека в .gitignore), а не в /tmp: усі ці скрипти
-    # рахують корінь дерева як dirname(dirname(__file__)) і в /tmp не знайшли б
-    # ні .env, ні docker-compose.yml.
-    tmp = os.path.join(ROOT, "demo-out")
-    os.makedirs(tmp, exist_ok=True)
-    for name in ["demo_company.py", "demo_hire.py", "demo_military.py",
-                 "demo_bank.py", "demo_card.py"]:
-        src = open(os.path.join(ROOT, "scripts", name), encoding="utf-8").read()
-        for old, new, count in PAYROLL_PATCHES.get(name, []):
-            if old not in src:
-                sys.exit(f"{name}: не знайдено рядок для підстановки: {old}")
-            src = src.replace(old, new) if count == 0 else src.replace(old, new, count)
-        path = os.path.join(tmp, name)
-        open(path, "w", encoding="utf-8").write(src)
+    for name in PAYROLL_BUILDERS:
         say(f"-> {name}")
-        for attempt in (1, 2, 3, 4, 5, 6):
-            p = subprocess.run([sys.executable, path], cwd=ROOT, env=env,
-                               capture_output=True, text=True)
-            if p.returncode == 0:
-                break
+        p = subprocess.run([sys.executable, os.path.join(ROOT, "scripts", name)],
+                           cwd=ROOT, env=env, capture_output=True, text=True)
+        if p.returncode != 0:
             # demo_company.py повідомляє про збій через SystemExit, тобто в stderr
-            out = (p.stdout or "") + "\n" + (p.stderr or "")
-            say(f"   спроба {attempt} впала: " + (out.strip().splitlines() or [""])[-1][:250])
-            if repair(out) == 0:
-                say(p.stdout[-2500:])
-                say(p.stderr[-1500:])
-                sys.exit(f"{name} впав (код {p.returncode}), лагодити нічого")
-        else:
             say(p.stdout[-2500:])
-            sys.exit(f"{name} впав остаточно")
+            say(p.stderr[-1500:])
+            sys.exit(f"{name} впав (код {p.returncode})")
         say(f"   {name}: {len(p.stdout.splitlines())} рядків виводу, ок")
-        os.remove(path)
-    issue_income_certificate()
 
 
 # =====================================================================================
@@ -333,23 +195,25 @@ def company_details():
 
 
 def pricelists():
-    """Прайс-листи в гривні плюс один експортний у євро.
+    """Один експортний прайс-лист у євро; решта вже в гривні.
 
-    Типовий прайс-лист Odoo створюється в доларі (валюта даних модуля base), і
-    поки його не виправити, кожне замовлення на продаж виходить у USD, хоча
-    компанія веде облік у гривні. Валюта замовлення - related до прайс-листа,
-    тому писати currency_id прямо в замовлення марно.
+    Типовий прайс-лист у валюті компанії робить сам модуль: гривню йому проставляє
+    l10n_ua_chart на завантаження плану ua_psbo (_align_pricelists). Тут лишається
+    завести окремий експортний - валюта замовлення related до прайс-листа, тому
+    інакше експорт у євро не оформити.
     """
     uah = call("res.company", "read", [COMPANY], ["currency_id"])[0]["currency_id"][0]
     eur = call("res.currency", "search", [["name", "=", "EUR"]], context={"active_test": False})
     call("res.currency", "write", eur, {"active": True})
-    wrong = call("product.pricelist", "search", [["currency_id", "!=", uah]])
     export = upsert("product.pricelist", [["name", "=", "Експорт (EUR)"]],
                     {"name": "Експорт (EUR)", "currency_id": eur[0], "company_id": COMPANY})
-    wrong = [p for p in wrong if p != export]
+    wrong = [p for p in call("product.pricelist", "search", [["currency_id", "!=", uah]])
+             if p != export]
     if wrong:
-        call("product.pricelist", "write", wrong, {"currency_id": uah})
-    say(f"Прайс-листи: {len(wrong)} переведено в гривню, окремий «Експорт (EUR)» готовий.")
+        names = call("product.pricelist", "read", wrong, ["name", "currency_id"])
+        say("УВАГА: прайс-листи не у гривні: "
+            + ", ".join(f"{n['name']} ({n['currency_id'][1]})" for n in names))
+    say("Прайс-листи: типовий у гривні, окремий «Експорт (EUR)» готовий.")
     return export
 
 
@@ -840,13 +704,11 @@ def _bank_journal():
 
 
 def _cash_journal():
-    """Журнал каси. План ua_psbo його не створює - заводимо з рахунком 301."""
+    """Журнал каси. Його заводить l10n_ua_cash на завантаження плану ua_psbo."""
     ids = call("account.journal", "search", [["type", "=", "cash"], ["company_id", "=", COMPANY]])
-    if ids:
-        return ids[0]
-    return call("account.journal", "create", {
-        "name": "Каса", "code": "CASH", "type": "cash", "company_id": COMPANY,
-        "default_account_id": _account_by_code("301")})
+    if not ids:
+        sys.exit("Немає касового журналу: модуль l10n_ua_cash мав створити його разом із планом.")
+    return ids[0]
 
 
 def _pay(partner, amount, day, kind, memo, journal=None, dest=None, ptype=None):

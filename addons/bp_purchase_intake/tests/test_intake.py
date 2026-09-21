@@ -120,7 +120,10 @@ class TestIntake(TransactionCase):
         self.assertEqual(partner.bp_supplier_status, "unverified")
         self.assertEqual(partner.bp_registry_head, "Тафійчук Євген Олександрович")
         self.assertIn("Податковий борг", partner.bp_registry_markers)
-        self.assertEqual(partner.bank_ids.acc_number, "UA863052990000026004000123456")
+        # base_iban (приходить з OCA account_payment_order) зберігає номер згрупованим
+        # по чотири; цифри ті самі, форма запису - справа Odoo.
+        self.assertEqual("".join(partner.bank_ids.acc_number.split()),
+                         "UA863052990000026004000123456")
         self.assertEqual(calls, ["/api/odb/screen/31316718"])
         move = intake.move_id
         self.assertEqual((move.move_type, move.state, move.ref), ("in_invoice", "draft", "НП-2026-0917"))

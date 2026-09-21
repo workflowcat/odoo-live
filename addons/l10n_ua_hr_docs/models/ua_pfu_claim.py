@@ -37,7 +37,7 @@ class UaPfuClaim(models.Model):
     company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
     currency_id = fields.Many2one(related="company_id.currency_id")
     payslip_run_id = fields.Many2one("hr.payslip.run", "Пакет листків", required=True, tracking=True)
-    date = fields.Date("Дата", default=fields.Date.today, required=True, tracking=True)
+    date = fields.Date("Дата", default=lambda s: fields.Date.context_today(s), required=True, tracking=True)
     state = fields.Selection(STATES, "Стан", default="draft", required=True, tracking=True)
     note = fields.Text("Примітка")
     line_ids = fields.One2many("ua.pfu.claim.line", "claim_id", "Рядки")

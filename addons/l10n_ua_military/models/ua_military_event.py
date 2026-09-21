@@ -18,7 +18,7 @@ class UaMilitaryEvent(models.Model):
     _order = "date desc, id desc"
 
     employee_id = fields.Many2one("hr.employee", "Працівник", required=True, ondelete="cascade")
-    date = fields.Date("Дата", required=True, default=fields.Date.today)
+    date = fields.Date("Дата", required=True, default=lambda s: fields.Date.context_today(s))
     kind = fields.Selection(KIND, string="Вид події", required=True)
     note = fields.Char("Примітка")
     user_id = fields.Many2one("res.users", "Відповідальний", default=lambda s: s.env.user)

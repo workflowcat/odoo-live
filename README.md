@@ -13,6 +13,7 @@ Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how it is built and how to
 | Live database | Supabase project `odoo-live` (Frankfurt, Postgres 17) | the one real database; attachments stored in it too |
 | Odoo compute | `docker-compose.live.yml` on any Docker host; `odoo/Dockerfile` for Cloudflare Containers | stateless: nothing of value on its disk |
 | Integration bridge | Cloudflare Worker `odoo-live` (`worker/`) at https://odoo-live.botpartners.workers.dev | holds every vendor key; Odoo holds one token |
+| Bridge client in Odoo | `addons/bp_bridge` | the abstract model `bp.bridge`; every module that calls outside depends on it |
 | KYC product | `addons/bp_kyc` | cases, screening, checklist, decision, register sync, mail |
 | Local dev | `docker-compose.yml` (Odoo + local Postgres, port 8100) | fast loop; same addons |
 

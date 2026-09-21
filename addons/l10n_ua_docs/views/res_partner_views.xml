@@ -13,6 +13,17 @@
     </field>
   </record>
 
+  <record id="view_res_bank_form_ua_docs" model="ir.ui.view">
+    <field name="name">res.bank.form.ua.docs</field>
+    <field name="model">res.bank</field>
+    <field name="inherit_id" ref="base.view_res_bank_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='bic']" position="after">
+        <field name="ua_mfo"/>
+      </xpath>
+    </field>
+  </record>
+
   <record id="view_partner_bank_form_ua_docs" model="ir.ui.view">
     <field name="name">res.partner.bank.form.ua.docs</field>
     <field name="model">res.partner.bank</field>

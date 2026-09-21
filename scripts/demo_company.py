@@ -1,11 +1,14 @@
 """Наповнення стенду даними, схожими на реальні: ТОВ «Ясен Меблі», 17 працівників, усі поля, серпень 2026.
-Ідемпотентно: працівників шукає за РНОКПП, компанію і довідники оновлює. Запуск: python3 scripts/demo_company.py"""
+Ідемпотентно: працівників шукає за РНОКПП, компанію і довідники оновлює.
+Адреса і база - зі змінних ODOO_URL і PAYROLL_DB (типово http://127.0.0.1:8110 і payroll).
+Запуск: python3 scripts/demo_company.py"""
 import json, os, urllib.request, random
 from datetime import date, timedelta
 
-ENV = dict(l.split("=", 1) for l in open(".env").read().splitlines() if "=" in l and not l.startswith("#"))
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ENV = dict(l.split("=", 1) for l in open(os.path.join(ROOT, ".env")).read().splitlines() if "=" in l and not l.startswith("#"))
 URL = os.environ.get("ODOO_URL", "http://127.0.0.1:8110").rstrip("/") + "/jsonrpc"  # ODOO_URL=https://... для хмари
-DB = "payroll"; PW = ENV["ODOO_ADMIN_USER_PASSWORD"].strip()
+DB = os.environ.get("PAYROLL_DB", "payroll").strip(); PW = ENV["ODOO_ADMIN_USER_PASSWORD"].strip()
 # браузерний User-Agent: Cloudflare відкидає urllib на хмарній адресі
 _opener = urllib.request.build_opener(); _opener.addheaders = [("User-Agent", "Mozilla/5.0 (Macintosh) AppleWebKit/537.36 Chrome/128 Safari/537.36")]; urllib.request.install_opener(_opener)
 random.seed(2026)
@@ -79,9 +82,23 @@ call("res.company", "write", [COMPANY], {
     "ua_payroll_bank_mode": "many", "ua_has_disabled": True, "ua_below_min_wage": True, "ua_opening_balances": True, "ua_booking_planned": True,
 })
 call("res.partner", "write", [co_partner], {"name": "ТОВ «Ясен Меблі»", "company_registry": EDRPOU})
-BANKS = {"privat": upsert("res.bank", [["bic", "=", "305299"]], {"name": "АТ КБ «ПриватБанк»", "bic": "305299", "city": "Дніпро", "country": UA}),
-         "mono": upsert("res.bank", [["bic", "=", "322001"]], {"name": "АТ «Універсал Банк» (monobank)", "bic": "322001", "city": "Київ", "country": UA}),
-         "oschad": upsert("res.bank", [["bic", "=", "300465"]], {"name": "АТ «Ощадбанк»", "bic": "300465", "city": "Київ", "country": UA})}
+# МФО - не BIC: у BIC вісім або одинадцять знаків, і OCA account_payment_order це перевіряє.
+# Шість цифр коду банку НБУ пишемо в res.bank.ua_mfo (поле модуля l10n_ua_docs), bic лишаємо порожнім.
+MFO = {"privat": "305299", "mono": "322001", "oschad": "300465"}
+HAS_UA_MFO = "ua_mfo" in call("res.bank", "fields_get", [], {"attributes": []})
+
+
+def bank_ref(key, name, city):
+    vals = {"name": name, "city": city, "country": UA}
+    if HAS_UA_MFO:
+        vals["ua_mfo"] = MFO[key]
+        return upsert("res.bank", [["ua_mfo", "=", MFO[key]]], vals)
+    return upsert("res.bank", [["name", "=", name]], vals)
+
+
+BANKS = {"privat": bank_ref("privat", "АТ КБ «ПриватБанк»", "Дніпро"),
+         "mono": bank_ref("mono", "АТ «Універсал Банк» (monobank)", "Київ"),
+         "oschad": bank_ref("oschad", "АТ «Ощадбанк»", "Київ")}
 upsert("res.partner.bank", [["acc_number", "=", iban_ua("305299", "0000026005011223344")]],
        {"acc_number": iban_ua("305299", "0000026005011223344"), "partner_id": co_partner, "bank_id": BANKS["privat"]})
 
@@ -210,8 +227,7 @@ for i, (ln, fn, mn, sex, bd, job, dept, wage, fte, kind, main, esv, psp, pspk, y
     call("hr.version", "write", [ver], vvals, context={"sync_contract_dates": True})
     # банківський рахунок для зарплатного проєкту
     partner = call("hr.employee", "read", [eid], ["work_contact_id"])[0]["work_contact_id"][0]
-    mfo = {"privat": "305299", "mono": "322001", "oschad": "300465"}[bank]
-    acc = iban_ua(mfo, f"0000026207{i:04d}{random.randint(10000, 99999)}"[:19].ljust(19, "0"))
+    acc = iban_ua(MFO[bank], f"0000026207{i:04d}{random.randint(10000, 99999)}"[:19].ljust(19, "0"))
     bid = call("res.partner.bank", "search", [["partner_id", "=", partner]])
     if bid:
         call("res.partner.bank", "write", [bid[0]], {"acc_number": acc, "bank_id": BANKS[bank], "acc_holder_name": name})
@@ -567,12 +583,8 @@ if call("ua.military.notice", "read", [mnotice2_id], ["state"])[0]["state"] == "
     call("ua.military.notice", "action_confirm", [mnotice2_id])
 print("Три документи військового обліку (список обліку, заброньовані, повідомлення) затверджено; друге повідомлення (зміна даних) додано.")
 
-# довідка про доходи: майстер створює запис у реєстрі
-cert_ids = call("ua.income.certificate.register", "search", [["employee_id", "=", E[1]], ["date_from", "=", "2026-02-01"]])
-if not cert_ids:
-    cwid = call("ua.income.certificate.wizard", "create", {"employee_id": E[1], "date_from": "2026-02-01", "date_to": "2026-07-31", "purpose": "для подання до банку"})
-    call("ua.income.certificate.wizard", "action_print", [cwid])
-print("Довідка про доходи (реєстр виданих довідок) записана.")
+# довідка про доходи стоїть нижче, після пакетів листків: майстер читає проведені листки
+# за період і на чистій базі падав би з «За цей період немає проведених розрахункових листків».
 
 # ---- пакети листків: липень (закрито), серпень (закрито), вересень (чернетки для авансу) ---------------
 import calendar as _cal
@@ -675,6 +687,14 @@ if _jul_close:
 run_jul, jul = month_batch(2026, 7, "Зарплата за липень 2026", close=True)
 run_aug, aug = month_batch(2026, 8, "Зарплата за серпень 2026", close=True)
 month_batch(2026, 9, "Зарплата за вересень 2026", close=False, advance=False)
+
+# довідка про доходи: майстер створює запис у реєстрі. Місце має значення - листки за
+# лютий-липень мають бути проведені до виклику, інакше майстер відмовляє.
+cert_ids = call("ua.income.certificate.register", "search", [["employee_id", "=", E[1]], ["date_from", "=", "2026-02-01"]])
+if not cert_ids:
+    cwid = call("ua.income.certificate.wizard", "create", {"employee_id": E[1], "date_from": "2026-02-01", "date_to": "2026-07-31", "purpose": "для подання до банку"})
+    call("ua.income.certificate.wizard", "action_print", [cwid])
+print("Довідка про доходи (реєстр виданих довідок) записана.")
 
 
 def refill_pfu_claim(run_id):

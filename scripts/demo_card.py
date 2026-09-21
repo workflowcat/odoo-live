@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Демо-дані для модуля l10n_ua_hr_card: особова картка, документи працівника - ТОВ «Ясен Меблі», база payroll.
+"""Демо-дані для модуля l10n_ua_hr_card: особова картка, документи працівника - ТОВ «Ясен Меблі».
 Ідемпотентно: пошук нащадкових записів (діти, попередні місця роботи, документи) за (employee_id, name),
 основні поля employee завжди перезаписуються тими самими (детермінований seed на працівника) значеннями.
+Адреса і база - зі змінних ODOO_URL і PAYROLL_DB (типово http://127.0.0.1:8110 і payroll).
 Запуск: python3 scripts/demo_card.py"""
 import json
 import os
@@ -12,9 +13,9 @@ from datetime import date, timedelta
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ENV = dict(l.strip().split("=", 1) for l in open(os.path.join(ROOT, ".env")) if "=" in l and not l.startswith("#"))
-PORT = os.environ.get("ODOO_PORT") or ENV.get("ODOO_PORT", "8110").strip()
-URL = os.environ.get("ODOO_URL", "http://127.0.0.1:8110").rstrip("/") + "/jsonrpc"
-DB = "payroll"
+PORT = (os.environ.get("ODOO_PORT") or ENV.get("ODOO_PORT", "8110")).strip()
+URL = os.environ.get("ODOO_URL", f"http://127.0.0.1:{PORT}").rstrip("/") + "/jsonrpc"
+DB = os.environ.get("PAYROLL_DB", "payroll").strip()
 PW = ENV["ODOO_ADMIN_USER_PASSWORD"].strip()
 TODAY = date(2026, 9, 9)
 

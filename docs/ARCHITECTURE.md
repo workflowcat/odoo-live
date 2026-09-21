@@ -22,7 +22,11 @@ The same image (`odoo/Dockerfile`, `odoo/entrypoint.sh`) is ready for Cloudflare
 (`worker/wrangler.containers.jsonc`); that needs the Workers Paid plan.
 
 **The bridge is the only door to the outside.** Odoo never holds a vendor key. It holds one URL and one
-token (`BP_BRIDGE_URL`, `BP_BRIDGE_TOKEN`). The Worker holds the OpenDataBot key and the kyc-service key,
+token (`BP_BRIDGE_URL`, `BP_BRIDGE_TOKEN`; the fallback config parameters are `bp_bridge.url` and
+`bp_bridge.token`, with the older `bp_kyc.bridge_url` / `bp_kyc.bridge_token` still read). The Odoo side is
+one module, `addons/bp_bridge`: the abstract model `bp.bridge`, no screens, `base` its only dependency.
+Every module that needs an outside call depends on it - `bp_kyc`, `l10n_ua_partner_edr`,
+`bp_purchase_intake`. The Worker holds the OpenDataBot key and the kyc-service key,
 normalizes vendor answers into one shape, caches paid lookups for 24 hours, and logs every call
 (route, status, milliseconds) in D1. Any future product on Odoo, or any non-Odoo tool, reuses the same
 bridge routes. A new vendor is a new route in `worker/src/index.js`, not a change in Odoo.
@@ -81,7 +85,8 @@ Email Routing is not an option today.
 2. New outside system: add a route under `/api/<vendor>/` in `worker/src/index.js`, put its key in a Worker
    secret, keep the response shape flat and stable. If the vendor is another Worker in this account, call it
    through a service binding (a plain fetch to `*.workers.dev` from a Worker is refused, error 1042).
-3. Odoo calls the bridge through `env["bp.bridge"].call(method, path, payload)`. Reuse it.
+3. Odoo calls the bridge through `env["bp.bridge"].call(method, path, payload)`. Reuse it: depend on
+   `bp_bridge`, not on `bp_kyc`.
 4. Test locally (`docker compose up -d`, port 8100), then update the live instance
    (`docker compose -f docker-compose.live.yml run --rm odoo-live odoo -d odoo -u <module> --stop-after-init`).
 5. Deploy order: Worker first (`wrangler deploy`), then the module, so Odoo never calls a route that does

@@ -3,7 +3,17 @@
 Порядок правил важливий. Платіж «ПДФО з авансу за серпень» містить слово «аванс», тому
 широке правило зарплати забрало б його на рахунок 661. Спеціальні правила стоять першими,
 зарплата - останньою. Номер послідовності задає цей порядок явно.
+
+Два входи, одна робота. `post_init_hook` - для компанії, план якої вже завантажено; коли
+модуль ставлять раніше за план (звичайний порядок на новій базі), те саме робить
+`_post_load_data` у models/account_chart_template.py. Обидва шляхи ідемпотентні: без
+рахунку 661 правил немає взагалі, тому раніше на чистій базі «Застосувати правила» падало
+з «Немає правил звірки».
 """
+import logging
+
+_logger = logging.getLogger(__name__)
+
 RULES = [
     # (номер, назва, рахунок, слова)
     (10, "ПДФО (6411)", "6411", ["пдфо", "податок на доходи", "податку на доходи"]),
@@ -21,24 +31,36 @@ def _account(env, company, code):
         Acc.search([("code", "=like", f"{code}%"), ("company_ids", "in", company.id)], order="code", limit=1)
 
 
-def post_init_hook(env):
-    Model = env["account.reconcile.model"]
-    for company in env["res.company"].search([]):
-        if not _account(env, company, "661"):
+def create_reconcile_models(env, company):
+    """Правила звірки однієї компанії. Нічого не робить без рахунку 661."""
+    if not _account(env, company, "661"):
+        return 0
+    Model = env["account.reconcile.model"].sudo()
+    made = 0
+    for sequence, name, code, words in RULES:
+        pattern = "(?i)" + "|".join(words)
+        existing = Model.search([("name", "=", name), ("company_id", "=", company.id)], limit=1)
+        if existing:
+            existing.write({"match_label_param": pattern, "sequence": sequence})
             continue
-        for sequence, name, code, words in RULES:
-            pattern = "(?i)" + "|".join(words)
-            existing = Model.search([("name", "=", name), ("company_id", "=", company.id)], limit=1)
-            if existing:
-                existing.write({"match_label_param": pattern, "sequence": sequence})
-                continue
-            acc = _account(env, company, code)
-            if not acc:
-                continue
-            Model.create({"name": name, "company_id": company.id, "sequence": sequence,
-                          "trigger": "manual", "can_be_proposed": True,
-                          "match_label": "match_regex", "match_label_param": pattern,
-                          "line_ids": [(0, 0, {"account_id": acc.id, "amount_type": "percentage", "amount_string": "100", "label": name})]})
-        bank = env["account.journal"].search([("type", "=", "bank"), ("company_id", "=", company.id)], limit=1)
-        if bank and bank.name in ("Bank", "Банк"):
-            bank.name = "Банк (поточний рахунок)"
+        acc = _account(env, company, code)
+        if not acc:
+            continue
+        Model.create({"name": name, "company_id": company.id, "sequence": sequence,
+                      "trigger": "manual", "can_be_proposed": True,
+                      "match_label": "match_regex", "match_label_param": pattern,
+                      "line_ids": [(0, 0, {"account_id": acc.id, "amount_type": "percentage", "amount_string": "100", "label": name})]})
+        made += 1
+    bank = env["account.journal"].sudo().search(
+        [("type", "=", "bank"), ("company_id", "=", company.id)], limit=1)
+    if bank and bank.name in ("Bank", "Банк"):
+        bank.name = "Банк (поточний рахунок)"
+    return made
+
+
+def post_init_hook(env):
+    total = 0
+    companies = env["res.company"].sudo().search([])
+    for company in companies:
+        total += create_reconcile_models(env, company)
+    _logger.info("l10n_ua_bank: створено правил звірки %d для %d компаній", total, len(companies))

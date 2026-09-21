@@ -24,7 +24,10 @@ class UaStaffList(models.Model):
     name = fields.Char("Назва", compute="_compute_name", store=True)
     company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
     currency_id = fields.Many2one(related="company_id.currency_id")
-    date = fields.Date("На дату", default=fields.Date.today, required=True, tracking=True)
+    # Дата документа - робочий день бухгалтера, а не дата сервера. fields.Date.today
+    # віддає UTC: після 21:00 за Києвом (22:00 узимку) новий розпис ставав учорашнім,
+    # і його дата розходилася з датою наказу, який складає ua_compose.
+    date = fields.Date("На дату", default=lambda s: fields.Date.context_today(s), required=True, tracking=True)
     order_ref = fields.Char("Затверджено наказом", tracking=True)
     order_number = fields.Char("Номер наказу", tracking=True)
     order_date = fields.Date("Дата наказу", tracking=True)

@@ -19,10 +19,7 @@ NAME="odoo-live-base-demo"
 # Повний набір демо-простору. Решту тягнуть залежності: l10n_ua_home дає зарплату
 # і кадри, l10n_ua_assets - account_asset_management, l10n_ua_finrep - mis_builder,
 # l10n_ua_nbu - currency_rate_update, l10n_ua_ledger - account_financial_report.
-MODULES="l10n_ua_home,l10n_ua_papers,l10n_ua_explain,l10n_ua_vat,l10n_ua_cash,l10n_ua_ledger,l10n_ua_finrep,l10n_ua_assets,l10n_ua_nbu,l10n_ua_docs,l10n_ua_migrate,l10n_ua_partner_edr,sale_management,purchase,stock,mrp,crm,contacts,auditlog,hr_employee_document"
-# account_payment_order сюди не входить: його перевірка res.bank.bic вимагає 8 або 11 знаків,
-# а український МФО має шість, і довідник банків із demo_company.py перестає створюватись.
-# Див. docs/base/demo-data.md, перелік знайдених помилок.
+MODULES="l10n_ua_home,l10n_ua_papers,l10n_ua_explain,l10n_ua_chart,l10n_ua_vat,l10n_ua_cash,l10n_ua_ledger,l10n_ua_finrep,l10n_ua_assets,l10n_ua_nbu,l10n_ua_docs,l10n_ua_migrate,l10n_ua_partner_edr,account_payment_order,sale_management,purchase,stock,mrp,crm,contacts,auditlog,hr_employee_document"
 
 ODOO_ARGS="--addons-path=/mnt/extra-addons --db_host=db --db_user=odoo --db_password=odoo --max-cron-threads=0"
 
@@ -47,34 +44,20 @@ stop_container() {
     docker rm -f "$NAME" >/dev/null 2>&1 || true
 }
 
-# Підготовка компанії: країна Україна, план ua_psbo, короткі коди рахунків,
-# українські назви журналів, пароль і мова адміністратора. Рецепт - той самий,
-# що в addons/l10n_ua_payroll_tests/tests/test_golden.py (setUpClass).
+# Підготовка компанії: країна Україна, план ua_psbo, пароль і мова адміністратора.
+# Короткі коди рахунків, українські назви, правила звірки, профілі активів, групи ПДВ
+# і журнал каси навішують самі модулі на завантаження плану (_post_load_data), тому
+# доганяти хуки тут більше не треба. Рецепт - той самий, що в
+# addons/l10n_ua_payroll_tests/tests/test_golden.py (setUpClass).
 prepare_company() {
     docker compose run --rm --no-deps -T odoo sh -c \
         "exec odoo shell $ODOO_ARGS -d '$DB' --db-filter='.*' --log-level=warn" <<PY
-from odoo.addons.l10n_ua_chart.hooks import _load_uk_names, _short_codes, _journal_names
 company = env.company
 company.country_id = env.ref("base.ua")
 if company.chart_template != "ua_psbo":
     env["account.chart.template"].try_loading("ua_psbo", company, install_demo=False)
 company.invalidate_recordset()
-# назви рахунків і журналів українською: post_init_hook модуля l10n_ua_chart
-# відпрацював ще до появи плану, тому робимо це тут
-_load_uk_names(env)
-_short_codes(env)
-_journal_names(env)
 env["account.account"].invalidate_model(["code"])
-# Хуки, яким потрібен уже завантажений план рахунків. Вони відпрацювали під час
-# встановлення, коли плану ще не було, і тихо нічого не зробили: l10n_ua_bank без
-# рахунку 661 не створює жодного правила звірки. Усі ідемпотентні.
-for module in ("l10n_ua_bank", "l10n_ua_vat", "l10n_ua_assets", "l10n_ua_payroll_rules"):
-    try:
-        hooks = __import__("odoo.addons.%s.hooks" % module, fromlist=["post_init_hook"])
-        hooks.post_init_hook(env)
-        print("ХУК:", module, "ok")
-    except Exception as exc:
-        print("ХУК:", module, "пропущено -", exc)
 admin = env.ref("base.user_admin")
 admin.password = """$ADMIN_PW"""
 admin.lang = "uk_UA"

@@ -1,7 +1,10 @@
 """Демо-справи для екрана «Прийняття»: по одній справі на кожен етап (кандидат, оформлення, прийнято,
 відмова), файли всіх видів документів і пропозиції розпізнавання в усіх станах на справі в оформленні.
 
-Повторний запуск не створює дублів (пошук за прізвищем чи назвою файлу). Запуск: python3 scripts/demo_hire.py"""
+Повторний запуск не створює дублів (пошук за прізвищем чи назвою файлу).
+База - зі змінної PAYROLL_DB (типово payroll); працює через одноразовий контейнер, тому
+годиться для будь-якої бази, не лише для тієї, під яку піднятий стенд.
+Запуск: PAYROLL_DB=payroll python3 scripts/demo_hire.py"""
 import os
 import subprocess
 import sys
@@ -174,8 +177,11 @@ for st, _label in Doc._fields["state"].selection:
         print(" ", st, n)
 """
 
+# `docker compose run --rm` замість `exec`: `exec` заходить у довгоживучий контейнер стенду,
+# а той піднятий з --db-filter під свою базу і для будь-якої іншої бази не годиться.
+# Одноразовий контейнер бере базу з рядка команди, тому працює для payroll, demo і тестових.
 proc = subprocess.run(
-    ["docker", "compose", "exec", "-T", "odoo", "sh", "-c",
+    ["docker", "compose", "run", "--rm", "--no-deps", "-T", "odoo", "sh", "-c",
      f"odoo shell -c /etc/odoo/odoo.conf --db_host=db --db_user=odoo --db_password=odoo -d {DB} --no-http --log-level=warn"],
     input=SCRIPT, capture_output=True, text=True, cwd=ROOT,
 )

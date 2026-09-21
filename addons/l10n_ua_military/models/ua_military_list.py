@@ -55,7 +55,7 @@ class UaMilitaryList(models.Model):
                        help="Список ведеться окремо по кожному ТЦК та СП, де перебувають на обліку працівники.")
     variant = fields.Selection(VARIANT, "Розділ", default="all", required=True, tracking=True,
                                 help="«Усі розділи» - повний список по ТЦК; інші значення - лише один розділ офіційної форми.")
-    date = fields.Date("На дату", default=fields.Date.today, required=True, tracking=True)
+    date = fields.Date("На дату", default=lambda s: fields.Date.context_today(s), required=True, tracking=True)
     state = fields.Selection(STATES, "Стан", default="draft", required=True, tracking=True)
     note = fields.Text("Примітка")
     line_ids = fields.One2many("ua.military.list.line", "list_id", "Рядки")

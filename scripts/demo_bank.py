@@ -48,6 +48,16 @@ def call(model, method, *a, **kw):
     return rpc("object", "execute_kw", DB, UID, PW, model, method, list(a), kw)
 
 
+def board_action(key, params=None):
+    """Одна дія екрана «Банк».
+
+    Банківські дії переїхали з ua.bank.board у ua.bank.ops; екран лишив по собі один
+    вхід - run_action(ключ, параметри), і кличе ops сам. Прямих action_* на дошці більше
+    немає, тому звертаємося саме через ключ.
+    """
+    return call("ua.bank.board", "run_action", key, params or {})
+
+
 def account(*codes):
     for code in codes:
         found = call("account.account", "search", [["code", "=like", f"{code}%"]], limit=1)
@@ -82,7 +92,7 @@ else:
 # 1б. Реквізити демо-з'єднання, щоб на екрані було видно рахунок
 provider = call("online.bank.statement.provider", "search", [["journal_id", "=", journal[0]]], limit=1)
 if not provider:
-    action = call("ua.bank.board", "action_create_provider", journal[0], "ua_privat")
+    action = board_action("create_provider", {"journal_id": journal[0], "service": "ua_privat"})
     provider = [action["res_id"]]
     print(f"Створено з'єднання {provider[0]} для журналу {journal[0]}.")
 call("online.bank.statement.provider", "write", provider,
@@ -96,17 +106,17 @@ if not mono:
     print(f"Створено журнал «{MONO_JOURNAL}» ({mono[0]}).")
 mono_provider = call("online.bank.statement.provider", "search", [["journal_id", "=", mono[0]]], limit=1)
 if not mono_provider:
-    action = call("ua.bank.board", "action_create_provider", mono[0], "ua_mono")
+    action = board_action("create_provider", {"journal_id": mono[0], "service": "ua_mono"})
     mono_provider = [action["res_id"]]
 call("online.bank.statement.provider", "write", mono_provider,
      {"service": "ua_mono", "ua_demo": True, "ua_account": MONO_IBAN, "statement_creation_mode": "monthly"})
 today = __import__("datetime").date.today()
-pull = call("ua.bank.board", "action_pull_month", mono[0], today.year, today.month)
+pull = board_action("pull_month", {"journal_id": mono[0], "year": today.year, "month": today.month})
 print(f"Monobank: {pull['message']}")
 
 # 2. Звірка за правилами
 before = call("account.bank.statement.line", "search_count", [["is_reconciled", "=", False]])
-result = call("ua.bank.board", "action_apply_rules")
+result = board_action("apply_rules")
 after = call("account.bank.statement.line", "search_count", [["is_reconciled", "=", False]])
 print(result["message"].replace("\n", " | "))
 print(f"Незвірених рядків: було {before}, стало {after}.")

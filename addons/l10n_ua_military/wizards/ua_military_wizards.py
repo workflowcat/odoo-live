@@ -15,7 +15,7 @@ class UaMilitaryListWizard(models.TransientModel):
     _description = "Список персонального військового обліку"
 
     company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
-    date = fields.Date("На дату", default=fields.Date.today, required=True)
+    date = fields.Date("На дату", default=lambda s: fields.Date.context_today(s), required=True)
     tcc = fields.Char("ТЦК та СП", help="Порожньо для кнопки «Створити списки по всіх ТЦК» - тоді буде по одному списку на кожен ТЦК.")
     variant = fields.Selection(VARIANT, "Розділ", default="all", required=True)
 
@@ -46,7 +46,7 @@ class UaMilitaryNoticeWizard(models.TransientModel):
 
     company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
     date_from = fields.Date("Період з", default=lambda s: date.today().replace(day=1), required=True)
-    date_to = fields.Date("Період по", default=fields.Date.today, required=True)
+    date_to = fields.Date("Період по", default=lambda s: fields.Date.context_today(s), required=True)
 
     def action_create(self):
         self.ensure_one()
@@ -64,7 +64,7 @@ class UaMilitaryReservedWizard(models.TransientModel):
     _description = "Список заброньованих"
 
     company_id = fields.Many2one("res.company", "Компанія", default=lambda s: s.env.company, required=True)
-    date = fields.Date("На дату", default=fields.Date.today, required=True)
+    date = fields.Date("На дату", default=lambda s: fields.Date.context_today(s), required=True)
 
     def action_create(self):
         self.ensure_one()

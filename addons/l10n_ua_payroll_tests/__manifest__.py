@@ -18,6 +18,12 @@
         "l10n_ua_index",
         "l10n_ua_payroll_account",
         "l10n_ua_chart",
+        # регресії з тега ua_regress: правила звірки, журнал каси, МФО, дати документів
+        "l10n_ua_bank",
+        "l10n_ua_cash",
+        "l10n_ua_docs",
+        "l10n_ua_hr_docs",
+        "account_payment_order",
     ],
     "data": [],
     "installable": True,

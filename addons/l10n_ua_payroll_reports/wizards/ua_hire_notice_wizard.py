@@ -18,7 +18,7 @@ class UaHireNoticeWizard(models.TransientModel):
                                     default=lambda s: s.env["hr.employee"].browse(s.env.context.get("active_ids", [])) if s.env.context.get("active_model") == "hr.employee" else False)
     notice_type = fields.Selection([("H01", "початкове"), ("H02", "скасовуюче")], default="H01", required=True, string="Тип")
     number = fields.Integer("Номер повідомлення (C_DOC_CNT)", default=1, required=True, help="Порядковий номер документа цього типу в періоді")
-    fill_date = fields.Date("Дата формування", default=fields.Date.today, required=True)
+    fill_date = fields.Date("Дата формування", default=lambda s: fields.Date.context_today(s), required=True)
     citizenship_ua = fields.Boolean("Усі громадяни України", default=True)
     log = fields.Text("Журнал", readonly=True)
 

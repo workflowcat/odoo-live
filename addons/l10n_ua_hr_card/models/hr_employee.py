@@ -111,7 +111,10 @@ class HrEmployee(models.Model):
     @api.depends("version_ids.contract_date_start")
     def _compute_ua_first_hire_date(self):
         for employee in self:
-            starts = employee.sudo().version_ids.mapped("contract_date_start")
+            # На чистій базі Odoo заводить разом із карткою версію без дати початку,
+            # і в mapped() лежить False. min() над сумішшю False і дат падає з TypeError,
+            # щойно у працівника з'являється друга версія - тому порожні відкидаємо.
+            starts = [d for d in employee.sudo().version_ids.mapped("contract_date_start") if d]
             employee.ua_first_hire_date = min(starts) if starts else False
 
     @api.depends("version_id.wage")

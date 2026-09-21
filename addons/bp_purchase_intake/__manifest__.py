@@ -5,7 +5,7 @@
     "category": "Inventory/Purchase",
     "author": "Bot&Partners",
     "license": "LGPL-3",
-    "depends": ["purchase", "account", "mail", "bp_kyc"],
+    "depends": ["purchase", "account", "mail", "bp_bridge"],
     "data": [
         "security/ir.model.access.csv",
         "data/sequence.xml",

@@ -132,11 +132,30 @@ class TestUaDocsReports(AccountTestInvoicingCommon):
 
     IBAN = "UA213223130000026007233566001"
 
+    @staticmethod
+    def _plain(text):
+        """IBAN без проміжків.
+
+        Там, де стоїть OCA account_payment_order, разом із ним приходить нативний
+        base_iban: він зберігає номер згрупованим по чотири («UA21 3223 ...»), і
+        друкована форма показує рівно те, що лежить у полі. Порівнюємо без проміжків -
+        цифри ті самі, а форма запису - справа Odoo, не наша.
+        """
+        return "".join((text or "").split())
+
     @classmethod
     @AccountTestInvoicingCommon.setup_country("ua")
     @AccountTestInvoicingCommon.setup_chart_template("ua_psbo")
     def setUpClass(cls):
         super().setUpClass()
+        # OCA account_payment_order переписує нативне право на res.partner.bank і res.bank
+        # (той самий xmlid base.access_res_partner_bank_group_partner_manager) під свою
+        # групу «Accounting / Payments». Там, де цей модуль стоїть, звичайний бухгалтер
+        # тесту більше не може завести рахунок у банку - додаємо групу, якщо вона є.
+        payments = cls.env.ref("account_payment_order.group_account_payment",
+                               raise_if_not_found=False)
+        if payments:
+            cls.env.user.sudo().group_ids |= payments
         cls.company = cls.env.company
         cls.company.write({
             "vat": "123456789012",
@@ -212,7 +231,8 @@ class TestUaDocsReports(AccountTestInvoicingCommon):
         self.assertAlmostEqual(invoice.amount_tax, 2000.0, delta=0.005)
 
         html = self._html("l10n_ua_docs.report_ua_invoice_bill", invoice)
-        for needle in ("Рахунок на оплату", "43217890", "12345678", self.IBAN,
+        self.assertIn(self.IBAN, self._plain(html), "у рахунку немає IBAN")
+        for needle in ("Рахунок на оплату", "43217890", "12345678",
                        "МФО", "322313", "ПДВ 20 %",
                        "Дванадцять тисяч гривень 00 копійок",
                        "Договір № 7 від 01.09.2026", "Іваненко Іван Іванович"):
@@ -238,8 +258,9 @@ class TestUaDocsReports(AccountTestInvoicingCommon):
         """Видаткова накладна: УКТ ЗЕД, довіреність, підписи обох сторін."""
         invoice = self._invoice(self.goods, 1, 2500.50, self.tax_20)
         html = self._html("l10n_ua_docs.report_ua_delivery_note", invoice)
+        self.assertIn(self.IBAN, self._plain(html), "у накладній немає IBAN")
         for needle in ("Видаткова накладна", "Код УКТ ЗЕД", "Довіреність",
-                       "Відпустив(ла)", "Отримав(ла)", self.IBAN,
+                       "Відпустив(ла)", "Отримав(ла)",
                        # 2 500.50 + 20 % = 3 000.60
                        "Три тисячі гривень 60 копійок"):
             self.assertIn(needle, html, "у накладній немає «%s»" % needle)
@@ -263,7 +284,7 @@ class TestUaDocsReports(AccountTestInvoicingCommon):
         buyer = invoice._ua_docs_buyer()
         self.assertEqual(seller["registry"], "43217890")
         self.assertEqual(seller["vat"], "123456789012")
-        self.assertEqual(seller["iban"], self.IBAN)
+        self.assertEqual(self._plain(seller["iban"]), self.IBAN)
         self.assertEqual(seller["mfo"], "322313")
         self.assertEqual(seller["bank_name"], "АТ «Банк Приклад»")
         self.assertEqual(seller["director"], "Іваненко Іван Іванович")
