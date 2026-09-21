@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="0">
+    <!-- Мінімальна зарплата на початок дії. Ліміт групи рахується за МЗП на
+         1 січня звітного року, ЄСВ - за МЗП того місяця, за який платиться. -->
+    <record id="p_mzp_2024_01" model="ua.fop.param">
+      <field name="key">fop_mzp</field>
+      <field name="name">Мінімальна зарплата, грн/міс</field>
+      <field name="valid_from">2024-01-01</field>
+      <field name="value">7100</field>
+      <field name="source">Закон про Держбюджет на 2024 рік</field>
+    </record>
+    <record id="p_mzp_2024_04" model="ua.fop.param">
+      <field name="key">fop_mzp</field>
+      <field name="name">Мінімальна зарплата, грн/міс</field>
+      <field name="valid_from">2024-04-01</field>
+      <field name="value">8000</field>
+      <field name="source">Закон про Держбюджет на 2024 рік</field>
+    </record>
+    <record id="p_mzp_2025" model="ua.fop.param">
+      <field name="key">fop_mzp</field>
+      <field name="name">Мінімальна зарплата, грн/міс</field>
+      <field name="valid_from">2025-01-01</field>
+      <field name="value">8000</field>
+      <field name="source">Закон про Держбюджет на 2025 рік</field>
+    </record>
+    <record id="p_mzp_2026" model="ua.fop.param">
+      <field name="key">fop_mzp</field>
+      <field name="name">Мінімальна зарплата, грн/міс</field>
+      <field name="valid_from">2026-01-01</field>
+      <field name="value">8647</field>
+      <field name="source">Закон про Держбюджет на 2026 рік</field>
+    </record>
+
+    <!-- Ставки єдиного податку 3 групи. -->
+    <record id="p_ep_rate_3" model="ua.fop.param">
+      <field name="key">fop_ep_rate_3</field>
+      <field name="name">Ставка ЄП 3 групи, неплатник ПДВ, % доходу</field>
+      <field name="valid_from">2016-01-01</field>
+      <field name="value">5</field>
+      <field name="source">п. 293.3 ПКУ</field>
+    </record>
+    <record id="p_ep_rate_3_vat" model="ua.fop.param">
+      <field name="key">fop_ep_rate_3_vat</field>
+      <field name="name">Ставка ЄП 3 групи, платник ПДВ, % доходу</field>
+      <field name="valid_from">2016-01-01</field>
+      <field name="value">3</field>
+      <field name="source">п. 293.3 ПКУ</field>
+    </record>
+    <record id="p_excess_rate" model="ua.fop.param">
+      <field name="key">fop_excess_rate</field>
+      <field name="name">Ставка ЄП із суми перевищення ліміту, %</field>
+      <field name="valid_from">2016-01-01</field>
+      <field name="value">15</field>
+      <field name="source">п. 293.4 ПКУ</field>
+    </record>
+
+    <!-- Множник річного ліміту 3 групи: 1167 мінімальних зарплат. -->
+    <record id="p_limit_mzp" model="ua.fop.param">
+      <field name="key">fop_limit_mzp</field>
+      <field name="name">Ліміт доходу 3 групи, кількість мінімальних зарплат</field>
+      <field name="valid_from">2022-01-01</field>
+      <field name="value">1167</field>
+      <field name="source">п. 291.4 ПКУ</field>
+    </record>
+
+    <!-- Військовий збір для ФОП 3 групи з'явився з 1 січня 2025 року. -->
+    <record id="p_vz_rate_0" model="ua.fop.param">
+      <field name="key">fop_vz_rate</field>
+      <field name="name">Ставка військового збору для ФОП 3 групи, % доходу</field>
+      <field name="valid_from">2016-01-01</field>
+      <field name="value">0</field>
+      <field name="source">до 2025 року ФОП на ЄП військовий збір з доходу не платив</field>
+    </record>
+    <record id="p_vz_rate_1" model="ua.fop.param">
+      <field name="key">fop_vz_rate</field>
+      <field name="name">Ставка військового збору для ФОП 3 групи, % доходу</field>
+      <field name="valid_from">2025-01-01</field>
+      <field name="value">1</field>
+      <field name="source">п. 16-1 підрозд. 10 розд. XX ПКУ, Закон № 4015-IX</field>
+    </record>
+
+    <!-- ЄСВ «за себе»: 22 % бази нарахування, мінімальна база - МЗП. -->
+    <record id="p_esv_rate" model="ua.fop.param">
+      <field name="key">fop_esv_rate</field>
+      <field name="name">Ставка ЄСВ «за себе», % мінімальної зарплати</field>
+      <field name="valid_from">2016-01-01</field>
+      <field name="value">22</field>
+      <field name="source">ст. 8 Закону № 2464-VI</field>
+    </record>
+  </data>
+</odoo>

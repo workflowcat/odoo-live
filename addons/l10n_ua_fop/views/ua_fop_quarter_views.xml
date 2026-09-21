@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_fop_quarter_list" model="ir.ui.view">
+    <field name="name">ua.fop.quarter.list</field>
+    <field name="model">ua.fop.quarter</field>
+    <field name="arch" type="xml">
+      <list string="Квартальні розрахунки ФОП">
+        <field name="year"/>
+        <field name="quarter"/>
+        <field name="income_quarter"/>
+        <field name="ep_quarter"/>
+        <field name="vz_quarter"/>
+        <field name="esv_quarter"/>
+        <field name="total_due"/>
+        <field name="limit_pct"/>
+        <field name="limit_state" decoration-danger="limit_state == 'crit'" decoration-warning="limit_state == 'warn'"/>
+        <field name="state"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="company_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_fop_quarter_form" model="ir.ui.view">
+    <field name="name">ua.fop.quarter.form</field>
+    <field name="model">ua.fop.quarter</field>
+    <field name="arch" type="xml">
+      <form string="Квартальний розрахунок ФОП">
+        <header>
+          <button name="action_compute" type="object" string="Розрахувати" class="oe_highlight"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <h1><field name="name" readonly="1"/></h1>
+          <group>
+            <group string="Період">
+              <field name="company_id" groups="base.group_multi_company"/>
+              <field name="year"/>
+              <field name="quarter"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+            <group string="Ставки">
+              <field name="ep_rate"/>
+              <field name="vz_rate"/>
+            </group>
+          </group>
+          <group>
+            <group string="Дохід (касовий метод)">
+              <field name="income_quarter"/>
+              <field name="income_ytd"/>
+            </group>
+            <group string="До сплати за квартал">
+              <field name="ep_quarter"/>
+              <field name="vz_quarter"/>
+              <field name="esv_quarter"/>
+              <field name="total_due"/>
+            </group>
+          </group>
+          <group string="Наростаючим підсумком (для декларації)">
+            <group>
+              <field name="ep_ytd"/>
+            </group>
+            <group>
+              <field name="vz_ytd"/>
+            </group>
+          </group>
+          <group string="Ліміт 3 групи">
+            <group>
+              <field name="limit_amount"/>
+              <field name="limit_pct"/>
+              <field name="limit_state"/>
+            </group>
+            <group>
+              <field name="excess_amount"/>
+              <field name="excess_tax"/>
+            </group>
+          </group>
+          <div class="alert alert-danger" role="alert" invisible="limit_state != 'crit'">
+            Дохід перевищив річний ліміт 3 групи. З суми перевищення - єдиний податок
+            за ставкою 15 % (п. 293.4 ПКУ), а з першого числа місяця, наступного за
+            звітним кварталом, - обов'язковий перехід на загальну систему (пп. 298.2.3 ПКУ).
+          </div>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_fop_quarter" model="ir.actions.act_window">
+    <field name="name">Квартальний розрахунок ЄП</field>
+    <field name="res_model">ua.fop.quarter</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>

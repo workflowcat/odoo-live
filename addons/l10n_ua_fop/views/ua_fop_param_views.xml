@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_fop_param_list" model="ir.ui.view">
+    <field name="name">ua.fop.param.list</field>
+    <field name="model">ua.fop.param</field>
+    <field name="arch" type="xml">
+      <list string="Параметри ФОП" editable="bottom">
+        <field name="key"/>
+        <field name="name"/>
+        <field name="valid_from"/>
+        <field name="value"/>
+        <field name="source"/>
+        <field name="company_id" groups="base.group_multi_company"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_fop_param" model="ir.actions.act_window">
+    <field name="name">Параметри ФОП</field>
+    <field name="res_model">ua.fop.param</field>
+    <field name="view_mode">list</field>
+  </record>
+</odoo>

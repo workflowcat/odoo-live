@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_ua_fop_root" name="ФОП"
+            parent="account.menu_finance" sequence="27"
+            groups="account.group_account_user,account.group_account_readonly"/>
+  <menuitem id="menu_ua_fop_income" name="Книга обліку доходів"
+            parent="menu_ua_fop_root" action="action_ua_fop_income" sequence="10"/>
+  <menuitem id="menu_ua_fop_quarter" name="Квартальний розрахунок ЄП"
+            parent="menu_ua_fop_root" action="action_ua_fop_quarter" sequence="20"/>
+  <menuitem id="menu_ua_fop_param" name="Параметри ФОП"
+            parent="menu_ua_fop_root" action="action_ua_fop_param" sequence="90"
+            groups="account.group_account_manager"/>
+</odoo>
