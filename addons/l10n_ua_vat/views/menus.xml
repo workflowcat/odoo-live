@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_ua_vat_root"
+            name="ПДВ (Україна)"
+            parent="account.menu_finance"
+            sequence="90"/>
+
+  <menuitem id="menu_ua_vat_document"
+            name="Податкові накладні і РК"
+            parent="menu_ua_vat_root"
+            action="action_ua_vat_document"
+            sequence="10"/>
+
+  <menuitem id="menu_ua_vat_cabinet"
+            name="Зведення за період"
+            parent="menu_ua_vat_root"
+            action="action_ua_vat_cabinet"
+            sequence="20"/>
+
+  <menuitem id="menu_ua_vat_compensation"
+            name="Компенсуючі ПЗ"
+            parent="menu_ua_vat_root"
+            action="action_ua_vat_compensation"
+            sequence="30"
+            groups="account.group_account_manager"/>
+
+  <menuitem id="menu_ua_vat_relief"
+            name="Пільги з ПДВ"
+            parent="menu_ua_vat_root"
+            action="action_ua_vat_relief"
+            sequence="40"/>
+</odoo>

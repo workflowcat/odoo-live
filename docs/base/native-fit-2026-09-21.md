@@ -10,8 +10,10 @@ what upstream already gives. Source: Opus audit agent, upstream checked through 
 - Odoo 19 CE ships `hr_work_entry`, `hr_work_entry_holidays`, `hr_holidays`, `hr_attendance`,
   `hr_recruitment`, `hr_timesheet`, `hr.version`. Enterprise only: `hr_payroll`, `sign`,
   `documents`, `account_batch_payment`.
-- Native `l10n_ua` = chart template `ua_psbo` and one VAT tag. No taxes, no fiscal positions, no
-  report templates. ПДВ taxes are ours to build (`ua_vat` from the sandbox is the place).
+- Native `l10n_ua` = chart template `ua_psbo` plus the full VAT tax set (sale and purchase
+  20/14/7/0/exempt, tax groups; sale VAT on 6432, purchase on 6442) - checked inside the `odoo:19`
+  image by the VAT port agent; the first audit read only the GitHub tree and missed it. No fiscal
+  positions, no report templates. `l10n_ua_vat` adds no taxes, only the zero-rate kind marker.
 - OCA 19.0 branches exist for every repo below, all thinner than 18.0. `payroll_account` is NOT in
   OCA/payroll 19.0. `hr_timesheet_sheet` is NOT in 19.0. OCA/l10n-ukraine 19.0 is empty.
 
