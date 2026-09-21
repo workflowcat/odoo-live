@@ -117,19 +117,29 @@ call("hr.employee", "write", [scratch], {"ua_insurance_years": orig["ua_insuranc
 # -- COMP_VAC: extra_comp_days бере невикористані СОЦ_ДІТИ/УБД/особливі умови в місяці звільнення --
 STRUCT = call("hr.payroll.structure", "search", [["code", "=", "UA_SALARY"]])[0]
 CAL = call("res.company", "read", [1], ["resource_calendar_id"])[0]["resource_calendar_id"][0]
-dept = call("hr.department", "search", [["name", "=", "Тест СОЦ_ДІТИ (leaves_check)"]])
-dept = dept[0] if dept else call("hr.department", "create", {"name": "Тест СОЦ_ДІТИ (leaves_check)"})
-existing = call("hr.employee", "search", [["name", "=", "Еталон СоцДіти Компенсація"]], context={"active_test": False})
+# Людина, а не фікстура: у базі має лежати звичайний працівник у звичайному підрозділі,
+# інакше «Люди» і штатний розпис показують вигадані назви поруч зі справжніми.
+# Пізнається за РНОКПП, тому тезка в базі нічого не ламає.
+FIXTURE = {"rnokpp": "3099887766", "name": "Лещук Оксана Дмитрівна",
+           "dept": "Бухгалтерія", "job": "Економіст", "kp": "2441.2"}
+dept = call("hr.department", "search", [["name", "=", FIXTURE["dept"]]])
+dept = dept[0] if dept else call("hr.department", "create", {"name": FIXTURE["dept"]})
+existing = call("hr.employee", "search", [["ua_rnokpp", "=", FIXTURE["rnokpp"]]], context={"active_test": False})
+if not existing:   # прибирання старої фікстури з вигаданим іменем
+    existing = call("hr.employee", "search", [["name", "=", "Еталон СоцДіти Компенсація"]], context={"active_test": False})
 if existing:
     eid = existing[0]
-    call("hr.employee", "write", [eid], {"active": True, "ua_soc_child_disabled_child": True})
+    call("hr.employee", "write", [eid], {"active": True, "ua_soc_child_disabled_child": True,
+                                         "name": FIXTURE["name"], "ua_rnokpp": FIXTURE["rnokpp"],
+                                         "department_id": dept, "job_title": FIXTURE["job"]})
 else:
-    eid = call("hr.employee", "create", {"name": "Еталон СоцДіти Компенсація", "department_id": dept,
+    eid = call("hr.employee", "create", {"name": FIXTURE["name"], "department_id": dept,
+                                         "ua_rnokpp": FIXTURE["rnokpp"], "job_title": FIXTURE["job"],
                                          "resource_calendar_id": CAL, "ua_soc_child_disabled_child": True})
 ver = call("hr.employee", "read", [eid], ["version_id"])[0]["version_id"][0]
 call("hr.version", "write", [ver], {"wage": 20000, "date_version": "2020-01-01", "contract_date_start": "2020-01-01",
                                     "contract_date_end": "2026-08-31", "struct_id": STRUCT, "resource_calendar_id": CAL,
-                                    "ua_kp_code": "2411.2", "ua_prof_name": "Економіст",
+                                    "ua_kp_code": FIXTURE["kp"], "ua_prof_name": FIXTURE["job"],
                                     "ua_order_ref": "Наказ № 1 від 01.01.2020", "ua_end_order_ref": "Наказ № 2 від 31.08.2026",
                                     "ua_dismissal_basis": "п. 1 ст. 36 КЗпП (угода сторін)"}, context={"sync_contract_dates": True})
 call("hr.employee", "ua_ensure_allocations", [eid], 2026)

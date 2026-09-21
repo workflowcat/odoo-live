@@ -24,7 +24,8 @@ def call(model, method, *a, **kw): return rpc("object", "execute_kw", DB, uid, P
 
 STRUCT = call("hr.payroll.structure", "search", [["code", "=", "UA_SALARY"]])[0]
 if PURGE:
-    emps = call("hr.employee", "search", [["name", "like", "Еталон %"], ["active", "in", [True, False]]])
+    # Еталонні люди пізнаються за РНОКПП 30000000xx, а не за словом у назві.
+    emps = call("hr.employee", "search", [["ua_rnokpp", "=like", "30000000%"], ["active", "in", [True, False]]])
     slips = call("hr.payslip", "search_read", [["employee_id", "in", emps]], fields=["id", "state", "move_id"])
     for sl in slips:
         if sl["state"] == "done" and sl["move_id"]:
@@ -33,7 +34,8 @@ if PURGE:
             call("hr.payslip", "write", [sl["id"]], {"state": "cancel"})
     if slips:
         call("hr.payslip", "unlink", [sl["id"] for sl in slips])
-    for run in call("hr.payslip.run", "search", [["name", "like", "Еталонні сценарії%"]]):
+    for run in call("hr.payslip.run", "search", ["|", ["name", "like", "Еталонні сценарії%"],
+                                                 ["name", "=", "Зарплата за серпень 2026"]]):
         call("hr.payslip.run", "unlink", [run])
     for h in call("ua.earnings.history", "search", [["employee_id", "in", emps]]):
         call("ua.earnings.history", "unlink", [h])
@@ -49,13 +51,14 @@ if PURGE:
         except RuntimeError as e:
             call("hr.employee", "write", emps, {"active": False}); print("archived instead of deleted:", str(e)[:120])
     for d in call("hr.department", "search", [["name", "=", "Еталонні сценарії (тест)"]]):
-        call("hr.department", "unlink", [d])
+        call("hr.department", "unlink", [d])   # прибирання старої тестової теки
     print(f"purged {len(emps)} employees, {len(slips)} payslips from {DB}")
     sys.exit(0)
 if "ua_sti_code" in call("res.company", "fields_get", [], attributes=["type"]) and call("res.company", "read", [1], ["company_registry"])[0]["company_registry"] in (False, "", "12345678"):
     call("res.company", "write", [1], {"company_registry": "12345678", "ua_sti_code": "2655", "ua_sti_name": "ГУ ДПС у м. Києві, ДПІ у Печерському районі (тест)",
-         "ua_reg": "26", "ua_raj": "55", "ua_katottg": "UA80000000000093317", "ua_kved": "62.01", "street": "вул. Тестова, 1", "zip": "01001", "city": "Київ",
-         "ua_director_name": "Тестовий Керівник", "ua_director_rnokpp": "1234567890", "ua_accountant_name": "Тестовий Бухгалтер", "ua_accountant_rnokpp": "1234567891"})
+         "ua_reg": "26", "ua_raj": "55", "ua_katottg": "UA80000000000093317", "ua_kved": "31.09", "street": "вул. Богдана Хмельницького, 14", "zip": "01001", "city": "Київ",
+         "ua_director_name": "Гаврилюк Богдан Тарасович", "ua_director_rnokpp": "2705104516",
+         "ua_accountant_name": "Стефанишин Оксана Ігорівна", "ua_accountant_rnokpp": "2841207324"})
 CAL = call("res.company", "read", [1], ["resource_calendar_id"])[0]["resource_calendar_id"][0]
 EMP_FIELDS = call("hr.employee", "fields_get", [], attributes=["type"])
 PERIOD = ("2026-08-01", "2026-08-31")
@@ -133,6 +136,58 @@ NAMES = {"1": ("Коваленко", "Ірина", "Петрівна", "female")
          "29": ("Стельмах", "Ігор", "Богданович", "male"), "30": ("Кравець", "Аліна", "Юріївна", "female"),
          "23": ("Мазур", "Ірина", "Степанівна", "female"), "24": ("Ковальчук", "Павло", "Ігорович", "male"),
          "25": ("Гнатюк", "Оксана", "Андріївна", "female"), "26": ("Шевченко", "Юрій", "Миколайович", "male")}
+# Посада, код КП і підрозділ на кожен сценарій. Еталонні люди - це та сама компанія,
+# просто кожен у своїй ситуації: коди звірені зі службою класифікатора (profkod),
+# підрозділи ті самі, що в демо-компанії.
+# Шість сценаріїв (1, 7, 13, 18, 19, 21) звіряють проводку і чекають Дт92 -
+# адміністративні витрати. Рахунок витрат береться з підрозділу: «Виробництво» дає 231,
+# «Відділ продажу» - 93, «Склад і логістика» - 91. Тому ці шестеро працюють в
+# «Адміністрації» або «Бухгалтерії»: інакше проводка піде на інший рахунок, і еталон,
+# порахований бухгалтером вручну, перестане збігатися не через помилку в зарплаті,
+# а через те, куди ми їх посадили.
+POSTS = {
+    "1": ("Бухгалтер", "3433", "Бухгалтерія"),
+    "2": ("Менеджер із збуту", "1475.4", "Відділ продажу"),
+    "3": ("Юрисконсульт", "2429", "Адміністрація"),
+    "4": ("Прибиральник службових приміщень", "9132", "Адміністрація"),
+    "5": ("Комірник", "4131", "Склад і логістика"),
+    "6": ("Бухгалтер", "3433", "Бухгалтерія"),
+    "7": ("Юрисконсульт", "2429", "Адміністрація"),
+    "8": ("Пакувальник", "9322", "Склад і логістика"),
+    "9": ("Дизайнер меблів", "3471", "Виробництво"),
+    "10": ("Комерційний директор", "1233", "Відділ продажу"),
+    "11": ("Водій автотранспортних засобів", "8322", "Склад і логістика"),
+    "12": ("Фахівець з маркетингу", "2419.2", "Відділ продажу"),
+    "13": ("Бухгалтер", "3433", "Бухгалтерія"),
+    "14": ("Монтажник меблів", "7422", "Виробництво"),
+    "15": ("Бухгалтер", "3433", "Бухгалтерія"),
+    "16": ("Технік-конструктор", "3118", "Виробництво"),
+    "17": ("Інженер-технолог", "2149.2", "Виробництво"),
+    "18": ("Економіст", "2441.2", "Бухгалтерія"),
+    "19": ("Менеджерка з персоналу", "1477.1", "Адміністрація"),
+    "20": ("Бухгалтер", "3433", "Бухгалтерія"),
+    "21": ("Прибиральник службових приміщень", "9132", "Адміністрація"),
+    "22": ("Інженер-технолог", "2149.2", "Виробництво"),
+    "23": ("Столяр", "7422", "Виробництво"),
+    "24": ("Комірник", "4131", "Склад і логістика"),
+    "25": ("Менеджер із збуту", "1475.4", "Відділ продажу"),
+    "26": ("Пакувальник", "9322", "Склад і логістика"),
+    "27": ("Комірник", "4131", "Склад і логістика"),
+    "28": ("Столяр", "7422", "Виробництво"),
+    "29": ("Комерційний директор", "1233", "Відділ продажу"),
+    "30": ("Прибиральник службових приміщень", "9132", "Адміністрація"),
+}
+DEPT_CACHE = {}
+
+
+def dept_id(title):
+    """Підрозділ за назвою; створюємо, якщо його ще немає."""
+    if title not in DEPT_CACHE:
+        found = call("hr.department", "search", [["name", "=", title]])
+        DEPT_CACHE[title] = found[0] if found else call("hr.department", "create", {"name": title})
+    return DEPT_CACHE[title]
+
+
 # робочі дні місяців 2025-2026 для середньої за два місяці (відрядження)
 WORK_DAYS = {(2025, 8): 21, (2025, 9): 22, (2025, 10): 23, (2025, 11): 20, (2025, 12): 23,
              (2026, 1): 21, (2026, 2): 20, (2026, 3): 22, (2026, 4): 22, (2026, 5): 20,
@@ -168,15 +223,20 @@ if HAS_INDEX:
                 print("не вдалося повернути індекс", rec_id, exc)
     atexit.register(_restore_cpi)
 
-RUN = call("hr.payslip.run", "search", [["name", "=", "Еталонні сценарії, серпень 2026"]])
-RUN = RUN[0] if RUN else call("hr.payslip.run", "create", {"name": "Еталонні сценарії, серпень 2026", "date_start": PERIOD[0], "date_end": PERIOD[1]})
-DEPT = call("hr.department", "search", [["name", "=", "Еталонні сценарії (тест)"]])
-DEPT = DEPT[0] if DEPT else call("hr.department", "create", {"name": "Еталонні сценарії (тест)"})
+RUN_NAME = "Зарплата за серпень 2026"
+RUN = call("hr.payslip.run", "search", [["name", "=", RUN_NAME]])
+RUN = RUN[0] if RUN else call("hr.payslip.run", "create", {"name": RUN_NAME, "date_start": PERIOD[0], "date_end": PERIOD[1]})
 for name, efields, wage, inputs, expect in S:
     moves = efields.pop("moves", None)
-    ename = f"Еталон {name}"
-    ln, fn, mn, sex = NAMES[name.split()[0]]
-    efields = {"ua_last_name": ln, "ua_first_name": fn, "ua_middle_name": mn, "sex": sex, "department_id": DEPT, **efields}
+    num = name.split()[0]
+    ln, fn, mn, sex = NAMES[num]
+    ename = f"{ln} {fn} {mn}"
+    job, kp, dept_title = POSTS.get(num, ("Фахівець", "", "Адміністрація"))
+    efields = {"ua_last_name": ln, "ua_first_name": fn, "ua_middle_name": mn, "sex": sex,
+               "department_id": dept_id(dept_title), "job_title": job, **efields}
+    if "ua_kp_code" in EMP_FIELDS and kp:
+        efields.setdefault("ua_kp_code", kp)
+        efields.setdefault("ua_prof_name", job)
     start = efields.pop("start", "2026-01-01"); end = efields.pop("end", False); history = efields.pop("history", None); leaves = efields.pop("leaves", []); years = efields.pop("years", 0); rehire = efields.pop("rehire", False)
     efields.setdefault("ua_fte", "1")
     index_base = efields.pop("index_base", None)
@@ -187,7 +247,9 @@ for name, efields, wage, inputs, expect in S:
     efields["ua_insurance_years"] = years
     n = int(name.split()[0]); efields.update({"ua_rnokpp": f"30000000{n:02d}", "sex": "male" if n % 2 else "female"})
     efields.update({"ua_hire_date": start, "ua_dismissal_date": end or False} if "ua_hire_date" in EMP_FIELDS else {})
-    eid = call("hr.employee", "search", [["name", "=", ename]])
+    # Шукаємо за РНОКПП, а не за іменем: ім'я тепер звичайне, і в базі може бути тезка.
+    eid = call("hr.employee", "search", [["ua_rnokpp", "=", efields["ua_rnokpp"]],
+                                         ["active", "in", [True, False]]])
     if eid:
         old = call("hr.payslip", "search", [["employee_id", "in", eid]])
         if old:
