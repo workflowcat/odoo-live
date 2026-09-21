@@ -264,7 +264,8 @@ check("ua.staff.list.ua_compose складає розпис прямим вик�
 if doc_id:
     doc = call("ua.staff.list", "read", [doc_id], ["state", "date", "line_ids"])[0]
     check("розпис від логіки - чернетка на сьогодні з рядками",
-          doc["state"] == "draft" and str(doc["date"]) == str(today_srv) and bool(doc["line_ids"]),
+          # логіка бере «сьогодні» користувача (Київ), сервер живе в UTC: після півночі це різні дати
+          doc["state"] == "draft" and str(doc["date"]) in (str(today_srv), date.today().isoformat()) and bool(doc["line_ids"]),
           f"{doc['date']} (сервер {today_srv}), рядків {len(doc['line_ids'])}")
     doc_rows = call("ua.staff.list.line", "search_read", [["list_id", "=", doc_id]],
                     fields=["job_title", "kp_code", "units", "wage"])
@@ -324,7 +325,8 @@ check("пункт «Люди» на місці і активний",
 # людину можуть прийняти знову тією самою карткою. Ткачука так і не було видно в
 # «Людях», у штатному розписі й у повідомленні до ТЦК - картка лишилась архівною
 # після звільнення 31.05.2026, хоча з 17.08.2026 він знову на роботі.
-today = date.today().isoformat()
+# сервер живе в UTC: після півночі за Києвом дата хоста вже інша
+today = __import__("datetime").datetime.now(__import__("datetime").timezone.utc).date().isoformat()
 archived = call("hr.employee", "search_read", [["active", "=", False]],
                 fields=["name", "version_id"], context={"active_test": False})
 wrongly = []

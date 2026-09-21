@@ -13,6 +13,8 @@
     "depends": [
         "l10n_ua_payroll_rules",
         "l10n_ua_average",
+        # ознаки права на відпустку (УБД, одинокий батько/мати, діти) живуть у картці
+        "l10n_ua_hr_card",
         "l10n_ua_index",
         "l10n_ua_payroll_account",
         "l10n_ua_chart",

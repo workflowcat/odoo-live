@@ -82,18 +82,32 @@ expected_accrued = round((emp.ua_vacation_days_year or 24) * days / 365.0, 1)
 check(f"{emp_name}: накопичення рахується лише з max(дата впровадження, дата контракту) = {expected_accrued}",
       abs(after_accrued - expected_accrued) < 0.05, f"факт {after_accrued}")
 
-# ---- 3. відпустка до дати впровадження не входить у "використано" ----
+# ---- 3. відпустка до дати впровадження не потрапляє в облік ----
+# Нарахування (hr.leave.allocation) починаються з дати впровадження, тому днів на 2024 рік
+# у базі просто немає і рідна перевірка hr_holidays таку заявку не пропускає. Раніше заявка
+# створювалась і мовчки не рахувалась; тепер відмова видима. «Використано» в обох випадках
+# не міняється - саме це тут і перевіряється.
 lt_vac = LeaveType.search([('work_entry_type_id.code', '=', 'VAC')], limit=1)
 used_before_test = emp.ua_vacation_used
-old_leave = Leave.with_company(emp.company_id).with_context(default_employee_id=emp.id, allowed_company_ids=[emp.company_id.id]).create({'employee_id': emp.id, 'holiday_status_id': lt_vac.id,
-                          'request_date_from': '2024-01-08', 'request_date_to': '2024-01-10'})
-old_leave.action_approve()
+refused = False
+try:
+    with env.cr.savepoint():      # точка збереження, а не rollback: дата впровадження з кроку 2 має вціліти
+        old_leave = Leave.with_company(emp.company_id).with_context(
+            default_employee_id=emp.id, allowed_company_ids=[emp.company_id.id]).create({
+                'employee_id': emp.id, 'holiday_status_id': lt_vac.id,
+                'request_date_from': '2024-01-08', 'request_date_to': '2024-01-10'})
+        old_leave.action_approve()
+except Exception:
+    refused = True
 emp.invalidate_recordset()
 used_after_test = emp.ua_vacation_used
-check(f"{emp_name}: відпустка до дати впровадження (08-10.01.2024) не збільшує «використано» ({used_before_test} = {used_after_test})",
+check(f"{emp_name}: відпустку до дати впровадження (08-10.01.2024) не оформити - на ту дату немає нарахування",
+      refused)
+check(f"{emp_name}: відпустка до дати впровадження не збільшує «використано» ({used_before_test} = {used_after_test})",
       abs(used_before_test - used_after_test) < 0.05)
-old_leave.action_refuse()
-old_leave.unlink()
+if not refused:
+    old_leave.action_refuse()
+    old_leave.unlink()
 
 # ---- 4. початкові залишки декільком працівникам, перевірка формули балансу ----
 sample = Employee.search([('ua_rnokpp', '!=', False)], order='id', limit=5)

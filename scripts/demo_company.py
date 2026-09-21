@@ -237,7 +237,10 @@ for i, (ln, fn, mn, sex, bd, job, dept, wage, fte, kind, main, esv, psp, pspk, y
         if job in ("Столяр", "Верстатник деревообробних верстатів") and m in (11, 12, 4):
             gross += 1500
         call("ua.earnings.history", "create", {"employee_id": eid, "month": str(first), "gross": round(gross, 2)})
-    # відпустки серпня
+    # відпустки серпня. Нарахування днів - перед заявкою: без них рідна перевірка hr_holidays
+    # не проводить щорічну, УБД, соціальну на дітей і відпустку за особливий характер праці.
+    if extra.get("leaves"):
+        call("hr.employee", "ua_ensure_leave_allocations", [eid])
     for lcode, d1, d2 in extra.get("leaves", []):
         existing = call("hr.leave", "search_read", [["employee_id", "=", eid], ["holiday_status_id", "=", LT[lcode]], ["request_date_from", "=", d1], ["state", "=", "validate"]], fields=["ua_sick_number", "ua_order_ref"])
         if existing and lcode in ("SICK", "MAT") and not existing[0]["ua_sick_number"]:

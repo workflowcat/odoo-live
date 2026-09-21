@@ -293,7 +293,10 @@ for name, efields, wage, inputs, expect in S:
             work_days = WORK_DAYS.get((y, mo), 21)
             call("ua.earnings.history", "create", {"employee_id": eid, "month": f"{y}-{mo:02d}-01",
                                                    "gross": history, "work_days": work_days})
-    # відпустки і лікарняні: створити і затвердити, якщо ще немає
+    # відпустки і лікарняні: створити і затвердити, якщо ще немає.
+    # Спершу нарахування: рідна перевірка hr_holidays не проводить відпустку без нарахування днів.
+    if leaves:
+        call("hr.employee", "ua_ensure_leave_allocations", [eid])
     for code, d1, d2 in leaves:
         lt = call("hr.leave.type", "search", [["work_entry_type_id.code", "=", code]])[0]
         if not call("hr.leave", "search", [["employee_id", "=", eid], ["holiday_status_id", "=", lt], ["request_date_from", "=", d1], ["state", "=", "validate"]]):

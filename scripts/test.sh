@@ -3,7 +3,7 @@
 #
 #   scripts/test.sh              звичайний запуск, база після прогону видаляється
 #   KEEP_DB=1 scripts/test.sh    базу залишити (подивитися дані після падіння)
-#   TEST_TAGS=ua_golden          які тести запускати (типово ua_golden)
+#   TEST_TAGS=ua_golden,ua_leaves  які тести запускати (типово обидва набори)
 #
 # Встановлення всього ланцюга модулів на порожню базу - теж частина перевірки:
 # якщо якийсь модуль не ставиться, скрипт падає і показує голову трейсбека.
@@ -13,7 +13,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
 MODULE="l10n_ua_payroll_tests"
-TEST_TAGS="${TEST_TAGS:-ua_golden}"
+TEST_TAGS="${TEST_TAGS:-ua_golden,ua_leaves}"
 DB="${TEST_DB:-payroll_golden_$$}"
 LOG="$(mktemp -t payroll_test)"
 STARTED_AT=$SECONDS
@@ -67,15 +67,19 @@ set -e
 
 ELAPSED=$((SECONDS - STARTED_AT))
 echo
-python3 - "$LOG" "$ODOO_CODE" "$ELAPSED" <<'PY'
+python3 - "$LOG" "$ODOO_CODE" "$ELAPSED" "$TEST_TAGS" <<'PY'
 import json, os, re, sys
 
-log_path, odoo_code, elapsed = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
+log_path, odoo_code, elapsed, tags = sys.argv[1], int(sys.argv[2]), int(sys.argv[3]), sys.argv[4]
+# Еталонні сценарії числяться пропущеними лише тоді, коли їх замовляли: з TEST_TAGS без
+# ua_golden таблиця показує те, що справді запускалось, і не вигадує провалів.
+golden_requested = "ua_golden" in [t.strip() for t in tags.split(",")]
 golden = os.path.join(os.getcwd(), "addons", "l10n_ua_payroll_tests", "golden", "scenarios.json")
 with open(golden, encoding="utf-8") as fh:
     scenarios = json.load(fh)["scenarios"]
-titles = {"test_%02d" % s["id"]: s["title"] for s in scenarios}
-titles["test_00_account_map_covers_rules"] = "карта проводок покриває всі правила"
+titles = {"test_%02d" % s["id"]: s["title"] for s in scenarios} if golden_requested else {}
+if golden_requested:
+    titles["test_00_account_map_covers_rules"] = "карта проводок покриває всі правила"
 
 log = open(log_path, encoding="utf-8", errors="replace").read()
 lines = log.splitlines()
@@ -117,8 +121,8 @@ for name in names:
         fails += 1
         print("%-*s  %-5s  %s" % (width, name, "MISS", title + " (тест не запускався)"))
 print("=" * 100)
-print("сценаріїв у наборі: %d; тестів запущено: %d; провалів: %d; час: %d с"
-      % (len(scenarios), len(started), fails, elapsed))
+print("теги: %s; сценаріїв у наборі: %d; тестів запущено: %d; провалів: %d; час: %d с"
+      % (tags, len(scenarios), len(started), fails, elapsed))
 if install_problem:
     print("проблеми встановлення:")
     for ln in install_problem[:5]:

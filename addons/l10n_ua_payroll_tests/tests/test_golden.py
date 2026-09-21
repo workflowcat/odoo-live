@@ -132,6 +132,9 @@ class TestGoldenScenarios(TransactionCase):
             })
         if setup.get("history"):
             self._earnings_history(employee, setup["history"])
+        # нарахування днів відпустки мають існувати до заявки: рідна перевірка hr_holidays
+        # не проводить відпустку без нарахування
+        employee.sudo()._ua_ensure_leave_allocations()
         for code, date_from, date_to in setup.get("leaves", []):
             self._leave(employee, code, date_from, date_to)
         return employee, version
