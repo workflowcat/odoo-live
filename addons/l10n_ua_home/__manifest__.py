@@ -1,7 +1,7 @@
 {
     "name": "Домівка",
     "summary": "Головний екран: карта п'яти розділів, потік між ними і особиста панель бухгалтера",
-    "version": "19.0.1.0.1",
+    "version": "19.0.1.0.4",
     "category": "Human Resources",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -12,7 +12,9 @@
         "l10n_ua_changes",
         "l10n_ua_hr_orders",
         "l10n_ua_hr_card",
+        "l10n_ua_card_ui",
         "l10n_ua_reporting",
+        "l10n_ua_reporting_ui",
         "l10n_ua_payroll_ui",
         "l10n_ua_dashboard",
         # моделі, які читає цей модуль напряму, а не лише через навігацію
@@ -22,6 +24,7 @@
         "l10n_ua_payments",
         "l10n_ua_payroll_rules",
         "l10n_ua_bank_online",
+        "l10n_ua_bank_ui",
         "l10n_ua_hr_docs",
         "payroll",
     ],

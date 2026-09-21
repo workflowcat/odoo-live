@@ -64,7 +64,7 @@
        вимкненими (active="False"), не видаленими - самі дії лишаються, бо на них ведуть
        цілі з інших екранів (наприклад, «Штатний розпис» цього екрана відкриває чинний
        ua.staff.list через ту саму дію, що стояла за пунктом «Штатні розписи»). -->
-  <menuitem id="l10n_ua_hire.menu_ua_hire" name="Прийняття"
+  <menuitem id="l10n_ua_hire_ui.menu_ua_hire" name="Прийняття"
             parent="menu_ua_people_root" sequence="0"/>
   <menuitem id="menu_ua_people_screen" name="Люди" parent="menu_ua_people_root"
             action="l10n_ua_people.action_ua_people" sequence="0" groups="hr.group_hr_user"/>
@@ -100,25 +100,25 @@
             parent="l10n_ua_payroll_ui.menu_ua_military" sequence="4"/>
 
   <!-- ================================================================= 3. Банк -->
-  <menuitem id="l10n_ua_bank_online.menu_ua_bank_board" name="Банк" parent="" sequence="3"/>
+  <menuitem id="l10n_ua_bank_ui.menu_ua_bank_board" name="Банк" parent="" sequence="3"/>
   <menuitem id="menu_ua_bank_screen" name="Рахунки і виписки"
-            parent="l10n_ua_bank_online.menu_ua_bank_board"
-            action="l10n_ua_bank_online.action_ua_bank_board" sequence="1"/>
+            parent="l10n_ua_bank_ui.menu_ua_bank_board"
+            action="l10n_ua_bank_ui.action_ua_bank_board" sequence="1"/>
   <menuitem id="menu_ua_setup_bank" name="Підключення банків"
-            parent="l10n_ua_bank_online.menu_ua_bank_board"
+            parent="l10n_ua_bank_ui.menu_ua_bank_board"
             action="l10n_ua_bank_online.action_ua_bank_connect" sequence="2"/>
 
   <!-- ================================================================= 4. Звітність -->
-  <menuitem id="l10n_ua_reporting.menu_ua_reporting_root" name="Звітність" sequence="4"/>
+  <menuitem id="l10n_ua_reporting_ui.menu_ua_reporting_root" name="Звітність" sequence="4"/>
   <menuitem id="menu_ua_reporting_screen" name="Звіти періоду"
-            parent="l10n_ua_reporting.menu_ua_reporting_root"
-            action="l10n_ua_reporting.action_ua_reporting" sequence="1"/>
+            parent="l10n_ua_reporting_ui.menu_ua_reporting_root"
+            action="l10n_ua_reporting_ui.action_ua_reporting" sequence="1"/>
   <menuitem id="l10n_ua_payroll_ui.menu_ua_pfu_claim_docs" name="Заяви-розрахунки ПФУ"
-            parent="l10n_ua_reporting.menu_ua_reporting_root" sequence="2"/>
+            parent="l10n_ua_reporting_ui.menu_ua_reporting_root" sequence="2"/>
 
   <!-- ================================================================= 5. Налаштування -->
   <menuitem id="menu_ua_setup_profile" name="Анкета компанії" parent="menu_ua_setup_root"
-            action="l10n_ua_setup.action_ua_setup_board" sequence="1"/>
+            action="l10n_ua_setup_ui.action_ua_setup_board" sequence="1"/>
   <menuitem id="menu_ua_setup_params" name="Параметри зарплати" parent="menu_ua_setup_root"
             action="l10n_ua_payroll_rules.action_ua_payroll_param" sequence="2"/>
   <menuitem id="menu_ua_setup_cpi" name="Індекси споживчих цін" parent="menu_ua_setup_root"

@@ -50,8 +50,8 @@ class UaHome(models.AbstractModel):
     REGIONS = [
         ("people", "ПР", "Працівники", "l10n_ua_navigation.menu_ua_people_root"),
         ("payroll", "ЗП", "Зарплата", "l10n_ua_period.menu_ua_period_root"),
-        ("bank", "БН", "Банк", "l10n_ua_bank_online.menu_ua_bank_board"),
-        ("reporting", "ЗВ", "Звітність", "l10n_ua_reporting.menu_ua_reporting_root"),
+        ("bank", "БН", "Банк", "l10n_ua_bank_ui.menu_ua_bank_board"),
+        ("reporting", "ЗВ", "Звітність", "l10n_ua_reporting_ui.menu_ua_reporting_root"),
         ("setup", "НЛ", "Налаштування зарплати", "l10n_ua_navigation.menu_ua_setup_root"),
     ]
 
@@ -266,7 +266,7 @@ class UaHome(models.AbstractModel):
             ("year", "=", year), ("month", "=", month), ("doc_kind", "=", "HZ"),
         ], limit=1)
         target = {"model": "ua.report.run", "res_id": run.id} if run \
-            else {"xmlid": "l10n_ua_reporting.action_ua_reporting"}
+            else {"xmlid": "l10n_ua_reporting_ui.action_ua_reporting"}
         if run and run.state == "submitted":
             return self._feat("reporting", "done", "J0500111 подано", target)
         if run and run.state == "generated":
@@ -287,7 +287,7 @@ class UaHome(models.AbstractModel):
             return None
         return self._feat("reporting", "done",
                           "%s %s перевірено чи краще" % (n, self._plural(n, "звіт", "звіти", "звітів")),
-                          {"xmlid": "l10n_ua_reporting.action_ua_reporting"})
+                          {"xmlid": "l10n_ua_reporting_ui.action_ua_reporting"})
 
     # ------------------------------------------------------------------ факти: налаштування
     def _feat_setup(self, company):

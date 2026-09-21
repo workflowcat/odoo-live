@@ -22,7 +22,7 @@ function fmtCell(v, money) {
 }
 
 export class UaReporting extends Component {
-    static template = "l10n_ua_reporting.Reporting";
+    static template = "l10n_ua_reporting_ui.Reporting";
     static props = { ...standardActionServiceProps };
     static components = { Dropdown, DropdownItem };
 

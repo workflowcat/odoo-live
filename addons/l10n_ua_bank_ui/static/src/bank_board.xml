@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
-  <t t-name="l10n_ua_bank_online.BankBoard" owl="1">
+  <t t-name="l10n_ua_bank_ui.BankBoard" owl="1">
     <div class="o_ua_bank">
       <t t-if="state.loading">
         <div class="text-muted p-4">Завантаження…</div>

@@ -3,7 +3,7 @@
 перевірки (є ok на суми і error/warn за станом даних), action_generate() без помилок формує
 щонайменше 4 файли XML (кожен починається з <?xml) для j05 за місяць; окремий прогін pfu формує
 PDF (%PDF); action_mark_submitted() ставить стан і дату; повторне створення прогону на той самий
-період відкриває наявний, а не дублює; бандл web.assets_backend містить l10n_ua_reporting.Reporting.
+період відкриває наявний, а не дублює; бандл web.assets_backend містить l10n_ua_reporting_ui.Reporting.
 
 Цілі перевірок: кожен рядок ua.report.check називає target_model/target_domain (JSON) або
 target_res_id, і ціль дійсно резолвиться (search/res_id). Вересень 2026, демо-компанія «Ясен
@@ -181,7 +181,7 @@ else:
             code = r.getcode()
             body = r.read().decode("utf-8", errors="replace")
         check("GET /web/assets/debug/web.assets_backend.js -> 200", code == 200, f"code={code}")
-        check("бандл містить l10n_ua_reporting.Reporting", "l10n_ua_reporting.Reporting" in body)
+        check("бандл містить l10n_ua_reporting_ui.Reporting", "l10n_ua_reporting_ui.Reporting" in body)
     except Exception as exc:
         check("GET /web/assets/debug/web.assets_backend.js", False, str(exc)[:300])
 

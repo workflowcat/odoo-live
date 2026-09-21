@@ -13,7 +13,7 @@ function money(value) {
 }
 
 export class UaBankBoard extends Component {
-    static template = "l10n_ua_bank_online.BankBoard";
+    static template = "l10n_ua_bank_ui.BankBoard";
     static props = { ...standardActionServiceProps };
     static components = { Dropdown, DropdownItem };
 

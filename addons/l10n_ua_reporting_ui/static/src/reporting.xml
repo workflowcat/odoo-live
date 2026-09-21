@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
-  <t t-name="l10n_ua_reporting.Reporting" owl="1">
+  <t t-name="l10n_ua_reporting_ui.Reporting" owl="1">
     <div class="o_ua_reporting">
       <t t-if="state.loading">
         <div class="o_ua_reporting_loading text-muted p-4">Завантаження…</div>

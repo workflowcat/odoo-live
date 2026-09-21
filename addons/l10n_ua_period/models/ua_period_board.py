@@ -178,7 +178,7 @@ class UaPeriodBoard(models.AbstractModel):
         row = self._detail_row([(line.payment_ref or "")[:40] for line in lines],
                                "account.bank.statement.line", lines.ids, "рядків виписки не звірено")
         return self._step("bank", "Звірка банку", state, fact,
-                          {"xmlid": "l10n_ua_bank_online.action_ua_bank_board"}, [row] if row else [],
+                          {"xmlid": "l10n_ua_bank_ui.action_ua_bank_board"}, [row] if row else [],
                           button="Звірити" if lines else "")
 
     # заявка ПФУ, за станом: те саме, що раніше показувала черга «Увага» (тепер розкладена
@@ -219,7 +219,7 @@ class UaPeriodBoard(models.AbstractModel):
                         "text": "Фінансування ПФУ: %s" % self.PFU_STAGE.get(claim.state, claim.state),
                         "target": {"model": "ua.pfu.claim", "res_id": claim.id}, "action": _("відкрити")})
         return self._step("reporting", "Податковий розрахунок за місяць", state, fact,
-                          {"xmlid": "l10n_ua_reporting.action_ua_reporting"}, rows)
+                          {"xmlid": "l10n_ua_reporting_ui.action_ua_reporting"}, rows)
 
     def _step_changes(self, company, year, month, first, last):
         """Скільки змін місяця ще не переглянув бухгалтер.
@@ -669,7 +669,7 @@ class UaPeriodBoard(models.AbstractModel):
         run_j05 = self.env["ua.report.run"].search([("company_id", "=", company.id), ("report_code", "=", "j05"),
                                                     ("year", "=", year), ("month", "=", month)], limit=1)
         docs.append(self._doc("filing", "J0500111 · Д1, 4ДФ, Д5", deadline=deadline,
-                              target={"xmlid": "l10n_ua_reporting.action_ua_reporting"},
+                              target={"xmlid": "l10n_ua_reporting_ui.action_ua_reporting"},
                               state={"submitted": "подано", "generated": "сформовано"}.get(run_j05.state, "чернетка")
                               if run_j05 else "немає"))
         claims = self.env["ua.pfu.claim"].search([("company_id", "=", company.id),

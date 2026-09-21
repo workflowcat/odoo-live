@@ -32,7 +32,7 @@ AREAS = ["Домівка", "Зарплата", "Працівники", "Папе
 # Ті самі сім коренів, як їх знає смуга ліворуч: перелік беремо з самого side_rail.js,
 # щоб меню і смуга не розійшлися мовчки.
 RAIL_JS = open("addons/l10n_ua_shell/static/src/side_rail.js", encoding="utf-8").read()
-RAIL_ROOTS = re.findall(r'"(l10n_ua_[a-z_]+\.menu_[a-z_]+root|l10n_ua_bank_online\.menu_ua_bank_board)":\s*"[^"]{2}"', RAIL_JS)
+RAIL_ROOTS = re.findall(r'"(l10n_ua_[a-z_]+\.menu_[a-z_]+root|l10n_ua_bank_ui\.menu_ua_bank_board)":\s*"[^"]{2}"', RAIL_JS)
 OFF_MENUS = [
     "payroll.payroll_menu_root",
     "l10n_ua_payroll_reports.menu_ua_payroll_report", "l10n_ua_payroll_reports.menu_ua_hire_notice",

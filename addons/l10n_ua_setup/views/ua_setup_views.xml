@@ -94,11 +94,8 @@
     </field>
   </record>
 
-  <!-- Екран анкети на OWL. Таблиця лишається окремою дією для перегляду і пошуку. -->
-  <record id="action_ua_setup_board" model="ir.actions.client">
-    <field name="name">Анкета компанії</field>
-    <field name="tag">ua_setup</field>
-  </record>
+  <!-- Екран анкети на OWL живе в l10n_ua_setup_ui. Таблиці лишаються тут:
+       окремі дії для перегляду і пошуку в режимі розробника. -->
 
   <record id="action_ua_setup_profile" model="ir.actions.act_window">
     <field name="name">Анкети (таблиця)</field>

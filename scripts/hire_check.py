@@ -310,7 +310,7 @@ data = Case.get_screen_data(case_id=case.id)
 check("екран: справа в списку і обрана", any(r["id"] == case.id for r in data["cases"]) and data["case"]["id"] == case.id)
 check("екран: метадані всіх полів", all(f in data["meta"] for _k, _t, names in hc.SECTIONS for f in names))
 check("екран: перелік підрозділів і видів документів", bool(data["departments"]) and bool(data["doc_types"]))
-check("меню «Прийняття» у «Працівниках»", env.ref("l10n_ua_hire.menu_ua_hire").parent_id == env.ref("l10n_ua_navigation.menu_ua_people_root"))
+check("меню «Прийняття» у «Працівниках»", env.ref("l10n_ua_hire_ui.menu_ua_hire").parent_id == env.ref("l10n_ua_navigation.menu_ua_people_root"))
 check("«Новий працівник» у списку відключено - оформлюють через «Прийняття»",
       env.ref("l10n_ua_hire.hr_employee_view_list_no_create").exists())
 

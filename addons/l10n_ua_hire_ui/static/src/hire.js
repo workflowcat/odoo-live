@@ -25,7 +25,7 @@ const REQ_TIP = {
 };
 
 export class UaHire extends Component {
-    static template = "l10n_ua_hire.Hire";
+    static template = "l10n_ua_hire_ui.Hire";
     static props = { ...standardActionServiceProps };
 
     setup() {

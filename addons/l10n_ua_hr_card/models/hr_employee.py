@@ -157,7 +157,7 @@ class HrEmployee(models.Model):
 
     def get_ua_doc_package(self):
         """Пакет документів картки (docs/payroll/spec-intake.md) - той самий package_for, яким
-        користується і справа прийняття (l10n_ua_hire.ua_hire_case._case_payload, "package_split");
+        користується і справа прийняття (l10n_ua_hire_ui.ua_hire_case._case_payload, "package_split");
         один спільний метод, не копія його логіки тут.
 
         l10n_ua_hr_card не залежить від l10n_ua_hr_orders (залежність лише у зворотний бік -

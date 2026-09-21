@@ -4,7 +4,7 @@
     <field name="name">ua.partner.edr.wizard.form</field><field name="model">ua.partner.edr.wizard</field>
     <field name="arch" type="xml">
       <form string="Новий контрагент з ЄДР"><group><field name="code" placeholder="8 цифр ЄДРПОУ або 10 цифр РНОКПП"/></group>
-        <footer><button name="action_create" type="object" string="Створити з ЄДР" class="btn-primary"/><button string="Закрити" class="btn-secondary" special="cancel"/></footer></form>
+        <footer><button name="action_create" type="object" string="Заповнити з ЄДР" class="btn-primary"/><button string="Закрити" class="btn-secondary" special="cancel"/></footer></form>
     </field>
   </record>
   <record id="action_ua_partner_edr_wizard" model="ir.actions.act_window">

@@ -15,7 +15,7 @@ const STATE_LABEL = {
 };
 
 export class UaSetup extends Component {
-    static template = "l10n_ua_setup.Setup";
+    static template = "l10n_ua_setup_ui.Setup";
     static props = { ...standardActionServiceProps };
     static components = { Dropdown, DropdownItem };
 

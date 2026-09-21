@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
-  <t t-name="l10n_ua_hire.Hire">
+  <t t-name="l10n_ua_hire_ui.Hire">
     <div class="o_ua_hire">
       <t t-if="state.loading"><div class="o_ua_hire_empty">Завантаження…</div></t>
       <t t-else="">

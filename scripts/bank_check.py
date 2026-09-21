@@ -253,7 +253,7 @@ if DB == "payroll":
         with opener.open(f"{BASE}/web/assets/debug/web.assets_backend.js", timeout=180) as r:
             code, body = r.getcode(), r.read().decode("utf-8", errors="replace")
         check("GET /web/assets/debug/web.assets_backend.js -> 200", code == 200, f"code={code}")
-        check("бандл містить l10n_ua_bank_online.BankBoard", "l10n_ua_bank_online.BankBoard" in body)
+        check("бандл містить l10n_ua_bank_ui.BankBoard", "l10n_ua_bank_ui.BankBoard" in body)
     except Exception as exc:  # noqa: BLE001
         check("GET /web/assets/debug/web.assets_backend.js", False, str(exc)[:300])
 else:

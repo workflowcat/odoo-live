@@ -1,7 +1,7 @@
 {
     "name": "Україна: п'ять розділів меню",
     "summary": "Верхнє меню під роботу бухгалтера: Зарплата, Працівники, Банк, Історія, Налаштування",
-    "version": "19.0.1.0.6",
+    "version": "19.0.1.1.0",
     "category": "Human Resources/Payroll",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -13,6 +13,8 @@
         "l10n_ua_people",
         # логічні модулі, чиї пункти меню розставляє саме ця навігація
         "l10n_ua_gph", "l10n_ua_kp", "l10n_ua_hire",
+        # екрани: їхні дії і пункти меню розставляє ця навігація, тому вони мусять стояти раніше
+        "l10n_ua_hire_ui", "l10n_ua_reporting_ui", "l10n_ua_setup_ui", "l10n_ua_bank_ui",
     ],
     "data": ["views/menus_areas.xml", "views/hr_leave_views.xml", "data/res_lang_data.xml"],
     "assets": {

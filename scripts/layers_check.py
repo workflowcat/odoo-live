@@ -8,9 +8,9 @@
      (пункт меню під чужим розділом падає на порожній базі);
   3. свій НЕ-UI модуль (l10n_ua_*, bp_*) не везе static/src - екран є екран.
 
-Чотири модулі поки тримають і бізнес-модель, і свій екран OWL в одному місці
-(l10n_ua_hire, l10n_ua_reporting, l10n_ua_setup, l10n_ua_bank_online). Вони названі
-винятками з правила 3; скрипт друкує, скільки їх лишилось розділити.
+Винятків із правила 3 більше немає: останні чотири змішані модулі поділено на пару
+«логіка + <модуль>_ui» (hire, reporting, setup, bank_online -> bank_ui). Модуль із
+бізнес-моделлю, у якому з'явиться static/src, провалює перевірку.
 
 Запуск: python3 scripts/layers_check.py"""
 import ast
@@ -32,14 +32,10 @@ UI_MODULES = {
     "l10n_ua_dashboard",
     "l10n_ua_card_ui",
     "l10n_ua_payroll_ui",
-}
-# Змішані модулі: бізнес-модель і екран OWL в одному. Залежності від UI в них немає
-# (це перевіряється), але static/src лишається до поділу на <модуль> і <модуль>_ui.
-MIXED_MODULES = {
-    "l10n_ua_hire",
-    "l10n_ua_reporting",
-    "l10n_ua_setup",
-    "l10n_ua_bank_online",
+    "l10n_ua_hire_ui",
+    "l10n_ua_reporting_ui",
+    "l10n_ua_setup_ui",
+    "l10n_ua_bank_ui",
 }
 OURS = re.compile(r"^(l10n_ua_|bp_)")
 
@@ -114,20 +110,22 @@ for name in sorted(MANIFESTS):
                 hits.append("%s: %s" % (os.path.relpath(path, ADDONS), match.group(0)))
     check(f"{name}: XML не посилається на інтерфейс", not hits, "; ".join(hits[:4]))
 
-# 3. static/src у своїх не-UI модулях
-pending = 0
+# 3. static/src у своїх не-UI модулях - винятків немає
 for name in sorted(MANIFESTS):
     if name in UI_MODULES or not OURS.match(name):
         continue
     has_assets = os.path.isdir(os.path.join(ADDONS, name, "static", "src"))
-    if name in MIXED_MODULES:
-        if has_assets:
-            pending += 1
-        continue
     check(f"{name}: логіка без static/src", not has_assets, "є static/src" if has_assets else "")
 
-print(f"\nЗмішаних модулів (модель і екран в одному) лишилось розділити: {pending} "
-      f"з {len(MIXED_MODULES)} - TODO: {', '.join(sorted(MIXED_MODULES))}")
+# 4. кожен модуль інтерфейсу справді везе екран або меню: назва _ui без static/src і без
+#    даних меню означала б, що поділ зробили наполовину.
+for name in sorted(UI_MODULES):
+    if name not in MANIFESTS:
+        continue
+    assets = MANIFESTS[name].get("assets") or {}
+    data = MANIFESTS[name].get("data") or []
+    has_screen = bool(assets) or any(("menu" in f or "views" in f) for f in data)
+    check(f"{name}: модуль інтерфейсу везе екран чи меню", has_screen)
 
 if errors:
     print(f"\nПЕРЕВІРКУ НЕ ПРОЙДЕНО: {len(errors)} з {total} пунктів провалено")

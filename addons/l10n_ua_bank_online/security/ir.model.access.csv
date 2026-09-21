@@ -1,5 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_ua_bank_board_user,ua.bank.board user,model_ua_bank_board,base.group_user,1,0,0,0
 access_ua_bank_connect_user,ua.bank.connect user,model_ua_bank_connect,base.group_user,1,0,0,0
 access_ua_bank_connect_acc,ua.bank.connect account,model_ua_bank_connect,account.group_account_user,1,1,1,1
 access_ua_bank_connect_step_user,ua.bank.connect.step user,model_ua_bank_connect_step,base.group_user,1,0,0,0
