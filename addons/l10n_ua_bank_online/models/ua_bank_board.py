@@ -10,7 +10,7 @@ account.bank.statement / account.bank.statement.line (виписки і рядк
 (залишок за рахунком журналу).
 """
 import re
-from datetime import date, datetime, time, timedelta
+from datetime import datetime, time, timedelta
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
@@ -25,27 +25,16 @@ SERVICE_LABEL = {
 
 class UaBankBoard(models.AbstractModel):
     _name = "ua.bank.board"
+    _inherit = ["ua.screen"]
     _description = "Дані екрана «Банк»"
 
     # ------------------------------------------------------------------ хелпери
-    @staticmethod
-    def _r2(value):
-        return round(value or 0.0, 2)
-
-    @staticmethod
-    def _month_bounds(year, month):
-        first = date(year, month, 1)
-        last = date(year + (month == 12), month % 12 + 1, 1) - timedelta(days=1)
-        return first, last
-
+    # _r2 / _bounds / _company / _period_block / open_target - у ua.screen
     def _dt(self, value):
         """Час у форматі 11.09.2026 09:15 у поясі користувача."""
         if not value:
             return ""
         return fields.Datetime.context_timestamp(self, value).strftime("%d.%m.%Y %H:%M")
-
-    def _company(self):
-        return self.env.company
 
     def _journals(self, company):
         return self.env["account.journal"].search([
@@ -77,7 +66,7 @@ class UaBankBoard(models.AbstractModel):
 
     # ------------------------------------------------------------------ секції
     def _get_accounts(self, company, year, month):
-        first, last = self._month_bounds(year, month)
+        first, last = self._bounds(year, month)
         Line = self.env["account.bank.statement.line"]
         rows = []
         for journal in self._journals(company):
@@ -146,7 +135,7 @@ class UaBankBoard(models.AbstractModel):
         } for line in lines]
 
     def _get_statements(self, company, year, month, limit=24):
-        first, last = self._month_bounds(year, month)
+        first, last = self._bounds(year, month)
         statements = self.env["account.bank.statement"].search([
             ("company_id", "=", company.id), ("date", ">=", first), ("date", "<=", last),
         ], order="date desc, id desc", limit=limit)
@@ -174,7 +163,7 @@ class UaBankBoard(models.AbstractModel):
         accounts = self._get_accounts(company, year, month)
         return {
             "company": {"name": company.name, "currency": company.currency_id.name},
-            "period": {"year": year, "month": month},
+            "period": self._period_block(year, month),
             "accounts": accounts,
             "payments": self._get_payments(company, year, month),
             "unreconciled": self._get_unreconciled(company),
@@ -188,6 +177,32 @@ class UaBankBoard(models.AbstractModel):
         }
 
     # ------------------------------------------------------------------ дії
+    # Клієнт називає ключ дії, не метод. Раніше bank_board.js слав ім'я методу,
+    # і викликати можна було будь-що публічне на моделі - відкрита поверхня.
+    ACTIONS = {
+        "pull": "action_pull",
+        "pull_month": "action_pull_month",
+        "pull_all": "action_pull_all",
+        "test": "action_test",
+        "apply_rules": "action_apply_rules",
+        "import_file": "action_import_file",
+        "create_provider": "action_create_provider",
+        "open_rules": "action_open_rules",
+        "open_reconcile": "action_open_reconcile",
+        "open_lines": "action_open_lines",
+        "open_statements": "action_open_statements",
+        "open_providers": "action_open_providers",
+        "open_connect": "action_open_connect",
+    }
+
+    @api.model
+    def run_action(self, key, params=None):
+        """Одна дія екрана за ключем зі списку ACTIONS. Чужий ключ - відмова."""
+        method = self.ACTIONS.get(key)
+        if not method:
+            raise UserError(_("Невідома дія: %s") % key)
+        return getattr(self, method)(**dict(params or {}))
+
     def _provider(self, journal_id):
         if not journal_id:
             raise UserError(_("Виберіть рахунок зліва, щоб завантажити виписку."))
@@ -215,7 +230,7 @@ class UaBankBoard(models.AbstractModel):
 
     @api.model
     def action_pull_month(self, journal_id, year, month):
-        first, last = self._month_bounds(int(year), int(month))
+        first, last = self._bounds(int(year), int(month))
         return self.action_pull(journal_id, fields.Date.to_string(first), fields.Date.to_string(last))
 
     @api.model
@@ -225,7 +240,7 @@ class UaBankBoard(models.AbstractModel):
         today = fields.Date.context_today(self)
         year = int(year or today.year)
         month = int(month or today.month)
-        first, last = self._month_bounds(year, month)
+        first, last = self._bounds(year, month)
         done, failed, created = [], [], 0
         for journal in self._journals(company):
             if not journal.online_bank_statement_provider_id:

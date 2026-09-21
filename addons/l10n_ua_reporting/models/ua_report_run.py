@@ -10,7 +10,7 @@ from datetime import date
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
-from odoo.addons.l10n_ua_dashboard.models.ua_dashboard import MONTHS_UA
+from odoo.addons.l10n_ua_screen.models.ua_screen import MONTHS_UA
 
 REPORTS = [
     ("j05", "Об'єднана звітність (J0500111 + Д1 + 4ДФ + Д5)"),
@@ -157,11 +157,7 @@ class UaReportRun(models.Model):
         return d1, d2
 
     @api.model
-    def _find_or_create(self, report_code, company, year, quarter=None, month=None, date_=None):
-        key = _period_key_value(report_code, year, quarter, month, date_)
-        run = self.search([("report_code", "=", report_code), ("company_id", "=", company.id), ("period_key", "=", key)], limit=1)
-        if run:
-            return run
+    def _run_vals(self, report_code, company, year, quarter=None, month=None, date_=None):
         vals = {"report_code": report_code, "company_id": company.id, "year": year}
         if report_code == "j05":
             vals["month"] = month
@@ -170,9 +166,46 @@ class UaReportRun(models.Model):
             vals["month"] = month
         elif report_code == "staff":
             vals["date"] = date_
-        run = self.create(vals)
+        return vals
+
+    @api.model
+    def _find_run(self, report_code, company, year, quarter=None, month=None, date_=None):
+        """Наявний прогін періоду або порожній набір. Нічого не створює."""
+        key = _period_key_value(report_code, year, quarter, month, date_)
+        return self.search([("report_code", "=", report_code), ("company_id", "=", company.id),
+                            ("period_key", "=", key)], limit=1)
+
+    @api.model
+    def _find_or_create(self, report_code, company, year, quarter=None, month=None, date_=None):
+        run = self._find_run(report_code, company, year, quarter=quarter, month=month, date_=date_)
+        if run:
+            return run
+        run = self.create(self._run_vals(report_code, company, year, quarter, month, date_))
         run.action_refresh()
         return run
+
+    @api.model
+    def ensure_run(self, report_code=None, year=None, quarter=None, month=None, date=None, run_id=None):
+        """Створити прогін періоду, якщо його ще немає, і повернути його id.
+
+        Єдиний вхід, який прогін створює на вимогу клієнта. Екран сам по собі
+        (`get_screen_data`) не пише нічого: місяць без прогону показується порожнім,
+        а запис з'являється тоді, коли бухгалтер натискає «Перерахувати» чи «Сформувати»."""
+        if run_id:
+            run = self.browse(int(run_id)).exists()
+            if run:
+                return run.id
+        company = self.env.company
+        today = fields.Date.context_today(self)
+        report_code = report_code or REPORTS[0][0]
+        run = self._find_or_create(
+            report_code, company,
+            int(year) if year else today.year,
+            quarter=int(quarter) if quarter else ((today.month - 1) // 3 + 1),
+            month=int(month) if month else today.month,
+            date_=fields.Date.to_date(date) if date else today,
+        )
+        return run.id
 
     def _periods_for(self, report_code, company):
         today = fields.Date.context_today(self)
@@ -212,6 +245,11 @@ class UaReportRun(models.Model):
     # ------------------------------------------------------------------ екран
     @api.model
     def get_screen_data(self, run_id=None, report_code=None, year=None, quarter=None, month=None, date=None):
+        """Дані екрана. Читання: ні create, ні write.
+
+        Якщо на обраний період прогону ще немає, віддаємо його в пам'яті (`new`) -
+        назва, дані і додатки рахуються так само, а запису в базі немає і його id
+        порожній. Запис створює лише `ensure_run`, який клієнт кличе на дію бухгалтера."""
         company = self.env.company
         today = fields.Date.context_today(self)
         run = self.browse(run_id).exists() if run_id else self.browse()
@@ -221,7 +259,9 @@ class UaReportRun(models.Model):
             q = int(quarter) if quarter else ((today.month - 1) // 3 + 1)
             m = int(month) if month else today.month
             d_ = fields.Date.to_date(date) if date else today
-            run = self._find_or_create(report_code, company, y, quarter=q, month=m, date_=d_)
+            run = self._find_run(report_code, company, y, quarter=q, month=m, date_=d_)
+            if not run:
+                run = self.new(self._run_vals(report_code, company, y, q, m, d_))
         reports = [{"code": code, "name": name, "period_type": PERIOD_TYPE[code]} for code, name in REPORTS]
         periods = self._periods_for(run.report_code, company)
         return {
@@ -237,7 +277,9 @@ class UaReportRun(models.Model):
     def _screen_data(self):
         self.ensure_one()
         return {
-            "id": self.id, "name": self.name, "report_code": self.report_code, "state": self.state,
+            # id порожній у прогону, якого ще немає в базі (екран відкрито на місяць
+            # без прогону) - клієнт на дії кличе ensure_run і дістає справжній id.
+            "id": self._origin.id or False, "name": self.name, "report_code": self.report_code, "state": self.state,
             "year": self.year, "quarter": self.quarter or False, "month": self.month or False,
             "date": self.date.isoformat() if self.date else False,
             "submitted_date": self.submitted_date.isoformat() if self.submitted_date else False,
@@ -245,7 +287,8 @@ class UaReportRun(models.Model):
             "doc_kind": self.doc_kind,
             "doc_kind_label": dict(self._fields["doc_kind"].selection).get(self.doc_kind, ""),
             "base_run": self.base_run_id.name or "",
-            "corrections": [{"id": r.id, "name": r.name, "state": r.state} for r in self.correction_ids],
+            "corrections": [{"id": r._origin.id or False, "name": r.name, "state": r.state}
+                            for r in self.correction_ids],
             "can_correct": self.report_code == "j05" and self.state in ("generated", "submitted"),
             "files": [{"id": a.id, "name": a.name, "mimetype": a.mimetype} for a in self.attachment_ids],
             "receipts": [{"id": a.id, "name": a.name, "mimetype": a.mimetype} for a in self.receipt_ids],

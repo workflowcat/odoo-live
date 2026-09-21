@@ -7,9 +7,6 @@ import { standardActionServiceProps } from "@web/webclient/actions/action_servic
 import { Dropdown } from "@web/core/dropdown/dropdown";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 
-const MONTHS = ["січень", "лютий", "березень", "квітень", "травень", "червень",
-    "липень", "серпень", "вересень", "жовтень", "листопад", "грудень"];
-
 function money(value) {
     const number = Number(value || 0);
     return number.toLocaleString("uk-UA", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -26,14 +23,16 @@ export class UaBankBoard extends Component {
         this.notification = useService("notification");
         this.state = useState({ data: null, loading: true, busy: false, journalId: null });
         this.money = money;
-        this.months = MONTHS;
         onWillStart(() => this.load());
     }
 
     async load(period = {}) {
         this.state.loading = true;
         try {
-            const data = await this.orm.call("ua.bank.board", "get_screen_data", [], period);
+            const kwargs = {};
+            if (period.year) { kwargs.year = period.year; }
+            if (period.month) { kwargs.month = period.month; }
+            const data = await this.orm.call("ua.bank.board", "get_screen_data", [], kwargs);
             this.state.data = data;
             if (!this.state.journalId && data.accounts.length) {
                 this.state.journalId = data.accounts[0].journal_id;
@@ -49,8 +48,7 @@ export class UaBankBoard extends Component {
     }
 
     get periodLabel() {
-        const period = this.state.data.period;
-        return `${MONTHS[period.month - 1]} ${period.year}`;
+        return this.state.data.period.label;
     }
 
     get statements() {
@@ -81,10 +79,12 @@ export class UaBankBoard extends Component {
         await this.load({ year, month });
     }
 
-    async run(method, args, ok) {
+    /** Дія екрана: ключ зі списку ua.bank.board.ACTIONS і названі параметри.
+     *  Імені методу клієнт не називає - сервер сам вирішує, що за ключем стоїть. */
+    async run(key, params, ok) {
         this.state.busy = true;
         try {
-            const result = await this.orm.call("ua.bank.board", method, args);
+            const result = await this.orm.call("ua.bank.board", "run_action", [key, params || {}]);
             if (result && result.type) {
                 return this.action.doAction(result);
             }
@@ -102,63 +102,60 @@ export class UaBankBoard extends Component {
 
     pullMonth() {
         const period = this.state.data.period;
-        return this.run("action_pull_month", [this.state.journalId, period.year, period.month]);
+        return this.run("pull_month", { journal_id: this.state.journalId, year: period.year, month: period.month });
     }
 
     pullAll() {
         const period = this.state.data.period;
-        return this.run("action_pull_all", [period.year, period.month]);
+        return this.run("pull_all", { year: period.year, month: period.month });
     }
 
     pullToday() {
-        return this.run("action_pull", [this.state.journalId]);
+        return this.run("pull", { journal_id: this.state.journalId });
     }
 
     test() {
-        return this.run("action_test", [this.state.journalId]);
+        return this.run("test", { journal_id: this.state.journalId });
     }
 
     applyRules() {
-        return this.run("action_apply_rules", [this.state.journalId]);
+        return this.run("apply_rules", { journal_id: this.state.journalId });
     }
 
     reconcile() {
-        return this.run("action_open_reconcile", [this.state.journalId]);
+        return this.run("open_reconcile", { journal_id: this.state.journalId });
     }
 
     openStatements() {
-        return this.run("action_open_statements", [this.state.journalId]);
+        return this.run("open_statements", { journal_id: this.state.journalId });
     }
 
     openLines() {
-        return this.run("action_open_lines", [this.state.journalId]);
+        return this.run("open_lines", { journal_id: this.state.journalId });
     }
 
     openConnect() {
-        return this.run("action_open_connect", [this.state.journalId]);
+        return this.run("open_connect", { journal_id: this.state.journalId });
     }
 
     importFile() {
-        return this.run("action_import_file", [this.state.journalId]);
+        return this.run("import_file", { journal_id: this.state.journalId });
     }
 
     openProvider() {
-        return this.run("action_open_providers", [this.state.journalId]);
+        return this.run("open_providers", { journal_id: this.state.journalId });
     }
 
     createProvider(service) {
-        return this.run("action_create_provider", [this.state.journalId, service]);
+        return this.run("create_provider", { journal_id: this.state.journalId, service: service });
     }
 
-    openLine(line) {
-        return this.action.doAction({
-            type: "ir.actions.act_window",
-            res_model: "account.bank.statement.line",
-            res_id: line.id,
-            view_mode: "form",
-            views: [[false, "form"]],
-            context: { view_ref: "account_reconcile_oca.bank_statement_line_form_reconcile_view" },
-        });
+    /** Рядок виписки відкриває спільний open_target - подання звірки там уже зашите. */
+    async openLine(line) {
+        const action = await this.orm.call("ua.bank.board", "open_target", [
+            { model: "account.bank.statement.line", res_id: line.id },
+        ]);
+        return this.action.doAction(action);
     }
 }
 

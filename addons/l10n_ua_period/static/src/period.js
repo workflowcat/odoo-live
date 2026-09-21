@@ -129,7 +129,7 @@ export class UaPeriod extends Component {
     async open(step) {
         this.state.busy = true;
         try {
-            const action = await this.orm.call("ua.period.board", "action_open", [step.action]);
+            const action = await this.orm.call("ua.period.board", "open_target", [step.action]);
             await this.action.doAction(action);
         } catch (e) {
             this.notification.add((e.data && e.data.message) || e.message || "Помилка", { type: "danger" });
@@ -347,7 +347,9 @@ export class UaPeriod extends Component {
     async openRecord(row) {
         this.state.busy = true;
         try {
-            const action = await this.orm.call("ua.period.board", "action_open_record", [row.model, row.id]);
+            const action = await this.orm.call("ua.period.board", "open_target", [
+                { model: row.model, res_id: row.id },
+            ]);
             await this.action.doAction(action);
         } catch (e) {
             this.notification.add((e.data && e.data.message) || e.message || "Помилка", { type: "danger" });

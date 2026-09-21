@@ -1,11 +1,12 @@
 {
     "name": "Домівка",
     "summary": "Головний екран: карта п'яти розділів, потік між ними і особиста панель бухгалтера",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "category": "Human Resources",
     "author": "Bot&Partners",
     "license": "LGPL-3",
     "depends": [
+        "l10n_ua_screen",
         "l10n_ua_period",
         "l10n_ua_navigation",
         "l10n_ua_changes",

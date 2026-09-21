@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Дані для клієнтської дії «Зведення»: одна модель без збереження (AbstractModel),
-один публічний метод get_data(year, month) - усе інше приватні хелпери.
+один публічний метод get_screen_data(year, month) - усе інше приватні хелпери.
+Цілі рядків - спільного виду ua.screen (`target`), відкриває їх ua.screen.open_target.
 
 Джерела: hr.payslip.run / hr.payslip / hr.payslip.line (коди GROSS, PDFO, VZ, ESV, NET, ADV_PAID),
 hr.employee (ua_mil_needs_check, ua_docs_expiring, ua_rnokpp), ua.employee.document (valid_until),
@@ -18,61 +19,32 @@ from datetime import date, timedelta
 
 from odoo import api, fields, models
 
-MONTHS_UA = {
-    1: "січень", 2: "лютий", 3: "березень", 4: "квітень", 5: "травень", 6: "червень",
-    7: "липень", 8: "серпень", 9: "вересень", 10: "жовтень", 11: "листопад", 12: "грудень",
-}
 PAYSLIP_CODES = ("GROSS", "PDFO", "VZ", "ESV", "NET", "ADV_PAID")
 
 
 class UaDashboard(models.AbstractModel):
     _name = "ua.dashboard"
+    _inherit = ["ua.screen"]
     _description = "Дані панелі «Зведення»"
 
     # ------------------------------------------------------------------ хелпери
-    @staticmethod
-    def _money(value):
-        """Українське форматування: 710 887,13"""
-        return "{:,.2f}".format(abs(value or 0.0)).replace(",", " ").replace(".", ",")
-
-    @staticmethod
-    def _plural(number, one, few, many):
-        """Українське число: 1 файл, 2 файли, 5 файлів."""
-        number = abs(int(number))
-        if number % 10 == 1 and number % 100 != 11:
-            return one
-        if number % 10 in (2, 3, 4) and number % 100 not in (12, 13, 14):
-            return few
-        return many
-
-    @staticmethod
-    def _r2(value):
-        return round(value or 0.0, 2)
+    # _money / _plural / _r2 / _month_name / MONTHS_UA / open_target - у ua.screen.
+    # «Зведення» показує суми без знака і зі звичайним пробілом між тисячами.
+    _money_absolute = True
+    _money_thousands = " "
 
     @staticmethod
     def _month_add(year, month, delta):
         m = month - 1 + delta
         return year + m // 12, m % 12 + 1
 
-    @staticmethod
-    def _month_bounds(year, month):
-        import calendar
-        from datetime import date
-        d1 = date(year, month, 1)
-        d2 = date(year, month, calendar.monthrange(year, month)[1])
-        return d1, d2
-
-    @staticmethod
-    def _month_name(month):
-        return MONTHS_UA.get(month, "")
-
-    def _action_xmlid(self, xmlid):
-        """Xmlid дії, якщо дія існує, інакше False. Клієнт відкриває її напряму."""
-        return xmlid if self.env.ref(xmlid, raise_if_not_found=False) else False
+    def _xmlid_target(self, xmlid):
+        """Ціль на наявну дію Odoo, якщо дія існує, інакше False."""
+        return {"xmlid": xmlid} if self.env.ref(xmlid, raise_if_not_found=False) else False
 
     def _slip_domain(self, company, year, month, department_id=None):
         """Домен листків місяця - те, що стоїть за сумою в рядку панелі."""
-        d1, d2 = self._month_bounds(year, month)
+        d1, d2 = self._bounds(year, month)
         dom = [
             ("company_id", "=", company.id),
             ("date_from", ">=", fields.Date.to_string(d1)),
@@ -94,7 +66,7 @@ class UaDashboard(models.AbstractModel):
         ]
 
     def _month_payslip_totals(self, company, year, month):
-        d1, d2 = self._month_bounds(year, month)
+        d1, d2 = self._bounds(year, month)
         slips = self.env["hr.payslip"].search([
             ("company_id", "=", company.id), ("date_from", ">=", d1), ("date_from", "<=", d2),
             ("state", "!=", "cancel"),
@@ -131,25 +103,15 @@ class UaDashboard(models.AbstractModel):
             "month_label": self._month_name(month).capitalize(),
         }
 
-    def _get_periods(self, company, year, month):
-        out = []
-        y, m = year, month
-        for _i in range(6):
-            d1, d2 = self._month_bounds(y, m)
-            has_run = bool(self.env["hr.payslip.run"].search_count([
-                ("company_id", "=", company.id), ("date_start", ">=", d1), ("date_start", "<=", d2),
-            ]))
-            out.append({
-                "year": y, "month": m,
-                "label": "%s %s" % (self._month_name(m).capitalize(), y),
-                "has_run": has_run,
-            })
-            y, m = self._month_add(y, m, -1)
-        out.reverse()
-        return out
+    def _period_item_extra(self, year, month):
+        """У смузі «Зведення» місяць позначено тим, чи є в ньому пакет листків."""
+        d1, d2 = self._bounds(year, month)
+        return {"has_run": bool(self.env["hr.payslip.run"].search_count([
+            ("company_id", "=", self._company().id), ("date_start", ">=", d1), ("date_start", "<=", d2),
+        ]))}
 
     def _get_payroll_by_department(self, company, year, month):
-        d1, d2 = self._month_bounds(year, month)
+        d1, d2 = self._bounds(year, month)
         run = self.env["hr.payslip.run"].search([
             ("company_id", "=", company.id), ("date_start", ">=", d1), ("date_start", "<=", d2),
         ], limit=1)
@@ -188,9 +150,11 @@ class UaDashboard(models.AbstractModel):
             row = by_dept[key]
             r = {
                 "department": row["department"],
-                "res_model": "hr.payslip",
-                "domain": self._slip_domain(company, year, month, row["department_id"]),
-                "title": "Листки · %s · %s %s" % (row["department"], self._month_name(month), year),
+                "target": {
+                    "model": "hr.payslip",
+                    "domain": self._slip_domain(company, year, month, row["department_id"]),
+                    "name": "Листки · %s · %s %s" % (row["department"], self._month_name(month), year),
+                },
                 "employees": len(row["employee_ids"]),
                 "gross": self._r2(row["gross"]),
                 "pdfo": self._r2(abs(row["pdfo"])),
@@ -205,14 +169,13 @@ class UaDashboard(models.AbstractModel):
         for k in ("gross", "pdfo", "vz", "esv", "net"):
             total[k] =  self._r2(total[k])
 
-        total["res_model"] = "hr.payslip"
-        total["domain"] = self._slip_domain(company, year, month)
-        total["title"] = "Листки · %s %s" % (self._month_name(month), year)
+        total["target"] = {"model": "hr.payslip", "domain": self._slip_domain(company, year, month),
+                           "name": "Листки · %s %s" % (self._month_name(month), year)}
         return {
             "rows": rows,
             "total": total,
             "has_run": bool(run),
-            "run_action": self._action_xmlid("payroll.hr_payslip_run_action"),
+            "run_target": self._xmlid_target("payroll.hr_payslip_run_action"),
         }
 
     def _get_payments(self, company, year, month):
@@ -229,10 +192,12 @@ class UaDashboard(models.AbstractModel):
             "date": d.strftime("%d.%m.%Y") if d else False,
             "label": "Зарплата, %s %s" % (last_name, ly),
             "amount": abs(last_totals["NET"]), "state": state, "state_class": cls,
-            "res_model": "account.bank.statement.line" if d else "hr.payslip",
-            "domain": self._bank_domain(company, "Заробітна плата", lm, ly) if d
-                      else self._slip_domain(company, ly, lm),
-            "title": "Зарплата, %s %s" % (last_name, ly),
+            "target": {
+                "model": "account.bank.statement.line" if d else "hr.payslip",
+                "domain": self._bank_domain(company, "Заробітна плата", lm, ly) if d
+                          else self._slip_domain(company, ly, lm),
+                "name": "Зарплата, %s %s" % (last_name, ly),
+            },
         })
 
         for code, keyword, label in (
@@ -245,10 +210,12 @@ class UaDashboard(models.AbstractModel):
                 "date": d.strftime("%d.%m.%Y") if d else False,
                 "label": "%s, %s %s" % (label, last_name, ly),
                 "amount": abs(last_totals[code]), "state": state, "state_class": cls,
-                "res_model": "account.bank.statement.line" if d else "hr.payslip",
-                "domain": self._bank_domain(company, keyword, lm, ly) if d
-                          else self._slip_domain(company, ly, lm),
-                "title": "%s, %s %s" % (label, last_name, ly),
+                "target": {
+                    "model": "account.bank.statement.line" if d else "hr.payslip",
+                    "domain": self._bank_domain(company, keyword, lm, ly) if d
+                              else self._slip_domain(company, ly, lm),
+                    "name": "%s, %s %s" % (label, last_name, ly),
+                },
             })
 
         adv = self.env["ua.advance.sheet"].search([
@@ -258,10 +225,9 @@ class UaDashboard(models.AbstractModel):
             rows.append({
                 "date": False, "label": "Аванс, %s %s" % (this_name, year),
                 "amount": 0.0, "state": "не розраховано", "state_class": "todo",
-                "action": self._action_xmlid("l10n_ua_payroll_rules.action_ua_advance_sheet"),
-                "res_model": "ua.advance.sheet",
-                "domain": [("company_id", "=", company.id)],
-                "title": "Відомості авансу",
+                "target": self._xmlid_target("l10n_ua_payroll_rules.action_ua_advance_sheet") or {
+                    "model": "ua.advance.sheet", "domain": [("company_id", "=", company.id)],
+                    "name": "Відомості авансу"},
             })
         else:
             if adv.state == "confirmed":
@@ -274,18 +240,18 @@ class UaDashboard(models.AbstractModel):
                 "date": date_val.strftime("%d.%m.%Y") if date_val else False,
                 "label": "Аванс, %s %s" % (this_name, year),
                 "amount": self._r2(adv.total), "state": bstate, "state_class": bcls,
-                "res_model": "ua.advance.sheet", "res_id": adv.id,
+                "target": {"model": "ua.advance.sheet", "res_id": adv.id},
             })
 
         # планова виплата за поточний місяць: 6-те число наступного місяця (ст. 115 КЗпП)
         this_totals = self._month_payslip_totals(company, year, month)
         if this_totals["NET"]:
             pay_day = date(ny, nm, 6)
-            slip_target = {
-                "res_model": "hr.payslip",
+            slip_target = {"target": {
+                "model": "hr.payslip",
                 "domain": self._slip_domain(company, year, month),
-                "title": "Листки · %s %s" % (this_name, year),
-            }
+                "name": "Листки · %s %s" % (this_name, year),
+            }}
             rows.append(dict(slip_target,
                 date=pay_day.strftime("%d.%m.%Y"),
                 label="Зарплата, %s %s (остаточний розрахунок)" % (this_name, year),
@@ -301,7 +267,7 @@ class UaDashboard(models.AbstractModel):
 
         quarter = (month - 1) // 3 + 1
         q_end_month = quarter * 3
-        q_end = self._month_bounds(year, q_end_month)[1]
+        q_end = self._bounds(year, q_end_month)[1]
         deadline = q_end + timedelta(days=40)
         today = fields.Date.context_today(self)
         days_left = (deadline - today).days
@@ -315,10 +281,9 @@ class UaDashboard(models.AbstractModel):
             "date": deadline.strftime("%d.%m.%Y"),
             "label": "Об'єднана звітність, %s квартал %s" % (quarter, year),
             "amount": 0.0, "detail": "Д1, 4ДФ, Д5", "state": dstate, "state_class": dcls,
-            "action": self._action_xmlid("l10n_ua_reporting.action_ua_reporting"),
-            "res_model": "ua.report.run",
-            "domain": [("company_id", "=", company.id)],
-            "title": "Податкова звітність",
+            "target": self._xmlid_target("l10n_ua_reporting.action_ua_reporting") or {
+                "model": "ua.report.run", "domain": [("company_id", "=", company.id)],
+                "name": "Податкова звітність"},
         })
         return rows
 
@@ -336,9 +301,8 @@ class UaDashboard(models.AbstractModel):
                 "title": "Звірка з ТЦК не проведена",
                 "detail": self._plural(mil_count, "працівник потребує звірки", "працівники потребують звірки", "працівників потребують звірки"),
                 "count": mil_count, "level": "danger",
-                "action": self._action_xmlid("l10n_ua_military.action_ua_military_needs_check"),
-                "res_model": "hr.employee",
-                "domain": [("company_id", "=", company.id), ("ua_mil_needs_check", "=", True)],
+                "target": {"model": "hr.employee", "name": "Звірка з ТЦК",
+                           "domain": [("company_id", "=", company.id), ("ua_mil_needs_check", "=", True)]},
             })
 
         docs_count = self.env["ua.employee.document"].search_count([
@@ -349,10 +313,10 @@ class UaDashboard(models.AbstractModel):
             rows.append({
                 "title": "Документи спливають за 30 днів",
                 "detail": self._plural(docs_count, "документ працівника", "документи працівників", "документів працівників"),
-                "count": docs_count, "level": "warning", "action": False,
-                "res_model": "ua.employee.document",
-                "domain": [("employee_id.company_id", "=", company.id),
-                           ("valid_until", ">=", today_s), ("valid_until", "<=", limit_s)],
+                "count": docs_count, "level": "warning",
+                "target": {"model": "ua.employee.document", "name": "Документи працівників",
+                           "domain": [("employee_id.company_id", "=", company.id),
+                                      ("valid_until", ">=", today_s), ("valid_until", "<=", limit_s)]},
             })
 
         # індекс споживчих цін за минулий місяць: без нього індексація рахується як нуль
@@ -364,9 +328,8 @@ class UaDashboard(models.AbstractModel):
                     "title": "Немає індексу споживчих цін",
                     "detail": "за %s %s; без нього індексація рахується як нуль" % (self._month_name(month_prev), year_prev),
                     "count": 1, "level": "warning",
-                    "action": self._action_xmlid("l10n_ua_index.action_ua_cpi_index"),
-                    "res_model": "ua.cpi.index",
-                    "domain": [],
+                    "target": {"model": "ua.cpi.index", "domain": [],
+                               "name": "Індекс споживчих цін"},
                 })
 
         unrec = self.env["account.bank.statement.line"].search([
@@ -379,9 +342,8 @@ class UaDashboard(models.AbstractModel):
                 "detail": "%s %s на суму %s грн" % (
                     len(unrec), self._plural(len(unrec), "рядок", "рядки", "рядків"), self._money(amount)),
                 "count": len(unrec), "level": "warning",
-                "action": self._action_xmlid("account_reconcile_oca.action_bank_statement_line_reconcile_all"),
-                "res_model": "account.bank.statement.line",
-                "domain": [("company_id", "=", company.id), ("is_reconciled", "=", False)],
+                "target": {"model": "account.bank.statement.line", "name": "Незвірені рядки виписки",
+                           "domain": [("company_id", "=", company.id), ("is_reconciled", "=", False)]},
             })
 
         versions = self.env["hr.version"].search([("employee_id.company_id", "=", company.id)])
@@ -393,8 +355,8 @@ class UaDashboard(models.AbstractModel):
             rows.append({
                 "title": "Договори і випробування спливають за 30 днів",
                 "detail": "версій трудових договорів", "count": len(ending), "level": "warning",
-                "action": False, "res_model": "hr.version",
-                "domain": [("id", "in", ending.ids)],
+                "target": {"model": "hr.version", "domain": [("id", "in", ending.ids)],
+                           "name": "Договори і випробування"},
             })
 
         no_rnokpp = self.env["hr.employee"].search_count([
@@ -403,8 +365,10 @@ class UaDashboard(models.AbstractModel):
         if no_rnokpp:
             rows.append({
                 "title": "Працівники без РНОКПП", "detail": "працівників", "count": no_rnokpp,
-                "level": "warning", "action": False, "res_model": "hr.employee",
-                "domain": [("company_id", "=", company.id), ("active", "=", True), ("ua_rnokpp", "=", False)],
+                "level": "warning",
+                "target": {"model": "hr.employee", "name": "Працівники без РНОКПП",
+                           "domain": [("company_id", "=", company.id), ("active", "=", True),
+                                      ("ua_rnokpp", "=", False)]},
             })
 
         draft_count = self.env["hr.payslip"].search_count([
@@ -413,8 +377,9 @@ class UaDashboard(models.AbstractModel):
         if draft_count:
             rows.append({
                 "title": "Листки в чернетках", "detail": "розрахункових листків", "count": draft_count,
-                "level": "info", "action": self._action_xmlid("payroll.hr_payslip_action"),
-                "res_model": "hr.payslip", "domain": [("company_id", "=", company.id), ("state", "=", "draft")],
+                "level": "info",
+                "target": {"model": "hr.payslip", "name": "Листки в чернетках",
+                           "domain": [("company_id", "=", company.id), ("state", "=", "draft")]},
             })
 
         return rows
@@ -428,7 +393,7 @@ class UaDashboard(models.AbstractModel):
             rows.append({
                 "name": rec.name, "period": "%s %s" % (self._month_name(rec.month).capitalize(), rec.year),
                 "state": dict(rec._fields["state"].selection).get(rec.state, rec.state),
-                "action": False, "res_model": "ua.timesheet.sheet", "res_id": rec.id,
+                "target": {"model": "ua.timesheet.sheet", "res_id": rec.id},
             })
 
         for rec in self.env["ua.staff.list"].search(
@@ -437,7 +402,7 @@ class UaDashboard(models.AbstractModel):
             rows.append({
                 "name": rec.name, "period": rec.date.strftime("%d.%m.%Y") if rec.date else "",
                 "state": dict(rec._fields["state"].selection).get(rec.state, rec.state),
-                "action": False, "res_model": "ua.staff.list", "res_id": rec.id,
+                "target": {"model": "ua.staff.list", "res_id": rec.id},
             })
 
         for rec in self.env["ua.pfu.claim"].search(
@@ -446,7 +411,7 @@ class UaDashboard(models.AbstractModel):
             rows.append({
                 "name": rec.name, "period": rec.date.strftime("%d.%m.%Y") if rec.date else "",
                 "state": dict(rec._fields["state"].selection).get(rec.state, rec.state),
-                "action": False, "res_model": "ua.pfu.claim", "res_id": rec.id,
+                "target": {"model": "ua.pfu.claim", "res_id": rec.id},
             })
 
         for rec in self.env["ua.advance.sheet"].search(
@@ -455,7 +420,7 @@ class UaDashboard(models.AbstractModel):
             rows.append({
                 "name": rec.name, "period": "%s %s" % (self._month_name(rec.month).capitalize(), rec.year),
                 "state": dict(rec._fields["state"].selection).get(rec.state, rec.state),
-                "action": False, "res_model": "ua.advance.sheet", "res_id": rec.id,
+                "target": {"model": "ua.advance.sheet", "res_id": rec.id},
             })
 
         # прогони звітності замість переліку XML-файлів: файли лежать усередині прогону
@@ -468,13 +433,13 @@ class UaDashboard(models.AbstractModel):
                     "name": rec.name,
                     "period": "%s %s" % (files, self._plural(files, "файл", "файли", "файлів")) if files else "без файлів",
                     "state": dict(rec._fields["state"].selection).get(rec.state, rec.state),
-                    "action": False, "res_model": "ua.report.run", "res_id": rec.id,
+                    "target": {"model": "ua.report.run", "res_id": rec.id},
                 })
 
         seen = set()
         unique = []
         for row in rows:
-            key = (row["name"], row.get("res_model"))
+            key = (row["name"], row["target"]["model"])
             if key in seen:
                 continue
             seen.add(key)
@@ -483,7 +448,7 @@ class UaDashboard(models.AbstractModel):
 
     # ------------------------------------------------------------------ публічний метод
     @api.model
-    def get_data(self, year=None, month=None):
+    def get_screen_data(self, year=None, month=None):
         today = fields.Date.context_today(self)
         year = int(year) if year else today.year
         month = int(month) if month else today.month
@@ -491,7 +456,7 @@ class UaDashboard(models.AbstractModel):
 
         return {
             "company": self._get_company(company, year, month),
-            "periods": self._get_periods(company, year, month),
+            "period": self._period_block(year, month),
             "payroll_by_department": self._get_payroll_by_department(company, year, month),
             "turnover": self._get_turnover(company, year, month),
             "documents": self._get_documents(company),
@@ -501,5 +466,5 @@ class UaDashboard(models.AbstractModel):
         """Обороти за період беремо з робочого місця місяця: одне джерело чисел."""
         if "ua.period.board" not in self.env:
             return []
-        first, last = self._month_bounds(year, month)
+        first, last = self._bounds(year, month)
         return self.env["ua.period.board"]._turnover(company, first, last)

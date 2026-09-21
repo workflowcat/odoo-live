@@ -7,19 +7,14 @@
 аванс, листки, виписка банку, звітність, анкета компанії, журнал змін. Своїх даних модуль
 не тримає.
 
-Ціль (`target`) відкривається через `open_target` - та сама логіка, що і в
-l10n_ua_period.ua_period_board (`action_open` / `action_open_record` / `action_open_exception`),
-щоб обидва екрани відкривали однаково: xmlid, конкретний запис або список за доменом.
+Ціль (`target`) відкривається через `open_target` - спільний договір екранів
+(l10n_ua_screen.ua.screen), той самий на всіх екранах: xmlid, конкретний запис або
+список за доменом. Смуга місяців - `_period_block` звідти ж.
 """
-from datetime import date, timedelta
+from odoo import SUPERUSER_ID, api, fields, models
 
-from odoo import SUPERUSER_ID, _, api, fields, models
-from odoo.exceptions import UserError
+from odoo.addons.l10n_ua_screen.models.ua_screen import MONTHS_UA
 
-MONTHS_UA = {
-    1: "січень", 2: "лютий", 3: "березень", 4: "квітень", 5: "травень", 6: "червень",
-    7: "липень", 8: "серпень", 9: "вересень", 10: "жовтень", 11: "листопад", 12: "грудень",
-}
 SEVERITY = {"crit": 0, "warn": 1, "done": 2}
 # area з ua.change.log -> ключ розділу «Домівки»: кадри/час - «люди», облік - разом із зарплатою.
 AREA_MAP = {"hr": "people", "time": "people", "payroll": "payroll", "account": "payroll",
@@ -48,6 +43,7 @@ AUTOMATIC_LOGINS = {"assistant", "viewer_tmp"}
 
 class UaHome(models.AbstractModel):
     _name = "ua.home"
+    _inherit = ["ua.screen"]
     _description = "Дані екрана «Домівка»"
 
     # П'ять розділів у фіксованому порядку: ключ, позначка, назва, xmlid кореневого меню.
@@ -60,28 +56,7 @@ class UaHome(models.AbstractModel):
     ]
 
     # ------------------------------------------------------------------ хелпери
-    def _company(self):
-        return self.env.company
-
-    @staticmethod
-    def _bounds(year, month):
-        first = date(year, month, 1)
-        last = date(year + (month == 12), month % 12 + 1, 1) - timedelta(days=1)
-        return first, last
-
-    @staticmethod
-    def _plural(n, one, few, many):
-        """Українська форма іменника після числівника n: 1 - one, 2-4 - few, решта - many."""
-        n = abs(int(n))
-        if n % 100 in (11, 12, 13, 14):
-            return many
-        r = n % 10
-        if r == 1:
-            return one
-        if 2 <= r <= 4:
-            return few
-        return many
-
+    # _company / _bounds / _plural / MONTHS_UA / open_target - у ua.screen
     @staticmethod
     def _is_automatic(user):
         """Чи належить запис журналу не людині, а автоматиці - див. AUTOMATIC_LOGINS вище."""
@@ -378,11 +353,7 @@ class UaHome(models.AbstractModel):
             title = (row.get("title") or "").strip()
             if not title or title.lower() in seen:
                 continue
-            target = None
-            if row.get("res_model"):
-                target = {"model": row["res_model"], "domain": row.get("domain") or []}
-            elif row.get("action"):
-                target = {"xmlid": row["action"]} if isinstance(row["action"], str) else None
+            target = row.get("target") or None
             out.append({"level": self.ATTENTION_LEVEL.get(row.get("level"), "warn"),
                         "text": title, "hint": row.get("detail") or "", "target": target})
             seen.add(title.lower())
@@ -505,19 +476,6 @@ class UaHome(models.AbstractModel):
         year = int(year or today.year)
         month = int(month or today.month)
         first, last = self._bounds(year, month)
-        Close = self.env["ua.period.close"]
-
-        periods = []
-        y, m = year, month
-        for _i in range(6):
-            st = Close.state_of(company, y, m)
-            periods.append({
-                "year": y, "month": m, "label": "%s %s" % (MONTHS_UA[m].capitalize(), y),
-                "current": (y == year and m == month), "closed": st["state"] == "closed",
-            })
-            y, m = (y - 1, 12) if m == 1 else (y, m - 1)
-        periods.reverse()
-        current_period = next(p for p in periods if p["current"])
 
         features = [f for f in (
             self._feat_documents(company),
@@ -541,12 +499,7 @@ class UaHome(models.AbstractModel):
             ("company_id", "=", company.id), ("active", "=", True), ("ua_contract_kind", "=", "gph")])
 
         return {
-            "period": {
-                "year": year, "month": month,
-                "label": "%s %s" % (MONTHS_UA[month].capitalize(), year),
-                "closed": current_period["closed"],
-                "periods": periods,
-            },
+            "period": self._period_block(year, month),
             "company": {"name": company.name, "employees": employees, "gph": gph},
             "regions": self._regions(features),
             "flows": [["people", "payroll"], ["payroll", "bank"], ["payroll", "reporting"], ["setup", "payroll"]],
@@ -555,34 +508,3 @@ class UaHome(models.AbstractModel):
             "drafts": self._drafts(company),
             "unseen_changes": self.env["ua.change.log"].count_new(company, year, month),
         }
-
-    # ------------------------------------------------------------------ дії
-    @api.model
-    def open_target(self, target):
-        """Відкрити ціль будь-якого блоку екрана: та сама логіка, що і в l10n_ua_period
-        (action_open / action_open_record / action_open_exception), щоб обидва екрани
-        відкривали однаково. target - один із трьох видів: xmlid; модель+res_id; модель+домен."""
-        target = target or {}
-        if target.get("xmlid"):
-            res = dict(self.env["ir.actions.actions"]._for_xml_id(target["xmlid"]))
-            if target.get("domain"):
-                res["domain"] = target["domain"]
-            if target.get("context"):
-                res["context"] = dict(target["context"])
-            return res
-        if target.get("model") and target.get("res_id"):
-            model, res_id = target["model"], int(target["res_id"])
-            if model == "account.bank.statement.line":
-                return {
-                    "type": "ir.actions.act_window", "res_model": model, "res_id": res_id,
-                    "view_mode": "form", "views": [(False, "form")], "target": "current",
-                    "context": {"view_ref": "account_reconcile_oca.bank_statement_line_form_reconcile_view"},
-                }
-            return {"type": "ir.actions.act_window", "res_model": model, "res_id": res_id,
-                    "view_mode": "form", "views": [(False, "form")], "target": "current"}
-        if target.get("model"):
-            return {"type": "ir.actions.act_window", "res_model": target["model"],
-                    "domain": target.get("domain") or [], "view_mode": "list,form",
-                    "views": [(False, "list"), (False, "form")], "target": "current",
-                    "name": target.get("name") or ""}
-        raise UserError(_("Немає що відкривати."))

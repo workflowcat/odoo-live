@@ -1,4 +1,5 @@
-"""Перевірка модуля l10n_ua_reporting: get_screen_data() повертає всі ключі, action_refresh() дає
+"""Перевірка модуля l10n_ua_reporting: get_screen_data() повертає всі ключі і нічого не пише
+(прогін на новий період створює лише ensure_run, окремий виклик на дію бухгалтера), action_refresh() дає
 перевірки (є ok на суми і error/warn за станом даних), action_generate() без помилок формує
 щонайменше 4 файли XML (кожен починається з <?xml) для j05 за місяць; окремий прогін pfu формує
 PDF (%PDF); action_mark_submitted() ставить стан і дату; повторне створення прогону на той самий
@@ -74,11 +75,23 @@ check("get_screen_data() повертає всі очікувані ключі",
 check("reports містить щонайменше 6 звітів", len(data.get("reports", [])) >= 6, f"{len(data.get('reports', []))} звітів")
 check("periods містить 6 періодів", len(data.get("periods", [])) == 6, f"{len(data.get('periods', []))} періодів")
 
+# 1б. get_screen_data() не пише: відкриття майбутнього місяця прогону не створює
+FUTURE_YEAR, FUTURE_MONTH = 2031, 7
+before_all = call("ua.report.run", "search_count", [])
+future = call("ua.report.run", "get_screen_data", report_code="j05", year=FUTURE_YEAR, month=FUTURE_MONTH)
+after_all = call("ua.report.run", "search_count", [])
+check("get_screen_data() на період без прогону нічого не створює", before_all == after_all,
+      f"{before_all} -> {after_all}")
+check("прогін без запису віддається з порожнім id і своїм періодом",
+      future["run"]["id"] is False and future["run"]["year"] == FUTURE_YEAR
+      and future["run"]["month"] == FUTURE_MONTH and future["run"]["state"] == "draft",
+      f"id={future['run']['id']}, {future['run']['year']}-{future['run']['month']}, стан {future['run']['state']}")
+
 # 2. j05 за серпень 2026: action_refresh() дає перевірки; серед них ok на суми, error/warn за станом
 # Податковий розрахунок подається щомісяця: прогін має місяць, а не квартал.
-data_j05 = call("ua.report.run", "get_screen_data", report_code="j05", year=2026, month=8)
+run_j05_id = call("ua.report.run", "ensure_run", report_code="j05", year=2026, month=8)
+data_j05 = call("ua.report.run", "get_screen_data", run_id=run_j05_id)
 run_j05 = data_j05["run"]
-run_j05_id = run_j05["id"]
 check("j05 серпень 2026: run створено/знайдено", run_j05["report_code"] == "j05" and run_j05["year"] == 2026 and run_j05["month"] == 8,
       f"run_id={run_j05_id}, стан={run_j05['state']}")
 
@@ -118,8 +131,8 @@ else:
     check("j05: є додатки (Д1/4ДФ/Д5) у get_screen_data", len(data_j05["appendices"]) > 0, f"{len(data_j05['appendices'])} додатків")
 
 # 4. pfu за серпень 2026: генерація формує PDF, що починається з %PDF
-data_pfu = call("ua.report.run", "get_screen_data", report_code="pfu", year=2026, month=8)
-run_pfu_id = data_pfu["run"]["id"]
+run_pfu_id = call("ua.report.run", "ensure_run", report_code="pfu", year=2026, month=8)
+data_pfu = call("ua.report.run", "get_screen_data", run_id=run_pfu_id)
 call("ua.report.run", "action_refresh", [run_pfu_id])
 data_pfu = call("ua.report.run", "get_screen_data", run_id=run_pfu_id)
 errors_pfu = [c for c in data_pfu["checks"] if c["level"] == "error"]
@@ -147,10 +160,10 @@ else:
 
 # 6. повторне створення прогону на той самий період відкриває наявний, а не дублює
 before = call("ua.report.run", "search_count", [["report_code", "=", "j05"], ["year", "=", 2026], ["month", "=", 8]])
-data_again = call("ua.report.run", "get_screen_data", report_code="j05", year=2026, month=8)
+again_id = call("ua.report.run", "ensure_run", report_code="j05", year=2026, month=8)
 after = call("ua.report.run", "search_count", [["report_code", "=", "j05"], ["year", "=", 2026], ["month", "=", 8]])
-check("повторне звернення на j05 за серпень не створює дубль", before == after and data_again["run"]["id"] == run_j05_id,
-      f"до={before}, після={after}, run_id={data_again['run']['id']} (очікували {run_j05_id})")
+check("повторне звернення на j05 за серпень не створює дубль", before == after and again_id == run_j05_id,
+      f"до={before}, після={after}, run_id={again_id} (очікували {run_j05_id})")
 
 # 7. HTTP-перевірка збірки ресурсів - лише коли DB=payroll (dbfilter стенду блокує інші бази)
 if DB != "payroll":
@@ -228,8 +241,7 @@ else:
 # Вересень 2026, демо-компанія: листки в періоді у стані draft/verify. Рівень залежить від того,
 # чи є вже проведені (done) листки того ж періоду - немає жодного done -> error, інакше warn.
 # Порівнюємо з живим числом чернеток/verify, а не жорстко закодованим - демо-дані змінюються.
-data_sep = call("ua.report.run", "get_screen_data", report_code="j05", year=2026, month=9)
-run_sep_id = data_sep["run"]["id"]
+run_sep_id = call("ua.report.run", "ensure_run", report_code="j05", year=2026, month=9)
 call("ua.report.run", "action_refresh", [run_sep_id])
 data_sep = call("ua.report.run", "get_screen_data", run_id=run_sep_id)
 checks_sep = data_sep["checks"]
@@ -301,7 +313,8 @@ if checks_sep:
 
 # рядок «Дані» веде в запис, який правлять
 for code in ("j05", "timesheet", "orders", "trial"):
-    scr = call("ua.report.run", "get_screen_data", report_code=code, year=2026, month=8)
+    scr = call("ua.report.run", "get_screen_data",
+               run_id=call("ua.report.run", "ensure_run", report_code=code, year=2026, month=8))
     summary = scr.get("summary") or {}
     rows = summary.get("rows") or []
     targets = summary.get("targets") or []

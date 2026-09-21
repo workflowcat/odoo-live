@@ -11,40 +11,21 @@
 на перерахування, рядки виписки, журнал змін, прогони звітності, заяви ПФУ. Своїх даних
 модуль не тримає.
 """
-from datetime import date, timedelta
+from datetime import timedelta
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
-MONTHS_UA = {
-    1: "січень", 2: "лютий", 3: "березень", 4: "квітень", 5: "травень", 6: "червень",
-    7: "липень", 8: "серпень", 9: "вересень", 10: "жовтень", 11: "листопад", 12: "грудень",
-}
 ACCOUNT_CODES = ["23", "91", "92", "93", "661", "6411", "6415", "651", "6851", "471", "311", "378"]
 
 
 class UaPeriodBoard(models.AbstractModel):
     _name = "ua.period.board"
+    _inherit = ["ua.screen"]
     _description = "Дані сторінки «Період»"
 
     # ------------------------------------------------------------------ хелпери
-    @staticmethod
-    def _r2(value):
-        return round(value or 0.0, 2)
-
-    @staticmethod
-    def _money(value):
-        return "{:,.2f}".format(value or 0.0).replace(",", " ").replace(".", ",")
-
-    @staticmethod
-    def _bounds(year, month):
-        first = date(year, month, 1)
-        last = date(year + (month == 12), month % 12 + 1, 1) - timedelta(days=1)
-        return first, last
-
-    def _company(self):
-        return self.env.company
-
+    # _r2 / _money / _bounds / _company / _plural / MONTHS_UA / open_target - у ua.screen
     @staticmethod
     def _step(key, name, state, subtitle, action=None, rows=None, button=None):
         return {"key": key, "name": name, "state": state, "subtitle": subtitle,
@@ -87,15 +68,6 @@ class UaPeriodBoard(models.AbstractModel):
         if len(items) <= 1:
             return "".join(items)
         return "%s і %s" % (", ".join(items[:-1]), items[-1])
-
-    @staticmethod
-    def _plural(n, one, few, many):
-        n10, n100 = n % 10, n % 100
-        if n10 == 1 and n100 != 11:
-            return one
-        if 2 <= n10 <= 4 and not (12 <= n100 <= 14):
-            return few
-        return many
 
     # ------------------------------------------------------------------ кроки
     def _step_orders(self, company, first, last):
@@ -803,16 +775,9 @@ class UaPeriodBoard(models.AbstractModel):
         for step in steps:
             step["current"] = step["key"] == current_key
 
-        periods = []
-        y, m = year, month
-        for _i in range(6):
-            periods.append({"year": y, "month": m, "label": "%s %s" % (MONTHS_UA[m].capitalize(), y)})
-            y, m = (y - 1, 12) if m == 1 else (y, m - 1)
-        periods.reverse()
         return {
             "company": company.name,
-            "period": {"year": year, "month": month, "label": "%s %s" % (MONTHS_UA[month].capitalize(), year)},
-            "periods": periods,
+            "period": self._period_block(year, month, closed=close.get("state") == "closed"),
             "steps": steps,
             "done": done,
             "total": len(steps),
@@ -851,34 +816,9 @@ class UaPeriodBoard(models.AbstractModel):
                 "blockers": Close.year_blockers(company, year)}
 
     # ------------------------------------------------------------------ дії
-    @api.model
-    def action_open(self, action):
-        """Відкрити те, що стоїть за кроком: список за xmlid або конкретний запис."""
-        if action.get("xmlid"):
-            res = dict(self.env["ir.actions.actions"]._for_xml_id(action["xmlid"]))
-            if action.get("domain"):
-                res["domain"] = action["domain"]
-            if action.get("context"):
-                res["context"] = dict(action["context"])
-            return res
-        if action.get("model") and action.get("res_id"):
-            return {
-                "type": "ir.actions.act_window", "res_model": action["model"], "res_id": int(action["res_id"]),
-                "view_mode": "form", "views": [(False, "form")], "target": "current",
-            }
-        raise ValueError(_("Немає що відкривати."))
-
-    @api.model
-    def action_open_record(self, model, res_id):
-        view = "form"
-        if model == "account.bank.statement.line":
-            return {
-                "type": "ir.actions.act_window", "res_model": model, "res_id": int(res_id),
-                "view_mode": "form", "views": [(False, "form")], "target": "current",
-                "context": {"view_ref": "account_reconcile_oca.bank_statement_line_form_reconcile_view"},
-            }
-        return {"type": "ir.actions.act_window", "res_model": model, "res_id": int(res_id),
-                "view_mode": view, "views": [(False, view)], "target": "current"}
+    # Відкриття цілі - ua.screen.open_target: xmlid, запис або перелік за доменом.
+    # Колишні action_open / action_open_record / action_open_exception були трьома
+    # говірками того самого і нічого понад open_target не робили.
 
     @staticmethod
     def _decode_period(ids, year, month):
@@ -1121,23 +1061,5 @@ class UaPeriodBoard(models.AbstractModel):
         steps = {step["key"]: step for step in self._steps(company, year, month, first, last)}
         step = steps.get(action)
         if step:
-            return self.action_open(step["action"])
+            return self.open_target(step["action"])
         raise UserError(_("Невідома дія."))
-
-    @api.model
-    def action_open_exception(self, row):
-        """Відкрити ціль за xmlid/запис/домен.
-
-        Сама черга «Увага» на цьому екрані більше не існує (spec-period-v2.md, п.1) - тут
-        метод лишається неспожитим цим екраном, бо l10n_ua_home документує його як спільний
-        взірець відкриття цілі (action_open / action_open_record / action_open_exception)
-        для обох екранів; прибирати - окреме рішення, не в цій зміні."""
-        action = row.get("action") or {}
-        if action.get("xmlid") or (action.get("model") and action.get("res_id")):
-            return self.action_open(action)
-        if action.get("model"):
-            return {"type": "ir.actions.act_window", "res_model": action["model"],
-                    "domain": action.get("domain") or [], "view_mode": "list,form",
-                    "views": [(False, "list"), (False, "form")], "target": "current",
-                    "name": row.get("title") or ""}
-        raise UserError(_("Немає що відкривати."))

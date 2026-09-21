@@ -16,15 +16,11 @@
 без «ми»/«ви», кнопка одним дієсловом («Друк», «Створити», «Затвердити», «Відкрити»),
 причина вимкненої кнопки - один факт без вибачень.
 """
-from datetime import date, timedelta
-
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
-MONTHS_UA = {
-    1: "січень", 2: "лютий", 3: "березень", 4: "квітень", 5: "травень", 6: "червень",
-    7: "липень", 8: "серпень", 9: "вересень", 10: "жовтень", 11: "листопад", 12: "грудень",
-}
+from odoo.addons.l10n_ua_screen.models.ua_screen import MONTHS_UA
+
 MONTHS_SHORT = {
     1: "січ", 2: "лют", 3: "бер", 4: "кві", 5: "тра", 6: "чер",
     7: "лип", 8: "сер", 9: "вер", 10: "жов", 11: "лис", 12: "гру",
@@ -39,17 +35,19 @@ CHECK_LEVEL = {"error": "crit", "warn": "warn", "ok": "ok"}
 
 class UaPapers(models.AbstractModel):
     _name = "ua.papers"
+    _inherit = ["ua.screen"]
     _description = "Дані екрана «Папери»"
 
     # ------------------------------------------------------------------ хелпери
-    def _company(self):
-        return self.env.company
+    # _company / _bounds / MONTHS_UA / open_target - у ua.screen
 
-    @staticmethod
-    def _bounds(year, month):
-        first = date(year, month, 1)
-        last = date(year + (month == 12), month % 12 + 1, 1) - timedelta(days=1)
-        return first, last
+    def _period_label(self, year, month):
+        """«Папери» пишуть місяць малою: «вересень 2026», а не «Вересень 2026»."""
+        return "%s %s" % (self._month_name(month), year)
+
+    def _period_item_label(self, year, month):
+        """У смузі «Паперів» місяці короткі: «вер», не «Вересень 2026»."""
+        return MONTHS_SHORT.get(month, str(month))
 
     @staticmethod
     def _t_record(record):
@@ -782,15 +780,7 @@ class UaPapers(models.AbstractModel):
         params = dict(params or {})
         registry = self._registry()
 
-        periods = []
-        y, m = year, month
-        for _i in range(6):
-            periods.append({"year": y, "month": m, "label": MONTHS_SHORT.get(m, str(m)),
-                           "current": (y == year and m == month)})
-            y, m = (y - 1, 12) if m == 1 else (y, m - 1)
-        periods.reverse()
-
-        close = self.env["ua.period.close"].state_of(company, year, month)
+        period = self._period_block(year, month)
         employees = self.env["hr.employee"].search_count([
             ("company_id", "=", company.id), ("active", "=", True),
             ("ua_contract_kind", "not in", ("gph", "fop"))])
@@ -811,10 +801,7 @@ class UaPapers(models.AbstractModel):
         detail = self._build_paper(entry, company, year, month, first, last, params)
 
         return {
-            "period": {
-                "year": year, "month": month, "label": "%s %s" % (MONTHS_UA[month], year),
-                "closed": close.get("state") == "closed", "employees": employees, "periods": periods,
-            },
+            "period": dict(period, employees=employees),
             "papers": papers_list,
             "paper": detail,
         }
@@ -876,31 +863,3 @@ class UaPapers(models.AbstractModel):
             return {"reload": True}
 
         raise UserError(_("Невідома дія: %s") % action_key)
-
-    @api.model
-    def open_target(self, target):
-        """Один в один як ua.home.open_target: xmlid, або модель+res_id, або модель+домен."""
-        target = target or {}
-        if target.get("xmlid"):
-            res = dict(self.env["ir.actions.actions"]._for_xml_id(target["xmlid"]))
-            if target.get("domain"):
-                res["domain"] = target["domain"]
-            if target.get("context"):
-                res["context"] = dict(target["context"])
-            return res
-        if target.get("model") and target.get("res_id"):
-            model, res_id = target["model"], int(target["res_id"])
-            if model == "account.bank.statement.line":
-                return {
-                    "type": "ir.actions.act_window", "res_model": model, "res_id": res_id,
-                    "view_mode": "form", "views": [(False, "form")], "target": "current",
-                    "context": {"view_ref": "account_reconcile_oca.bank_statement_line_form_reconcile_view"},
-                }
-            return {"type": "ir.actions.act_window", "res_model": model, "res_id": res_id,
-                    "view_mode": "form", "views": [(False, "form")], "target": "current"}
-        if target.get("model"):
-            return {"type": "ir.actions.act_window", "res_model": target["model"],
-                    "domain": target.get("domain") or [], "view_mode": "list,form",
-                    "views": [(False, "list"), (False, "form")], "target": "current",
-                    "name": target.get("name") or ""}
-        raise UserError(_("Немає що відкривати."))

@@ -1,11 +1,12 @@
 {
     "name": "Звітність: робоче місце з перевірками (Україна)",
     "summary": "Один екран: обрати звіт і період, перевірити дані, сформувати XML/PDF, позначити поданим",
-    "version": "19.0.1.0.3",
+    "version": "19.0.1.0.4",
     "category": "Human Resources/Payroll",
     "author": "Bot&Partners",
     "license": "LGPL-3",
     "depends": [
+        "l10n_ua_screen",
         "l10n_ua_payroll_reports",
         "l10n_ua_hr_docs",
         "l10n_ua_hr_orders",

@@ -33,25 +33,11 @@ MONTHS_OF = {
 
 class UaPeople(models.AbstractModel):
     _name = "ua.people"
+    _inherit = ["ua.screen"]
     _description = "Дані екрана «Люди»"
 
     # ------------------------------------------------------------------ хелпери
-    def _company(self):
-        return self.env.company
-
-    @staticmethod
-    def _plural(n, one, few, many):
-        """Українська форма іменника після числівника n: 1 - one, 2-4 - few, решта - many."""
-        n = abs(int(n))
-        if n % 100 in (11, 12, 13, 14):
-            return many
-        r = n % 10
-        if r == 1:
-            return one
-        if 2 <= r <= 4:
-            return few
-        return many
-
+    # _company / _plural / open_target - у ua.screen
     @staticmethod
     def _fmt_num(v, digits=1):
         """Число українською без зайвого нуля: 11,5 і 17, не 11,50 і 17,0."""
@@ -271,25 +257,3 @@ class UaPeople(models.AbstractModel):
         doc = self.env["ua.staff.list"].create({"company_id": company.id, "date": today})
         doc.action_refill()
         return self.open_target(self._t_record(doc))
-
-    @api.model
-    def open_target(self, target):
-        """Один в один як ua.home.open_target: xmlid, або модель+res_id, або модель+домен."""
-        target = target or {}
-        if target.get("xmlid"):
-            res = dict(self.env["ir.actions.actions"]._for_xml_id(target["xmlid"]))
-            if target.get("domain"):
-                res["domain"] = target["domain"]
-            if target.get("context"):
-                res["context"] = dict(target["context"])
-            return res
-        if target.get("model") and target.get("res_id"):
-            model, res_id = target["model"], int(target["res_id"])
-            return {"type": "ir.actions.act_window", "res_model": model, "res_id": res_id,
-                    "view_mode": "form", "views": [(False, "form")], "target": "current"}
-        if target.get("model"):
-            return {"type": "ir.actions.act_window", "res_model": target["model"],
-                    "domain": target.get("domain") or [], "view_mode": "list,form",
-                    "views": [(False, "list"), (False, "form")], "target": "current",
-                    "name": target.get("name") or ""}
-        raise UserError(_("Немає що відкривати."))

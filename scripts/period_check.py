@@ -68,7 +68,7 @@ def call(model, method, *a, **kw):
 
 
 data = call("ua.period.board", "get_screen_data", year=2026, month=8)
-expected = {"company", "period", "periods", "steps", "done", "total", "turnover", "blockers", "totals"}
+expected = {"company", "period", "steps", "done", "total", "turnover", "blockers", "totals"}
 check("get_screen_data() повертає всі ключі", expected.issubset(data.keys()),
       f"відсутні: {expected - set(data.keys())}" if not expected.issubset(data.keys()) else data["period"]["label"])
 check("first_steps, exceptions, changes відсутні у відповіді (п.1 спеки)",
@@ -87,7 +87,7 @@ check("рівно один крок відкритий (current)",
       str([s["key"] for s in data["steps"] if s["current"]]))
 check("усі тіла кроків уже в першій відповіді - перемикання кроку не звертається на сервер",
       all("rows" in s and isinstance(s["rows"], list) for s in data["steps"]))
-check("періодів для перемикання шість", len(data["periods"]) == 6, f"{len(data['periods'])}")
+check("періодів для перемикання шість", len(data["period"]["periods"]) == 6, f"{len(data['period']['periods'])}")
 
 by_key = {s["key"]: s for s in data["steps"]}
 check("серпень: листки проведено", by_key["payslips"]["mark"] == "ok", by_key["payslips"]["subtitle"])
@@ -124,7 +124,7 @@ if blockers_info["count"]:
 else:
     print("[--] цей місяць нічого не блокує, перевірку цілі «Заважає закрити» пропущено")
 
-action = call("ua.period.board", "action_open", by_key["reporting"]["action"])
+action = call("ua.period.board", "open_target", by_key["reporting"]["action"])
 check("кнопка кроку відкриває екран", isinstance(action, dict) and action.get("type"), str(action.get("res_model") or action.get("tag")))
 
 bank_domain_row = next((r for r in by_key["bank"]["rows"] if r.get("target", {}).get("domain")), None)

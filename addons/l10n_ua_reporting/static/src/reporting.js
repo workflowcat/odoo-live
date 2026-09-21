@@ -94,11 +94,26 @@ export class UaReporting extends Component {
         await this.load(kwargs);
     }
 
+    /** Прогін періоду, який щойно відкрили, у базі може ще не існувати: екран читає і
+     *  нічого не пише. Перед дією бухгалтера просимо сервер створити його - і лише тоді. */
+    async ensureRunId() {
+        const run = this.state.data.run;
+        if (run.id) {
+            return run.id;
+        }
+        const kwargs = { report_code: run.report_code, year: run.year };
+        if (run.quarter) { kwargs.quarter = run.quarter; }
+        if (run.month) { kwargs.month = run.month; }
+        if (run.date) { kwargs.date = run.date; }
+        return this.orm.call("ua.report.run", "ensure_run", [], kwargs);
+    }
+
     async _runAction(method) {
         this.state.busy = true;
         try {
-            await this.orm.call("ua.report.run", method, [[this.state.data.run.id]]);
-            await this.load({ run_id: this.state.data.run.id });
+            const runId = await this.ensureRunId();
+            await this.orm.call("ua.report.run", method, [[runId]]);
+            await this.load({ run_id: runId });
         } catch (e) {
             this.notification.add((e.data && e.data.message) || e.message || "Помилка", { type: "danger" });
         } finally {
@@ -133,6 +148,25 @@ export class UaReporting extends Component {
 
     resetDraft() {
         return this._runAction("action_reset");
+    }
+
+    /** Чи вибраний місяць - той самий, що показує екран. Прогону могло ще не бути:
+     *  тоді порівнюємо не id, а сам період. */
+    isCurrentPeriod(p) {
+        const run = this.state.data.run;
+        if (run.id) {
+            return p.run_id === run.id;
+        }
+        if (p.run_id) {
+            return false;
+        }
+        if (p.date !== undefined) {
+            return p.date === run.date;
+        }
+        if (p.month !== undefined) {
+            return p.year === run.year && p.month === run.month;
+        }
+        return p.year === run.year;
     }
 
     /** Клік по рядку перевірки: відкриває ціль напряму через action-сервіс, без RPC -

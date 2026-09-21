@@ -48,7 +48,7 @@ export class UaDashboard extends Component {
         if (month) {
             kwargs.month = month;
         }
-        const data = await this.orm.call("ua.dashboard", "get_data", [], kwargs);
+        const data = await this.orm.call("ua.dashboard", "get_screen_data", [], kwargs);
         this.state.data = data;
         this.state.loading = false;
     }
@@ -57,39 +57,33 @@ export class UaDashboard extends Component {
         await this.load(period.year, period.month);
     }
 
-    /** Відкрити дію за xmlid. */
-    async openActionXmlid(xmlid) {
-        if (xmlid) {
-            await this.action.doAction(xmlid);
+    /** Ціль рядка: власне поле target або сам рядок, якщо він і є ціллю (обороти). */
+    targetOf(row) {
+        if (!row) {
+            return false;
         }
+        if (row.target) {
+            return row.target;
+        }
+        return row.model && (row.domain || row.res_id) ? row : false;
     }
 
-    /** Чи веде рядок кудись: пункт пульту, список за доменом або одна форма. */
+    /** Чи веде рядок кудись. */
     hasTarget(row) {
-        return Boolean(row.action || (row.res_model && (row.domain || row.res_id)));
+        return Boolean(this.targetOf(row));
+    }
+
+    /** Відкриває все на цьому екрані один вхід - ua.screen.open_target на сервері. */
+    async openTarget(target) {
+        if (!target) {
+            return;
+        }
+        const action = await this.orm.call("ua.dashboard", "open_target", [target]);
+        await this.action.doAction(action);
     }
 
     async openRow(row) {
-        if (row.action) {
-            await this.openActionXmlid(row.action);
-        } else if (row.res_model && row.domain) {
-            await this.action.doAction({
-                type: "ir.actions.act_window",
-                res_model: row.res_model,
-                domain: row.domain,
-                views: [[false, "list"], [false, "form"]],
-                name: row.title || row.name || row.label || "",
-                target: "current",
-            });
-        } else if (row.res_model && row.res_id) {
-            await this.action.doAction({
-                type: "ir.actions.act_window",
-                res_model: row.res_model,
-                res_id: row.res_id,
-                views: [[false, "form"]],
-                target: "current",
-            });
-        }
+        await this.openTarget(this.targetOf(row));
     }
 }
 

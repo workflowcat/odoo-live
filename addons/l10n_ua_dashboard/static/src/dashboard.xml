@@ -16,8 +16,8 @@
             <span class="o_ua_head_subtitle" t-else=""><t t-esc="data.company.employee_count"/> активних працівників</span>
           </div>
           <div class="o_ua_months">
-            <t t-foreach="data.periods" t-as="period" t-key="period.year + '-' + period.month">
-              <span t-attf-class="o_ua_month #{period.month === data.company.month and period.year === data.company.year ? 'active' : ''}"
+            <t t-foreach="data.period.periods" t-as="period" t-key="period.year + '-' + period.month">
+              <span t-attf-class="o_ua_month #{period.current ? 'active' : ''}"
                     t-on-click="() => this.onSelectPeriod(period)" t-esc="period.label"/>
             </t>
           </div>
@@ -30,8 +30,8 @@
             <div class="o_ua_dashboard_empty text-muted">
               Листків за цей місяць немає.
               <button type="button" class="btn btn-sm btn-link p-0"
-                      t-if="data.payroll_by_department.run_action"
-                      t-on-click="() => this.openActionXmlid(data.payroll_by_department.run_action)">
+                      t-if="data.payroll_by_department.run_target"
+                      t-on-click="() => this.openTarget(data.payroll_by_department.run_target)">
                 Відкрити пакети листків
               </button>
             </div>
@@ -114,7 +114,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr t-foreach="data.documents" t-as="doc" t-key="doc.res_model + '-' + doc.res_id"
+              <tr t-foreach="data.documents" t-as="doc" t-key="doc.target.model + '-' + doc.target.res_id"
                   class="o_ua_clickable" t-on-click="() => this.openRow(doc)">
                 <td t-esc="doc.name"/>
                 <td t-esc="doc.period"/>

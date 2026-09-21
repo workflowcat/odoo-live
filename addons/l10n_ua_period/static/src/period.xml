@@ -54,7 +54,7 @@
           <span class="o_ua_pd_period_now" t-esc="data.period.label"/>
           <button type="button" class="o_ua_pd_icon" t-on-click="() => this.shiftMonth(1)" aria-label="Наступний місяць" data-tooltip="Наступний місяць">›</button>
           <div class="o_ua_months">
-            <span t-foreach="data.periods" t-as="p" t-key="p.label"
+            <span t-foreach="data.period.periods" t-as="p" t-key="p.label"
                   t-attf-class="o_ua_month #{p.year === data.period.year and p.month === data.period.month ? 'active' : ''}"
                   t-on-click="() => this.selectPeriod(p)" t-esc="p.label"
                   t-att-data-tooltip="'Перейти до місяця ' + p.label"/>

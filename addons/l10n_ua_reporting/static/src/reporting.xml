@@ -18,7 +18,7 @@
           </div>
           <div class="o_ua_reporting_periods">
             <div t-foreach="data.periods" t-as="p" t-key="p.key"
-                 t-attf-class="o_ua_reporting_period_item #{p.run_id === data.run.id ? 'active' : ''}"
+                 t-attf-class="o_ua_reporting_period_item #{this.isCurrentPeriod(p) ? 'active' : ''}"
                  t-on-click="() => this.selectPeriod(p)">
               <span t-esc="p.label"/>
               <span t-if="p.state" t-attf-class="o_ua_pill o_ua_state_#{p.state}" t-esc="this.stateLabel(p.state)"/>
@@ -98,7 +98,8 @@
                 </tr>
               </tbody>
             </table>
-            <div t-if="!data.checks.length" class="text-muted">Натисніть «Перерахувати».</div>
+            <div t-if="!data.checks.length and data.run.id" class="text-muted">Натисніть «Перерахувати».</div>
+            <div t-if="!data.run.id" class="text-muted">Прогону за цей період ще немає. Натисніть «Перерахувати» або «Сформувати» - він створиться.</div>
           </div>
 
           <div class="o_ua_reporting_section" t-if="data.summary.rows and data.summary.rows.length">

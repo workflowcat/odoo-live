@@ -1,11 +1,12 @@
 {
     "name": "Люди",
     "summary": "Один екран працівників: перелік, підрозділи, схема підпорядкування і штатний розпис",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "category": "Human Resources",
     "author": "Bot&Partners",
     "license": "LGPL-3",
     "depends": [
+        "l10n_ua_screen",
         "l10n_ua_hr_docs",
     ],
     "data": [

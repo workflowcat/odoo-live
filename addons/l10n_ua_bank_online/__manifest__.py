@@ -1,11 +1,12 @@
 {
     "name": "Україна: банк онлайн (ПриватБанк, Monobank) і робоче місце звірки",
     "summary": "Виписки з банку через API замість файлів; екран «Банк»: рахунки, завантаження, звірка зарплатних платежів",
-    "version": "19.0.1.1.1",
+    "version": "19.0.1.1.2",
     "category": "Accounting",
     "author": "Bot&Partners",
     "license": "LGPL-3",
     "depends": [
+        "l10n_ua_screen",
         "account_statement_import_online",
         "account_statement_import_file",
         "account_statement_import_sheet_file",

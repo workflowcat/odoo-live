@@ -14,7 +14,10 @@ import urllib.parse
 import urllib.request
 
 ENV = dict(l.split("=", 1) for l in open(".env").read().splitlines() if "=" in l and not l.startswith("#"))
-BASE = os.environ.get("ODOO_URL", "http://127.0.0.1:8110").rstrip("/")
+PORT = (os.environ.get("ODOO_PORT") or ENV.get("ODOO_PORT", "8110")).strip()
+# без ODOO_URL перевіряємо той стенд, у якому лежить цей скрипт (ODOO_PORT із .env),
+# а не сусідній стенд на 8110
+BASE = os.environ.get("ODOO_URL", f"http://127.0.0.1:{PORT}").rstrip("/")
 DB = os.environ.get("PAYROLL_DB", "payroll").strip()
 LOGIN = ENV["ODOO_ADMIN_USER_LOGIN"].strip()
 PW = ENV["ODOO_ADMIN_USER_PASSWORD"].strip()
@@ -75,7 +78,7 @@ else:
     check("стилі зібрано без помилок SCSS", False, "посилання на CSS не знайдено")
 
 # методи екранів - так, як їх викликає інтерфейс: без позиційних аргументів
-for model, method, kwargs in (("ua.period.board", "get_screen_data", {}), ("ua.dashboard", "get_data", {}),
+for model, method, kwargs in (("ua.period.board", "get_screen_data", {}), ("ua.dashboard", "get_screen_data", {}),
                               ("ua.bank.board", "get_screen_data", {}), ("ua.report.run", "get_screen_data", {}),
                               ("ua.setup.profile", "screen", {})):
     res = post("/web/dataset/call_kw", {"jsonrpc": "2.0", "method": "call",

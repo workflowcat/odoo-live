@@ -1,4 +1,4 @@
-"""Перевірка модуля l10n_ua_dashboard: get_data() повертає всі ключі, підсумок нарахувань
+"""Перевірка модуля l10n_ua_dashboard: get_screen_data() повертає всі ключі, підсумок нарахувань
 по підрозділах збігається із сумою рядків, клієнтська дія «Зведення» (тег ua_dashboard) існує,
 меню «Зведення» видиме для lana і є її домашньою дією.
 
@@ -57,15 +57,16 @@ def call(model, method, *a, **kw):
     return rpc("object", "execute_kw", DB, UID, PW, model, method, list(a), kw)
 
 
-# 1. get_data() повертає всі ключі
-data = call("ua.dashboard", "get_data")
-expected_keys = {"company", "periods", "payroll_by_department", "turnover", "documents"}
-check("get_data() повертає всі очікувані ключі", expected_keys.issubset(data.keys()),
+# 1. get_screen_data() повертає всі ключі
+data = call("ua.dashboard", "get_screen_data")
+expected_keys = {"company", "period", "payroll_by_department", "turnover", "documents"}
+check("get_screen_data() повертає всі очікувані ключі", expected_keys.issubset(data.keys()),
       f"відсутні: {expected_keys - set(data.keys())}" if not expected_keys.issubset(data.keys()) else
       f"компанія: {data['company']['name']}, {data['company']['month_label']} {data['company']['year']}")
 
 check("company.employee_count > 0", data["company"]["employee_count"] > 0, f"{data['company']['employee_count']} працівників")
-check("periods містить 6 місяців", len(data.get("periods", [])) == 6, f"{len(data.get('periods', []))} періодів")
+periods = (data.get("period") or {}).get("periods") or []
+check("periods містить 6 місяців", len(periods) == 6, f"{len(periods)} періодів")
 
 # 2. payroll_by_department: total збігається із сумою рядків
 pbd = data["payroll_by_department"]
@@ -78,8 +79,8 @@ for r in rows:
 mismatches = {k: (round(sums[k], 2), total_row.get(k)) for k in sums if round(sums[k], 2) != total_row.get(k)}
 check("payroll_by_department.total = сума рядків", not mismatches, f"розбіжності: {mismatches}" if mismatches else
       f"{len(rows)} підрозділів, разом нараховано {total_row.get('gross')}, на руки {total_row.get('net')}")
-check("payroll_by_department: rows або порожній стан з кнопкою", bool(rows) or bool(pbd.get("run_action")),
-      "" if rows else "рядків немає, run_action заповнено" if pbd.get("run_action") else "рядків немає і run_action порожній")
+check("payroll_by_department: rows або порожній стан з кнопкою", bool(rows) or bool(pbd.get("run_target")),
+      "" if rows else "рядків немає, run_target заповнено" if pbd.get("run_target") else "рядків немає і run_target порожній")
 
 # сума рядків нарахувань має збігатись зі знаком - GROSS має бути >= NET (елементарна звірка адекватності чисел)
 if rows:
@@ -140,10 +141,10 @@ else:
 
         # lana може викликати get_data (перевірка прав ir.model.access)
         try:
-            lana_data = lana_call("ua.dashboard", "get_data")
-            check(f"{LANA_LOGIN} може викликати ua.dashboard.get_data", isinstance(lana_data, dict) and "company" in lana_data)
+            lana_data = lana_call("ua.dashboard", "get_screen_data")
+            check(f"{LANA_LOGIN} може викликати ua.dashboard.get_screen_data", isinstance(lana_data, dict) and "company" in lana_data)
         except SystemExit as exc:
-            check(f"{LANA_LOGIN} може викликати ua.dashboard.get_data", False, str(exc)[:300])
+            check(f"{LANA_LOGIN} може викликати ua.dashboard.get_screen_data", False, str(exc)[:300])
 
         # домашня дія - «Період»: робоче місце місяця, не аналітика
         lana_user = call("res.users", "search_read", [["login", "=", LANA_LOGIN]], fields=["action_id"])
@@ -158,24 +159,30 @@ else:
 dep = data["payroll_by_department"]
 if dep["rows"]:
     row = dep["rows"][0]
-    check("рядок підрозділу веде в листки", row.get("res_model") == "hr.payslip" and bool(row.get("domain")),
-          f"res_model={row.get('res_model')}, domain={row.get('domain')}")
-    slips = call("hr.payslip", "search_count", row["domain"])
+    target = row.get("target") or {}
+    check("рядок підрозділу веде в листки", target.get("model") == "hr.payslip" and bool(target.get("domain")),
+          f"model={target.get('model')}, domain={target.get('domain')}")
+    slips = call("hr.payslip", "search_count", target["domain"])
     check("домен рядка підрозділу знаходить листки", slips > 0, f"знайдено {slips}")
 else:
     print("[--] рядків підрозділів немає: перевірку цілі пропущено")
-check("підсумок веде в листки місяця", dep["total"].get("res_model") == "hr.payslip" and bool(dep["total"].get("domain")),
-      f"total.res_model={dep['total'].get('res_model')}")
+total_target = dep["total"].get("target") or {}
+check("підсумок веде в листки місяця", total_target.get("model") == "hr.payslip" and bool(total_target.get("domain")),
+      f"total.target={total_target.get('model')}")
 # платежі показує «Банк»: там і перевіряємо цілі
 bank = call("ua.bank.board", "get_screen_data")
 bank_payments = bank.get("payments", [])
-targeted = [p for p in bank_payments if p.get("res_model") or p.get("action")]
+targeted = [p for p in bank_payments if p.get("target")]
 check("кожен рядок платежів веде у свій запис", len(targeted) == len(bank_payments),
       f"з цілями {len(targeted)} з {len(bank_payments)}")
 for pay in bank_payments:
-    if pay.get("domain") and pay.get("res_model"):
-        found = call(pay["res_model"], "search_count", pay["domain"])
+    pay_target = pay.get("target") or {}
+    if pay_target.get("domain") and pay_target.get("model"):
+        found = call(pay_target["model"], "search_count", pay_target["domain"])
         check(f"домен платежу «{pay['label'][:32]}» дійсний", isinstance(found, int), f"знайдено {found}")
+    # ціль відкривається спільним входом, як і на інших екранах
+    opened = call("ua.dashboard", "open_target", pay_target)
+    check(f"ціль платежу «{pay['label'][:32]}» відкривається", bool(opened.get("type")), str(opened.get("res_model") or opened.get("tag")))
 
 # 5. HTTP-перевірка збірки ресурсів - лише коли DB=payroll (dbfilter стенду блокує payroll_test)
 if DB != "payroll":
