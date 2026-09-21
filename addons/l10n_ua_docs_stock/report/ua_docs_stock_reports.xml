@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="action_report_ua_picking_delivery_note" model="ir.actions.report">
+    <field name="name">Видаткова накладна</field>
+    <field name="model">stock.picking</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_docs_stock.report_ua_picking_delivery_note</field>
+    <field name="report_file">l10n_ua_docs_stock.report_ua_picking_delivery_note</field>
+    <field name="binding_model_id" ref="stock.model_stock_picking"/>
+    <field name="binding_type">report</field>
+    <field name="paperformat_id" ref="l10n_ua_docs.paperformat_ua_docs_a4"/>
+    <field name="print_report_name">'Видаткова накладна %s' % (object.name or '')</field>
+  </record>
+
+  <record id="action_report_ua_waybill" model="ir.actions.report">
+    <field name="name">Товарно-транспортна накладна (спрощена)</field>
+    <field name="model">stock.picking</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_docs_stock.report_ua_waybill</field>
+    <field name="report_file">l10n_ua_docs_stock.report_ua_waybill</field>
+    <field name="binding_model_id" ref="stock.model_stock_picking"/>
+    <field name="binding_type">report</field>
+    <field name="paperformat_id" ref="l10n_ua_docs.paperformat_ua_docs_a4"/>
+    <field name="print_report_name">'ТТН %s' % (object.name or '')</field>
+  </record>
+
+  <!-- Видаткова накладна: бланк спільний з l10n_ua_docs. -->
+  <template id="report_ua_picking_delivery_note">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_docs.report_ua_delivery_note_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+
+  <!-- ТТН спрощена: своя форма, бо вантажні реквізити в рахунку не живуть. -->
+  <template id="report_ua_waybill_document">
+    <t t-set="cur" t-value="doc._ua_docs_currency()"/>
+    <t t-set="seller" t-value="doc._ua_docs_seller()"/>
+    <t t-set="buyer" t-value="doc._ua_docs_buyer()"/>
+    <t t-set="rows" t-value="doc._ua_docs_lines()"/>
+    <t t-set="doc_date" t-value="doc._ua_docs_date()"/>
+    <div class="page ua-doc">
+      <t t-call="l10n_ua_docs.ua_docs_style"/>
+
+      <h3>Товарно-транспортна накладна № <t t-out="doc._ua_docs_number()"/><t t-if="doc_date"> від <t t-out="doc_date.strftime('%d.%m.%Y')"/></t></h3>
+      <div class="ua-sub">спрощена форма</div>
+
+      <t t-set="party" t-value="seller"/>
+      <t t-set="role" t-value="'Вантажовідправник'"/>
+      <t t-call="l10n_ua_docs.ua_docs_party_block"/>
+      <t t-set="party" t-value="buyer"/>
+      <t t-set="role" t-value="'Вантажоодержувач'"/>
+      <t t-call="l10n_ua_docs.ua_docs_party_block"/>
+
+      <table class="ua-req">
+        <tr>
+          <td class="ua-key">Перевізник:</td>
+          <td><span class="ua-fill" style="min-width: 380px;">&#160;</span></td>
+        </tr>
+        <tr>
+          <td class="ua-key">Автомобіль:</td>
+          <td><span class="ua-fill" style="min-width: 380px;">&#160;</span>
+            <div class="ua-cap">(марка, державний номер, причіп)</div></td>
+        </tr>
+        <tr>
+          <td class="ua-key">Водій:</td>
+          <td><span class="ua-fill" style="min-width: 380px;">&#160;</span>
+            <div class="ua-cap">(ПІБ, посвідчення)</div></td>
+        </tr>
+        <tr>
+          <td class="ua-key">Пункт навантаження:</td>
+          <td><t t-out="seller['actual_address'] or seller['address']"/></td>
+        </tr>
+        <tr>
+          <td class="ua-key">Пункт розвантаження:</td>
+          <td><t t-out="buyer['actual_address'] or buyer['address']"/></td>
+        </tr>
+      </table>
+
+      <table class="ua-grid">
+        <thead>
+          <tr>
+            <th style="width: 4%;">№</th>
+            <th>Найменування вантажу</th>
+            <th style="width: 12%;">Од.</th>
+            <th style="width: 12%;">Кількість</th>
+            <th style="width: 14%;">Маса, кг</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr t-foreach="rows" t-as="row">
+            <td class="ua-mid"><t t-out="row['index']"/></td>
+            <td><t t-out="row['name']"/></td>
+            <td class="ua-mid"><t t-out="row['uom']"/></td>
+            <td class="ua-num"><t t-out="'%g' % row['quantity']"/></td>
+            <td class="ua-num"><t t-out="'%.3f' % row['weight']"/></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="ua-note">
+        Усього місць <t t-out="len(rows)"/>, загальна маса брутто
+        <t t-out="'%.3f' % doc._ua_docs_weight()"/> кг.
+      </div>
+      <div class="ua-note" t-if="doc._ua_docs_basis()">Підстава: <t t-out="doc._ua_docs_basis()"/>.</div>
+
+      <table class="ua-sign">
+        <tr>
+          <td>
+            Відпустив(ла) <span class="ua-fill"><t t-out="seller['director']"/></span><br/>
+            <span class="ua-cap">(посада, підпис, ПІБ)</span><br/>М.П.
+          </td>
+          <td>
+            Прийняв(ла) водій <span class="ua-fill">&#160;</span><br/>
+            <span class="ua-cap">(підпис, ПІБ)</span>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            Вантаж одержав(ла) <span class="ua-fill"><t t-out="buyer['director']"/></span><br/>
+            <span class="ua-cap">(посада, підпис, ПІБ)</span><br/>М.П.
+          </td>
+          <td/>
+        </tr>
+      </table>
+    </div>
+  </template>
+
+  <template id="report_ua_waybill">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_docs_stock.report_ua_waybill_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+
+</odoo>

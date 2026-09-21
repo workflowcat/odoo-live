@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="action_report_ua_sale_invoice_bill" model="ir.actions.report">
+    <field name="name">Рахунок на оплату</field>
+    <field name="model">sale.order</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_docs_sale.report_ua_sale_invoice_bill</field>
+    <field name="report_file">l10n_ua_docs_sale.report_ua_sale_invoice_bill</field>
+    <field name="binding_model_id" ref="sale.model_sale_order"/>
+    <field name="binding_type">report</field>
+    <field name="paperformat_id" ref="l10n_ua_docs.paperformat_ua_docs_a4"/>
+    <field name="print_report_name">'Рахунок %s' % (object.name or '')</field>
+  </record>
+
+  <!-- Бланк спільний з l10n_ua_docs: замовлення вміє ті самі методи. -->
+  <template id="report_ua_sale_invoice_bill">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_docs.report_ua_invoice_bill_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+
+</odoo>

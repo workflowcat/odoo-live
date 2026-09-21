@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_partner_form_ua_docs" model="ir.ui.view">
+    <field name="name">res.partner.form.ua.docs</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_partner_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='vat']" position="after">
+        <field name="x_ua_actual_address"/>
+        <field name="x_ua_signatory_name"/>
+        <field name="x_ua_signatory_basis"/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_partner_bank_form_ua_docs" model="ir.ui.view">
+    <field name="name">res.partner.bank.form.ua.docs</field>
+    <field name="model">res.partner.bank</field>
+    <field name="inherit_id" ref="base.view_partner_bank_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='acc_number']" position="after">
+        <field name="x_ua_mfo"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>

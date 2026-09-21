@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_picking_form_ua_docs" model="ir.ui.view">
+    <field name="name">stock.picking.form.ua.docs</field>
+    <field name="model">stock.picking</field>
+    <field name="inherit_id" ref="stock.view_picking_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='origin']" position="after">
+        <field name="x_ua_proxy_number"/>
+        <field name="x_ua_proxy_date"/>
+        <field name="x_ua_proxy_person"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>
