@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:annotation>
+		<xs:documentation>ПОВІДОМЛЕННЯ про прийняття працівника (домашнього працівника) на роботу / укладення гіг-контракту. Додаток 1 до постанови Кабінету Міністрів України від 17 червня 2015 р. № 413 (в редакції постанови Кабінету Міністрів України від 21 лютого 2025 р. № 184)</xs:documentation>
+	</xs:annotation>
+	<xs:include schemaLocation="common_types.xsd"/>
+	<!--Локальний тип "Значення 1-5 для ознаки "Категорія особи" -->
+	<xs:simpleType name="DGCategoryPerson">
+		<xs:restriction base="xs:integer">
+			<xs:minInclusive value="1"/>
+			<xs:maxInclusive value="5"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--Локальний тип для колонки "Значення 1-5 для ознаки "Категорія особи" в колонці-->
+	<xs:complexType name="CategoryPersonColumn">
+		<xs:simpleContent>
+			<xs:extension base="DGCategoryPerson">
+				<xs:attribute name="ROWNUM" type="rowInt" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:element name="DECLAR" type="DeclarContent"/>
+	<xs:complexType name="DeclarContent">
+		<xs:sequence>
+			<xs:element name="DECLARHEAD" type="DHead"/>
+			<xs:element name="DECLARBODY" type="DBody">
+				<xs:unique name="UT1RXXXXG5">
+					<xs:selector xpath="T1RXXXXG5"/>
+					<xs:field xpath="@ROWNUM"/>
+				</xs:unique>
+				<xs:unique name="UT1RXXXXG6S">
+					<xs:selector xpath="T1RXXXXG6S"/>
+					<xs:field xpath="@ROWNUM"/>
+				</xs:unique>
+				<xs:unique name="UT1RXXXXG7S">
+					<xs:selector xpath="T1RXXXXG7S"/>
+					<xs:field xpath="@ROWNUM"/>
+				</xs:unique>
+				<xs:unique name="UT1RXXXXG81S">
+					<xs:selector xpath="T1RXXXXG81S"/>
+					<xs:field xpath="@ROWNUM"/>
+				</xs:unique>
+				<xs:unique name="UT1RXXXXG82S">
+					<xs:selector xpath="T1RXXXXG82S"/>
+					<xs:field xpath="@ROWNUM"/>
+				</xs:unique>
+				<xs:unique name="UT1RXXXXG83S">
+					<xs:selector xpath="T1RXXXXG83S"/>
+					<xs:field xpath="@ROWNUM"/>
+				</xs:unique>
+				<xs:unique name="UT1RXXXXG9">
+					<xs:selector xpath="T1RXXXXG9"/>
+					<xs:field xpath="@ROWNUM"/>
+				</xs:unique>
+				<xs:unique name="UT1RXXXXG10S">
+					<xs:selector xpath="T1RXXXXG10S"/>
+					<xs:field xpath="@ROWNUM"/>
+				</xs:unique>
+				<xs:unique name="UT1RXXXXG11D">
+					<xs:selector xpath="T1RXXXXG11D"/>
+					<xs:field xpath="@ROWNUM"/>
+				</xs:unique>
+				<xs:unique name="UT1RXXXXG12D">
+					<xs:selector xpath="T1RXXXXG12D"/>
+					<xs:field xpath="@ROWNUM"/>
+				</xs:unique>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DHead">
+		<xs:sequence>
+			<xs:element name="TIN" type="DGLong"/>
+			<xs:element name="C_DOC" type="xs:string" fixed="J30"/>
+			<xs:element name="C_DOC_SUB" type="xs:string" fixed="010"/>
+			<xs:element name="C_DOC_VER" type="xs:string" fixed="5"/>
+			<xs:element name="C_DOC_TYPE" type="xs:nonNegativeInteger"/>
+			<xs:element name="C_DOC_CNT" type="xs:nonNegativeInteger"/>
+			<xs:element name="C_REG" type="DGsti"/>
+			<xs:element name="C_RAJ" type="DGsti"/>
+			<xs:element name="PERIOD_MONTH" type="DGMonth"/>
+			<xs:element name="PERIOD_TYPE" type="DGPType"/>
+			<xs:element name="PERIOD_YEAR" type="DGYear"/>
+			<xs:element name="C_STI_ORIG" type="DGc_dpi"/>
+			<xs:element name="C_DOC_STAN" type="DGSTAN"/>
+			<xs:element name="LINKED_DOCS" nillable="true" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="DOC" minOccurs="1" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="C_DOC" type="DGC_DOC"/>
+									<xs:element name="C_DOC_SUB" type="DGC_DOC_SUB"/>
+									<xs:element name="C_DOC_VER" type="DGC_DOC_VER"/>
+									<xs:element name="C_DOC_TYPE" type="xs:nonNegativeInteger"/>
+									<xs:element name="C_DOC_CNT" type="xs:nonNegativeInteger"/>
+									<xs:element name="C_DOC_STAN" type="DGSTAN"/>
+									<xs:element name="FILENAME" type="DGFilename"/>
+								</xs:sequence>
+								<xs:attribute name="NUM" type="xs:nonNegativeInteger"/>
+								<xs:attribute name="TYPE" type="DGTypeLinkDoc"/>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+				<xs:unique name="UH_DOC_NUM">
+					<xs:selector xpath="DOC"/>
+					<xs:field xpath="@NUM"/>
+				</xs:unique>
+			</xs:element>
+			<xs:element name="D_FILL" type="DGDate"/>
+			<xs:element name="SOFTWARE" type="xs:string" nillable="true" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DBody">
+		<xs:sequence>
+			<!--HEAD-->
+			<xs:element name="HPAGES" type="DGInom"/>
+			<xs:choice>
+				<xs:element name="H01" type="DGchk"/>
+				<xs:element name="H02" type="DGchk"/>
+			</xs:choice>
+			<xs:element name="HTIN" type="DGHTINJ"/>
+			<xs:element name="HNAME" type="DGHNAME"/>
+			<!--BODY-->
+			<xs:element name="T1RXXXXG5" type="CategoryPersonColumn" maxOccurs="99999"/>
+			<xs:element name="T1RXXXXG6S" type="DRFO_10Column" maxOccurs="99999"/>
+			<xs:element name="T1RXXXXG7S" type="StrColumn" nillable="true" minOccurs="0" maxOccurs="99999"/>
+			<xs:element name="T1RXXXXG81S" type="StrColumn" maxOccurs="99999"/>
+			<xs:element name="T1RXXXXG82S" type="StrColumn" maxOccurs="99999"/>
+			<xs:element name="T1RXXXXG83S" type="StrColumn" nillable="true" minOccurs="0" maxOccurs="99999"/>
+			<xs:element name="T1RXXXXG9" type="OznColumn" maxOccurs="99999"/>
+			<xs:element name="T1RXXXXG10S" type="StrColumn" nillable="true" minOccurs="0" maxOccurs="99999"/>
+			<xs:element name="T1RXXXXG11D" type="DateColumn" maxOccurs="99999"/>
+			<xs:element name="T1RXXXXG12D" type="DateColumn" maxOccurs="99999"/>
+			<!--FOOTER-->
+			<xs:element name="HFILL" type="DGDate"/>
+			<xs:element name="HKBOS" type="DGDRFO_10"/>
+			<xs:element name="HBOS" type="DGHBOS"/>
+			<xs:element name="HKBUH" type="DGDRFO_10" nillable="true" minOccurs="0"/>
+			<xs:element name="HBUH" type="DGHBUH" nillable="true" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>
+<!--Розробник: відділ проектування та розробки АІС ГУ ДПС у Черкаській області-->

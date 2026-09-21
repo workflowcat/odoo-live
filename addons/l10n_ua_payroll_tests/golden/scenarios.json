@@ -1,0 +1,1159 @@
+{
+ "version": 1,
+ "params_year": 2026,
+ "note": "Єдине джерело очікуваних чисел. Змінювати лише за підтвердженням бухгалтера; confirmed=true ставить людина, не код.",
+ "scenarios": [
+  {
+   "id": 1,
+   "title": "Повний місяць, оклад",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 30000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {},
+   "inputs": {},
+   "expect": {
+    "PDFO": -5400.0,
+    "VZ": -1500.0,
+    "NET": 23100.0,
+    "ESV": 6600.0
+   },
+   "moves": [
+    {
+     "side": "Дт",
+     "account": "92",
+     "amount": 40113.6
+    },
+    {
+     "side": "Кт",
+     "account": "661",
+     "amount": 30000.0
+    },
+    {
+     "side": "Дт",
+     "account": "661",
+     "amount": 6900.0
+    },
+    {
+     "side": "Кт",
+     "account": "6411",
+     "amount": 5400.0
+    },
+    {
+     "side": "Кт",
+     "account": "6415",
+     "amount": 1500.0
+    },
+    {
+     "side": "Кт",
+     "account": "651",
+     "amount": 6600.0
+    },
+    {
+     "side": "Кт",
+     "account": "471",
+     "amount": 3513.6
+    }
+   ],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 2,
+   "title": "Неповний місяць (з 17-го, 11 з 21 днів)",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 30000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {
+    "start": "2026-08-17"
+   },
+   "inputs": {},
+   "expect": {
+    "BASIC": 15714.29,
+    "PDFO": -2828.57,
+    "VZ": -785.71,
+    "NET": 12100.01,
+    "ESV": 3457.14
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 3,
+   "title": "Сумісник (0,5 ставки, оклад 10 000)",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 10000,
+   "employee": {
+    "ua_main_job": false,
+    "ua_fte": "0.5"
+   },
+   "setup": {},
+   "inputs": {},
+   "expect": {
+    "BASIC": 5000.0,
+    "PDFO": -900.0,
+    "VZ": -250.0,
+    "NET": 3850.0,
+    "ESV": 1100.0
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 4,
+   "title": "ПСП базова (0,5 ставки, оклад 9 000)",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 9000,
+   "employee": {
+    "ua_main_job": true,
+    "ua_psp": "base",
+    "ua_fte": "0.5"
+   },
+   "setup": {},
+   "inputs": {},
+   "expect": {
+    "BASIC": 4500.0,
+    "PDFO": -510.48,
+    "VZ": -225.0,
+    "NET": 3764.52,
+    "ESV": 1902.34
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 5,
+   "title": "Інвалідність",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 20000,
+   "employee": {
+    "ua_main_job": true,
+    "ua_esv_category": "disabled"
+   },
+   "setup": {},
+   "inputs": {},
+   "expect": {
+    "PDFO": -3600.0,
+    "VZ": -1000.0,
+    "NET": 15400.0,
+    "ESV": 1682.0
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 6,
+   "title": "Відпустка 14 к.д. (3-16 серпня)",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 30000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {
+    "history": 30000,
+    "leaves": [
+     [
+      "VAC",
+      "2026-08-03",
+      "2026-08-16"
+     ]
+    ]
+   },
+   "inputs": {},
+   "expect": {
+    "BASIC": 15714.29,
+    "VAC": 13808.22,
+    "GROSS": 29522.51,
+    "PDFO": -5314.05,
+    "VZ": -1476.13,
+    "NET": 22732.33,
+    "ESV": 6494.95
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 7,
+   "title": "Лікарняний 10 к.д. (10-19 серпня), стаж 6 років",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 30000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {
+    "history": 30000,
+    "years": 6,
+    "leaves": [
+     [
+      "SICK",
+      "2026-08-10",
+      "2026-08-19"
+     ]
+    ]
+   },
+   "inputs": {},
+   "expect": {
+    "BASIC": 18571.43,
+    "SICK_EMP": 3452.05,
+    "SICK_PFU": 3452.05,
+    "GROSS": 25475.53,
+    "PDFO": -4585.6,
+    "VZ": -1273.78,
+    "NET": 19616.15,
+    "ESV": 5604.62
+   },
+   "moves": [
+    {
+     "side": "Дт",
+     "account": "92",
+     "amount": 29803.19
+    },
+    {
+     "side": "Дт",
+     "account": "378",
+     "amount": 3452.05
+    },
+    {
+     "side": "Кт",
+     "account": "661",
+     "amount": 25475.53
+    },
+    {
+     "side": "Дт",
+     "account": "661",
+     "amount": 5859.38
+    },
+    {
+     "side": "Кт",
+     "account": "6411",
+     "amount": 4585.6
+    },
+    {
+     "side": "Кт",
+     "account": "6415",
+     "amount": 1273.78
+    },
+    {
+     "side": "Кт",
+     "account": "651",
+     "amount": 5604.62
+    },
+    {
+     "side": "Кт",
+     "account": "471",
+     "amount": 2175.09
+    }
+   ],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 8,
+   "title": "Звільнення 31 серпня, 10 днів компенсації",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 30000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {
+    "history": 30000,
+    "end": "2026-08-31"
+   },
+   "inputs": {
+    "COMP_DAYS": 10
+   },
+   "expect": {
+    "BASIC": 30000.0,
+    "COMP_VAC": 9863.01,
+    "GROSS": 39863.01,
+    "PDFO": -7175.34,
+    "VZ": -1993.15,
+    "NET": 30694.52,
+    "ESV": 8769.86
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 9,
+   "title": "ЦПХ",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 0,
+   "employee": {
+    "ua_contract_kind": "gph",
+    "ua_main_job": false
+   },
+   "setup": {},
+   "inputs": {
+    "GPH": 20000
+   },
+   "expect": {
+    "PDFO": -3600.0,
+    "VZ": -1000.0,
+    "NET": 15400.0,
+    "ESV": 4400.0
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 10,
+   "title": "Аліменти + макс. база",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 200000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {},
+   "inputs": {
+    "ALIM_PCT": 25
+   },
+   "expect": {
+    "PDFO": -36000.0,
+    "VZ": -10000.0,
+    "ALIM": -38500.0,
+    "NET": 115500.0,
+    "ESV": 38046.8
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 11,
+   "title": "Повторне прийняття 17 серпня після звільнення 31 травня",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 30000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {
+    "rehire": true
+   },
+   "inputs": {},
+   "expect": {
+    "BASIC": 15714.29,
+    "PDFO": -2828.57,
+    "VZ": -785.71,
+    "NET": 12100.01,
+    "ESV": 3457.14
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 12,
+   "title": "Половина ставки (0,5), оклад 20 000",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 20000,
+   "employee": {
+    "ua_main_job": true,
+    "ua_fte": "0.5"
+   },
+   "setup": {},
+   "inputs": {},
+   "expect": {
+    "BASIC": 10000.0,
+    "PDFO": -1800.0,
+    "VZ": -500.0,
+    "NET": 7700.0,
+    "ESV": 2200.0
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 13,
+   "title": "Аванс 50 % 20-го, остаточний розрахунок",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 30000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {},
+   "inputs": {
+    "ADVANCE": 15000
+   },
+   "expect": {
+    "GROSS": 30000.0,
+    "PDFO": -5400.0,
+    "VZ": -1500.0,
+    "ADV_PAID": -15000.0,
+    "NET": 8100.0,
+    "ESV": 6600.0
+   },
+   "moves": [
+    {
+     "side": "Дт",
+     "account": "92",
+     "amount": 40113.6
+    },
+    {
+     "side": "Кт",
+     "account": "661",
+     "amount": 30000.0
+    },
+    {
+     "side": "Дт",
+     "account": "661",
+     "amount": 6900.0
+    },
+    {
+     "side": "Кт",
+     "account": "6411",
+     "amount": 5400.0
+    },
+    {
+     "side": "Кт",
+     "account": "6415",
+     "amount": 1500.0
+    },
+    {
+     "side": "Кт",
+     "account": "651",
+     "amount": 6600.0
+    },
+    {
+     "side": "Кт",
+     "account": "471",
+     "amount": 3513.6
+    }
+   ],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 14,
+   "title": "ФОП-підрядник (ознака 157)",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 0,
+   "employee": {
+    "ua_contract_kind": "fop",
+    "ua_main_job": false
+   },
+   "setup": {},
+   "inputs": {
+    "FOP_PAY": 40000
+   },
+   "expect": {
+    "GROSS": 40000.0,
+    "PDFO": 0.0,
+    "VZ": 0.0,
+    "NET": 40000.0,
+    "ESV": 0.0
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 15,
+   "title": "Декретна відпустка 126 к.д. з 10 серпня",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 30000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {
+    "history": 30000,
+    "leaves": [
+     [
+      "MAT",
+      "2026-08-10",
+      "2026-12-13"
+     ]
+    ]
+   },
+   "inputs": {},
+   "expect": {
+    "BASIC": 7142.86,
+    "MAT": 124273.97,
+    "GROSS": 7142.86,
+    "PDFO": -1285.71,
+    "VZ": -357.14,
+    "NET": 129773.98,
+    "ESV": 28911.7
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 16,
+   "title": "Індексація 500",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 30000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {},
+   "inputs": {
+    "INDEX": 500
+   },
+   "expect": {
+    "INDEX": 500.0,
+    "GROSS": 30500.0,
+    "PDFO": -5490.0,
+    "VZ": -1525.0,
+    "NET": 23485.0,
+    "ESV": 6710.0
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 17,
+   "title": "Індексація автоматично (базовий січень, наростаючий 103,1 %)",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 30000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {
+    "index_base": "2026-01-01"
+   },
+   "inputs": {},
+   "expect": {
+    "INDEX": 103.17,
+    "GROSS": 30103.17,
+    "PDFO": -5418.57,
+    "VZ": -1505.16,
+    "NET": 23179.44,
+    "ESV": 6622.7
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 18,
+   "title": "Навчальна відпустка 10 к.д. (3-12 серпня)",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 30000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {
+    "history": 30000,
+    "leaves": [
+     [
+      "STUDY",
+      "2026-08-03",
+      "2026-08-12"
+     ]
+    ]
+   },
+   "inputs": {},
+   "expect": {
+    "BASIC": 18571.43,
+    "STUDY_PAY": 9863.01,
+    "GROSS": 28434.44,
+    "PDFO": -5118.2,
+    "VZ": -1421.72,
+    "NET": 21894.52,
+    "ESV": 6255.58
+   },
+   "moves": [
+    {
+     "side": "Дт",
+     "account": "92",
+     "amount": 36865.11
+    },
+    {
+     "side": "Кт",
+     "account": "661",
+     "amount": 28434.44
+    },
+    {
+     "side": "Дт",
+     "account": "661",
+     "amount": 6539.92
+    },
+    {
+     "side": "Кт",
+     "account": "6411",
+     "amount": 5118.2
+    },
+    {
+     "side": "Кт",
+     "account": "6415",
+     "amount": 1421.72
+    },
+    {
+     "side": "Кт",
+     "account": "651",
+     "amount": 6255.58
+    },
+    {
+     "side": "Кт",
+     "account": "471",
+     "amount": 2175.09
+    }
+   ],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 19,
+   "title": "Відрядження 5 робочих днів (3-7 серпня) з добовими",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 30000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {
+    "history": 30000,
+    "leaves": [
+     [
+      "TRIP",
+      "2026-08-03",
+      "2026-08-07"
+     ]
+    ]
+   },
+   "inputs": {
+    "DAILY": 1500
+   },
+   "expect": {
+    "BASIC": 22857.14,
+    "TRIP_PAY": 7142.86,
+    "DAILY": 1500.0,
+    "GROSS": 30000.0,
+    "PDFO": -5400.0,
+    "VZ": -1500.0,
+    "NET": 24600.0,
+    "ESV": 6600.0
+   },
+   "moves": [
+    {
+     "side": "Дт",
+     "account": "92",
+     "amount": 40777.03
+    },
+    {
+     "side": "Кт",
+     "account": "661",
+     "amount": 31500.0
+    },
+    {
+     "side": "Дт",
+     "account": "661",
+     "amount": 6900.0
+    },
+    {
+     "side": "Кт",
+     "account": "6411",
+     "amount": 5400.0
+    },
+    {
+     "side": "Кт",
+     "account": "6415",
+     "amount": 1500.0
+    },
+    {
+     "side": "Кт",
+     "account": "651",
+     "amount": 6600.0
+    },
+    {
+     "side": "Кт",
+     "account": "471",
+     "amount": 2677.03
+    }
+   ],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 20,
+   "title": "Догляд за хворою дитиною 7 к.д. (10-16 серпня), стаж 6 років",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 30000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {
+    "history": 30000,
+    "years": 6,
+    "leaves": [
+     [
+      "SICK_CARE",
+      "2026-08-10",
+      "2026-08-16"
+     ]
+    ]
+   },
+   "inputs": {},
+   "expect": {
+    "BASIC": 22857.14,
+    "SICK_CARE_PAY": 4832.88,
+    "GROSS": 27690.02,
+    "PDFO": -4984.2,
+    "VZ": -1384.5,
+    "NET": 21321.32,
+    "ESV": 6091.8
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 21,
+   "title": "Доплата до мінімальної зарплати (оклад 8 000, повний місяць)",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 8000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {},
+   "inputs": {},
+   "expect": {
+    "BASIC": 8000.0,
+    "MINSAL": 647.0,
+    "GROSS": 8647.0,
+    "PDFO": -1556.46,
+    "VZ": -432.35,
+    "NET": 6658.19,
+    "ESV": 1902.34
+   },
+   "moves": [
+    {
+     "side": "Дт",
+     "account": "92",
+     "amount": 11562.07
+    },
+    {
+     "side": "Кт",
+     "account": "661",
+     "amount": 8647.0
+    },
+    {
+     "side": "Дт",
+     "account": "661",
+     "amount": 1988.81
+    },
+    {
+     "side": "Кт",
+     "account": "6411",
+     "amount": 1556.46
+    },
+    {
+     "side": "Кт",
+     "account": "6415",
+     "amount": 432.35
+    },
+    {
+     "side": "Кт",
+     "account": "651",
+     "amount": 1902.34
+    },
+    {
+     "side": "Кт",
+     "account": "471",
+     "amount": 1012.73
+    }
+   ],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 22,
+   "title": "Доплати до мінімальної немає: оклад вищий",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 12000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {},
+   "inputs": {},
+   "expect": {
+    "BASIC": 12000.0,
+    "GROSS": 12000.0,
+    "PDFO": -2160.0,
+    "VZ": -600.0,
+    "NET": 9240.0,
+    "ESV": 2640.0
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 23,
+   "title": "Матеріальна допомога 6 000 (межа 4 660 на рік)",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 30000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {},
+   "inputs": {
+    "AID": 6000
+   },
+   "expect": {
+    "BASIC": 30000.0,
+    "AID_FREE": 4660.0,
+    "AID_TAX": 1340.0,
+    "GROSS": 30000.0,
+    "PDFO": -5641.2,
+    "VZ": -1567.0,
+    "NET": 28791.8,
+    "ESV": 6600.0
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 24,
+   "title": "Подарунок 3 000 (межа 25 % МЗП = 2 161,75)",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 20000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {},
+   "inputs": {
+    "GIFT": 3000
+   },
+   "expect": {
+    "BASIC": 20000.0,
+    "GIFT_FREE": 2161.75,
+    "GIFT_TAX": 838.25,
+    "GROSS": 20000.0,
+    "PDFO": -3750.89,
+    "VZ": -1041.91,
+    "NET": 18207.2,
+    "ESV": 4400.0
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 25,
+   "title": "Вихідна допомога 30 000 і виконавчий документ 20 %",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 30000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {},
+   "inputs": {
+    "SEVERANCE": 30000,
+    "EXEC_PCT": 20
+   },
+   "expect": {
+    "BASIC": 30000.0,
+    "SEVERANCE": 30000.0,
+    "GROSS": 30000.0,
+    "PDFO": -10800.0,
+    "VZ": -3000.0,
+    "EXEC_DOC": -9240.0,
+    "NET": 36960.0,
+    "ESV": 6600.0
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 26,
+   "title": "Профспілковий внесок 1 % і відшкодування шкоди 500",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 25000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {},
+   "inputs": {
+    "UNION_PCT": 1,
+    "DAMAGE_AMT": 500
+   },
+   "expect": {
+    "BASIC": 25000.0,
+    "GROSS": 25000.0,
+    "PDFO": -4500.0,
+    "VZ": -1250.0,
+    "UNION": -250.0,
+    "DAMAGE": -500.0,
+    "NET": 18500.0,
+    "ESV": 5500.0
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 27,
+   "title": "Індексації немає: наростаючий індекс нижчий за поріг",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 30000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {
+    "index_base": "2026-02-01"
+   },
+   "inputs": {},
+   "expect": {
+    "GROSS": 30000.0,
+    "PDFO": -5400.0,
+    "VZ": -1500.0,
+    "NET": 23100.0,
+    "ESV": 6600.0
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 28,
+   "title": "Індекс місяця листка не застосовується (не оприлюднений)",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 30000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {
+    "index_base": "2026-07-01"
+   },
+   "inputs": {},
+   "expect": {
+    "GROSS": 30000.0,
+    "PDFO": -5400.0,
+    "VZ": -1500.0,
+    "NET": 23100.0,
+    "ESV": 6600.0
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 29,
+   "title": "Відрядження: середня за два місяці вища за оклад",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 30000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {
+    "history": 45000,
+    "leaves": [
+     [
+      "TRIP",
+      "2026-08-03",
+      "2026-08-07"
+     ]
+    ]
+   },
+   "inputs": {},
+   "expect": {
+    "BASIC": 22857.14,
+    "TRIP_PAY": 10000.0,
+    "GROSS": 32857.14,
+    "PDFO": -5914.29,
+    "VZ": -1642.86,
+    "NET": 25299.99,
+    "ESV": 7228.57
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 30,
+   "title": "Декрет із низьким заробітком: мінімальний ЄСВ за кожен місяць",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 8000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {
+    "leaves": [
+     [
+      "MAT",
+      "2026-08-10",
+      "2026-12-13"
+     ]
+    ]
+   },
+   "inputs": {},
+   "expect": {
+    "BASIC": 1904.76,
+    "MINSAL": 154.05,
+    "MAT": 33139.73,
+    "GROSS": 2058.81,
+    "NET": 34725.01,
+    "ESV": 9511.7
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "число взято з розрахунку Odoo на 2026-09; бухгалтер ще не підтвердив"
+  }
+ ]
+}

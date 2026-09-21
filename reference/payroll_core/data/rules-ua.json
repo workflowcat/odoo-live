@@ -1,0 +1,308 @@
+{
+  "name": "Україна: оклад",
+  "valid_from": "2026-01-01",
+  "derived": [
+    {
+      "name": "share_raw",
+      "value": "time_ratio if time_ratio >= 0 else max(min(worked, norm), 0.0) / norm"
+    },
+    {
+      "name": "share",
+      "value": "max(min(share_raw, 1.0), 0.0)"
+    },
+    {
+      "name": "min_sal_target",
+      "value": "round(min_wage * fte * share, 2) if kind == 'employment' else 0.0"
+    },
+    {
+      "name": "aid_limit",
+      "value": "aid_charity_limit - aid_used_year"
+    },
+    {
+      "name": "aid_free",
+      "value": "round(max(min(in_AID, aid_limit), 0.0), 2)"
+    },
+    {
+      "name": "gift_limit",
+      "value": "min_wage * gift_limit_share / 100.0"
+    },
+    {
+      "name": "day_wage",
+      "value": "(wage * fte / month_workdays) if month_workdays else 0.0"
+    }
+  ],
+  "rules": [
+    {
+      "sequence": 1,
+      "code": "BASIC",
+      "name": "Оклад",
+      "category": "BASIC",
+      "when": null,
+      "amount": "round(wage * fte * time_ratio, 2) if time_ratio >= 0 else round(wage * fte * max(min(worked, norm), 0.0) / norm, 2)"
+    },
+    {
+      "sequence": 10,
+      "code": "BONUS",
+      "name": "Премія",
+      "category": "ALW",
+      "when": "in_BONUS",
+      "amount": "round(in_BONUS, 2)"
+    },
+    {
+      "sequence": 12,
+      "code": "GPH",
+      "name": "Винагорода за ЦПХ",
+      "category": "ALW",
+      "when": "in_GPH",
+      "amount": "round(in_GPH, 2)"
+    },
+    {
+      "sequence": 20,
+      "code": "VAC",
+      "name": "Відпускні",
+      "category": "AVG",
+      "when": "vac_days > 0",
+      "amount": "round(vac_days * avg100_day, 2)"
+    },
+    {
+      "sequence": 22,
+      "code": "SICK_EMP",
+      "name": "Лікарняні за рахунок підприємства, перші 5 днів",
+      "category": "AVG",
+      "when": "sick_emp_days > 0",
+      "amount": "round(sick_emp_days * avg1266_day * sick_percent / 100.0, 2)"
+    },
+    {
+      "sequence": 23,
+      "code": "SICK_PFU",
+      "name": "Лікарняні за рахунок ПФУ, з 6-го дня",
+      "category": "AVG",
+      "when": "sick_pfu_days > 0",
+      "amount": "round(sick_pfu_days * avg1266_day * sick_percent / 100.0, 2)"
+    },
+    {
+      "sequence": 24,
+      "code": "COMP_VAC",
+      "name": "Компенсація за невикористану відпустку",
+      "category": "AVG",
+      "when": "in_COMP_DAYS",
+      "amount": "round(in_COMP_DAYS * avg100_day, 2)"
+    },
+    {
+      "sequence": 25,
+      "code": "MAT",
+      "name": "Допомога по вагітності та пологах",
+      "category": "MAT",
+      "when": "mat_days > 0",
+      "amount": "round(mat_days * avg1266_day, 2)"
+    },
+    {
+      "sequence": 26,
+      "code": "STUDY_PAY",
+      "name": "Оплата навчальної відпустки",
+      "category": "AVG",
+      "when": "study_days > 0",
+      "amount": "round(study_days * avg100_day, 2)"
+    },
+    {
+      "sequence": 27,
+      "code": "CHILD_VAC_PAY",
+      "name": "Оплата додаткової відпустки на дітей",
+      "category": "AVG",
+      "when": "child_vac_days > 0",
+      "amount": "round(child_vac_days * avg100_day, 2)"
+    },
+    {
+      "sequence": 28,
+      "code": "TRIP_PAY",
+      "name": "Середній заробіток за час відрядження",
+      "category": "AVG",
+      "when": "trip_work_days > 0",
+      "amount": "round(trip_work_days * max(avg_trip_day, day_wage), 2)"
+    },
+    {
+      "sequence": 29,
+      "code": "SICK_CARE_PAY",
+      "name": "Допомога по догляду за хворим",
+      "category": "AVG",
+      "when": "sick_care_days > 0",
+      "amount": "round(sick_care_days * avg1266_day * sick_percent / 100.0, 2)"
+    },
+    {
+      "sequence": 30,
+      "code": "DAILY",
+      "name": "Добові за відрядження",
+      "category": "NOTAX",
+      "when": "in_DAILY",
+      "amount": "round(in_DAILY, 2)"
+    },
+    {
+      "sequence": 32,
+      "code": "FOP",
+      "name": "Оплата ФОП",
+      "category": "ALW",
+      "when": "in_FOP_PAY",
+      "amount": "round(in_FOP_PAY, 2)"
+    },
+    {
+      "sequence": 33,
+      "code": "INDEX",
+      "name": "Індексація",
+      "category": "ALW",
+      "when": "in_INDEX or index_amount",
+      "amount": "round(in_INDEX if in_INDEX else index_amount, 2)"
+    },
+    {
+      "sequence": 40,
+      "code": "MINSAL",
+      "name": "Доплата до мінімальної зарплати",
+      "category": "ALW",
+      "when": "min_sal_target > 0 and (BASIC + ALW) < min_sal_target - 0.005",
+      "amount": "round(min_sal_target - (BASIC + ALW), 2)"
+    },
+    {
+      "sequence": 50,
+      "code": "AID_FREE",
+      "name": "Матеріальна допомога в межах норми",
+      "category": "NOTAX",
+      "when": "in_AID",
+      "amount": "aid_free"
+    },
+    {
+      "sequence": 51,
+      "code": "AID_TAX",
+      "name": "Матеріальна допомога понад норму",
+      "category": "NOESV",
+      "when": "in_AID",
+      "amount": "round(in_AID - aid_free, 2)"
+    },
+    {
+      "sequence": 52,
+      "code": "GIFT_FREE",
+      "name": "Подарунок у межах норми",
+      "category": "NOTAX",
+      "when": "in_GIFT",
+      "amount": "round(min(in_GIFT, gift_limit), 2)"
+    },
+    {
+      "sequence": 53,
+      "code": "GIFT_TAX",
+      "name": "Подарунок понад норму",
+      "category": "NOESV",
+      "when": "in_GIFT",
+      "amount": "round(max(in_GIFT - gift_limit, 0.0), 2)"
+    },
+    {
+      "sequence": 54,
+      "code": "SEVERANCE",
+      "name": "Вихідна допомога",
+      "category": "NOESV",
+      "when": "in_SEVERANCE",
+      "amount": "round(in_SEVERANCE, 2)"
+    },
+    {
+      "sequence": 55,
+      "code": "COMP_TOOL",
+      "name": "Компенсація за використання власного майна",
+      "category": "NOESV",
+      "when": "in_COMP_TOOL",
+      "amount": "round(in_COMP_TOOL, 2)"
+    },
+    {
+      "sequence": 100,
+      "code": "GROSS",
+      "name": "Усього нараховано",
+      "category": "GROSS",
+      "when": null,
+      "amount": "round(BASIC + ALW + AVG, 2)"
+    },
+    {
+      "sequence": 110,
+      "code": "PDFO",
+      "name": "ПДФО",
+      "category": "DED",
+      "when": "kind != 'fop'",
+      "amount": "-round(max(GROSS + NOESV - (psp_amount if (psp_amount and GROSS <= psp_threshold) else 0.0), 0.0) * pdfo_rate / 100.0, 2)"
+    },
+    {
+      "sequence": 120,
+      "code": "VZ",
+      "name": "Військовий збір",
+      "category": "DED",
+      "when": "kind != 'fop'",
+      "amount": "-round((GROSS + NOESV) * vz_rate / 100.0, 2)"
+    },
+    {
+      "sequence": 150,
+      "code": "ALIM",
+      "name": "Аліменти",
+      "category": "DED",
+      "when": "in_ALIM_PCT",
+      "amount": "-round((GROSS + NOESV + DED) * in_ALIM_PCT / 100.0, 2)"
+    },
+    {
+      "sequence": 155,
+      "code": "UNION",
+      "name": "Профспілковий внесок",
+      "category": "DED",
+      "when": "in_UNION_PCT",
+      "amount": "-round(GROSS * in_UNION_PCT / 100.0, 2)"
+    },
+    {
+      "sequence": 160,
+      "code": "EXEC_DOC",
+      "name": "Утримання за виконавчим документом",
+      "category": "DED",
+      "when": "in_EXEC_AMT or in_EXEC_PCT",
+      "amount": "-round(min(in_EXEC_AMT, max(GROSS + NOESV + DED, 0.0)), 2) if in_EXEC_AMT else -round(max(GROSS + NOESV + DED, 0.0) * in_EXEC_PCT / 100.0, 2)"
+    },
+    {
+      "sequence": 165,
+      "code": "DAMAGE",
+      "name": "Відшкодування шкоди",
+      "category": "DED",
+      "when": "in_DAMAGE_AMT",
+      "amount": "-round(min(in_DAMAGE_AMT, max(GROSS + NOESV + DED, 0.0)), 2)"
+    },
+    {
+      "sequence": 180,
+      "code": "ADV_PAID",
+      "name": "Виплачено авансом",
+      "category": "DED",
+      "when": "in_ADVANCE",
+      "amount": "-round(in_ADVANCE, 2)"
+    },
+    {
+      "sequence": 200,
+      "code": "NET",
+      "name": "До виплати",
+      "category": "NET",
+      "when": null,
+      "amount": "round(GROSS + MAT + NOTAX + NOESV + DED, 2)"
+    },
+    {
+      "sequence": 300,
+      "code": "ESV",
+      "name": "ЄСВ за рахунок підприємства",
+      "category": "COMP",
+      "when": "kind != 'fop'",
+      "amount": "esv_monthly(GROSS, MAT)"
+    },
+    {
+      "sequence": 310,
+      "code": "RESERVE",
+      "name": "Резерв відпусток",
+      "category": "COMP",
+      "when": "kind == 'employment' and reserve_rate > 0",
+      "amount": "round((BASIC + ALW) * reserve_rate / 100.0, 2)"
+    },
+    {
+      "sequence": 311,
+      "code": "RESERVE_ESV",
+      "name": "ЄСВ на резерв відпусток",
+      "category": "COMP",
+      "when": "kind == 'employment' and reserve_rate > 0",
+      "amount": "round((BASIC + ALW) * reserve_rate / 100.0 * esv_rate / 100.0, 2)"
+    }
+  ]
+}
