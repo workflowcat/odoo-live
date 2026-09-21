@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ======================= Дії друку ======================= -->
+  <record id="action_report_ua_cash_order" model="ir.actions.report">
+    <field name="name">Касовий ордер (КО-1 / КО-2)</field>
+    <field name="model">account.payment</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_cash.report_ua_cash_order</field>
+    <field name="report_file">l10n_ua_cash.report_ua_cash_order</field>
+    <field name="binding_model_id" ref="account.model_account_payment"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'%s' % (object.ua_order_number or object.name or 'Касовий ордер')</field>
+  </record>
+
+  <record id="action_report_ua_cash_book" model="ir.actions.report">
+    <field name="name">Касова книга (КО-4)</field>
+    <field name="model">ua.cash.book</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_cash.report_ua_cash_book</field>
+    <field name="report_file">l10n_ua_cash.report_ua_cash_book</field>
+  </record>
+
+  <record id="action_report_ua_advance_report" model="ir.actions.report">
+    <field name="name">Авансовий звіт</field>
+    <field name="model">ua.advance.report</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_cash.report_ua_advance_report</field>
+    <field name="report_file">l10n_ua_cash.report_ua_advance_report</field>
+    <field name="binding_model_id" ref="model_ua_advance_report"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'%s' % (object.name or 'Авансовий звіт')</field>
+  </record>
+
+  <!-- ======================= Спільний стиль ======================= -->
+  <template id="ua_cash_style">
+    <style>
+      .ua-doc { font-size: 11px; color: #000; }
+      .ua-doc h3 { font-size: 14px; text-align: center; margin: 6px 0 2px 0; letter-spacing: .05em; }
+      .ua-doc .ua-form-no { text-align: right; font-size: 10px; }
+      .ua-doc .ua-head { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+      .ua-doc .ua-head td { vertical-align: top; padding: 1px 4px 1px 0; }
+      .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin: 6px 0; }
+      .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 3px 4px; }
+      .ua-doc .ua-grid th { font-weight: normal; font-size: 10px; text-align: center; }
+      .ua-doc .ua-num { text-align: right; }
+      .ua-doc .ua-line { border-bottom: 1px solid #000; display: inline-block; min-width: 55%; }
+      .ua-doc .ua-fill { border-bottom: 1px solid #000; }
+      .ua-doc .ua-cap { font-size: 9px; color: #333; text-align: center; }
+      .ua-doc .ua-sign { width: 100%; margin-top: 14px; }
+      .ua-doc .ua-sign td { padding-top: 16px; }
+      .ua-doc .ua-cut { border-left: 1px dashed #000; padding-left: 8px; }
+      .ua-doc .ua-quit { width: 34%; float: right; }
+      .ua-doc .ua-body { width: 64%; float: left; }
+      .ua-doc .ua-clear { clear: both; }
+    </style>
+  </template>
+
+  <!-- ======================= КО-1 / КО-2 ======================= -->
+  <template id="report_ua_cash_order_document">
+    <t t-set="company" t-value="doc.company_id"/>
+    <t t-set="cur" t-value="doc.currency_id"/>
+    <t t-set="cash_account" t-value="doc.outstanding_account_id or doc.journal_id.default_account_id"/>
+    <t t-set="corr_account" t-value="doc.destination_account_id"/>
+    <t t-set="is_in" t-value="doc.ua_order_kind == 'in'"/>
+    <t t-set="debit_account" t-value="cash_account if is_in else corr_account"/>
+    <t t-set="credit_account" t-value="corr_account if is_in else cash_account"/>
+    <div class="page ua-doc">
+      <t t-call="l10n_ua_cash.ua_cash_style"/>
+
+      <div t-attf-class="{{ 'ua-body' if is_in else '' }}">
+        <table class="ua-head">
+          <tr>
+            <td style="width: 60%;">
+              <span t-field="company.name"/>
+              <t t-if="company.company_registry">, ЄДРПОУ <span t-field="company.company_registry"/></t>
+              <div class="ua-cap" style="text-align: left;">(найменування підприємства, ідентифікаційний код)</div>
+            </td>
+            <td class="ua-form-no">
+              Типова форма № <t t-out="doc._ua_form_number()"/><br/>
+              Положення НБУ № 148
+            </td>
+          </tr>
+        </table>
+
+        <h3 t-if="is_in">ПРИБУТКОВИЙ КАСОВИЙ ОРДЕР</h3>
+        <h3 t-else="">ВИДАТКОВИЙ КАСОВИЙ ОРДЕР</h3>
+
+        <table class="ua-grid">
+          <thead>
+            <tr>
+              <th>Номер документа</th>
+              <th>Дата складання</th>
+              <th>Дебет</th>
+              <th>Кредит</th>
+              <th>Сума</th>
+              <th>Код цільового призначення</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="text-align: center;"><t t-out="doc._ua_order_label()"/></td>
+              <td style="text-align: center;"><span t-field="doc.date"/></td>
+              <td style="text-align: center;"><t t-out="debit_account.code or ''"/></td>
+              <td style="text-align: center;"><t t-out="credit_account.code or ''"/></td>
+              <td class="ua-num"><span t-out="doc.amount" t-options='{"widget": "monetary", "display_currency": cur}'/></td>
+              <td/>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>
+          <strong t-if="is_in">Прийнято від</strong>
+          <strong t-else="">Видати</strong>
+          <span class="ua-line"><t t-out="doc._ua_person_label()"/></span>
+        </p>
+        <p>
+          <strong>Підстава</strong>
+          <span class="ua-line"><t t-out="doc.memo or ''"/></span>
+        </p>
+        <p>
+          <strong>Сума</strong>
+          <span class="ua-line"><t t-out="doc._ua_amount_words()"/></span>
+          <div class="ua-cap" style="text-align: left;">(словами)</div>
+        </p>
+        <p>
+          <strong t-if="is_in">Додатки</strong>
+          <strong t-else="">Додаток</strong>
+          <span class="ua-line"/>
+        </p>
+
+        <table class="ua-sign">
+          <tr t-if="not is_in">
+            <td style="width: 50%;">Керівник ________________</td>
+            <td style="width: 50%;">Головний бухгалтер ________________</td>
+          </tr>
+          <tr t-if="is_in">
+            <td style="width: 50%;">Головний бухгалтер ________________</td>
+            <td style="width: 50%;">Касир ________________</td>
+          </tr>
+        </table>
+
+        <t t-if="not is_in">
+          <p style="margin-top: 14px;">
+            Одержав <span class="ua-line"/>
+            <div class="ua-cap" style="text-align: left;">(сума словами, дата, підпис одержувача)</div>
+          </p>
+          <p>
+            За <span class="ua-line"><t t-out="doc.ua_document or ''"/></span>
+            <div class="ua-cap" style="text-align: left;">(назва, номер, ким і коли виданий документ, що засвідчує особу одержувача)</div>
+          </p>
+          <table class="ua-sign">
+            <tr><td>Видав касир ________________</td><td/></tr>
+          </table>
+        </t>
+
+        <p t-if="doc.move_id" style="margin-top: 10px; font-size: 9px; color: #555;">
+          Бухгалтерська проводка: <span t-field="doc.move_id.name"/>
+        </p>
+      </div>
+
+      <!-- Відрізна квитанція КО-1 -->
+      <div t-if="is_in" class="ua-quit ua-cut">
+        <p style="text-align: center; font-weight: bold;">КВИТАНЦІЯ</p>
+        <p>
+          До прибуткового касового ордера № <t t-out="doc._ua_order_label()"/>
+          від <span t-field="doc.date"/>
+        </p>
+        <p>Прийнято від <span class="ua-fill"><t t-out="doc._ua_person_label()"/></span></p>
+        <p>Підстава <span class="ua-fill"><t t-out="doc.memo or ''"/></span></p>
+        <p>
+          Сума <span class="ua-fill"><t t-out="doc._ua_amount_words()"/></span>
+          <div class="ua-cap" style="text-align: left;">(словами)</div>
+        </p>
+        <p style="margin-top: 18px;">М. П.</p>
+        <p style="margin-top: 10px;">Головний бухгалтер ____________</p>
+        <p style="margin-top: 10px;">Касир ____________</p>
+      </div>
+      <div class="ua-clear"/>
+    </div>
+  </template>
+
+  <template id="report_ua_cash_order">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_cash.report_ua_cash_order_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+
+  <!-- ======================= КО-4: касова книга ======================= -->
+  <template id="report_ua_cash_book_document">
+    <t t-set="company" t-value="doc.company_id"/>
+    <t t-set="cur" t-value="doc.currency_id"/>
+    <t t-foreach="doc.line_ids" t-as="sheet">
+      <div class="page ua-doc" t-attf-style="{{ '' if sheet_first else 'page-break-before: always;' }}">
+        <t t-call="l10n_ua_cash.ua_cash_style"/>
+        <table class="ua-head">
+          <tr>
+            <td style="width: 60%;">
+              <span t-field="company.name"/>
+              <t t-if="company.company_registry">, ЄДРПОУ <span t-field="company.company_registry"/></t>
+              <div class="ua-cap" style="text-align: left;">(найменування підприємства, ідентифікаційний код)</div>
+            </td>
+            <td class="ua-form-no">
+              Типова форма № КО-4<br/>
+              Положення НБУ № 148
+            </td>
+          </tr>
+        </table>
+
+        <h3>КАСА за <span t-field="sheet.date"/></h3>
+        <p style="text-align: right;">Аркуш <t t-out="sheet.sequence + 1"/></p>
+
+        <table class="ua-grid">
+          <thead>
+            <tr>
+              <th>Номер документа</th>
+              <th>Від кого одержано чи кому видано</th>
+              <th>Номер кореспондуючого рахунку</th>
+              <th>Надходження</th>
+              <th>Видаток</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="3">Залишок на початок дня</td>
+              <td class="ua-num"><span t-out="sheet.opening_balance" t-options='{"widget": "monetary", "display_currency": cur}'/></td>
+              <td/>
+            </tr>
+            <tr t-foreach="sheet.entry_ids" t-as="entry">
+              <td style="text-align: center;"><t t-out="entry.document or ''"/></td>
+              <td><t t-out="entry.person or ''"/></td>
+              <td style="text-align: center;"><t t-out="entry.counterpart or ''"/></td>
+              <td class="ua-num">
+                <span t-if="entry.amount_in" t-out="entry.amount_in" t-options='{"widget": "monetary", "display_currency": cur}'/>
+              </td>
+              <td class="ua-num">
+                <span t-if="entry.amount_out" t-out="entry.amount_out" t-options='{"widget": "monetary", "display_currency": cur}'/>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3"><strong>Усього за день</strong></td>
+              <td class="ua-num"><strong><span t-out="sheet.total_in" t-options='{"widget": "monetary", "display_currency": cur}'/></strong></td>
+              <td class="ua-num"><strong><span t-out="sheet.total_out" t-options='{"widget": "monetary", "display_currency": cur}'/></strong></td>
+            </tr>
+            <tr>
+              <td colspan="3"><strong>Залишок на кінець дня</strong></td>
+              <td class="ua-num"><strong><span t-out="sheet.closing_balance" t-options='{"widget": "monetary", "display_currency": cur}'/></strong></td>
+              <td/>
+            </tr>
+          </tbody>
+        </table>
+
+        <p t-if="sheet.over_limit">
+          Залишок на кінець дня перевищує ліміт каси
+          (<span t-out="sheet.limit_amount" t-options='{"widget": "monetary", "display_currency": cur}'/>).
+          Понадлімітну готівку належить здати в банк.
+        </p>
+
+        <table class="ua-sign">
+          <tr>
+            <td style="width: 50%;">Касир ________________</td>
+            <td style="width: 50%;">
+              Записи в касовій книзі перевірив і документи
+              (<t t-out="len(sheet.entry_ids)"/>) одержав
+            </td>
+          </tr>
+          <tr>
+            <td/>
+            <td>Бухгалтер ________________</td>
+          </tr>
+        </table>
+      </div>
+    </t>
+    <div t-if="not doc.line_ids" class="page ua-doc">
+      <t t-call="l10n_ua_cash.ua_cash_style"/>
+      <p>За період з <span t-field="doc.date_from"/> по <span t-field="doc.date_to"/> руху готівки не було.</p>
+    </div>
+  </template>
+
+  <template id="report_ua_cash_book">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_cash.report_ua_cash_book_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+
+  <!-- ======================= Авансовий звіт ======================= -->
+  <template id="report_ua_advance_report_document">
+    <t t-set="company" t-value="doc.company_id"/>
+    <t t-set="cur" t-value="doc.currency_id"/>
+    <div class="page ua-doc">
+      <t t-call="l10n_ua_cash.ua_cash_style"/>
+      <table class="ua-head">
+        <tr>
+          <td style="width: 70%;">
+            <span t-field="company.name"/>
+            <t t-if="company.company_registry">, ЄДРПОУ <span t-field="company.company_registry"/></t>
+          </td>
+          <td class="ua-form-no">Звіт про використання коштів</td>
+        </tr>
+      </table>
+
+      <h3>АВАНСОВИЙ ЗВІТ № <t t-out="doc.name"/></h3>
+      <p style="text-align: center;">від <span t-field="doc.date"/></p>
+
+      <table class="ua-head">
+        <tr>
+          <td style="width: 30%;"><strong>Підзвітна особа</strong></td>
+          <td><span t-field="doc.partner_id.name"/></td>
+        </tr>
+        <tr t-if="doc.payment_id">
+          <td><strong>Аванс видано</strong></td>
+          <td>
+            ВКО № <t t-out="doc.payment_id._ua_order_label()"/>
+            від <span t-field="doc.payment_id.date"/>
+            на <span t-out="doc.payment_id.amount" t-options='{"widget": "monetary", "display_currency": cur}'/>
+          </td>
+        </tr>
+      </table>
+
+      <table class="ua-grid">
+        <thead>
+          <tr>
+            <th>№</th>
+            <th>Що придбано або оплачено</th>
+            <th>Рахунок обліку</th>
+            <th>Сума</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr t-foreach="doc.line_ids" t-as="line">
+            <td style="text-align: center;"><t t-out="line_index + 1"/></td>
+            <td><t t-out="line.name"/></td>
+            <td><t t-out="line.expense_account_id.code or ''"/> <t t-out="line.expense_account_id.name or ''"/></td>
+            <td class="ua-num"><span t-out="line.amount" t-options='{"widget": "monetary", "display_currency": cur}'/></td>
+          </tr>
+          <tr>
+            <td colspan="3"><strong>Разом витрачено</strong></td>
+            <td class="ua-num"><strong><span t-out="doc.amount_total" t-options='{"widget": "monetary", "display_currency": cur}'/></strong></td>
+          </tr>
+          <tr>
+            <td colspan="3">Видано під звіт</td>
+            <td class="ua-num"><span t-out="doc.amount_given" t-options='{"widget": "monetary", "display_currency": cur}'/></td>
+          </tr>
+          <tr>
+            <td colspan="3">
+              <strong t-if="doc.amount_balance &gt;= 0">Залишок до повернення в касу</strong>
+              <strong t-else="">Перевитрата до видачі з каси</strong>
+            </td>
+            <td class="ua-num">
+              <strong><span t-out="abs(doc.amount_balance)" t-options='{"widget": "monetary", "display_currency": cur}'/></strong>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        Сума звіту <span class="ua-line"><t t-out="doc._ua_amount_words()"/></span>
+        <div class="ua-cap" style="text-align: left;">(словами)</div>
+      </p>
+
+      <p t-if="doc.settle_payment_id" style="font-size: 9px; color: #555;">
+        Залишок закрито ордером <t t-out="doc.settle_payment_id._ua_order_label()"/>.
+      </p>
+      <p t-if="doc.move_id" style="font-size: 9px; color: #555;">
+        Бухгалтерська проводка: <span t-field="doc.move_id.name"/>
+      </p>
+
+      <table class="ua-sign">
+        <tr>
+          <td style="width: 50%;">Підзвітна особа ________________</td>
+          <td style="width: 50%;">Головний бухгалтер ________________</td>
+        </tr>
+      </table>
+    </div>
+  </template>
+
+  <template id="report_ua_advance_report">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_cash.report_ua_advance_report_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+
+</odoo>

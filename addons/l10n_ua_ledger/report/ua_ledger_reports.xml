@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_osv_xlsx" model="ir.actions.report">
+    <field name="name">Оборотно-сальдова відомість (xlsx)</field>
+    <field name="model">ua.osv.report</field>
+    <field name="report_type">xlsx</field>
+    <field name="report_name">l10n_ua_ledger.ua_osv_xlsx</field>
+    <field name="report_file">osv</field>
+  </record>
+
+  <record id="action_report_ua_account_card_xlsx" model="ir.actions.report">
+    <field name="name">Картка рахунку (xlsx)</field>
+    <field name="model">ua.account.card</field>
+    <field name="report_type">xlsx</field>
+    <field name="report_name">l10n_ua_ledger.ua_account_card_xlsx</field>
+    <field name="report_file">account_card</field>
+  </record>
+
+  <record id="action_report_ua_account_analysis_xlsx" model="ir.actions.report">
+    <field name="name">Аналіз рахунку (xlsx)</field>
+    <field name="model">ua.account.analysis</field>
+    <field name="report_type">xlsx</field>
+    <field name="report_name">l10n_ua_ledger.ua_account_analysis_xlsx</field>
+    <field name="report_file">account_analysis</field>
+  </record>
+</odoo>

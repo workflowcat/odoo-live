@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Реквізити касового ордера на нативній формі платежу -->
+  <record id="view_account_payment_form_ua_cash" model="ir.ui.view">
+    <field name="name">account.payment.form.ua.cash</field>
+    <field name="model">account.payment</field>
+    <field name="inherit_id" ref="account.view_account_payment_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='memo']" position="attributes">
+        <attribute name="string">Підстава</attribute>
+      </xpath>
+      <xpath expr="//group[@name='group2']" position="after">
+        <group name="ua_cash_order" string="Касовий ордер" invisible="not ua_order_kind">
+          <field name="ua_order_kind" readonly="1"/>
+          <field name="ua_order_number" readonly="1" invisible="not ua_order_number"/>
+          <field name="destination_account_id" string="Кореспондуючий рахунок"
+                 domain="[('company_ids', 'in', company_id)]"
+                 readonly="state != 'draft'"
+                 help="Другий бік проводки: 3721 - підзвіт, 661 - зарплата, 361 - від покупця, 631 - постачальникові, 92 - адмінвитрати."/>
+          <field name="ua_person"/>
+          <field name="ua_document" invisible="ua_order_kind != 'out'"/>
+        </group>
+      </xpath>
+      <xpath expr="//header" position="inside">
+        <button name="action_ua_print_cash_order" type="object" string="Друк ордера"
+                invisible="not ua_order_kind or state == 'draft'"/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_account_payment_list_ua_cash" model="ir.ui.view">
+    <field name="name">account.payment.list.ua.cash</field>
+    <field name="model">account.payment</field>
+    <field name="arch" type="xml">
+      <list string="Касові ордери">
+        <field name="ua_order_number"/>
+        <field name="date"/>
+        <field name="ua_order_kind" widget="badge"
+               decoration-success="ua_order_kind == 'in'"
+               decoration-warning="ua_order_kind == 'out'"/>
+        <field name="ua_person" optional="show"/>
+        <field name="partner_id" optional="hide"/>
+        <field name="memo" string="Підстава" optional="show"/>
+        <field name="destination_account_id" string="Кор. рахунок" optional="show"/>
+        <field name="amount" sum="Разом"/>
+        <field name="journal_id" optional="hide"/>
+        <field name="state" widget="badge"/>
+        <field name="currency_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_account_payment_search_ua_cash" model="ir.ui.view">
+    <field name="name">account.payment.search.ua.cash</field>
+    <field name="model">account.payment</field>
+    <field name="arch" type="xml">
+      <search string="Касові ордери">
+        <field name="ua_order_number"/>
+        <field name="ua_person"/>
+        <field name="partner_id"/>
+        <field name="memo" string="Підстава"/>
+        <filter name="ua_in" string="ПКО" domain="[('ua_order_kind', '=', 'in')]"/>
+        <filter name="ua_out" string="ВКО" domain="[('ua_order_kind', '=', 'out')]"/>
+        <separator/>
+        <filter name="ua_draft" string="Чернетки" domain="[('state', '=', 'draft')]"/>
+        <group>
+          <filter name="group_date" string="Дата" context="{'group_by': 'date:day'}"/>
+          <filter name="group_kind" string="Вид ордера" context="{'group_by': 'ua_order_kind'}"/>
+          <filter name="group_journal" string="Каса" context="{'group_by': 'journal_id'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_cash_order" model="ir.actions.act_window">
+    <field name="name">Касові ордери</field>
+    <field name="res_model">account.payment</field>
+    <field name="view_mode">list,form</field>
+    <field name="domain">[('ua_order_kind', '!=', False)]</field>
+    <field name="context">{'default_journal_id': False, 'search_default_group_date': 1}</field>
+    <field name="search_view_id" ref="view_account_payment_search_ua_cash"/>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Створіть касовий ордер</p>
+      <p>
+        Касовий ордер - це платіж у журналі типу «Каса». ПКО приймає гроші в касу
+        (Дт 301), ВКО видає з каси (Кт 301). Друковані форми - КО-1 і КО-2.
+      </p>
+    </field>
+  </record>
+
+  <record id="action_ua_cash_order_view_list" model="ir.actions.act_window.view">
+    <field name="sequence" eval="1"/>
+    <field name="view_mode">list</field>
+    <field name="view_id" ref="view_account_payment_list_ua_cash"/>
+    <field name="act_window_id" ref="action_ua_cash_order"/>
+  </record>
+  <record id="action_ua_cash_order_view_form" model="ir.actions.act_window.view">
+    <field name="sequence" eval="2"/>
+    <field name="view_mode">form</field>
+    <field name="view_id" ref="account.view_account_payment_form"/>
+    <field name="act_window_id" ref="action_ua_cash_order"/>
+  </record>
+</odoo>

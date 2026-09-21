@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+    <!-- Окремий реєстр на ПКО і на ВКО; з початку кожного року нумерація
+         починається заново (ПКО-2026-0001, ПКО-2027-0001). -->
+    <record id="seq_ua_cash_order_in" model="ir.sequence">
+      <field name="name">Прибутковий касовий ордер (ПКО)</field>
+      <field name="code">l10n_ua_cash.order.in</field>
+      <field name="prefix">ПКО-%(range_year)s-</field>
+      <field name="padding">4</field>
+      <field name="use_date_range" eval="True"/>
+      <field name="company_id" eval="False"/>
+    </record>
+    <record id="seq_ua_cash_order_out" model="ir.sequence">
+      <field name="name">Видатковий касовий ордер (ВКО)</field>
+      <field name="code">l10n_ua_cash.order.out</field>
+      <field name="prefix">ВКО-%(range_year)s-</field>
+      <field name="padding">4</field>
+      <field name="use_date_range" eval="True"/>
+      <field name="company_id" eval="False"/>
+    </record>
+    <record id="seq_ua_advance_report" model="ir.sequence">
+      <field name="name">Авансовий звіт</field>
+      <field name="code">l10n_ua_cash.advance.report</field>
+      <field name="prefix">АЗ-%(range_year)s-</field>
+      <field name="padding">4</field>
+      <field name="use_date_range" eval="True"/>
+      <field name="company_id" eval="False"/>
+    </record>
+  </data>
+</odoo>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_company_form_ua_cash" model="ir.ui.view">
+    <field name="name">res.company.form.ua.cash</field>
+    <field name="model">res.company</field>
+    <field name="inherit_id" ref="base.view_company_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//notebook" position="inside">
+        <page string="Каса" name="ua_cash">
+          <group>
+            <field name="ua_cash_limit"/>
+            <field name="currency_id" invisible="1"/>
+          </group>
+          <p class="text-muted">
+            Ліміт залишку готівки в касі на кінець дня встановлює наказ підприємства
+            (розділ II Положення НБУ № 148). Нуль - ліміт не встановлено.
+          </p>
+        </page>
+      </xpath>
+    </field>
+  </record>
+</odoo>

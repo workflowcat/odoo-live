@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_advance_report_form" model="ir.ui.view">
+    <field name="name">ua.advance.report.form</field>
+    <field name="model">ua.advance.report</field>
+    <field name="arch" type="xml">
+      <form string="Авансовий звіт">
+        <header>
+          <button name="action_confirm" type="object" string="Затвердити" class="oe_highlight"
+                  invisible="state != 'draft'"/>
+          <button name="action_settle_balance" type="object" string="Закрити залишок"
+                  invisible="state != 'done' or settle_payment_id or abs(amount_balance) &lt; 0.005"/>
+          <button name="action_print" type="object" string="Друк"
+                  invisible="state != 'done'"/>
+          <button name="action_draft" type="object" string="Повернути в чернетку"
+                  invisible="state != 'done'"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="partner_id" readonly="state != 'draft'"/>
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+            <group>
+              <field name="payment_id" readonly="state != 'draft'"/>
+              <field name="amount_given" readonly="1"/>
+              <field name="amount_balance" readonly="1"
+                     decoration-danger="amount_balance &lt; 0"/>
+              <field name="move_id" readonly="1" invisible="not move_id"/>
+              <field name="settle_payment_id" readonly="1" invisible="not settle_payment_id"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Витрати" name="lines">
+              <field name="line_ids" readonly="state != 'draft'">
+                <list editable="bottom">
+                  <field name="name"/>
+                  <field name="expense_account_id"/>
+                  <field name="amount" sum="Разом"/>
+                  <field name="company_id" column_invisible="1"/>
+                  <field name="currency_id" column_invisible="1"/>
+                </list>
+              </field>
+            </page>
+          </notebook>
+          <group class="oe_subtotal_footer">
+            <field name="amount_total" readonly="1" class="oe_subtotal_footer_separator"/>
+          </group>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_advance_report_list" model="ir.ui.view">
+    <field name="name">ua.advance.report.list</field>
+    <field name="model">ua.advance.report</field>
+    <field name="arch" type="xml">
+      <list string="Авансові звіти">
+        <field name="name"/>
+        <field name="date"/>
+        <field name="partner_id"/>
+        <field name="amount_given" optional="show"/>
+        <field name="amount_total" sum="Разом"/>
+        <field name="amount_balance" optional="show"/>
+        <field name="state" widget="badge"/>
+        <field name="currency_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_advance_report_search" model="ir.ui.view">
+    <field name="name">ua.advance.report.search</field>
+    <field name="model">ua.advance.report</field>
+    <field name="arch" type="xml">
+      <search string="Авансові звіти">
+        <field name="name"/>
+        <field name="partner_id"/>
+        <filter name="ua_draft" string="Чернетки" domain="[('state', '=', 'draft')]"/>
+        <filter name="ua_open" string="Незакритий залишок"
+                domain="[('state', '=', 'done'), ('settle_payment_id', '=', False)]"/>
+        <group>
+          <filter name="group_partner" string="Підзвітна особа" context="{'group_by': 'partner_id'}"/>
+          <filter name="group_date" string="Місяць" context="{'group_by': 'date:month'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_advance_report" model="ir.actions.act_window">
+    <field name="name">Авансові звіти</field>
+    <field name="res_model">ua.advance.report</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Створіть авансовий звіт</p>
+      <p>
+        Працівник звітує за гроші, взяті під звіт: рядки витрат, затвердження,
+        проводка Дт витрати / Кт 372. Залишок закривається касовим ордером.
+      </p>
+    </field>
+  </record>
+</odoo>

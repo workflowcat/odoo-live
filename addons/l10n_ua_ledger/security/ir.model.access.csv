@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_osv_report,ua.osv.report accountant,model_ua_osv_report,account.group_account_readonly,1,1,1,1
+access_ua_osv_line,ua.osv.line accountant,model_ua_osv_line,account.group_account_readonly,1,1,1,1
+access_ua_account_card,ua.account.card accountant,model_ua_account_card,account.group_account_readonly,1,1,1,1
+access_ua_account_card_line,ua.account.card.line accountant,model_ua_account_card_line,account.group_account_readonly,1,1,1,1
+access_ua_account_analysis,ua.account.analysis accountant,model_ua_account_analysis,account.group_account_readonly,1,1,1,1
+access_ua_account_analysis_line,ua.account.analysis.line accountant,model_ua_account_analysis_line,account.group_account_readonly,1,1,1,1

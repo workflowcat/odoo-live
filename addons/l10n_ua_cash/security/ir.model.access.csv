@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_advance_report_user,ua.advance.report user,model_ua_advance_report,base.group_user,1,0,0,0
+access_ua_advance_report_line_user,ua.advance.report.line user,model_ua_advance_report_line,base.group_user,1,0,0,0
+access_ua_advance_report_accountant,ua.advance.report accountant,model_ua_advance_report,account.group_account_user,1,1,1,1
+access_ua_advance_report_line_accountant,ua.advance.report.line accountant,model_ua_advance_report_line,account.group_account_user,1,1,1,1
+access_ua_cash_book_user,ua.cash.book user,model_ua_cash_book,base.group_user,1,1,1,1
+access_ua_cash_book_line_user,ua.cash.book.line user,model_ua_cash_book_line,base.group_user,1,1,1,1
+access_ua_cash_book_entry_user,ua.cash.book.entry user,model_ua_cash_book_entry,base.group_user,1,1,1,1
