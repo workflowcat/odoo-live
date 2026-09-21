@@ -91,18 +91,18 @@ class UaVatCompensation(models.Model):
     doc_id = fields.Many2one(
         "ua.vat.document", string="Зведена ПН", readonly=True, copy=False)
 
-    x_annual_chv = fields.Float(
+    ua_annual_chv = fields.Float(
         string="Річна ЧВ, %", digits=(5, 2), readonly=True, copy=False,
         help="Частка використання за підсумками року (ст.199.4).")
-    x_annual_delta = fields.Monetary(
+    ua_annual_delta = fields.Monetary(
         string="Різниця річного перерахунку", currency_field="currency_id",
         readonly=True, copy=False,
         help="Сума по всіх подвійних придбаннях року за річною ЧВ мінус "
              "проведені місячні компенсації. Додатна - донарахування ПЗ.")
-    x_annual_move_id = fields.Many2one(
+    ua_annual_move_id = fields.Many2one(
         "account.move", string="Проводка річного перерахунку", readonly=True,
         copy=False)
-    x_annual_rk_ids = fields.Many2many(
+    ua_annual_rk_ids = fields.Many2many(
         "ua.vat.document", "ua_vat_comp_annual_rk_rel", "comp_id", "doc_id",
         string="РК річного перерахунку", readonly=True, copy=False)
 
@@ -144,7 +144,7 @@ class UaVatCompensation(models.Model):
         if not product:
             return None
         try:
-            return product.x_vat_relief_effective_id or None
+            return product.ua_vat_relief_effective_id or None
         except Exception:
             return None
 
@@ -208,7 +208,7 @@ class UaVatCompensation(models.Model):
             if finished:
                 comp_exempt = taxable_use = False
                 for tmpl in finished:
-                    if tmpl.x_vat_treatment == "exempt":
+                    if tmpl.ua_vat_treatment == "exempt":
                         relief = self._relief_of(tmpl)
                         if relief and relief.no_compensation:
                             taxable_use = True  # кредит збережено
@@ -221,7 +221,7 @@ class UaVatCompensation(models.Model):
                 if comp_exempt and taxable_use:
                     return "dual"
                 return False
-        if product and product.x_vat_treatment == "exempt":
+        if product and product.ua_vat_treatment == "exempt":
             relief = self._relief_of(product)
             if relief and relief.no_compensation:
                 return False
@@ -378,7 +378,7 @@ class UaVatCompensation(models.Model):
             "company_id": self.company_id.id,
             "date": last_day,  # зведена ПН - останній день звітного періоду
             "ref": ref,
-            "x_ua_vat_comp": True,
+            "ua_vat_comp": True,
             "line_ids": [
                 (0, 0, {"account_id": acc["pz_unconfirmed"].id,
                         "name": "Нарахування компенсуючих ПЗ (зведена ПН, 09)",
@@ -406,8 +406,8 @@ class UaVatCompensation(models.Model):
                 "doc_kind": "tax_invoice",
                 "move_id": move.id,
                 "company_id": self.company_id.id,
-                "x_pn_consolidated": True,
-                "x_pn_reason_type": "09",
+                "ua_pn_consolidated": True,
+                "ua_pn_reason_type": "09",
             })
         self.write({"move_id": move.id, "doc_id": doc.id, "state": "posted"})
         return True
@@ -507,7 +507,7 @@ class UaVatCompensation(models.Model):
             "company_id": self.company_id.id,
             "date": fields.Date.to_date("%d-12-31" % year),
             "ref": ref,
-            "x_ua_vat_comp": True,
+            "ua_vat_comp": True,
             "line_ids": lines,
         })
         move.action_post()
@@ -522,16 +522,16 @@ class UaVatCompensation(models.Model):
                 "doc_kind": "adjustment",
                 "move_id": move.id,
                 "company_id": self.company_id.id,
-                "x_pn_consolidated": True,
-                "x_pn_reason_type": "09",
-                "x_adj_reason_code": "202",
-                "x_adj_pn_document_id": comp.doc_id.id or False,
+                "ua_pn_consolidated": True,
+                "ua_pn_reason_type": "09",
+                "ua_adj_reason_code": "202",
+                "ua_adj_pn_document_id": comp.doc_id.id or False,
             })
         self.write({
-            "x_annual_chv": chv_year,
-            "x_annual_delta": delta,
-            "x_annual_move_id": move.id,
-            "x_annual_rk_ids": [(6, 0, rk_docs.ids)],
+            "ua_annual_chv": chv_year,
+            "ua_annual_delta": delta,
+            "ua_annual_move_id": move.id,
+            "ua_annual_rk_ids": [(6, 0, rk_docs.ids)],
         })
         return {
             "type": "ir.actions.client",

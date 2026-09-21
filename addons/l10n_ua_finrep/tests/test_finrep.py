@@ -301,7 +301,7 @@ class TestUaFinrep(TransactionCase):
         for xmlid, letter in (("report_f1", "r"), ("report_f2", "r"),
                               ("report_f1m", "m"), ("report_f2m", "n")):
             report = self.env.ref("l10n_ua_finrep.%s" % xmlid)
-            self.assertTrue(report.x_ua_finrep_form, "%s без позначки форми" % xmlid)
+            self.assertTrue(report.ua_finrep_form, "%s без позначки форми" % xmlid)
             self.assertTrue(report.kpi_ids, "%s без рядків" % xmlid)
             for kpi in report.kpi_ids:
                 if kpi.name.startswith("ctl_"):

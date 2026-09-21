@@ -19,7 +19,7 @@ class ResCompany(models.Model):
     ua_director_name = fields.Char("Керівник (ПІБ)")
     ua_accountant_name = fields.Char("Головний бухгалтер (ПІБ)")
 
-    x_ua_acts_on_basis = fields.Char(
+    ua_acts_on_basis = fields.Char(
         "Діє на підставі", default="Статуту",
         help="Чим уповноважений підписант: Статуту, довіреності № ... від ..., "
              "наказу. Друкується в шапці акта і накладної.")

@@ -6,9 +6,9 @@
     <field name="inherit_id" ref="stock.view_picking_form"/>
     <field name="arch" type="xml">
       <xpath expr="//field[@name='origin']" position="after">
-        <field name="x_ua_proxy_number"/>
-        <field name="x_ua_proxy_date"/>
-        <field name="x_ua_proxy_person"/>
+        <field name="ua_proxy_number"/>
+        <field name="ua_proxy_date"/>
+        <field name="ua_proxy_person"/>
       </xpath>
     </field>
   </record>

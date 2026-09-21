@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
     <!-- Кнопка експорту в перегляді звіту. Показується лише на наших формах:
-         на звичайних звітах mis_builder поле x_ua_finrep_form порожнє. -->
+         на звичайних звітах mis_builder поле ua_finrep_form порожнє. -->
     <record id="mis_report_instance_result_view_form_ua" model="ir.ui.view">
         <field name="name">mis.report.instance.result.form.ua.finrep</field>
         <field name="model">mis.report.instance</field>
@@ -9,12 +9,12 @@
         <field name="arch" type="xml">
             <sheet position="before">
                 <header>
-                    <field name="x_ua_finrep_form" invisible="1" />
+                    <field name="ua_finrep_form" invisible="1" />
                     <button
                         name="action_ua_finrep_xml_draft"
                         type="object"
                         string="XML (чернетка формату)"
-                        invisible="not x_ua_finrep_form"
+                        invisible="not ua_finrep_form"
                         help="Структуру файлу не звірено з чинною схемою ДПС. Для подання не годиться."
                     />
                 </header>
@@ -29,7 +29,7 @@
         <field name="inherit_id" ref="mis_builder.mis_report_view_form" />
         <field name="arch" type="xml">
             <xpath expr="//form/sheet/group/field[@name='description']" position="after">
-                <field name="x_ua_finrep_form" />
+                <field name="ua_finrep_form" />
             </xpath>
         </field>
     </record>

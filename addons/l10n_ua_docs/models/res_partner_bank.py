@@ -12,11 +12,11 @@ from .tools import mfo_from_iban
 class ResPartnerBank(models.Model):
     _inherit = "res.partner.bank"
 
-    x_ua_mfo = fields.Char(
+    ua_mfo = fields.Char(
         "МФО", compute="_compute_x_ua_mfo",
         help="Код банку з IBAN (позиції 5-10). Порожнє, якщо номер не є українським IBAN.")
 
     @api.depends("acc_number")
     def _compute_x_ua_mfo(self):
         for bank in self:
-            bank.x_ua_mfo = mfo_from_iban(bank.acc_number)
+            bank.ua_mfo = mfo_from_iban(bank.acc_number)

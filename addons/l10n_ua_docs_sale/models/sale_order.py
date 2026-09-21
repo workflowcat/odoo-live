@@ -11,10 +11,10 @@ class SaleOrder(models.Model):
     _name = "sale.order"
     _inherit = ["sale.order", "ua.docs.source"]
 
-    x_ua_contract_number = fields.Char(
+    ua_contract_number = fields.Char(
         "Договір №",
         help="Номер договору, за яким виставляється рахунок. Друкується в підставі.")
-    x_ua_contract_date = fields.Date("Дата договору")
+    ua_contract_date = fields.Date("Дата договору")
 
     def _ua_docs_date(self):
         self.ensure_one()
@@ -27,10 +27,10 @@ class SaleOrder(models.Model):
     def _ua_docs_basis(self):
         """Підстава: власний договір, інакше посилання клієнта."""
         self.ensure_one()
-        if self.x_ua_contract_number:
-            text = "Договір № %s" % self.x_ua_contract_number
-            if self.x_ua_contract_date:
-                text += " від %s" % self.x_ua_contract_date.strftime("%d.%m.%Y")
+        if self.ua_contract_number:
+            text = "Договір № %s" % self.ua_contract_number
+            if self.ua_contract_date:
+                text += " від %s" % self.ua_contract_date.strftime("%d.%m.%Y")
             return text
         return self.client_order_ref or ""
 
@@ -51,7 +51,7 @@ class SaleOrder(models.Model):
                 "index": len(rows) + 1,
                 "name": line.name or (product.display_name if product else ""),
                 "code": (product.default_code or "") if product else "",
-                "uktzed": (getattr(product, "x_uktzed", "") or "") if product else "",
+                "uktzed": (getattr(product, "ua_uktzed", "") or "") if product else "",
                 "quantity": line.product_uom_qty,
                 "uom": line.product_uom_id.name or "",
                 "price": line.price_unit,

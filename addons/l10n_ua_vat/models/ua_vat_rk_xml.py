@@ -47,17 +47,17 @@ class UaVatDocumentRkXml(models.Model):
             missing.append(
                 "ІПН продавця: Налаштування - Компанії - «%s» - Податковий номер"
                 % (company.name or "?"))
-        pn = self.x_adj_pn_document_id
+        pn = self.ua_adj_pn_document_id
         if not pn or not pn.move_id:
             missing.append(
                 "Первинна ПН: ПДВ - Накладні і РК - «%s» - поле «Первинна ПН» "
                 "(РК складається до вже складеної ПН)" % (self.name or "?"))
-        if not self.x_adj_reason_code:
+        if not self.ua_adj_reason_code:
             missing.append(
                 "Причина коригування: ПДВ - Накладні і РК - «%s» - «Причина "
                 "коригування» (довідник ДПС, графа 2.1)" % (self.name or "?"))
         partner = move.partner_id
-        if partner.x_vat_status == "payer" and not _digits(partner.vat):
+        if partner.ua_vat_payer_status == "payer" and not _digits(partner.vat):
             missing.append(
                 "ІПН покупця-платника: Контакти - «%s» - Податковий номер"
                 % (partner.name or "?"))
@@ -66,7 +66,7 @@ class UaVatDocumentRkXml(models.Model):
                 continue
             product = line.product_id
             if product and product.type != "service" and not (
-                    product.x_uktzed or "").strip():
+                    product.ua_uktzed or "").strip():
                 missing.append(
                     "УКТ ЗЕД: товар «%s» - Товари - Код УКТ ЗЕД"
                     % (product.display_name or "?"))
@@ -86,14 +86,14 @@ class UaVatDocumentRkXml(models.Model):
         """
         self.ensure_one()
         move = self.move_id
-        origin = (self.x_adj_pn_document_id.move_id or move.reversed_entry_id)
+        origin = (self.ua_adj_pn_document_id.move_id or move.reversed_entry_id)
         origin_lines = origin.invoice_line_ids.filtered(
             lambda l: l.display_type in (False, "product")) if origin else []
         by_product = {}
         for num, oline in enumerate(origin_lines, start=1):
             by_product.setdefault(oline.product_id.id, (num, oline))
         rows = []
-        reason = self.x_adj_reason_code or "103"
+        reason = self.ua_adj_reason_code or "103"
         ref_lines = move.invoice_line_ids.filtered(
             lambda l: l.display_type in (False, "product"))
         for group, rline in enumerate(ref_lines, start=1):
@@ -132,7 +132,7 @@ class UaVatDocumentRkXml(models.Model):
         """Зібрати XML J1201216 для цього РК. Повертає (bytes, ім'я файла)."""
         self.ensure_one()
         move = self.move_id
-        origin = (self.x_adj_pn_document_id.move_id or move.reversed_entry_id)
+        origin = (self.ua_adj_pn_document_id.move_id or move.reversed_entry_id)
         company = move.company_id or self.company_id
         partner = move.partner_id
         rk_date = move.invoice_date or move.date or fields.Date.context_today(self)
@@ -147,7 +147,7 @@ class UaVatDocumentRkXml(models.Model):
         body = ET.SubElement(root, "DECLARBODY")
         ET.SubElement(body, "HFILL").text = rk_date.strftime("%d%m%Y")
         ET.SubElement(body, "HNUM").text = hnum
-        pn_doc = self.x_adj_pn_document_id
+        pn_doc = self.ua_adj_pn_document_id
         ET.SubElement(body, "HNUM1").text = (
             pn_doc._ua_pn_number() if pn_doc else self._ua_pn_number())
         if origin and origin.invoice_date:
@@ -156,7 +156,7 @@ class UaVatDocumentRkXml(models.Model):
         ET.SubElement(body, "HNAMESEL").text = company.name or ""
         ET.SubElement(body, "HKSEL").text = _digits(company.vat)
         ET.SubElement(body, "HKS").text = "1"
-        if partner.x_vat_status == "payer":
+        if partner.ua_vat_payer_status == "payer":
             ET.SubElement(body, "HNAMEBUY").text = partner.name or ""
             ET.SubElement(body, "HKBUY").text = _digits(partner.vat)
             ET.SubElement(body, "HKB").text = "1"
@@ -186,7 +186,7 @@ class UaVatDocumentRkXml(models.Model):
             product = row["product"]
             if product and product.type != "service":
                 row_el("RXXXXG4", num,
-                       (product.x_uktzed or "").replace(" ", ""))
+                       (product.ua_uktzed or "").replace(" ", ""))
                 row_el("RXXXXG4S", num, row["uom"])
                 row_el("RXXXXG105_2S", num, UA_KSPOVO_SHT)
             row_el("RXXXXG5", num, "%g" % row["qty"])

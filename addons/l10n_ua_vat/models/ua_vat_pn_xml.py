@@ -72,9 +72,9 @@ class UaVatDocumentPnXml(models.Model):
             missing.append(
                 "ІПН продавця: Налаштування - Компанії - «%s» - Податковий номер"
                 % (company.name or "?"))
-        if self.x_pn_consolidated:
+        if self.ua_pn_consolidated:
             # Зведена: покупцем є сам платник, УКТ ЗЕД і одиниці не заповнюються.
-            if not (self.x_pn_reason_type or "").strip():
+            if not (self.ua_pn_reason_type or "").strip():
                 missing.append(
                     "Тип причини зведеної ПН (напр. 09): ПДВ - Накладні і РК - "
                     "«%s» - Тип причини" % (self.name or "?"))
@@ -83,7 +83,7 @@ class UaVatDocumentPnXml(models.Model):
             missing.append("ПН не пов'язана з рахунком - немає даних")
             return missing
         partner = move.partner_id
-        if partner.x_vat_status == "payer" and not _digits(partner.vat):
+        if partner.ua_vat_payer_status == "payer" and not _digits(partner.vat):
             missing.append(
                 "ІПН покупця-платника: Контакти - «%s» - Податковий номер"
                 % (partner.name or "?"))
@@ -96,11 +96,11 @@ class UaVatDocumentPnXml(models.Model):
             # УКТ ЗЕД обов'язковий для товарних рядків; для послуг у накладній
             # зазначається код ДКПП, і його тут не вимагаємо.
             if product and product.type != "service" and not (
-                    product.x_uktzed or "").strip():
+                    product.ua_uktzed or "").strip():
                 missing.append(
                     "УКТ ЗЕД: товар «%s» - Товари - Код УКТ ЗЕД" % pname)
-            if product and product.x_vat_treatment == "exempt":
-                relief = product.x_vat_relief_effective_id
+            if product and product.ua_vat_treatment == "exempt":
+                relief = product.ua_vat_relief_effective_id
                 if not relief:
                     missing.append(
                         "Підстава пільги: товар «%s» - довідник ПДВ - Пільги"
@@ -124,7 +124,7 @@ class UaVatDocumentPnXml(models.Model):
             return "%g" % rate, rate, None
         if line._ua_vat_zero_class() == "exempt":
             product = line.product_id
-            relief = (product.x_vat_relief_effective_id if product else None) or None
+            relief = (product.ua_vat_relief_effective_id if product else None) or None
             return "903", 0.0, relief
         return "901", 0.0, None
 
@@ -136,9 +136,9 @@ class UaVatDocumentPnXml(models.Model):
             or self.company_id
         head = ET.SubElement(root, "DECLARHEAD")
         tin = _digits(company.company_registry) or _digits(company.vat)[:8]
-        c_reg = (company.x_ua_dps_reg or "26").zfill(2)
-        c_raj = (company.x_ua_dps_raj or "59").zfill(2)
-        c_sti = (company.x_ua_dps_sti or "2659").zfill(4)
+        c_reg = (company.ua_dps_reg or "26").zfill(2)
+        c_raj = (company.ua_dps_raj or "59").zfill(2)
+        c_sti = (company.ua_dps_sti or "2659").zfill(4)
         ET.SubElement(head, "TIN").text = tin
         ET.SubElement(head, "C_DOC").text = c_doc
         ET.SubElement(head, "C_DOC_SUB").text = c_doc_sub
@@ -181,7 +181,7 @@ class UaVatDocumentPnXml(models.Model):
         move = self.move_id
         company = move.company_id or self.company_id
         partner = move.partner_id
-        consolidated = bool(self.x_pn_consolidated)
+        consolidated = bool(self.ua_pn_consolidated)
         pn_date = self.date or fields.Date.context_today(self)
         hnum = self._ua_pn_number()
 
@@ -195,7 +195,7 @@ class UaVatDocumentPnXml(models.Model):
         if consolidated:
             ET.SubElement(body, "H03").text = "1"       # ознака зведеної
             ET.SubElement(body, "HORIG1").text = "1"    # покупцю не видається
-            ET.SubElement(body, "HTYPR").text = self.x_pn_reason_type or "09"
+            ET.SubElement(body, "HTYPR").text = self.ua_pn_reason_type or "09"
         ET.SubElement(body, "HFILL").text = pn_date.strftime("%d%m%Y")
         ET.SubElement(body, "HNUM").text = hnum
         ET.SubElement(body, "HNAMESEL").text = company.name or ""
@@ -204,7 +204,7 @@ class UaVatDocumentPnXml(models.Model):
         if consolidated:
             ET.SubElement(body, "HNAMEBUY").text = company.name or ""
             ET.SubElement(body, "HKBUY").text = UA_IPN_SELF
-        elif partner.x_vat_status == "payer":
+        elif partner.ua_vat_payer_status == "payer":
             ET.SubElement(body, "HNAMEBUY").text = partner.name or ""
             ET.SubElement(body, "HKBUY").text = _digits(partner.vat)
             ET.SubElement(body, "HKB").text = "1"
@@ -257,7 +257,7 @@ class UaVatDocumentPnXml(models.Model):
                 product = line.product_id
                 if product and product.type != "service":
                     row_el("RXXXXG4", num,
-                           (product.x_uktzed or "").replace(" ", ""))
+                           (product.ua_uktzed or "").replace(" ", ""))
                     row_el("RXXXXG4S", num, line.product_uom_id.name or "шт.")
                     row_el("RXXXXG105_2S", num, UA_KSPOVO_SHT)
                 row_el("RXXXXG5", num, "%g" % line.quantity)

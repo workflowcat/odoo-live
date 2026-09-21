@@ -10,7 +10,7 @@
           <group>
             <field name="ua_director_name"/>
             <field name="ua_accountant_name"/>
-            <field name="x_ua_acts_on_basis"/>
+            <field name="ua_acts_on_basis"/>
           </group>
           <p class="text-muted">
             Ці ПІБ друкуються в рахунку, акті та видатковій накладній. ЄДРПОУ, ІПН,

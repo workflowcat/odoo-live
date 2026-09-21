@@ -6,10 +6,10 @@
     <field name="inherit_id" ref="account.view_account_payment_form"/>
     <field name="arch" type="xml">
       <xpath expr="//sheet" position="inside">
-        <group string="ПДВ: перша подія" invisible="not x_fe_move_id">
-          <field name="x_fe_move_id" readonly="1"/>
-          <field name="x_fe_closed_amount" readonly="1"/>
-          <field name="x_fe_reversed" readonly="1"/>
+        <group string="ПДВ: перша подія" invisible="not ua_fe_move_id">
+          <field name="ua_fe_move_id" readonly="1"/>
+          <field name="ua_fe_closed_amount" readonly="1"/>
+          <field name="ua_fe_reversed" readonly="1"/>
         </group>
       </xpath>
     </field>

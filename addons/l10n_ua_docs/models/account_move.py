@@ -51,7 +51,7 @@ class AccountMove(models.Model):
                 "index": len(rows) + 1,
                 "name": line.name or (product.display_name if product else ""),
                 "code": (product.default_code or "") if product else "",
-                "uktzed": (getattr(product, "x_uktzed", "") or "") if product else "",
+                "uktzed": (getattr(product, "ua_uktzed", "") or "") if product else "",
                 "quantity": line.quantity,
                 "uom": line.product_uom_id.name or "",
                 "price": line.price_unit,

@@ -6,8 +6,8 @@
     <field name="inherit_id" ref="sale.view_order_form"/>
     <field name="arch" type="xml">
       <xpath expr="//field[@name='client_order_ref']" position="after">
-        <field name="x_ua_contract_number"/>
-        <field name="x_ua_contract_date"/>
+        <field name="ua_contract_number"/>
+        <field name="ua_contract_date"/>
       </xpath>
     </field>
   </record>

@@ -46,8 +46,8 @@
 - Юридична адреса - нативні `street`, `city`, `zip` партнера.
 - IBAN і банк - `res.partner.bank.acc_number` і `bank_name`; рахунок для оплати в самому
   документі - нативний `account.move.partner_bank_id`.
-- Статус платника ПДВ - `x_vat_status` з `l10n_ua_vat`.
-- Код УКТ ЗЕД товару - `x_uktzed` з `l10n_ua_vat` (читається через `getattr`, без залежності).
+- Статус платника ПДВ - `ua_vat_payer_status` з `l10n_ua_vat`.
+- Код УКТ ЗЕД товару - `ua_uktzed` з `l10n_ua_vat` (читається через `getattr`, без залежності).
 
 Додано тут:
 
@@ -55,13 +55,13 @@
 | --- | --- | --- |
 | `res.company` | `ua_director_name` | ПІБ керівника в підписах |
 | `res.company` | `ua_accountant_name` | ПІБ головного бухгалтера |
-| `res.company` | `x_ua_acts_on_basis` | «діє на підставі Статуту» в акті |
-| `res.partner` | `x_ua_actual_address` | фактична адреса, коли не збігається з ЄДР |
-| `res.partner` | `x_ua_signatory_name` | підписант контрагента |
-| `res.partner` | `x_ua_signatory_basis` | на підставі чого він діє |
-| `res.partner.bank` | `x_ua_mfo` | обчислюване, шість цифр з IBAN, не зберігається |
-| `sale.order` | `x_ua_contract_number`, `x_ua_contract_date` | номер і дата договору |
-| `stock.picking` | `x_ua_proxy_number`, `x_ua_proxy_date`, `x_ua_proxy_person` | довіреність одержувача |
+| `res.company` | `ua_acts_on_basis` | «діє на підставі Статуту» в акті |
+| `res.partner` | `ua_actual_address` | фактична адреса, коли не збігається з ЄДР |
+| `res.partner` | `ua_signatory_name` | підписант контрагента |
+| `res.partner` | `ua_signatory_basis` | на підставі чого він діє |
+| `res.partner.bank` | `ua_mfo` | обчислюване, шість цифр з IBAN, не зберігається |
+| `sale.order` | `ua_contract_number`, `ua_contract_date` | номер і дата договору |
+| `stock.picking` | `ua_proxy_number`, `ua_proxy_date`, `ua_proxy_person` | довіреність одержувача |
 
 **Перетин із зарплатою.** `ua_director_name` і `ua_accountant_name` уже оголошує
 `l10n_ua_payroll_reports`. Первинка не має права залежати від зарплати, тому оголошення

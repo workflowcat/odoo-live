@@ -18,7 +18,7 @@
     <record id="report_f1" model="mis.report">
         <field name="name">Ф1. Баланс (НП(С)БО 1)</field>
         <field name="description">Звіт про фінансовий стан на кінець періоду</field>
-        <field name="x_ua_finrep_form">f1</field>
+        <field name="ua_finrep_form">f1</field>
         <field name="style_id" ref="style_base" />
     </record>
 

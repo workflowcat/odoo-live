@@ -3,7 +3,7 @@
 Уся арифметика форм живе у даних (data/mis_report_*.xml) як вирази KPI.
 Тут лише два додатки:
 
-1) `x_ua_finrep_form` на шаблоні mis.report - яка це офіційна форма. Поле
+1) `ua_finrep_form` на шаблоні mis.report - яка це офіційна форма. Поле
    потрібне, щоб кнопка експорту і меню знали, з чим мають справу, і щоб
    не чіпати чужі звіти mis_builder у тій самій базі.
 2) Читання порахованих значень і складання XML. Другого розрахунку немає:
@@ -39,7 +39,7 @@ XML_DRAFT_CHARCODE = "S0110013"
 class MisReport(models.Model):
     _inherit = "mis.report"
 
-    x_ua_finrep_form = fields.Selection(
+    ua_finrep_form = fields.Selection(
         FORM_SELECTION,
         string="Українська форма",
         help="Позначка офіційної форми. Заповнена лише на наших шаблонах; "
@@ -50,8 +50,8 @@ class MisReport(models.Model):
 class MisReportInstance(models.Model):
     _inherit = "mis.report.instance"
 
-    x_ua_finrep_form = fields.Selection(
-        related="report_id.x_ua_finrep_form",
+    ua_finrep_form = fields.Selection(
+        related="report_id.ua_finrep_form",
         string="Українська форма",
         store=True,
         readonly=True,
@@ -137,7 +137,7 @@ class MisReportInstance(models.Model):
         """Кнопка «XML (чернетка формату)»: вкладення і посилання на завантаження."""
         self.ensure_one()
         attachment = self.env["ir.attachment"].create({
-            "name": "%s (чернетка).xml" % (self.x_ua_finrep_form or "finrep"),
+            "name": "%s (чернетка).xml" % (self.ua_finrep_form or "finrep"),
             "type": "binary",
             "raw": self._ua_finrep_xml(),
             "mimetype": "application/xml",

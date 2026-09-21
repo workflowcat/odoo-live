@@ -66,7 +66,7 @@ class UaVatDocument(models.Model):
 
     # --- Реєстрація в ЄРПН -----------------------------------------------
 
-    x_pn_registered_date = fields.Date(
+    ua_pn_registered_date = fields.Date(
         string="Зареєстровано в ЄРПН",
         copy=False,
         tracking=True,
@@ -80,7 +80,7 @@ class UaVatDocument(models.Model):
 
     # --- Зведена (компенсуюча) ПН ----------------------------------------
 
-    x_pn_consolidated = fields.Boolean(
+    ua_pn_consolidated = fields.Boolean(
         string="Зведена ПН",
         default=False,
         help="Зведена податкова накладна за п.198.5 або ст.199 ПКУ: "
@@ -88,7 +88,7 @@ class UaVatDocument(models.Model):
              "реєструється протягом 20 календарних днів після останнього дня "
              "місяця складання.",
     )
-    x_pn_reason_type = fields.Char(
+    ua_pn_reason_type = fields.Char(
         string="Тип причини",
         size=2,
         help="Код типу причини зведеної ПН (Порядок №1307): 04 - постачання у "
@@ -98,13 +98,13 @@ class UaVatDocument(models.Model):
 
     # --- Реквізити РК -----------------------------------------------------
 
-    x_adj_reason_code = fields.Selection(
+    ua_adj_reason_code = fields.Selection(
         UA_ADJ_REASONS,
         string="Причина коригування",
         help="Умовний код причини коригування з довідника ДПС (графа 2.1 "
              "розділу Б РК).",
     )
-    x_adj_pn_document_id = fields.Many2one(
+    ua_adj_pn_document_id = fields.Many2one(
         "ua.vat.document",
         string="Первинна ПН",
         domain=[("doc_kind", "=", "tax_invoice")],
@@ -114,13 +114,13 @@ class UaVatDocument(models.Model):
         help="Податкова накладна, яку коригує цей РК. Знаходиться за первинним "
              "рахунком повернення; можна змінити вручну.",
     )
-    x_adj_direction = fields.Selection(
+    ua_adj_direction = fields.Selection(
         selection=[("decrease", "Зменшення"), ("increase", "Збільшення")],
         string="Напрямок коригування",
         compute="_compute_x_adj_direction",
         store=True,
     )
-    x_adj_registrant = fields.Selection(
+    ua_adj_registrant = fields.Selection(
         selection=[("buyer", "покупець"), ("seller", "продавець")],
         string="Реєструє",
         compute="_compute_x_adj_direction",
@@ -131,20 +131,20 @@ class UaVatDocument(models.Model):
 
     # --- Строк реєстрації і штраф (дзеркало рахунку) ----------------------
 
-    x_pn_deadline = fields.Date(
-        related="move_id.x_pn_deadline",
+    ua_pn_deadline = fields.Date(
+        related="move_id.ua_pn_deadline",
         string="Граничний строк реєстрації",
         store=True,
     )
-    x_pn_overdue_days = fields.Integer(
+    ua_pn_overdue_days = fields.Integer(
         string="Прострочено, днів", compute="_compute_x_pn_mirror")
-    x_pn_fine_est = fields.Monetary(
+    ua_pn_fine_est = fields.Monetary(
         string="Орієнтовний штраф",
         currency_field="currency_id",
         compute="_compute_x_pn_mirror",
     )
 
-    @api.depends("move_id.invoice_date", "move_id.date", "x_pn_consolidated")
+    @api.depends("move_id.invoice_date", "move_id.date", "ua_pn_consolidated")
     def _compute_date(self):
         """Дата складання: для зведеної - дата проводки (останній день
         періоду), інакше - дата рахунку."""
@@ -154,26 +154,26 @@ class UaVatDocument(models.Model):
             if not move:
                 doc.date = today
                 continue
-            doc.date = (move.date if doc.x_pn_consolidated
+            doc.date = (move.date if doc.ua_pn_consolidated
                         else move.invoice_date) or move.date or today
 
-    @api.depends("x_pn_registered_date")
+    @api.depends("ua_pn_registered_date")
     def _compute_state(self):
         for doc in self:
-            doc.state = "registered" if doc.x_pn_registered_date else "draft"
+            doc.state = "registered" if doc.ua_pn_registered_date else "draft"
 
     @api.depends("doc_kind", "move_id.reversed_entry_id")
     def _compute_x_adj_pn_document(self):
         """Первинна ПН для РК - податкова накладна первинного рахунку."""
         for doc in self:
-            if doc.doc_kind != "adjustment" or doc.x_adj_pn_document_id:
+            if doc.doc_kind != "adjustment" or doc.ua_adj_pn_document_id:
                 continue
             try:
                 origin = doc.move_id.reversed_entry_id
-                doc.x_adj_pn_document_id = origin.ua_vat_document_ids.filtered(
+                doc.ua_adj_pn_document_id = origin.ua_vat_document_ids.filtered(
                     lambda d: d.doc_kind == "tax_invoice")[:1]
             except Exception:
-                doc.x_adj_pn_document_id = False
+                doc.ua_adj_pn_document_id = False
 
     @api.depends("doc_kind", "move_id.move_type")
     def _compute_x_adj_direction(self):
@@ -186,23 +186,23 @@ class UaVatDocument(models.Model):
                     direction, registrant = "decrease", "buyer"
                 else:
                     direction, registrant = "increase", "seller"
-            doc.x_adj_direction = direction
-            doc.x_adj_registrant = registrant
+            doc.ua_adj_direction = direction
+            doc.ua_adj_registrant = registrant
 
-    @api.depends("doc_kind", "move_id", "x_pn_registered_date",
-                 "move_id.x_pn_overdue_days", "move_id.x_pn_fine_est")
+    @api.depends("doc_kind", "move_id", "ua_pn_registered_date",
+                 "move_id.ua_pn_overdue_days", "move_id.ua_pn_fine_est")
     def _compute_x_pn_mirror(self):
         """Прострочення і штраф беремо з рахунку як є."""
         for doc in self:
             days, fine = 0, 0.0
             try:
                 if doc.move_id:
-                    days = doc.move_id.x_pn_overdue_days or 0
-                    fine = doc.move_id.x_pn_fine_est or 0.0
+                    days = doc.move_id.ua_pn_overdue_days or 0
+                    fine = doc.move_id.ua_pn_fine_est or 0.0
             except Exception:
                 days, fine = 0, 0.0
-            doc.x_pn_overdue_days = days
-            doc.x_pn_fine_est = fine
+            doc.ua_pn_overdue_days = days
+            doc.ua_pn_fine_est = fine
 
     # --- Дії ---------------------------------------------------------------
 
@@ -210,10 +210,10 @@ class UaVatDocument(models.Model):
         """«Позначити зареєстрованою»: ставить сьогоднішню дату реєстрації,
         якщо її ще нема. Дату можна виправити вручну."""
         for doc in self:
-            if not doc.x_pn_registered_date:
-                doc.x_pn_registered_date = fields.Date.context_today(doc)
+            if not doc.ua_pn_registered_date:
+                doc.ua_pn_registered_date = fields.Date.context_today(doc)
             doc.message_post(body="Зареєстровано в ЄРПН (%s)"
-                                  % doc.x_pn_registered_date.strftime("%d.%m.%Y"))
+                                  % doc.ua_pn_registered_date.strftime("%d.%m.%Y"))
         return True
 
     def _ua_pn_number(self):

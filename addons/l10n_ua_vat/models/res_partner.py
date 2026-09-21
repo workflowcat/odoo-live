@@ -5,7 +5,7 @@ from odoo import fields, models
 class ResPartner(models.Model):
     _inherit = "res.partner"
 
-    x_vat_status = fields.Selection(
+    ua_vat_payer_status = fields.Selection(
         selection=[
             ("payer", "Платник ПДВ"),
             ("non_payer", "Неплатник ПДВ"),

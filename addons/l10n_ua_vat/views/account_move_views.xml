@@ -8,39 +8,39 @@
       <xpath expr="//header" position="inside">
         <button name="action_ua_create_tax_invoice" type="object"
                 string="Скласти податкову накладну"
-                invisible="not x_tax_invoice_needed"/>
+                invisible="not ua_tax_invoice_needed"/>
         <button name="action_ua_close_first_events" type="object"
                 string="Закрити першу подію"
-                invisible="not x_fe_open"/>
+                invisible="not ua_fe_open"/>
         <button name="action_ua_post_customs_vat" type="object"
                 string="Митний ПДВ у кредит"
-                invisible="not x_is_import or state != 'posted'"/>
+                invisible="not ua_is_import or state != 'posted'"/>
       </xpath>
       <xpath expr="//notebook" position="inside">
         <page string="ПДВ (Україна)" name="ua_vat"
               invisible="move_type not in ('out_invoice', 'out_refund', 'in_invoice')">
           <group>
             <group string="Перша подія" invisible="move_type == 'in_invoice'">
-              <field name="x_first_event"/>
-              <field name="x_first_event_date"/>
-              <field name="x_fe_open"/>
-              <field name="x_tax_invoice_needed"/>
-              <field name="x_rk_needed"/>
+              <field name="ua_first_event"/>
+              <field name="ua_first_event_date"/>
+              <field name="ua_fe_open"/>
+              <field name="ua_tax_invoice_needed"/>
+              <field name="ua_rk_needed"/>
             </group>
             <group string="Реєстрація в ЄРПН" invisible="move_type == 'in_invoice'">
-              <field name="x_pn_deadline"/>
-              <field name="x_pn_overdue_days"/>
-              <field name="x_pn_fine_est"/>
-              <field name="x_pn_at_risk"/>
+              <field name="ua_pn_deadline"/>
+              <field name="ua_pn_overdue_days"/>
+              <field name="ua_pn_fine_est"/>
+              <field name="ua_pn_at_risk"/>
             </group>
             <group string="Податковий кредит" invisible="move_type != 'in_invoice'">
-              <field name="x_in_pn_registered"/>
-              <field name="x_is_import"/>
+              <field name="ua_in_pn_registered"/>
+              <field name="ua_is_import"/>
             </group>
-            <group string="Імпорт" invisible="not x_is_import">
-              <field name="x_customs_decl_number"/>
-              <field name="x_customs_vat"/>
-              <field name="x_customs_move_id"/>
+            <group string="Імпорт" invisible="not ua_is_import">
+              <field name="ua_customs_decl_number"/>
+              <field name="ua_customs_vat"/>
+              <field name="ua_customs_move_id"/>
             </group>
           </group>
           <field name="ua_vat_document_ids" readonly="1">
@@ -48,7 +48,7 @@
               <field name="name"/>
               <field name="doc_kind"/>
               <field name="date"/>
-              <field name="x_pn_registered_date"/>
+              <field name="ua_pn_registered_date"/>
               <field name="state"/>
             </list>
           </field>

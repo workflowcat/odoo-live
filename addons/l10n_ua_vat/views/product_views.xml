@@ -6,10 +6,10 @@
     <field name="inherit_id" ref="product.product_template_only_form_view"/>
     <field name="arch" type="xml">
       <xpath expr="//field[@name='default_code']" position="after">
-        <field name="x_uktzed" placeholder="напр. 8806100000"/>
-        <field name="x_vat_treatment"/>
-        <field name="x_vat_relief_id"/>
-        <field name="x_vat_relief_effective_id" invisible="x_vat_treatment != 'exempt'"/>
+        <field name="ua_uktzed" placeholder="напр. 8806100000"/>
+        <field name="ua_vat_treatment"/>
+        <field name="ua_vat_relief_id"/>
+        <field name="ua_vat_relief_effective_id" invisible="ua_vat_treatment != 'exempt'"/>
       </xpath>
     </field>
   </record>

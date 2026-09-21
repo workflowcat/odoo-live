@@ -60,7 +60,7 @@ def _ua_dominant_rate(lines, base_field):
 class AccountPayment(models.Model):
     _inherit = "account.payment"
 
-    x_fe_move_id = fields.Many2one(
+    ua_fe_move_id = fields.Many2one(
         "account.move",
         string="Проводка першої події",
         readonly=True,
@@ -68,7 +68,7 @@ class AccountPayment(models.Model):
         help="Проводка Дт 6431 / Кт 6412 на суму ПДВ авансу, створена при "
              "проведенні авансової оплати від платника ПДВ.",
     )
-    x_fe_reversed = fields.Boolean(
+    ua_fe_reversed = fields.Boolean(
         string="Першу подію закрито",
         readonly=True,
         copy=False,
@@ -76,7 +76,7 @@ class AccountPayment(models.Model):
              "проводками. При частковій звірці авансу закривається пропорційна "
              "частка, і прапорець ще знято.",
     )
-    x_fe_closed_amount = fields.Float(
+    ua_fe_closed_amount = fields.Float(
         string="Закрито ПДВ першої події",
         digits=(16, 2),
         readonly=True,
@@ -144,11 +144,11 @@ class AccountPayment(models.Model):
                     continue
                 if payment.partner_type != "customer":
                     continue
-                if payment.partner_id.x_vat_status != "payer":
+                if payment.partner_id.ua_vat_payer_status != "payer":
                     continue
                 if payment.reconciled_invoice_ids:
                     continue
-                if payment.x_fe_move_id:
+                if payment.ua_fe_move_id:
                     continue
                 rate = payment._ua_advance_rate()
                 # Валютний аванс переводимо в гривню курсом на дату платежу:
@@ -173,7 +173,7 @@ class AccountPayment(models.Model):
                     "company_id": company.id,
                     "date": payment.date,
                     "ref": "Перша подія (аванс): %s" % (payment.name or ""),
-                    "x_ua_fe_kind": "open",
+                    "ua_fe_kind": "open",
                     "line_ids": [
                         (0, 0, {"account_id": acc_pz.id,
                                 "partner_id": payment.partner_id.id,
@@ -186,7 +186,7 @@ class AccountPayment(models.Model):
                     ],
                 })
                 move.action_post()
-                payment.x_fe_move_id = move
+                payment.ua_fe_move_id = move
             except Exception:
                 _logger.warning(
                     "l10n_ua_vat: збій проводки першої події для оплати %s",

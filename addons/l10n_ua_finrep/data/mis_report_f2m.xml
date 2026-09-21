@@ -14,7 +14,7 @@
     <record id="report_f2m" model="mis.report">
         <field name="name">Ф2-м. Звіт про фінансові результати (НП(С)БО 25)</field>
         <field name="description">Спрощений фінансовий звіт суб'єкта малого підприємництва, форма 2-м</field>
-        <field name="x_ua_finrep_form">f2m</field>
+        <field name="ua_finrep_form">f2m</field>
         <field name="style_id" ref="style_base" />
     </record>
 

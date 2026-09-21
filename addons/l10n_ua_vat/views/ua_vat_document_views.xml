@@ -10,10 +10,10 @@
         <field name="doc_kind"/>
         <field name="partner_id"/>
         <field name="move_id"/>
-        <field name="x_pn_deadline" decoration-danger="x_pn_overdue_days &gt; 0"/>
-        <field name="x_pn_registered_date"/>
-        <field name="x_pn_overdue_days" decoration-danger="x_pn_overdue_days &gt; 0"/>
-        <field name="x_pn_fine_est" sum="Разом"/>
+        <field name="ua_pn_deadline" decoration-danger="ua_pn_overdue_days &gt; 0"/>
+        <field name="ua_pn_registered_date"/>
+        <field name="ua_pn_overdue_days" decoration-danger="ua_pn_overdue_days &gt; 0"/>
+        <field name="ua_pn_fine_est" sum="Разом"/>
         <field name="state" widget="badge"/>
         <field name="currency_id" column_invisible="1"/>
       </list>
@@ -28,7 +28,7 @@
         <header>
           <button name="action_export_xml" type="object" string="XML для ЄРПН" class="oe_highlight"/>
           <button name="action_mark_pn_registered" type="object" string="Позначити зареєстрованою"
-                  invisible="x_pn_registered_date"/>
+                  invisible="ua_pn_registered_date"/>
           <field name="state" widget="statusbar"/>
         </header>
         <sheet>
@@ -43,24 +43,24 @@
               <field name="currency_id" invisible="1"/>
             </group>
             <group>
-              <field name="x_pn_deadline"/>
-              <field name="x_pn_registered_date"/>
-              <field name="x_pn_overdue_days"/>
-              <field name="x_pn_fine_est"/>
+              <field name="ua_pn_deadline"/>
+              <field name="ua_pn_registered_date"/>
+              <field name="ua_pn_overdue_days"/>
+              <field name="ua_pn_fine_est"/>
             </group>
           </group>
           <group string="Зведена податкова накладна" invisible="doc_kind != 'tax_invoice'">
-            <field name="x_pn_consolidated"/>
-            <field name="x_pn_reason_type" invisible="not x_pn_consolidated"/>
+            <field name="ua_pn_consolidated"/>
+            <field name="ua_pn_reason_type" invisible="not ua_pn_consolidated"/>
           </group>
           <group string="Реквізити коригування" invisible="doc_kind != 'adjustment'">
             <group>
-              <field name="x_adj_reason_code"/>
-              <field name="x_adj_pn_document_id"/>
+              <field name="ua_adj_reason_code"/>
+              <field name="ua_adj_pn_document_id"/>
             </group>
             <group>
-              <field name="x_adj_direction"/>
-              <field name="x_adj_registrant"/>
+              <field name="ua_adj_direction"/>
+              <field name="ua_adj_registrant"/>
             </group>
           </group>
         </sheet>
@@ -81,11 +81,11 @@
         <filter name="rk" string="Розрахунки коригування" domain="[('doc_kind', '=', 'adjustment')]"/>
         <separator/>
         <filter name="not_registered" string="Не зареєстровані"
-                domain="[('x_pn_registered_date', '=', False)]"/>
+                domain="[('ua_pn_registered_date', '=', False)]"/>
         <filter name="overdue" string="Прострочені"
-                domain="[('x_pn_registered_date', '=', False), ('x_pn_deadline', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                domain="[('ua_pn_registered_date', '=', False), ('ua_pn_deadline', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
         <separator/>
-        <filter name="consolidated" string="Зведені" domain="[('x_pn_consolidated', '=', True)]"/>
+        <filter name="consolidated" string="Зведені" domain="[('ua_pn_consolidated', '=', True)]"/>
         <group>
           <filter name="group_kind" string="Тип документа" context="{'group_by': 'doc_kind'}"/>
           <filter name="group_partner" string="Контрагент" context="{'group_by': 'partner_id'}"/>

@@ -1,7 +1,7 @@
 """Реквізити контрагента для української первинки.
 
 ЄДРПОУ / РНОКПП - нативний `company_registry`, ІПН платника ПДВ - нативний
-`vat`, статус платника ПДВ уже дає `l10n_ua_vat` (`x_vat_status`). Тут лише
+`vat`, статус платника ПДВ уже дає `l10n_ua_vat` (`ua_vat_payer_status`). Тут лише
 фактична адреса (в Odoo адреса одна, а на папері часто дві) і підписант.
 """
 from odoo import fields, models
@@ -10,14 +10,14 @@ from odoo import fields, models
 class ResPartner(models.Model):
     _inherit = "res.partner"
 
-    x_ua_actual_address = fields.Char(
+    ua_actual_address = fields.Char(
         "Фактична адреса",
         help="Заповнюють, коли фактична адреса відрізняється від тієї, що в ЄДР. "
              "Порожнє поле означає, що адреси збігаються.")
-    x_ua_signatory_name = fields.Char(
+    ua_signatory_name = fields.Char(
         "Підписант (ПІБ)",
         help="Хто підписує акти і накладні з боку контрагента.")
-    x_ua_signatory_basis = fields.Char(
+    ua_signatory_basis = fields.Char(
         "Діє на підставі",
         help="Статуту, довіреності № ... від ..., наказу.")
 

@@ -6,9 +6,9 @@
     <field name="inherit_id" ref="base.view_partner_form"/>
     <field name="arch" type="xml">
       <xpath expr="//field[@name='vat']" position="after">
-        <field name="x_ua_actual_address"/>
-        <field name="x_ua_signatory_name"/>
-        <field name="x_ua_signatory_basis"/>
+        <field name="ua_actual_address"/>
+        <field name="ua_signatory_name"/>
+        <field name="ua_signatory_basis"/>
       </xpath>
     </field>
   </record>
@@ -19,7 +19,7 @@
     <field name="inherit_id" ref="base.view_partner_bank_form"/>
     <field name="arch" type="xml">
       <xpath expr="//field[@name='acc_number']" position="after">
-        <field name="x_ua_mfo"/>
+        <field name="ua_mfo"/>
       </xpath>
     </field>
   </record>

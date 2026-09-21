@@ -59,14 +59,14 @@
               <field name="doc_id"/>
             </group>
           </group>
-          <group string="Річний перерахунок (ст.199.4 ПКУ)" invisible="not x_annual_move_id">
+          <group string="Річний перерахунок (ст.199.4 ПКУ)" invisible="not ua_annual_move_id">
             <group>
-              <field name="x_annual_chv"/>
-              <field name="x_annual_delta"/>
+              <field name="ua_annual_chv"/>
+              <field name="ua_annual_delta"/>
             </group>
             <group>
-              <field name="x_annual_move_id"/>
-              <field name="x_annual_rk_ids" widget="many2many_tags"/>
+              <field name="ua_annual_move_id"/>
+              <field name="ua_annual_rk_ids" widget="many2many_tags"/>
             </group>
           </group>
           <notebook>

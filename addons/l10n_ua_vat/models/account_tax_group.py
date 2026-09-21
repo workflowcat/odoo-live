@@ -16,7 +16,7 @@ from odoo import fields, models
 class AccountTaxGroup(models.Model):
     _inherit = "account.tax.group"
 
-    x_ua_vat_zero_kind = fields.Selection(
+    ua_vat_zero_kind = fields.Selection(
         selection=[
             ("export", "0 % експорт"),
             ("exempt", "Звільнено від ПДВ"),

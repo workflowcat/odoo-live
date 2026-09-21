@@ -48,25 +48,25 @@ class TestUaVat(AccountTestInvoicingCommon):
 
         cls.payer = cls.env["res.partner"].create({
             "name": "ТОВ Покупець-платник",
-            "x_vat_status": "payer",
+            "ua_vat_payer_status": "payer",
             "vat": "9988776655",
             "country_id": cls.env.ref("base.ua").id,
         })
         cls.non_payer = cls.env["res.partner"].create({
             "name": "ТОВ Неплатник",
-            "x_vat_status": "non_payer",
+            "ua_vat_payer_status": "non_payer",
             "country_id": cls.env.ref("base.ua").id,
         })
         cls.vendor = cls.env["res.partner"].create({
             "name": "ТОВ Постачальник",
-            "x_vat_status": "payer",
+            "ua_vat_payer_status": "payer",
             "vat": "1122334455",
             "country_id": cls.env.ref("base.ua").id,
         })
         cls.goods = cls.env["product.product"].create({
             "name": "Стіл робочий",
             "type": "consu",
-            "x_uktzed": "9403300000",
+            "ua_uktzed": "9403300000",
         })
         # Пільга БПЛА: п.32 підрозд.2 розд.XX ПКУ, код пільги з довідника ДПС.
         cls.relief = cls.env["ua.vat.relief"].create({
@@ -78,7 +78,7 @@ class TestUaVat(AccountTestInvoicingCommon):
         cls.drone = cls.env["product.product"].create({
             "name": "Безпілотник",
             "type": "consu",
-            "x_uktzed": "8806100000",
+            "ua_uktzed": "8806100000",
         })
 
     # --- Допоміжні ---------------------------------------------------------
@@ -128,7 +128,7 @@ class TestUaVat(AccountTestInvoicingCommon):
             ("company_id", "=", self.company.id),
             ("parent_state", "=", "posted"),
             ("account_id", "=", self.acc_pz.id),
-            ("move_id.x_ua_fe_kind", "=", kind),
+            ("move_id.ua_fe_kind", "=", kind),
         ])
         return round(sum(lines.mapped(side)), 2)
 
@@ -142,10 +142,10 @@ class TestUaVat(AccountTestInvoicingCommon):
         self.assertEqual(self.tax_purchase_20.amount, 20.0)
         # Нативні нульові податки без групи - модуль дочіпляє нативні ж групи.
         self.assertEqual(
-            self.tax_sale_exempt.tax_group_id.x_ua_vat_zero_kind, "exempt",
+            self.tax_sale_exempt.tax_group_id.ua_vat_zero_kind, "exempt",
             "податок «звільнено» не позначено як звільнення")
         self.assertEqual(
-            self.tax_sale_zero.tax_group_id.x_ua_vat_zero_kind, "export",
+            self.tax_sale_zero.tax_group_id.ua_vat_zero_kind, "export",
             "податок 0 % не позначено як експорт")
         # Пошук за видом нуля працює з картки компанії.
         self.assertEqual(self.company._ua_vat_exempt_tax(), self.tax_sale_exempt)
@@ -164,17 +164,17 @@ class TestUaVat(AccountTestInvoicingCommon):
         1200 * 20 / 120 = 200,00.
         """
         payment = self._payment(self.payer, 1200.0, datetime.date(2026, 7, 7))
-        self.assertTrue(payment.x_fe_move_id,
+        self.assertTrue(payment.ua_fe_move_id,
                         "проводка першої події не створилась")
-        move = payment.x_fe_move_id
-        self.assertEqual(move.x_ua_fe_kind, "open")
+        move = payment.ua_fe_move_id
+        self.assertEqual(move.ua_fe_kind, "open")
         debit = sum(move.line_ids.filtered(
             lambda l: l.account_id == self.acc_pz).mapped("debit"))
         credit = sum(move.line_ids.filtered(
             lambda l: l.account_id == self.acc_vat).mapped("credit"))
         self.assertAlmostEqual(debit, 200.0, delta=CENT)
         self.assertAlmostEqual(credit, 200.0, delta=CENT)
-        self.assertFalse(payment.x_fe_reversed)
+        self.assertFalse(payment.ua_fe_reversed)
 
     # --- 3. Перша подія: відвантаження раніше за оплату ----------------------
 
@@ -187,8 +187,8 @@ class TestUaVat(AccountTestInvoicingCommon):
         invoice = self._invoice(
             self.payer, datetime.date(2026, 7, 1),
             [(self.goods, 1, 1000.0, self.tax_sale_20)])
-        self.assertEqual(invoice.x_first_event, "shipment")
-        self.assertEqual(invoice.x_first_event_date, datetime.date(2026, 7, 1))
+        self.assertEqual(invoice.ua_first_event, "shipment")
+        self.assertEqual(invoice.ua_first_event_date, datetime.date(2026, 7, 1))
         # ПДВ уже в самому рахунку: 1000 * 20 % = 200,00.
         self.assertAlmostEqual(invoice.amount_tax, 200.0, delta=CENT)
         before = self._fe_sum("open", "debit")
@@ -212,7 +212,7 @@ class TestUaVat(AccountTestInvoicingCommon):
         залишок на 6431 - нуль.
         """
         partner = self.env["res.partner"].create({
-            "name": "ТОВ Пропорція", "x_vat_status": "payer",
+            "name": "ТОВ Пропорція", "ua_vat_payer_status": "payer",
             "country_id": self.env.ref("base.ua").id})
         invoices = [
             self._invoice(partner, datetime.date(2026, 7, 7),
@@ -223,26 +223,26 @@ class TestUaVat(AccountTestInvoicingCommon):
             # 500 + 20 % = 600,00
             self.assertAlmostEqual(invoice.amount_total, 600.0, delta=CENT)
         payment = self._payment(partner, 1200.0, datetime.date(2026, 7, 7))
-        fe_vat = sum(payment.x_fe_move_id.line_ids.filtered(
+        fe_vat = sum(payment.ua_fe_move_id.line_ids.filtered(
             lambda l: l.account_id == self.acc_pz).mapped("debit"))
         self.assertAlmostEqual(fe_vat, 200.0, delta=CENT)
 
         self._reconcile(invoices[0], payment)
-        self.assertAlmostEqual(payment.x_fe_closed_amount, 100.0, delta=0.01,
+        self.assertAlmostEqual(payment.ua_fe_closed_amount, 100.0, delta=0.01,
                                msg="після першого рахунку закрито не 100,00")
-        self.assertFalse(payment.x_fe_reversed,
+        self.assertFalse(payment.ua_fe_reversed,
                          "прапорець поставлено після часткової звірки")
 
         self._reconcile(invoices[1], payment)
-        self.assertAlmostEqual(payment.x_fe_closed_amount, 200.0, delta=0.01,
+        self.assertAlmostEqual(payment.ua_fe_closed_amount, 200.0, delta=0.01,
                                msg="після другого рахунку закрито не 200,00")
-        self.assertTrue(payment.x_fe_reversed,
+        self.assertTrue(payment.ua_fe_reversed,
                         "прапорець не поставлено після повної звірки")
         closed = round(sum(self.env["account.move.line"].search([
             ("company_id", "=", self.company.id),
             ("parent_state", "=", "posted"),
             ("account_id", "=", self.acc_pz.id),
-            ("move_id.x_ua_fe_kind", "=", "close"),
+            ("move_id.ua_fe_kind", "=", "close"),
             ("move_id.ref", "in", ["Закриття першої події: %s" % i.name
                                    for i in invoices]),
         ]).mapped("credit")), 2)
@@ -255,11 +255,11 @@ class TestUaVat(AccountTestInvoicingCommon):
         """Аванс від неплатника ПДВ проводки першої події не породжує."""
         payment = self._payment(self.non_payer, 1200.0,
                                 datetime.date(2026, 7, 7))
-        self.assertFalse(payment.x_fe_move_id)
+        self.assertFalse(payment.ua_fe_move_id)
         invoice = self._invoice(
             self.non_payer, datetime.date(2026, 7, 8),
             [(self.goods, 1, 1000.0, self.tax_sale_20)])
-        self.assertFalse(invoice.x_tax_invoice_needed,
+        self.assertFalse(invoice.ua_tax_invoice_needed,
                          "неплатнику виписується накладна")
 
     # --- 6. Воєнні строки реєстрації ПН --------------------------------------
@@ -283,7 +283,7 @@ class TestUaVat(AccountTestInvoicingCommon):
                 "invoice_date": invoice_date,
             })
             self.assertEqual(
-                move.x_pn_deadline, expected,
+                move.ua_pn_deadline, expected,
                 "строк для %s очікували %s" % (invoice_date, expected))
 
     # --- 7. Шкала штрафу за прострочення -------------------------------------
@@ -332,20 +332,20 @@ class TestUaVat(AccountTestInvoicingCommon):
         invoice = self._invoice(
             self.payer, datetime.date(2026, 7, 10),
             [(self.goods, 2, 500.0, self.tax_sale_20)])
-        self.assertTrue(invoice.x_tax_invoice_needed,
+        self.assertTrue(invoice.ua_tax_invoice_needed,
                         "детектор не побачив потреби в накладній")
         doc = invoice._ua_vat_materialize("tax_invoice")
         again = invoice._ua_vat_materialize("tax_invoice")
         self.assertEqual(doc, again, "повторне складання здублювало накладну")
-        invoice.invalidate_recordset(["x_tax_invoice_needed"])
-        self.assertFalse(invoice.x_tax_invoice_needed,
+        invoice.invalidate_recordset(["ua_tax_invoice_needed"])
+        self.assertFalse(invoice.ua_tax_invoice_needed,
                          "детектор не згас після складання накладної")
         # Строк реєстрації дзеркалиться в реєстр: 10.07 дає 05.08.
-        self.assertEqual(doc.x_pn_deadline, datetime.date(2026, 8, 5))
+        self.assertEqual(doc.ua_pn_deadline, datetime.date(2026, 8, 5))
         doc.action_mark_pn_registered()
         self.assertEqual(doc.state, "registered")
-        invoice.invalidate_recordset(["x_pn_at_risk"])
-        self.assertFalse(invoice.x_pn_at_risk,
+        invoice.invalidate_recordset(["ua_pn_at_risk"])
+        self.assertFalse(invoice.ua_pn_at_risk,
                          "зареєстрована накладна лишилась під ризиком")
 
     # --- 10. XML податкової накладної ----------------------------------------
@@ -396,8 +396,8 @@ class TestUaVat(AccountTestInvoicingCommon):
             [(self.goods, 1, 800.0, self.tax_sale_20)])
         doc = invoice._ua_vat_materialize("tax_invoice")
         self.assertFalse(doc._ua_pn_missing())
-        saved = self.goods.x_uktzed
-        self.goods.x_uktzed = False
+        saved = self.goods.ua_uktzed
+        self.goods.ua_uktzed = False
         try:
             missing = doc._ua_pn_missing()
             self.assertTrue(any("УКТ ЗЕД" in m for m in missing),
@@ -405,7 +405,7 @@ class TestUaVat(AccountTestInvoicingCommon):
             with self.assertRaises(UserError):
                 doc._ua_export_pn_attach()
         finally:
-            self.goods.x_uktzed = saved
+            self.goods.ua_uktzed = saved
         self.assertFalse(doc._ua_pn_missing())
 
     def test_12_exempt_line_gets_code_903(self):
@@ -414,9 +414,9 @@ class TestUaVat(AccountTestInvoicingCommon):
         Обсяг 5000 без ПДВ, ПДВ нуль, тому R01G10 дорівнює 5000,00,
         а R03G11 - нулю.
         """
-        self.assertEqual(self.drone.x_vat_treatment, "exempt",
+        self.assertEqual(self.drone.ua_vat_treatment, "exempt",
                          "товар 8806 не став звільненим")
-        self.assertEqual(self.drone.x_vat_relief_effective_id, self.relief)
+        self.assertEqual(self.drone.ua_vat_relief_effective_id, self.relief)
         invoice = self._invoice(
             self.payer, datetime.date(2026, 7, 14),
             [(self.drone, 1, 5000.0, self.tax_sale_exempt)])
@@ -455,17 +455,17 @@ class TestUaVat(AccountTestInvoicingCommon):
         doc = refund.ua_vat_document_ids.filtered(
             lambda d: d.doc_kind == "adjustment")
         self.assertTrue(doc, "РК не створився при проведенні повернення")
-        self.assertEqual(doc.x_adj_reason_code, "103",
+        self.assertEqual(doc.ua_adj_reason_code, "103",
                          "причина коригування не 103 (повернення товару)")
-        self.assertEqual(doc.x_adj_registrant, "buyer",
+        self.assertEqual(doc.ua_adj_registrant, "buyer",
                          "зменшуючий РК має реєструвати покупець (п.192.1 ПКУ)")
-        self.assertEqual(doc.x_adj_direction, "decrease")
-        refund.invalidate_recordset(["x_rk_needed"])
-        self.assertFalse(refund.x_rk_needed, "детектор РК не згас")
+        self.assertEqual(doc.ua_adj_direction, "decrease")
+        refund.invalidate_recordset(["ua_rk_needed"])
+        self.assertFalse(refund.ua_rk_needed, "детектор РК не згас")
         self.assertEqual(refund._ua_vat_materialize("adjustment"), doc,
                          "повторне складання здублювало РК")
         # Зменшуючий РК реєструє покупець: 18 календарних днів від складання.
-        self.assertEqual(refund.x_pn_deadline,
+        self.assertEqual(refund.ua_pn_deadline,
                          datetime.date(2026, 7, 15) + datetime.timedelta(days=18))
 
     def test_14_rk_xml_full_return(self):
@@ -572,10 +572,10 @@ class TestUaVat(AccountTestInvoicingCommon):
         # строк реєстрації - 20 календарних днів після 30.09.2026.
         doc = comp.doc_id
         self.assertTrue(doc, "зведеної ПН немає")
-        self.assertTrue(doc.x_pn_consolidated)
-        self.assertEqual(doc.x_pn_reason_type, "09")
+        self.assertTrue(doc.ua_pn_consolidated)
+        self.assertEqual(doc.ua_pn_reason_type, "09")
         self.assertEqual(comp.move_id.date, datetime.date(2026, 9, 30))
-        self.assertEqual(doc.x_pn_deadline,
+        self.assertEqual(doc.ua_pn_deadline,
                          datetime.date(2026, 9, 30) + datetime.timedelta(days=20))
         # Повторне проведення не дублює.
         with self.assertRaises(UserError):
@@ -588,7 +588,7 @@ class TestUaVat(AccountTestInvoicingCommon):
         застосовуються, кредит збережено.
         """
         self.relief.no_compensation = True
-        self.drone.invalidate_recordset(["x_vat_relief_effective_id"])
+        self.drone.invalidate_recordset(["ua_vat_relief_effective_id"])
         self._invoice(
             self.vendor, datetime.date(2026, 10, 5),
             [(self.drone, 1, 3000.0, self.tax_purchase_20)],
@@ -629,18 +629,18 @@ class TestUaVat(AccountTestInvoicingCommon):
             "date_to": datetime.date(2026, 11, 30),
         })
         cabinet.action_compute()
-        self.assertAlmostEqual(cabinet.x_r1_base, 1000.0, delta=CENT)
-        self.assertAlmostEqual(cabinet.x_r1_vat, 200.0, delta=CENT)
-        self.assertAlmostEqual(cabinet.x_pk1_base, 2000.0, delta=CENT)
-        self.assertAlmostEqual(cabinet.x_pk1_vat, 400.0, delta=CENT)
+        self.assertAlmostEqual(cabinet.ua_r1_base, 1000.0, delta=CENT)
+        self.assertAlmostEqual(cabinet.ua_r1_vat, 200.0, delta=CENT)
+        self.assertAlmostEqual(cabinet.ua_pk1_base, 2000.0, delta=CENT)
+        self.assertAlmostEqual(cabinet.ua_pk1_vat, 400.0, delta=CENT)
         self.assertAlmostEqual(cabinet.pz_total, 200.0, delta=0.01)
         self.assertAlmostEqual(cabinet.pk_total, 400.0, delta=0.01)
         self.assertAlmostEqual(cabinet.due_total, -200.0, delta=0.01)
         # Рядок 9 дорівнює ПЗ, рядки 18 і 19 - різниці.
-        self.assertAlmostEqual(cabinet.x_pz_total, cabinet.pz_total, delta=0.01)
-        self.assertAlmostEqual(cabinet.x_pk_total, cabinet.pk_total, delta=0.01)
-        self.assertAlmostEqual(cabinet.x_r18, 0.0, delta=0.01)
-        self.assertAlmostEqual(cabinet.x_r19, 200.0, delta=0.01)
+        self.assertAlmostEqual(cabinet.ua_pz_total, cabinet.pz_total, delta=0.01)
+        self.assertAlmostEqual(cabinet.ua_pk_total, cabinet.pk_total, delta=0.01)
+        self.assertAlmostEqual(cabinet.ua_r18, 0.0, delta=0.01)
+        self.assertAlmostEqual(cabinet.ua_r19, 200.0, delta=0.01)
 
     def test_19_cabinet_zero_split_adds_up(self):
         """Звільнені і 0 % експорт розділяються, а разом дають нульовий кошик.
@@ -650,7 +650,7 @@ class TestUaVat(AccountTestInvoicingCommon):
         """
         nonresident = self.env["res.partner"].create({
             "name": "Foreign Buyer OU",
-            "x_vat_status": "non_payer",
+            "ua_vat_payer_status": "non_payer",
             "country_id": self.env.ref("base.ee").id,
         })
         self._invoice(
@@ -664,12 +664,12 @@ class TestUaVat(AccountTestInvoicingCommon):
             "date_to": datetime.date(2026, 12, 31),
         })
         cabinet.action_compute()
-        self.assertAlmostEqual(cabinet.x_r_exempt_base, 5000.0, delta=0.01)
-        self.assertAlmostEqual(cabinet.x_r_export_base, 3000.0, delta=0.01)
-        self.assertAlmostEqual(cabinet.x_r0_base, 8000.0, delta=0.01)
+        self.assertAlmostEqual(cabinet.ua_r_exempt_base, 5000.0, delta=0.01)
+        self.assertAlmostEqual(cabinet.ua_r_export_base, 3000.0, delta=0.01)
+        self.assertAlmostEqual(cabinet.ua_r0_base, 8000.0, delta=0.01)
         self.assertAlmostEqual(
-            cabinet.x_r_exempt_base + cabinet.x_r_export_base,
-            cabinet.x_r0_base, delta=0.01,
+            cabinet.ua_r_exempt_base + cabinet.ua_r_export_base,
+            cabinet.ua_r0_base, delta=0.01,
             msg="розділення нульових обсягів не сходиться з кошиком")
 
     # --- 20. Митний ПДВ --------------------------------------------------------
@@ -700,18 +700,18 @@ class TestUaVat(AccountTestInvoicingCommon):
             })],
         })
         bill.action_post()
-        self.assertTrue(bill.x_is_import, "рахунок не визначився як імпортний")
-        bill.x_customs_decl_number = "UA100000/2026/123456"
-        bill.x_customs_vat = 5000.0
+        self.assertTrue(bill.ua_is_import, "рахунок не визначився як імпортний")
+        bill.ua_customs_decl_number = "UA100000/2026/123456"
+        bill.ua_customs_vat = 5000.0
         bill.action_ua_post_customs_vat()
-        entry = bill.x_customs_move_id
+        entry = bill.ua_customs_move_id
         self.assertTrue(entry, "проводки митного ПДВ немає")
-        self.assertTrue(entry.x_ua_customs_entry)
+        self.assertTrue(entry.ua_customs_entry)
         debit = sum(entry.line_ids.filtered(
             lambda l: l.account_id == self.acc_vat).mapped("debit"))
         self.assertAlmostEqual(debit, 5000.0, delta=CENT)
         bill.action_ua_post_customs_vat()
-        self.assertEqual(bill.x_customs_move_id, entry,
+        self.assertEqual(bill.ua_customs_move_id, entry,
                          "повторне натискання здублювало проводку")
 
     # --- 21. Компанія, чий план уже завантажено -------------------------------
@@ -727,17 +727,17 @@ class TestUaVat(AccountTestInvoicingCommon):
         groups = (self.tax_sale_exempt.tax_group_id
                   | self.tax_sale_zero.tax_group_id)
         taxes = self.tax_sale_exempt | self.tax_sale_zero
-        groups.x_ua_vat_zero_kind = False
+        groups.ua_vat_zero_kind = False
         taxes.tax_group_id = False
         self.assertFalse(self.tax_sale_exempt.tax_group_id)
 
         post_init_hook(self.env)
 
-        self.assertEqual(self.tax_sale_exempt.tax_group_id.x_ua_vat_zero_kind,
+        self.assertEqual(self.tax_sale_exempt.tax_group_id.ua_vat_zero_kind,
                          "exempt", "хук не відновив групу звільнення")
-        self.assertEqual(self.tax_sale_zero.tax_group_id.x_ua_vat_zero_kind,
+        self.assertEqual(self.tax_sale_zero.tax_group_id.ua_vat_zero_kind,
                          "export", "хук не відновив групу експорту")
         # Другий запуск нічого не міняє.
         post_init_hook(self.env)
-        self.assertEqual(self.tax_sale_exempt.tax_group_id.x_ua_vat_zero_kind,
+        self.assertEqual(self.tax_sale_exempt.tax_group_id.ua_vat_zero_kind,
                          "exempt")

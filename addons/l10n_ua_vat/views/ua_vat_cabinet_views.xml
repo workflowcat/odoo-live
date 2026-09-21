@@ -25,50 +25,50 @@
             <field name="due_total"/>
           </group>
           <group string="Розділ III декларації">
-            <field name="x_r18"/>
-            <field name="x_r19"/>
+            <field name="ua_r18"/>
+            <field name="ua_r19"/>
           </group>
         </group>
         <notebook>
           <page string="Податкові зобов'язання" name="pz">
             <group>
               <group>
-                <field name="x_r1_base"/>
-                <field name="x_r1_vat"/>
-                <field name="x_r2_base"/>
-                <field name="x_r2_vat"/>
-                <field name="x_r3_base"/>
-                <field name="x_r3_vat"/>
+                <field name="ua_r1_base"/>
+                <field name="ua_r1_vat"/>
+                <field name="ua_r2_base"/>
+                <field name="ua_r2_vat"/>
+                <field name="ua_r3_base"/>
+                <field name="ua_r3_vat"/>
               </group>
               <group>
-                <field name="x_r_export_base"/>
-                <field name="x_r_exempt_base"/>
-                <field name="x_r0_base"/>
-                <field name="x_fe_vat"/>
-                <field name="x_r41_base"/>
-                <field name="x_r41_vat"/>
-                <field name="x_r411_vat"/>
-                <field name="x_r7_base"/>
-                <field name="x_r7_vat"/>
-                <field name="x_pz_total"/>
+                <field name="ua_r_export_base"/>
+                <field name="ua_r_exempt_base"/>
+                <field name="ua_r0_base"/>
+                <field name="ua_fe_vat"/>
+                <field name="ua_r41_base"/>
+                <field name="ua_r41_vat"/>
+                <field name="ua_r411_vat"/>
+                <field name="ua_r7_base"/>
+                <field name="ua_r7_vat"/>
+                <field name="ua_pz_total"/>
               </group>
             </group>
           </page>
           <page string="Податковий кредит" name="pk">
             <group>
               <group>
-                <field name="x_pk1_base"/>
-                <field name="x_pk1_vat"/>
-                <field name="x_pk2_base"/>
-                <field name="x_pk2_vat"/>
-                <field name="x_pk3_base"/>
-                <field name="x_pk3_vat"/>
+                <field name="ua_pk1_base"/>
+                <field name="ua_pk1_vat"/>
+                <field name="ua_pk2_base"/>
+                <field name="ua_pk2_vat"/>
+                <field name="ua_pk3_base"/>
+                <field name="ua_pk3_vat"/>
               </group>
               <group>
-                <field name="x_customs_vat"/>
-                <field name="x_r14_base"/>
-                <field name="x_r14_vat"/>
-                <field name="x_pk_total"/>
+                <field name="ua_customs_vat"/>
+                <field name="ua_r14_base"/>
+                <field name="ua_r14_vat"/>
+                <field name="ua_pk_total"/>
               </group>
             </group>
           </page>

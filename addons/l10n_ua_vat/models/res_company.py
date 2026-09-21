@@ -35,13 +35,13 @@ class ResCompany(models.Model):
     # Код ДПІ, куди подається документ. В Odoo такого реквізиту немає, а шапка
     # XML для ЄРПН без нього не збирається. Дефолт - ГУ ДПС у м. Києві;
     # для іншого регіону бухгалтер виправляє у картці компанії.
-    x_ua_dps_reg = fields.Char(
+    ua_dps_reg = fields.Char(
         string="Код області ДПІ", size=2, default="26",
         help="Дві цифри коду області з довідника ДПС (C_REG у XML).")
-    x_ua_dps_raj = fields.Char(
+    ua_dps_raj = fields.Char(
         string="Код району ДПІ", size=2, default="59",
         help="Дві цифри коду району з довідника ДПС (C_RAJ у XML).")
-    x_ua_dps_sti = fields.Char(
+    ua_dps_sti = fields.Char(
         string="Код ДПІ отримувача", size=4, default="2659",
         help="Чотири цифри коду ДПІ, куди подається документ (C_STI_ORIG).")
 
@@ -74,7 +74,7 @@ class ResCompany(models.Model):
             ("company_id", "=", self.id),
             ("type_tax_use", "=", type_tax_use),
             ("amount", "=", 0.0),
-            ("tax_group_id.x_ua_vat_zero_kind", "=", zero_kind),
+            ("tax_group_id.ua_vat_zero_kind", "=", zero_kind),
         ], limit=1)
 
     def _ua_vat_exempt_tax(self):

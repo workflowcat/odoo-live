@@ -59,43 +59,43 @@ class UaVatCabinet(models.TransientModel):
     problems = fields.Text(string="Що не доробили в періоді", readonly=True)
 
     # Розділ I декларації, податкові зобов'язання.
-    x_r1_base = fields.Float(string="р.1.1 база 20 %", readonly=True)
-    x_r1_vat = fields.Float(string="р.1.1 ПДВ 20 %", readonly=True)
-    x_r2_base = fields.Float(string="р.1.2 база 14 %", readonly=True)
-    x_r2_vat = fields.Float(string="р.1.2 ПДВ 14 %", readonly=True)
-    x_r3_base = fields.Float(string="р.1.3 база 7 %", readonly=True)
-    x_r3_vat = fields.Float(string="р.1.3 ПДВ 7 %", readonly=True)
-    x_r0_base = fields.Float(
+    ua_r1_base = fields.Float(string="р.1.1 база 20 %", readonly=True)
+    ua_r1_vat = fields.Float(string="р.1.1 ПДВ 20 %", readonly=True)
+    ua_r2_base = fields.Float(string="р.1.2 база 14 %", readonly=True)
+    ua_r2_vat = fields.Float(string="р.1.2 ПДВ 14 %", readonly=True)
+    ua_r3_base = fields.Float(string="р.1.3 база 7 %", readonly=True)
+    ua_r3_vat = fields.Float(string="р.1.3 ПДВ 7 %", readonly=True)
+    ua_r0_base = fields.Float(
         string="Нульові обсяги разом", readonly=True,
         help="Обсяги за ставкою 0 % і звільнені разом. Дорівнює сумі рядків "
              "2.1 і 5: це контрольне число.")
-    x_r_export_base = fields.Float(string="р.2.1 база 0 % (експорт)", readonly=True)
-    x_r_exempt_base = fields.Float(string="р.5 база звільнені", readonly=True)
-    x_fe_vat = fields.Float(
+    ua_r_export_base = fields.Float(string="р.2.1 база 0 % (експорт)", readonly=True)
+    ua_r_exempt_base = fields.Float(string="р.5 база звільнені", readonly=True)
+    ua_fe_vat = fields.Float(
         string="У тому числі аванси (перша подія)", readonly=True)
-    x_r41_base = fields.Float(string="р.4.1 база (компенсуючі)", readonly=True)
-    x_r41_vat = fields.Float(string="р.4.1 ПДВ (компенсуючі)", readonly=True)
-    x_r411_vat = fields.Float(
+    ua_r41_base = fields.Float(string="р.4.1 база (компенсуючі)", readonly=True)
+    ua_r41_vat = fields.Float(string="р.4.1 ПДВ (компенсуючі)", readonly=True)
+    ua_r411_vat = fields.Float(
         string="р.4.1.1 ПДВ (річний перерахунок ЧВ)", readonly=True)
-    x_r7_base = fields.Float(string="р.7 коригування ПЗ (обсяг)", readonly=True)
-    x_r7_vat = fields.Float(string="р.7 коригування ПЗ (ПДВ)", readonly=True)
-    x_pz_total = fields.Float(string="р.9 усього ПЗ", readonly=True)
+    ua_r7_base = fields.Float(string="р.7 коригування ПЗ (обсяг)", readonly=True)
+    ua_r7_vat = fields.Float(string="р.7 коригування ПЗ (ПДВ)", readonly=True)
+    ua_pz_total = fields.Float(string="р.9 усього ПЗ", readonly=True)
 
     # Розділ II, податковий кредит.
-    x_pk1_base = fields.Float(string="р.10.1 база 20 %", readonly=True)
-    x_pk1_vat = fields.Float(string="р.10.1 ПДВ 20 %", readonly=True)
-    x_pk2_base = fields.Float(string="р.10.2 база 14 %", readonly=True)
-    x_pk2_vat = fields.Float(string="р.10.2 ПДВ 14 %", readonly=True)
-    x_pk3_base = fields.Float(string="р.10.3 база 7 %", readonly=True)
-    x_pk3_vat = fields.Float(string="р.10.3 ПДВ 7 %", readonly=True)
-    x_customs_vat = fields.Float(string="ПК з імпорту (митний ПДВ)", readonly=True)
-    x_r14_base = fields.Float(string="р.14 коригування ПК (обсяг)", readonly=True)
-    x_r14_vat = fields.Float(string="р.14 коригування ПК (ПДВ)", readonly=True)
-    x_pk_total = fields.Float(string="р.17 усього ПК", readonly=True)
+    ua_pk1_base = fields.Float(string="р.10.1 база 20 %", readonly=True)
+    ua_pk1_vat = fields.Float(string="р.10.1 ПДВ 20 %", readonly=True)
+    ua_pk2_base = fields.Float(string="р.10.2 база 14 %", readonly=True)
+    ua_pk2_vat = fields.Float(string="р.10.2 ПДВ 14 %", readonly=True)
+    ua_pk3_base = fields.Float(string="р.10.3 база 7 %", readonly=True)
+    ua_pk3_vat = fields.Float(string="р.10.3 ПДВ 7 %", readonly=True)
+    ua_customs_vat = fields.Float(string="ПК з імпорту (митний ПДВ)", readonly=True)
+    ua_r14_base = fields.Float(string="р.14 коригування ПК (обсяг)", readonly=True)
+    ua_r14_vat = fields.Float(string="р.14 коригування ПК (ПДВ)", readonly=True)
+    ua_pk_total = fields.Float(string="р.17 усього ПК", readonly=True)
 
     # Розділ III.
-    x_r18 = fields.Float(string="р.18 до сплати", readonly=True)
-    x_r19 = fields.Float(string="р.19 від'ємне значення", readonly=True)
+    ua_r18 = fields.Float(string="р.18 до сплати", readonly=True)
+    ua_r19 = fields.Float(string="р.19 від'ємне значення", readonly=True)
 
     @api.onchange("date_from", "date_to")
     def _onchange_period(self):
@@ -169,7 +169,7 @@ class UaVatCabinet(models.TransientModel):
             ("company_id", "=", self.company_id.id),
             ("parent_state", "=", "posted"),
             ("account_id", "=", account.id),
-            ("move_id.x_ua_fe_kind", "=", fe_kind),
+            ("move_id.ua_fe_kind", "=", fe_kind),
             ("date", ">=", self.date_from),
             ("date", "<=", self.date_to),
         ])
@@ -184,7 +184,7 @@ class UaVatCabinet(models.TransientModel):
             ("company_id", "=", self.company_id.id),
             ("parent_state", "=", "posted"),
             ("account_id", "=", account.id),
-            ("move_id.x_ua_customs_entry", "=", True),
+            ("move_id.ua_customs_entry", "=", True),
             ("date", ">=", self.date_from),
             ("date", "<=", self.date_to),
         ])
@@ -248,13 +248,13 @@ class UaVatCabinet(models.TransientModel):
         try:
             comps_annual = self.env["ua.vat.compensation"].search([
                 ("company_id", "=", company.id),
-                ("x_annual_move_id", "!=", False),
+                ("ua_annual_move_id", "!=", False),
             ])
             for comp in comps_annual:
-                move = comp.x_annual_move_id
+                move = comp.ua_annual_move_id
                 if move.state == "posted" and \
                         self.date_from <= move.date <= self.date_to:
-                    recalc_vat += comp.x_annual_delta
+                    recalc_vat += comp.ua_annual_delta
             recalc_vat = round(recalc_vat, 2)
         except Exception:
             _logger.warning("l10n_ua_vat: збій підрахунку річного перерахунку",
@@ -289,7 +289,7 @@ class UaVatCabinet(models.TransientModel):
                 ("invoice_date", ">=", self.date_from),
                 ("invoice_date", "<=", self.date_to),
             ])
-            missing = out_invoices.filtered(lambda m: m.x_tax_invoice_needed)
+            missing = out_invoices.filtered(lambda m: m.ua_tax_invoice_needed)
             if missing:
                 problems.append(
                     "Рахунки без податкової накладної (%d): %s"
@@ -300,8 +300,8 @@ class UaVatCabinet(models.TransientModel):
         try:
             open_fe = self.env["account.payment"].search([
                 ("company_id", "=", company.id),
-                ("x_fe_move_id", "!=", False),
-                ("x_fe_reversed", "=", False),
+                ("ua_fe_move_id", "!=", False),
+                ("ua_fe_reversed", "=", False),
                 ("date", ">=", self.date_from),
                 ("date", "<=", self.date_to),
             ])
@@ -319,9 +319,9 @@ class UaVatCabinet(models.TransientModel):
                 ("company_id", "=", company.id),
                 ("invoice_date", ">=", self.date_from),
                 ("invoice_date", "<=", self.date_to),
-                ("x_in_pn_registered", "=", False),
+                ("ua_in_pn_registered", "=", False),
             ]).filtered(lambda m: m.amount_tax
-                        and m.partner_id.x_vat_status == "payer")
+                        and m.partner_id.ua_vat_payer_status == "payer")
             if risky:
                 problems.append(
                     "Податковий кредит без підтвердженої ПН постачальника "
@@ -343,25 +343,25 @@ class UaVatCabinet(models.TransientModel):
             "due_total": due_total,
             "problems": "\n".join("- %s" % p for p in problems)
                         or "Проблем не знайдено.",
-            "x_r1_base": at(pz, 20.0, 0), "x_r1_vat": at(pz, 20.0, 1),
-            "x_r2_base": at(pz, 14.0, 0), "x_r2_vat": at(pz, 14.0, 1),
-            "x_r3_base": at(pz, 7.0, 0), "x_r3_vat": at(pz, 7.0, 1),
-            "x_r0_base": at(pz, 0.0, 0),
-            "x_r_exempt_base": exempt_base,
-            "x_r_export_base": export_base,
-            "x_fe_vat": fe_vat,
-            "x_r41_base": comp_base, "x_r41_vat": comp_vat,
-            "x_r411_vat": recalc_vat,
-            "x_r7_base": r7_base, "x_r7_vat": r7_vat,
-            "x_pz_total": pz_total,
-            "x_pk1_base": at(pk, 20.0, 0), "x_pk1_vat": at(pk, 20.0, 1),
-            "x_pk2_base": at(pk, 14.0, 0), "x_pk2_vat": at(pk, 14.0, 1),
-            "x_pk3_base": at(pk, 7.0, 0), "x_pk3_vat": at(pk, 7.0, 1),
-            "x_customs_vat": customs_vat,
-            "x_r14_base": r14_base, "x_r14_vat": r14_vat,
-            "x_pk_total": pk_total,
-            "x_r18": due_total if due_total > 0 else 0.0,
-            "x_r19": -due_total if due_total < 0 else 0.0,
+            "ua_r1_base": at(pz, 20.0, 0), "ua_r1_vat": at(pz, 20.0, 1),
+            "ua_r2_base": at(pz, 14.0, 0), "ua_r2_vat": at(pz, 14.0, 1),
+            "ua_r3_base": at(pz, 7.0, 0), "ua_r3_vat": at(pz, 7.0, 1),
+            "ua_r0_base": at(pz, 0.0, 0),
+            "ua_r_exempt_base": exempt_base,
+            "ua_r_export_base": export_base,
+            "ua_fe_vat": fe_vat,
+            "ua_r41_base": comp_base, "ua_r41_vat": comp_vat,
+            "ua_r411_vat": recalc_vat,
+            "ua_r7_base": r7_base, "ua_r7_vat": r7_vat,
+            "ua_pz_total": pz_total,
+            "ua_pk1_base": at(pk, 20.0, 0), "ua_pk1_vat": at(pk, 20.0, 1),
+            "ua_pk2_base": at(pk, 14.0, 0), "ua_pk2_vat": at(pk, 14.0, 1),
+            "ua_pk3_base": at(pk, 7.0, 0), "ua_pk3_vat": at(pk, 7.0, 1),
+            "ua_customs_vat": customs_vat,
+            "ua_r14_base": r14_base, "ua_r14_vat": r14_vat,
+            "ua_pk_total": pk_total,
+            "ua_r18": due_total if due_total > 0 else 0.0,
+            "ua_r19": -due_total if due_total < 0 else 0.0,
         }
 
 

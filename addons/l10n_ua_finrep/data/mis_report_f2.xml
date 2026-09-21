@@ -15,7 +15,7 @@
     <record id="report_f2" model="mis.report">
         <field name="name">Ф2. Звіт про фінансові результати (НП(С)БО 1)</field>
         <field name="description">Звіт про сукупний дохід за період</field>
-        <field name="x_ua_finrep_form">f2</field>
+        <field name="ua_finrep_form">f2</field>
         <field name="style_id" ref="style_base" />
     </record>
 

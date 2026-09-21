@@ -20,8 +20,8 @@ def post_init_hook(env):
         chart = Template.with_company(company)
         for xmlid, kind in UA_ZERO_GROUPS.items():
             group = chart.ref(xmlid, raise_if_not_found=False)
-            if group and not group.x_ua_vat_zero_kind:
-                group.x_ua_vat_zero_kind = kind
+            if group and not group.ua_vat_zero_kind:
+                group.ua_vat_zero_kind = kind
         for tax_xmlid, group_xmlid in UA_ZERO_TAXES.items():
             tax = chart.ref(tax_xmlid, raise_if_not_found=False)
             group = chart.ref(group_xmlid, raise_if_not_found=False)

@@ -16,7 +16,7 @@
     <record id="report_f1m" model="mis.report">
         <field name="name">Ф1-м. Баланс (НП(С)БО 25)</field>
         <field name="description">Спрощений фінансовий звіт суб'єкта малого підприємництва, форма 1-м</field>
-        <field name="x_ua_finrep_form">f1m</field>
+        <field name="ua_finrep_form">f1m</field>
         <field name="style_id" ref="style_base" />
     </record>
 

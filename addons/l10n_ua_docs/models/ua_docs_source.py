@@ -98,14 +98,14 @@ class UaDocsSource(models.AbstractModel):
             "registry": partner.company_registry or "",
             "vat": partner.vat or "",
             "address": partner._ua_docs_address(),
-            "actual_address": partner.x_ua_actual_address or "",
+            "actual_address": partner.ua_actual_address or "",
             "phone": partner.phone or "",
             "iban": (bank.acc_number or "") if bank else "",
             "bank_name": (bank.bank_name or "") if bank else "",
             "mfo": mfo_from_iban(bank.acc_number) if bank else "",
-            "director": (company.ua_director_name if company else partner.x_ua_signatory_name) or "",
+            "director": (company.ua_director_name if company else partner.ua_signatory_name) or "",
             "accountant": (company.ua_accountant_name or "") if company else "",
-            "basis": (company.x_ua_acts_on_basis if company else partner.x_ua_signatory_basis) or "",
+            "basis": (company.ua_acts_on_basis if company else partner.ua_signatory_basis) or "",
         }
 
     def _ua_docs_seller(self):

@@ -69,7 +69,7 @@ class AccountMove(models.Model):
 
     # --- Перша подія --------------------------------------------------------
 
-    x_first_event = fields.Selection(
+    ua_first_event = fields.Selection(
         selection=[
             ("payment", "Оплата (аванс)"),
             ("shipment", "Відвантаження"),
@@ -80,9 +80,9 @@ class AccountMove(models.Model):
         help="Що сталося раніше: оплата чи відвантаження. За першою подією "
              "платнику ПДВ складається податкова накладна (п.187.1 ПКУ).",
     )
-    x_first_event_date = fields.Date(
+    ua_first_event_date = fields.Date(
         string="Дата першої події", compute="_compute_x_first_event")
-    x_ua_fe_kind = fields.Selection(
+    ua_fe_kind = fields.Selection(
         selection=[
             ("open", "Нарахування ПДВ з авансу"),
             ("close", "Закриття першої події"),
@@ -92,31 +92,31 @@ class AccountMove(models.Model):
         help="Позначка службових проводок ПДВ: нарахування - Дт 6431 / Кт 6412 "
              "з авансу, закриття - зворотна проводка після рахунку.",
     )
-    x_ua_customs_entry = fields.Boolean(
+    ua_customs_entry = fields.Boolean(
         string="Позначка проводки митного ПДВ", copy=False,
         help="Позначка службової проводки податкового кредиту з імпорту.")
-    x_ua_vat_comp = fields.Boolean(
+    ua_vat_comp = fields.Boolean(
         string="Проводка компенсуючих ПЗ", copy=False,
         help="Позначка службової проводки компенсуючих ПЗ. За нею строк "
              "зведеної ПН рахується як 20 календарних днів після останнього "
              "дня місяця складання.")
 
-    x_tax_invoice_needed = fields.Boolean(
+    ua_tax_invoice_needed = fields.Boolean(
         string="Потрібна податкова накладна",
         compute="_compute_x_tax_invoice_needed",
         help="Контрагент - платник ПДВ, перша подія вже сталася, а накладної "
              "в реєстрі ще немає.",
     )
-    x_rk_needed = fields.Boolean(
+    ua_rk_needed = fields.Boolean(
         string="Потрібен розрахунок коригування",
         compute="_compute_x_rk_needed",
         help="Проведене повернення платнику ПДВ: до накладної первинного "
              "рахунку треба скласти РК, а його ще немає.",
     )
-    x_fe_open = fields.Boolean(
+    ua_fe_open = fields.Boolean(
         string="Є незакрита перша подія", compute="_compute_x_fe_open",
         help="Серед оплат рахунку є проводка першої події, яку ще не закрито.")
-    x_in_pn_registered = fields.Boolean(
+    ua_in_pn_registered = fields.Boolean(
         string="ПН постачальника зареєстрована",
         tracking=True,
         copy=False,
@@ -126,16 +126,16 @@ class AccountMove(models.Model):
 
     # --- Строк реєстрації і штраф -------------------------------------------
 
-    x_pn_deadline = fields.Date(
+    ua_pn_deadline = fields.Date(
         string="Граничний строк реєстрації ПН",
         compute="_compute_x_pn_deadline",
         store=True,
         help="Воєнні строки (п.89 підрозд.2 розд.XX ПКУ): складено 1-15 - до "
              "5 числа наступного місяця, 16-кінець - до 18.",
     )
-    x_pn_overdue_days = fields.Integer(
+    ua_pn_overdue_days = fields.Integer(
         string="Прострочено реєстрацію, днів", compute="_compute_x_pn_risk")
-    x_pn_fine_est = fields.Monetary(
+    ua_pn_fine_est = fields.Monetary(
         string="Орієнтовний штраф за ПН",
         currency_field="company_currency_id",
         compute="_compute_x_pn_risk",
@@ -143,28 +143,28 @@ class AccountMove(models.Model):
              "пільговими - 2 %% обсягу без ПДВ, але не більше 1020 грн "
              "(п.120-1.1).",
     )
-    x_pn_at_risk = fields.Boolean(
+    ua_pn_at_risk = fields.Boolean(
         string="ПН під ризиком штрафу", compute="_compute_x_pn_risk",
         help="Накладна потрібна, ще не зареєстрована, а строк настав або "
              "близько (3 дні).")
 
     # --- Імпорт: митний ПДВ --------------------------------------------------
 
-    x_is_import = fields.Boolean(
+    ua_is_import = fields.Boolean(
         string="Імпортний рахунок", compute="_compute_x_is_import",
         help="Вхідний рахунок у валюті, відмінній від валюти компанії: ПДВ "
              "сплачується на митниці за митною декларацією.")
-    x_customs_decl_number = fields.Char(
+    ua_customs_decl_number = fields.Char(
         string="Номер митної декларації", copy=False,
         help="Номер митної декларації (ІМ-40), за якою сплачено імпортний ПДВ.")
-    x_customs_vat = fields.Monetary(
+    ua_customs_vat = fields.Monetary(
         string="Митний ПДВ",
         currency_field="company_currency_id",
         copy=False,
         help="Сума ПДВ, сплачена на митниці, у гривні. Іде в податковий кредит "
              "проводкою Дт 6412 / Кт 3771.",
     )
-    x_customs_move_id = fields.Many2one(
+    ua_customs_move_id = fields.Many2one(
         "account.move", string="Проводка митного ПДВ", readonly=True, copy=False)
 
     # --- Обчислення ---------------------------------------------------------
@@ -173,11 +173,11 @@ class AccountMove(models.Model):
     def _compute_x_is_import(self):
         for move in self:
             try:
-                move.x_is_import = (
+                move.ua_is_import = (
                     move.move_type == "in_invoice"
                     and move.currency_id != move.company_id.currency_id)
             except Exception:
-                move.x_is_import = False
+                move.ua_is_import = False
 
     def _ua_vat_payments(self):
         """Оплати, звірені з цим рахунком."""
@@ -237,11 +237,11 @@ class AccountMove(models.Model):
                     event, event_date = "shipment", shipment_date
             except Exception:
                 event, event_date = "none", False
-            move.x_first_event = event
-            move.x_first_event_date = event_date
+            move.ua_first_event = event
+            move.ua_first_event_date = event_date
 
-    @api.depends("move_type", "partner_id.x_vat_status", "x_first_event_date",
-                 "invoice_date", "x_ua_vat_comp", "date", "reversed_entry_id")
+    @api.depends("move_type", "partner_id.ua_vat_payer_status", "ua_first_event_date",
+                 "invoice_date", "ua_vat_comp", "date", "reversed_entry_id")
     def _compute_x_pn_deadline(self):
         """Строк реєстрації від дати складання.
 
@@ -254,7 +254,7 @@ class AccountMove(models.Model):
         for move in self:
             deadline = False
             try:
-                if move.x_ua_vat_comp and move.date:
+                if move.ua_vat_comp and move.date:
                     d = move.date
                     year = d.year + (1 if d.month == 12 else 0)
                     month = 1 if d.month == 12 else d.month + 1
@@ -262,23 +262,23 @@ class AccountMove(models.Model):
                         year=year, month=month, day=1) - timedelta(days=1)
                     deadline = month_end + timedelta(days=20)
                 elif (move.move_type == "out_invoice"
-                        and move.partner_id.x_vat_status == "payer"):
-                    compose = move.x_first_event_date or move.invoice_date
+                        and move.partner_id.ua_vat_payer_status == "payer"):
+                    compose = move.ua_first_event_date or move.invoice_date
                     deadline = ua_pn_deadline(compose)
                 elif (move.move_type == "out_refund"
-                        and move.partner_id.x_vat_status == "payer"
+                        and move.partner_id.ua_vat_payer_status == "payer"
                         and move.reversed_entry_id and move.invoice_date):
                     deadline = move.invoice_date + timedelta(days=18)
             except Exception:
                 deadline = False
-            move.x_pn_deadline = deadline
+            move.ua_pn_deadline = deadline
 
     def _ua_pn_registered(self):
         """(чи зареєстровано, найраніша дата реєстрації) для ПН цього рахунку."""
         self.ensure_one()
         docs = self.ua_vat_document_ids.filtered(
-            lambda d: d.doc_kind == "tax_invoice" and d.x_pn_registered_date)
-        dates = docs.mapped("x_pn_registered_date")
+            lambda d: d.doc_kind == "tax_invoice" and d.ua_pn_registered_date)
+        dates = docs.mapped("ua_pn_registered_date")
         return bool(docs), (min(dates) if dates else False)
 
     def _ua_pn_fine(self, days):
@@ -304,7 +304,7 @@ class AccountMove(models.Model):
         for move in self:
             days, fine, at_risk = 0, 0.0, False
             try:
-                deadline = move.x_pn_deadline
+                deadline = move.ua_pn_deadline
                 registered, reg_date = move._ua_pn_registered()
                 if deadline and registered:
                     if reg_date and reg_date > deadline:
@@ -316,51 +316,51 @@ class AccountMove(models.Model):
                     fine = move._ua_pn_fine(days)
             except Exception:
                 days, fine, at_risk = 0, 0.0, False
-            move.x_pn_overdue_days = days
-            move.x_pn_fine_est = fine
-            move.x_pn_at_risk = at_risk
+            move.ua_pn_overdue_days = days
+            move.ua_pn_fine_est = fine
+            move.ua_pn_at_risk = at_risk
 
-    @api.depends("move_type", "partner_id.x_vat_status", "x_first_event",
+    @api.depends("move_type", "partner_id.ua_vat_payer_status", "ua_first_event",
                  "ua_vat_document_ids.doc_kind")
     def _compute_x_tax_invoice_needed(self):
         for move in self:
             try:
-                move.x_tax_invoice_needed = (
+                move.ua_tax_invoice_needed = (
                     move.move_type == "out_invoice"
-                    and move.partner_id.x_vat_status == "payer"
-                    and move.x_first_event != "none"
+                    and move.partner_id.ua_vat_payer_status == "payer"
+                    and move.ua_first_event != "none"
                     and not move.ua_vat_document_ids.filtered(
                         lambda d: d.doc_kind == "tax_invoice"))
             except Exception:
-                move.x_tax_invoice_needed = False
+                move.ua_tax_invoice_needed = False
 
-    @api.depends("move_type", "state", "partner_id.x_vat_status",
+    @api.depends("move_type", "state", "partner_id.ua_vat_payer_status",
                  "reversed_entry_id.ua_vat_document_ids.doc_kind",
                  "ua_vat_document_ids.doc_kind")
     def _compute_x_rk_needed(self):
         for move in self:
             try:
                 origin = move.reversed_entry_id
-                move.x_rk_needed = (
+                move.ua_rk_needed = (
                     move.move_type == "out_refund"
                     and move.state == "posted"
-                    and move.partner_id.x_vat_status == "payer"
+                    and move.partner_id.ua_vat_payer_status == "payer"
                     and bool(origin)
                     and bool(origin.ua_vat_document_ids.filtered(
                         lambda d: d.doc_kind == "tax_invoice"))
                     and not move.ua_vat_document_ids.filtered(
                         lambda d: d.doc_kind == "adjustment"))
             except Exception:
-                move.x_rk_needed = False
+                move.ua_rk_needed = False
 
     @api.depends("move_type", "state", "payment_state")
     def _compute_x_fe_open(self):
         for move in self:
             try:
-                move.x_fe_open = bool(move._ua_vat_payments().filtered(
-                    lambda p: p.x_fe_move_id and not p.x_fe_reversed))
+                move.ua_fe_open = bool(move._ua_vat_payments().filtered(
+                    lambda p: p.ua_fe_move_id and not p.ua_fe_reversed))
             except Exception:
-                move.x_fe_open = False
+                move.ua_fe_open = False
 
     # --- Реєстр документів ---------------------------------------------------
 
@@ -429,7 +429,7 @@ class AccountMove(models.Model):
             try:
                 if not (move.move_type == "out_refund"
                         and move.state == "posted"
-                        and move.partner_id.x_vat_status == "payer"):
+                        and move.partner_id.ua_vat_payer_status == "payer"):
                     continue
                 origin = move.reversed_entry_id
                 if not origin:
@@ -452,10 +452,10 @@ class AccountMove(models.Model):
                     for line in move.invoice_line_ids
                     if line.display_type in (False, "product"))
                 vals = {}
-                if not doc.x_adj_reason_code:
-                    vals["x_adj_reason_code"] = "103" if same_price else "101"
-                if not doc.x_adj_pn_document_id:
-                    vals["x_adj_pn_document_id"] = pn_doc.id
+                if not doc.ua_adj_reason_code:
+                    vals["ua_adj_reason_code"] = "103" if same_price else "101"
+                if not doc.ua_adj_pn_document_id:
+                    vals["ua_adj_pn_document_id"] = pn_doc.id
                 if vals:
                     doc.write(vals)
                 created |= doc
@@ -474,7 +474,7 @@ class AccountMove(models.Model):
         Дт 6412 / Кт 6431 на частку ПДВ за часткою звіреного авансу. Аванс
         1200 (ПДВ 200), звірений з рахунком на 600, закриває 100, а не 200.
 
-        Накопичене закриття тримаємо в payment.x_fe_closed_amount. Остання
+        Накопичене закриття тримаємо в payment.ua_fe_closed_amount. Остання
         звірка, що добиває аванс, закриває точний залишок, тому копійки не
         розповзаються. Повертає кількість створених проводок.
         """
@@ -483,10 +483,10 @@ class AccountMove(models.Model):
             try:
                 if invoice.move_type != "out_invoice":
                     continue
-                if invoice.partner_id.x_vat_status != "payer":
+                if invoice.partner_id.ua_vat_payer_status != "payer":
                     continue
                 payments = invoice._ua_vat_payments().filtered(
-                    lambda p: p.x_fe_move_id and not p.x_fe_reversed)
+                    lambda p: p.ua_fe_move_id and not p.ua_fe_reversed)
                 if not payments:
                     continue
                 company = invoice.company_id
@@ -517,11 +517,11 @@ class AccountMove(models.Model):
         """Закрити частку першої події однієї оплати. Повертає 1 або 0."""
         self.ensure_one()
         # Увесь ПДВ першої події - сума дебетів рядків 6431 у проводці авансу.
-        fe_vat = sum(payment.x_fe_move_id.line_ids.filtered(
+        fe_vat = sum(payment.ua_fe_move_id.line_ids.filtered(
             lambda l: l.account_id == acc_pz).mapped("debit"))
         if fe_vat <= 0:
             return 0
-        already = round(payment.x_fe_closed_amount or 0.0, 2)
+        already = round(payment.ua_fe_closed_amount or 0.0, 2)
         # Частка звіреного авансу: сума часткових звірок дебіторських рядків
         # проводки оплати (накопичена за всіма рахунками, тому і третій рахунок
         # закриє свою частку) поділена на суму оплати.
@@ -546,7 +546,7 @@ class AccountMove(models.Model):
             "company_id": self.company_id.id,
             "date": self.date or fields.Date.context_today(self),
             "ref": "Закриття першої події: %s" % (self.name or ""),
-            "x_ua_fe_kind": "close",
+            "ua_fe_kind": "close",
             "line_ids": [
                 (0, 0, {
                     "account_id": acc_vat.id,
@@ -563,9 +563,9 @@ class AccountMove(models.Model):
             ],
         })
         move.action_post()
-        payment.x_fe_closed_amount = round(already + to_close, 2)
-        if payment.x_fe_closed_amount >= fe_vat - 0.01:
-            payment.x_fe_reversed = True
+        payment.ua_fe_closed_amount = round(already + to_close, 2)
+        if payment.ua_fe_closed_amount >= fe_vat - 0.01:
+            payment.ua_fe_reversed = True
         return 1
 
     def action_ua_close_first_events(self):
@@ -601,10 +601,10 @@ class AccountMove(models.Model):
         декларації. Рахунок 3771 закриється банківською оплатою митниці.
         Повторне натискання нічого не дублює."""
         self.ensure_one()
-        if self.x_customs_move_id:
+        if self.ua_customs_move_id:
             message, notif = ("Митний ПДВ уже в кредиті: %s"
-                              % self.x_customs_move_id.name, "info")
-        elif not self.x_customs_vat or self.x_customs_vat <= 0:
+                              % self.ua_customs_move_id.name, "info")
+        elif not self.ua_customs_vat or self.ua_customs_vat <= 0:
             message, notif = ("Вкажіть суму митного ПДВ із митної декларації "
                               "(у гривні).", "warning")
         else:
@@ -618,31 +618,31 @@ class AccountMove(models.Model):
                     "або журнал операцій - перевірте план рахунків.", "danger")
             else:
                 ref = "Митний ПДВ"
-                if self.x_customs_decl_number:
-                    ref += " (МД %s)" % self.x_customs_decl_number
+                if self.ua_customs_decl_number:
+                    ref += " (МД %s)" % self.ua_customs_decl_number
                 ref += ": %s" % (self.name or "")
                 entry = self.env["account.move"].create({
                     "journal_id": journal.id,
                     "company_id": company.id,
                     "date": self.invoice_date or fields.Date.context_today(self),
                     "ref": ref,
-                    "x_ua_customs_entry": True,
+                    "ua_customs_entry": True,
                     "line_ids": [
                         (0, 0, {"account_id": acc_vat.id,
                                 "partner_id": self.partner_id.id,
                                 "name": "Податковий кредит: митний ПДВ",
-                                "debit": self.x_customs_vat, "credit": 0.0}),
+                                "debit": self.ua_customs_vat, "credit": 0.0}),
                         (0, 0, {"account_id": acc_customs.id,
                                 "partner_id": self.partner_id.id,
                                 "name": "Заборгованість перед митницею (ПДВ)",
-                                "debit": 0.0, "credit": self.x_customs_vat}),
+                                "debit": 0.0, "credit": self.ua_customs_vat}),
                     ],
                 })
                 entry.action_post()
-                self.x_customs_move_id = entry
+                self.ua_customs_move_id = entry
                 message, notif = (
                     "Митний ПДВ %s узято в податковий кредит (%s)." % (
-                        formatLang(self.env, self.x_customs_vat,
+                        formatLang(self.env, self.ua_customs_vat,
                                    currency_obj=company.currency_id),
                         entry.name), "success")
         return {
@@ -659,13 +659,13 @@ class AccountMoveLine(models.Model):
         """Чим є нульовий рядок: «exempt» (пільга) чи «export» (0 %).
 
         Спершу дивимось на групу податка - нативні групи ПДВ 0 %, «Звільнено
-        від ПДВ» і «Не є ПДВ» позначені маркером x_ua_vat_zero_kind. Якщо
+        від ПДВ» і «Не є ПДВ» позначені маркером ua_vat_zero_kind. Якщо
         податок нейтральний, дивимось на покупця-нерезидента, далі на режим
         ПДВ товару.
         """
         self.ensure_one()
         for tax in self.tax_ids:
-            kind = tax.tax_group_id.x_ua_vat_zero_kind
+            kind = tax.tax_group_id.ua_vat_zero_kind
             if kind == "export":
                 return "export"
             if kind in ("exempt", "not_object"):
@@ -674,7 +674,7 @@ class AccountMoveLine(models.Model):
         if partner.country_id and partner.country_id.code != "UA":
             return "export"
         product = self.product_id
-        if product and product.x_vat_treatment == "exempt":
+        if product and product.ua_vat_treatment == "exempt":
             return "exempt"
         return "export"
 
@@ -712,7 +712,7 @@ class AccountMoveLine(models.Model):
                 partner = move.partner_id
                 if partner.country_id and partner.country_id.code != "UA":
                     tax = company._ua_vat_export_tax()
-                elif line.product_id.x_vat_treatment == "exempt":
+                elif line.product_id.ua_vat_treatment == "exempt":
                     tax = company._ua_vat_exempt_tax()
                 else:
                     continue

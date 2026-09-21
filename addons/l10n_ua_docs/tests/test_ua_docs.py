@@ -143,7 +143,7 @@ class TestUaDocsReports(AccountTestInvoicingCommon):
             "company_registry": "43217890",
             "ua_director_name": "Іваненко Іван Іванович",
             "ua_accountant_name": "Петренко Петро Петрович",
-            "x_ua_acts_on_basis": "Статуту",
+            "ua_acts_on_basis": "Статуту",
         })
         cls.company.partner_id.write({
             "street": "вул. Хрещатик, 1",
@@ -166,8 +166,8 @@ class TestUaDocsReports(AccountTestInvoicingCommon):
             "city": "Львів",
             "zip": "79000",
             "country_id": cls.env.ref("base.ua").id,
-            "x_ua_signatory_name": "Сидоренко Сидір Сидорович",
-            "x_ua_signatory_basis": "довіреності № 4 від 02.01.2026",
+            "ua_signatory_name": "Сидоренко Сидір Сидорович",
+            "ua_signatory_basis": "довіреності № 4 від 02.01.2026",
         })
         chart = cls.env["account.chart.template"].with_company(cls.company)
         cls.tax_20 = chart.ref("sale_tax_template_vat20_psbo")
@@ -273,7 +273,7 @@ class TestUaDocsReports(AccountTestInvoicingCommon):
         self.assertEqual(buyer["registry"], "12345678")
         self.assertEqual(buyer["director"], "Сидоренко Сидір Сидорович")
         self.assertEqual(buyer["iban"], "")
-        self.assertEqual(self.bank.x_ua_mfo, "322313")
+        self.assertEqual(self.bank.ua_mfo, "322313")
 
     def test_25_lines_and_number(self):
         """Позиції і номер документа беруться з нативного рахунку."""
@@ -348,8 +348,8 @@ class TestUaDocsBridges(AccountTestInvoicingCommon):
         # а перевіряємо ми друк, а не права: працюємо від адміністратора.
         order = self.env["sale.order"].sudo().create({
             "partner_id": self.buyer.id,
-            "x_ua_contract_number": "12-А",
-            "x_ua_contract_date": "2026-09-01",
+            "ua_contract_number": "12-А",
+            "ua_contract_date": "2026-09-01",
             "order_line": [(0, 0, {
                 "product_id": self.goods.id,
                 "product_uom_qty": 2,
@@ -377,9 +377,9 @@ class TestUaDocsBridges(AccountTestInvoicingCommon):
             "location_id": warehouse.lot_stock_id.id,
             "location_dest_id": customers.id,
             "origin": "SO-TEST",
-            "x_ua_proxy_number": "СЕР № 001234",
-            "x_ua_proxy_date": "2026-09-20",
-            "x_ua_proxy_person": "Коваленко Коваль Ковальович",
+            "ua_proxy_number": "СЕР № 001234",
+            "ua_proxy_date": "2026-09-20",
+            "ua_proxy_person": "Коваленко Коваль Ковальович",
             "move_ids": [(0, 0, {
                 "product_id": self.goods.id,
                 "product_uom_qty": 3,

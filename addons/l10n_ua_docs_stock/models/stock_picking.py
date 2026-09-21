@@ -11,11 +11,11 @@ class StockPicking(models.Model):
     _name = "stock.picking"
     _inherit = ["stock.picking", "ua.docs.source"]
 
-    x_ua_proxy_number = fields.Char(
+    ua_proxy_number = fields.Char(
         "Довіреність №",
         help="Номер довіреності, за якою представник одержувача забирає товар.")
-    x_ua_proxy_date = fields.Date("Дата довіреності")
-    x_ua_proxy_person = fields.Char("Видана на (ПІБ)")
+    ua_proxy_date = fields.Date("Дата довіреності")
+    ua_proxy_person = fields.Char("Видана на (ПІБ)")
 
     # ------------------------------------------------------------------
     # Що дає носій
@@ -32,9 +32,9 @@ class StockPicking(models.Model):
     def _ua_docs_proxy(self):
         self.ensure_one()
         return {
-            "number": self.x_ua_proxy_number or "",
-            "date": self.x_ua_proxy_date or False,
-            "person": self.x_ua_proxy_person or "",
+            "number": self.ua_proxy_number or "",
+            "date": self.ua_proxy_date or False,
+            "person": self.ua_proxy_person or "",
         }
 
     def _ua_docs_currency(self):
@@ -77,7 +77,7 @@ class StockPicking(models.Model):
                 "index": len(rows) + 1,
                 "name": move.product_id.display_name,
                 "code": move.product_id.default_code or "",
-                "uktzed": getattr(move.product_id, "x_uktzed", "") or "",
+                "uktzed": getattr(move.product_id, "ua_uktzed", "") or "",
                 "quantity": quantity,
                 "uom": move.product_uom.name or "",
                 "weight": move.product_id.weight * quantity,
