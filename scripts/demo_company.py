@@ -468,13 +468,28 @@ print("Накази поза автоматичними гаками (перев
 # розхідна консистентність: _post_dismissal тепер архівує працівника (фікс баг-репорту), але
 # накази, проведені ДО фіксу (напр. Гнатів, 44-к), лишились активними - виправляємо разово,
 # ідемпотентно, за будь-якого проведеного наказу про звільнення.
+# Наказ про звільнення - не остаточне слово: людину могли прийняти знову (Ткачук,
+# звільнений 31.05.2026 і прийнятий 17.08.2026). Архівуємо лише тих, чия поточна версія
+# вже закінчилася. Інакше працівник, який зараз працює, зникає з «Людей», зі штатного
+# розпису і з повідомлення до ТЦК - саме так Ткачук і випав.
 posted_dismissals = call("ua.hr.order", "search_read", [["order_type", "=", "dismissal"], ["state", "=", "posted"]],
                          fields=["employee_id"])
-still_active = [d["employee_id"][0] for d in posted_dismissals
-               if call("hr.employee", "read", [d["employee_id"][0]], ["active"])[0]["active"]]
-if still_active:
-    call("hr.employee", "write", still_active, {"active": False})
-    print("Архівовано за проведеним наказом про звільнення:", still_active)
+to_archive, to_restore = [], []
+for d in {x["employee_id"][0] for x in posted_dismissals}:
+    emp = call("hr.employee", "read", [d], ["active", "version_id"], context={"active_test": False})[0]
+    ver = emp["version_id"] and call("hr.version", "read", [emp["version_id"][0]], ["contract_date_end"])[0]
+    end = ver and ver.get("contract_date_end")
+    works_now = not end or str(end) >= str(date.today())
+    if works_now and not emp["active"]:
+        to_restore.append(d)
+    elif not works_now and emp["active"]:
+        to_archive.append(d)
+if to_archive:
+    call("hr.employee", "write", to_archive, {"active": False})
+    print("Архівовано за проведеним наказом про звільнення:", to_archive)
+if to_restore:
+    call("hr.employee", "write", to_restore, {"active": True})
+    print("Повернуто з архіву (прийняті знову після звільнення):", to_restore)
 
 # ---- документи працівника (ua.employee.document): типи й стани підпису на чотирьох картках -------------
 def doc_upsert(eid, dtype, name, **extra):
@@ -501,9 +516,14 @@ print("Документи працівників (трудова, військо
 # ---- штатний розпис, авансова відомість, відомості на виплату, військовий облік, довідка про доходи ----
 staff_ids = call("ua.staff.list", "search", [["date", "=", "2026-09-01"]])
 staff_id = staff_ids[0] if staff_ids else call("ua.staff.list", "create", {"company_id": COMPANY, "date": "2026-09-01"})
-if call("ua.staff.list", "read", [staff_id], ["state"])[0]["state"] == "draft":
-    call("ua.staff.list", "action_refill", [staff_id])
-    call("ua.staff.list", "action_confirm", [staff_id])
+# Розпис перераховуємо щоразу, навіть затверджений. У продукті затверджений документ - це
+# історія, і переписувати його не можна; тут документ породжує сам генератор демо, і якщо
+# його не оновити, він назавжди лишиться таким, яким був до появи нових людей: рядок без
+# коду КП (Мельник) і без тих, кого повернули з архіву (Ткачук).
+if call("ua.staff.list", "read", [staff_id], ["state"])[0]["state"] != "draft":
+    call("ua.staff.list", "action_draft", [staff_id])
+call("ua.staff.list", "action_refill", [staff_id])
+call("ua.staff.list", "action_confirm", [staff_id])
 
 print("Штатний розпис (затверджено) записано.")
 # Відомості на виплату (аванс за серпень, інша за вересень) заповнюються нижче, ПІСЛЯ

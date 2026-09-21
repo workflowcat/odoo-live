@@ -16,6 +16,7 @@ PEOPLE_CHECK_CREATE=1 PAYROLL_DB=<копія> python3 scripts/people_check.py
 Запуск: PAYROLL_DB=payroll python3 scripts/people_check.py"""
 import json
 import os
+from datetime import date
 import urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -293,6 +294,25 @@ new_rec = call("ir.ui.menu", "search_read", [["id", "=", new_menu[0]["res_id"]]]
 check("пункт «Люди» на місці і активний",
       bool(new_rec) and new_rec[0]["active"] and new_rec[0]["name"] == "Люди" and bool(new_rec[0]["action"]),
       str(new_rec[0]) if new_rec else "запису немає")
+
+# Архів не має ховати тих, хто працює. Наказ про звільнення - не остаточне слово:
+# людину можуть прийняти знову тією самою карткою. Ткачука так і не було видно в
+# «Людях», у штатному розписі й у повідомленні до ТЦК - картка лишилась архівною
+# після звільнення 31.05.2026, хоча з 17.08.2026 він знову на роботі.
+today = date.today().isoformat()
+archived = call("hr.employee", "search_read", [["active", "=", False]],
+                fields=["name", "version_id"], context={"active_test": False})
+wrongly = []
+for e in archived:
+    if not e.get("version_id"):
+        continue
+    ver = call("hr.version", "read", [e["version_id"][0]], ["contract_date_start", "contract_date_end"])[0]
+    if not ver.get("contract_date_start"):
+        continue   # службові картки (Administrator) без контракту - не люди компанії
+    end = ver.get("contract_date_end")
+    if not end or str(end) >= today:
+        wrongly.append(e["name"])
+check("в архіві немає нікого з чинною версією контракту", not wrongly, ", ".join(wrongly[:5]))
 
 print()
 if errors:

@@ -42,12 +42,12 @@ dept = env["hr.department"].search([], limit=1)
 # ---- 0. працівник-кандидат для тестів: власна картка, щоб не чіпати чужі дані; прийняття - через
 # ua.hr.order (order_type=hire), щоб пункт 7 (друк наказу з картки) мав, на що спертись.
 emp = Employee.create({
-    "name": "Тестовий Наказовий", "company_id": env.company.id, "date_version": date(2020, 1, 1),
-    "department_id": dept.id, "job_title": "Тестувальник",
+    "name": "Юрченко Андрій Миколайович", "company_id": env.company.id, "date_version": date(2020, 1, 1),
+    "department_id": dept.id, "job_title": "Комірник",
 })
 hire_order = Order.create({
     "order_type": "hire", "employee_id": emp.id, "company_id": emp.company_id.id,
-    "date_from": date(2020, 1, 1), "department_id": dept.id, "job_title": "Тестувальник", "wage": 20000,
+    "date_from": date(2020, 1, 1), "department_id": dept.id, "job_title": "Комірник", "wage": 20000,
 })
 hire_order.action_post()
 check("наказ про прийняття проведено (К-1)", hire_order.state == "posted" and hire_order.register == "k1", hire_order.name or "-")
@@ -126,8 +126,8 @@ check("картка: друк наказу веде на звіт ua.hr.order (�
 
 # ---- 8. картка: резервний друк застарілою формою, коли є ua_order_ref, але немає запису наказу
 emp2 = Employee.create({
-    "name": "Тестовий Історичний", "company_id": env.company.id, "date_version": date(2019, 1, 1),
-    "department_id": dept.id, "job_title": "Тестувальник",
+    "name": "Демчук Наталія Степанівна", "company_id": env.company.id, "date_version": date(2019, 1, 1),
+    "department_id": dept.id, "job_title": "Діловод",
 })
 emp2.version_id.write({
     "contract_date_start": date(2019, 1, 1), "wage": 15000,
@@ -171,13 +171,13 @@ check("наказ: код КП/посада/ставка/підрозділ з �
       prefill_order.department_id.id == version.department_id.id, (prefill_order.wage, prefill_order.department_id.id))
 
 # ---- 11c. переведення: форма показує стару і нову посаду/підрозділ разом
-dept2 = env["hr.department"].create({"name": "Другий підрозділ", "company_id": emp.company_id.id})
+dept2 = env["hr.department"].create({"name": "Склад і логістика (перевірка)", "company_id": emp.company_id.id})
 transfer_order = Order.create({
     "order_type": "transfer", "employee_id": emp.id, "company_id": emp.company_id.id,
-    "date_from": date(2026, 12, 15), "department_id": dept2.id, "job_title": "Старший тестувальник",
+    "date_from": date(2026, 12, 15), "department_id": dept2.id, "job_title": "Завідувач складу",
 })
 check("переведення: старий підрозділ/посада обчислені окремо від нових",
-      transfer_order.department_id_old.id == dept.id and transfer_order.job_title_old == "Тестувальник" and
+      transfer_order.department_id_old.id == dept.id and transfer_order.job_title_old == "Комірник" and
       transfer_order.department_id.id == dept2.id, (transfer_order.department_id_old.id, transfer_order.job_title_old))
 
 # ---- 11d. реєстр наказу лише обчислюється, не редагується з форми (readonly="1" у в'юсі)

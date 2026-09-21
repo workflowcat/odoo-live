@@ -144,8 +144,8 @@ call("hr.version", "write", [ver], {"wage": 20000, "date_version": "2020-01-01",
                                     "ua_dismissal_basis": "п. 1 ст. 36 КЗпП (угода сторін)"}, context={"sync_contract_dates": True})
 call("hr.employee", "ua_ensure_allocations", [eid], 2026)
 d = call("hr.employee", "read", [eid], ["ua_soc_child_balance", "ua_soc_child_days_year"])[0]
-check("Тестовий працівник: СОЦ_ДІТИ нараховано (10 днів)", d["ua_soc_child_days_year"] == 10, d["ua_soc_child_days_year"])
-check("Тестовий працівник: залишок СОЦ_ДІТИ не використаний (> 0)", d["ua_soc_child_balance"] > 0, d["ua_soc_child_balance"])
+check(f"{FIXTURE['name']}: СОЦ_ДІТИ нараховано (10 днів)", d["ua_soc_child_days_year"] == 10, d["ua_soc_child_days_year"])
+check(f"{FIXTURE['name']}: залишок СОЦ_ДІТИ не використаний (> 0)", d["ua_soc_child_balance"] > 0, d["ua_soc_child_balance"])
 
 call("hr.employee", "generate_work_entries", [eid], "2026-08-01", "2026-08-31")
 old_slips = call("hr.payslip", "search", [["employee_id", "=", eid]])

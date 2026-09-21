@@ -102,6 +102,9 @@ blank = sorted({(l.get("job_title") or "").strip() for l in lines if not (l.get(
 all_lines = call("ua.staff.list.line", "search_read", [], fields=["kp_code", "job_title"])
 blank_all = sorted({(l.get("job_title") or "").strip() for l in all_lines
                     if (l.get("job_title") or "").strip() and not (l.get("kp_code") or "").strip()})
+# Раніше це був просто рядок наприкінці виводу, і він мовчки тримався: посада «Менеджерка
+# з персоналу» стояла без коду, поки хтось не прочитав вивід повністю. Тепер це перевірка.
+check("кожна посада у штатному розписі має код КП", not blank_all, ", ".join(blank_all[:5]))
 
 # 3. звірка зі службою
 if not service_up():
@@ -149,8 +152,6 @@ res = rpc("object", "execute_kw", DB, UID, PW, "ua.kp.code", "suggest", ["кла
 check("підказка завжди повертає ознаку доступності служби", "available" in res, str(sorted(res)[:4]))
 
 print()
-if blank_all:
-    print(f"позиції без коду: {', '.join(blank_all)}")
 if errors:
     print(f"ПЕРЕВІРКУ НЕ ПРОЙДЕНО: {len(errors)} з {total} пунктів провалено"
           + (f", пропущено {skipped}" if skipped else ""))

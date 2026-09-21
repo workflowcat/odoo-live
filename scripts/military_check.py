@@ -178,7 +178,7 @@ try:
     d = [int(c) for c in base]
     rnokpp = base + str(sum(x * y for x, y in zip(w, d)) % 11 % 10)
     case = Case.create({{
-        'last_name': 'Тестовий', 'first_name': 'Резерв', 'job_title': 'Тестова посада',
+        'last_name': 'Бондаренко', 'first_name': 'Віктор', 'job_title': 'Столяр',
         'department_id': env['hr.department'].search([('company_id', '=', {COMPANY})], limit=1).id,
         'birthday': bday, 'sex': 'male', 'rnokpp': rnokpp,
         'id_doc_type': 'id_card', 'id_doc_number': '123456789', 'id_doc_unzr': bday.strftime('%Y%m%d') + '12345',
