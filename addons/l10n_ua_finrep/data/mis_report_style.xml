@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Оформлення рядків форм: гривні з копійками, заголовки розділів жирні,
+         довідкові підрядки (первісна вартість, знос) з відступом. -->
+    <record id="style_base" model="mis.report.style">
+        <field name="name">Фінзвітність: базовий</field>
+        <field name="dp_inherit" eval="False" />
+        <field name="dp">2</field>
+    </record>
+    <record id="style_section" model="mis.report.style">
+        <field name="name">Фінзвітність: заголовок розділу</field>
+        <field name="font_weight_inherit" eval="False" />
+        <field name="font_weight">bold</field>
+    </record>
+    <record id="style_total" model="mis.report.style">
+        <field name="name">Фінзвітність: підсумок</field>
+        <field name="font_weight_inherit" eval="False" />
+        <field name="font_weight">bold</field>
+    </record>
+    <record id="style_sub" model="mis.report.style">
+        <field name="name">Фінзвітність: довідковий підрядок</field>
+        <field name="indent_level_inherit" eval="False" />
+        <field name="indent_level">1</field>
+        <field name="font_style_inherit" eval="False" />
+        <field name="font_style">italic</field>
+    </record>
+    <record id="style_control" model="mis.report.style">
+        <field name="name">Фінзвітність: контроль</field>
+        <field name="font_style_inherit" eval="False" />
+        <field name="font_style">italic</field>
+        <field name="color_inherit" eval="False" />
+        <field name="color">#7f7f7f</field>
+    </record>
+</odoo>

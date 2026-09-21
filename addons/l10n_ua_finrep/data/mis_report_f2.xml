@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Ф2 «Звіт про фінансові результати (Звіт про сукупний дохід)», НП(С)БО 1.
+
+         Розділ I - рядки 2000-2350 з оборотів класів 7 і 9 за період
+         (balp = обороти періоду). Розділ II «Сукупний дохід» - 2400-2465.
+         Розділ III «Елементи операційних витрат» - 2500-2550 з ДЕБЕТОВОГО
+         обороту класу 8 (debp), бо при схемі «8 і 9» клас 8 закривається на
+         клас 9 і його сальдо дорівнює нулю.
+
+         Клас 8 додано і до рядка 2180: у підприємства, що веде лише клас 8,
+         клас 9 порожній, а сальдо класу 8 не нульове - тоді витрати
+         потрапляють в «інші операційні». При схемі «8 і 9» цей доданок = 0.
+    -->
+    <record id="report_f2" model="mis.report">
+        <field name="name">Ф2. Звіт про фінансові результати (НП(С)БО 1)</field>
+        <field name="description">Звіт про сукупний дохід за період</field>
+        <field name="x_ua_finrep_form">f2</field>
+        <field name="style_id" ref="style_base" />
+    </record>
+
+    <!-- ===== I. Фінансові результати ===== -->
+    <record id="f2_2000" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">10</field>
+        <field name="name">r2000</field>
+        <field name="description">2000 Чистий дохід від реалізації продукції (товарів, робіт, послуг)</field>
+        <field name="expression">-balp[70%]</field>
+    </record>
+    <record id="f2_2050" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">20</field>
+        <field name="name">r2050</field>
+        <field name="description">2050 Собівартість реалізованої продукції (товарів, робіт, послуг)</field>
+        <field name="expression">balp[90%]</field>
+    </record>
+    <record id="f2_2090" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">30</field>
+        <field name="name">r2090</field>
+        <field name="description">2090 Валовий прибуток (збиток)</field>
+        <field name="expression">r2000 - r2050</field>
+        <field name="style_id" ref="style_total" />
+    </record>
+    <record id="f2_2120" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">40</field>
+        <field name="name">r2120</field>
+        <field name="description">2120 Інші операційні доходи</field>
+        <field name="expression">-balp[71%,999001,999997]</field>
+    </record>
+    <record id="f2_2130" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">50</field>
+        <field name="name">r2130</field>
+        <field name="description">2130 Адміністративні витрати</field>
+        <field name="expression">balp[92%]</field>
+    </record>
+    <record id="f2_2150" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">60</field>
+        <field name="name">r2150</field>
+        <field name="description">2150 Витрати на збут</field>
+        <field name="expression">balp[93%]</field>
+    </record>
+    <record id="f2_2180" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">70</field>
+        <field name="name">r2180</field>
+        <field name="description">2180 Інші операційні витрати</field>
+        <field name="expression">balp[91%,94%,999002,999998] + balp[80%,81%,82%,83%,84%]</field>
+    </record>
+    <record id="f2_2190" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">80</field>
+        <field name="name">r2190</field>
+        <field name="description">2190 Фінансовий результат від операційної діяльності</field>
+        <field name="expression">r2090 + r2120 - r2130 - r2150 - r2180</field>
+        <field name="style_id" ref="style_total" />
+    </record>
+    <record id="f2_2200" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">90</field>
+        <field name="name">r2200</field>
+        <field name="description">2200 Дохід від участі в капіталі</field>
+        <field name="expression">-balp[72%]</field>
+    </record>
+    <record id="f2_2220" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">100</field>
+        <field name="name">r2220</field>
+        <field name="description">2220 Інші фінансові доходи</field>
+        <field name="expression">-balp[73%]</field>
+    </record>
+    <record id="f2_2240" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">110</field>
+        <field name="name">r2240</field>
+        <field name="description">2240 Інші доходи</field>
+        <field name="expression">-balp[74%,75%,76%]</field>
+    </record>
+    <record id="f2_2250" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">120</field>
+        <field name="name">r2250</field>
+        <field name="description">2250 Фінансові витрати</field>
+        <field name="expression">balp[95%]</field>
+    </record>
+    <record id="f2_2255" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">130</field>
+        <field name="name">r2255</field>
+        <field name="description">2255 Втрати від участі в капіталі</field>
+        <field name="expression">balp[96%]</field>
+    </record>
+    <record id="f2_2270" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">140</field>
+        <field name="name">r2270</field>
+        <field name="description">2270 Інші витрати</field>
+        <field name="expression">balp[97%,85%]</field>
+    </record>
+    <record id="f2_2290" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">150</field>
+        <field name="name">r2290</field>
+        <field name="description">2290 Фінансовий результат до оподаткування</field>
+        <field name="expression">r2190 + r2200 + r2220 + r2240 - r2250 - r2255 - r2270</field>
+        <field name="style_id" ref="style_total" />
+    </record>
+    <record id="f2_2300" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">160</field>
+        <field name="name">r2300</field>
+        <field name="description">2300 Витрати (дохід) з податку на прибуток</field>
+        <field name="expression">balp[98%]</field>
+    </record>
+    <record id="f2_2350" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">170</field>
+        <field name="name">r2350</field>
+        <field name="description">2350 Чистий фінансовий результат: прибуток (збиток)</field>
+        <field name="expression">r2290 - r2300</field>
+        <field name="style_id" ref="style_section" />
+    </record>
+
+    <!-- ===== II. Сукупний дохід ===== -->
+    <record id="f2_2400" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">200</field>
+        <field name="name">r2400</field>
+        <field name="description">2400 Дооцінка (уцінка) необоротних активів</field>
+        <field name="expression">-balp[41%]</field>
+    </record>
+    <record id="f2_2450" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">210</field>
+        <field name="name">r2450</field>
+        <field name="description">2450 Інший сукупний дохід до оподаткування</field>
+        <field name="expression">r2400</field>
+    </record>
+    <record id="f2_2460" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">220</field>
+        <field name="name">r2460</field>
+        <field name="description">2460 Інший сукупний дохід після оподаткування</field>
+        <field name="expression">r2450</field>
+    </record>
+    <record id="f2_2465" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">230</field>
+        <field name="name">r2465</field>
+        <field name="description">2465 Сукупний дохід</field>
+        <field name="expression">r2350 + r2460</field>
+        <field name="style_id" ref="style_total" />
+    </record>
+
+    <!-- ===== III. Елементи операційних витрат ===== -->
+    <record id="f2_2500" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">300</field>
+        <field name="name">r2500</field>
+        <field name="description">2500 Матеріальні затрати</field>
+        <field name="expression">debp[80%]</field>
+    </record>
+    <record id="f2_2505" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">310</field>
+        <field name="name">r2505</field>
+        <field name="description">2505 Витрати на оплату праці</field>
+        <field name="expression">debp[81%]</field>
+    </record>
+    <record id="f2_2510" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">320</field>
+        <field name="name">r2510</field>
+        <field name="description">2510 Відрахування на соціальні заходи</field>
+        <field name="expression">debp[82%]</field>
+    </record>
+    <record id="f2_2515" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">330</field>
+        <field name="name">r2515</field>
+        <field name="description">2515 Амортизація</field>
+        <field name="expression">debp[83%]</field>
+    </record>
+    <record id="f2_2520" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">340</field>
+        <field name="name">r2520</field>
+        <field name="description">2520 Інші операційні витрати</field>
+        <field name="expression">debp[84%]</field>
+    </record>
+    <record id="f2_2550" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">350</field>
+        <field name="name">r2550</field>
+        <field name="description">2550 Разом елементи операційних витрат</field>
+        <field name="expression">r2500 + r2505 + r2510 + r2515 + r2520</field>
+        <field name="style_id" ref="style_total" />
+    </record>
+
+    <!-- ===== Контроль ===== -->
+    <record id="f2_ctl_1420" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2" />
+        <field name="sequence">900</field>
+        <field name="name">ctl_1420</field>
+        <field name="description">Контроль: 2350 мінус зміна рядка 1420 (0, якщо не було дивідендів і закриття через 79)</field>
+        <field
+            name="expression"
+        >r2350 + balp[44%,999999] + balp[7%,8%,90%,91%,92%,93%,94%,95%,96%,97%,98%,999001,999002,999997,999998]</field>
+        <field name="style_id" ref="style_control" />
+    </record>
+</odoo>

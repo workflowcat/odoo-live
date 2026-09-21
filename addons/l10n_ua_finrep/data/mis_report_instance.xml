@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data noupdate="1">
+        <!-- Готові звіти на поточний рік для компанії, у якій ставиться модуль.
+             noupdate: бухгалтер може змінити період або перейменувати звіт, і
+             оновлення модуля цього не перезапише. Компанію не зашиваємо - її
+             підставляє типове значення поля (env.company під час встановлення).
+
+             Колонка одна: mode=relative, type=y, offset=0 - поточний
+             календарний рік відносно базової дати звіту (типово сьогодні).
+        -->
+        <record id="instance_f1" model="mis.report.instance">
+            <field name="name">Ф1. Баланс (НП(С)БО 1)</field>
+            <field name="report_id" ref="report_f1" />
+            <field name="sequence">10</field>
+            <field name="target_move">posted</field>
+            <field name="widget_show_pivot_date" eval="True" />
+            <field name="widget_show_settings_button" eval="True" />
+            <field
+                name="period_ids"
+                eval="[(0, 0, {'name': 'На кінець періоду', 'mode': 'relative', 'type': 'y', 'offset': 0, 'duration': 1, 'sequence': 1})]"
+            />
+        </record>
+        <record id="instance_f2" model="mis.report.instance">
+            <field name="name">Ф2. Звіт про фінансові результати (НП(С)БО 1)</field>
+            <field name="report_id" ref="report_f2" />
+            <field name="sequence">20</field>
+            <field name="target_move">posted</field>
+            <field name="widget_show_pivot_date" eval="True" />
+            <field name="widget_show_settings_button" eval="True" />
+            <field
+                name="period_ids"
+                eval="[(0, 0, {'name': 'За період', 'mode': 'relative', 'type': 'y', 'offset': 0, 'duration': 1, 'sequence': 1})]"
+            />
+        </record>
+        <record id="instance_f1m" model="mis.report.instance">
+            <field name="name">Ф1-м. Баланс (НП(С)БО 25)</field>
+            <field name="report_id" ref="report_f1m" />
+            <field name="sequence">30</field>
+            <field name="target_move">posted</field>
+            <field name="widget_show_pivot_date" eval="True" />
+            <field name="widget_show_settings_button" eval="True" />
+            <field
+                name="period_ids"
+                eval="[(0, 0, {'name': 'На кінець періоду', 'mode': 'relative', 'type': 'y', 'offset': 0, 'duration': 1, 'sequence': 1})]"
+            />
+        </record>
+        <record id="instance_f2m" model="mis.report.instance">
+            <field name="name">Ф2-м. Звіт про фінансові результати (НП(С)БО 25)</field>
+            <field name="report_id" ref="report_f2m" />
+            <field name="sequence">40</field>
+            <field name="target_move">posted</field>
+            <field name="widget_show_pivot_date" eval="True" />
+            <field name="widget_show_settings_button" eval="True" />
+            <field
+                name="period_ids"
+                eval="[(0, 0, {'name': 'За період', 'mode': 'relative', 'type': 'y', 'offset': 0, 'duration': 1, 'sequence': 1})]"
+            />
+        </record>
+    </data>
+
+    <!-- Меню: Бухгалтерія > Звітність > Фінансова звітність (НП(С)БО).
+         Кожен пункт відкриває свій звіт одразу в режимі перегляду. -->
+    <record id="action_f1" model="ir.actions.act_window">
+        <field name="name">Ф1. Баланс</field>
+        <field name="res_model">mis.report.instance</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="mis_builder.mis_report_instance_result_view_form" />
+        <field name="res_id" eval="ref('instance_f1')" />
+        <field name="target">current</field>
+    </record>
+    <record id="action_f2" model="ir.actions.act_window">
+        <field name="name">Ф2. Звіт про фінансові результати</field>
+        <field name="res_model">mis.report.instance</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="mis_builder.mis_report_instance_result_view_form" />
+        <field name="res_id" eval="ref('instance_f2')" />
+        <field name="target">current</field>
+    </record>
+    <record id="action_f1m" model="ir.actions.act_window">
+        <field name="name">Ф1-м. Баланс</field>
+        <field name="res_model">mis.report.instance</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="mis_builder.mis_report_instance_result_view_form" />
+        <field name="res_id" eval="ref('instance_f1m')" />
+        <field name="target">current</field>
+    </record>
+    <record id="action_f2m" model="ir.actions.act_window">
+        <field name="name">Ф2-м. Звіт про фінансові результати</field>
+        <field name="res_model">mis.report.instance</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="mis_builder.mis_report_instance_result_view_form" />
+        <field name="res_id" eval="ref('instance_f2m')" />
+        <field name="target">current</field>
+    </record>
+
+    <menuitem
+        id="menu_ua_finrep_root"
+        parent="account.menu_finance_reports"
+        name="Фінансова звітність (НП(С)БО)"
+        sequence="95"
+        groups="account.group_account_readonly"
+    />
+    <menuitem id="menu_ua_finrep_f1" parent="menu_ua_finrep_root" name="Ф1. Баланс" action="action_f1" sequence="10" />
+    <menuitem
+        id="menu_ua_finrep_f2"
+        parent="menu_ua_finrep_root"
+        name="Ф2. Звіт про фінансові результати"
+        action="action_f2"
+        sequence="20"
+    />
+    <menuitem
+        id="menu_ua_finrep_f1m"
+        parent="menu_ua_finrep_root"
+        name="Ф1-м. Баланс"
+        action="action_f1m"
+        sequence="30"
+    />
+    <menuitem
+        id="menu_ua_finrep_f2m"
+        parent="menu_ua_finrep_root"
+        name="Ф2-м. Звіт про фінансові результати"
+        action="action_f2m"
+        sequence="40"
+    />
+</odoo>
