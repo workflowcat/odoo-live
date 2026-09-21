@@ -1,0 +1,17 @@
+{
+  "name": "odoo-assistant",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Web assistant for employees: answers from the payroll Odoo, sends requests to HR",
+  "scripts": {
+    "dev": "wrangler dev --port 8787",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest"
+  },
+  "devDependencies": {
+    "wrangler": "^4.107.1"
+  }
+}
