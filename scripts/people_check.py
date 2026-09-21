@@ -253,6 +253,31 @@ screen(view="staff")
 after = call("hr.employee", "search_count", [])
 check("перегляд не змінює кількість працівників", before == after, f"{before} -> {after}")
 
+# 7a. документ складає логіка, не екран
+# ua.staff.list.ua_compose() - правило «що містить новий штатний розпис». Кличемо його
+# напряму, без екрана, і прибираємо чернетку за собою (без сліду в журналі змін).
+NOLOG = {"ua_no_log": True}
+today_srv = call("ua.staff.list", "default_get", ["date"]).get("date")
+composed = call_soft("ua.staff.list", "ua_compose", company_id, context=NOLOG)
+doc_id = composed[0] if isinstance(composed, list) and composed else None
+check("ua.staff.list.ua_compose складає розпис прямим викликом логіки", bool(doc_id), str(composed)[:120])
+if doc_id:
+    doc = call("ua.staff.list", "read", [doc_id], ["state", "date", "line_ids"])[0]
+    check("розпис від логіки - чернетка на сьогодні з рядками",
+          doc["state"] == "draft" and str(doc["date"]) == str(today_srv) and bool(doc["line_ids"]),
+          f"{doc['date']} (сервер {today_srv}), рядків {len(doc['line_ids'])}")
+    doc_rows = call("ua.staff.list.line", "search_read", [["list_id", "=", doc_id]],
+                    fields=["job_title", "kp_code", "units", "wage"])
+    logic_rows = sorted((r["job_title"], r["kp_code"] or "", round(r["units"], 2), round(r["wage"], 2))
+                        for r in doc_rows)
+    screen_rows = sorted((l["job"], l["kp_code"] or "", round(l["units"], 2), round(l["wage"], 2))
+                         for l in (staff.get("lines") or []))
+    check("рядок екрана і рядок документа збігаються один в один",
+          logic_rows == screen_rows,
+          f"{len(logic_rows)} рядків логіки проти {len(screen_rows)} екрана")
+    call("ua.staff.list", "unlink", [doc_id], context=NOLOG)
+    check("чернетку прибрано за собою", call("ua.staff.list", "search_count", [["id", "=", doc_id]]) == 0)
+
 # 8. create_staff_list створює документ і відкриває його - лише на копії бази
 if os.environ.get("PEOPLE_CHECK_CREATE") == "1":
     if DB == "payroll":

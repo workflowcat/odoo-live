@@ -264,6 +264,44 @@ if prev:
 else:
     check("перемикання місяця міняє період і лишає папір", False, "немає іншого періоду")
 
+# 11a. правила складання чернетки знає модель документа, не екран
+# «Створити» на екрані лише передає період; що саме містить новий табель і новий пакет
+# листків, знають ua.timesheet.sheet.ua_compose() і hr.payslip.run.ua_compose().
+# Табель ідемпотентний - його кличемо на місяці стенду; пакет створюється завжди, тому
+# для нього беремо порожній місяць і прибираємо за собою.
+COMPANY_ID = call("res.users", "read", [UID], ["company_id"])[0]["company_id"][0]
+NOLOG = {"ua_no_log": True}
+Y, M = period.get("year"), period.get("month")
+
+sheet_before = call("ua.timesheet.sheet", "search_count", [])
+composed = call_soft("ua.timesheet.sheet", "ua_compose", COMPANY_ID, Y, M, context=NOLOG)
+sheet_id = composed[0] if isinstance(composed, list) and composed else None
+screen_sheet = call("ua.timesheet.sheet", "search",
+                    [["company_id", "=", COMPANY_ID], ["year", "=", Y], ["month", "=", M],
+                     ["department_id", "=", False]], limit=1)
+check("ua.timesheet.sheet.ua_compose віддає той самий табель, що показує екран",
+      bool(sheet_id) and [sheet_id] == screen_sheet, f"{composed} проти {screen_sheet}")
+check("складання табеля ідемпотентне: другого табеля не з'явилося",
+      call("ua.timesheet.sheet", "search_count", []) == sheet_before,
+      f"{sheet_before} -> {call('ua.timesheet.sheet', 'search_count', [])}")
+
+RY, RM = 2027, 3
+stale = call("hr.payslip.run", "search",
+             [["company_id", "=", COMPANY_ID], ["date_start", "=", f"{RY}-{RM:02d}-01"]])
+if stale:
+    call("hr.payslip.run", "unlink", stale, context=NOLOG)
+composed_run = call_soft("hr.payslip.run", "ua_compose", COMPANY_ID, RY, RM, context=NOLOG)
+run_id = composed_run[0] if isinstance(composed_run, list) and composed_run else None
+check("hr.payslip.run.ua_compose складає пакет прямим викликом логіки", bool(run_id), str(composed_run)[:120])
+if run_id:
+    run = call("hr.payslip.run", "read", [run_id], ["name", "date_start", "date_end"])[0]
+    check("пакет від логіки названий місяцем і охоплює весь місяць",
+          run["name"] == f"Зарплата {RM:02d}.{RY}" and str(run["date_start"]) == f"{RY}-{RM:02d}-01"
+          and str(run["date_end"]) == f"{RY}-{RM:02d}-31",
+          f"{run['name']} · {run['date_start']} - {run['date_end']}")
+    call("hr.payslip.run", "unlink", [run_id], context=NOLOG)
+    check("пакет прибрано за собою", call("hr.payslip.run", "search_count", [["id", "=", run_id]]) == 0)
+
 # 12. збірка ресурсів реєструє файли екрана
 if DB == "payroll":
     try:

@@ -176,6 +176,77 @@ check("крок «Перевірка змін» показує зміни міс
 prepare = call("ua.period.board", "action_prepare_month", 2026, 8)
 check("«Підготувати місяць» відповідає повідомленням", bool(prepare.get("message")), str(prepare)[:80])
 
+# ---------------------------------------------------------------- логіка окремо від екрана
+# Перешкоди закриття і план закриття живуть в ua.period.close (l10n_ua_changes), сторінка
+# лише передає період. Кличемо логіку прямо, без сторінки, і звіряємо результат.
+COMPANY_ID = call("res.users", "read", [UID], ["company_id"])[0]["company_id"][0]
+NOLOG = {"ua_no_log": True}
+
+logic_blockers = call("ua.period.close", "blocker_rows", COMPANY_ID, 2026, 8)
+check("перешкоди закриття мають одне джерело - ua.period.close.blocker_rows()",
+      [row["text"] for row in logic_blockers] == data["blockers"],
+      f"логіка={[r['text'] for r in logic_blockers]}, сторінка={data['blockers']}")
+check("кожна перешкода знає свій крок і свою ціль",
+      all(row["key"] in keys and row["short"] and row["plan"] and row["target"] for row in logic_blockers),
+      f"{len(logic_blockers)} перешкод")
+
+plan_board = call("ua.period.board", "action_close_month_plan", year=2026, month=8)
+plan_logic = call("ua.period.close", "plan", COMPANY_ID, 2026, 8)
+check("план закриття складає логіка, сторінка лише передає період",
+      plan_board == plan_logic, f"{len(plan_board)} рядків проти {len(plan_logic)}")
+check("план закриття - рядки з текстом і рівнем",
+      bool(plan_logic) and all(p.get("text") and p.get("level") in ("info", "warn", "crit") for p in plan_logic),
+      str([p["level"] for p in plan_logic]))
+
+# Відкриття місяця - процедура hr.payslip.run.ua_prepare_month(), не метод сторінки.
+# Доводимо на порожньому місяці: спершу готує сторінка, потім та сама логіка напряму,
+# і набір листків збігається. Усе, що скрипт створив, він же й прибирає.
+SY, SM = 2027, 3
+S_FIRST, S_LAST = f"{SY}-{SM:02d}-01", f"{SY}-{SM:02d}-31"
+
+
+def scratch_slips():
+    rows = call("hr.payslip", "search_read",
+                [["company_id", "=", COMPANY_ID], ["date_from", ">=", S_FIRST], ["date_from", "<=", S_LAST]],
+                fields=["employee_id"])
+    return sorted(r["employee_id"][0] for r in rows)
+
+
+def scratch_clear():
+    slips = call("hr.payslip", "search",
+                 [["company_id", "=", COMPANY_ID], ["date_from", ">=", S_FIRST], ["date_from", "<=", S_LAST]])
+    if slips:
+        # compute_sheet лишає листок у стані «перевірено», а видалити можна лише чернетку
+        call("hr.payslip", "action_payslip_draft", slips, context=NOLOG)
+        call("hr.payslip", "unlink", slips, context=NOLOG)
+    runs = call("hr.payslip.run", "search",
+                [["company_id", "=", COMPANY_ID], ["date_start", ">=", S_FIRST], ["date_start", "<=", S_LAST]])
+    if runs:
+        call("hr.payslip.run", "unlink", runs, context=NOLOG)
+    sheets = call("ua.timesheet.sheet", "search",
+                  [["company_id", "=", COMPANY_ID], ["year", "=", SY], ["month", "=", SM]])
+    if sheets:
+        call("ua.timesheet.sheet", "unlink", sheets, context=NOLOG)
+
+
+try:
+    scratch_clear()
+    board_prepare = call("ua.period.board", "action_prepare_month", SY, SM, context=NOLOG)
+    board_slips = scratch_slips()
+    scratch_clear()
+    logic_prepare = call("hr.payslip.run", "ua_prepare_month", COMPANY_ID, SY, SM, context=NOLOG)
+    logic_slips = scratch_slips()
+    check("порожній місяць справді готується (сторінка створила листки)",
+          bool(board_slips), f"{len(board_slips)} листків")
+    check("логіка дає той самий набір листків, що й сторінка",
+          board_slips == logic_slips, f"сторінка {len(board_slips)}, логіка {len(logic_slips)}")
+    check("логіка повідомляє про зроблене тими самими словами",
+          board_prepare.get("message") == logic_prepare.get("message"),
+          f"{board_prepare.get('message')} / {logic_prepare.get('message')}")
+finally:
+    scratch_clear()
+check("стенд прибрано: пробного місяця не лишилося", not scratch_slips(), str(scratch_slips()))
+
 # числа і обороти ведуть у свої записи
 tot = data["totals"]
 check("числа місяця ведуть у листки", tot.get("model") == "hr.payslip" and bool(tot.get("domain")),

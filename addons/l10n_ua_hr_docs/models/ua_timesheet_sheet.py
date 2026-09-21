@@ -6,6 +6,8 @@ from datetime import date, datetime, time, timedelta
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
+from .hr_payslip_run import as_company
+
 DAY_CODES = {"VAC": "В", "SICK": "ТН", "UNPAID": "НА", "MAT": "ВП", "STUDY": "Н", "CHILD_VAC": "Д",
              "TRIP": "ВД", "CHILD3": "ДД", "SICK_CARE": "ТН"}
 STATES = [("draft", "Чернетка"), ("confirmed", "Затверджено")]
@@ -63,6 +65,11 @@ class UaTimesheetSheet(models.Model):
         sheet = self.create({"company_id": company.id, "year": year, "month": month})
         sheet.action_refill()
         return sheet
+
+    @api.model
+    def ua_compose(self, company, year=None, month=None, **params):
+        """Табель місяця для «Паперів»: той самий ідемпотентний _ua_ensure_for()."""
+        return self._ua_ensure_for(as_company(self.env, company), int(year), int(month))
 
     def action_refill(self):
         """Видалити рядки і заповнити знову: працівник за день - код (Р, ВХ, В, ТН, НА, ВП, «-»)."""

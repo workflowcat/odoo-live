@@ -61,9 +61,17 @@ class UaPapers(models.AbstractModel):
         """Усі папери екрана. Кожен запис описує себе повністю: модель, звіт, як
         знайти запис періоду (`find_domain`/`find_fn`), додаткові поля вибору
         (`extra_fields` для «за місяць», `options_fn` для «на людину»), як
-        скласти чернетку (`composable` + `compose_vals`/`compose_fn`) і звідки
+        скласти чернетку (`composable` + `compose_model`/`compose_vals`) і звідки
         в папір дані (`sources_fn`). Новий папір - новий запис тут, без правок
-        методів нижче."""
+        методів нижче.
+
+        `compose_model: True` означає, що правила складання нової чернетки знає
+        сама модель документа - метод `ua_compose(company, year, month, **params)`.
+        Це нормальний випадок: що містить новий табель, штатний розпис, аванс,
+        пакет листків чи заява ПФУ - питання до документа, не до екрана. Пара
+        `compose_vals` + `compose_fill` лишилася тільки там, де модель документа
+        живе в модулі, який цей зріз не чіпав (відомість на перерахування,
+        список заброньованих), і ту пару прибере наступний зріз."""
         return [
             # ------------------------------------------------------------ за місяць
             {
@@ -76,7 +84,7 @@ class UaPapers(models.AbstractModel):
                     ("department_id", "=", params.get("department_id") or False),
                 ],
                 "extra_fields": [{"key": "department_id", "label": "Підрозділ", "options_fn": self._opt_departments}],
-                "composable": True, "compose_fn": self._compose_timesheet,
+                "composable": True, "compose_model": True,
                 "missing_text": "Немає табеля за {m}", "empty_action": "Створити",
                 "sources_fn": self._src_timesheet,
                 "line_model": "ua.timesheet.line", "line_inverse": "sheet_id",
@@ -91,10 +99,7 @@ class UaPapers(models.AbstractModel):
                     ("company_id", "=", company.id), ("date", "<=", last),
                 ],
                 "find_order": "date desc, id desc",
-                "composable": True,
-                "compose_vals": lambda company, year, month, first, last, params: {
-                    "company_id": company.id, "date": last},
-                "compose_fill": "action_refill",
+                "composable": True, "compose_model": True,
                 "missing_text": "Немає штатного розпису на цю дату", "empty_action": "Створити",
                 "sources_fn": self._src_staff_list,
                 "line_model": "ua.staff.list.line", "line_inverse": "list_id",
@@ -108,10 +113,7 @@ class UaPapers(models.AbstractModel):
                 "find_domain": lambda company, first, last, year, month, params: [
                     ("company_id", "=", company.id), ("year", "=", year), ("month", "=", month),
                 ],
-                "composable": True,
-                "compose_vals": lambda company, year, month, first, last, params: {
-                    "company_id": company.id, "year": year, "month": month},
-                "compose_fill": "action_refill",
+                "composable": True, "compose_model": True,
                 "missing_text": "Аванс за {m} не розраховано", "empty_action": "Створити",
                 "sources_fn": self._src_advance,
                 "line_model": "ua.advance.line", "line_inverse": "sheet_id",
@@ -144,10 +146,7 @@ class UaPapers(models.AbstractModel):
                     ("company_id", "=", company.id), ("date_start", ">=", first), ("date_start", "<=", last),
                 ],
                 "find_order": "date_start desc, id desc",
-                "composable": True,
-                "compose_vals": lambda company, year, month, first, last, params: {
-                    "name": "Зарплата %02d.%d" % (month, year), "date_start": first, "date_end": last,
-                    "company_id": company.id},
+                "composable": True, "compose_model": True,
                 "missing_text": "Немає розрахунку за {m}", "empty_action": "Створити",
                 "sources_fn": self._src_payroll_sheet,
             },
@@ -202,7 +201,7 @@ class UaPapers(models.AbstractModel):
                     ("company_id", "=", company.id),
                     ("payslip_run_id.date_start", ">=", first), ("payslip_run_id.date_start", "<=", last),
                 ],
-                "composable": True, "compose_fn": self._compose_pfu,
+                "composable": True, "compose_model": True,
                 "missing_text": "Немає заяви-розрахунку за {m}", "empty_action": "Створити",
                 "sources_fn": self._src_pfu,
                 "line_model": "ua.pfu.claim.line", "line_inverse": "claim_id",
@@ -299,20 +298,6 @@ class UaPapers(models.AbstractModel):
         if existing:
             return existing
         return Model.search(domain + [("kind", "=", "salary")], limit=1)
-
-    # ------------------------------------------------------------------ складання чернетки (run_action="compose")
-    def _compose_timesheet(self, company, year, month, first, last, params):
-        # Ідемпотентний метод самої моделі (той самий, що використовує «Період»): бере
-        # наявний табель або створює чернетку і заповнює нормою й фактом.
-        self.env["ua.timesheet.sheet"]._ua_ensure_for(company, year, month)
-
-    def _compose_pfu(self, company, year, month, first, last, params):
-        run = self.env["hr.payslip.run"].search([
-            ("company_id", "=", company.id), ("date_start", ">=", first), ("date_start", "<=", last)], limit=1)
-        if not run:
-            raise UserError(_("Немає розрахунково-платіжної відомості за цей місяць"))
-        claim = self.env["ua.pfu.claim"].create({"company_id": company.id, "payslip_run_id": run.id})
-        claim.action_refill()
 
     # ------------------------------------------------------------------ джерела паперу ("звідки дані")
     def _src_timesheet(self, record, company, first, last):
@@ -823,8 +808,8 @@ class UaPapers(models.AbstractModel):
         if action_key == "compose":
             if not entry.get("composable"):
                 raise UserError(entry["compose_block_reason"])
-            if entry.get("compose_fn"):
-                entry["compose_fn"](company, year, month, first, last, params)
+            if entry.get("compose_model"):
+                self.env[entry["model"]].ua_compose(company, year, month, **params)
             else:
                 vals = entry["compose_vals"](company, year, month, first, last, params)
                 record = self.env[entry["model"]].create(vals)

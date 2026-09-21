@@ -5,6 +5,8 @@
 місяць, приймає кожен рядок і тільки після цього закриває період. Рядок з ознакою
 «нова» блокує закриття місяця.
 """
+from datetime import timedelta
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
@@ -97,4 +99,22 @@ class UaChangeLog(models.Model):
                             ("year", "=", int(year)), ("month", "=", int(month)),
                             ("state", "=", "new")])
         rows.action_accept()
+        return len(rows)
+
+    @api.model
+    def undo_accept_period(self, year, month, seconds=25):
+        """Відкат «Прийняти всі зміни»: щойно прийняті рядки знову стають новими.
+
+        Чесний відкат, не приховування результату. Які саме рядки повертати -
+        визначає вікно часу: прийняті цим користувачем за останні `seconds` секунд
+        (з запасом над 20-секундною смугою скасування на екрані), бо сама дія
+        скасування не знає переліку рядків, які прийняв попередній виклик."""
+        since = fields.Datetime.now() - timedelta(seconds=seconds)
+        rows = self.search([
+            ("company_id", "=", self.env.company.id),
+            ("year", "=", int(year)), ("month", "=", int(month)),
+            ("state", "=", "accepted"), ("accepted_user_id", "=", self.env.uid),
+            ("accepted_date", ">=", since),
+        ])
+        rows.action_reset()
         return len(rows)

@@ -75,35 +75,135 @@ class UaPeriodClose(models.Model):
 
     # ------------------------------------------------------------------ перевірки
     @api.model
-    def blockers(self, company, year, month):
-        """Список причин, чому місяць закрити не можна. Порожній список = можна."""
+    def blocker_rows(self, company, year, month):
+        """Кожна перешкода закриття місяця - одним записом, з усіма трьома її словами.
+
+        Одне джерело істини «чому місяць закрити не можна»: раніше ті самі чотири
+        перевірки стояли в трьох копіях - тут, у позначці кроку на сторінці «Період»
+        і в діалозі плану закриття. Копії різнилися лише формулюванням, тому кожен
+        запис несе всі три:
+          key   - ділянка (крок сторінки «Період», який цю перешкоду знімає);
+          text  - рядок для blockers(): «непереглянутих змін у журналі: 5»;
+          short - позначка кроку: «непереглянутих змін: 5»;
+          plan  - речення діалогу плану, з поясненням, що робити;
+          target- ціль, яка відкриває саме ті записи, що заважають.
+        Порядок сталий: зміни, проводки, листки, табель.
+        """
         company = self._as_company(company)
         year, month = int(year), int(month)
         first, last = self._bounds(year, month)
         out = []
+
         new_changes = self.env["ua.change.log"].count_new(company, year, month)
         if new_changes:
-            out.append(_("непереглянутих змін у журналі: %s") % new_changes)
-        drafts = self.env["account.move"].search_count([
+            out.append({
+                "key": "changes",
+                "text": _("непереглянутих змін у журналі: %s") % new_changes,
+                "short": _("непереглянутих змін: %s") % new_changes,
+                "plan": _("У журналі змін %s непереглянутих рядків - спершу прийміть їх.") % new_changes,
+                "target": {"model": "ua.change.log",
+                           "domain": [("company_id", "=", company.id), ("year", "=", year),
+                                      ("month", "=", month), ("state", "=", "new")]},
+            })
+
+        drafts = self.env["account.move"].search([
             ("company_id", "=", company.id), ("date", ">=", first), ("date", "<=", last),
             ("state", "=", "draft"),
         ])
         if drafts:
-            out.append(_("чернеток проводок: %s") % drafts)
-        slips = self.env["hr.payslip"].search_count([
+            out.append({
+                "key": "moves",
+                "text": _("чернеток проводок: %s") % len(drafts),
+                "short": _("чернеток проводок: %s") % len(drafts),
+                "plan": _("Чернеток проводок місяця: %s - їх треба провести або скасувати.") % len(drafts),
+                "target": {"model": "account.move", "domain": [("id", "in", drafts.ids)]},
+            })
+
+        slips = self.env["hr.payslip"].search([
             ("company_id", "=", company.id), ("date_from", ">=", first), ("date_from", "<=", last),
             ("state", "not in", ("done", "cancel")),
         ])
         if slips:
-            out.append(_("непроведених листків: %s") % slips)
+            out.append({
+                "key": "payslips",
+                "text": _("непроведених листків: %s") % len(slips),
+                "short": _("непроведених листків: %s") % len(slips),
+                "plan": _("Непроведених листків: %s.") % len(slips),
+                "target": {"model": "hr.payslip", "domain": [("id", "in", slips.ids)]},
+            })
+
         sheet = self.env["ua.timesheet.sheet"].search([
             ("company_id", "=", company.id), ("year", "=", year), ("month", "=", month),
         ], limit=1)
         if sheet and sheet.state != "confirmed":
-            out.append(_("табель не затверджено"))
+            out.append({
+                "key": "timesheet",
+                "text": _("табель не затверджено"),
+                "short": _("табель не затверджено"),
+                "plan": _("Табель місяця не затверджено."),
+                "target": {"model": "ua.timesheet.sheet", "res_id": sheet.id},
+            })
         return out
 
+    @api.model
+    def blockers(self, company, year, month):
+        """Список причин, чому місяць закрити не можна. Порожній список = можна."""
+        return [row["text"] for row in self.blocker_rows(company, year, month)]
+
+    @api.model
+    def plan(self, company, year, month):
+        """План перед закриттям місяця: що станеться, що заважає, що лишиться потім.
+
+        Рядки того самого вигляду, що їх чекає діалог плану на сторінці «Період»
+        (`text`, `level`, за потреби `target`). Перешкоди беруться з blocker_rows() -
+        не перераховуються вдруге."""
+        company = self._as_company(company)
+        year, month = int(year), int(month)
+        last = self._bounds(year, month)[1]
+        rec = self.search([("company_id", "=", company.id), ("year", "=", year),
+                           ("month", "=", month), ("kind", "=", "month")], limit=1)
+        if rec and rec.state == "closed":
+            return [{"text": _("Місяць %s уже закрито %s.") % (
+                        rec.name, rec.lock_date.strftime("%d.%m.%Y") if rec.lock_date else ""),
+                     "level": "info"}]
+
+        lines = [{
+            "text": _("Дата блокування обліку стане %s: проводки й листки з датою до цього дня "
+                      "більше не можна буде створити, провести чи змінити.") % last.strftime("%d.%m.%Y"),
+            "level": "info",
+        }]
+        for row in self.blocker_rows(company, year, month):
+            lines.append({"text": row["plan"], "level": "crit", "target": row["target"]})
+        if any(line["level"] == "crit" for line in lines):
+            lines.append({
+                "text": _("Поки ці перешкоди лишаються, сервіс не дасть закрити місяць - "
+                          "кнопка підтвердження нічого не змінить."),
+                "level": "warn",
+            })
+        lines.append({
+            "text": _("Після закриття лишаються доступні: перегляд і друк документів місяця, "
+                      "звірка банку, подання звітності. Відкрити місяць знову зможе лише головний "
+                      "бухгалтер - окремою дією, з причиною."),
+            "level": "info",
+        })
+        return lines
+
     # ------------------------------------------------------------------ дії
+    @api.model
+    def ensure_for(self, company, year, month):
+        """Картка закриття місяця: наявна або нова чернетка.
+
+        «Відкрити картку закриття» з екрана має показати запис навіть тоді, коли
+        місяць ще ніхто не закривав, тому запис тут створюється явно - а не побічно
+        в методі інтерфейсу."""
+        company = self._as_company(company)
+        year, month = int(year), int(month)
+        rec = self.search([("company_id", "=", company.id), ("year", "=", year),
+                           ("month", "=", month)], limit=1)
+        if not rec:
+            rec = self.create({"company_id": company.id, "year": year, "month": month})
+        return rec
+
     @api.model
     def close_period(self, year, month, hard=False):
         company = self.env.company

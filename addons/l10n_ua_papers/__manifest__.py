@@ -1,7 +1,7 @@
 {
     "name": "Папери",
     "summary": "Один екран усіх друкованих паперів: період угорі, перегляд і джерела поруч",
-    "version": "19.0.1.0.1",
+    "version": "19.0.1.0.2",
     "category": "Human Resources",
     "author": "Bot&Partners",
     "license": "LGPL-3",

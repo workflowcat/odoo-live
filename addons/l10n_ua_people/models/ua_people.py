@@ -250,10 +250,10 @@ class UaPeople(models.AbstractModel):
     # ------------------------------------------------------------------ дії
     @api.model
     def run_action(self, action_key, params=None):
+        """Єдина дія екрана. Сам документ складає ua.staff.list.ua_compose() -
+        екран лише вирішує, що складати його треба на сьогодні, і відкриває."""
         if action_key != "create_staff_list":
             raise UserError(_("Невідома дія: %s") % action_key)
-        company = self._company()
-        today = fields.Date.context_today(self)
-        doc = self.env["ua.staff.list"].create({"company_id": company.id, "date": today})
-        doc.action_refill()
+        doc = self.env["ua.staff.list"].ua_compose(self._company(),
+                                                   date=fields.Date.context_today(self))
         return self.open_target(self._t_record(doc))

@@ -276,33 +276,12 @@ class UaPeriodBoard(models.AbstractModel):
     BLOCKER_STEPS = {"changes": 8, "moves": 5, "payslips": 4, "timesheet": 2}
 
     def _blocker_rows(self, company, year, month):
-        """Причини, що заважають закрити місяць, кожна зі своїм кроком."""
-        first, last = self._bounds(year, month)
-        out = []
-        new_changes = self.env["ua.change.log"].count_new(company, year, month)
-        if new_changes:
-            out.append({"key": "changes", "n": self.BLOCKER_STEPS["changes"],
-                       "text": _("непереглянутих змін: %s") % new_changes})
-        drafts = self.env["account.move"].search_count([
-            ("company_id", "=", company.id), ("date", ">=", first), ("date", "<=", last),
-            ("state", "=", "draft"),
-        ])
-        if drafts:
-            out.append({"key": "moves", "n": self.BLOCKER_STEPS["moves"],
-                       "text": _("чернеток проводок: %s") % drafts})
-        slips = self.env["hr.payslip"].search_count([
-            ("company_id", "=", company.id), ("date_from", ">=", first), ("date_from", "<=", last),
-            ("state", "not in", ("done", "cancel")),
-        ])
-        if slips:
-            out.append({"key": "payslips", "n": self.BLOCKER_STEPS["payslips"],
-                       "text": _("непроведених листків: %s") % slips})
-        sheet = self.env["ua.timesheet.sheet"].search([
-            ("company_id", "=", company.id), ("year", "=", year), ("month", "=", month),
-        ], limit=1)
-        if sheet and sheet.state != "confirmed":
-            out.append({"key": "timesheet", "n": self.BLOCKER_STEPS["timesheet"], "text": _("табель не затверджено")})
-        return out
+        """Причини, що заважають закрити місяць, кожна зі своїм кроком.
+
+        Самі причини знає ua.period.close.blocker_rows() - тут лише додається номер
+        кроку, на якому причину знімають."""
+        return [{"key": row["key"], "n": self.BLOCKER_STEPS[row["key"]], "text": row["short"]}
+                for row in self.env["ua.period.close"].blocker_rows(company, year, month)]
 
     def _blockers_summary(self, blocker_rows):
         """Рядок унизу кроку: «Заважає закрити місяць: N причин» + деталь, звідки саме -
@@ -861,96 +840,17 @@ class UaPeriodBoard(models.AbstractModel):
         назад визначаємо за вікном часу: прийняті цим користувачем за останні 25 с -
         з запасом над 20-секундною смугою скасування на екрані."""
         year, month = self._decode_period(ids, year, month)
-        since = fields.Datetime.now() - timedelta(seconds=25)
-        rows = self.env["ua.change.log"].search([
-            ("company_id", "=", self._company().id), ("year", "=", year), ("month", "=", month),
-            ("state", "=", "accepted"), ("accepted_user_id", "=", self.env.uid),
-            ("accepted_date", ">=", since),
-        ])
-        rows.action_reset()
+        self.env["ua.change.log"].undo_accept_period(year, month)
         return True
 
     @api.model
     def action_close_month_plan(self, ids=False, year=None, month=None):
         """План перед закриттям місяця (action-model.md, клас «проведення»).
 
-        Читає ті самі перевірки, що й ua.period.close.blockers()/close_period() -
-        не викликає їх, а дзеркалить: кожна перешкода тут стає рядком рівня "crit"
-        із ціллю, що відкриває саме ті записи, які заважають, щоб їх можна було
-        поправити просто з діалогу."""
+        Самі рядки складає ua.period.close.plan() - там же, де живуть перевірки
+        close_period(); екран лише розпаковує період із id кнопки."""
         year, month = self._decode_period(ids, year, month)
-        company = self._company()
-        first, last = self._bounds(year, month)
-        Close = self.env["ua.period.close"]
-        rec = Close.search([("company_id", "=", company.id), ("year", "=", year),
-                            ("month", "=", month), ("kind", "=", "month")], limit=1)
-        if rec and rec.state == "closed":
-            return [{"text": _("Місяць %s уже закрито %s.") % (
-                        rec.name, rec.lock_date.strftime("%d.%m.%Y") if rec.lock_date else ""),
-                     "level": "info"}]
-
-        lines = [{
-            "text": _("Дата блокування обліку стане %s: проводки й листки з датою до цього дня "
-                      "більше не можна буде створити, провести чи змінити.") % last.strftime("%d.%m.%Y"),
-            "level": "info",
-        }]
-
-        new_changes = self.env["ua.change.log"].count_new(company, year, month)
-        if new_changes:
-            lines.append({
-                "text": _("У журналі змін %s непереглянутих рядків - спершу прийміть їх.") % new_changes,
-                "level": "crit",
-                "target": {"model": "ua.change.log",
-                          "domain": [("company_id", "=", company.id), ("year", "=", year),
-                                     ("month", "=", month), ("state", "=", "new")]},
-            })
-
-        drafts = self.env["account.move"].search([
-            ("company_id", "=", company.id), ("date", ">=", first), ("date", "<=", last),
-            ("state", "=", "draft"),
-        ])
-        if drafts:
-            lines.append({
-                "text": _("Чернеток проводок місяця: %s - їх треба провести або скасувати.") % len(drafts),
-                "level": "crit",
-                "target": {"model": "account.move", "domain": [("id", "in", drafts.ids)]},
-            })
-
-        slips = self.env["hr.payslip"].search([
-            ("company_id", "=", company.id), ("date_from", ">=", first), ("date_from", "<=", last),
-            ("state", "not in", ("done", "cancel")),
-        ])
-        if slips:
-            lines.append({
-                "text": _("Непроведених листків: %s.") % len(slips),
-                "level": "crit",
-                "target": {"model": "hr.payslip", "domain": [("id", "in", slips.ids)]},
-            })
-
-        sheet = self.env["ua.timesheet.sheet"].search([
-            ("company_id", "=", company.id), ("year", "=", year), ("month", "=", month),
-        ], limit=1)
-        if sheet and sheet.state != "confirmed":
-            lines.append({
-                "text": _("Табель місяця не затверджено."),
-                "level": "crit",
-                "target": {"model": "ua.timesheet.sheet", "res_id": sheet.id},
-            })
-
-        has_blockers = any(l["level"] == "crit" for l in lines)
-        if has_blockers:
-            lines.append({
-                "text": _("Поки ці перешкоди лишаються, сервіс не дасть закрити місяць - "
-                          "кнопка підтвердження нічого не змінить."),
-                "level": "warn",
-            })
-        lines.append({
-            "text": _("Після закриття лишаються доступні: перегляд і друк документів місяця, "
-                      "звірка банку, подання звітності. Відкрити місяць знову зможе лише головний "
-                      "бухгалтер - окремою дією, з причиною."),
-            "level": "info",
-        })
-        return lines
+        return self.env["ua.period.close"].plan(self._company(), year, month)
 
     @api.model
     def action_close_month(self, ids=False, year=None, month=None, hard=False):
@@ -969,16 +869,11 @@ class UaPeriodBoard(models.AbstractModel):
 
     @api.model
     def action_open_close_record(self, year, month):
-        """Відкрити картку закриття періоду (там причина і кнопка «Відкрити знову»)."""
-        Close = self.env["ua.period.close"]
-        rec = Close.search([("company_id", "=", self.env.company.id),
-                            ("year", "=", int(year)), ("month", "=", int(month))], limit=1)
-        if not rec:
-            rec = Close.create({"company_id": self.env.company.id,
-                                "year": int(year), "month": int(month)})
-        return {"type": "ir.actions.act_window", "res_model": "ua.period.close",
-                "res_id": rec.id, "view_mode": "form", "views": [(False, "form")],
-                "target": "current"}
+        """Відкрити картку закриття періоду (там причина і кнопка «Відкрити знову»).
+
+        Запис шукає і за потреби заводить ua.period.close.ensure_for()."""
+        rec = self.env["ua.period.close"].ensure_for(self._company(), year, month)
+        return self.open_target({"model": "ua.period.close", "res_id": rec.id})
 
     @api.model
     def action_close_quarter(self, year, quarter):
@@ -990,62 +885,11 @@ class UaPeriodBoard(models.AbstractModel):
 
     @api.model
     def action_prepare_month(self, year, month):
-        """Підготувати місяць: табель, чернетки листків, перерахунок.
+        """Підготувати місяць: процедура hr.payslip.run.ua_prepare_month().
 
-        Нічого не проводить і нічого не платить. Мета - щоб бухгалтер побачив числа
-        і перелік винятків, а не заповнював документи руками."""
-        company = self._company()
-        year, month = int(year), int(month)
-        first, last = self._bounds(year, month)
-        done = []
-
-        sheet = self.env["ua.timesheet.sheet"].search([
-            ("company_id", "=", company.id), ("year", "=", year), ("month", "=", month)], limit=1)
-        if not sheet:
-            sheet = self.env["ua.timesheet.sheet"].create({
-                "company_id": company.id, "year": year, "month": month})
-            sheet.action_refill()
-            done.append(_("табель створено"))
-        elif sheet.state == "draft" and not sheet.line_ids:
-            sheet.action_refill()
-            done.append(_("табель заповнено"))
-
-        Payslip = self.env["hr.payslip"]
-        existing = Payslip.search([
-            ("company_id", "=", company.id), ("date_from", ">=", first), ("date_from", "<=", last),
-            ("state", "!=", "cancel")])
-        covered = existing.mapped("employee_id")
-        run = self.env["hr.payslip.run"].search([
-            ("company_id", "=", company.id), ("date_start", "=", first), ("date_end", "=", last)], limit=1)
-        if not run:
-            run = self.env["hr.payslip.run"].create({
-                "name": _("Зарплата %(month)02d.%(year)s") % {"month": month, "year": year},
-                "date_start": first, "date_end": last, "company_id": company.id})
-        created = 0
-        for employee in self.env["hr.employee"].search([("company_id", "=", company.id), ("active", "=", True)]):
-            if employee in covered:
-                continue
-            version = employee.sudo().version_ids.filtered(
-                lambda v: v.contract_date_start and v.contract_date_start <= last
-                and (not v.contract_date_end or v.contract_date_end >= first)).sorted("contract_date_start")[-1:]
-            if not version:
-                continue
-            slip = Payslip.create({
-                "employee_id": employee.id, "date_from": first, "date_to": last,
-                "payslip_run_id": run.id, "company_id": company.id,
-            })
-            slip.onchange_employee()
-            created += 1
-        if created:
-            done.append(_("створено листків: %s") % created)
-
-        drafts = Payslip.search([
-            ("company_id", "=", company.id), ("date_from", ">=", first), ("date_from", "<=", last),
-            ("state", "in", ("draft", "verify"))])
-        if drafts:
-            drafts.compute_sheet()
-            done.append(_("перераховано листків: %s") % len(drafts))
-        return {"message": "; ".join(done) if done else _("Змінювати не було чого: місяць уже підготовлено.")}
+        Саме відкриття місяця (табель, пакет, чернетки листків, перерахунок) живе
+        там, де створюються його записи; екран лише натискає кнопку."""
+        return self.env["hr.payslip.run"].ua_prepare_month(self._company(), year, month)
 
     @api.model
     def action_headline(self, year, month, action):

@@ -3,6 +3,8 @@
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
+from .hr_payslip_run import _bounds, as_company
+
 # Повний цикл фінансування: заява - прийняття - гроші від ПФУ - виплата працівнику - повідомлення.
 # Кожен перехід має підтвердження: дату, суму або причину відмови.
 STATES = [
@@ -72,6 +74,22 @@ class UaPfuClaim(models.Model):
     def _unlink_except_draft(self):
         if any(doc.state != "draft" for doc in self):
             raise UserError("Видалити можна лише чернетку заяви-розрахунку.")
+
+    @api.model
+    def ua_compose(self, company, year=None, month=None, **params):
+        """Нова заява-розрахунок за місяць: пакет листків місяця і його суми.
+
+        Без пакета листків заяви не буває - рахувати нема з чого, тому метод
+        відмовляє, а не створює порожню чернетку."""
+        company = as_company(self.env, company)
+        first, last = _bounds(int(year), int(month))
+        run = self.env["hr.payslip.run"].search([
+            ("company_id", "=", company.id), ("date_start", ">=", first), ("date_start", "<=", last)], limit=1)
+        if not run:
+            raise UserError("Немає розрахунково-платіжної відомості за цей місяць")
+        claim = self.create({"company_id": company.id, "payslip_run_id": run.id})
+        claim.action_refill()
+        return claim
 
     def action_refill(self):
         """Видалити рядки і заповнити знову: рядки SICK_PFU і MAT листків пакета, відпустка з номером е-ЛН, дні з _ua_leave_calendar_days()."""

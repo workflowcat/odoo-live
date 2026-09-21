@@ -1,9 +1,18 @@
 # -*- coding: utf-8 -*-
 """Штатний розпис на дату: документ з рядками (підрозділ, посада, ставки, оклад, фонд)."""
+import calendar
+from datetime import date as _date
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
+from .hr_payslip_run import as_company
+
 STATES = [("draft", "Чернетка"), ("confirmed", "Затверджено")]
+
+
+def _month_end(year, month):
+    return _date(year, month, calendar.monthrange(year, month)[1])
 
 
 class UaStaffList(models.Model):
@@ -40,6 +49,20 @@ class UaStaffList(models.Model):
     def _unlink_except_draft(self):
         if any(doc.state != "draft" for doc in self):
             raise UserError("Видалити можна лише чернетку штатного розпису.")
+
+    @api.model
+    def ua_compose(self, company, year=None, month=None, date=None, **params):
+        """Новий штатний розпис на дату, одразу заповнений поточним складом.
+
+        Дата - явна, якщо її передали («Люди» складають розпис на сьогодні), інакше
+        останній день місяця («Папери» складають розпис періоду)."""
+        company = as_company(self.env, company)
+        if not date:
+            date = (_month_end(int(year), int(month)) if year and month
+                    else fields.Date.context_today(self))
+        doc = self.create({"company_id": company.id, "date": date})
+        doc.action_refill()
+        return doc
 
     def action_refill(self):
         """Видалити рядки і заповнити знову: підрозділ / посада / код КП / оклад -> сума ставок і фонд."""

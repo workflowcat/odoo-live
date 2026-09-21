@@ -65,6 +65,16 @@ class UaAdvanceSheet(models.Model):
         cells = ts_line._day_cells(h2.day)
         return sum(1 for i in range(h1.day, h2.day + 1) if cells[i - 1] == "Р")
 
+    @api.model
+    def ua_compose(self, company, year=None, month=None, **params):
+        """Нова авансова відомість місяця, одразу порахована."""
+        if isinstance(company, int):
+            company = self.env["res.company"].browse(company)
+        company = company or self.env.company
+        doc = self.create({"company_id": company.id, "year": int(year), "month": int(month)})
+        doc.action_refill()
+        return doc
+
     def action_refill(self):
         """Видалити рядки і заповнити знову з чернеток листків місяця. Лише для чернетки документа.
 
