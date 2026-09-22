@@ -28,7 +28,7 @@ jobs:
         run: |
           printf 'COMPOSE_PROJECT_NAME=odoo-live-base\nODOO_PORT=8130\nODOO_ADMIN_PASSWD=ci\nODOO_ADMIN_USER_LOGIN=admin\nODOO_ADMIN_USER_PASSWORD=ci\nBP_BRIDGE_TOKEN=\n' > .env
       - name: Тести на свіжій базі
-        run: TEST_MODULES=l10n_ua_navigation TEST_TAGS=ua_golden,ua_leaves,ua_payments,ua_regress,ua_changes,ua_period,ua_checks,ua_hire,ua_reporting,ua_setup,ua_bank,ua_card,ua_documents,ua_api,ua_vat,ua_cash,ua_ledger,ua_finrep,ua_assets,ua_nbu,ua_fop,ua_migrate,ua_edr,ua_docs ./scripts/test.sh
+        run: TEST_MODULES=l10n_ua_navigation,l10n_ua_payroll_tests TEST_TAGS=ua_golden,ua_leaves,ua_payments,ua_regress,ua_changes,ua_period,ua_checks,ua_hire,ua_reporting,ua_setup,ua_bank,ua_card,ua_documents,ua_api,ua_vat,ua_cash,ua_ledger,ua_finrep,ua_assets,ua_nbu,ua_fop,ua_migrate,ua_edr,ua_docs ./scripts/test.sh
       - name: Повне встановлення на порожню базу
         run: |
           docker compose exec -T db createdb -U odoo -O odoo fresh
