@@ -24,7 +24,7 @@ jobs:
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
-      - name: .env для стенду (без секретів: свіжа база, паролі тестові)
+      - name: ".env для стенду (без секретів, свіжа база, паролі тестові)"
         run: |
           printf 'COMPOSE_PROJECT_NAME=odoo-live-base\nODOO_PORT=8130\nODOO_ADMIN_PASSWD=ci\nODOO_ADMIN_USER_LOGIN=admin\nODOO_ADMIN_USER_PASSWORD=ci\nBP_BRIDGE_TOKEN=\n' > .env
       - name: Тести на свіжій базі
