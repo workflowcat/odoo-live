@@ -12,3 +12,4 @@ from . import test_hire
 from . import test_reporting
 from . import test_setup
 from . import test_employee_form
+from . import test_api

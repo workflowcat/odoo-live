@@ -67,6 +67,7 @@ run_check() {
 }
 
 #          скрипт               база           змінні середовища
+run_check contract_check.py     -
 run_check layers_check.py       -
 run_check words_check.py        -
 run_check advance_check.py      payroll_test   PAYROLL_CHECK_DB=payroll_test

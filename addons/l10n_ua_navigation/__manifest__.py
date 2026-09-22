@@ -16,6 +16,14 @@
         # кадри
         "l10n_ua_hr_card", "l10n_ua_hr_orders", "l10n_ua_hr_docs", "l10n_ua_military",
         "l10n_ua_kp", "l10n_ua_onboarding", "l10n_ua_hire",
+        # договір читання для інтерфейсу (без подань і меню)
+        "l10n_ua_api",
+        # бухоблік, склад, виробництво, група (хвиля C, DataCore 2026-09-22)
+        "l10n_ua_purchase",
+        "l10n_ua_mrp",
+        "l10n_ua_stock_docs",
+        "l10n_ua_group",
+        "l10n_ua_profit_tax",
         # звітність і контроль
         "l10n_ua_payroll_reports", "l10n_ua_reporting", "l10n_ua_changes", "l10n_ua_setup",
         # бухоблік

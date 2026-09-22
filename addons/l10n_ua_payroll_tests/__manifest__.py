@@ -39,6 +39,8 @@
         "l10n_ua_setup",
         "l10n_ua_military",
         "l10n_ua_gph",
+        # договір читання для інтерфейсу (тег ua_api)
+        "l10n_ua_api",
     ],
     "data": [],
     "installable": True,

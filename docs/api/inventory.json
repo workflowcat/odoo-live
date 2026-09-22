@@ -1,0 +1,5434 @@
+{
+  "totals": {
+    "modules": 42,
+    "models": 98,
+    "methods": 273,
+    "fields": 257
+  },
+  "areas": [
+    {
+      "area": "Зарплата",
+      "models": [
+        {
+          "model": "ua.advance.sheet",
+          "ours": true,
+          "modules": [
+            "l10n_ua_payroll_rules"
+          ],
+          "methods": [
+            {
+              "name": "action_confirm",
+              "signature": "action_confirm()",
+              "doc": "",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/ua_advance_sheet.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/ua_advance_sheet.py",
+              "decorators": []
+            },
+            {
+              "name": "action_refill",
+              "signature": "action_refill()",
+              "doc": "Видалити рядки і заповнити знову з чернеток листків місяця. Лише для чернетки документа.",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/ua_advance_sheet.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_compose",
+              "signature": "ua_compose(company, year=None, month=None, **params)",
+              "doc": "Нова авансова відомість місяця, одразу порахована.",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/ua_advance_sheet.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.cpi.index",
+          "ours": true,
+          "modules": [
+            "l10n_ua_index"
+          ],
+          "methods": [
+            {
+              "name": "get_map",
+              "signature": "get_map(date_from, date_to)",
+              "doc": "{(рік, місяць): індекс} за період включно.",
+              "module": "l10n_ua_index",
+              "file": "addons/l10n_ua_index/models/ua_cpi_index.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.dps.xml",
+          "ours": true,
+          "modules": [
+            "l10n_ua_payroll_reports"
+          ],
+          "methods": [
+            {
+              "name": "build",
+              "signature": "build(company, c_doc, c_doc_sub, c_doc_ver, period_type, month, year, body_fields, linked=None, c_doc_cnt=1, c_doc_type=0, c_doc_stan=1, fill_date=None)",
+              "doc": "body_fields: список (тег, значення) у порядку схеми; порожні значення пропускаються. Повертає (ім'я файлу, bytes).",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/ua_dps_xml.py",
+              "decorators": []
+            },
+            {
+              "name": "file_name",
+              "signature": "file_name(tin, sti, c_doc, c_doc_sub, c_doc_ver, c_doc_stan, c_doc_type, c_doc_cnt, period_type, month, year, sti_orig)",
+              "doc": "Ім'я файлу за форматом ДПС, звірено з прикладом M.E.Doc 26550008012019J0500111100000000110720262655.XML:",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/ua_dps_xml.py",
+              "decorators": [
+                "staticmethod"
+              ]
+            },
+            {
+              "name": "validate",
+              "signature": "validate(data, schema_code)",
+              "doc": "Перевірка за XSD зі schemas/ (файли збережені в UTF-8). Повертає список помилок; порожній = валідний.",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/ua_dps_xml.py",
+              "decorators": [
+                "staticmethod"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.explain",
+          "ours": true,
+          "modules": [
+            "l10n_ua_explain"
+          ],
+          "methods": [
+            {
+              "name": "explain",
+              "signature": "explain(model, res_id, field=None, when='auto')",
+              "doc": "when: \"auto\" - заморожений слід, якщо є, інакше живий перерахунок (preview);",
+              "module": "l10n_ua_explain",
+              "file": "addons/l10n_ua_explain/models/ua_explain.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.explain.trace",
+          "ours": true,
+          "modules": [
+            "l10n_ua_explain"
+          ],
+          "methods": [
+            {
+              "name": "freeze",
+              "signature": "freeze(record, payload_dict)",
+              "doc": "Створити новий рядок сліду для запису. Завжди create, ніколи write",
+              "module": "l10n_ua_explain",
+              "file": "addons/l10n_ua_explain/models/ua_explain_trace.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.hire.notice.wizard",
+          "ours": true,
+          "modules": [
+            "l10n_ua_payroll_reports"
+          ],
+          "methods": [
+            {
+              "name": "action_generate",
+              "signature": "action_generate()",
+              "doc": "",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/wizards/ua_hire_notice_wizard.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.income.certificate.wizard",
+          "ours": true,
+          "modules": [
+            "l10n_ua_payroll_reports"
+          ],
+          "methods": [
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/wizards/ua_income_certificate.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.payments.plan",
+          "ours": true,
+          "modules": [
+            "l10n_ua_payments"
+          ],
+          "methods": [
+            {
+              "name": "month_rows",
+              "signature": "month_rows(company, year, month)",
+              "doc": "Рядки календаря виплат місяця: минулий місяць - факт, поточний - план.",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/ua_payments_plan.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.payroll.advance.wizard",
+          "ours": true,
+          "modules": [
+            "l10n_ua_payroll_rules"
+          ],
+          "methods": [
+            {
+              "name": "action_fill",
+              "signature": "action_fill()",
+              "doc": "",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/wizards/ua_advance_wizard.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.payroll.param",
+          "ours": true,
+          "modules": [
+            "l10n_ua_payroll_rules"
+          ],
+          "methods": [
+            {
+              "name": "get",
+              "signature": "get(key, date=None, company=None)",
+              "doc": "",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/ua_payroll_param.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "get_all",
+              "signature": "get_all(date=None, company=None)",
+              "doc": "",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/ua_payroll_param.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.payroll.report.wizard",
+          "ours": true,
+          "modules": [
+            "l10n_ua_payroll_reports"
+          ],
+          "methods": [
+            {
+              "name": "action_generate",
+              "signature": "action_generate()",
+              "doc": "",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/wizards/ua_report_wizard.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "account.payment.line",
+          "ours": false,
+          "modules": [
+            "l10n_ua_payments"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_account_id",
+              "type": "Many2one",
+              "label": "account.account",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/account_payment_line.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_employee_id",
+              "type": "Many2one",
+              "label": "hr.employee",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/account_payment_line.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_label",
+              "type": "Char",
+              "label": "Рядок",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/account_payment_line.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "account.payment.mode",
+          "ours": false,
+          "modules": [
+            "l10n_ua_payments"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_file_format",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/account_payment_mode.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "account.payment.order",
+          "ours": false,
+          "modules": [
+            "l10n_ua_payments"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "Скасувати відомість. Odoo 19 лишає платіж у стані «в обробці» (in_process), а",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/account_payment_order.py",
+              "decorators": []
+            },
+            {
+              "name": "action_confirm",
+              "signature": "action_confirm()",
+              "doc": "Затвердити: OCA складає платежі (ще чернетки) з рядків відомості.",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/account_payment_order.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/account_payment_order.py",
+              "decorators": []
+            },
+            {
+              "name": "action_export",
+              "signature": "action_export()",
+              "doc": "Кнопка «Файл для банку»: формує файл, чіпляє його до відомості і віддає посилання.",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/account_payment_order.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill",
+              "signature": "action_fill()",
+              "doc": "",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/account_payment_order.py",
+              "decorators": []
+            },
+            {
+              "name": "action_paid",
+              "signature": "action_paid()",
+              "doc": "Позначити оплаченою: платежі проводяться і закривають 661 / 6411 / 6415 / 651.",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/account_payment_order.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_compose",
+              "signature": "ua_compose(company, year=None, month=None, kind=None, **params)",
+              "doc": "Нова відомість на перерахування за місяць, одразу заповнена.",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/account_payment_order.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": [
+            {
+              "name": "state",
+              "type": "Selection",
+              "label": "Стан",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/account_payment_order.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_kind",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/account_payment_order.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_label",
+              "type": "Char",
+              "label": "Назва",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/account_payment_order.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_legacy",
+              "type": "Boolean",
+              "label": "Перенесена історія",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/account_payment_order.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_month",
+              "type": "Integer",
+              "label": "Місяць",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/account_payment_order.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_note",
+              "type": "Text",
+              "label": "Примітка",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/account_payment_order.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_pay_date",
+              "type": "Date",
+              "label": "Дата виплати",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/account_payment_order.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_year",
+              "type": "Integer",
+              "label": "Рік",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/account_payment_order.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "hr.department",
+          "ours": false,
+          "modules": [
+            "l10n_ua_payroll_account"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_expense_account_id",
+              "type": "Many2one",
+              "label": "account.account",
+              "module": "l10n_ua_payroll_account",
+              "file": "addons/l10n_ua_payroll_account/models/hr_department.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "hr.employee",
+          "ours": false,
+          "modules": [
+            "l10n_ua_average",
+            "l10n_ua_gph",
+            "l10n_ua_hr_card",
+            "l10n_ua_hr_orders",
+            "l10n_ua_index",
+            "l10n_ua_military",
+            "l10n_ua_payments",
+            "l10n_ua_payroll_account",
+            "l10n_ua_payroll_reports",
+            "l10n_ua_payroll_rules"
+          ],
+          "methods": [
+            {
+              "name": "action_ua_mil_register_check",
+              "signature": "action_ua_mil_register_check()",
+              "doc": "Кнопка форми працівника: та сама звірка, що й для списку персонального обліку -",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_print_last_order",
+              "signature": "action_ua_print_last_order()",
+              "doc": "Друк останнього проведеного наказу працівника (будь-якого виду). Якщо наказу в реєстрі",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/hr_employee.py",
+              "decorators": []
+            },
+            {
+              "name": "action_view_ua_documents",
+              "signature": "action_view_ua_documents()",
+              "doc": "",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "decorators": []
+            },
+            {
+              "name": "get_ua_doc_package",
+              "signature": "get_ua_doc_package()",
+              "doc": "Пакет документів картки (docs/payroll/spec-intake.md) - той самий package_for, яким",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_ensure_allocations",
+              "signature": "ua_ensure_allocations(year=None)",
+              "doc": "",
+              "module": "l10n_ua_average",
+              "file": "addons/l10n_ua_average/models/hr_employee.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_ensure_leave_allocations",
+              "signature": "ua_ensure_leave_allocations(on_date=None)",
+              "doc": "Публічна обгортка: Odoo не дає викликати методи з підкресленням через execute_kw.",
+              "module": "l10n_ua_average",
+              "file": "addons/l10n_ua_average/models/hr_employee.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_mil_register_check",
+              "signature": "ua_mil_register_check(note=None)",
+              "doc": "Записати звірку з ТЦК: подія обліку плюс дата останньої звірки.",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "decorators": []
+            }
+          ],
+          "fields": [
+            {
+              "name": "marital",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_actual_address",
+              "type": "Char",
+              "label": "Фактична адреса",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_alimony_partner_id",
+              "type": "Many2one",
+              "label": "res.partner",
+              "module": "l10n_ua_payroll_account",
+              "file": "addons/l10n_ua_payroll_account/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_chernobyl_category",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_child_ids",
+              "type": "One2many",
+              "label": "ua.employee.child",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_contract_kind",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_diploma_number",
+              "type": "Char",
+              "label": "Номер диплома",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_disability_group",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_dismissal_date",
+              "type": "Date",
+              "label": "Дата звільнення",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_document_ids",
+              "type": "One2many",
+              "label": "ua.employee.document",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_education_year",
+              "type": "Integer",
+              "label": "Рік закінчення",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_electronic_labor_book",
+              "type": "Boolean",
+              "label": "Електронна трудова",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_esv_category",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_expense_account_id",
+              "type": "Many2one",
+              "label": "account.account",
+              "module": "l10n_ua_payroll_account",
+              "file": "addons/l10n_ua_payroll_account/models/hr_department.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_first_hire_date",
+              "type": "Date",
+              "label": "Прийнято вперше",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_first_name",
+              "type": "Char",
+              "label": "Ім'я",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_fte",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_full_time",
+              "type": "Boolean",
+              "label": "Повна зайнятість",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_gph_contract_date",
+              "type": "Date",
+              "label": "Дата договору ЦПХ",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_gph_contract_end",
+              "type": "Date",
+              "label": "Договір діє до",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_gph_contract_ref",
+              "type": "Char",
+              "label": "Договір ЦПХ №",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_hire_date",
+              "type": "Date",
+              "label": "Дата прийняття",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_id_doc_date",
+              "type": "Date",
+              "label": "Дата видачі",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_id_doc_issued_by",
+              "type": "Char",
+              "label": "Ким виданий",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_id_doc_number",
+              "type": "Char",
+              "label": "Номер документа",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_id_doc_series",
+              "type": "Char",
+              "label": "Серія",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_id_doc_type",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_id_doc_unzr",
+              "type": "Char",
+              "label": "УНЗР",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_index_base",
+              "type": "Date",
+              "label": "Базовий місяць індексації",
+              "module": "l10n_ua_index",
+              "file": "addons/l10n_ua_index/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_index_off",
+              "type": "Boolean",
+              "label": "Не індексувати",
+              "module": "l10n_ua_index",
+              "file": "addons/l10n_ua_index/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_index_paid_month",
+              "type": "Date",
+              "label": "Місяць останньої виплаченої індексації",
+              "module": "l10n_ua_index",
+              "file": "addons/l10n_ua_index/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_insurance_years",
+              "type": "Float",
+              "label": "Страховий стаж, років",
+              "module": "l10n_ua_average",
+              "file": "addons/l10n_ua_average/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_labor_book_date",
+              "type": "Date",
+              "label": "Дата заведення",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_labor_book_number",
+              "type": "Char",
+              "label": "Номер трудової книжки",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_languages",
+              "type": "Char",
+              "label": "Мови",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_large_family",
+              "type": "Boolean",
+              "label": "Багатодітна сім'я",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_last_name",
+              "type": "Char",
+              "label": "Прізвище",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_main_job",
+              "type": "Boolean",
+              "label": "Основне місце роботи",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_middle_name",
+              "type": "Char",
+              "label": "По батькові",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_category",
+              "type": "Selection",
+              "label": "Категорія обліку",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_deferment",
+              "type": "Char",
+              "label": "Відстрочка (підстава)",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_deferment_until",
+              "type": "Date",
+              "label": "Відстрочка до",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_doc_date",
+              "type": "Date",
+              "label": "Дата видачі документа",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_doc_number",
+              "type": "Char",
+              "label": "Номер військового документа",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_doc_series",
+              "type": "Char",
+              "label": "Серія документа",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_doc_type",
+              "type": "Selection",
+              "label": "Вид документа",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_event_ids",
+              "type": "One2many",
+              "label": "ua.military.event",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_fitness",
+              "type": "Selection",
+              "label": "Придатність",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_group",
+              "type": "Selection",
+              "label": "Група обліку",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_last_check",
+              "type": "Date",
+              "label": "Дата звірки даних",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_needs_check",
+              "type": "Boolean",
+              "label": "Потребує звірки",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_note",
+              "type": "Text",
+              "label": "Примітка",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_rank",
+              "type": "Char",
+              "label": "Військове звання",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_reserve_order",
+              "type": "Char",
+              "label": "Підстава бронювання (наказ, рішення)",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_reserve_until",
+              "type": "Date",
+              "label": "Бронювання до",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_reserved",
+              "type": "Boolean",
+              "label": "Заброньований",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_status",
+              "type": "Selection",
+              "label": "Стан обліку",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_tcc",
+              "type": "Char",
+              "label": "ТЦК та СП, де перебуває на обліку",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_vlk_date",
+              "type": "Date",
+              "label": "Дата ВЛК",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_vos",
+              "type": "Char",
+              "label": "ВОС",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_mil_women_list",
+              "type": "Boolean",
+              "label": "У списку жінок",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_previous_employee_id",
+              "type": "Many2one",
+              "label": "hr.employee",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_prior_job_ids",
+              "type": "One2many",
+              "label": "ua.employee.prior.job",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_psp",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_psp_children",
+              "type": "Integer",
+              "label": "Дітей до 18 років",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_reserve_date",
+              "type": "Date",
+              "label": "Дата витягу Резерв+",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_reserve_file",
+              "type": "Binary",
+              "label": "Файл витягу Резерв+",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_reserve_filename",
+              "type": "Char",
+              "label": "Файл витягу (назва)",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_reserve_number",
+              "type": "Char",
+              "label": "Номер витягу Резерв+",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_rnokpp",
+              "type": "Char",
+              "label": "РНОКПП",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_science_degree",
+              "type": "Char",
+              "label": "Науковий ступінь",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_sick_full",
+              "type": "Boolean",
+              "label": "Лікарняні 100 % незалежно від стажу",
+              "module": "l10n_ua_average",
+              "file": "addons/l10n_ua_average/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_single_parent",
+              "type": "Boolean",
+              "label": "Одинокий батько/мати",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_soc_child_disabled_child",
+              "type": "Boolean",
+              "label": "Є дитина з інвалідністю",
+              "module": "l10n_ua_average",
+              "file": "addons/l10n_ua_average/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_special_leave_days",
+              "type": "Integer",
+              "label": "Днів додаткової відпустки за особливий характер праці",
+              "module": "l10n_ua_average",
+              "file": "addons/l10n_ua_average/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_vacation_days_year",
+              "type": "Integer",
+              "label": "Днів щорічної відпустки на рік",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_vacation_opening_balance",
+              "type": "Float",
+              "label": "Залишок на дату впровадження",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_vacation_opening_date",
+              "type": "Date",
+              "label": "Дата впровадження обліку відпусток",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_veteran",
+              "type": "Boolean",
+              "label": "УБД / ветеран",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_war_disability",
+              "type": "Boolean",
+              "label": "Особа з інвалідністю внаслідок війни",
+              "module": "l10n_ua_average",
+              "file": "addons/l10n_ua_average/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            }
+          ]
+        },
+        {
+          "model": "hr.leave",
+          "ours": false,
+          "modules": [
+            "l10n_ua_average",
+            "l10n_ua_hr_orders"
+          ],
+          "methods": [
+            {
+              "name": "action_refuse",
+              "signature": "action_refuse()",
+              "doc": "",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/hr_leave.py",
+              "decorators": []
+            }
+          ],
+          "fields": [
+            {
+              "name": "ua_order_id",
+              "type": "Many2one",
+              "label": "ua.hr.order",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/hr_leave.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_order_ref",
+              "type": "Char",
+              "label": "Наказ (№ і дата)",
+              "module": "l10n_ua_average",
+              "file": "addons/l10n_ua_average/models/hr_leave.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_sick_number",
+              "type": "Char",
+              "label": "Номер е-лікарняного",
+              "module": "l10n_ua_average",
+              "file": "addons/l10n_ua_average/models/hr_leave.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "hr.leave.allocation",
+          "ours": false,
+          "modules": [
+            "l10n_ua_average"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_period_start",
+              "type": "Date",
+              "label": "Початок періоду нарахування",
+              "module": "l10n_ua_average",
+              "file": "addons/l10n_ua_average/models/hr_leave_allocation.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_source",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_average",
+              "file": "addons/l10n_ua_average/models/hr_leave_allocation.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "hr.leave.type",
+          "ours": false,
+          "modules": [
+            "l10n_ua_average"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_alloc_basis",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_average",
+              "file": "addons/l10n_ua_average/models/hr_leave_type.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_calendar_days",
+              "type": "Boolean",
+              "label": "Рахувати календарні дні",
+              "module": "l10n_ua_average",
+              "file": "addons/l10n_ua_average/models/hr_leave_type.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "hr.payslip",
+          "ours": false,
+          "modules": [
+            "l10n_ua_average",
+            "l10n_ua_explain",
+            "l10n_ua_hr_docs",
+            "l10n_ua_index",
+            "l10n_ua_payroll_account",
+            "l10n_ua_payroll_rules"
+          ],
+          "methods": [
+            {
+              "name": "action_open_move",
+              "signature": "action_open_move()",
+              "doc": "",
+              "module": "l10n_ua_payroll_account",
+              "file": "addons/l10n_ua_payroll_account/models/hr_payslip.py",
+              "decorators": []
+            },
+            {
+              "name": "action_payslip_cancel",
+              "signature": "action_payslip_cancel()",
+              "doc": "",
+              "module": "l10n_ua_payroll_account",
+              "file": "addons/l10n_ua_payroll_account/models/hr_payslip.py",
+              "decorators": []
+            },
+            {
+              "name": "action_payslip_done",
+              "signature": "action_payslip_done()",
+              "doc": "",
+              "module": "l10n_ua_average",
+              "file": "addons/l10n_ua_average/models/hr_payslip.py",
+              "decorators": []
+            },
+            {
+              "name": "action_payslip_done",
+              "signature": "action_payslip_done()",
+              "doc": "",
+              "module": "l10n_ua_explain",
+              "file": "addons/l10n_ua_explain/models/hr_payslip.py",
+              "decorators": []
+            },
+            {
+              "name": "action_payslip_done",
+              "signature": "action_payslip_done()",
+              "doc": "Виплачена індексація починає новий цикл: базовим стає місяць листка.",
+              "module": "l10n_ua_index",
+              "file": "addons/l10n_ua_index/models/hr_payslip.py",
+              "decorators": []
+            },
+            {
+              "name": "action_payslip_done",
+              "signature": "action_payslip_done()",
+              "doc": "",
+              "module": "l10n_ua_payroll_account",
+              "file": "addons/l10n_ua_payroll_account/models/hr_payslip.py",
+              "decorators": []
+            },
+            {
+              "name": "get_payroll_dict",
+              "signature": "get_payroll_dict(contracts)",
+              "doc": "",
+              "module": "l10n_ua_explain",
+              "file": "addons/l10n_ua_explain/models/hr_payslip.py",
+              "decorators": []
+            },
+            {
+              "name": "get_payroll_dict",
+              "signature": "get_payroll_dict(contracts)",
+              "doc": "",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/hr_payslip.py",
+              "decorators": []
+            },
+            {
+              "name": "get_worked_day_lines",
+              "signature": "get_worked_day_lines(contracts, date_from, date_to)",
+              "doc": "Дні і години WORK100 з табеля. Дні відсутності лишаються окремими рядками,",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/hr_payslip.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_index_amount",
+              "signature": "ua_index_amount()",
+              "doc": "",
+              "module": "l10n_ua_index",
+              "file": "addons/l10n_ua_index/models/hr_payslip.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_index_detail",
+              "signature": "ua_index_detail()",
+              "doc": "(сума, наростаючий відсоток, місяці без індексу) для правила і перевірок.",
+              "module": "l10n_ua_index",
+              "file": "addons/l10n_ua_index/models/hr_payslip.py",
+              "decorators": []
+            }
+          ],
+          "fields": [
+            {
+              "name": "move_id",
+              "type": "Many2one",
+              "label": "account.move",
+              "module": "l10n_ua_payroll_account",
+              "file": "addons/l10n_ua_payroll_account/models/hr_payslip.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "hr.version",
+          "ours": false,
+          "modules": [
+            "l10n_ua_average",
+            "l10n_ua_payroll_reports",
+            "l10n_ua_payroll_rules"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_dismissal_basis",
+              "type": "Char",
+              "label": "Підстава припинення",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/hr_version.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_end_order_ref",
+              "type": "Char",
+              "label": "Наказ про звільнення (№ і дата)",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/hr_version.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_hour_rate",
+              "type": "Monetary",
+              "label": "Ставка, грн/год",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/hr_version_pay.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_internal_parttime",
+              "type": "Boolean",
+              "label": "Внутрішній сумісник",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/hr_version.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_kp_code",
+              "type": "Char",
+              "label": "Код КП",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/hr_version.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_night_shifts",
+              "type": "Boolean",
+              "label": "Працює в нічну зміну",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/hr_version_pay.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_order_ref",
+              "type": "Char",
+              "label": "Наказ про прийняття (№ і дата)",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/hr_version.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_pay_type",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/hr_version_pay.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_prof_name",
+              "type": "Char",
+              "label": "Професійна назва роботи",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/hr_version.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_weekly_hours",
+              "type": "Float",
+              "label": "Норма годин на тиждень",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/hr_version_pay.py",
+              "groups": "hr.group_hr_user"
+            }
+          ]
+        },
+        {
+          "model": "res.company",
+          "ours": false,
+          "modules": [
+            "l10n_ua_average",
+            "l10n_ua_cash",
+            "l10n_ua_chart",
+            "l10n_ua_docs",
+            "l10n_ua_fop",
+            "l10n_ua_hr_orders",
+            "l10n_ua_payments",
+            "l10n_ua_payroll_account",
+            "l10n_ua_payroll_reports",
+            "l10n_ua_payroll_rules",
+            "l10n_ua_purchase",
+            "l10n_ua_setup",
+            "l10n_ua_vat"
+          ],
+          "methods": [
+            {
+              "name": "ua_payment_setup",
+              "signature": "ua_payment_setup()",
+              "doc": "Довідники зарплатних виплат одним викликом: способи оплати і банк.",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/res_company.py",
+              "decorators": []
+            }
+          ],
+          "fields": [
+            {
+              "name": "ua_accountant_name",
+              "type": "Char",
+              "label": "Головний бухгалтер (ПІБ)",
+              "module": "l10n_ua_docs",
+              "file": "addons/l10n_ua_docs/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_accountant_name",
+              "type": "Char",
+              "label": "Головний бухгалтер (ПІБ)",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_accountant_rnokpp",
+              "type": "Char",
+              "label": "РНОКПП головного бухгалтера",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_acts_on_basis",
+              "type": "Char",
+              "label": "Діє на підставі",
+              "module": "l10n_ua_docs",
+              "file": "addons/l10n_ua_docs/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_below_min_wage",
+              "type": "Boolean",
+              "label": "Є оклади нижче мінімальної зарплати",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_booking_planned",
+              "type": "Boolean",
+              "label": "Бронюємо або плануємо бронювати",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_cash_limit",
+              "type": "Monetary",
+              "label": "Ліміт каси",
+              "module": "l10n_ua_cash",
+              "file": "addons/l10n_ua_cash/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_director_name",
+              "type": "Char",
+              "label": "Керівник (ПІБ)",
+              "module": "l10n_ua_docs",
+              "file": "addons/l10n_ua_docs/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_director_name",
+              "type": "Char",
+              "label": "Керівник (ПІБ)",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_director_rnokpp",
+              "type": "Char",
+              "label": "РНОКПП керівника",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_dps_partner_id",
+              "type": "Many2one",
+              "label": "res.partner",
+              "module": "l10n_ua_payroll_account",
+              "file": "addons/l10n_ua_payroll_account/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_dps_raj",
+              "type": "Char",
+              "label": "Код району ДПІ",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_dps_reg",
+              "type": "Char",
+              "label": "Код області ДПІ",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_dps_sti",
+              "type": "Char",
+              "label": "Код ДПІ отримувача",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_engagement_forms",
+              "type": "Char",
+              "label": "Форми залучення людей",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_fop",
+              "type": "Boolean",
+              "label": "ФОП на єдиному податку",
+              "module": "l10n_ua_fop",
+              "file": "addons/l10n_ua_fop/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_fop_group",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_fop",
+              "file": "addons/l10n_ua_fop/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_fop_vat_payer",
+              "type": "Boolean",
+              "label": "Платник ПДВ",
+              "module": "l10n_ua_fop",
+              "file": "addons/l10n_ua_fop/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_has_disabled",
+              "type": "Boolean",
+              "label": "Є працівники з інвалідністю (ЄСВ 8,41 %)",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_iban_esv",
+              "type": "Char",
+              "label": "Рахунок бюджету: ЄСВ",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_iban_pdfo",
+              "type": "Char",
+              "label": "Рахунок бюджету: ПДФО",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_iban_vz",
+              "type": "Char",
+              "label": "Рахунок бюджету: військовий збір",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_index_default_off",
+              "type": "Boolean",
+              "label": "Індексацію не ведемо",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_katottg",
+              "type": "Char",
+              "label": "Код КАТОТТГ",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_kved",
+              "type": "Char",
+              "label": "Основний КВЕД",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_military_officer",
+              "type": "Char",
+              "label": "Відповідальний за військовий облік",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_opening_balances",
+              "type": "Boolean",
+              "label": "Будуть вхідні залишки",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_pay_advance_day",
+              "type": "Integer",
+              "label": "Аванс до числа",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_pay_advance_percent",
+              "type": "Float",
+              "label": "Аванс, % окладу",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_pay_final_day",
+              "type": "Integer",
+              "label": "Остаточний розрахунок до числа",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_payment_mode_salary_id",
+              "type": "Many2one",
+              "label": "account.payment.mode",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_payment_mode_tax_id",
+              "type": "Many2one",
+              "label": "account.payment.mode",
+              "module": "l10n_ua_payments",
+              "file": "addons/l10n_ua_payments/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_payroll_bank_mode",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_pfu_partner_id",
+              "type": "Many2one",
+              "label": "res.partner",
+              "module": "l10n_ua_payroll_account",
+              "file": "addons/l10n_ua_payroll_account/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_purchase_approval_limit",
+              "type": "Monetary",
+              "label": "Ліміт погодження запиту",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_raj",
+              "type": "Char",
+              "label": "Код району (C_RAJ)",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_reg",
+              "type": "Char",
+              "label": "Код області (C_REG)",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_settlement_currency",
+              "type": "Char",
+              "label": "Валюта розрахунків з клієнтами",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_sti_code",
+              "type": "Char",
+              "label": "Код ДПІ (C_STI_ORIG)",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_sti_name",
+              "type": "Char",
+              "label": "Назва ДПІ",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_tax_system",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_vacation_opening_date",
+              "type": "Date",
+              "label": "Дата впровадження обліку відпусток",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_vat_payer",
+              "type": "Boolean",
+              "label": "Платник ПДВ",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/res_company.py",
+              "groups": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "area": "Кадри",
+      "models": [
+        {
+          "model": "ua.employee.document",
+          "ours": true,
+          "modules": [
+            "l10n_ua_hr_card",
+            "l10n_ua_hr_orders"
+          ],
+          "methods": [
+            {
+              "name": "action_mark_signed",
+              "signature": "action_mark_signed()",
+              "doc": "",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/ua_employee_document.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/ua_employee_document.py",
+              "decorators": []
+            },
+            {
+              "name": "action_unmark_signed",
+              "signature": "action_unmark_signed()",
+              "doc": "Чесний зворотний бік action_mark_signed - для вікна скасування «узгодження»",
+              "module": "l10n_ua_hr_card",
+              "file": "addons/l10n_ua_hr_card/models/ua_employee_document.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.employee.import",
+          "ours": true,
+          "modules": [
+            "l10n_ua_onboarding"
+          ],
+          "methods": [
+            {
+              "name": "action_import",
+              "signature": "action_import()",
+              "doc": "",
+              "module": "l10n_ua_onboarding",
+              "file": "addons/l10n_ua_onboarding/wizards/ua_employee_import.py",
+              "decorators": []
+            },
+            {
+              "name": "action_template",
+              "signature": "action_template()",
+              "doc": "Порожній файл із заголовками, двома прикладами і аркушем заробітку.",
+              "module": "l10n_ua_onboarding",
+              "file": "addons/l10n_ua_onboarding/wizards/ua_employee_import.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.hire.case",
+          "ours": true,
+          "modules": [
+            "l10n_ua_hire"
+          ],
+          "methods": [
+            {
+              "name": "action_decline",
+              "signature": "action_decline(reason='')",
+              "doc": "",
+              "module": "l10n_ua_hire",
+              "file": "addons/l10n_ua_hire/models/ua_hire_case.py",
+              "decorators": []
+            },
+            {
+              "name": "action_extract",
+              "signature": "action_extract()",
+              "doc": "Надіслати файли локальному помічнику Claude і записати пропозиції. Значення в поля не пишемо.",
+              "module": "l10n_ua_hire",
+              "file": "addons/l10n_ua_hire/models/ua_hire_case.py",
+              "decorators": []
+            },
+            {
+              "name": "action_hire",
+              "signature": "action_hire()",
+              "doc": "",
+              "module": "l10n_ua_hire",
+              "file": "addons/l10n_ua_hire/models/ua_hire_case.py",
+              "decorators": []
+            },
+            {
+              "name": "action_hire_plan",
+              "signature": "action_hire_plan()",
+              "doc": "План перед «Прийняти на роботу»: перелік того, що action_hire нижче справді зробить",
+              "module": "l10n_ua_hire",
+              "file": "addons/l10n_ua_hire/models/ua_hire_case.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reopen",
+              "signature": "action_reopen()",
+              "doc": "",
+              "module": "l10n_ua_hire",
+              "file": "addons/l10n_ua_hire/models/ua_hire_case.py",
+              "decorators": []
+            },
+            {
+              "name": "action_start_onboarding",
+              "signature": "action_start_onboarding()",
+              "doc": "",
+              "module": "l10n_ua_hire",
+              "file": "addons/l10n_ua_hire/models/ua_hire_case.py",
+              "decorators": []
+            },
+            {
+              "name": "add_file",
+              "signature": "add_file(name, data, doc_type='other')",
+              "doc": "",
+              "module": "l10n_ua_hire",
+              "file": "addons/l10n_ua_hire/models/ua_hire_case.py",
+              "decorators": []
+            },
+            {
+              "name": "clear_reserve_file",
+              "signature": "clear_reserve_file()",
+              "doc": "",
+              "module": "l10n_ua_hire",
+              "file": "addons/l10n_ua_hire/models/ua_hire_case.py",
+              "decorators": []
+            },
+            {
+              "name": "create_case",
+              "signature": "create_case(last_name='', first_name='', job_title='')",
+              "doc": "",
+              "module": "l10n_ua_hire",
+              "file": "addons/l10n_ua_hire/models/ua_hire_case.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "extract_status",
+              "signature": "extract_status()",
+              "doc": "",
+              "module": "l10n_ua_hire",
+              "file": "addons/l10n_ua_hire/models/ua_hire_case.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "set_package_doc",
+              "signature": "set_package_doc(key, on)",
+              "doc": "",
+              "module": "l10n_ua_hire",
+              "file": "addons/l10n_ua_hire/models/ua_hire_case.py",
+              "decorators": []
+            },
+            {
+              "name": "set_reserve_file",
+              "signature": "set_reserve_file(filename, data)",
+              "doc": "Файл витягу Резерв+: необов'язковий, не редагується через set_value (не в SECTIONS).",
+              "module": "l10n_ua_hire",
+              "file": "addons/l10n_ua_hire/models/ua_hire_case.py",
+              "decorators": []
+            },
+            {
+              "name": "set_value",
+              "signature": "set_value(field_name, value)",
+              "doc": "",
+              "module": "l10n_ua_hire",
+              "file": "addons/l10n_ua_hire/models/ua_hire_case.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.hire.file",
+          "ours": true,
+          "modules": [
+            "l10n_ua_hire"
+          ],
+          "methods": [
+            {
+              "name": "set_doc_type",
+              "signature": "set_doc_type(doc_type)",
+              "doc": "",
+              "module": "l10n_ua_hire",
+              "file": "addons/l10n_ua_hire/models/ua_hire_file.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.hire.proposal",
+          "ours": true,
+          "modules": [
+            "l10n_ua_hire"
+          ],
+          "methods": [
+            {
+              "name": "action_accept",
+              "signature": "action_accept()",
+              "doc": "",
+              "module": "l10n_ua_hire",
+              "file": "addons/l10n_ua_hire/models/ua_hire_proposal.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reject",
+              "signature": "action_reject()",
+              "doc": "",
+              "module": "l10n_ua_hire",
+              "file": "addons/l10n_ua_hire/models/ua_hire_proposal.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.hr.doc.pack.wizard",
+          "ours": true,
+          "modules": [
+            "l10n_ua_hr_orders"
+          ],
+          "methods": [
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/wizards/ua_hr_order_wizards.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.hr.doc.requirement",
+          "ours": true,
+          "modules": [
+            "l10n_ua_hr_orders"
+          ],
+          "methods": [
+            {
+              "name": "package_for",
+              "signature": "package_for(employee=None, case=None)",
+              "doc": "Пакет документів за формою зі спеки: employee-блок (що приносить людина) і",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/ua_hr_doc_requirement.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "package_used_file_ids",
+              "signature": "package_used_file_ids(case)",
+              "doc": "Файли справи, що підпадають під якусь employee-вимогу пакета (docs/payroll/",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/ua_hr_doc_requirement.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.hr.order",
+          "ours": true,
+          "modules": [
+            "l10n_ua_hr_orders"
+          ],
+          "methods": [
+            {
+              "name": "action_acknowledge",
+              "signature": "action_acknowledge()",
+              "doc": "",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/ua_hr_order.py",
+              "decorators": []
+            },
+            {
+              "name": "action_acknowledge",
+              "signature": "action_acknowledge()",
+              "doc": "",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/ua_hr_order_document.py",
+              "decorators": []
+            },
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/ua_hr_order.py",
+              "decorators": []
+            },
+            {
+              "name": "action_post",
+              "signature": "action_post()",
+              "doc": "",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/ua_hr_order.py",
+              "decorators": []
+            },
+            {
+              "name": "action_post",
+              "signature": "action_post()",
+              "doc": "",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/ua_hr_order_document.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_open_leave",
+              "signature": "action_ua_open_leave()",
+              "doc": "",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/ua_hr_order_effects.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_open_payments",
+              "signature": "action_ua_open_payments()",
+              "doc": "",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/ua_hr_order_effects.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_open_slips",
+              "signature": "action_ua_open_slips()",
+              "doc": "",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/ua_hr_order_effects.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_open_version",
+              "signature": "action_ua_open_version()",
+              "doc": "",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/ua_hr_order_effects.py",
+              "decorators": []
+            },
+            {
+              "name": "content_line",
+              "signature": "content_line()",
+              "doc": "Короткий однорядковий зміст наказу - для журналу реєстрації.",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/ua_hr_order.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.hr.order.register.wizard",
+          "ours": true,
+          "modules": [
+            "l10n_ua_hr_orders"
+          ],
+          "methods": [
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/wizards/ua_hr_order_wizards.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.kp.code",
+          "ours": true,
+          "modules": [
+            "l10n_ua_kp"
+          ],
+          "methods": [
+            {
+              "name": "audit_staff_lists",
+              "signature": "audit_staff_lists(include_posted=False)",
+              "doc": "Що не так із кодами в штатних розписах: кожен рядок - факт і ціль.",
+              "module": "l10n_ua_kp",
+              "file": "addons/l10n_ua_kp/models/ua_kp_code.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "audit_versions",
+              "signature": "audit_versions()",
+              "doc": "Версії, де посада змінилася, а код професії лишився від попередньої.",
+              "module": "l10n_ua_kp",
+              "file": "addons/l10n_ua_kp/models/ua_kp_code.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "ensure",
+              "signature": "ensure(code, group=None, source=None)",
+              "doc": "Запис довідника для коду; створює, якщо ще немає.",
+              "module": "l10n_ua_kp",
+              "file": "addons/l10n_ua_kp/models/ua_kp_code.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "official",
+              "signature": "official(code)",
+              "doc": "Офіційна назва і група за кодом. Немає служби - None.",
+              "module": "l10n_ua_kp",
+              "file": "addons/l10n_ua_kp/models/ua_kp_code.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "suggest",
+              "signature": "suggest(query, limit=10)",
+              "doc": "Підказки за назвою посади. Розуміє англійські назви і фемінітиви.",
+              "module": "l10n_ua_kp",
+              "file": "addons/l10n_ua_kp/models/ua_kp_code.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "sync_from_documents",
+              "signature": "sync_from_documents()",
+              "doc": "Наповнити довідник кодами, які вже стоять у штатних розписах.",
+              "module": "l10n_ua_kp",
+              "file": "addons/l10n_ua_kp/models/ua_kp_code.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "verify",
+              "signature": "verify()",
+              "doc": "Звірити офіційні назви зі службою. Недоступна - лишаємо як є.",
+              "module": "l10n_ua_kp",
+              "file": "addons/l10n_ua_kp/models/ua_kp_code.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.military.list",
+          "ours": true,
+          "modules": [
+            "l10n_ua_military"
+          ],
+          "methods": [
+            {
+              "name": "action_confirm",
+              "signature": "action_confirm()",
+              "doc": "",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/ua_military_list.py",
+              "decorators": []
+            },
+            {
+              "name": "action_create_all_tcc",
+              "signature": "action_create_all_tcc(company_id=None, doc_date=None, variant='all')",
+              "doc": "Створити по одному чернетковому списку на кожен ТЦК, де є хоча б один військовозобов'язаний.",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/ua_military_list.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/ua_military_list.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reconcile",
+              "signature": "action_reconcile()",
+              "doc": "Звірка з ТЦК: записує дату звірки всім працівникам у списку і подію в їхню хроніку.",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/ua_military_list.py",
+              "decorators": []
+            },
+            {
+              "name": "action_refill",
+              "signature": "action_refill()",
+              "doc": "Видалити рядки і заповнити знову з hr.employee: працівники цього ТЦК, що підлягають обліку",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/ua_military_list.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.military.list.wizard",
+          "ours": true,
+          "modules": [
+            "l10n_ua_military"
+          ],
+          "methods": [
+            {
+              "name": "action_create",
+              "signature": "action_create()",
+              "doc": "",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/wizards/ua_military_wizards.py",
+              "decorators": []
+            },
+            {
+              "name": "action_create_all",
+              "signature": "action_create_all()",
+              "doc": "Створити списки по всіх ТЦК, де є хоча б один військовозобов'язаний.",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/wizards/ua_military_wizards.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.military.notice",
+          "ours": true,
+          "modules": [
+            "l10n_ua_military"
+          ],
+          "methods": [
+            {
+              "name": "action_confirm",
+              "signature": "action_confirm()",
+              "doc": "",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/ua_military_notice.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/ua_military_notice.py",
+              "decorators": []
+            },
+            {
+              "name": "action_refill",
+              "signature": "action_refill()",
+              "doc": "",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/ua_military_notice.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.military.notice.wizard",
+          "ours": true,
+          "modules": [
+            "l10n_ua_military"
+          ],
+          "methods": [
+            {
+              "name": "action_create",
+              "signature": "action_create()",
+              "doc": "",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/wizards/ua_military_wizards.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.military.reserved",
+          "ours": true,
+          "modules": [
+            "l10n_ua_military"
+          ],
+          "methods": [
+            {
+              "name": "action_confirm",
+              "signature": "action_confirm()",
+              "doc": "",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/ua_military_reserved.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/ua_military_reserved.py",
+              "decorators": []
+            },
+            {
+              "name": "action_refill",
+              "signature": "action_refill()",
+              "doc": "",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/ua_military_reserved.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_compose",
+              "signature": "ua_compose(company, year=None, month=None, date=None, **params)",
+              "doc": "Новий список заброньованих на дату, одразу заповнений.",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/ua_military_reserved.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.military.reserved.wizard",
+          "ours": true,
+          "modules": [
+            "l10n_ua_military"
+          ],
+          "methods": [
+            {
+              "name": "action_create",
+              "signature": "action_create()",
+              "doc": "",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/wizards/ua_military_wizards.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.pfu.claim",
+          "ours": true,
+          "modules": [
+            "l10n_ua_hr_docs"
+          ],
+          "methods": [
+            {
+              "name": "action_accept",
+              "signature": "action_accept()",
+              "doc": "ПФУ прийняв заяву.",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_pfu_claim.py",
+              "decorators": []
+            },
+            {
+              "name": "action_confirm",
+              "signature": "action_confirm()",
+              "doc": "",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_pfu_claim.py",
+              "decorators": []
+            },
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_pfu_claim.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_pfu_claim.py",
+              "decorators": []
+            },
+            {
+              "name": "action_notice_sent",
+              "signature": "action_notice_sent()",
+              "doc": "Повідомлення про виплату подано до ПФУ.",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_pfu_claim.py",
+              "decorators": []
+            },
+            {
+              "name": "action_refill",
+              "signature": "action_refill()",
+              "doc": "Видалити рядки і заповнити знову: рядки SICK_PFU і MAT листків пакета, відпустка з номером е-ЛН, дні з _ua_leave_calendar_days().",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_pfu_claim.py",
+              "decorators": []
+            },
+            {
+              "name": "action_register_funding",
+              "signature": "action_register_funding(amount=None)",
+              "doc": "Гроші від ПФУ надійшли. Часткове фінансування лишає залишок.",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_pfu_claim.py",
+              "decorators": []
+            },
+            {
+              "name": "action_register_payment",
+              "signature": "action_register_payment(amount=None)",
+              "doc": "Допомогу виплачено працівникам. Виплатити можна лише профінансоване.",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_pfu_claim.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reject",
+              "signature": "action_reject()",
+              "doc": "ПФУ відмовив. Причина обов'язкова.",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_pfu_claim.py",
+              "decorators": []
+            },
+            {
+              "name": "action_submit",
+              "signature": "action_submit()",
+              "doc": "Заяву подано до ПФУ.",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_pfu_claim.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_compose",
+              "signature": "ua_compose(company, year=None, month=None, **params)",
+              "doc": "Нова заява-розрахунок за місяць: пакет листків місяця і його суми.",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_pfu_claim.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.staff.list",
+          "ours": true,
+          "modules": [
+            "l10n_ua_hr_docs"
+          ],
+          "methods": [
+            {
+              "name": "action_confirm",
+              "signature": "action_confirm()",
+              "doc": "",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_staff_list.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_staff_list.py",
+              "decorators": []
+            },
+            {
+              "name": "action_refill",
+              "signature": "action_refill()",
+              "doc": "Видалити рядки і заповнити знову: підрозділ / посада / код КП / оклад -> сума ставок і фонд.",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_staff_list.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_compose",
+              "signature": "ua_compose(company, year=None, month=None, date=None, **params)",
+              "doc": "Новий штатний розпис на дату, одразу заповнений поточним складом.",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_staff_list.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.staff.list.wizard",
+          "ours": true,
+          "modules": [
+            "l10n_ua_hr_docs"
+          ],
+          "methods": [
+            {
+              "name": "action_create",
+              "signature": "action_create()",
+              "doc": "Створити документ і відкрити його форму; якщо на цю дату вже є чернетка - відкрити її.",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/wizards/ua_hr_docs_wizards.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.timesheet.sheet",
+          "ours": true,
+          "modules": [
+            "l10n_ua_hr_docs"
+          ],
+          "methods": [
+            {
+              "name": "action_confirm",
+              "signature": "action_confirm()",
+              "doc": "",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_timesheet_sheet.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_timesheet_sheet.py",
+              "decorators": []
+            },
+            {
+              "name": "action_recompute_payslips",
+              "signature": "action_recompute_payslips()",
+              "doc": "Перерахувати чернетки листків періоду за виправленим табелем.",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_timesheet_sheet.py",
+              "decorators": []
+            },
+            {
+              "name": "action_refill",
+              "signature": "action_refill()",
+              "doc": "Видалити рядки і заповнити знову: працівник за день - код (Р, ВХ, В, ТН, НА, ВП, «-»).",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_timesheet_sheet.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_compose",
+              "signature": "ua_compose(company, year=None, month=None, **params)",
+              "doc": "Табель місяця для «Паперів»: той самий ідемпотентний _ua_ensure_for().",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_timesheet_sheet.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.timesheet.wizard",
+          "ours": true,
+          "modules": [
+            "l10n_ua_hr_docs"
+          ],
+          "methods": [
+            {
+              "name": "action_create",
+              "signature": "action_create()",
+              "doc": "Створити документ і відкрити його форму; якщо на цей період уже є чернетка - відкрити її.",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/wizards/ua_hr_docs_wizards.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "hr.payslip.run",
+          "ours": false,
+          "modules": [
+            "l10n_ua_hr_docs"
+          ],
+          "methods": [
+            {
+              "name": "action_ua_pfu_claim",
+              "signature": "action_ua_pfu_claim()",
+              "doc": "",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/hr_payslip_run.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_compose",
+              "signature": "ua_compose(company, year=None, month=None, **params)",
+              "doc": "Новий пакет листків на місяць: назва, межі місяця, компанія.",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/hr_payslip_run.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "ua_prepare_month",
+              "signature": "ua_prepare_month(company, year, month)",
+              "doc": "Підготувати місяць: табель, чернетки листків, перерахунок.",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/hr_payslip_run.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        }
+      ]
+    },
+    {
+      "area": "Звітність і контроль",
+      "models": [
+        {
+          "model": "ua.change.log",
+          "ours": true,
+          "modules": [
+            "l10n_ua_changes"
+          ],
+          "methods": [
+            {
+              "name": "accept_period",
+              "signature": "accept_period(year, month)",
+              "doc": "Прийняти всі нові зміни місяця однією дією.",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_change_log.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "action_accept",
+              "signature": "action_accept()",
+              "doc": "",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_change_log.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_record",
+              "signature": "action_open_record()",
+              "doc": "",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_change_log.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reset",
+              "signature": "action_reset()",
+              "doc": "",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_change_log.py",
+              "decorators": []
+            },
+            {
+              "name": "count_new",
+              "signature": "count_new(company, year, month)",
+              "doc": "",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_change_log.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "undo_accept_period",
+              "signature": "undo_accept_period(year, month, seconds=25)",
+              "doc": "Відкат «Прийняти всі зміни»: щойно прийняті рядки знову стають новими.",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_change_log.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.period.close",
+          "ours": true,
+          "modules": [
+            "l10n_ua_changes"
+          ],
+          "methods": [
+            {
+              "name": "action_accept_changes",
+              "signature": "action_accept_changes()",
+              "doc": "Прийняти всі непереглянуті зміни місяця.",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_period_close.py",
+              "decorators": []
+            },
+            {
+              "name": "action_close",
+              "signature": "action_close()",
+              "doc": "",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_period_close.py",
+              "decorators": []
+            },
+            {
+              "name": "action_close_quarter",
+              "signature": "action_close_quarter()",
+              "doc": "",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_period_close.py",
+              "decorators": []
+            },
+            {
+              "name": "action_close_year",
+              "signature": "action_close_year()",
+              "doc": "",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_period_close.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_changes",
+              "signature": "action_open_changes()",
+              "doc": "",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_period_close.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_draft_moves",
+              "signature": "action_open_draft_moves()",
+              "doc": "",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_period_close.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_payslips",
+              "signature": "action_open_payslips()",
+              "doc": "",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_period_close.py",
+              "decorators": []
+            },
+            {
+              "name": "action_prepare_month",
+              "signature": "action_prepare_month()",
+              "doc": "Підготувати місяць: табель, пакет листків, розрахунок.",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_period_close.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reopen",
+              "signature": "action_reopen()",
+              "doc": "",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_period_close.py",
+              "decorators": []
+            },
+            {
+              "name": "blocker_rows",
+              "signature": "blocker_rows(company, year, month)",
+              "doc": "Кожна перешкода закриття місяця - одним записом, з усіма трьома її словами.",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_period_close.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "blockers",
+              "signature": "blockers(company, year, month)",
+              "doc": "Список причин, чому місяць закрити не можна. Порожній список = можна.",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_period_close.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "close_period",
+              "signature": "close_period(year, month, hard=False)",
+              "doc": "",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_period_close.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "close_quarter",
+              "signature": "close_quarter(year, quarter)",
+              "doc": "Закрити квартал: дата податкового блокування на кінець кварталу.",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_period_close.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "close_year",
+              "signature": "close_year(year)",
+              "doc": "Закрити рік остаточно: жорстка дата блокування, яку не знімає ніхто.",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_period_close.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "ensure_for",
+              "signature": "ensure_for(company, year, month)",
+              "doc": "Картка закриття місяця: наявна або нова чернетка.",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_period_close.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "plan",
+              "signature": "plan(company, year, month)",
+              "doc": "План перед закриттям місяця: що станеться, що заважає, що лишиться потім.",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_period_close.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "quarter_blockers",
+              "signature": "quarter_blockers(company, year, quarter)",
+              "doc": "Чому не можна закрити квартал: незакриті місяці або неподана звітність.",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_period_close.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "state_of",
+              "signature": "state_of(company, year, month)",
+              "doc": "",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_period_close.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "year_blockers",
+              "signature": "year_blockers(company, year)",
+              "doc": "Чому не можна закрити рік: незакриті квартали.",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_period_close.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.report.run",
+          "ours": true,
+          "modules": [
+            "l10n_ua_reporting"
+          ],
+          "methods": [
+            {
+              "name": "action_create_correction",
+              "signature": "action_create_correction(kind='HZU')",
+              "doc": "Новий прогін-коригування на основі поданого: рядки на вилучення беруться з його файлів.",
+              "module": "l10n_ua_reporting",
+              "file": "addons/l10n_ua_reporting/models/ua_report_run.py",
+              "decorators": []
+            },
+            {
+              "name": "action_generate",
+              "signature": "action_generate()",
+              "doc": "",
+              "module": "l10n_ua_reporting",
+              "file": "addons/l10n_ua_reporting/models/ua_report_run.py",
+              "decorators": []
+            },
+            {
+              "name": "action_mark_submitted",
+              "signature": "action_mark_submitted()",
+              "doc": "",
+              "module": "l10n_ua_reporting",
+              "file": "addons/l10n_ua_reporting/models/ua_report_run.py",
+              "decorators": []
+            },
+            {
+              "name": "action_refresh",
+              "signature": "action_refresh()",
+              "doc": "",
+              "module": "l10n_ua_reporting",
+              "file": "addons/l10n_ua_reporting/models/ua_report_run.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reset",
+              "signature": "action_reset()",
+              "doc": "",
+              "module": "l10n_ua_reporting",
+              "file": "addons/l10n_ua_reporting/models/ua_report_run.py",
+              "decorators": []
+            },
+            {
+              "name": "create_correction",
+              "signature": "create_correction(run_id, kind='HZU')",
+              "doc": "Виклик з екрана: зробити коригування і повернути id нового прогону.",
+              "module": "l10n_ua_reporting",
+              "file": "addons/l10n_ua_reporting/models/ua_report_run.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "ensure_run",
+              "signature": "ensure_run(report_code=None, year=None, quarter=None, month=None, date=None, run_id=None)",
+              "doc": "Створити прогін періоду, якщо його ще немає, і повернути його id.",
+              "module": "l10n_ua_reporting",
+              "file": "addons/l10n_ua_reporting/models/ua_report_run.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.setup.answer",
+          "ours": true,
+          "modules": [
+            "l10n_ua_setup"
+          ],
+          "methods": [
+            {
+              "name": "action_confirm",
+              "signature": "action_confirm()",
+              "doc": "",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/ua_setup_profile.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reset",
+              "signature": "action_reset()",
+              "doc": "",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/ua_setup_profile.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.setup.profile",
+          "ours": true,
+          "modules": [
+            "l10n_ua_setup"
+          ],
+          "methods": [
+            {
+              "name": "action_activate",
+              "signature": "action_activate()",
+              "doc": "Дозволити реальний розрахунок. Обов'язкові питання мають бути закриті.",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/ua_setup_profile.py",
+              "decorators": []
+            },
+            {
+              "name": "action_apply",
+              "signature": "action_apply()",
+              "doc": "Записати підтверджені відповіді в налаштування компанії.",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/ua_setup_profile.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/ua_setup_profile.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill",
+              "signature": "action_fill()",
+              "doc": "Створити рядки на всі питання каталогу і підставити те, що вже відоме системі.",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/ua_setup_profile.py",
+              "decorators": []
+            },
+            {
+              "name": "action_propose",
+              "signature": "action_propose()",
+              "doc": "Підставити перше наближення з опису компанії. Усе - зі станом «запропоновано».",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/ua_setup_profile.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ready",
+              "signature": "action_ready()",
+              "doc": "",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/ua_setup_profile.py",
+              "decorators": []
+            },
+            {
+              "name": "action_test_month",
+              "signature": "action_test_month()",
+              "doc": "Пробний місяць: система готує табель і чернетки листків за поточний місяць.",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/ua_setup_profile.py",
+              "decorators": []
+            },
+            {
+              "name": "preview_apply",
+              "signature": "preview_apply()",
+              "doc": "Що саме зміниться в налаштуваннях. Показуємо до запису.",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/ua_setup_profile.py",
+              "decorators": []
+            },
+            {
+              "name": "profile_for",
+              "signature": "profile_for(company=None)",
+              "doc": "",
+              "module": "l10n_ua_setup",
+              "file": "addons/l10n_ua_setup/models/ua_setup_profile.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "auditlog.rule",
+          "ours": false,
+          "modules": [
+            "l10n_ua_changes"
+          ],
+          "methods": [
+            {
+              "name": "get_auditlog_fields",
+              "signature": "get_auditlog_fields(model)",
+              "doc": "Білий список замість усіх збережених полів - тут і відсікається тріска.",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_change_source.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": [
+            {
+              "name": "ua_area",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_change_source.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_company",
+              "type": "Char",
+              "label": "Компанія",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_change_source.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_field_ids",
+              "type": "One2many",
+              "label": "ua.change.field",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_change_source.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_label",
+              "type": "Char",
+              "label": "Назва запису",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_change_source.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_period_date",
+              "type": "Char",
+              "label": "Період: дата документа",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_change_source.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_period_ym",
+              "type": "Char",
+              "label": "Період: рік і місяць",
+              "module": "l10n_ua_changes",
+              "file": "addons/l10n_ua_changes/models/ua_change_source.py",
+              "groups": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "area": "Бухоблік",
+      "models": [
+        {
+          "model": "ua.account.analysis",
+          "ours": true,
+          "modules": [
+            "l10n_ua_ledger"
+          ],
+          "methods": [
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "",
+              "module": "l10n_ua_ledger",
+              "file": "addons/l10n_ua_ledger/models/ua_account_analysis.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print_xlsx",
+              "signature": "action_print_xlsx()",
+              "doc": "",
+              "module": "l10n_ua_ledger",
+              "file": "addons/l10n_ua_ledger/models/ua_account_analysis.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.account.card",
+          "ours": true,
+          "modules": [
+            "l10n_ua_ledger"
+          ],
+          "methods": [
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "",
+              "module": "l10n_ua_ledger",
+              "file": "addons/l10n_ua_ledger/models/ua_account_card.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print_xlsx",
+              "signature": "action_print_xlsx()",
+              "doc": "",
+              "module": "l10n_ua_ledger",
+              "file": "addons/l10n_ua_ledger/models/ua_account_card.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.advance.report",
+          "ours": true,
+          "modules": [
+            "l10n_ua_cash"
+          ],
+          "methods": [
+            {
+              "name": "action_confirm",
+              "signature": "action_confirm()",
+              "doc": "Затвердити звіт: Дт рахунки витрат / Кт 372 на суму звіту.",
+              "module": "l10n_ua_cash",
+              "file": "addons/l10n_ua_cash/models/ua_advance_report.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_cash",
+              "file": "addons/l10n_ua_cash/models/ua_advance_report.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_cash",
+              "file": "addons/l10n_ua_cash/models/ua_advance_report.py",
+              "decorators": []
+            },
+            {
+              "name": "action_settle_balance",
+              "signature": "action_settle_balance()",
+              "doc": "Закрити залишок підзвіту касовим ордером.",
+              "module": "l10n_ua_cash",
+              "file": "addons/l10n_ua_cash/models/ua_advance_report.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.bank.connect",
+          "ours": true,
+          "modules": [
+            "l10n_ua_bank_online"
+          ],
+          "methods": [
+            {
+              "name": "action_create_provider",
+              "signature": "action_create_provider()",
+              "doc": "Зробити з'єднання, коли ключ уже є. Ключ вписує людина, не система.",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/ua_bank_connect.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill_steps",
+              "signature": "action_fill_steps()",
+              "doc": "Наповнити чек-лист кроками для обраної служби.",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/ua_bank_connect.py",
+              "decorators": []
+            },
+            {
+              "name": "for_journal",
+              "signature": "for_journal(journal)",
+              "doc": "Картка підключення журналу. Створюємо порожню, якщо її ще немає.",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/ua_bank_connect.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.bank.ops",
+          "ours": true,
+          "modules": [
+            "l10n_ua_bank_online"
+          ],
+          "methods": [
+            {
+              "name": "action_apply_rules",
+              "signature": "action_apply_rules(journal_id=None, line_id=None)",
+              "doc": "Закрити незвірені рядки виписки: спершу платежами, потім правилами.",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/ua_bank_ops.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "action_create_provider",
+              "signature": "action_create_provider(journal_id, service)",
+              "doc": "Створити з'єднання для журналу і відкрити його форму.",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/ua_bank_ops.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "action_match_payments",
+              "signature": "action_match_payments(journal_id=None, line_id=None)",
+              "doc": "Звести незвірені рядки виписки з уже проведеними платежами.",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/ua_bank_ops.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "action_open_providers",
+              "signature": "action_open_providers(journal_id=None)",
+              "doc": "Форма з'єднання рахунку (або перелік усіх, якщо рахунок не вибрано).",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/ua_bank_ops.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "action_pull",
+              "signature": "action_pull(journal_id, date_from=None, date_to=None)",
+              "doc": "Завантажити виписку за період. Без дат - за поточний місяць до сьогодні.",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/ua_bank_ops.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "action_pull_all",
+              "signature": "action_pull_all(year=None, month=None)",
+              "doc": "Завантажити виписку за місяць для всіх рахунків із з'єднанням.",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/ua_bank_ops.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "action_pull_month",
+              "signature": "action_pull_month(journal_id, year, month)",
+              "doc": "",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/ua_bank_ops.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "action_test",
+              "signature": "action_test(journal_id)",
+              "doc": "",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/ua_bank_ops.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.bank.ops.wizard",
+          "ours": true,
+          "modules": [
+            "l10n_ua_bank_online"
+          ],
+          "methods": [
+            {
+              "name": "action_run",
+              "signature": "action_run()",
+              "doc": "Одна дія за фіксованим ключем operation - решта веде до ua.bank.ops.",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/wizards/ua_bank_ops_wizard.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.cash.book",
+          "ours": true,
+          "modules": [
+            "l10n_ua_cash"
+          ],
+          "methods": [
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "Перерахувати книгу. Ідемпотентно: попередні аркуші стираються.",
+              "module": "l10n_ua_cash",
+              "file": "addons/l10n_ua_cash/models/ua_cash_book.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_cash",
+              "file": "addons/l10n_ua_cash/models/ua_cash_book.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.cost.calculation",
+          "ours": true,
+          "modules": [
+            "l10n_ua_mrp"
+          ],
+          "methods": [
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "Перезібрати рядки. Ідемпотентно: старі рядки замінюються новими.",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/ua_cost_calculation.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.depreciation.sheet",
+          "ours": true,
+          "modules": [
+            "l10n_ua_assets"
+          ],
+          "methods": [
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_assets",
+              "file": "addons/l10n_ua_assets/wizard/ua_depreciation_sheet.py",
+              "decorators": []
+            },
+            {
+              "name": "month_name",
+              "signature": "month_name()",
+              "doc": "",
+              "module": "l10n_ua_assets",
+              "file": "addons/l10n_ua_assets/wizard/ua_depreciation_sheet.py",
+              "decorators": []
+            },
+            {
+              "name": "sheet_rows",
+              "signature": "sheet_rows()",
+              "doc": "Готові рядки відомості для друку.",
+              "module": "l10n_ua_assets",
+              "file": "addons/l10n_ua_assets/wizard/ua_depreciation_sheet.py",
+              "decorators": []
+            },
+            {
+              "name": "total",
+              "signature": "total()",
+              "doc": "",
+              "module": "l10n_ua_assets",
+              "file": "addons/l10n_ua_assets/wizard/ua_depreciation_sheet.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.fop.income",
+          "ours": true,
+          "modules": [
+            "l10n_ua_fop"
+          ],
+          "methods": [
+            {
+              "name": "action_sync",
+              "signature": "action_sync()",
+              "doc": "Кнопка «Оновити з платежів».",
+              "module": "l10n_ua_fop",
+              "file": "addons/l10n_ua_fop/models/ua_fop_income.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.fop.param",
+          "ours": true,
+          "modules": [
+            "l10n_ua_fop"
+          ],
+          "methods": [
+            {
+              "name": "get",
+              "signature": "get(key, on_date=None, company=None)",
+              "doc": "Значення параметра, чинне на дату. Значення компанії б'є загальне.",
+              "module": "l10n_ua_fop",
+              "file": "addons/l10n_ua_fop/models/ua_fop_param.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.fop.quarter",
+          "ours": true,
+          "modules": [
+            "l10n_ua_fop"
+          ],
+          "methods": [
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "",
+              "module": "l10n_ua_fop",
+              "file": "addons/l10n_ua_fop/models/ua_fop_quarter.py",
+              "decorators": []
+            },
+            {
+              "name": "declaration_rows",
+              "signature": "declaration_rows()",
+              "doc": "Числа декларації платника ЄП за квартал - наростаючим підсумком.",
+              "module": "l10n_ua_fop",
+              "file": "addons/l10n_ua_fop/models/ua_fop_quarter.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.group.consolidation",
+          "ours": true,
+          "modules": [
+            "l10n_ua_group"
+          ],
+          "methods": [
+            {
+              "name": "action_build",
+              "signature": "action_build()",
+              "doc": "Зібрати звіт і відкрити його. Повертає дію на mis.report.instance.",
+              "module": "l10n_ua_group",
+              "file": "addons/l10n_ua_group/wizard/ua_group_consolidation.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.migrate",
+          "ours": true,
+          "modules": [
+            "l10n_ua_migrate"
+          ],
+          "methods": [
+            {
+              "name": "action_import",
+              "signature": "action_import()",
+              "doc": "",
+              "module": "l10n_ua_migrate",
+              "file": "addons/l10n_ua_migrate/wizard/ua_migrate.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.osv.line",
+          "ours": true,
+          "modules": [
+            "l10n_ua_ledger"
+          ],
+          "methods": [
+            {
+              "name": "action_open_card",
+              "signature": "action_open_card()",
+              "doc": "З рядка відомості - у картку цього рахунку за той самий період.",
+              "module": "l10n_ua_ledger",
+              "file": "addons/l10n_ua_ledger/models/ua_osv_report.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.osv.report",
+          "ours": true,
+          "modules": [
+            "l10n_ua_ledger"
+          ],
+          "methods": [
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "",
+              "module": "l10n_ua_ledger",
+              "file": "addons/l10n_ua_ledger/models/ua_osv_report.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print_xlsx",
+              "signature": "action_print_xlsx()",
+              "doc": "",
+              "module": "l10n_ua_ledger",
+              "file": "addons/l10n_ua_ledger/models/ua_osv_report.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.profit.declaration",
+          "ours": true,
+          "modules": [
+            "l10n_ua_profit_tax"
+          ],
+          "methods": [
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "Заповнити числа і рядки декларації. Дозволено лише в чернетці.",
+              "module": "l10n_ua_profit_tax",
+              "file": "addons/l10n_ua_profit_tax/models/ua_profit_declaration.py",
+              "decorators": []
+            },
+            {
+              "name": "action_confirm",
+              "signature": "action_confirm()",
+              "doc": "",
+              "module": "l10n_ua_profit_tax",
+              "file": "addons/l10n_ua_profit_tax/models/ua_profit_declaration.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_profit_tax",
+              "file": "addons/l10n_ua_profit_tax/models/ua_profit_declaration.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.profit.param",
+          "ours": true,
+          "modules": [
+            "l10n_ua_profit_tax"
+          ],
+          "methods": [
+            {
+              "name": "get",
+              "signature": "get(key, on_date=None, company=None)",
+              "doc": "Значення параметра, чинне на дату. Значення компанії б'є загальне.",
+              "module": "l10n_ua_profit_tax",
+              "file": "addons/l10n_ua_profit_tax/models/ua_profit_param.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.quality.protocol",
+          "ours": true,
+          "modules": [
+            "l10n_ua_stock_docs"
+          ],
+          "methods": [
+            {
+              "name": "action_fail",
+              "signature": "action_fail()",
+              "doc": "",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/ua_quality_protocol.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill_checklist",
+              "signature": "action_fill_checklist()",
+              "doc": "Типовий перелік параметрів. Уже заповнений протокол не чіпаємо.",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/ua_quality_protocol.py",
+              "decorators": []
+            },
+            {
+              "name": "action_pass",
+              "signature": "action_pass()",
+              "doc": "",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/ua_quality_protocol.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.stock.inventory",
+          "ours": true,
+          "modules": [
+            "l10n_ua_stock_docs"
+          ],
+          "methods": [
+            {
+              "name": "action_apply",
+              "signature": "action_apply()",
+              "doc": "Провести: коригування складу плюс проводка лишків 947 -> 719.",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/ua_stock_inventory.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill",
+              "signature": "action_fill()",
+              "doc": "Заповнити опис залишками складу. Старі рядки замінюються свіжими.",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/ua_stock_inventory.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_moves",
+              "signature": "action_open_moves()",
+              "doc": "",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/ua_stock_inventory.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.vat.cabinet",
+          "ours": true,
+          "modules": [
+            "l10n_ua_vat"
+          ],
+          "methods": [
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "Кнопка «Порахувати»: перерахувати зведення за період.",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/wizard/ua_vat_cabinet.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.vat.compensation",
+          "ours": true,
+          "modules": [
+            "l10n_ua_vat"
+          ],
+          "methods": [
+            {
+              "name": "action_annual_recalc",
+              "signature": "action_annual_recalc()",
+              "doc": "Річний перерахунок ЧВ за ст.199.4 і 199.5 ПКУ.",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/ua_vat_compensation.py",
+              "decorators": []
+            },
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "ЧВ періоду і перегляд рядків компенсації. Лише в чернетці.",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/ua_vat_compensation.py",
+              "decorators": []
+            },
+            {
+              "name": "action_post",
+              "signature": "action_post()",
+              "doc": "Провести компенсацію: бухгалтерська проводка плюс зведена ПН.",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/ua_vat_compensation.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.vat.document",
+          "ours": true,
+          "modules": [
+            "l10n_ua_vat"
+          ],
+          "methods": [
+            {
+              "name": "action_export_xml",
+              "signature": "action_export_xml()",
+              "doc": "«XML для ЄРПН»: перевірка, складання, вкладення, завантаження.",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/ua_vat_pn_xml.py",
+              "decorators": []
+            },
+            {
+              "name": "action_export_xml",
+              "signature": "action_export_xml()",
+              "doc": "Диспетчер: РК будуємо за J1201216, решту віддаємо конвеєру ПН.",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/ua_vat_rk_xml.py",
+              "decorators": []
+            },
+            {
+              "name": "action_mark_pn_registered",
+              "signature": "action_mark_pn_registered()",
+              "doc": "«Позначити зареєстрованою»: ставить сьогоднішню дату реєстрації,",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/ua_vat_document.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.zvv.allocation",
+          "ours": true,
+          "modules": [
+            "l10n_ua_mrp"
+          ],
+          "methods": [
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "Зібрати базу, години і коефіцієнт. Рядки перезаписуються.",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/ua_zvv_allocation.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_move",
+              "signature": "action_open_move()",
+              "doc": "",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/ua_zvv_allocation.py",
+              "decorators": []
+            },
+            {
+              "name": "action_post",
+              "signature": "action_post()",
+              "doc": "Одна проводка: Дт 231 розподілене, Дт 901 нерозподілене, Кт 91 усе.",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/ua_zvv_allocation.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "account.asset",
+          "ours": false,
+          "modules": [
+            "l10n_ua_assets"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_commission",
+              "type": "Text",
+              "label": "Склад комісії",
+              "module": "l10n_ua_assets",
+              "file": "addons/l10n_ua_assets/models/account_asset.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_disposal_reason",
+              "type": "Text",
+              "label": "Причина списання",
+              "module": "l10n_ua_assets",
+              "file": "addons/l10n_ua_assets/models/account_asset.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_factory_number",
+              "type": "Char",
+              "label": "Заводський номер",
+              "module": "l10n_ua_assets",
+              "file": "addons/l10n_ua_assets/models/account_asset.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_location",
+              "type": "Char",
+              "label": "Місцезнаходження об'єкта",
+              "module": "l10n_ua_assets",
+              "file": "addons/l10n_ua_assets/models/account_asset.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_manufacturer",
+              "type": "Char",
+              "label": "Виробник",
+              "module": "l10n_ua_assets",
+              "file": "addons/l10n_ua_assets/models/account_asset.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_passport_number",
+              "type": "Char",
+              "label": "Номер паспорта (документа)",
+              "module": "l10n_ua_assets",
+              "file": "addons/l10n_ua_assets/models/account_asset.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_responsible",
+              "type": "Char",
+              "label": "Матеріально відповідальна особа",
+              "module": "l10n_ua_assets",
+              "file": "addons/l10n_ua_assets/models/account_asset.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_start_next_month",
+              "type": "Boolean",
+              "label": "Амортизація з наступного місяця",
+              "module": "l10n_ua_assets",
+              "file": "addons/l10n_ua_assets/models/account_asset.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_year_built",
+              "type": "Char",
+              "label": "Рік випуску (побудови)",
+              "module": "l10n_ua_assets",
+              "file": "addons/l10n_ua_assets/models/account_asset.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "account.asset.profile",
+          "ours": false,
+          "modules": [
+            "l10n_ua_assets"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_min_months",
+              "type": "Integer",
+              "label": "Мінімальний строк за ПКУ, міс.",
+              "module": "l10n_ua_assets",
+              "file": "addons/l10n_ua_assets/models/account_asset_profile.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_rule",
+              "type": "Selection",
+              "label": "Українське правило",
+              "module": "l10n_ua_assets",
+              "file": "addons/l10n_ua_assets/models/account_asset_profile.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_start_next_month",
+              "type": "Boolean",
+              "label": "Амортизація з наступного місяця",
+              "module": "l10n_ua_assets",
+              "file": "addons/l10n_ua_assets/models/account_asset_profile.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_tax_group",
+              "type": "Selection",
+              "label": "Податкова група",
+              "module": "l10n_ua_assets",
+              "file": "addons/l10n_ua_assets/models/account_asset_profile.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "account.move",
+          "ours": false,
+          "modules": [
+            "bp_purchase_intake",
+            "l10n_ua_docs",
+            "l10n_ua_vat"
+          ],
+          "methods": [
+            {
+              "name": "action_post",
+              "signature": "action_post()",
+              "doc": "",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/account_move.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_close_first_events",
+              "signature": "action_ua_close_first_events()",
+              "doc": "Кнопка «Закрити першу подію» - страховка, коли автоматика не",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_create_tax_invoice",
+              "signature": "action_ua_create_tax_invoice()",
+              "doc": "Кнопка «Скласти податкову накладну».",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_post_customs_vat",
+              "signature": "action_ua_post_customs_vat()",
+              "doc": "«Взяти в кредит»: проводка Дт 6412 / Кт 3771 на суму ПДВ із митної",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "decorators": []
+            }
+          ],
+          "fields": [
+            {
+              "name": "bp_intake_id",
+              "type": "Many2one",
+              "label": "bp.purchase.intake",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_customs_decl_number",
+              "type": "Char",
+              "label": "Номер митної декларації",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_customs_entry",
+              "type": "Boolean",
+              "label": "Позначка проводки митного ПДВ",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_customs_move_id",
+              "type": "Many2one",
+              "label": "account.move",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_customs_vat",
+              "type": "Monetary",
+              "label": "Митний ПДВ",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_fe_kind",
+              "type": "Selection",
+              "label": "Проводка першої події",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_in_pn_registered",
+              "type": "Boolean",
+              "label": "ПН постачальника зареєстрована",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_pn_deadline",
+              "type": "Date",
+              "label": "Граничний строк реєстрації ПН",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_vat_comp",
+              "type": "Boolean",
+              "label": "Проводка компенсуючих ПЗ",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_vat_document_ids",
+              "type": "One2many",
+              "label": "ua.vat.document",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "account.payment",
+          "ours": false,
+          "modules": [
+            "l10n_ua_cash",
+            "l10n_ua_fop",
+            "l10n_ua_vat"
+          ],
+          "methods": [
+            {
+              "name": "action_post",
+              "signature": "action_post()",
+              "doc": "",
+              "module": "l10n_ua_cash",
+              "file": "addons/l10n_ua_cash/models/account_payment.py",
+              "decorators": []
+            },
+            {
+              "name": "action_post",
+              "signature": "action_post()",
+              "doc": "Спершу стандартне проведення, потім спроба створити проводку першої",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_payment.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_print_cash_order",
+              "signature": "action_ua_print_cash_order()",
+              "doc": "Друк КО-1 (ПКО) або КО-2 (ВКО).",
+              "module": "l10n_ua_cash",
+              "file": "addons/l10n_ua_cash/models/account_payment.py",
+              "decorators": []
+            }
+          ],
+          "fields": [
+            {
+              "name": "ua_document",
+              "type": "Char",
+              "label": "Документ одержувача",
+              "module": "l10n_ua_cash",
+              "file": "addons/l10n_ua_cash/models/account_payment.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_fe_closed_amount",
+              "type": "Float",
+              "label": "Закрито ПДВ першої події",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_payment.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_fe_move_id",
+              "type": "Many2one",
+              "label": "account.move",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_payment.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_fe_reversed",
+              "type": "Boolean",
+              "label": "Першу подію закрито",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_payment.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_fop_not_income",
+              "type": "Boolean",
+              "label": "Не дохід ФОП",
+              "module": "l10n_ua_fop",
+              "file": "addons/l10n_ua_fop/models/account_payment.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_order_kind",
+              "type": "Selection",
+              "label": "Вид касового ордера",
+              "module": "l10n_ua_cash",
+              "file": "addons/l10n_ua_cash/models/account_payment.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_order_number",
+              "type": "Char",
+              "label": "Номер ордера",
+              "module": "l10n_ua_cash",
+              "file": "addons/l10n_ua_cash/models/account_payment.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_person",
+              "type": "Char",
+              "label": "Прийнято від / Видати",
+              "module": "l10n_ua_cash",
+              "file": "addons/l10n_ua_cash/models/account_payment.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "account.tax.group",
+          "ours": false,
+          "modules": [
+            "l10n_ua_vat"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_vat_zero_kind",
+              "type": "Selection",
+              "label": "Вид нульової ставки (ПДВ, Україна)",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_tax_group.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "mis.report",
+          "ours": false,
+          "modules": [
+            "l10n_ua_finrep"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_finrep_form",
+              "type": "Selection",
+              "label": "Українська форма",
+              "module": "l10n_ua_finrep",
+              "file": "addons/l10n_ua_finrep/models/mis_report.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "mis.report.instance",
+          "ours": false,
+          "modules": [
+            "l10n_ua_finrep",
+            "l10n_ua_group"
+          ],
+          "methods": [
+            {
+              "name": "action_ua_finrep_xml_draft",
+              "signature": "action_ua_finrep_xml_draft()",
+              "doc": "Кнопка «XML (чернетка формату)»: вкладення і посилання на завантаження.",
+              "module": "l10n_ua_finrep",
+              "file": "addons/l10n_ua_finrep/models/mis_report.py",
+              "decorators": []
+            }
+          ],
+          "fields": [
+            {
+              "name": "ua_finrep_form",
+              "type": "Selection",
+              "label": "Українська форма",
+              "module": "l10n_ua_finrep",
+              "file": "addons/l10n_ua_finrep/models/mis_report.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_group_consolidation",
+              "type": "Boolean",
+              "label": "Консолідація групи",
+              "module": "l10n_ua_group",
+              "file": "addons/l10n_ua_group/models/mis_report_instance.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "online.bank.statement.provider",
+          "ours": false,
+          "modules": [
+            "l10n_ua_bank_online"
+          ],
+          "methods": [
+            {
+              "name": "action_ua_test",
+              "signature": "action_ua_test()",
+              "doc": "Легкий запит до банку, щоб побачити, чи приймають токен.",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/online_bank_statement_provider.py",
+              "decorators": []
+            }
+          ],
+          "fields": [
+            {
+              "name": "ua_account",
+              "type": "Char",
+              "label": "Рахунок у банку",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/online_bank_statement_provider.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_demo",
+              "type": "Boolean",
+              "label": "Демо-дані замість банку",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/online_bank_statement_provider.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "product.template",
+          "ours": false,
+          "modules": [
+            "l10n_ua_vat"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_uktzed",
+              "type": "Char",
+              "label": "Код УКТ ЗЕД",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/product_template.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_vat_relief_id",
+              "type": "Many2one",
+              "label": "ua.vat.relief",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/product_template.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_vat_treatment",
+              "type": "Selection",
+              "label": "Режим ПДВ товару",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/product_template.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "res.bank",
+          "ours": false,
+          "modules": [
+            "l10n_ua_docs"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_mfo",
+              "type": "Char",
+              "label": "",
+              "module": "l10n_ua_docs",
+              "file": "addons/l10n_ua_docs/models/res_bank.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "res.currency.rate.provider",
+          "ours": false,
+          "modules": [
+            "l10n_ua_nbu"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "service",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_nbu",
+              "file": "addons/l10n_ua_nbu/models/res_currency_rate_provider_nbu.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "sale.order",
+          "ours": false,
+          "modules": [
+            "l10n_ua_docs_sale"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_contract_date",
+              "type": "Date",
+              "label": "Дата договору",
+              "module": "l10n_ua_docs_sale",
+              "file": "addons/l10n_ua_docs_sale/models/sale_order.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_contract_number",
+              "type": "Char",
+              "label": "Договір №",
+              "module": "l10n_ua_docs_sale",
+              "file": "addons/l10n_ua_docs_sale/models/sale_order.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "stock.picking",
+          "ours": false,
+          "modules": [
+            "l10n_ua_docs_stock",
+            "l10n_ua_stock_docs"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_act_condition",
+              "type": "Char",
+              "label": "Стан цінностей",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_picking.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_act_handover",
+              "type": "Char",
+              "label": "Передав (ПІБ, посада)",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_picking.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_act_receiver",
+              "type": "Char",
+              "label": "Прийняв (ПІБ, посада)",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_picking.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_proxy_date",
+              "type": "Date",
+              "label": "Дата довіреності",
+              "module": "l10n_ua_docs_stock",
+              "file": "addons/l10n_ua_docs_stock/models/stock_picking.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_proxy_number",
+              "type": "Char",
+              "label": "Довіреність №",
+              "module": "l10n_ua_docs_stock",
+              "file": "addons/l10n_ua_docs_stock/models/stock_picking.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_proxy_person",
+              "type": "Char",
+              "label": "Видана на (ПІБ)",
+              "module": "l10n_ua_docs_stock",
+              "file": "addons/l10n_ua_docs_stock/models/stock_picking.py",
+              "groups": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "area": "Контрагенти і закупівлі",
+      "models": [
+        {
+          "model": "bp.ai",
+          "ours": true,
+          "modules": [
+            "bp_purchase_intake"
+          ],
+          "methods": [
+            {
+              "name": "extract_json",
+              "signature": "extract_json(spec, text=None, images=None)",
+              "doc": "Run the extraction prompt with JSON mode, on document text or on page images. Returns (dict, usage, model).",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/ai.py",
+              "decorators": []
+            },
+            {
+              "name": "load_spec",
+              "signature": "load_spec(name)",
+              "doc": "",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/ai.py",
+              "decorators": [
+                "staticmethod"
+              ]
+            },
+            {
+              "name": "model_name",
+              "signature": "model_name()",
+              "doc": "",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/ai.py",
+              "decorators": []
+            },
+            {
+              "name": "to_markdown",
+              "signature": "to_markdown(filename, content, mimetype='application/pdf')",
+              "doc": "PDF or image to text. Free for PDFs with a text layer. Returns (text, tokens).",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/ai.py",
+              "decorators": []
+            },
+            {
+              "name": "vision_model_name",
+              "signature": "vision_model_name()",
+              "doc": "",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/ai.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "bp.purchase.intake",
+          "ours": true,
+          "modules": [
+            "bp_purchase_intake"
+          ],
+          "methods": [
+            {
+              "name": "action_create_bill",
+              "signature": "action_create_bill()",
+              "doc": "",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/intake.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_bill",
+              "signature": "action_open_bill()",
+              "doc": "",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/intake.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_partner",
+              "signature": "action_open_partner()",
+              "doc": "",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/intake.py",
+              "decorators": []
+            },
+            {
+              "name": "action_refresh_registry",
+              "signature": "action_refresh_registry()",
+              "doc": "",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/intake.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reprocess",
+              "signature": "action_reprocess()",
+              "doc": "",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/intake.py",
+              "decorators": []
+            },
+            {
+              "name": "message_new",
+              "signature": "message_new(msg_dict, custom_values=None)",
+              "doc": "",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/intake.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "kyc.case",
+          "ours": true,
+          "modules": [
+            "bp_kyc"
+          ],
+          "methods": [
+            {
+              "name": "action_decide_cleared",
+              "signature": "action_decide_cleared()",
+              "doc": "",
+              "module": "bp_kyc",
+              "file": "addons/bp_kyc/models/kyc_case.py",
+              "decorators": []
+            },
+            {
+              "name": "action_decide_flagged",
+              "signature": "action_decide_flagged()",
+              "doc": "",
+              "module": "bp_kyc",
+              "file": "addons/bp_kyc/models/kyc_case.py",
+              "decorators": []
+            },
+            {
+              "name": "action_decide_rejected",
+              "signature": "action_decide_rejected()",
+              "doc": "",
+              "module": "bp_kyc",
+              "file": "addons/bp_kyc/models/kyc_case.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_register",
+              "signature": "action_open_register()",
+              "doc": "The register (kyc-service) is an API without a public page; show where the subject lives.",
+              "module": "bp_kyc",
+              "file": "addons/bp_kyc/models/kyc_case.py",
+              "decorators": []
+            },
+            {
+              "name": "action_request_documents",
+              "signature": "action_request_documents()",
+              "doc": "",
+              "module": "bp_kyc",
+              "file": "addons/bp_kyc/models/kyc_case.py",
+              "decorators": []
+            },
+            {
+              "name": "action_screen_odb",
+              "signature": "action_screen_odb()",
+              "doc": "",
+              "module": "bp_kyc",
+              "file": "addons/bp_kyc/models/kyc_case.py",
+              "decorators": []
+            },
+            {
+              "name": "action_search_courts",
+              "signature": "action_search_courts()",
+              "doc": "",
+              "module": "bp_kyc",
+              "file": "addons/bp_kyc/models/kyc_case.py",
+              "decorators": []
+            },
+            {
+              "name": "action_stage",
+              "signature": "action_stage()",
+              "doc": "",
+              "module": "bp_kyc",
+              "file": "addons/bp_kyc/models/kyc_case.py",
+              "decorators": []
+            },
+            {
+              "name": "action_sync_register",
+              "signature": "action_sync_register()",
+              "doc": "",
+              "module": "bp_kyc",
+              "file": "addons/bp_kyc/models/kyc_case.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.partner.edr.wizard",
+          "ours": true,
+          "modules": [
+            "l10n_ua_partner_edr"
+          ],
+          "methods": [
+            {
+              "name": "action_create",
+              "signature": "action_create()",
+              "doc": "",
+              "module": "l10n_ua_partner_edr",
+              "file": "addons/l10n_ua_partner_edr/wizards/ua_partner_edr_wizard.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.purchase.pad",
+          "ours": true,
+          "modules": [
+            "l10n_ua_purchase"
+          ],
+          "methods": [
+            {
+              "name": "action_create_request",
+              "signature": "action_create_request()",
+              "doc": "Зробити запит на закупівлю з розпізнаних рядків.",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/wizard/ua_purchase_pad.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "purchase.order",
+          "ours": false,
+          "modules": [
+            "l10n_ua_purchase"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_department_id",
+              "type": "Many2one",
+              "label": "Підрозділ",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/purchase_order.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_expense_account_id",
+              "type": "Many2one",
+              "label": "Рахунок витрат",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/purchase_order.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_request_id",
+              "type": "Many2one",
+              "label": "Запит на закупівлю",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/purchase_order.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "purchase.request",
+          "ours": false,
+          "modules": [
+            "l10n_ua_purchase"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_department_id",
+              "type": "Many2one",
+              "label": "Підрозділ",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/purchase_request.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_expense_account_id",
+              "type": "Many2one",
+              "label": "Рахунок витрат",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/purchase_request.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "res.partner",
+          "ours": false,
+          "modules": [
+            "bp_kyc",
+            "bp_purchase_intake",
+            "l10n_ua_docs",
+            "l10n_ua_partner_edr",
+            "l10n_ua_purchase",
+            "l10n_ua_vat"
+          ],
+          "methods": [
+            {
+              "name": "action_bp_mark_unverified",
+              "signature": "action_bp_mark_unverified()",
+              "doc": "",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/res_partner.py",
+              "decorators": []
+            },
+            {
+              "name": "action_bp_mark_verified",
+              "signature": "action_bp_mark_verified()",
+              "doc": "",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/res_partner.py",
+              "decorators": []
+            },
+            {
+              "name": "action_bp_open_intakes",
+              "signature": "action_bp_open_intakes()",
+              "doc": "",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/res_partner.py",
+              "decorators": []
+            },
+            {
+              "name": "action_bp_refresh_registry",
+              "signature": "action_bp_refresh_registry()",
+              "doc": "",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/res_partner.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill_from_edr",
+              "signature": "action_fill_from_edr()",
+              "doc": "",
+              "module": "l10n_ua_partner_edr",
+              "file": "addons/l10n_ua_partner_edr/models/res_partner.py",
+              "decorators": []
+            },
+            {
+              "name": "action_new_kyc_case",
+              "signature": "action_new_kyc_case()",
+              "doc": "",
+              "module": "bp_kyc",
+              "file": "addons/bp_kyc/models/res_partner.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_kyc_cases",
+              "signature": "action_open_kyc_cases()",
+              "doc": "",
+              "module": "bp_kyc",
+              "file": "addons/bp_kyc/models/res_partner.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_supplier_bills",
+              "signature": "action_ua_supplier_bills()",
+              "doc": "Кнопка-лічильник: вхідні рахунки цього контрагента.",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/res_partner.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_supplier_sync",
+              "signature": "action_ua_supplier_sync()",
+              "doc": "«Оновити сигнали»: перечитати ЄДР, ПДВ і KYC та перерахувати ризик.",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/res_partner.py",
+              "decorators": []
+            }
+          ],
+          "fields": [
+            {
+              "name": "bp_intake_id",
+              "type": "Many2one",
+              "label": "bp.purchase.intake",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "bp_registry_address",
+              "type": "Char",
+              "label": "Адреса (ЄДР)",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "bp_registry_checked_at",
+              "type": "Datetime",
+              "label": "Дані ЄДР отримано",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "bp_registry_date",
+              "type": "Date",
+              "label": "Дата реєстрації (ЄДР)",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "bp_registry_head",
+              "type": "Char",
+              "label": "Керівник (ЄДР)",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "bp_registry_kved",
+              "type": "Char",
+              "label": "Основний КВЕД",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "bp_registry_markers",
+              "type": "Text",
+              "label": "Маркери (ЄДР)",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "bp_registry_name",
+              "type": "Char",
+              "label": "Повна назва (ЄДР)",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "bp_registry_status",
+              "type": "Char",
+              "label": "Стан (ЄДР)",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "bp_registry_vat",
+              "type": "Char",
+              "label": "ПДВ (ЄДР)",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "bp_supplier_status",
+              "type": "Selection",
+              "label": "",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "bp_verified_at",
+              "type": "Datetime",
+              "label": "Перевірено",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "bp_verified_by",
+              "type": "Many2one",
+              "label": "res.users",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "kyc_case_ids",
+              "type": "One2many",
+              "label": "kyc.case",
+              "module": "bp_kyc",
+              "file": "addons/bp_kyc/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_actual_address",
+              "type": "Char",
+              "label": "Фактична адреса",
+              "module": "l10n_ua_docs",
+              "file": "addons/l10n_ua_docs/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_edr_capital",
+              "type": "Float",
+              "label": "Статутний капітал, грн",
+              "module": "l10n_ua_partner_edr",
+              "file": "addons/l10n_ua_partner_edr/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_edr_checks",
+              "type": "Text",
+              "label": "Маркери ризику",
+              "module": "l10n_ua_partner_edr",
+              "file": "addons/l10n_ua_partner_edr/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_edr_full_name",
+              "type": "Char",
+              "label": "Повна назва (ЄДР)",
+              "module": "l10n_ua_partner_edr",
+              "file": "addons/l10n_ua_partner_edr/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_edr_head",
+              "type": "Char",
+              "label": "Керівник",
+              "module": "l10n_ua_partner_edr",
+              "file": "addons/l10n_ua_partner_edr/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_edr_kind",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_partner_edr",
+              "file": "addons/l10n_ua_partner_edr/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_edr_registration_date",
+              "type": "Date",
+              "label": "Дата реєстрації",
+              "module": "l10n_ua_partner_edr",
+              "file": "addons/l10n_ua_partner_edr/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_edr_status",
+              "type": "Char",
+              "label": "Стан у ЄДР",
+              "module": "l10n_ua_partner_edr",
+              "file": "addons/l10n_ua_partner_edr/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_edr_synced_at",
+              "type": "Datetime",
+              "label": "Оновлено з ЄДР",
+              "module": "l10n_ua_partner_edr",
+              "file": "addons/l10n_ua_partner_edr/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_kved",
+              "type": "Char",
+              "label": "Основний КВЕД",
+              "module": "l10n_ua_partner_edr",
+              "file": "addons/l10n_ua_partner_edr/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_purchase_avg_delay_days",
+              "type": "Integer",
+              "label": "Середнє запізнення оплат, днів",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_purchase_bill_count",
+              "type": "Integer",
+              "label": "Рахунків",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_purchase_bill_ids",
+              "type": "One2many",
+              "label": "Рахунки постачальника",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_purchase_bill_total",
+              "type": "Monetary",
+              "label": "Сума рахунків",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_purchase_open_balance",
+              "type": "Monetary",
+              "label": "Заборгованість",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_purchase_overprice_count",
+              "type": "Integer",
+              "label": "Рахунків дорожчих за замовлення",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_purchase_paid_total",
+              "type": "Monetary",
+              "label": "Сплачено",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_signatory_basis",
+              "type": "Char",
+              "label": "Діє на підставі",
+              "module": "l10n_ua_docs",
+              "file": "addons/l10n_ua_docs/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_signatory_name",
+              "type": "Char",
+              "label": "Підписант (ПІБ)",
+              "module": "l10n_ua_docs",
+              "file": "addons/l10n_ua_docs/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_supplier_edr_terminated",
+              "type": "Boolean",
+              "label": "У ЄДР припинено",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_supplier_kyc_block",
+              "type": "Boolean",
+              "label": "KYC: відхилено",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_supplier_risk_level",
+              "type": "Selection",
+              "label": "Ризик постачальника",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_supplier_risk_note",
+              "type": "Text",
+              "label": "Через що бали",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_supplier_risk_score",
+              "type": "Integer",
+              "label": "Бали ризику",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_supplier_signals_date",
+              "type": "Datetime",
+              "label": "Сигнали оновлено",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_supplier_vat_non_payer",
+              "type": "Boolean",
+              "label": "Неплатник ПДВ",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_vat_payer_status",
+              "type": "Selection",
+              "label": "Статус ПДВ",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_vat_status",
+              "type": "Char",
+              "label": "ПДВ",
+              "module": "l10n_ua_partner_edr",
+              "file": "addons/l10n_ua_partner_edr/models/res_partner.py",
+              "groups": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "area": "Спільне",
+      "models": [
+        {
+          "model": "bp.bridge",
+          "ours": true,
+          "modules": [
+            "bp_bridge"
+          ],
+          "methods": [
+            {
+              "name": "call",
+              "signature": "call(method, path, payload=None, params=None, timeout=60)",
+              "doc": "",
+              "module": "bp_bridge",
+              "file": "addons/bp_bridge/models/bridge.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.api",
+          "ours": true,
+          "modules": [
+            "l10n_ua_api"
+          ],
+          "methods": [
+            {
+              "name": "documents_for_month",
+              "signature": "documents_for_month(company_id, year, month)",
+              "doc": "Документи місяця з їхніми перевірками, по одному рядку на ВИД документа.",
+              "module": "l10n_ua_api",
+              "file": "addons/l10n_ua_api/models/ua_api.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "employee_card",
+              "signature": "employee_card(employee_id)",
+              "doc": "Картка працівника: те саме, що показує стандартна форма hr.employee.",
+              "module": "l10n_ua_api",
+              "file": "addons/l10n_ua_api/models/ua_api.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "month_summary",
+              "signature": "month_summary(company_id, year, month)",
+              "doc": "Усе, що показує екран місяця зарплати, одним читанням.",
+              "module": "l10n_ua_api",
+              "file": "addons/l10n_ua_api/models/ua_api.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "reporting_status",
+              "signature": "reporting_status(company_id, year, month=None)",
+              "doc": "Стан звітності за період: по рядку на кожен звіт робочого місця.",
+              "module": "l10n_ua_api",
+              "file": "addons/l10n_ua_api/models/ua_api.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.screen",
+          "ours": true,
+          "modules": [
+            "l10n_ua_screen"
+          ],
+          "methods": [
+            {
+              "name": "open_target",
+              "signature": "open_target(target)",
+              "doc": "Відкрити ціль будь-якого блоку будь-якого екрана.",
+              "module": "l10n_ua_screen",
+              "file": "addons/l10n_ua_screen/models/ua_screen.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        }
+      ]
+    }
+  ]
+}

@@ -5,6 +5,13 @@
 #   scripts/demo_server.sh stop       зупинити і прибрати контейнер демо
 #   scripts/demo_server.sh reset      видалити базу і зібрати заново
 #
+# База і порт беруться зі змінних DEMO_DB і DEMO_PORT, ім'я контейнера - з бази.
+# Так поруч із робочим демо можна зібрати чернетку, нічого не зачепивши:
+#
+#   DEMO_DB=demo2 DEMO_PORT=8132 scripts/demo_server.sh reset
+#   DEMO_DB=demo2 ODOO_URL=http://127.0.0.1:8132 python3 scripts/demo_business.py
+#   DEMO_DB=demo2 DEMO_PORT=8132 scripts/demo_server.sh stop
+#
 # База demo окрема від payroll: сусідній стенд на 8130 і теку odoo-live-payroll
 # цей скрипт не чіпає. Дані наповнює scripts/demo_business.py після підняття.
 set -euo pipefail
@@ -14,12 +21,16 @@ cd "$ROOT"
 
 DB="${DEMO_DB:-demo}"
 PORT="${DEMO_PORT:-8131}"
-NAME="odoo-live-base-demo"
+NAME="odoo-live-base-$DB"
 
 # Повний набір демо-простору. Увесь наш продукт тягне один модуль l10n_ua_navigation
 # (меню над стандартними поданнями); решта - рідні застосунки Odoo для демонстрації
-# продажів, складу і виробництва.
+# продажів, складу і виробництва. Останній рядок - закупівлі, виробництво, склад,
+# група компаній і податок на прибуток: їхні залежності (purchase_request,
+# account_invoice_inter_company, mis_builder, mrp_account) Odoo тягне сам.
 MODULES="l10n_ua_navigation,sale_management,purchase,stock,mrp,crm,auditlog"
+MODULES="$MODULES,purchase_request,l10n_ua_purchase,l10n_ua_mrp,l10n_ua_stock_docs"
+MODULES="$MODULES,l10n_ua_group,l10n_ua_profit_tax"
 
 ODOO_ARGS="--addons-path=/mnt/extra-addons --db_host=db --db_user=odoo --db_password=odoo --max-cron-threads=0"
 
@@ -123,5 +134,5 @@ done
 
 echo
 echo "Демо: http://127.0.0.1:$PORT  (база $DB, логін admin, пароль - ODOO_ADMIN_USER_PASSWORD з .env)"
-echo "Наповнення даними: python3 scripts/demo_business.py"
-echo "Зупинити: scripts/demo_server.sh stop"
+echo "Наповнення даними: DEMO_DB=$DB ODOO_URL=http://127.0.0.1:$PORT python3 scripts/demo_business.py"
+echo "Зупинити: DEMO_DB=$DB scripts/demo_server.sh stop"

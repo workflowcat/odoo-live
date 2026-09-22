@@ -1,0 +1,1269 @@
+# Опис ядра для інтерфейсу
+
+Згенеровано `scripts/api_inventory.py`. Руками не правити: зміни в коді, потім
+`python3 scripts/api_inventory.py`. Що саме сюди потрапляє - у шапці скрипта.
+Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
+прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
+
+Модулів: 42. Моделей: 98. Методів: 273. Збережених полів на чужих моделях: 257.
+
+## Зарплата
+
+### `ua.advance.sheet`
+
+наша модель · `l10n_ua_payroll_rules`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_confirm()` | - | `l10n_ua_payroll_rules` |
+| `action_draft()` | - | `l10n_ua_payroll_rules` |
+| `action_refill()` | Видалити рядки і заповнити знову з чернеток листків місяця. Лише для чернетки документа. | `l10n_ua_payroll_rules` |
+| `ua_compose(company, year=None, month=None, **params)` | Нова авансова відомість місяця, одразу порахована. | `l10n_ua_payroll_rules` |
+
+### `ua.cpi.index`
+
+наша модель · `l10n_ua_index`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `get_map(date_from, date_to)` | {(рік, місяць): індекс} за період включно. | `l10n_ua_index` |
+
+### `ua.dps.xml`
+
+наша модель · `l10n_ua_payroll_reports`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `build(company, c_doc, c_doc_sub, c_doc_ver, period_type, month, year, body_fields, linked=None, c_doc_cnt=1, c_doc_type=0, c_doc_stan=1, fill_date=None)` | body_fields: список (тег, значення) у порядку схеми; порожні значення пропускаються. Повертає (ім'я файлу, bytes). | `l10n_ua_payroll_reports` |
+| `file_name(tin, sti, c_doc, c_doc_sub, c_doc_ver, c_doc_stan, c_doc_type, c_doc_cnt, period_type, month, year, sti_orig)` | Ім'я файлу за форматом ДПС, звірено з прикладом M.E.Doc 26550008012019J0500111100000000110720262655.XML: | `l10n_ua_payroll_reports` |
+| `validate(data, schema_code)` | Перевірка за XSD зі schemas/ (файли збережені в UTF-8). Повертає список помилок; порожній = валідний. | `l10n_ua_payroll_reports` |
+
+### `ua.explain`
+
+наша модель · `l10n_ua_explain`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `explain(model, res_id, field=None, when='auto')` | when: "auto" - заморожений слід, якщо є, інакше живий перерахунок (preview); | `l10n_ua_explain` |
+
+### `ua.explain.trace`
+
+наша модель · `l10n_ua_explain`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `freeze(record, payload_dict)` | Створити новий рядок сліду для запису. Завжди create, ніколи write | `l10n_ua_explain` |
+
+### `ua.hire.notice.wizard`
+
+наша модель · `l10n_ua_payroll_reports`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_generate()` | - | `l10n_ua_payroll_reports` |
+
+### `ua.income.certificate.wizard`
+
+наша модель · `l10n_ua_payroll_reports`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_print()` | - | `l10n_ua_payroll_reports` |
+
+### `ua.payments.plan`
+
+наша модель · `l10n_ua_payments`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `month_rows(company, year, month)` | Рядки календаря виплат місяця: минулий місяць - факт, поточний - план. | `l10n_ua_payments` |
+
+### `ua.payroll.advance.wizard`
+
+наша модель · `l10n_ua_payroll_rules`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_fill()` | - | `l10n_ua_payroll_rules` |
+
+### `ua.payroll.param`
+
+наша модель · `l10n_ua_payroll_rules`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `get(key, date=None, company=None)` | - | `l10n_ua_payroll_rules` |
+| `get_all(date=None, company=None)` | - | `l10n_ua_payroll_rules` |
+
+### `ua.payroll.report.wizard`
+
+наша модель · `l10n_ua_payroll_reports`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_generate()` | - | `l10n_ua_payroll_reports` |
+
+### `account.payment.line`
+
+доповнена модель · `l10n_ua_payments`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_account_id` | Many2one | account.account | `l10n_ua_payments` |
+| `ua_employee_id` | Many2one | hr.employee | `l10n_ua_payments` |
+| `ua_label` | Char | Рядок | `l10n_ua_payments` |
+
+### `account.payment.mode`
+
+доповнена модель · `l10n_ua_payments`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_file_format` | Selection | - | `l10n_ua_payments` |
+
+### `account.payment.order`
+
+доповнена модель · `l10n_ua_payments`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | Скасувати відомість. Odoo 19 лишає платіж у стані «в обробці» (in_process), а | `l10n_ua_payments` |
+| `action_confirm()` | Затвердити: OCA складає платежі (ще чернетки) з рядків відомості. | `l10n_ua_payments` |
+| `action_draft()` | - | `l10n_ua_payments` |
+| `action_export()` | Кнопка «Файл для банку»: формує файл, чіпляє його до відомості і віддає посилання. | `l10n_ua_payments` |
+| `action_fill()` | - | `l10n_ua_payments` |
+| `action_paid()` | Позначити оплаченою: платежі проводяться і закривають 661 / 6411 / 6415 / 651. | `l10n_ua_payments` |
+| `ua_compose(company, year=None, month=None, kind=None, **params)` | Нова відомість на перерахування за місяць, одразу заповнена. | `l10n_ua_payments` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `state` | Selection | Стан | `l10n_ua_payments` |
+| `ua_kind` | Selection | - | `l10n_ua_payments` |
+| `ua_label` | Char | Назва | `l10n_ua_payments` |
+| `ua_legacy` | Boolean | Перенесена історія | `l10n_ua_payments` |
+| `ua_month` | Integer | Місяць | `l10n_ua_payments` |
+| `ua_note` | Text | Примітка | `l10n_ua_payments` |
+| `ua_pay_date` | Date | Дата виплати | `l10n_ua_payments` |
+| `ua_year` | Integer | Рік | `l10n_ua_payments` |
+
+### `hr.department`
+
+доповнена модель · `l10n_ua_payroll_account`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_expense_account_id` | Many2one | account.account | `l10n_ua_payroll_account` |
+
+### `hr.employee`
+
+доповнена модель · `l10n_ua_average`, `l10n_ua_gph`, `l10n_ua_hr_card`, `l10n_ua_hr_orders`, `l10n_ua_index`, `l10n_ua_military`, `l10n_ua_payments`, `l10n_ua_payroll_account`, `l10n_ua_payroll_reports`, `l10n_ua_payroll_rules`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_ua_mil_register_check()` | Кнопка форми працівника: та сама звірка, що й для списку персонального обліку - | `l10n_ua_military` |
+| `action_ua_print_last_order()` | Друк останнього проведеного наказу працівника (будь-якого виду). Якщо наказу в реєстрі | `l10n_ua_hr_orders` |
+| `action_view_ua_documents()` | - | `l10n_ua_hr_card` |
+| `get_ua_doc_package()` | Пакет документів картки (docs/payroll/spec-intake.md) - той самий package_for, яким | `l10n_ua_hr_card` |
+| `ua_ensure_allocations(year=None)` | - | `l10n_ua_average` |
+| `ua_ensure_leave_allocations(on_date=None)` | Публічна обгортка: Odoo не дає викликати методи з підкресленням через execute_kw. | `l10n_ua_average` |
+| `ua_mil_register_check(note=None)` | Записати звірку з ТЦК: подія обліку плюс дата останньої звірки. | `l10n_ua_military` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `marital` | Selection | - | `l10n_ua_hr_card` |
+| `ua_actual_address` | Char | Фактична адреса | `l10n_ua_hr_card` |
+| `ua_alimony_partner_id` | Many2one | res.partner | `l10n_ua_payroll_account` |
+| `ua_chernobyl_category` | Selection | - | `l10n_ua_hr_card` |
+| `ua_child_ids` | One2many | ua.employee.child | `l10n_ua_hr_card` |
+| `ua_contract_kind` | Selection | - | `l10n_ua_payroll_rules` |
+| `ua_diploma_number` | Char | Номер диплома | `l10n_ua_hr_card` |
+| `ua_disability_group` | Selection | - | `l10n_ua_payroll_rules` |
+| `ua_dismissal_date` | Date | Дата звільнення | `l10n_ua_payroll_reports` |
+| `ua_document_ids` | One2many | ua.employee.document | `l10n_ua_hr_card` |
+| `ua_education_year` | Integer | Рік закінчення | `l10n_ua_hr_card` |
+| `ua_electronic_labor_book` | Boolean | Електронна трудова | `l10n_ua_hr_card` |
+| `ua_esv_category` | Selection | - | `l10n_ua_payroll_rules` |
+| `ua_expense_account_id` | Many2one | account.account | `l10n_ua_payroll_account` |
+| `ua_first_hire_date` | Date | Прийнято вперше | `l10n_ua_hr_card` |
+| `ua_first_name` | Char | Ім'я | `l10n_ua_payroll_reports` |
+| `ua_fte` | Selection | - | `l10n_ua_payroll_rules` |
+| `ua_full_time` | Boolean | Повна зайнятість | `l10n_ua_payroll_reports` |
+| `ua_gph_contract_date` | Date | Дата договору ЦПХ | `l10n_ua_payroll_rules` |
+| `ua_gph_contract_end` | Date | Договір діє до | `l10n_ua_payroll_rules` |
+| `ua_gph_contract_ref` | Char | Договір ЦПХ № | `l10n_ua_payroll_rules` |
+| `ua_hire_date` | Date | Дата прийняття | `l10n_ua_payroll_reports` |
+| `ua_id_doc_date` | Date | Дата видачі | `l10n_ua_hr_card` |
+| `ua_id_doc_issued_by` | Char | Ким виданий | `l10n_ua_hr_card` |
+| `ua_id_doc_number` | Char | Номер документа | `l10n_ua_hr_card` |
+| `ua_id_doc_series` | Char | Серія | `l10n_ua_hr_card` |
+| `ua_id_doc_type` | Selection | - | `l10n_ua_hr_card` |
+| `ua_id_doc_unzr` | Char | УНЗР | `l10n_ua_hr_card` |
+| `ua_index_base` | Date | Базовий місяць індексації | `l10n_ua_index` |
+| `ua_index_off` | Boolean | Не індексувати | `l10n_ua_index` |
+| `ua_index_paid_month` | Date | Місяць останньої виплаченої індексації | `l10n_ua_index` |
+| `ua_insurance_years` | Float | Страховий стаж, років | `l10n_ua_average` |
+| `ua_labor_book_date` | Date | Дата заведення | `l10n_ua_hr_card` |
+| `ua_labor_book_number` | Char | Номер трудової книжки | `l10n_ua_hr_card` |
+| `ua_languages` | Char | Мови | `l10n_ua_hr_card` |
+| `ua_large_family` | Boolean | Багатодітна сім'я | `l10n_ua_hr_card` |
+| `ua_last_name` | Char | Прізвище | `l10n_ua_payroll_reports` |
+| `ua_main_job` | Boolean | Основне місце роботи | `l10n_ua_payroll_rules` |
+| `ua_middle_name` | Char | По батькові | `l10n_ua_payroll_reports` |
+| `ua_mil_category` | Selection | Категорія обліку | `l10n_ua_military` |
+| `ua_mil_deferment` | Char | Відстрочка (підстава) | `l10n_ua_military` |
+| `ua_mil_deferment_until` | Date | Відстрочка до | `l10n_ua_military` |
+| `ua_mil_doc_date` | Date | Дата видачі документа | `l10n_ua_military` |
+| `ua_mil_doc_number` | Char | Номер військового документа | `l10n_ua_military` |
+| `ua_mil_doc_series` | Char | Серія документа | `l10n_ua_military` |
+| `ua_mil_doc_type` | Selection | Вид документа | `l10n_ua_military` |
+| `ua_mil_event_ids` | One2many | ua.military.event | `l10n_ua_military` |
+| `ua_mil_fitness` | Selection | Придатність | `l10n_ua_military` |
+| `ua_mil_group` | Selection | Група обліку | `l10n_ua_military` |
+| `ua_mil_last_check` | Date | Дата звірки даних | `l10n_ua_military` |
+| `ua_mil_needs_check` | Boolean | Потребує звірки | `l10n_ua_military` |
+| `ua_mil_note` | Text | Примітка | `l10n_ua_military` |
+| `ua_mil_rank` | Char | Військове звання | `l10n_ua_military` |
+| `ua_mil_reserve_order` | Char | Підстава бронювання (наказ, рішення) | `l10n_ua_military` |
+| `ua_mil_reserve_until` | Date | Бронювання до | `l10n_ua_military` |
+| `ua_mil_reserved` | Boolean | Заброньований | `l10n_ua_military` |
+| `ua_mil_status` | Selection | Стан обліку | `l10n_ua_military` |
+| `ua_mil_tcc` | Char | ТЦК та СП, де перебуває на обліку | `l10n_ua_military` |
+| `ua_mil_vlk_date` | Date | Дата ВЛК | `l10n_ua_military` |
+| `ua_mil_vos` | Char | ВОС | `l10n_ua_military` |
+| `ua_mil_women_list` | Boolean | У списку жінок | `l10n_ua_military` |
+| `ua_previous_employee_id` | Many2one | hr.employee | `l10n_ua_hr_card` |
+| `ua_prior_job_ids` | One2many | ua.employee.prior.job | `l10n_ua_hr_card` |
+| `ua_psp` | Selection | - | `l10n_ua_payroll_rules` |
+| `ua_psp_children` | Integer | Дітей до 18 років | `l10n_ua_payroll_rules` |
+| `ua_reserve_date` | Date | Дата витягу Резерв+ | `l10n_ua_military` |
+| `ua_reserve_file` | Binary | Файл витягу Резерв+ | `l10n_ua_military` |
+| `ua_reserve_filename` | Char | Файл витягу (назва) | `l10n_ua_military` |
+| `ua_reserve_number` | Char | Номер витягу Резерв+ | `l10n_ua_military` |
+| `ua_rnokpp` | Char | РНОКПП | `l10n_ua_payroll_rules` |
+| `ua_science_degree` | Char | Науковий ступінь | `l10n_ua_hr_card` |
+| `ua_sick_full` | Boolean | Лікарняні 100 % незалежно від стажу | `l10n_ua_average` |
+| `ua_single_parent` | Boolean | Одинокий батько/мати | `l10n_ua_hr_card` |
+| `ua_soc_child_disabled_child` | Boolean | Є дитина з інвалідністю | `l10n_ua_average` |
+| `ua_special_leave_days` | Integer | Днів додаткової відпустки за особливий характер праці | `l10n_ua_average` |
+| `ua_vacation_days_year` | Integer | Днів щорічної відпустки на рік | `l10n_ua_payroll_rules` |
+| `ua_vacation_opening_balance` | Float | Залишок на дату впровадження | `l10n_ua_payroll_rules` |
+| `ua_vacation_opening_date` | Date | Дата впровадження обліку відпусток | `l10n_ua_payroll_rules` |
+| `ua_veteran` | Boolean | УБД / ветеран | `l10n_ua_hr_card` |
+| `ua_war_disability` | Boolean | Особа з інвалідністю внаслідок війни | `l10n_ua_average` |
+
+### `hr.leave`
+
+доповнена модель · `l10n_ua_average`, `l10n_ua_hr_orders`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_refuse()` | - | `l10n_ua_hr_orders` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_order_id` | Many2one | ua.hr.order | `l10n_ua_hr_orders` |
+| `ua_order_ref` | Char | Наказ (№ і дата) | `l10n_ua_average` |
+| `ua_sick_number` | Char | Номер е-лікарняного | `l10n_ua_average` |
+
+### `hr.leave.allocation`
+
+доповнена модель · `l10n_ua_average`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_period_start` | Date | Початок періоду нарахування | `l10n_ua_average` |
+| `ua_source` | Selection | - | `l10n_ua_average` |
+
+### `hr.leave.type`
+
+доповнена модель · `l10n_ua_average`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_alloc_basis` | Selection | - | `l10n_ua_average` |
+| `ua_calendar_days` | Boolean | Рахувати календарні дні | `l10n_ua_average` |
+
+### `hr.payslip`
+
+доповнена модель · `l10n_ua_average`, `l10n_ua_explain`, `l10n_ua_hr_docs`, `l10n_ua_index`, `l10n_ua_payroll_account`, `l10n_ua_payroll_rules`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_open_move()` | - | `l10n_ua_payroll_account` |
+| `action_payslip_cancel()` | - | `l10n_ua_payroll_account` |
+| `action_payslip_done()` | - | `l10n_ua_average` |
+| `action_payslip_done()` | - | `l10n_ua_explain` |
+| `action_payslip_done()` | Виплачена індексація починає новий цикл: базовим стає місяць листка. | `l10n_ua_index` |
+| `action_payslip_done()` | - | `l10n_ua_payroll_account` |
+| `get_payroll_dict(contracts)` | - | `l10n_ua_explain` |
+| `get_payroll_dict(contracts)` | - | `l10n_ua_payroll_rules` |
+| `get_worked_day_lines(contracts, date_from, date_to)` | Дні і години WORK100 з табеля. Дні відсутності лишаються окремими рядками, | `l10n_ua_hr_docs` |
+| `ua_index_amount()` | - | `l10n_ua_index` |
+| `ua_index_detail()` | (сума, наростаючий відсоток, місяці без індексу) для правила і перевірок. | `l10n_ua_index` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `move_id` | Many2one | account.move | `l10n_ua_payroll_account` |
+
+### `hr.version`
+
+доповнена модель · `l10n_ua_average`, `l10n_ua_payroll_reports`, `l10n_ua_payroll_rules`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_dismissal_basis` | Char | Підстава припинення | `l10n_ua_payroll_reports` |
+| `ua_end_order_ref` | Char | Наказ про звільнення (№ і дата) | `l10n_ua_payroll_reports` |
+| `ua_hour_rate` | Monetary | Ставка, грн/год | `l10n_ua_payroll_rules` |
+| `ua_internal_parttime` | Boolean | Внутрішній сумісник | `l10n_ua_payroll_reports` |
+| `ua_kp_code` | Char | Код КП | `l10n_ua_payroll_reports` |
+| `ua_night_shifts` | Boolean | Працює в нічну зміну | `l10n_ua_payroll_rules` |
+| `ua_order_ref` | Char | Наказ про прийняття (№ і дата) | `l10n_ua_payroll_reports` |
+| `ua_pay_type` | Selection | - | `l10n_ua_payroll_rules` |
+| `ua_prof_name` | Char | Професійна назва роботи | `l10n_ua_payroll_reports` |
+| `ua_weekly_hours` | Float | Норма годин на тиждень | `l10n_ua_payroll_rules` |
+
+### `res.company`
+
+доповнена модель · `l10n_ua_average`, `l10n_ua_cash`, `l10n_ua_chart`, `l10n_ua_docs`, `l10n_ua_fop`, `l10n_ua_hr_orders`, `l10n_ua_payments`, `l10n_ua_payroll_account`, `l10n_ua_payroll_reports`, `l10n_ua_payroll_rules`, `l10n_ua_purchase`, `l10n_ua_setup`, `l10n_ua_vat`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `ua_payment_setup()` | Довідники зарплатних виплат одним викликом: способи оплати і банк. | `l10n_ua_payments` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_accountant_name` | Char | Головний бухгалтер (ПІБ) | `l10n_ua_docs` |
+| `ua_accountant_name` | Char | Головний бухгалтер (ПІБ) | `l10n_ua_payroll_reports` |
+| `ua_accountant_rnokpp` | Char | РНОКПП головного бухгалтера | `l10n_ua_payroll_reports` |
+| `ua_acts_on_basis` | Char | Діє на підставі | `l10n_ua_docs` |
+| `ua_below_min_wage` | Boolean | Є оклади нижче мінімальної зарплати | `l10n_ua_setup` |
+| `ua_booking_planned` | Boolean | Бронюємо або плануємо бронювати | `l10n_ua_setup` |
+| `ua_cash_limit` | Monetary | Ліміт каси | `l10n_ua_cash` |
+| `ua_director_name` | Char | Керівник (ПІБ) | `l10n_ua_docs` |
+| `ua_director_name` | Char | Керівник (ПІБ) | `l10n_ua_payroll_reports` |
+| `ua_director_rnokpp` | Char | РНОКПП керівника | `l10n_ua_payroll_reports` |
+| `ua_dps_partner_id` | Many2one | res.partner | `l10n_ua_payroll_account` |
+| `ua_dps_raj` | Char | Код району ДПІ | `l10n_ua_vat` |
+| `ua_dps_reg` | Char | Код області ДПІ | `l10n_ua_vat` |
+| `ua_dps_sti` | Char | Код ДПІ отримувача | `l10n_ua_vat` |
+| `ua_engagement_forms` | Char | Форми залучення людей | `l10n_ua_setup` |
+| `ua_fop` | Boolean | ФОП на єдиному податку | `l10n_ua_fop` |
+| `ua_fop_group` | Selection | - | `l10n_ua_fop` |
+| `ua_fop_vat_payer` | Boolean | Платник ПДВ | `l10n_ua_fop` |
+| `ua_has_disabled` | Boolean | Є працівники з інвалідністю (ЄСВ 8,41 %) | `l10n_ua_setup` |
+| `ua_iban_esv` | Char | Рахунок бюджету: ЄСВ | `l10n_ua_payments` |
+| `ua_iban_pdfo` | Char | Рахунок бюджету: ПДФО | `l10n_ua_payments` |
+| `ua_iban_vz` | Char | Рахунок бюджету: військовий збір | `l10n_ua_payments` |
+| `ua_index_default_off` | Boolean | Індексацію не ведемо | `l10n_ua_setup` |
+| `ua_katottg` | Char | Код КАТОТТГ | `l10n_ua_payroll_reports` |
+| `ua_kved` | Char | Основний КВЕД | `l10n_ua_payroll_reports` |
+| `ua_military_officer` | Char | Відповідальний за військовий облік | `l10n_ua_setup` |
+| `ua_opening_balances` | Boolean | Будуть вхідні залишки | `l10n_ua_setup` |
+| `ua_pay_advance_day` | Integer | Аванс до числа | `l10n_ua_hr_orders` |
+| `ua_pay_advance_percent` | Float | Аванс, % окладу | `l10n_ua_hr_orders` |
+| `ua_pay_final_day` | Integer | Остаточний розрахунок до числа | `l10n_ua_hr_orders` |
+| `ua_payment_mode_salary_id` | Many2one | account.payment.mode | `l10n_ua_payments` |
+| `ua_payment_mode_tax_id` | Many2one | account.payment.mode | `l10n_ua_payments` |
+| `ua_payroll_bank_mode` | Selection | - | `l10n_ua_setup` |
+| `ua_pfu_partner_id` | Many2one | res.partner | `l10n_ua_payroll_account` |
+| `ua_purchase_approval_limit` | Monetary | Ліміт погодження запиту | `l10n_ua_purchase` |
+| `ua_raj` | Char | Код району (C_RAJ) | `l10n_ua_payroll_reports` |
+| `ua_reg` | Char | Код області (C_REG) | `l10n_ua_payroll_reports` |
+| `ua_settlement_currency` | Char | Валюта розрахунків з клієнтами | `l10n_ua_setup` |
+| `ua_sti_code` | Char | Код ДПІ (C_STI_ORIG) | `l10n_ua_payroll_reports` |
+| `ua_sti_name` | Char | Назва ДПІ | `l10n_ua_payroll_reports` |
+| `ua_tax_system` | Selection | - | `l10n_ua_setup` |
+| `ua_vacation_opening_date` | Date | Дата впровадження обліку відпусток | `l10n_ua_payroll_rules` |
+| `ua_vat_payer` | Boolean | Платник ПДВ | `l10n_ua_setup` |
+
+## Кадри
+
+### `ua.employee.document`
+
+наша модель · `l10n_ua_hr_card`, `l10n_ua_hr_orders`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_mark_signed()` | - | `l10n_ua_hr_card` |
+| `action_print()` | - | `l10n_ua_hr_card` |
+| `action_unmark_signed()` | Чесний зворотний бік action_mark_signed - для вікна скасування «узгодження» | `l10n_ua_hr_card` |
+
+### `ua.employee.import`
+
+наша модель · `l10n_ua_onboarding`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_import()` | - | `l10n_ua_onboarding` |
+| `action_template()` | Порожній файл із заголовками, двома прикладами і аркушем заробітку. | `l10n_ua_onboarding` |
+
+### `ua.hire.case`
+
+наша модель · `l10n_ua_hire`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_decline(reason='')` | - | `l10n_ua_hire` |
+| `action_extract()` | Надіслати файли локальному помічнику Claude і записати пропозиції. Значення в поля не пишемо. | `l10n_ua_hire` |
+| `action_hire()` | - | `l10n_ua_hire` |
+| `action_hire_plan()` | План перед «Прийняти на роботу»: перелік того, що action_hire нижче справді зробить | `l10n_ua_hire` |
+| `action_reopen()` | - | `l10n_ua_hire` |
+| `action_start_onboarding()` | - | `l10n_ua_hire` |
+| `add_file(name, data, doc_type='other')` | - | `l10n_ua_hire` |
+| `clear_reserve_file()` | - | `l10n_ua_hire` |
+| `create_case(last_name='', first_name='', job_title='')` | - | `l10n_ua_hire` |
+| `extract_status()` | - | `l10n_ua_hire` |
+| `set_package_doc(key, on)` | - | `l10n_ua_hire` |
+| `set_reserve_file(filename, data)` | Файл витягу Резерв+: необов'язковий, не редагується через set_value (не в SECTIONS). | `l10n_ua_hire` |
+| `set_value(field_name, value)` | - | `l10n_ua_hire` |
+
+### `ua.hire.file`
+
+наша модель · `l10n_ua_hire`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `set_doc_type(doc_type)` | - | `l10n_ua_hire` |
+
+### `ua.hire.proposal`
+
+наша модель · `l10n_ua_hire`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_accept()` | - | `l10n_ua_hire` |
+| `action_reject()` | - | `l10n_ua_hire` |
+
+### `ua.hr.doc.pack.wizard`
+
+наша модель · `l10n_ua_hr_orders`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_print()` | - | `l10n_ua_hr_orders` |
+
+### `ua.hr.doc.requirement`
+
+наша модель · `l10n_ua_hr_orders`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `package_for(employee=None, case=None)` | Пакет документів за формою зі спеки: employee-блок (що приносить людина) і | `l10n_ua_hr_orders` |
+| `package_used_file_ids(case)` | Файли справи, що підпадають під якусь employee-вимогу пакета (docs/payroll/ | `l10n_ua_hr_orders` |
+
+### `ua.hr.order`
+
+наша модель · `l10n_ua_hr_orders`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_acknowledge()` | - | `l10n_ua_hr_orders` |
+| `action_acknowledge()` | - | `l10n_ua_hr_orders` |
+| `action_cancel()` | - | `l10n_ua_hr_orders` |
+| `action_post()` | - | `l10n_ua_hr_orders` |
+| `action_post()` | - | `l10n_ua_hr_orders` |
+| `action_ua_open_leave()` | - | `l10n_ua_hr_orders` |
+| `action_ua_open_payments()` | - | `l10n_ua_hr_orders` |
+| `action_ua_open_slips()` | - | `l10n_ua_hr_orders` |
+| `action_ua_open_version()` | - | `l10n_ua_hr_orders` |
+| `content_line()` | Короткий однорядковий зміст наказу - для журналу реєстрації. | `l10n_ua_hr_orders` |
+
+### `ua.hr.order.register.wizard`
+
+наша модель · `l10n_ua_hr_orders`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_print()` | - | `l10n_ua_hr_orders` |
+
+### `ua.kp.code`
+
+наша модель · `l10n_ua_kp`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `audit_staff_lists(include_posted=False)` | Що не так із кодами в штатних розписах: кожен рядок - факт і ціль. | `l10n_ua_kp` |
+| `audit_versions()` | Версії, де посада змінилася, а код професії лишився від попередньої. | `l10n_ua_kp` |
+| `ensure(code, group=None, source=None)` | Запис довідника для коду; створює, якщо ще немає. | `l10n_ua_kp` |
+| `official(code)` | Офіційна назва і група за кодом. Немає служби - None. | `l10n_ua_kp` |
+| `suggest(query, limit=10)` | Підказки за назвою посади. Розуміє англійські назви і фемінітиви. | `l10n_ua_kp` |
+| `sync_from_documents()` | Наповнити довідник кодами, які вже стоять у штатних розписах. | `l10n_ua_kp` |
+| `verify()` | Звірити офіційні назви зі службою. Недоступна - лишаємо як є. | `l10n_ua_kp` |
+
+### `ua.military.list`
+
+наша модель · `l10n_ua_military`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_confirm()` | - | `l10n_ua_military` |
+| `action_create_all_tcc(company_id=None, doc_date=None, variant='all')` | Створити по одному чернетковому списку на кожен ТЦК, де є хоча б один військовозобов'язаний. | `l10n_ua_military` |
+| `action_draft()` | - | `l10n_ua_military` |
+| `action_reconcile()` | Звірка з ТЦК: записує дату звірки всім працівникам у списку і подію в їхню хроніку. | `l10n_ua_military` |
+| `action_refill()` | Видалити рядки і заповнити знову з hr.employee: працівники цього ТЦК, що підлягають обліку | `l10n_ua_military` |
+
+### `ua.military.list.wizard`
+
+наша модель · `l10n_ua_military`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_create()` | - | `l10n_ua_military` |
+| `action_create_all()` | Створити списки по всіх ТЦК, де є хоча б один військовозобов'язаний. | `l10n_ua_military` |
+
+### `ua.military.notice`
+
+наша модель · `l10n_ua_military`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_confirm()` | - | `l10n_ua_military` |
+| `action_draft()` | - | `l10n_ua_military` |
+| `action_refill()` | - | `l10n_ua_military` |
+
+### `ua.military.notice.wizard`
+
+наша модель · `l10n_ua_military`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_create()` | - | `l10n_ua_military` |
+
+### `ua.military.reserved`
+
+наша модель · `l10n_ua_military`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_confirm()` | - | `l10n_ua_military` |
+| `action_draft()` | - | `l10n_ua_military` |
+| `action_refill()` | - | `l10n_ua_military` |
+| `ua_compose(company, year=None, month=None, date=None, **params)` | Новий список заброньованих на дату, одразу заповнений. | `l10n_ua_military` |
+
+### `ua.military.reserved.wizard`
+
+наша модель · `l10n_ua_military`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_create()` | - | `l10n_ua_military` |
+
+### `ua.pfu.claim`
+
+наша модель · `l10n_ua_hr_docs`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_accept()` | ПФУ прийняв заяву. | `l10n_ua_hr_docs` |
+| `action_confirm()` | - | `l10n_ua_hr_docs` |
+| `action_done()` | - | `l10n_ua_hr_docs` |
+| `action_draft()` | - | `l10n_ua_hr_docs` |
+| `action_notice_sent()` | Повідомлення про виплату подано до ПФУ. | `l10n_ua_hr_docs` |
+| `action_refill()` | Видалити рядки і заповнити знову: рядки SICK_PFU і MAT листків пакета, відпустка з номером е-ЛН, дні з _ua_leave_calendar_days(). | `l10n_ua_hr_docs` |
+| `action_register_funding(amount=None)` | Гроші від ПФУ надійшли. Часткове фінансування лишає залишок. | `l10n_ua_hr_docs` |
+| `action_register_payment(amount=None)` | Допомогу виплачено працівникам. Виплатити можна лише профінансоване. | `l10n_ua_hr_docs` |
+| `action_reject()` | ПФУ відмовив. Причина обов'язкова. | `l10n_ua_hr_docs` |
+| `action_submit()` | Заяву подано до ПФУ. | `l10n_ua_hr_docs` |
+| `ua_compose(company, year=None, month=None, **params)` | Нова заява-розрахунок за місяць: пакет листків місяця і його суми. | `l10n_ua_hr_docs` |
+
+### `ua.staff.list`
+
+наша модель · `l10n_ua_hr_docs`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_confirm()` | - | `l10n_ua_hr_docs` |
+| `action_draft()` | - | `l10n_ua_hr_docs` |
+| `action_refill()` | Видалити рядки і заповнити знову: підрозділ / посада / код КП / оклад -> сума ставок і фонд. | `l10n_ua_hr_docs` |
+| `ua_compose(company, year=None, month=None, date=None, **params)` | Новий штатний розпис на дату, одразу заповнений поточним складом. | `l10n_ua_hr_docs` |
+
+### `ua.staff.list.wizard`
+
+наша модель · `l10n_ua_hr_docs`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_create()` | Створити документ і відкрити його форму; якщо на цю дату вже є чернетка - відкрити її. | `l10n_ua_hr_docs` |
+
+### `ua.timesheet.sheet`
+
+наша модель · `l10n_ua_hr_docs`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_confirm()` | - | `l10n_ua_hr_docs` |
+| `action_draft()` | - | `l10n_ua_hr_docs` |
+| `action_recompute_payslips()` | Перерахувати чернетки листків періоду за виправленим табелем. | `l10n_ua_hr_docs` |
+| `action_refill()` | Видалити рядки і заповнити знову: працівник за день - код (Р, ВХ, В, ТН, НА, ВП, «-»). | `l10n_ua_hr_docs` |
+| `ua_compose(company, year=None, month=None, **params)` | Табель місяця для «Паперів»: той самий ідемпотентний _ua_ensure_for(). | `l10n_ua_hr_docs` |
+
+### `ua.timesheet.wizard`
+
+наша модель · `l10n_ua_hr_docs`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_create()` | Створити документ і відкрити його форму; якщо на цей період уже є чернетка - відкрити її. | `l10n_ua_hr_docs` |
+
+### `hr.payslip.run`
+
+доповнена модель · `l10n_ua_hr_docs`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_ua_pfu_claim()` | - | `l10n_ua_hr_docs` |
+| `ua_compose(company, year=None, month=None, **params)` | Новий пакет листків на місяць: назва, межі місяця, компанія. | `l10n_ua_hr_docs` |
+| `ua_prepare_month(company, year, month)` | Підготувати місяць: табель, чернетки листків, перерахунок. | `l10n_ua_hr_docs` |
+
+## Звітність і контроль
+
+### `ua.change.log`
+
+наша модель · `l10n_ua_changes`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `accept_period(year, month)` | Прийняти всі нові зміни місяця однією дією. | `l10n_ua_changes` |
+| `action_accept()` | - | `l10n_ua_changes` |
+| `action_open_record()` | - | `l10n_ua_changes` |
+| `action_reset()` | - | `l10n_ua_changes` |
+| `count_new(company, year, month)` | - | `l10n_ua_changes` |
+| `undo_accept_period(year, month, seconds=25)` | Відкат «Прийняти всі зміни»: щойно прийняті рядки знову стають новими. | `l10n_ua_changes` |
+
+### `ua.period.close`
+
+наша модель · `l10n_ua_changes`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_accept_changes()` | Прийняти всі непереглянуті зміни місяця. | `l10n_ua_changes` |
+| `action_close()` | - | `l10n_ua_changes` |
+| `action_close_quarter()` | - | `l10n_ua_changes` |
+| `action_close_year()` | - | `l10n_ua_changes` |
+| `action_open_changes()` | - | `l10n_ua_changes` |
+| `action_open_draft_moves()` | - | `l10n_ua_changes` |
+| `action_open_payslips()` | - | `l10n_ua_changes` |
+| `action_prepare_month()` | Підготувати місяць: табель, пакет листків, розрахунок. | `l10n_ua_changes` |
+| `action_reopen()` | - | `l10n_ua_changes` |
+| `blocker_rows(company, year, month)` | Кожна перешкода закриття місяця - одним записом, з усіма трьома її словами. | `l10n_ua_changes` |
+| `blockers(company, year, month)` | Список причин, чому місяць закрити не можна. Порожній список = можна. | `l10n_ua_changes` |
+| `close_period(year, month, hard=False)` | - | `l10n_ua_changes` |
+| `close_quarter(year, quarter)` | Закрити квартал: дата податкового блокування на кінець кварталу. | `l10n_ua_changes` |
+| `close_year(year)` | Закрити рік остаточно: жорстка дата блокування, яку не знімає ніхто. | `l10n_ua_changes` |
+| `ensure_for(company, year, month)` | Картка закриття місяця: наявна або нова чернетка. | `l10n_ua_changes` |
+| `plan(company, year, month)` | План перед закриттям місяця: що станеться, що заважає, що лишиться потім. | `l10n_ua_changes` |
+| `quarter_blockers(company, year, quarter)` | Чому не можна закрити квартал: незакриті місяці або неподана звітність. | `l10n_ua_changes` |
+| `state_of(company, year, month)` | - | `l10n_ua_changes` |
+| `year_blockers(company, year)` | Чому не можна закрити рік: незакриті квартали. | `l10n_ua_changes` |
+
+### `ua.report.run`
+
+наша модель · `l10n_ua_reporting`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_create_correction(kind='HZU')` | Новий прогін-коригування на основі поданого: рядки на вилучення беруться з його файлів. | `l10n_ua_reporting` |
+| `action_generate()` | - | `l10n_ua_reporting` |
+| `action_mark_submitted()` | - | `l10n_ua_reporting` |
+| `action_refresh()` | - | `l10n_ua_reporting` |
+| `action_reset()` | - | `l10n_ua_reporting` |
+| `create_correction(run_id, kind='HZU')` | Виклик з екрана: зробити коригування і повернути id нового прогону. | `l10n_ua_reporting` |
+| `ensure_run(report_code=None, year=None, quarter=None, month=None, date=None, run_id=None)` | Створити прогін періоду, якщо його ще немає, і повернути його id. | `l10n_ua_reporting` |
+
+### `ua.setup.answer`
+
+наша модель · `l10n_ua_setup`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_confirm()` | - | `l10n_ua_setup` |
+| `action_reset()` | - | `l10n_ua_setup` |
+
+### `ua.setup.profile`
+
+наша модель · `l10n_ua_setup`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_activate()` | Дозволити реальний розрахунок. Обов'язкові питання мають бути закриті. | `l10n_ua_setup` |
+| `action_apply()` | Записати підтверджені відповіді в налаштування компанії. | `l10n_ua_setup` |
+| `action_draft()` | - | `l10n_ua_setup` |
+| `action_fill()` | Створити рядки на всі питання каталогу і підставити те, що вже відоме системі. | `l10n_ua_setup` |
+| `action_propose()` | Підставити перше наближення з опису компанії. Усе - зі станом «запропоновано». | `l10n_ua_setup` |
+| `action_ready()` | - | `l10n_ua_setup` |
+| `action_test_month()` | Пробний місяць: система готує табель і чернетки листків за поточний місяць. | `l10n_ua_setup` |
+| `preview_apply()` | Що саме зміниться в налаштуваннях. Показуємо до запису. | `l10n_ua_setup` |
+| `profile_for(company=None)` | - | `l10n_ua_setup` |
+
+### `auditlog.rule`
+
+доповнена модель · `l10n_ua_changes`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `get_auditlog_fields(model)` | Білий список замість усіх збережених полів - тут і відсікається тріска. | `l10n_ua_changes` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_area` | Selection | - | `l10n_ua_changes` |
+| `ua_company` | Char | Компанія | `l10n_ua_changes` |
+| `ua_field_ids` | One2many | ua.change.field | `l10n_ua_changes` |
+| `ua_label` | Char | Назва запису | `l10n_ua_changes` |
+| `ua_period_date` | Char | Період: дата документа | `l10n_ua_changes` |
+| `ua_period_ym` | Char | Період: рік і місяць | `l10n_ua_changes` |
+
+## Бухоблік
+
+### `ua.account.analysis`
+
+наша модель · `l10n_ua_ledger`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_compute()` | - | `l10n_ua_ledger` |
+| `action_print_xlsx()` | - | `l10n_ua_ledger` |
+
+### `ua.account.card`
+
+наша модель · `l10n_ua_ledger`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_compute()` | - | `l10n_ua_ledger` |
+| `action_print_xlsx()` | - | `l10n_ua_ledger` |
+
+### `ua.advance.report`
+
+наша модель · `l10n_ua_cash`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_confirm()` | Затвердити звіт: Дт рахунки витрат / Кт 372 на суму звіту. | `l10n_ua_cash` |
+| `action_draft()` | - | `l10n_ua_cash` |
+| `action_print()` | - | `l10n_ua_cash` |
+| `action_settle_balance()` | Закрити залишок підзвіту касовим ордером. | `l10n_ua_cash` |
+
+### `ua.bank.connect`
+
+наша модель · `l10n_ua_bank_online`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_create_provider()` | Зробити з'єднання, коли ключ уже є. Ключ вписує людина, не система. | `l10n_ua_bank_online` |
+| `action_fill_steps()` | Наповнити чек-лист кроками для обраної служби. | `l10n_ua_bank_online` |
+| `for_journal(journal)` | Картка підключення журналу. Створюємо порожню, якщо її ще немає. | `l10n_ua_bank_online` |
+
+### `ua.bank.ops`
+
+наша модель · `l10n_ua_bank_online`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_apply_rules(journal_id=None, line_id=None)` | Закрити незвірені рядки виписки: спершу платежами, потім правилами. | `l10n_ua_bank_online` |
+| `action_create_provider(journal_id, service)` | Створити з'єднання для журналу і відкрити його форму. | `l10n_ua_bank_online` |
+| `action_match_payments(journal_id=None, line_id=None)` | Звести незвірені рядки виписки з уже проведеними платежами. | `l10n_ua_bank_online` |
+| `action_open_providers(journal_id=None)` | Форма з'єднання рахунку (або перелік усіх, якщо рахунок не вибрано). | `l10n_ua_bank_online` |
+| `action_pull(journal_id, date_from=None, date_to=None)` | Завантажити виписку за період. Без дат - за поточний місяць до сьогодні. | `l10n_ua_bank_online` |
+| `action_pull_all(year=None, month=None)` | Завантажити виписку за місяць для всіх рахунків із з'єднанням. | `l10n_ua_bank_online` |
+| `action_pull_month(journal_id, year, month)` | - | `l10n_ua_bank_online` |
+| `action_test(journal_id)` | - | `l10n_ua_bank_online` |
+
+### `ua.bank.ops.wizard`
+
+наша модель · `l10n_ua_bank_online`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_run()` | Одна дія за фіксованим ключем operation - решта веде до ua.bank.ops. | `l10n_ua_bank_online` |
+
+### `ua.cash.book`
+
+наша модель · `l10n_ua_cash`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_compute()` | Перерахувати книгу. Ідемпотентно: попередні аркуші стираються. | `l10n_ua_cash` |
+| `action_print()` | - | `l10n_ua_cash` |
+
+### `ua.cost.calculation`
+
+наша модель · `l10n_ua_mrp`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_compute()` | Перезібрати рядки. Ідемпотентно: старі рядки замінюються новими. | `l10n_ua_mrp` |
+
+### `ua.depreciation.sheet`
+
+наша модель · `l10n_ua_assets`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_print()` | - | `l10n_ua_assets` |
+| `month_name()` | - | `l10n_ua_assets` |
+| `sheet_rows()` | Готові рядки відомості для друку. | `l10n_ua_assets` |
+| `total()` | - | `l10n_ua_assets` |
+
+### `ua.fop.income`
+
+наша модель · `l10n_ua_fop`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_sync()` | Кнопка «Оновити з платежів». | `l10n_ua_fop` |
+
+### `ua.fop.param`
+
+наша модель · `l10n_ua_fop`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `get(key, on_date=None, company=None)` | Значення параметра, чинне на дату. Значення компанії б'є загальне. | `l10n_ua_fop` |
+
+### `ua.fop.quarter`
+
+наша модель · `l10n_ua_fop`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_compute()` | - | `l10n_ua_fop` |
+| `declaration_rows()` | Числа декларації платника ЄП за квартал - наростаючим підсумком. | `l10n_ua_fop` |
+
+### `ua.group.consolidation`
+
+наша модель · `l10n_ua_group`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_build()` | Зібрати звіт і відкрити його. Повертає дію на mis.report.instance. | `l10n_ua_group` |
+
+### `ua.migrate`
+
+наша модель · `l10n_ua_migrate`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_import()` | - | `l10n_ua_migrate` |
+
+### `ua.osv.line`
+
+наша модель · `l10n_ua_ledger`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_open_card()` | З рядка відомості - у картку цього рахунку за той самий період. | `l10n_ua_ledger` |
+
+### `ua.osv.report`
+
+наша модель · `l10n_ua_ledger`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_compute()` | - | `l10n_ua_ledger` |
+| `action_print_xlsx()` | - | `l10n_ua_ledger` |
+
+### `ua.profit.declaration`
+
+наша модель · `l10n_ua_profit_tax`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_compute()` | Заповнити числа і рядки декларації. Дозволено лише в чернетці. | `l10n_ua_profit_tax` |
+| `action_confirm()` | - | `l10n_ua_profit_tax` |
+| `action_draft()` | - | `l10n_ua_profit_tax` |
+
+### `ua.profit.param`
+
+наша модель · `l10n_ua_profit_tax`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `get(key, on_date=None, company=None)` | Значення параметра, чинне на дату. Значення компанії б'є загальне. | `l10n_ua_profit_tax` |
+
+### `ua.quality.protocol`
+
+наша модель · `l10n_ua_stock_docs`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_fail()` | - | `l10n_ua_stock_docs` |
+| `action_fill_checklist()` | Типовий перелік параметрів. Уже заповнений протокол не чіпаємо. | `l10n_ua_stock_docs` |
+| `action_pass()` | - | `l10n_ua_stock_docs` |
+
+### `ua.stock.inventory`
+
+наша модель · `l10n_ua_stock_docs`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_apply()` | Провести: коригування складу плюс проводка лишків 947 -> 719. | `l10n_ua_stock_docs` |
+| `action_fill()` | Заповнити опис залишками складу. Старі рядки замінюються свіжими. | `l10n_ua_stock_docs` |
+| `action_open_moves()` | - | `l10n_ua_stock_docs` |
+
+### `ua.vat.cabinet`
+
+наша модель · `l10n_ua_vat`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_compute()` | Кнопка «Порахувати»: перерахувати зведення за період. | `l10n_ua_vat` |
+
+### `ua.vat.compensation`
+
+наша модель · `l10n_ua_vat`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_annual_recalc()` | Річний перерахунок ЧВ за ст.199.4 і 199.5 ПКУ. | `l10n_ua_vat` |
+| `action_compute()` | ЧВ періоду і перегляд рядків компенсації. Лише в чернетці. | `l10n_ua_vat` |
+| `action_post()` | Провести компенсацію: бухгалтерська проводка плюс зведена ПН. | `l10n_ua_vat` |
+
+### `ua.vat.document`
+
+наша модель · `l10n_ua_vat`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_export_xml()` | «XML для ЄРПН»: перевірка, складання, вкладення, завантаження. | `l10n_ua_vat` |
+| `action_export_xml()` | Диспетчер: РК будуємо за J1201216, решту віддаємо конвеєру ПН. | `l10n_ua_vat` |
+| `action_mark_pn_registered()` | «Позначити зареєстрованою»: ставить сьогоднішню дату реєстрації, | `l10n_ua_vat` |
+
+### `ua.zvv.allocation`
+
+наша модель · `l10n_ua_mrp`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_compute()` | Зібрати базу, години і коефіцієнт. Рядки перезаписуються. | `l10n_ua_mrp` |
+| `action_open_move()` | - | `l10n_ua_mrp` |
+| `action_post()` | Одна проводка: Дт 231 розподілене, Дт 901 нерозподілене, Кт 91 усе. | `l10n_ua_mrp` |
+
+### `account.asset`
+
+доповнена модель · `l10n_ua_assets`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_commission` | Text | Склад комісії | `l10n_ua_assets` |
+| `ua_disposal_reason` | Text | Причина списання | `l10n_ua_assets` |
+| `ua_factory_number` | Char | Заводський номер | `l10n_ua_assets` |
+| `ua_location` | Char | Місцезнаходження об'єкта | `l10n_ua_assets` |
+| `ua_manufacturer` | Char | Виробник | `l10n_ua_assets` |
+| `ua_passport_number` | Char | Номер паспорта (документа) | `l10n_ua_assets` |
+| `ua_responsible` | Char | Матеріально відповідальна особа | `l10n_ua_assets` |
+| `ua_start_next_month` | Boolean | Амортизація з наступного місяця | `l10n_ua_assets` |
+| `ua_year_built` | Char | Рік випуску (побудови) | `l10n_ua_assets` |
+
+### `account.asset.profile`
+
+доповнена модель · `l10n_ua_assets`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_min_months` | Integer | Мінімальний строк за ПКУ, міс. | `l10n_ua_assets` |
+| `ua_rule` | Selection | Українське правило | `l10n_ua_assets` |
+| `ua_start_next_month` | Boolean | Амортизація з наступного місяця | `l10n_ua_assets` |
+| `ua_tax_group` | Selection | Податкова група | `l10n_ua_assets` |
+
+### `account.move`
+
+доповнена модель · `bp_purchase_intake`, `l10n_ua_docs`, `l10n_ua_vat`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_post()` | - | `bp_purchase_intake` |
+| `action_ua_close_first_events()` | Кнопка «Закрити першу подію» - страховка, коли автоматика не | `l10n_ua_vat` |
+| `action_ua_create_tax_invoice()` | Кнопка «Скласти податкову накладну». | `l10n_ua_vat` |
+| `action_ua_post_customs_vat()` | «Взяти в кредит»: проводка Дт 6412 / Кт 3771 на суму ПДВ із митної | `l10n_ua_vat` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `bp_intake_id` | Many2one | bp.purchase.intake | `bp_purchase_intake` |
+| `ua_customs_decl_number` | Char | Номер митної декларації | `l10n_ua_vat` |
+| `ua_customs_entry` | Boolean | Позначка проводки митного ПДВ | `l10n_ua_vat` |
+| `ua_customs_move_id` | Many2one | account.move | `l10n_ua_vat` |
+| `ua_customs_vat` | Monetary | Митний ПДВ | `l10n_ua_vat` |
+| `ua_fe_kind` | Selection | Проводка першої події | `l10n_ua_vat` |
+| `ua_in_pn_registered` | Boolean | ПН постачальника зареєстрована | `l10n_ua_vat` |
+| `ua_pn_deadline` | Date | Граничний строк реєстрації ПН | `l10n_ua_vat` |
+| `ua_vat_comp` | Boolean | Проводка компенсуючих ПЗ | `l10n_ua_vat` |
+| `ua_vat_document_ids` | One2many | ua.vat.document | `l10n_ua_vat` |
+
+### `account.payment`
+
+доповнена модель · `l10n_ua_cash`, `l10n_ua_fop`, `l10n_ua_vat`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_post()` | - | `l10n_ua_cash` |
+| `action_post()` | Спершу стандартне проведення, потім спроба створити проводку першої | `l10n_ua_vat` |
+| `action_ua_print_cash_order()` | Друк КО-1 (ПКО) або КО-2 (ВКО). | `l10n_ua_cash` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_document` | Char | Документ одержувача | `l10n_ua_cash` |
+| `ua_fe_closed_amount` | Float | Закрито ПДВ першої події | `l10n_ua_vat` |
+| `ua_fe_move_id` | Many2one | account.move | `l10n_ua_vat` |
+| `ua_fe_reversed` | Boolean | Першу подію закрито | `l10n_ua_vat` |
+| `ua_fop_not_income` | Boolean | Не дохід ФОП | `l10n_ua_fop` |
+| `ua_order_kind` | Selection | Вид касового ордера | `l10n_ua_cash` |
+| `ua_order_number` | Char | Номер ордера | `l10n_ua_cash` |
+| `ua_person` | Char | Прийнято від / Видати | `l10n_ua_cash` |
+
+### `account.tax.group`
+
+доповнена модель · `l10n_ua_vat`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_vat_zero_kind` | Selection | Вид нульової ставки (ПДВ, Україна) | `l10n_ua_vat` |
+
+### `mis.report`
+
+доповнена модель · `l10n_ua_finrep`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_finrep_form` | Selection | Українська форма | `l10n_ua_finrep` |
+
+### `mis.report.instance`
+
+доповнена модель · `l10n_ua_finrep`, `l10n_ua_group`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_ua_finrep_xml_draft()` | Кнопка «XML (чернетка формату)»: вкладення і посилання на завантаження. | `l10n_ua_finrep` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_finrep_form` | Selection | Українська форма | `l10n_ua_finrep` |
+| `ua_group_consolidation` | Boolean | Консолідація групи | `l10n_ua_group` |
+
+### `online.bank.statement.provider`
+
+доповнена модель · `l10n_ua_bank_online`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_ua_test()` | Легкий запит до банку, щоб побачити, чи приймають токен. | `l10n_ua_bank_online` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_account` | Char | Рахунок у банку | `l10n_ua_bank_online` |
+| `ua_demo` | Boolean | Демо-дані замість банку | `l10n_ua_bank_online` |
+
+### `product.template`
+
+доповнена модель · `l10n_ua_vat`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_uktzed` | Char | Код УКТ ЗЕД | `l10n_ua_vat` |
+| `ua_vat_relief_id` | Many2one | ua.vat.relief | `l10n_ua_vat` |
+| `ua_vat_treatment` | Selection | Режим ПДВ товару | `l10n_ua_vat` |
+
+### `res.bank`
+
+доповнена модель · `l10n_ua_docs`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_mfo` | Char | - | `l10n_ua_docs` |
+
+### `res.currency.rate.provider`
+
+доповнена модель · `l10n_ua_nbu`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `service` | Selection | - | `l10n_ua_nbu` |
+
+### `sale.order`
+
+доповнена модель · `l10n_ua_docs_sale`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_contract_date` | Date | Дата договору | `l10n_ua_docs_sale` |
+| `ua_contract_number` | Char | Договір № | `l10n_ua_docs_sale` |
+
+### `stock.picking`
+
+доповнена модель · `l10n_ua_docs_stock`, `l10n_ua_stock_docs`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_act_condition` | Char | Стан цінностей | `l10n_ua_stock_docs` |
+| `ua_act_handover` | Char | Передав (ПІБ, посада) | `l10n_ua_stock_docs` |
+| `ua_act_receiver` | Char | Прийняв (ПІБ, посада) | `l10n_ua_stock_docs` |
+| `ua_proxy_date` | Date | Дата довіреності | `l10n_ua_docs_stock` |
+| `ua_proxy_number` | Char | Довіреність № | `l10n_ua_docs_stock` |
+| `ua_proxy_person` | Char | Видана на (ПІБ) | `l10n_ua_docs_stock` |
+
+## Контрагенти і закупівлі
+
+### `bp.ai`
+
+наша модель · `bp_purchase_intake`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `extract_json(spec, text=None, images=None)` | Run the extraction prompt with JSON mode, on document text or on page images. Returns (dict, usage, model). | `bp_purchase_intake` |
+| `load_spec(name)` | - | `bp_purchase_intake` |
+| `model_name()` | - | `bp_purchase_intake` |
+| `to_markdown(filename, content, mimetype='application/pdf')` | PDF or image to text. Free for PDFs with a text layer. Returns (text, tokens). | `bp_purchase_intake` |
+| `vision_model_name()` | - | `bp_purchase_intake` |
+
+### `bp.purchase.intake`
+
+наша модель · `bp_purchase_intake`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_create_bill()` | - | `bp_purchase_intake` |
+| `action_open_bill()` | - | `bp_purchase_intake` |
+| `action_open_partner()` | - | `bp_purchase_intake` |
+| `action_refresh_registry()` | - | `bp_purchase_intake` |
+| `action_reprocess()` | - | `bp_purchase_intake` |
+| `message_new(msg_dict, custom_values=None)` | - | `bp_purchase_intake` |
+
+### `kyc.case`
+
+наша модель · `bp_kyc`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_decide_cleared()` | - | `bp_kyc` |
+| `action_decide_flagged()` | - | `bp_kyc` |
+| `action_decide_rejected()` | - | `bp_kyc` |
+| `action_open_register()` | The register (kyc-service) is an API without a public page; show where the subject lives. | `bp_kyc` |
+| `action_request_documents()` | - | `bp_kyc` |
+| `action_screen_odb()` | - | `bp_kyc` |
+| `action_search_courts()` | - | `bp_kyc` |
+| `action_stage()` | - | `bp_kyc` |
+| `action_sync_register()` | - | `bp_kyc` |
+
+### `ua.partner.edr.wizard`
+
+наша модель · `l10n_ua_partner_edr`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_create()` | - | `l10n_ua_partner_edr` |
+
+### `ua.purchase.pad`
+
+наша модель · `l10n_ua_purchase`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_create_request()` | Зробити запит на закупівлю з розпізнаних рядків. | `l10n_ua_purchase` |
+
+### `purchase.order`
+
+доповнена модель · `l10n_ua_purchase`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_department_id` | Many2one | Підрозділ | `l10n_ua_purchase` |
+| `ua_expense_account_id` | Many2one | Рахунок витрат | `l10n_ua_purchase` |
+| `ua_request_id` | Many2one | Запит на закупівлю | `l10n_ua_purchase` |
+
+### `purchase.request`
+
+доповнена модель · `l10n_ua_purchase`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_department_id` | Many2one | Підрозділ | `l10n_ua_purchase` |
+| `ua_expense_account_id` | Many2one | Рахунок витрат | `l10n_ua_purchase` |
+
+### `res.partner`
+
+доповнена модель · `bp_kyc`, `bp_purchase_intake`, `l10n_ua_docs`, `l10n_ua_partner_edr`, `l10n_ua_purchase`, `l10n_ua_vat`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_bp_mark_unverified()` | - | `bp_purchase_intake` |
+| `action_bp_mark_verified()` | - | `bp_purchase_intake` |
+| `action_bp_open_intakes()` | - | `bp_purchase_intake` |
+| `action_bp_refresh_registry()` | - | `bp_purchase_intake` |
+| `action_fill_from_edr()` | - | `l10n_ua_partner_edr` |
+| `action_new_kyc_case()` | - | `bp_kyc` |
+| `action_open_kyc_cases()` | - | `bp_kyc` |
+| `action_ua_supplier_bills()` | Кнопка-лічильник: вхідні рахунки цього контрагента. | `l10n_ua_purchase` |
+| `action_ua_supplier_sync()` | «Оновити сигнали»: перечитати ЄДР, ПДВ і KYC та перерахувати ризик. | `l10n_ua_purchase` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `bp_intake_id` | Many2one | bp.purchase.intake | `bp_purchase_intake` |
+| `bp_registry_address` | Char | Адреса (ЄДР) | `bp_purchase_intake` |
+| `bp_registry_checked_at` | Datetime | Дані ЄДР отримано | `bp_purchase_intake` |
+| `bp_registry_date` | Date | Дата реєстрації (ЄДР) | `bp_purchase_intake` |
+| `bp_registry_head` | Char | Керівник (ЄДР) | `bp_purchase_intake` |
+| `bp_registry_kved` | Char | Основний КВЕД | `bp_purchase_intake` |
+| `bp_registry_markers` | Text | Маркери (ЄДР) | `bp_purchase_intake` |
+| `bp_registry_name` | Char | Повна назва (ЄДР) | `bp_purchase_intake` |
+| `bp_registry_status` | Char | Стан (ЄДР) | `bp_purchase_intake` |
+| `bp_registry_vat` | Char | ПДВ (ЄДР) | `bp_purchase_intake` |
+| `bp_supplier_status` | Selection | - | `bp_purchase_intake` |
+| `bp_verified_at` | Datetime | Перевірено | `bp_purchase_intake` |
+| `bp_verified_by` | Many2one | res.users | `bp_purchase_intake` |
+| `kyc_case_ids` | One2many | kyc.case | `bp_kyc` |
+| `ua_actual_address` | Char | Фактична адреса | `l10n_ua_docs` |
+| `ua_edr_capital` | Float | Статутний капітал, грн | `l10n_ua_partner_edr` |
+| `ua_edr_checks` | Text | Маркери ризику | `l10n_ua_partner_edr` |
+| `ua_edr_full_name` | Char | Повна назва (ЄДР) | `l10n_ua_partner_edr` |
+| `ua_edr_head` | Char | Керівник | `l10n_ua_partner_edr` |
+| `ua_edr_kind` | Selection | - | `l10n_ua_partner_edr` |
+| `ua_edr_registration_date` | Date | Дата реєстрації | `l10n_ua_partner_edr` |
+| `ua_edr_status` | Char | Стан у ЄДР | `l10n_ua_partner_edr` |
+| `ua_edr_synced_at` | Datetime | Оновлено з ЄДР | `l10n_ua_partner_edr` |
+| `ua_kved` | Char | Основний КВЕД | `l10n_ua_partner_edr` |
+| `ua_purchase_avg_delay_days` | Integer | Середнє запізнення оплат, днів | `l10n_ua_purchase` |
+| `ua_purchase_bill_count` | Integer | Рахунків | `l10n_ua_purchase` |
+| `ua_purchase_bill_ids` | One2many | Рахунки постачальника | `l10n_ua_purchase` |
+| `ua_purchase_bill_total` | Monetary | Сума рахунків | `l10n_ua_purchase` |
+| `ua_purchase_open_balance` | Monetary | Заборгованість | `l10n_ua_purchase` |
+| `ua_purchase_overprice_count` | Integer | Рахунків дорожчих за замовлення | `l10n_ua_purchase` |
+| `ua_purchase_paid_total` | Monetary | Сплачено | `l10n_ua_purchase` |
+| `ua_signatory_basis` | Char | Діє на підставі | `l10n_ua_docs` |
+| `ua_signatory_name` | Char | Підписант (ПІБ) | `l10n_ua_docs` |
+| `ua_supplier_edr_terminated` | Boolean | У ЄДР припинено | `l10n_ua_purchase` |
+| `ua_supplier_kyc_block` | Boolean | KYC: відхилено | `l10n_ua_purchase` |
+| `ua_supplier_risk_level` | Selection | Ризик постачальника | `l10n_ua_purchase` |
+| `ua_supplier_risk_note` | Text | Через що бали | `l10n_ua_purchase` |
+| `ua_supplier_risk_score` | Integer | Бали ризику | `l10n_ua_purchase` |
+| `ua_supplier_signals_date` | Datetime | Сигнали оновлено | `l10n_ua_purchase` |
+| `ua_supplier_vat_non_payer` | Boolean | Неплатник ПДВ | `l10n_ua_purchase` |
+| `ua_vat_payer_status` | Selection | Статус ПДВ | `l10n_ua_vat` |
+| `ua_vat_status` | Char | ПДВ | `l10n_ua_partner_edr` |
+
+## Спільне
+
+### `bp.bridge`
+
+наша модель · `bp_bridge`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `call(method, path, payload=None, params=None, timeout=60)` | - | `bp_bridge` |
+
+### `ua.api`
+
+наша модель · `l10n_ua_api`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `documents_for_month(company_id, year, month)` | Документи місяця з їхніми перевірками, по одному рядку на ВИД документа. | `l10n_ua_api` |
+| `employee_card(employee_id)` | Картка працівника: те саме, що показує стандартна форма hr.employee. | `l10n_ua_api` |
+| `month_summary(company_id, year, month)` | Усе, що показує екран місяця зарплати, одним читанням. | `l10n_ua_api` |
+| `reporting_status(company_id, year, month=None)` | Стан звітності за період: по рядку на кожен звіт робочого місця. | `l10n_ua_api` |
+
+### `ua.screen`
+
+наша модель · `l10n_ua_screen`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `open_target(target)` | Відкрити ціль будь-якого блоку будь-якого екрана. | `l10n_ua_screen` |
