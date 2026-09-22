@@ -1,0 +1,34 @@
+# Ворота ядра: контракт і тести на свіжій базі при кожному push і pull request у main.
+name: tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+concurrency: { group: tests-${{ github.ref }}, cancel-in-progress: true }
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - run: python3 scripts/layers_check.py
+      - run: python3 scripts/contract_check.py
+      - run: python3 scripts/words_check.py
+  odoo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: .env для стенду (без секретів: свіжа база, паролі тестові)
+        run: |
+          printf 'COMPOSE_PROJECT_NAME=odoo-live-base\nODOO_PORT=8130\nODOO_ADMIN_PASSWD=ci\nODOO_ADMIN_USER_LOGIN=admin\nODOO_ADMIN_USER_PASSWORD=ci\nBP_BRIDGE_TOKEN=\n' > .env
+      - name: Тести на свіжій базі
+        run: TEST_TAGS=ua_golden,ua_leaves,ua_payments,ua_regress,ua_changes,ua_period,ua_checks,ua_hire,ua_reporting,ua_setup,ua_bank,ua_card,ua_documents,ua_api,ua_vat,ua_cash,ua_ledger,ua_finrep,ua_assets,ua_nbu,ua_fop,ua_migrate,ua_edr,ua_docs ./scripts/test.sh
+      - name: Повне встановлення на порожню базу
+        run: |
+          docker compose exec -T db createdb -U odoo -O odoo fresh
+          docker compose run --rm --no-deps -T odoo sh -c "pip install --break-system-packages pypdf >/dev/null 2>&1; odoo --addons-path=/mnt/extra-addons --db_host=db --db_user=odoo --db_password=odoo --database=fresh --db-filter='.*' --init=l10n_ua_navigation --without-demo=True --stop-after-init --max-cron-threads=0" 2>&1 | tee install.log | grep -E 'modules loaded|ERROR|CRITICAL' | grep -v 'Unexpected indentation' | tail -5
+          ! grep -E ' (ERROR|CRITICAL) ' install.log | grep -v 'Unexpected indentation' | grep -q .
