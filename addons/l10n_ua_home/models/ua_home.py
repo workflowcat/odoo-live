@@ -19,7 +19,7 @@ SEVERITY = {"crit": 0, "warn": 1, "done": 2}
 # area з ua.change.log -> ключ розділу «Домівки»: кадри/час - «люди», облік - разом із зарплатою.
 AREA_MAP = {"hr": "people", "time": "people", "payroll": "payroll", "account": "payroll",
             "bank": "bank", "report": "reporting", "setup": "setup"}
-# «Стан X» (значення what з ua.change.log, див. l10n_ua_changes/models/tracked.py) -> іменник
+# «Стан X» (значення what з ua.change.log, див. l10n_ua_changes/data/auditlog_rules.xml) -> іменник
 # у трьох формах лічби, для згортання однотипних сусідніх рядків «Свіжого» (див. _recent):
 # "7 проводок", а не сім однакових рядків "Стан проводки". Чого нема в словнику - лишається
 # під загальним "подія/події/подій", а не ламаною грамотикою.

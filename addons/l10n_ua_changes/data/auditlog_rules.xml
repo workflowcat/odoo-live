@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Що потрапляє в журнал змін: одне правило OCA auditlog на модель.
+
+  Пишемо тільки поля, які змінюють гроші, час, стан документа або законодавчий
+  параметр. Решти полів правило не бачить взагалі - ні обчислюваних збережених, ні
+  підписників, ні технічних міток. Через це в чергу бухгалтера не потрапляє тріска,
+  хоч би хто писав: людина, крон чи OdooBot.
+
+  Поля правила, яких немає в самому auditlog, описані в
+  models/ua_change_source.py: ua_area, ua_field_ids, ua_period_ym, ua_period_date,
+  ua_company, ua_label.
+
+  noupdate="1": правила лишаються такими, якими їх поставили, і оновлення модуля
+  не затирає того, що бухгалтер виправив руками.
+-->
+<odoo noupdate="1">
+
+  <!-- ============================================================ кадри -->
+  <record id="rule_ua_hr_order" model="auditlog.rule">
+    <field name="name">Журнал змін: накази</field>
+    <field name="model_id" search="[('model', '=', 'ua.hr.order')]"/>
+    <field name="log_type">full</field>
+    <field name="log_read" eval="False"/>
+    <field name="log_create" eval="False"/>
+    <field name="log_write" eval="True"/>
+    <field name="log_unlink" eval="True"/>
+    <field name="log_export_data" eval="False"/>
+    <field name="state">confirmed</field>
+    <field name="ua_area">hr</field>
+    <field name="ua_period_date">date</field>
+    <field name="ua_field_ids" eval="[
+      Command.create({'field_name': 'state', 'label': 'Стан наказу'}),
+      Command.create({'field_name': 'date', 'label': 'Дата наказу'}),
+      Command.create({'field_name': 'employee_id', 'label': 'Працівник'}),
+      Command.create({'field_name': 'wage', 'label': 'Оклад'}),
+      Command.create({'field_name': 'date_from', 'label': 'З дати'}),
+      Command.create({'field_name': 'date_to', 'label': 'По дату'}),
+      Command.create({'field_name': 'order_type', 'label': 'Вид наказу'}),
+      Command.create({'field_name': 'fte', 'label': 'Ставка'}),
+    ]"/>
+  </record>
+
+  <record id="rule_hr_version" model="auditlog.rule">
+    <field name="name">Журнал змін: версія контракту</field>
+    <field name="model_id" search="[('model', '=', 'hr.version')]"/>
+    <field name="log_type">full</field>
+    <field name="log_read" eval="False"/>
+    <field name="log_create" eval="False"/>
+    <field name="log_write" eval="True"/>
+    <field name="log_unlink" eval="True"/>
+    <field name="log_export_data" eval="False"/>
+    <field name="state">confirmed</field>
+    <field name="ua_area">hr</field>
+    <field name="ua_label">employee_id.name|name</field>
+    <field name="ua_field_ids" eval="[
+      Command.create({'field_name': 'wage', 'label': 'Оклад'}),
+      Command.create({'field_name': 'contract_date_start', 'label': 'Діє з'}),
+      Command.create({'field_name': 'contract_date_end', 'label': 'Діє по'}),
+      Command.create({'field_name': 'struct_id', 'label': 'Структура нарахування'}),
+    ]"/>
+  </record>
+
+  <record id="rule_hr_employee" model="auditlog.rule">
+    <field name="name">Журнал змін: картка працівника</field>
+    <field name="model_id" search="[('model', '=', 'hr.employee')]"/>
+    <field name="log_type">full</field>
+    <field name="log_read" eval="False"/>
+    <field name="log_create" eval="False"/>
+    <field name="log_write" eval="True"/>
+    <field name="log_unlink" eval="True"/>
+    <field name="log_export_data" eval="False"/>
+    <field name="state">confirmed</field>
+    <field name="ua_area">hr</field>
+    <field name="ua_field_ids" eval="[
+      Command.create({'field_name': 'name', 'label': 'Прізвище, ім\'я, по батькові'}),
+      Command.create({'field_name': 'ua_rnokpp', 'label': 'РНОКПП'}),
+      Command.create({'field_name': 'ua_psp', 'label': 'Податкова пільга'}),
+      Command.create({'field_name': 'ua_fte', 'label': 'Ставка'}),
+      Command.create({'field_name': 'ua_esv_category', 'label': 'Категорія ЄСВ'}),
+      Command.create({'field_name': 'departure_date', 'label': 'Дата звільнення'}),
+    ]"/>
+  </record>
+
+  <record id="rule_hr_leave" model="auditlog.rule">
+    <field name="name">Журнал змін: відсутності</field>
+    <field name="model_id" search="[('model', '=', 'hr.leave')]"/>
+    <field name="log_type">full</field>
+    <field name="log_read" eval="False"/>
+    <field name="log_create" eval="True"/>
+    <field name="log_write" eval="True"/>
+    <field name="log_unlink" eval="True"/>
+    <field name="log_export_data" eval="False"/>
+    <field name="state">confirmed</field>
+    <field name="ua_area">hr</field>
+    <field name="ua_period_date">request_date_from</field>
+    <field name="ua_label">employee_id.name+holiday_status_id.name</field>
+    <field name="ua_field_ids" eval="[
+      Command.create({'field_name': 'state', 'label': 'Стан відсутності'}),
+      Command.create({'field_name': 'request_date_from', 'label': 'З дати'}),
+      Command.create({'field_name': 'request_date_to', 'label': 'По дату'}),
+      Command.create({'field_name': 'holiday_status_id', 'label': 'Вид відсутності'}),
+      Command.create({'field_name': 'number_of_days', 'label': 'Днів'}),
+    ]"/>
+  </record>
+
+  <!-- ============================================================ табель -->
+  <record id="rule_ua_timesheet_sheet" model="auditlog.rule">
+    <field name="name">Журнал змін: табель</field>
+    <field name="model_id" search="[('model', '=', 'ua.timesheet.sheet')]"/>
+    <field name="log_type">full</field>
+    <field name="log_read" eval="False"/>
+    <field name="log_create" eval="False"/>
+    <field name="log_write" eval="True"/>
+    <field name="log_unlink" eval="True"/>
+    <field name="log_export_data" eval="False"/>
+    <field name="state">confirmed</field>
+    <field name="ua_area">time</field>
+    <field name="ua_period_ym">:year:month</field>
+    <field name="ua_field_ids" eval="[
+      Command.create({'field_name': 'state', 'label': 'Стан табеля'}),
+    ]"/>
+  </record>
+
+  <record id="rule_ua_timesheet_line" model="auditlog.rule">
+    <field name="name">Журнал змін: рядок табеля</field>
+    <field name="model_id" search="[('model', '=', 'ua.timesheet.line')]"/>
+    <field name="log_type">full</field>
+    <field name="log_read" eval="False"/>
+    <field name="log_create" eval="False"/>
+    <field name="log_write" eval="True"/>
+    <field name="log_unlink" eval="False"/>
+    <field name="log_export_data" eval="False"/>
+    <field name="state">confirmed</field>
+    <field name="ua_area">time</field>
+    <field name="ua_period_ym">sheet_id:year:month</field>
+    <field name="ua_company">sheet_id.company_id</field>
+    <field name="ua_label">employee_id.name</field>
+    <field name="ua_field_ids" eval="[
+      Command.create({'field_name': 'days_worked', 'label': 'Відпрацьовано днів'}),
+      Command.create({'field_name': 'hours', 'label': 'Відпрацьовано годин'}),
+    ]"/>
+  </record>
+
+  <!-- ============================================================ зарплата -->
+  <record id="rule_hr_payslip" model="auditlog.rule">
+    <field name="name">Журнал змін: розрахунковий листок</field>
+    <field name="model_id" search="[('model', '=', 'hr.payslip')]"/>
+    <field name="log_type">full</field>
+    <field name="log_read" eval="False"/>
+    <field name="log_create" eval="False"/>
+    <field name="log_write" eval="True"/>
+    <field name="log_unlink" eval="True"/>
+    <field name="log_export_data" eval="False"/>
+    <field name="state">confirmed</field>
+    <field name="ua_area">payroll</field>
+    <field name="ua_period_date">date_from</field>
+    <field name="ua_field_ids" eval="[
+      Command.create({'field_name': 'state', 'label': 'Стан листка'}),
+      Command.create({'field_name': 'date_from', 'label': 'Період з'}),
+      Command.create({'field_name': 'date_to', 'label': 'Період по'}),
+    ]"/>
+  </record>
+
+  <record id="rule_hr_payslip_input" model="auditlog.rule">
+    <field name="name">Журнал змін: введення до листка</field>
+    <field name="model_id" search="[('model', '=', 'hr.payslip.input')]"/>
+    <field name="log_type">full</field>
+    <field name="log_read" eval="False"/>
+    <field name="log_create" eval="True"/>
+    <field name="log_write" eval="True"/>
+    <field name="log_unlink" eval="True"/>
+    <field name="log_export_data" eval="False"/>
+    <field name="state">confirmed</field>
+    <field name="ua_area">payroll</field>
+    <field name="ua_period_date">payslip_id.date_from</field>
+    <field name="ua_company">payslip_id.company_id</field>
+    <field name="ua_label">payslip_id.employee_id.name+name|code</field>
+    <field name="ua_field_ids" eval="[
+      Command.create({'field_name': 'amount', 'label': 'Сума введення'}),
+    ]"/>
+  </record>
+
+  <record id="rule_hr_payslip_line" model="auditlog.rule">
+    <field name="name">Журнал змін: рядок листка</field>
+    <field name="model_id" search="[('model', '=', 'hr.payslip.line')]"/>
+    <field name="log_type">full</field>
+    <field name="log_read" eval="False"/>
+    <field name="log_create" eval="False"/>
+    <field name="log_write" eval="True"/>
+    <field name="log_unlink" eval="False"/>
+    <field name="log_export_data" eval="False"/>
+    <field name="state">confirmed</field>
+    <field name="ua_area">payroll</field>
+    <field name="ua_period_date">slip_id.date_from</field>
+    <field name="ua_company">slip_id.company_id</field>
+    <field name="ua_label">slip_id.employee_id.name+name|code</field>
+    <field name="ua_field_ids" eval="[
+      Command.create({'field_name': 'amount', 'label': 'Сума рядка'}),
+      Command.create({'field_name': 'quantity', 'label': 'Кількість'}),
+      Command.create({'field_name': 'rate', 'label': 'Відсоток'}),
+    ]"/>
+  </record>
+
+  <record id="rule_ua_advance_sheet" model="auditlog.rule">
+    <field name="name">Журнал змін: аванс</field>
+    <field name="model_id" search="[('model', '=', 'ua.advance.sheet')]"/>
+    <field name="log_type">full</field>
+    <field name="log_read" eval="False"/>
+    <field name="log_create" eval="False"/>
+    <field name="log_write" eval="True"/>
+    <field name="log_unlink" eval="True"/>
+    <field name="log_export_data" eval="False"/>
+    <field name="state">confirmed</field>
+    <field name="ua_area">payroll</field>
+    <field name="ua_period_ym">:year:month</field>
+    <field name="ua_field_ids" eval="[
+      Command.create({'field_name': 'state', 'label': 'Стан авансу'}),
+      Command.create({'field_name': 'percent', 'label': 'Відсоток окладу'}),
+      Command.create({'field_name': 'pay_date', 'label': 'Дата виплати'}),
+    ]"/>
+  </record>
+
+  <!-- ============================================================ облік -->
+  <record id="rule_account_move" model="auditlog.rule">
+    <field name="name">Журнал змін: проводки</field>
+    <field name="model_id" search="[('model', '=', 'account.move')]"/>
+    <field name="log_type">full</field>
+    <field name="log_read" eval="False"/>
+    <field name="log_create" eval="False"/>
+    <field name="log_write" eval="True"/>
+    <field name="log_unlink" eval="True"/>
+    <field name="log_export_data" eval="False"/>
+    <field name="state">confirmed</field>
+    <field name="ua_area">account</field>
+    <field name="ua_period_date">date</field>
+    <field name="ua_field_ids" eval="[
+      Command.create({'field_name': 'state', 'label': 'Стан проводки'}),
+      Command.create({'field_name': 'date', 'label': 'Дата проводки'}),
+      Command.create({'field_name': 'ref', 'label': 'Опис'}),
+    ]"/>
+  </record>
+
+  <!-- ============================================================ банк -->
+  <record id="rule_account_bank_statement_line" model="auditlog.rule">
+    <field name="name">Журнал змін: рядок виписки</field>
+    <field name="model_id" search="[('model', '=', 'account.bank.statement.line')]"/>
+    <field name="log_type">full</field>
+    <field name="log_read" eval="False"/>
+    <field name="log_create" eval="False"/>
+    <field name="log_write" eval="True"/>
+    <field name="log_unlink" eval="True"/>
+    <field name="log_export_data" eval="False"/>
+    <field name="state">confirmed</field>
+    <field name="ua_area">bank</field>
+    <field name="ua_period_date">date</field>
+    <field name="ua_field_ids" eval="[
+      Command.create({'field_name': 'amount', 'label': 'Сума'}),
+      Command.create({'field_name': 'date', 'label': 'Дата'}),
+      Command.create({'field_name': 'partner_id', 'label': 'Контрагент'}),
+      Command.create({'field_name': 'payment_ref', 'label': 'Призначення'}),
+    ]"/>
+  </record>
+
+  <record id="rule_account_payment_order" model="auditlog.rule">
+    <field name="name">Журнал змін: відомість на перерахування</field>
+    <field name="model_id" search="[('model', '=', 'account.payment.order')]"/>
+    <field name="log_type">full</field>
+    <field name="log_read" eval="False"/>
+    <field name="log_create" eval="False"/>
+    <field name="log_write" eval="True"/>
+    <field name="log_unlink" eval="True"/>
+    <field name="log_export_data" eval="False"/>
+    <field name="state">confirmed</field>
+    <field name="ua_area">bank</field>
+    <field name="ua_period_ym">:ua_year:ua_month</field>
+    <field name="ua_field_ids" eval="[
+      Command.create({'field_name': 'state', 'label': 'Стан відомості'}),
+      Command.create({'field_name': 'ua_pay_date', 'label': 'Дата виплати'}),
+      Command.create({'field_name': 'journal_id', 'label': 'Банк'}),
+    ]"/>
+  </record>
+
+  <record id="rule_account_payment_line" model="auditlog.rule">
+    <field name="name">Журнал змін: рядок відомості</field>
+    <field name="model_id" search="[('model', '=', 'account.payment.line')]"/>
+    <field name="log_type">full</field>
+    <field name="log_read" eval="False"/>
+    <field name="log_create" eval="False"/>
+    <field name="log_write" eval="True"/>
+    <field name="log_unlink" eval="False"/>
+    <field name="log_export_data" eval="False"/>
+    <field name="state">confirmed</field>
+    <field name="ua_area">bank</field>
+    <field name="ua_period_ym">order_id:ua_year:ua_month</field>
+    <field name="ua_company">order_id.company_id</field>
+    <field name="ua_label">ua_employee_id.name|ua_label</field>
+    <field name="ua_field_ids" eval="[
+      Command.create({'field_name': 'amount_currency', 'label': 'Сума до виплати'}),
+      Command.create({'field_name': 'partner_bank_id', 'label': 'Рахунок (IBAN)'}),
+    ]"/>
+  </record>
+
+  <!-- ============================================================ звітність -->
+  <record id="rule_ua_report_run" model="auditlog.rule">
+    <field name="name">Журнал змін: прогін звіту</field>
+    <field name="model_id" search="[('model', '=', 'ua.report.run')]"/>
+    <field name="log_type">full</field>
+    <field name="log_read" eval="False"/>
+    <field name="log_create" eval="False"/>
+    <field name="log_write" eval="True"/>
+    <field name="log_unlink" eval="True"/>
+    <field name="log_export_data" eval="False"/>
+    <field name="state">confirmed</field>
+    <field name="ua_area">report</field>
+    <field name="ua_field_ids" eval="[
+      Command.create({'field_name': 'state', 'label': 'Стан звіту'}),
+    ]"/>
+  </record>
+
+  <!-- ============================================================ налаштування -->
+  <record id="rule_ua_payroll_param" model="auditlog.rule">
+    <field name="name">Журнал змін: законодавчі параметри</field>
+    <field name="model_id" search="[('model', '=', 'ua.payroll.param')]"/>
+    <field name="log_type">full</field>
+    <field name="log_read" eval="False"/>
+    <field name="log_create" eval="True"/>
+    <field name="log_write" eval="True"/>
+    <field name="log_unlink" eval="True"/>
+    <field name="log_export_data" eval="False"/>
+    <field name="state">confirmed</field>
+    <field name="ua_area">setup</field>
+    <field name="ua_field_ids" eval="[
+      Command.create({'field_name': 'value', 'label': 'Значення'}),
+      Command.create({'field_name': 'valid_from', 'label': 'Діє з'}),
+    ]"/>
+  </record>
+
+  <record id="rule_ua_cpi_index" model="auditlog.rule">
+    <field name="name">Журнал змін: індекс споживчих цін</field>
+    <field name="model_id" search="[('model', '=', 'ua.cpi.index')]"/>
+    <field name="log_type">full</field>
+    <field name="log_read" eval="False"/>
+    <field name="log_create" eval="True"/>
+    <field name="log_write" eval="True"/>
+    <field name="log_unlink" eval="True"/>
+    <field name="log_export_data" eval="False"/>
+    <field name="state">confirmed</field>
+    <field name="ua_area">setup</field>
+    <field name="ua_company">-</field>
+    <field name="ua_field_ids" eval="[
+      Command.create({'field_name': 'value', 'label': 'Індекс, %'}),
+    ]"/>
+  </record>
+
+</odoo>

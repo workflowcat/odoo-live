@@ -4,6 +4,11 @@
 Журнал пише сама система, руками рядки не створюють. Бухгалтер читає журнал за
 місяць, приймає кожен рядок і тільки після цього закриває період. Рядок з ознакою
 «нова» блокує закриття місяця.
+
+Ловить зміни OCA-модуль `auditlog`, рядок черги робить із його запису
+models/ua_change_source.py. Тут лишилася сама черга: слова бухгалтера, період,
+прийняття і відкат. `auditlog_log_id` веде до технічного запису аудиту (рядки,
+старші за прибирання auditlog, лишаються в черзі з порожнім посиланням).
 """
 from datetime import timedelta
 
@@ -54,6 +59,8 @@ class UaChangeLog(models.Model):
     accepted_user_id = fields.Many2one("res.users", "Прийняв", readonly=True)
     accepted_date = fields.Datetime("Прийнято", readonly=True)
     note = fields.Char("Примітка бухгалтера")
+    auditlog_log_id = fields.Many2one("auditlog.log", "Запис аудиту", readonly=True,
+                                      index=True, ondelete="set null")
 
     _period_ok = models.Constraint("CHECK (month BETWEEN 1 AND 12)", "Місяць від 1 до 12.")
 

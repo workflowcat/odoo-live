@@ -30,7 +30,7 @@ what upstream already gives. Source: Opus audit agent, upstream checked through 
 | 5 | `ua.payment.batch` | DONE 2026-09-22: the відомість is an `account.payment.order` (modes «Зарплата» / «Податки», CSV file generator on the mode), confirmation builds `account.payment` that clear 661 / 6851 by employee and 6411 / 6415 / 651 by ДПС; `ua.payment.batch` and `ua.payment.line` deleted | done |
 | 6 | Аванс `ua.advance.sheet` | KEEP (ст. 115 КЗпП) | 0 |
 | 7 | `ua.payroll.account.map` | ALIGN: keep, rename to avoid a future clash with `payroll_account`, replace account-prefix guessing with explicit account fields | 4-6 |
-| 8 | `ua.change.log` / mixin | ALIGN: capture through OCA `auditlog` (server-tools 19.0), keep our accept / period / blocker workflow; needs a filter so the queue stays readable | 16-20 |
+| 8 | `ua.change.log` / mixin | DONE 2026-09-22: capture runs through OCA `auditlog` - one `auditlog.rule` per model as noupdate data, field whitelist per rule, `log_type` full; `ua.change.mixin` and `tracked.py` (402 lines) deleted. `ua.change.log` stays the accountant's queue, now built by a translator in `create_logs()` and linked back through `auditlog_log_id`. The whitelist is the filter: a rule never sees computed stored fields or followers, so nothing but business fields reaches the queue, whoever wrote it | done |
 | 8 | `ua.period.close` | KEEP, already a thin wrapper on native lock dates; add `account_lock_date_update` | - |
 | 9 | `ua.checks.mixin`, `ua.explain.trace` | KEEP, nothing upstream, this is the product's own value | 0 |
 | 10 | Анкета `ua.setup.*` | KEEP; answers should land in `res.config.settings` fields, not a parallel store | 8 |
@@ -75,5 +75,6 @@ helpdesk 17 · l10n-ukraine 0.
 2. Payments onto `account_payment_order`. Done 2026-09-22.
 3. Employee documents onto `hr_employee_document`. Done 2026-09-22, see the row above for what
    upstream actually offers.
+3a. Change log onto `auditlog`. Done 2026-09-22, row 8.
 4. Sandbox port, starting with the two pure replacements (`ua_assets`, `ua_nbu`).
 All four only after the golden tests are green, so a changed sum is seen at once.

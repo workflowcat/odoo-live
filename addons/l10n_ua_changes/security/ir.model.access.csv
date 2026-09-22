@@ -4,3 +4,5 @@ access_ua_change_log_hr,ua.change.log hr,model_ua_change_log,hr.group_hr_user,1,
 access_ua_change_log_acc,ua.change.log account,model_ua_change_log,account.group_account_manager,1,1,0,1
 access_ua_period_close_user,ua.period.close user,model_ua_period_close,base.group_user,1,0,0,0
 access_ua_period_close_acc,ua.period.close account,model_ua_period_close,account.group_account_manager,1,1,1,1
+access_ua_change_field_user,ua.change.field user,model_ua_change_field,base.group_user,1,0,0,0
+access_ua_change_field_admin,ua.change.field admin,model_ua_change_field,base.group_system,1,1,1,1

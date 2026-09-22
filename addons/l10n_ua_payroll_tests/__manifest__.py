@@ -6,7 +6,7 @@
                    "версія контракту, історія заробітку, відпустки, листок. Порівнюються підсумки "
                    "рядків листка до копійки і, де еталон їх містить, обороти проводки. "
                    "Запуск: scripts/test.sh (чиста база, без стенда).",
-    "version": "19.0.1.3.0",
+    "version": "19.0.1.4.0",
     "category": "Human Resources/Payroll",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -30,6 +30,8 @@
         "l10n_ua_bank_online",
         # документи працівника на вкладеннях картки (тег ua_documents)
         "l10n_ua_hr_orders",
+        # журнал змін на OCA auditlog (тег ua_changes)
+        "l10n_ua_changes",
     ],
     "data": [],
     "installable": True,

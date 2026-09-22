@@ -104,18 +104,20 @@ def counters():
     return rows
 
 
-def _settle(tries=12, pause=1.2):
-    """Лічильники, коли вони перестали рухатися: два однакові заміри поспіль.
+def _settle(tries=12, pause=1.2, stable=1):
+    """Лічильники, коли вони перестали рухатися: `stable` однакових замірів поспіль.
 
     Так вимірювання не бере на себе хвіст попереднього виклику - Postgres скидає
     статистику бекенда не частіше ніж раз на секунду після кінця транзакції."""
     previous = counters()
+    same = 0
     for _i in range(tries):
         time.sleep(pause)
         current = counters()
-        if current == previous:
-            return current
+        same = same + 1 if current == previous else 0
         previous = current
+        if same >= stable:
+            return current
     return previous
 
 
@@ -161,6 +163,14 @@ SCREENS = [
 
 print(f"база {DB}, працівник картки #{EMPLOYEE}")
 print()
+
+# Перед першим екраном заспокоюємось довго. У check_all.sh попередній скрипт щойно
+# прибрав за собою десятки записів; бекенд, який це зробив, віддає свою статистику
+# не одразу, а коли сам вважатиме за потрібне - на цьому стенді заміряно близько
+# десяти секунд після виходу скрипта. Одного збігу замірів тут мало: чекаємо, поки
+# лічильники простоять нерухомо десяток секунд, інакше чужі видалення припишуться
+# першому екрану.
+_settle(tries=25, pause=1.5, stable=8)
 
 for name, read in SCREENS:
     before = _settle()
