@@ -1,0 +1,5 @@
+# Справжні env-файли і копії баз живуть лише на сервері.
+env.staging
+env.prod
+env.tunnel
+backups/

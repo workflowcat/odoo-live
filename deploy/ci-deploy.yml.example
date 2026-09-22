@@ -1,0 +1,74 @@
+# Зразок для .github/workflows/deploy.yml. Тут лише зразок: теку .github веде інша сесія,
+# тому скопіювати його туди має людина (або та сесія), а не цей файл сам собою.
+#
+# Дві роботи:
+#   deploy-staging - після зеленого `tests` на main, автоматично, без погодження;
+#   deploy-prod    - на тег v*, через середовище production з обов'язковим ручним підтвердженням.
+#
+# Секрети репозиторію (Settings > Secrets and variables > Actions):
+#   DEPLOY_HOST        IP або ім'я сервера Hetzner
+#   DEPLOY_USER        deploy
+#   DEPLOY_SSH_KEY     приватний ключ (ed25519), відкритий лежить у ~deploy/.ssh/authorized_keys
+#   DEPLOY_PORT        порт ssh, якщо не 22 (необов'язково)
+#   DEPLOY_KNOWN_HOSTS рядок з `ssh-keyscan <host>`, щоб не вимикати перевірку ключа
+# Середовище (Settings > Environments > production): Required reviewers - Andrii.
+#
+# Сервер сам тягне код (deploy.sh робить git fetch + checkout), тому артефакти
+# нікуди не передаються, а Actions лише смикає одну команду по ssh.
+name: deploy
+on:
+  workflow_run:
+    workflows: ["tests"]
+    types: [completed]
+    branches: [main]
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "git-ref для prod (тег vX.Y.Z)"
+        required: true
+
+concurrency:
+  group: "deploy-${{ github.ref }}"
+  cancel-in-progress: false
+
+jobs:
+  deploy-staging:
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: "staging: свіже демо з main"
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_PORT || 22 }}
+          fingerprint: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          command_timeout: 40m
+          script: |
+            cd ~/odoo-live
+            ./deploy/deploy.sh staging ${{ github.event.workflow_run.head_sha }}
+
+  deploy-prod:
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment:
+      name: production
+      url: https://app.<домен>
+    steps:
+      - name: "prod: викочування тега"
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_PORT || 22 }}
+          fingerprint: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          command_timeout: 40m
+          script: |
+            cd ~/odoo-live
+            ./deploy/deploy.sh prod ${{ inputs.ref || github.ref_name }}

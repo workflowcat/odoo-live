@@ -1,0 +1,9 @@
+# Контекст збірки серверного образу: лише те, що потрібно в образі.
+# BuildKit бере цей файл замість кореневого .dockerignore, бо він зветься
+# як Dockerfile плюс .dockerignore.
+*
+!addons
+!deploy/odoo.server.conf
+!deploy/entrypoint.sh
+addons/**/__pycache__
+addons/**/*.pyc

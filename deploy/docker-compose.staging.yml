@@ -1,0 +1,15 @@
+# staging: свіже демо на кожен деплой. База перезбирається з нуля, дані наливає
+# scripts/demo_business.py. Нічого цінного тут немає і бути не може.
+#   docker compose --env-file deploy/env.staging \
+#     -f deploy/docker-compose.server.yml -f deploy/docker-compose.staging.yml up -d
+name: ${COMPOSE_PROJECT_NAME:-odoo-stage}
+
+services:
+  db:
+    container_name: ${COMPOSE_PROJECT_NAME:-odoo-stage}-db
+  odoo:
+    container_name: ${COMPOSE_PROJECT_NAME:-odoo-stage}-odoo
+    environment:
+      # у демо крутиться багато разових операцій, тому воркерів стільки ж, а пам'яті менше не треба
+      ODOO_WORKERS: ${ODOO_WORKERS:-2}
+      ENV_NAME: staging

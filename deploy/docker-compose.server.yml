@@ -1,0 +1,84 @@
+# Спільна частина серверного стенду. Сама по собі не запускається:
+#   docker compose -f deploy/docker-compose.server.yml -f deploy/docker-compose.staging.yml ...
+#   docker compose -f deploy/docker-compose.server.yml -f deploy/docker-compose.prod.yml ...
+# Значення - з deploy/env.staging або deploy/env.prod (--env-file), їх підставляє deploy/deploy.sh.
+#
+# Один сервер, два незалежні набори (свій Postgres, свій том, свій Odoo), одні двері:
+# cloudflared у власному проєкті (deploy/docker-compose.tunnel.yml) бачить обидва Odoo
+# через спільну зовнішню мережу EDGE_NETWORK.
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    logging: *logging
+    shm_size: 256mb
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: ${PG_USER:-odoo}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:?PG_PASSWORD не заданий - заповніть env-файл оточення}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - pgdata:/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${PG_USER:-odoo}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks:
+      - default
+
+  odoo:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: ${ODOO_IMAGE:-odoo-live-server}:${IMAGE_TAG:-current}
+    restart: unless-stopped
+    logging: *logging
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGPORT: "5432"
+      PGUSER: ${PG_USER:-odoo}
+      PGPASSWORD: ${PG_PASSWORD:?PG_PASSWORD не заданий}
+      DB_NAME: ${ODOO_DB:?ODOO_DB не заданий}
+      DB_FILTER: ${ODOO_DB_FILTER:-^${ODOO_DB}$$}
+      ODOO_WORKERS: ${ODOO_WORKERS:-2}
+      ODOO_ADMIN_PASSWD: ${ODOO_ADMIN_PASSWD:-}
+      BP_BRIDGE_URL: ${BP_BRIDGE_URL:-https://odoo-live.botpartners.workers.dev}
+      BP_BRIDGE_TOKEN: ${BP_BRIDGE_TOKEN:-}
+    ports:
+      # лише петля: назовні пускає тільки Cloudflare Tunnel
+      - "127.0.0.1:${ODOO_HTTP_PORT:?ODOO_HTTP_PORT не заданий}:8069"
+    volumes:
+      - odoo-data:/var/lib/odoo
+    healthcheck:
+      test: ["CMD", "python3", "-c",
+             "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8069/web/login', timeout=10)"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 120s
+    networks:
+      default: {}
+      edge:
+        aliases:
+          - ${EDGE_ALIAS:?EDGE_ALIAS не заданий}
+
+volumes:
+  pgdata:
+  odoo-data:
+
+networks:
+  default:
+  edge:
+    external: true
+    name: ${EDGE_NETWORK:-odoo-edge}

@@ -1,0 +1,42 @@
+# Cloudflare Tunnel - єдині двері до сервера. Портів назовні немає взагалі (ufw пускає лише ssh).
+#
+#   docker compose --env-file deploy/env.tunnel -f deploy/docker-compose.tunnel.yml up -d
+#
+# Чому окремий проєкт, а не сервіс у staging і prod: тунель на сервері один, а стеків два.
+# Якби cloudflared стояв у кожному стеку, до одного тунелю під'єдналися б дві копії і запит
+# на app.<домен> міг би потрапити на staging. Тому один cloudflared у власному проєкті,
+# а обидва Odoo видно йому через зовнішню мережу EDGE_NETWORK за іменами EDGE_ALIAS.
+#
+# Токен (TUNNEL_TOKEN) - з Cloudflare Zero Trust > Networks > Tunnels > Create tunnel > Docker.
+# Маршрути тунелю задаються там же, у Public Hostnames, і виглядають так:
+#   staging.<домен>            -> http://odoo-staging:8069
+#   staging.<домен> /websocket -> http://odoo-staging:8072   (шлях /websocket, Odoo з воркерами)
+#   app.<домен>                -> http://odoo-prod:8069
+#   app.<домен>     /websocket -> http://odoo-prod:8072
+# Обидва імена закриваються політикою Cloudflare Access (пошта команди).
+name: odoo-tunnel
+
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate --metrics 0.0.0.0:2000 run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:?TUNNEL_TOKEN не заданий - візьміть його в Cloudflare Zero Trust}
+    healthcheck:
+      test: ["CMD", "cloudflared", "--version"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - edge
+
+networks:
+  edge:
+    external: true
+    name: ${EDGE_NETWORK:-odoo-edge}

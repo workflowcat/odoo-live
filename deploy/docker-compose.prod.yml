@@ -1,0 +1,15 @@
+# prod: жива база. Деплой лише з тега vX.Y.Z, перед оновленням модулів - pg_dump.
+#   docker compose --env-file deploy/env.prod \
+#     -f deploy/docker-compose.server.yml -f deploy/docker-compose.prod.yml up -d
+name: ${COMPOSE_PROJECT_NAME:-odoo-prod}
+
+services:
+  db:
+    container_name: ${COMPOSE_PROJECT_NAME:-odoo-prod}-db
+    # жива база: даємо їй більше пам'яті під сортування і кеш сторінок
+    shm_size: 512mb
+  odoo:
+    container_name: ${COMPOSE_PROJECT_NAME:-odoo-prod}-odoo
+    environment:
+      ODOO_WORKERS: ${ODOO_WORKERS:-2}
+      ENV_NAME: prod
