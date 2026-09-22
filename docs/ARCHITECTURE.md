@@ -1,5 +1,9 @@
 # How odoo-live is built, how it works, how to build on it
 
+> Стан на 2026-09-22: Supabase і Cloudflare Containers більше не використовуються. База живе в Postgres
+> поруч з Odoo (локально на Mac; далі staging і prod на одному сервері Hetzner, Cloudflare Tunnel + Access як
+> вхідні двері). З Cloudflare лишається лише міст `odoo-live`. Розділи нижче про Supabase - історія.
+
 ## The shape
 
 Three layers. Each one can be replaced without touching the others.

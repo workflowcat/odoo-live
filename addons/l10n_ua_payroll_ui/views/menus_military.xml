@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-  <menuitem id="menu_ua_military" name="Військовий облік" parent="payroll.payroll_menu_root" sequence="35" groups="hr.group_hr_user"/>
-  <menuitem id="menu_ua_military_liable" name="Військовозобов'язані" parent="menu_ua_military" action="l10n_ua_military.action_ua_military_liable" sequence="1" groups="hr.group_hr_user"/>
-  <menuitem id="menu_ua_military_list" name="Списки персонального обліку" parent="menu_ua_military" action="l10n_ua_military.action_ua_military_list_wizard" sequence="2" groups="hr.group_hr_user"/>
-  <menuitem id="menu_ua_military_notice" name="Повідомлення до ТЦК" parent="menu_ua_military" action="l10n_ua_military.action_ua_military_notice_wizard" sequence="3" groups="hr.group_hr_user"/>
-  <menuitem id="menu_ua_military_reserved" name="Списки заброньованих" parent="menu_ua_military" action="l10n_ua_military.action_ua_military_reserved_wizard" sequence="4" groups="hr.group_hr_user"/>
-  <menuitem id="menu_ua_military_needs_check" name="Потребують звірки" parent="menu_ua_military" action="l10n_ua_military.action_ua_military_needs_check" sequence="5" groups="hr.group_hr_user"/>
-</odoo>
