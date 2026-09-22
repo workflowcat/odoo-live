@@ -1423,6 +1423,28 @@ def lab_user():
     return uid
 
 
+def admin_company():
+    """Адміністратор відкриває сесію в «Ясен Меблях», а не в трьох компаніях одразу.
+
+    Що можна з сервера: company_id (типова компанія користувача) і company_ids
+    (перелік дозволених). Що НЕ можна: активний набір компаній - той, що показує
+    перемикач угорі. Його тримає браузер у cookie `cids`, і клієнт бере звідти:
+    якщо cookie немає або він застарів, активною стає одна компанія - саме
+    company_id (web/static/src/core/user.js, updateActiveCompanies). Тому після
+    збірки на чистому браузері демо відкривається в «Ясен Меблях»; у браузері, де
+    вже клікали перемикач, лишиться старий набір, поки його не змінять у шапці.
+
+    Порядок у перемикачі йде за res.company.sequence, а не за порядком company_ids:
+    ставимо «Ясен Меблям» перший номер, решту компаній не чіпаємо.
+    """
+    call("res.company", "write", [CO_ID], {"sequence": 1})
+    call("res.users", "write", [UID], {"company_id": CO_ID})
+    others = call("res.company", "search_read", [["id", "!=", CO_ID]], fields=["name"])
+    say(f"Адміністратор: типова компанія {COMPANY['name']}, дозволені ще "
+        + (", ".join(c["name"] for c in others) or "немає")
+        + "; активний набір перемикача живе в cookie браузера, з сервера його не задати.")
+
+
 def _as_buyer(model, method, *a, **kw):
     uid = rpc("common", "login", DB, BUYER_LOGIN, PW)
     return rpc("object", "execute_kw", DB, uid, PW, model, method, list(a), kw)
@@ -2725,6 +2747,8 @@ def main():
         extra["declaration"] = dict(dec, year=2026)
     finally:
         relock_periods(saved)
+    # В самому кінці: компанії в базі вже всі, тож типову і порядок ставимо один раз.
+    admin_company()
     control_table(extra)
 
 
