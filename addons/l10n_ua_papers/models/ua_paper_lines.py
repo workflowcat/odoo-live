@@ -30,10 +30,12 @@ class UaAdvanceLine(models.Model):
     ua_paper_state = fields.Selection(related="sheet_id.state", string="Стан документа")
 
 
-class UaPaymentLine(models.Model):
-    _inherit = "ua.payment.line"
+class AccountPaymentLine(models.Model):
+    _inherit = "account.payment.line"
 
-    ua_paper_state = fields.Selection(related="batch_id.state", string="Стан документа")
+    # Стан рядка доручення вже є пов'язаним полем OCA (`state`), але екран «Папери» питає
+    # в усіх моделей рядків одне й те саме ім'я - лишаємо його і тут.
+    ua_paper_state = fields.Selection(related="order_id.state", string="Стан документа")
 
 
 class UaPfuClaimLine(models.Model):

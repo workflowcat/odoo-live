@@ -29,7 +29,7 @@
 | `ua.advance.sheet` | зарплата | стан, відсоток, дата виплати |
 | `account.move` | облік | стан, дата, опис; видалення |
 | `account.bank.statement.line` | банк | сума, дата, контрагент, призначення |
-| `ua.payment.batch` / `ua.payment.line` | банк | стан, дата, банк, сума, IBAN |
+| `account.payment.order` / `account.payment.line` | банк | стан, дата, банк, сума, IBAN |
 | `ua.report.run` | звітність | стан прогону |
 | `ua.payroll.param`, `ua.cpi.index` | налаштування | значення, дата дії; створення |
 

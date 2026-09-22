@@ -425,11 +425,12 @@ class UaHome(models.AbstractModel):
             rows.append({"title": order.name or "Наказ без номера", "subtitle": order.employee_id.name or "",
                         "target": {"model": "ua.hr.order", "res_id": order.id}})
 
-        for batch in self.env["ua.payment.batch"].search([
-                ("company_id", "=", company.id), ("state", "=", "draft"), ("create_uid", "=", user.id)]):
-            rows.append({"title": batch.name or "Відомість без назви",
-                        "subtitle": "%s %s" % (MONTHS_UA.get(batch.month, "").capitalize(), batch.year),
-                        "target": {"model": "ua.payment.batch", "res_id": batch.id}})
+        for batch in self.env["account.payment.order"].search([
+                ("company_id", "=", company.id), ("state", "=", "draft"),
+                ("ua_kind", "!=", False), ("create_uid", "=", user.id)]):
+            rows.append({"title": batch.ua_label or "Відомість без назви",
+                        "subtitle": "%s %s" % (MONTHS_UA.get(batch.ua_month, "").capitalize(), batch.ua_year),
+                        "target": {"model": "account.payment.order", "res_id": batch.id}})
 
         for sheet in self.env["ua.advance.sheet"].search([
                 ("company_id", "=", company.id), ("state", "=", "draft"), ("create_uid", "=", user.id)]):

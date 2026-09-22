@@ -1,17 +1,16 @@
 {
     "name": "Україна: відомість на перерахування зарплати",
-    "summary": "Список на виплату з реквізитами працівників, файл для банку і друкована відомість",
-    "version": "19.0.1.3.0",
+    "summary": "Платіжне доручення пакетом на зарплату, аванс і податки: файл для банку, друкована відомість, проведені платежі",
+    "version": "19.0.2.0.0",
     "category": "Human Resources/Payroll",
     "author": "Bot&Partners",
     "license": "LGPL-3",
-    "depends": ["l10n_ua_screen", "l10n_ua_payroll_account", "l10n_ua_payroll_rules"],
+    "depends": ["l10n_ua_screen", "l10n_ua_payroll_account", "l10n_ua_payroll_rules",
+                "account_payment_order"],
     "data": [
-        "security/ir.model.access.csv",
-        "data/ir_sequence_data.xml",
-        "report/ua_payment_batch_report.xml",
+        "report/ua_payment_order_report.xml",
         "views/res_company_views.xml",
-        "views/ua_payment_batch_views.xml",
+        "views/account_payment_order_views.xml",
     ],
     "installable": True,
 }

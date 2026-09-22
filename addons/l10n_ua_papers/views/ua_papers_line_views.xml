@@ -70,17 +70,18 @@
   </record>
 
   <record id="view_ua_papers_payment_line_list" model="ir.ui.view">
-    <field name="name">l10n_ua_papers.ua.payment.line.list</field>
-    <field name="model">ua.payment.line</field>
+    <field name="name">l10n_ua_papers.account.payment.line.list</field>
+    <field name="model">account.payment.line</field>
     <field name="arch" type="xml">
       <list editable="bottom" create="false" delete="false">
         <field name="ua_paper_state" column_invisible="1"/>
-        <field name="employee_id" readonly="ua_paper_state != 'draft'"/>
+        <field name="ua_employee_id" readonly="ua_paper_state != 'draft'"/>
         <field name="partner_id" readonly="ua_paper_state != 'draft'"/>
-        <field name="name" readonly="ua_paper_state != 'draft'"/>
-        <field name="account_number" readonly="ua_paper_state != 'draft'"/>
-        <field name="amount" readonly="ua_paper_state != 'draft'"/>
-        <field name="purpose" readonly="ua_paper_state != 'draft'"/>
+        <field name="ua_label" readonly="ua_paper_state != 'draft'"/>
+        <field name="partner_bank_id" string="Рахунок (IBAN)" readonly="ua_paper_state != 'draft'"/>
+        <field name="amount_currency" string="Сума" readonly="ua_paper_state != 'draft'"/>
+        <field name="communication" string="Призначення" readonly="ua_paper_state != 'draft'"/>
+        <field name="currency_id" column_invisible="1"/>
       </list>
     </field>
   </record>

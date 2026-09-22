@@ -25,9 +25,9 @@ what upstream already gives. Source: Opus audit agent, upstream checked through 
 | 2 | Leave balances as computed fields on the employee, yearly cron | ALIGN: post `hr.leave.allocation` per type; keep the UA day-count rules as the generator. Biggest gap: we create zero allocations today | 24-40 |
 | 3 | Штатний розпис `ua.staff.list` | KEEP, already reads `hr.version` | 0 |
 | 4 | `ua.hr.order` | KEEP, наказ as a transaction on `hr.version` is correct | 0 |
-| 4 | `ua.employee.document` | REPLACE with OCA `hr_employee_document` + thin UA extension (types, expiry, sign state, reprint link) | 8-12 |
+| 4 | `ua.employee.document` | DONE 2026-09-22, but not as written: OCA `hr_employee_document` 19.0 has no document model at all, only a «Documents» button over `ir.attachment` on the employee and its access rules, so the scan now lives as that very attachment (`res_model=hr.employee`) while the record - Ukrainian types, expiry, sign state, наказ, reprint link - stays ours | done |
 | 4 | `ua.hire.case` | KEEP; funnel part overlaps `hr_recruitment` stages, realign later | (16) |
-| 5 | `ua.payment.batch` | REPLACE with OCA `account_payment_order` (bank-payment 19.0, 14 modules, not vendored yet) + UA export format. Posts real `account.payment`, so 661/6411/651 close without regex reconcile rules. Needs a `res.partner.bank` per employee | 24-32 |
+| 5 | `ua.payment.batch` | DONE 2026-09-22: the відомість is an `account.payment.order` (modes «Зарплата» / «Податки», CSV file generator on the mode), confirmation builds `account.payment` that clear 661 / 6851 by employee and 6411 / 6415 / 651 by ДПС; `ua.payment.batch` and `ua.payment.line` deleted | done |
 | 6 | Аванс `ua.advance.sheet` | KEEP (ст. 115 КЗпП) | 0 |
 | 7 | `ua.payroll.account.map` | ALIGN: keep, rename to avoid a future clash with `payroll_account`, replace account-prefix guessing with explicit account fields | 4-6 |
 | 8 | `ua.change.log` / mixin | ALIGN: capture through OCA `auditlog` (server-tools 19.0), keep our accept / period / blocker workflow; needs a filter so the queue stays readable | 16-20 |
@@ -71,8 +71,9 @@ helpdesk 17 · l10n-ukraine 0.
 
 ## Order
 
-1. Leaves onto `hr.leave.allocation`.
-2. Payments onto `account_payment_order`.
-3. Employee documents onto `hr_employee_document`.
+1. Leaves onto `hr.leave.allocation`. Done 2026-09-22.
+2. Payments onto `account_payment_order`. Done 2026-09-22.
+3. Employee documents onto `hr_employee_document`. Done 2026-09-22, see the row above for what
+   upstream actually offers.
 4. Sandbox port, starting with the two pure replacements (`ua_assets`, `ua_nbu`).
 All four only after the golden tests are green, so a changed sum is seen at once.

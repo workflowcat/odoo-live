@@ -723,13 +723,22 @@ refill_pfu_claim(run_jul)
 refill_pfu_claim(run_aug)
 
 # ---- відомості на виплату: аванс за серпень (з рядків, наповнених у month_batch вище), інша за вересень (чернетка) ----
-for kind, ym in (("advance", (2026, 8)), ("other", (2026, 9))):
+# Відомість на перерахування - це платіжне доручення OCA (account.payment.order): затвердження
+# складає справжні account.payment, а «оплачено» їх проводить і закриває 661.
+PAY_SETUP = call("res.company", "ua_payment_setup", [COMPANY])
+for kind, ym, pay_day in (("advance", (2026, 8), "2026-08-20"), ("other", (2026, 9), "2026-09-25")):
     year_pb, month_pb = ym
-    pb_ids = call("ua.payment.batch", "search", [["year", "=", year_pb], ["month", "=", month_pb], ["kind", "=", kind]], order="id")
+    pb_ids = call("account.payment.order", "search",
+                  [["ua_year", "=", year_pb], ["ua_month", "=", month_pb], ["ua_kind", "=", kind]], order="id")
     if len(pb_ids) > 1:
-        call("ua.payment.batch", "unlink", pb_ids[1:])   # прибрати дублі з попередніх запусків до цього виправлення
-    pb_id = pb_ids[0] if pb_ids else call("ua.payment.batch", "create", {"company_id": COMPANY, "year": year_pb, "month": month_pb, "kind": kind,
-                                                                         "pay_date": "2026-08-20" if kind == "advance" else "2026-09-25"})
+        for extra in pb_ids[1:]:
+            if call("account.payment.order", "read", [extra], ["state"])[0]["state"] != "draft":
+                call("account.payment.order", "action_cancel", [extra])
+        call("account.payment.order", "unlink", pb_ids[1:])   # прибрати дублі з попередніх запусків
+    pb_id = pb_ids[0] if pb_ids else call("account.payment.order", "create", {
+        "payment_mode_id": PAY_SETUP["tax" if kind == "tax" else "salary"],
+        "journal_id": PAY_SETUP["journal"], "date_prefered": "now",
+        "ua_kind": kind, "ua_year": year_pb, "ua_month": month_pb, "ua_pay_date": pay_day})
     if kind == "advance":
         # запасний варіант: якщо з якоїсь причини відомості за серпень усе ще нема (advance=False
         # вище чи ручне втручання), створити її тут, але НЕ підтверджувати порожню - інакше
@@ -745,13 +754,36 @@ for kind, ym in (("advance", (2026, 8)), ("other", (2026, 9))):
                 print(f"Авансова відомість за {year_pb}-{month_pb:02d} без рядків (нема серпневих листків на цьому кроці) - лишена чернеткою.")
         # не пропускати, навіть якщо запис уже є: у чернетці могло не дійти до заповнення й
         # затвердження в попередньому (перерваному) запуску - ідемпотентно доводимо до кінця.
-        if call("ua.payment.batch", "read", [pb_id], ["state"])[0]["state"] == "draft":
-            call("ua.payment.batch", "action_fill", [pb_id])
-            if call("ua.payment.batch", "read", [pb_id], ["line_ids"])[0]["line_ids"]:
-                call("ua.payment.batch", "action_confirm", [pb_id])   # аванс за серпень - затверджена відомість
+        if call("account.payment.order", "read", [pb_id], ["state"])[0]["state"] == "draft":
+            call("account.payment.order", "action_fill", [pb_id])
+            if call("account.payment.order", "read", [pb_id], ["payment_line_ids"])[0]["payment_line_ids"]:
+                call("account.payment.order", "action_confirm", [pb_id])   # аванс за серпень - затверджена відомість
     else:
-        call("ua.payment.batch", "write", [pb_id], {"note": "Матеріальна допомога і компенсація за наказом окремо від зарплатного циклу"})   # інша виплата - чернетка
-print("Відомості на виплату (аванс затверджена, інша - чернетка) записано.")
+        call("account.payment.order", "write", [pb_id], {"ua_note": "Матеріальна допомога і компенсація за наказом окремо від зарплатного циклу"})   # інша виплата - чернетка
+# ---- зарплата за серпень: відомість складає платежі, але не проводить їх ---------------
+# Демо закриває 661 з виписки правилами звірки за текстом призначення - так, як це працювало
+# до переходу на платіжні доручення. Якщо тут іще й провести платежі відомості, ті самі суми
+# ляжуть на 661 і на 311 двічі: платіж Дт 661 / Кт 311 і рядок виписки Дт 661 / Кт 311.
+# Тому демо зупиняється на «Затверджено»: платежі складені й видно, з чого вони, а гроші
+# рухає виписка. Провести їх можна буде, коли банківський журнал отримає рахунок «грошові
+# кошти в дорозі» (333) і рядок виписки зводитиметься з платежем, а не з рахунком 661.
+# Повний цикл із проведенням показує стенд (scripts/payments_check.py) і тести ua_payments.
+done_aug = call("hr.payslip", "search_count", [["state", "=", "done"],
+                                               ["date_from", ">=", "2026-08-01"], ["date_from", "<=", "2026-08-31"]])
+sal_ids = call("account.payment.order", "search",
+               [["ua_kind", "=", "salary"], ["ua_year", "=", 2026], ["ua_month", "=", 8]], order="id")
+if done_aug and not sal_ids:
+    sal = call("account.payment.order", "create", {
+        "payment_mode_id": PAY_SETUP["salary"], "journal_id": PAY_SETUP["journal"],
+        "date_prefered": "now", "ua_kind": "salary", "ua_year": 2026, "ua_month": 8,
+        "ua_pay_date": "2026-09-04"})
+    call("account.payment.order", "action_fill", [sal])
+    call("account.payment.order", "action_confirm", [sal])
+    print(f"Зарплата за серпень: відомість {sal} затверджена, платежі складені.")
+elif sal_ids:
+    print("Відомість на зарплату за серпень уже є.")
+
+print("Відомості на виплату (аванс і зарплата затверджені, інша - чернетка) записано.")
 
 # ---- закриття листкового пакета липня і закриття періодів (місяць і квартал) --------------------------
 if call("hr.payslip.run", "read", [run_jul], ["state"])[0]["state"] != "close":

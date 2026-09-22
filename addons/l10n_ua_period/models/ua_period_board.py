@@ -154,18 +154,19 @@ class UaPeriodBoard(models.AbstractModel):
                           {"xmlid": "account.action_move_journal_line"}, [row] if row else [])
 
     def _step_payment(self, company, year, month):
-        batches = self.env["ua.payment.batch"].search([
-            ("company_id", "=", company.id), ("year", "=", year), ("month", "=", month),
+        batches = self.env["account.payment.order"].search([
+            ("company_id", "=", company.id), ("ua_year", "=", year), ("ua_month", "=", month),
+            ("ua_kind", "!=", False),
         ])
         if not batches:
             return self._step("payment", "Виплата", "todo", "відомості немає",
-                              {"xmlid": "l10n_ua_payments.action_ua_payment_batch"})
-        total = sum(batches.mapped("total"))
-        paid = batches.filtered(lambda b: b.state == "paid")
+                              {"xmlid": "l10n_ua_payments.action_ua_payment_order"})
+        total = sum(batches.mapped("total_company_currency"))
+        paid = batches.filtered(lambda b: b.state == "uploaded")
         state = "done" if paid else "warn"
         fact = "%s · %s" % (self._money(total), "оплачено" if paid else "не позначено оплаченою")
         return self._step("payment", "Виплата", state, fact,
-                          {"model": "ua.payment.batch", "res_id": batches[0].id})
+                          {"model": "account.payment.order", "res_id": batches[0].id})
 
     def _step_bank(self, company, first, last):
         lines = self.env["account.bank.statement.line"].search([
@@ -396,18 +397,19 @@ class UaPeriodBoard(models.AbstractModel):
 
     def _payment_state(self, company, first, last):
         """Стан виплати за працівником: у якій відомості і чи позначена оплаченою."""
-        batches = self.env["ua.payment.batch"].search([
-            ("company_id", "=", company.id), ("year", "=", first.year), ("month", "=", first.month),
+        batches = self.env["account.payment.order"].search([
+            ("company_id", "=", company.id), ("ua_year", "=", first.year),
+            ("ua_month", "=", first.month), ("ua_kind", "!=", False),
         ])
         out = {}
         for batch in batches:
-            for line in batch.line_ids.filtered("employee_id"):
-                current = out.get(line.employee_id.id)
+            for line in batch.payment_line_ids.filtered("ua_employee_id"):
+                current = out.get(line.ua_employee_id.id)
                 if current and current["paid"]:
                     continue
-                out[line.employee_id.id] = {"batch": batch.name, "batch_id": batch.id,
-                                            "paid": batch.state == "paid",
-                                            "amount": self._money(line.amount)}
+                out[line.ua_employee_id.id] = {"batch": batch.ua_label, "batch_id": batch.id,
+                                               "paid": batch.state == "uploaded",
+                                               "amount": self._money(line.amount_currency)}
         return out
 
     @api.model
@@ -653,15 +655,16 @@ class UaPeriodBoard(models.AbstractModel):
                                   state=self._doc_state(slips)))
         out["payslips"] = docs
 
-        batches = self.env["ua.payment.batch"].search([("company_id", "=", company.id), ("year", "=", year),
-                                                       ("month", "=", month)])
+        batches = self.env["account.payment.order"].search([
+            ("company_id", "=", company.id), ("ua_year", "=", year), ("ua_month", "=", month),
+            ("ua_kind", "!=", False)])
         docs = []
         for batch in batches:
-            docs.append(self._doc("print", batch.name, "l10n_ua_payments.report_ua_payment_batch", batch,
-                                  target={"model": "ua.payment.batch", "res_id": batch.id},
+            docs.append(self._doc("print", batch.ua_label, "l10n_ua_payments.report_ua_payment_order", batch,
+                                  target={"model": "account.payment.order", "res_id": batch.id},
                                   state=self._doc_state(batch)))
-            docs.append(self._doc("file", "Файл для банку · %s" % batch.name,
-                                  target={"model": "ua.payment.batch", "res_id": batch.id}))
+            docs.append(self._doc("file", "Файл для банку · %s" % batch.ua_label,
+                                  target={"model": "account.payment.order", "res_id": batch.id}))
         out["payment"] = docs
 
         deadline = last + timedelta(days=20)

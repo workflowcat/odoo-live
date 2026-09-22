@@ -125,6 +125,25 @@ check("дія «Документи на підпис» шукає state=to_sign"
 found = env["ua.employee.document"].sudo().search([("id", "in", emp.ua_document_ids.ids), ("state", "=", "to_sign")])
 check("фільтр to_sign повертає лише документи на підпис", set(found.mapped("state")) <= {"to_sign"} and len(found) > 0, str(len(found)))
 
+# ---- 4b. скан документа - вкладення картки працівника (OCA hr_employee_document)
+Attachment = env["ir.attachment"].sudo()
+with_file = emp.ua_document_ids.filtered("attachment_id")
+check("файли кандидата стали документами зі сканом", len(with_file) == 3, str(len(with_file)))
+check("скани лежать вкладеннями картки працівника, а не моделі документа",
+      all(a.res_model == "hr.employee" and a.res_id == emp.id and not a.res_field
+          for a in with_file.mapped("attachment_id")),
+      str({(a.res_model, a.res_field) for a in with_file.mapped("attachment_id")}))
+check("вкладень на моделі документа не лишилось",
+      Attachment.search_count([("res_model", "=", "ua.employee.document")]) == 0)
+emp.invalidate_recordset(["document_count"])
+check("кнопка «Документи» OCA бачить ті самі скани", emp.document_count >= len(with_file),
+      f"{emp.document_count} вкладень на картці, сканів документів {len(with_file)}")
+scan = with_file[0]
+check("файл документа читається назад із вкладення", bool(scan.file), scan.filename or "")
+scan_attachment = scan.attachment_id
+scan.unlink()
+check("видалення документа прибирає його вкладення", not scan_attachment.exists())
+
 # ---- 5. наказ поза прийняттям: проведення створює документ, ознайомлення підписує
 Order = env["ua.hr.order"].sudo()
 transfer_order = Order.create({

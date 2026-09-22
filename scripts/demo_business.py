@@ -1260,6 +1260,8 @@ def control_table():
         ("account.move", [["state", "=", "posted"]], "проведені проводки, усього"),
         ("account.payment", [["state", "in", ["posted", "paid", "in_process"]]], "платежі"),
         ("account.payment", [["ua_order_kind", "!=", False]], "касові ордери ПКО/ВКО"),
+        ("account.payment.order", [["ua_kind", "!=", False]], "відомості на перерахування"),
+        ("account.payment", [["payment_order_id", "!=", False]], "платежі зарплатних відомостей"),
         ("ua.advance.report", [], "авансові звіти"),
         ("ua.vat.document", [["doc_kind", "=", "tax_invoice"]], "податкові накладні"),
         ("ua.vat.document", [["doc_kind", "=", "adjustment"]], "розрахунки коригування"),

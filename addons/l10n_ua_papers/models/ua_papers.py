@@ -118,15 +118,15 @@ class UaPapers(models.AbstractModel):
             {
                 "key": "payment_batch", "group": "month", "group_label": "За місяць",
                 "short_name": "Відомість на перерахування", "full_name": "Відомість на перерахування",
-                "subtitle": "", "model": "ua.payment.batch",
-                "report": "l10n_ua_payments.action_report_ua_payment_batch",
+                "subtitle": "", "model": "account.payment.order",
+                "report": "l10n_ua_payments.action_report_ua_payment_order",
                 "find_fn": self._find_payment_batch,
                 "extra_fields": [{"key": "kind", "label": "Вид виплати", "options_fn": self._opt_payment_kinds,
                                   "default": "salary"}],
                 "composable": True,
                 "missing_text": "Немає відомості цього виду за {m}", "empty_action": "Створити",
                 "sources_fn": self._src_payment_batch,
-                "line_model": "ua.payment.line", "line_inverse": "batch_id",
+                "line_model": "account.payment.line", "line_inverse": "order_id",
                 "line_view_xmlid": "l10n_ua_papers.view_ua_papers_payment_line_list",
             },
             {
@@ -273,20 +273,21 @@ class UaPapers(models.AbstractModel):
         return [(False, "усі")] + [(d.id, d.name) for d in depts]
 
     def _opt_payment_kinds(self, company):
-        return list(self.env["ua.payment.batch"]._fields["kind"].selection)
+        return list(self.env["account.payment.order"]._fields["ua_kind"].selection)
 
     def _find_payment_batch(self, company, first, last, year, month, params):
         """Відомостей на місяць може бути кілька (аванс/зарплата/податки/інше) - обраний вид
         іде в params["kind"]; без вибору береться перша наявна цього місяця, типово «зарплата»."""
-        Model = self.env["ua.payment.batch"]
-        domain = [("company_id", "=", company.id), ("year", "=", year), ("month", "=", month)]
+        Model = self.env["account.payment.order"]
+        domain = [("company_id", "=", company.id), ("ua_year", "=", year), ("ua_month", "=", month),
+                  ("ua_kind", "!=", False)]
         kind = params.get("kind")
         if kind:
-            return Model.search(domain + [("kind", "=", kind)], limit=1)
+            return Model.search(domain + [("ua_kind", "=", kind)], limit=1)
         existing = Model.search(domain, order="id", limit=1)
         if existing:
             return existing
-        return Model.search(domain + [("kind", "=", "salary")], limit=1)
+        return Model.search(domain + [("ua_kind", "=", "salary")], limit=1)
 
     # ------------------------------------------------------------------ джерела паперу ("звідки дані")
     def _src_timesheet(self, record, company, first, last):
@@ -328,10 +329,10 @@ class UaPapers(models.AbstractModel):
         ]
 
     def _src_payment_batch(self, record, company, first, last):
-        if record.kind == "advance":
+        if record.ua_kind == "advance":
             first_row = {"label": "Авансова відомість", "text": "суми авансу за місяць",
                         "state": "imported", "target": None}
-        elif record.kind == "tax":
+        elif record.ua_kind == "tax":
             first_row = {"label": "Розрахункові листки", "text": "ПДФО, військовий збір і ЄСВ з листків",
                         "state": "calculated", "target": None}
         else:

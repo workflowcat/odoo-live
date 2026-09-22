@@ -1,3 +1,15 @@
+"""Документ працівника: український опис (тип, строк дії, підпис, звіт) над одним вкладенням.
+
+Скан документа - це звичайне `ir.attachment` на картці працівника (`res_model="hr.employee"`),
+рівно те сховище, яке показує OCA `hr_employee_document`: кнопка «Документи» на картці і його
+правила доступу (працівник бачить свої вкладення) працюють на наших документах без жодного
+рядка коду з нашого боку. Раніше файл лежав вкладенням самої моделі `ua.employee.document`
+(`res_model="ua.employee.document"`) - для OCA його не існувало, і те саме сховище було двома.
+
+Своїм лишається те, чого upstream не має взагалі: український перелік типів, строк дії з
+попередженням за 30 днів, стан підпису, посилання на наказ і на звіт для передруку. Моделі
+документа в OCA/hr 19.0 немає - там лише кнопка і права, - тому запис лишається нашим.
+"""
 import json
 from datetime import timedelta
 from urllib.parse import urlencode
@@ -40,7 +52,11 @@ class UaEmployeeDocument(models.Model):
     number = fields.Char("Номер")
     date = fields.Date("Дата")
     valid_until = fields.Date("Діє до")
-    file = fields.Binary("Файл", attachment=True)
+    attachment_id = fields.Many2one("ir.attachment", "Вкладення", copy=False, readonly=True,
+                                    ondelete="set null",
+                                    help="Скан документа на картці працівника; його ж показує "
+                                         "кнопка «Документи» (OCA hr_employee_document).")
+    file = fields.Binary("Файл", compute="_compute_file", inverse="_inverse_file")
     filename = fields.Char("Ім'я файлу")
     note = fields.Char("Примітка")
     ua_doc_state = fields.Selection(STATE, string="Стан", compute="_compute_ua_doc_state")
@@ -60,6 +76,53 @@ class UaEmployeeDocument(models.Model):
     report_xmlid = fields.Char("Звіт (xmlid)")
     res_model = fields.Char("Модель джерела")
     res_id = fields.Integer("ID джерела")
+
+    # -- скан як вкладення картки працівника ------------------------------------------------------
+    @api.depends("attachment_id")
+    def _compute_file(self):
+        for doc in self:
+            doc.file = doc.attachment_id.sudo().datas if doc.attachment_id else False
+
+    def _inverse_file(self):
+        Attachment = self.env["ir.attachment"].sudo()
+        for doc in self:
+            attachment = doc.attachment_id.sudo()
+            if not doc.file:
+                if attachment:
+                    attachment.unlink()
+                doc.attachment_id = False
+                continue
+            values = doc._ua_attachment_values()
+            values["datas"] = doc.file
+            if attachment:
+                attachment.write(values)
+            else:
+                doc.attachment_id = Attachment.create(values)
+
+    def _ua_attachment_values(self):
+        """Куди лягає скан: вкладення працівника, назване так, як документ."""
+        self.ensure_one()
+        employee = self.employee_id.sudo()
+        return {
+            "name": self.filename or self.name or "документ",
+            "res_model": "hr.employee",
+            "res_id": employee.id,
+            "company_id": employee.company_id.id or False,
+        }
+
+    def write(self, vals):
+        res = super().write(vals)
+        # перейменували документ або перевели його на іншого працівника - вкладення їде слідом
+        if {"filename", "name", "employee_id"} & set(vals):
+            for doc in self.filtered("attachment_id"):
+                doc.attachment_id.sudo().write(doc._ua_attachment_values())
+        return res
+
+    def unlink(self):
+        attachments = self.mapped("attachment_id").sudo()
+        res = super().unlink()
+        attachments.unlink()
+        return res
 
     @api.depends("valid_until")
     def _compute_ua_doc_state(self):

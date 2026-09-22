@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <menuitem id="menu_ua_payment_batch" name="Відомості на перерахування" parent="l10n_ua_payroll_ui.menu_ua_payroll_calc"
-            action="l10n_ua_payments.action_ua_payment_batch" sequence="6" groups="hr.group_hr_user"/>
+            action="l10n_ua_payments.action_ua_payment_order" sequence="6" groups="hr.group_hr_user"/>
   <menuitem id="menu_ua_advance_sheet" name="Авансові відомості" parent="l10n_ua_payroll_ui.menu_ua_payroll_calc"
             action="l10n_ua_payroll_rules.action_ua_advance_sheet" sequence="4" groups="hr.group_hr_user"/>
 </odoo>

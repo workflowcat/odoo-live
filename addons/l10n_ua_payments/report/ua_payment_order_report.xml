@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_payment_order" model="ir.actions.report">
+    <field name="name">Відомість на перерахування</field>
+    <field name="model">account.payment.order</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_payments.report_ua_payment_order</field>
+    <field name="report_file">l10n_ua_payments.report_ua_payment_order</field>
+    <field name="print_report_name">'Відомість %s' % (object.ua_label or object.name)</field>
+    <field name="binding_model_id" ref="account_payment_order.model_account_payment_order"/>
+    <field name="binding_type">report</field>
+  </record>
+
+  <template id="report_ua_payment_order">
+    <t t-call="web.basic_layout">
+      <t t-foreach="docs" t-as="doc">
+        <div class="page" style="font-family: DejaVu Sans, sans-serif; font-size:11px;">
+          <h3 style="margin-bottom:2px;">Відомість № <t t-out="doc.name or '____'"/> від <t t-out="doc.ua_pay_date.strftime('%d.%m.%Y') if doc.ua_pay_date else '____________'"/></h3>
+          <div>
+            <t t-out="doc.company_id.name"/> · <t t-out="doc.ua_label or ''"/>
+            <t t-if="doc.ua_pay_date"> · дата виплати <t t-out="doc.ua_pay_date.strftime('%d.%m.%Y')"/></t>
+            <t t-if="doc.journal_id"> · <t t-out="doc.journal_id.name"/></t>
+          </div>
+          <table class="table table-sm" style="font-size:11px; margin-top:10px;">
+            <thead>
+              <tr><th>№</th><th>Працівник</th><th>РНОКПП</th><th>Рахунок</th><th class="text-end">Сума, грн</th></tr>
+            </thead>
+            <tbody>
+              <tr t-foreach="doc.payment_line_ids" t-as="line">
+                <td><t t-out="line_index + 1"/></td>
+                <td><t t-out="line.ua_payee_name"/></td>
+                <td><t t-out="line.ua_payee_code"/></td>
+                <td><t t-out="line.ua_payee_iban"/></td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(line.amount_currency).replace(',', '&#160;').replace('.', ',')"/></td>
+              </tr>
+              <tr style="font-weight:bold; border-top:2px solid #333;">
+                <td></td><td>Разом</td><td></td><td></td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(doc.total_company_currency).replace(',', '&#160;').replace('.', ',')"/></td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="margin-top:8px;">Призначення платежу: <t t-out="doc._ua_purpose()"/>.</div>
+          <table style="width:100%; margin-top:24px; font-size:11px;"><tr>
+            <td style="width:50%">Керівник ____________________ <t t-out="doc.company_id.ua_director_name or ''"/></td>
+            <td>Головний бухгалтер ____________________ <t t-out="doc.company_id.ua_accountant_name or ''"/></td>
+          </tr></table>
+        </div>
+      </t>
+    </t>
+  </template>
+</odoo>

@@ -1,5 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_ua_payment_batch_hr,ua.payment.batch hr,model_ua_payment_batch,hr.group_hr_user,1,1,1,1
-access_ua_payment_batch_user,ua.payment.batch user,model_ua_payment_batch,base.group_user,1,0,0,0
-access_ua_payment_line_hr,ua.payment.line hr,model_ua_payment_line,hr.group_hr_user,1,1,1,1
-access_ua_payment_line_user,ua.payment.line user,model_ua_payment_line,base.group_user,1,0,0,0

@@ -94,9 +94,13 @@ for a in advances:
     check_record_checks(a, f"Аванс {a.name}")
 
 # ---- Відомість на перерахування
-batches = env["ua.payment.batch"].sudo().search([("company_id", "=", company.id)], limit=5)
+# Доручень на місяць тепер кілька видів (аванс, зарплата, податки, інша виплата) і в кожного
+# свій стан - беремо ширшу вибірку, найсвіжіші місяці першими.
+batches = env["account.payment.order"].sudo().search([
+    ("company_id", "=", company.id), ("ua_kind", "!=", False)],
+    order="ua_year desc, ua_month desc, id desc", limit=8)
 for b in batches:
-    check_record_checks(b, f"Відомість {b.name}")
+    check_record_checks(b, f"Відомість {b.ua_label}")
 if not batches:
     print("(немає відомостей на перерахування в демоданих - пропущено)")
 

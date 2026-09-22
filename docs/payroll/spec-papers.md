@@ -146,7 +146,7 @@
 | timesheet | Табель обліку робочого часу | ua.timesheet.sheet | l10n_ua_hr_docs.action_report_ua_timesheet |
 | staff_list | Штатний розпис | ua.staff.list | l10n_ua_hr_docs.action_report_ua_staff_list |
 | advance | Авансова відомість | ua.advance.sheet | l10n_ua_payroll_reports.action_report_ua_advance_sheet |
-| payment_batch | Відомість на перерахування | ua.payment.batch | l10n_ua_payments.action_report_ua_payment_batch |
+| payment_batch | Відомість на перерахування | account.payment.order | l10n_ua_payments.action_report_ua_payment_order |
 | payroll_sheet | Розрахунково-платіжна відомість | hr.payslip.run | l10n_ua_payroll_reports.action_report_ua_payroll_sheet |
 
 Група `person` - на людину (поле-вибір запису за період):

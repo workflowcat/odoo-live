@@ -186,34 +186,36 @@ class AccountBankStatementLine(models.Model):
         return day.year, day.month
 
 
-class UaPaymentBatch(models.Model):
-    _name = "ua.payment.batch"
-    _inherit = ["ua.payment.batch", "ua.change.mixin"]
+class AccountPaymentOrder(models.Model):
+    _name = "account.payment.order"
+    _inherit = ["account.payment.order", "ua.change.mixin"]
 
     _ua_change_area = "bank"
-    _ua_change_fields = {"state": "Стан відомості", "pay_date": "Дата виплати",
+    _ua_change_fields = {"state": "Стан відомості", "ua_pay_date": "Дата виплати",
                          "journal_id": "Банк"}
 
     def _ua_change_period(self):
-        return self.year, self.month
+        # звичайне доручення OCA місяця відомості не має - тоді поточний
+        return (self.ua_year, self.ua_month) if self.ua_year else super()._ua_change_period()
 
 
-class UaPaymentLine(models.Model):
-    _name = "ua.payment.line"
-    _inherit = ["ua.payment.line", "ua.change.mixin"]
+class AccountPaymentLine(models.Model):
+    _name = "account.payment.line"
+    _inherit = ["account.payment.line", "ua.change.mixin"]
 
     _ua_change_area = "bank"
-    _ua_change_fields = {"amount": "Сума до виплати", "account_number": "Рахунок (IBAN)"}
+    _ua_change_fields = {"amount_currency": "Сума до виплати", "partner_bank_id": "Рахунок (IBAN)"}
     _ua_change_unlink = False
 
     def _ua_change_label(self):
-        return self.employee_id.name or ""
+        return self.ua_employee_id.name or self.ua_label or ""
 
     def _ua_change_company(self):
-        return self.batch_id.company_id or self.env.company
+        return self.order_id.company_id or self.env.company
 
     def _ua_change_period(self):
-        return self.batch_id.year, self.batch_id.month
+        order = self.order_id
+        return (order.ua_year, order.ua_month) if order.ua_year else super()._ua_change_period()
 
 
 class UaAdvanceSheet(models.Model):

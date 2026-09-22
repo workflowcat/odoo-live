@@ -32,13 +32,20 @@ class UaHrOrder(models.Model):
         ])
 
     def _ua_effect_payments(self):
+        """Рядки відомості на перерахування за місяць наказу.
+
+        Відомості живуть в l10n_ua_payments, який не є залежністю наказів: без нього
+        просто немає рядків виплати, а не помилка."""
         self.ensure_one()
+        if "account.payment.line" not in self.env:
+            return []
+        Line = self.env["account.payment.line"]
         if not self.employee_id:
-            return self.env["ua.payment.line"]
+            return Line
         first, _day = self._ua_effect_period()
-        return self.env["ua.payment.line"].search([
-            ("employee_id", "=", self.employee_id.id),
-            ("batch_id.year", "=", first.year), ("batch_id.month", "=", first.month),
+        return Line.search([
+            ("ua_employee_id", "=", self.employee_id.id),
+            ("order_id.ua_year", "=", first.year), ("order_id.ua_month", "=", first.month),
         ])
 
     @api.depends("state", "employee_id", "date", "date_from", "version_id", "leave_id")
@@ -81,6 +88,6 @@ class UaHrOrder(models.Model):
     def action_ua_open_payments(self):
         self.ensure_one()
         lines = self._ua_effect_payments()
-        return {"type": "ir.actions.act_window", "res_model": "ua.payment.line", "name": _("Рядки виплати"),
-                "domain": [("id", "in", lines.ids)], "view_mode": "list,form",
+        return {"type": "ir.actions.act_window", "res_model": "account.payment.line", "name": _("Рядки виплати"),
+                "domain": [("id", "in", lines.ids if lines else [])], "view_mode": "list,form",
                 "views": [(False, "list"), (False, "form")], "target": "current"}
