@@ -6,7 +6,9 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
-concurrency: { group: tests-${{ github.ref }}, cancel-in-progress: true }
+concurrency:
+  group: "tests-${{ github.ref }}"
+  cancel-in-progress: true
 jobs:
   contract:
     runs-on: ubuntu-latest
