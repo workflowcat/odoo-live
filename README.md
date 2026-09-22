@@ -1,31 +1,59 @@
 # odoo-live
 
-Odoo 19 Community as a product platform for Bot&Partners, wired to the tools we already run:
-OpenDataBot (ЄДР, courts), kyc-service (the group KYC register on Cloudflare D1), Gmail.
-First product on it: the **KYC process** (`addons/bp_kyc`).
+Український бек-офіс на Odoo 19 Community для Bot&Partners: зарплата і кадри, бухоблік з ПДВ,
+банк і каса, основні засоби, фінзвітність, первинні документи, ФОП, закупівлі з розбором рахунків,
+KYC і ЄДР. Одна гілка `main`, одна система.
 
-Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how it is built and how to build on it.
+Правила: спершу нативний Odoo, потім OCA 19.0 без змін, наше українське - тонко зверху.
+Логіка окремо від інтерфейсу (`scripts/layers_check.py` стежить). Кожен модуль ставиться на
+порожню базу і має справжні Odoo-тести. Гроші звіряються з одним файлом чисел, який підтверджує
+бухгалтер.
 
-## Pieces
-
-| Piece | Where | What |
-|---|---|---|
-| Live database | Supabase project `odoo-live` (Frankfurt, Postgres 17) | the one real database; attachments stored in it too |
-| Odoo compute | `docker-compose.live.yml` on any Docker host; `odoo/Dockerfile` for Cloudflare Containers | stateless: nothing of value on its disk |
-| Integration bridge | Cloudflare Worker `odoo-live` (`worker/`) at https://odoo-live.botpartners.workers.dev | holds every vendor key; Odoo holds one token |
-| Bridge client in Odoo | `addons/bp_bridge` | the abstract model `bp.bridge`; every module that calls outside depends on it |
-| KYC product | `addons/bp_kyc` | cases, screening, checklist, decision, register sync, mail |
-| Local dev | `docker-compose.yml` (Odoo + local Postgres, port 8100) | fast loop; same addons |
-
-## Run
+## Швидкий старт
 
 ```bash
-cp .env.example .env            # fill in
-docker compose up -d            # local dev on http://127.0.0.1:8100
-docker compose -f docker-compose.live.yml up -d --build   # Odoo against the live Supabase DB on http://127.0.0.1:8101
-cd worker && wrangler deploy    # bridge
+cp .env.example .env                 # заповнити; .env не в репозиторії
+./scripts/demo_server.sh reset       # база demo з усіма модулями, сервер на http://127.0.0.1:8131
+python3 scripts/demo_business.py     # ТОВ «Ясен Меблі»: зарплата, продажі, склад, виробництво, ПДВ, банк, каса, ОЗ
+./scripts/test.sh                    # еталонні тести зарплати на свіжій базі (~25 с)
+TEST_TAGS=ua_golden,ua_leaves,ua_payments,ua_regress ./scripts/test.sh
+./scripts/check_all.sh               # 32 перевірки стенду (docker compose up -d, порт ODOO_PORT з .env)
 ```
 
-Install or update the module: `docker compose run --rm odoo odoo -d odoo -u bp_kyc --stop-after-init`.
+Повне встановлення продукту на порожню базу: `-i l10n_ua_home` (тягне все, ~107 модулів).
 
-Secrets live in `.env` (Mac) and as Worker secrets (`wrangler secret put BRIDGE_TOKEN|OPENDATABOT_API_KEY|KYC_API_KEY`). Never in the repo, never in Odoo.
+## Що де
+
+| Шар | Модулі |
+| --- | --- |
+| Міст назовні | `bp_bridge` (клієнт), Worker `worker/` (OpenDataBot, kyc-service) |
+| Контрагенти | `l10n_ua_partner_edr`, `bp_kyc` |
+| Зарплата | `l10n_ua_payroll_rules`, `l10n_ua_average`, `l10n_ua_index`, `l10n_ua_gph`, `l10n_ua_payroll_account`, `l10n_ua_payments` (на OCA `account_payment_order`) |
+| Кадри | `l10n_ua_hr_card`, `l10n_ua_hr_orders`, `l10n_ua_hr_docs`, `l10n_ua_military`, `l10n_ua_kp`, `l10n_ua_onboarding`, `l10n_ua_hire` |
+| Звітність ДПС | `l10n_ua_payroll_reports`, `l10n_ua_reporting` |
+| Контроль | `l10n_ua_changes`, `l10n_ua_explain`, перевірки `ua.checks.mixin` |
+| Бухоблік | `l10n_ua_chart`, `l10n_ua_vat`, `l10n_ua_ledger`, `l10n_ua_finrep` (mis_builder), `l10n_ua_assets` (account_asset_management), `l10n_ua_nbu` (currency_rate_update), `l10n_ua_cash`, `l10n_ua_bank`, `l10n_ua_bank_online`, `l10n_ua_docs` (+ `_sale`, `_stock`), `l10n_ua_fop`, `l10n_ua_migrate` |
+| Закупівлі | `bp_purchase_intake` |
+| Інтерфейс | `l10n_ua_screen` (API екранів), `l10n_ua_shell`, `l10n_ua_navigation`, `l10n_ua_home`, `l10n_ua_period`, `l10n_ua_papers`, `l10n_ua_people`, `l10n_ua_dashboard`, `l10n_ua_card_ui`, `l10n_ua_hire_ui`, `l10n_ua_reporting_ui`, `l10n_ua_setup_ui`, `l10n_ua_bank_ui` |
+| OCA без змін | див. `docs/base/oca-vendored.md` (коміти в `addons/OCA_*.commit`) |
+| Поза Odoo | `assistant/` (вебасистент працівника, Worker), `reference/payroll_core` (незалежний перерахунок зарплати) |
+
+## Документи
+
+- `docs/ARCHITECTURE.md` - три шари: Odoo, база, міст.
+- `docs/base/demo-space-plan.md` - задум демо-простору і хвилі робіт.
+- `docs/base/review-2026-09-21.md`, `native-fit-2026-09-21.md` - огляд і карта «нативне / OCA / наше».
+- `docs/base/spec-*.md` - опис кожного облікового модуля.
+- `docs/base/questions-for-accountant.md` - усі питання до бухгалтера одним списком.
+- `docs/payroll/` - зарплата: README, еталонні сценарії, аркуш для бухгалтера, специфікації.
+- `docs/purchase/README.md` - розбір вхідних рахунків.
+- `docs/base/demo-data.md` - як зібрати демо і що в ньому є.
+
+## Стенди
+
+- Розробка: `docker compose up -d`, порт `ODOO_PORT` з `.env`, база `payroll` (копія продукту).
+- Демо: `scripts/demo_server.sh start|stop|reset`, порт 8131, база `demo`.
+- Живий сервер: буде на Hetzner (Odoo + Postgres на одній машині, Worker як вхідні двері);
+  `docker-compose.live.yml` і `odoo/Dockerfile` для цього.
+
+Секрети: `.env` на Mac і секрети Worker. Ніколи в репозиторії, ніколи в Odoo.
