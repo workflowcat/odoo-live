@@ -23,7 +23,7 @@
                    "заповнення.\n\n"
                    "Опис у docs/base/spec-mrp-stock.md, виклики для зовнішнього клієнта - "
                    "у docs/base/spec-stock-api-notes.md.",
-    "version": "19.0.1.0.1",
+    "version": "19.0.1.0.2",
     "category": "Inventory/Localizations",
     "author": "Bot&Partners",
     "license": "LGPL-3",

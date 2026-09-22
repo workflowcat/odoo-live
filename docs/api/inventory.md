@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 42. Моделей: 100. Методів: 282. Збережених полів на чужих моделях: 263.
+Модулів: 42. Моделей: 100. Методів: 283. Збережених полів на чужих моделях: 264.
 
 ## Зарплата
 
@@ -1118,11 +1118,16 @@
 
 доповнена модель · `l10n_ua_docs_stock`, `l10n_ua_stock_docs`
 
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `ua_get_or_create(client_ref, vals=None)` | Доставка за міткою клієнта: є - віддаємо, немає - створюємо. | `l10n_ua_stock_docs` |
+
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `ua_act_condition` | Char | Стан цінностей | `l10n_ua_stock_docs` |
 | `ua_act_handover` | Char | Передав (ПІБ, посада) | `l10n_ua_stock_docs` |
 | `ua_act_receiver` | Char | Прийняв (ПІБ, посада) | `l10n_ua_stock_docs` |
+| `ua_client_ref` | Char | Мітка операції | `l10n_ua_stock_docs` |
 | `ua_proxy_date` | Date | Дата довіреності | `l10n_ua_docs_stock` |
 | `ua_proxy_number` | Char | Довіреність № | `l10n_ua_docs_stock` |
 | `ua_proxy_person` | Char | Видана на (ПІБ) | `l10n_ua_docs_stock` |

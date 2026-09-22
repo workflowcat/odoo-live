@@ -2,8 +2,8 @@
   "totals": {
     "modules": 42,
     "models": 100,
-    "methods": 282,
-    "fields": 263
+    "methods": 283,
+    "fields": 264
   },
   "areas": [
     {
@@ -4669,7 +4669,18 @@
             "l10n_ua_docs_stock",
             "l10n_ua_stock_docs"
           ],
-          "methods": [],
+          "methods": [
+            {
+              "name": "ua_get_or_create",
+              "signature": "ua_get_or_create(client_ref, vals=None)",
+              "doc": "Доставка за міткою клієнта: є - віддаємо, немає - створюємо.",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_picking.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
           "fields": [
             {
               "name": "ua_act_condition",
@@ -4691,6 +4702,14 @@
               "name": "ua_act_receiver",
               "type": "Char",
               "label": "Прийняв (ПІБ, посада)",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_picking.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_client_ref",
+              "type": "Char",
+              "label": "Мітка операції",
               "module": "l10n_ua_stock_docs",
               "file": "addons/l10n_ua_stock_docs/models/stock_picking.py",
               "groups": ""

@@ -12,6 +12,8 @@ l10n_ua_mrp. Тут воно ставиться руками в setUpClass - р�
 
 Запуск: чиста база через docker compose run, теги ua_stock_docs.
 """
+from unittest.mock import patch
+
 from odoo import fields
 from odoo.tests import tagged
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
@@ -112,6 +114,48 @@ class TestUaStockDocs(AccountTestInvoicingCommon):
     def _last_line_id(self):
         line = self.env["account.move.line"].search([], order="id desc", limit=1)
         return line.id or 0
+
+    def _shelf(self, name, capacity=20, parent=None):
+        return self.env["stock.location"].sudo().create({
+            "name": name,
+            "location_id": (parent or self.stock_location).id,
+            "usage": "internal",
+            "company_id": self.company.id,
+            "ua_capacity": capacity,
+        })
+
+    def _put(self, product, quantity, location):
+        self.env["stock.quant"].with_context(inventory_mode=True).create({
+            "product_id": product.id,
+            "location_id": location.id,
+            "inventory_quantity": quantity,
+        }).action_apply_inventory()
+
+    def _picking_values(self, **extra):
+        values = {
+            "picking_type_id": self.warehouse.in_type_id.id,
+            "location_id": self.env.ref("stock.stock_location_suppliers").id,
+            "location_dest_id": self.stock_location.id,
+        }
+        values.update(extra)
+        return values
+
+    def _count_quant_queries(self, run):
+        """Скільки запитів до stock_quant зробив виклик. Повертає (результат, лічильник)."""
+        self.env.flush_all()
+        self.env.invalidate_all()
+        cursor = type(self.env.cr)
+        original = cursor.execute
+        seen = []
+
+        def spy(cr, query, *args, **kwargs):
+            if "stock_quant" in str(query):
+                seen.append(str(query))
+            return original(cr, query, *args, **kwargs)
+
+        with patch.object(cursor, "execute", spy):
+            result = run()
+        return result, len(seen)
 
     # --- 1. Рахунок втрат прийшов разом із планом рахунків ----------------
     def test_01_loss_account_on_locations(self):
@@ -436,3 +480,84 @@ class TestUaStockDocs(AccountTestInvoicingCommon):
         self.varnish.product_tmpl_id.ua_size = False
         shelf.invalidate_recordset()
         self.assertEqual(shelf.ua_capacity_used, 21)
+
+    # --- 18. Зайнято місць рахується одним запитом по квантах --------------
+    def test_18_capacity_used_is_one_query(self):
+        """Три полиці під однією зоною: числа ті самі, запит по квантах один."""
+        zone = self._shelf("Зона В", capacity=100)
+        first = self._shelf("Полиця В1", capacity=20, parent=zone)
+        second = self._shelf("Полиця В2", capacity=20, parent=zone)
+        third = self._shelf("Полиця В3", capacity=20, parent=zone)
+        self.board.product_tmpl_id.ua_size = "l"     # 16 місць
+        self.varnish.product_tmpl_id.ua_size = "m"   # 4 місця
+        self.handle.product_tmpl_id.ua_size = "s"    # 1 місце
+
+        self._put(self.board, 1.0, first)            # 1 × 16 = 16
+        self._put(self.varnish, 2.0, first)          # 2 × 4  = 8  -> В1 = 24
+        self._put(self.varnish, 3.0, second)         # 3 × 4  = 12 -> В2 = 12
+        self._put(self.handle, 7.0, third)           # 7 × 1  = 7  -> В3 = 7
+
+        shelves = first + second + third
+        values, queries = self._count_quant_queries(
+            lambda: [shelf.ua_capacity_used for shelf in shelves])
+        self.assertEqual(values, [24, 12, 7])
+        self.assertEqual(
+            queries, 1,
+            "залишки трьох полиць мають читатися одним запитом, а не по полиці")
+
+        # зона бачить суму дітей: 24 + 12 + 7 = 43, теж за один запит
+        zone.invalidate_recordset()
+        total, queries = self._count_quant_queries(lambda: zone.ua_capacity_used)
+        self.assertEqual(total, 43)
+        self.assertEqual(queries, 1)
+
+    # --- 19. Мітка операції на доставці: другий виклик віддає ту саму -------
+    def test_19_picking_get_or_create_is_idempotent(self):
+        Picking = self.env["stock.picking"]
+        first = Picking.ua_get_or_create("web-2026-09-22-01", self._picking_values())
+        second = Picking.ua_get_or_create("web-2026-09-22-01", self._picking_values())
+        self.assertEqual(first, second)
+        self.assertEqual(
+            Picking.search_count([("ua_client_ref", "=", "web-2026-09-22-01")]), 1)
+        self.assertEqual(first.company_id, self.company)
+
+        # інша мітка - інша доставка
+        third = Picking.ua_get_or_create("web-2026-09-22-02", self._picking_values())
+        self.assertNotEqual(first, third)
+
+        # мітка обовʼязкова
+        with self.assertRaises(Exception):
+            Picking.ua_get_or_create(False, self._picking_values())
+
+    # --- 20. Мітка унікальна в межах компанії, а не глобально ---------------
+    def test_20_picking_client_ref_scope(self):
+        Picking = self.env["stock.picking"]
+        ref = "web-2026-09-22-03"
+        mine = Picking.ua_get_or_create(ref, self._picking_values())
+
+        # дубль у своїй компанії не пройде: спрацює UNIQUE(company_id, ua_client_ref)
+        with self.assertRaises(Exception), self.cr.savepoint():
+            Picking.create(self._picking_values(ua_client_ref=ref))
+            self.env.flush_all()
+
+        # у чужій компанії та сама мітка - окрема доставка
+        other = self.env["res.company"].create({"name": "Друга компанія"})
+        warehouse = self.env["stock.warehouse"].search(
+            [("company_id", "=", other.id)], limit=1)
+        self.assertTrue(warehouse, "нова компанія має отримати склад від stock")
+        theirs = Picking.with_company(other).ua_get_or_create(ref, {
+            "picking_type_id": warehouse.in_type_id.id,
+            "location_id": self.env.ref("stock.stock_location_suppliers").id,
+            "location_dest_id": warehouse.lot_stock_id.id,
+        })
+        self.assertNotEqual(mine, theirs)
+        self.assertEqual(theirs.company_id, other)
+        self.assertEqual(theirs.ua_client_ref, ref)
+
+        # повтор у чужій компанії теж ідемпотентний
+        again = Picking.with_company(other).ua_get_or_create(ref, {
+            "picking_type_id": warehouse.in_type_id.id,
+            "location_id": self.env.ref("stock.stock_location_suppliers").id,
+            "location_dest_id": warehouse.lot_stock_id.id,
+        })
+        self.assertEqual(theirs, again)

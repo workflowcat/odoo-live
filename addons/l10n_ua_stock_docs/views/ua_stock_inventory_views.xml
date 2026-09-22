@@ -101,4 +101,18 @@
     </field>
   </record>
 
+  <!-- Мітка операції зовнішнього клієнта: на вкладці «Додаткова інформація»,
+       поруч із рештою службових полів доставки. Комірник її не заповнює, але
+       бачить, коли треба звірити документ із заявкою в складському екрані. -->
+  <record id="view_picking_form_ua_client_ref" model="ir.ui.view">
+    <field name="name">stock.picking.form.ua.client.ref</field>
+    <field name="model">stock.picking</field>
+    <field name="inherit_id" ref="stock.view_picking_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//page[@name='extra']//group[@name='other_infos']" position="inside">
+        <field name="ua_client_ref" readonly="state in ['cancel', 'done']"/>
+      </xpath>
+    </field>
+  </record>
+
 </odoo>
