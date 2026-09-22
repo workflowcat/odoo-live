@@ -97,6 +97,56 @@ class TestChartLoadedAfterInstall(TransactionCase):
             [("type", "=", "sale"), ("company_id", "=", self.company.id)], limit=1)
         self.assertEqual(journal.with_context(lang="uk_UA").name, "Реалізація")
 
+    def test_account_names_are_ukrainian_after_the_chart_is_loaded(self):
+        """201 - «Сировина й матеріали», а не «Raw materials and supplies».
+
+        Переклади плану брало `_load_translations` одним заходом на всі компанії
+        разом. Компанія без плану (а на встановленні модуля таких усі) валила
+        виклик, і в лог ішло «Не вдалося застосувати переклади плану рахунків» -
+        після чого назви рахунків лишалися англійськими в усіх компаній, навіть
+        у тієї, чий план щойно завантажили. Тепер кожна компанія перекладається
+        окремо, а компанія без плану просто пропускається.
+        """
+        chartless = self.env["res.company"].create({"name": "Без плану рахунків"})
+        self.assertFalse(chartless.chart_template)
+        self._load_chart()
+        Account = self.env["account.account"].with_company(self.company)
+        account = Account.search(
+            [("code", "=", "201"), ("company_ids", "in", self.company.id)])
+        self.assertEqual(len(account), 1, "рахунок 201 має бути рівно один")
+        self.assertEqual(account.with_context(lang="uk_UA").name,
+                         "Сировина й матеріали")
+
+    def test_chart_shape_repairs_an_already_loaded_chart(self):
+        """Ремонт бази, де план уже стоїть, а назви англійські.
+
+        Це шлях `post_init_hook`. Раніше він брав усі компанії одним викликом
+        `_load_translations`, і перша ж компанія без плану валила його
+        TypeError - у лог ішло «Не вдалося застосувати переклади плану
+        рахунків», і жодна компанія перекладу не отримувала.
+        """
+        from odoo.addons.l10n_ua_chart.hooks import apply_chart_shape
+        self._load_chart()
+        self.env["res.company"].create({"name": "Друга без плану"})
+        Account = self.env["account.account"].with_company(self.company)
+        account = Account.search(
+            [("code", "=", "201"), ("company_ids", "in", self.company.id)])
+        # знімаємо український переклад - так виглядає база, яку треба лагодити
+        self.env.cr.execute(
+            "UPDATE account_account SET name = name - 'uk_UA' WHERE id = %s",
+            (account.id,))
+        account.invalidate_recordset(["name"])
+        self.assertEqual(account.with_context(lang="uk_UA").name,
+                         "Raw materials and supplies")
+
+        apply_chart_shape(self.env)
+
+        account.invalidate_recordset(["name"])
+        self.assertEqual(account.with_context(lang="uk_UA").name,
+                         "Сировина й матеріали",
+                         "хук має повернути українську назву, а не спинитися "
+                         "на компанії без плану")
+
     def test_cash_journal_appears_with_the_chart(self):
         self._load_chart()
         journals = self.env["account.journal"].search(

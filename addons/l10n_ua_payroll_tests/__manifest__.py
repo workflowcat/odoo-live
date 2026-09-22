@@ -13,6 +13,8 @@
     "depends": [
         "l10n_ua_stock_docs",
         "l10n_ua_mrp",
+        # ціна рядка замовлення з запиту на закупівлю (тег ua_purchase)
+        "l10n_ua_purchase",
         "l10n_ua_payroll_rules",
         "l10n_ua_average",
         # ознаки права на відпустку (УБД, одинокий батько/мати, діти) живуть у картці

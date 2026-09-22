@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 """Дата інвентаризації і дата проводки оцінки запасів.
 
-Знайдено на збірці демо-простору. Документ `ua.stock.inventory` має свою дату -
-її друкує інвентаризаційний опис і нею датується проводка лишків 947 -> 719,
-яку складає сам модуль. А коригування залишків модуль віддає нативному
-`action_apply_inventory()` без дати, тому нативна проводка оцінки запасів
-(Дт 201 / Кт 947 на лишок, Дт 947 / Кт 201 на нестачу) датується сьогоднішнім
-днем. Два боки однієї операції розʼїжджаються по періодах: у вересні висить
-дебет 947 без зустрічного кредиту 201, а в жовтні - навпаки.
+Знайдено на збірці демо-простору, виправлено в `l10n_ua_stock_docs`. Документ
+`ua.stock.inventory` має свою дату: її друкує інвентаризаційний опис, нею
+датується проводка лишків 947 -> 719, яку складає сам модуль, і нею ж тепер
+датується нативна проводка оцінки запасів (Дт 201 / Кт 947 на лишок,
+Дт 947 / Кт 201 на нестачу) - документ передає дату через `force_period_date`,
+ключ, який читає нативний `stock_account`. Раніше нативна сторона лягала
+сьогоднішнім днем, і два боки однієї операції розʼїжджалися по періодах.
 
-Обхід, яким користується `scripts/demo_business.py`: кликати `action_apply`
-з `force_period_date` у контексті. Нативний `stock_account` читає цей ключ і
-ставить дату документа. Обидва тести тут - про це: перший фіксує розбіжність
-як вона є, другий показує, що контекст її знімає.
+Звідси ж друге правило: дата в майбутньому не приймається. Нативне мʼяке
+проведення (`_post(soft=True)`) відклало б свою проводку в чернетку з
+автопроведенням, а наша лягла б у книги одразу - на 947 висів би дебет без
+зустрічного кредиту 201. Запаси рахують у день підрахунку, тому документ
+відмовляє з UserError, а не вигадує спосіб порахувати наперед.
 
 Модуль тестів не залежить від `l10n_ua_stock_docs`, тому без нього тести
 пропускаються. Теги: ua_demo_costing.
@@ -20,6 +21,7 @@
 from dateutil.relativedelta import relativedelta
 
 from odoo import fields
+from odoo.exceptions import UserError
 from odoo.tests import tagged
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
@@ -71,34 +73,31 @@ class TestDemoInventoryDates(AccountTestInvoicingCommon):
             "location_id": self.warehouse.lot_stock_id.id,
             "inventory_quantity": 10.0,
         }).action_apply_inventory()
-        # Дата документа - минулий місяць: у майбутньому мʼяке проведення відклало б
-        # проводку в чернетку, і тест перевіряв би вже іншу історію.
-        self.doc_date = fields.Date.context_today(self.env.user) - relativedelta(days=20)
+        self.today = fields.Date.context_today(self.env.user)
+        self.doc_date = self.today - relativedelta(days=20)
         # Засів складу сам дає проводку Дт 201 / Кт 947, тому рахуємо тільки те,
         # що зʼявиться після нього.
         self.mark = self.env["account.move.line"].search([], order="id desc", limit=1).id or 0
 
     # --- службове -------------------------------------------------------
 
-    def _inventory(self):
+    def _inventory(self, date=None):
         return self.env["ua.stock.inventory"].create({
             "company_id": self.company.id,
-            "date": self.doc_date,
+            "date": date or self.doc_date,
             "location_id": self.warehouse.lot_stock_id.id,
             "basis": "Наказ № 1 (тест дат)",
             "chair": "Петренко П. П.",
             "keeper": "Коваленко К. К.",
         })
 
-    def _surplus(self, quantity=4.0, context=None):
-        """Провести інвентаризацію з лишком і віддати створені проводки."""
-        inventory = self._inventory()
+    def _counted(self, quantity=4.0, date=None):
+        """Опис, заповнений залишками, з однією розбіжністю. Ще не проведений."""
+        inventory = self._inventory(date)
         inventory.action_fill()
         line = inventory.line_ids.filtered(lambda l: l.product_id == self.product)
         line.qty_fact = line.qty_book + quantity
-        inventory.with_context(**(context or {})).action_apply()
-        native = inventory.move_ids.account_move_id
-        return inventory, native
+        return inventory
 
     def _balance(self, xmlid):
         account = self.chart.ref(xmlid)
@@ -110,31 +109,47 @@ class TestDemoInventoryDates(AccountTestInvoicingCommon):
         ])
         return round(sum(lines.mapped("balance")), 2)
 
-    # --- 1. Без контексту дати розходяться -------------------------------
-    def test_01_native_entry_keeps_today_not_document_date(self):
-        today = fields.Date.context_today(self.env.user)
-        inventory, native = self._surplus()
+    # --- 1. Обидві сторони в одному дні -----------------------------------
+    def test_01_both_entries_carry_the_document_date(self):
+        inventory = self._counted()
+        inventory.action_apply()
+        native = inventory.move_ids.account_move_id
         self.assertEqual(inventory.state, "done")
         self.assertTrue(native, "нативне коригування не дало проводки оцінки запасів")
         self.assertEqual(
-            inventory.surplus_move_id.date, self.doc_date,
-            "проводка лишків 947 -> 719 має бути датована документом")
+            native.date, self.doc_date,
+            "нативна проводка оцінки запасів має йти датою документа, "
+            "а не днем, коли натиснули кнопку")
         self.assertEqual(
-            native.date, today,
-            "нативна проводка оцінки запасів датується сьогоднішнім днем: "
-            "документ своєї дати їй не передає")
-        self.assertNotEqual(
-            native.date, inventory.date,
-            "якщо дати збіглися, модуль почав передавати дату - оновіть тест і "
-            "заберіть force_period_date зі scripts/demo_business.py")
-
-    # --- 2. З force_period_date обидві сторони в одному дні ---------------
-    def test_02_force_period_date_puts_both_sides_in_one_day(self):
-        inventory, native = self._surplus(context={"force_period_date": self.doc_date})
-        self.assertEqual(native.date, self.doc_date)
-        self.assertEqual(inventory.surplus_move_id.date, self.doc_date)
+            inventory.surplus_move_id.date, self.doc_date,
+            "проводка лишків 947 -> 719 датується документом")
+        self.assertNotEqual(self.doc_date, self.today,
+                            "тест має порівнювати дату документа з іншим днем")
         # Лишок 4 одиниці по 100: нативне Дт 201 / Кт 947 на 400, далі документ
         # перекидає 947 -> 719. У підсумку 947 порожній, дохід стоїть на 719.
         self.assertAlmostEqual(self._balance("ua_psbp_947"), 0.0, delta=CENT)
         self.assertAlmostEqual(self._balance("ua_psbp_719"), -400.0, delta=CENT)
         self.assertAlmostEqual(inventory.amount_surplus, 400.0, delta=CENT)
+        self.assertEqual(native.state, "posted", "запис минулою датою проводиться одразу")
+
+    # --- 2. Дата в майбутньому не приймається ------------------------------
+    def test_02_future_date_is_refused(self):
+        future = self.today + relativedelta(days=8)
+        inventory = self._counted(date=future)
+        with self.assertRaises(UserError):
+            inventory.action_apply()
+        self.assertEqual(inventory.state, "counting", "документ лишається в підрахунку")
+        self.assertFalse(inventory.move_ids, "коригувань складу не сталося")
+        self.assertFalse(inventory.surplus_move_id, "проводки лишків теж немає")
+        self.assertAlmostEqual(self._balance("ua_psbp_947"), 0.0, delta=CENT)
+        self.assertAlmostEqual(self._balance("ua_psbp_719"), 0.0, delta=CENT)
+
+    # --- 3. Сьогоднішня дата проходить -------------------------------------
+    def test_03_today_is_allowed(self):
+        inventory = self._counted(date=self.today)
+        inventory.action_apply()
+        native = inventory.move_ids.account_move_id
+        self.assertEqual(inventory.state, "done")
+        self.assertEqual(native.date, self.today)
+        self.assertEqual(native.state, "posted")
+        self.assertEqual(inventory.surplus_move_id.date, self.today)

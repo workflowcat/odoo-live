@@ -40,6 +40,7 @@
               <field name="amount_material"/>
               <field name="amount_labour"/>
               <field name="amount_zvv"/>
+              <field name="zvv_basis"/>
               <field name="amount_total"/>
               <field name="currency_id" invisible="1"/>
             </group>

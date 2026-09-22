@@ -168,6 +168,21 @@ def unlock_periods():
     return {k: saved.get(k) for k in keys}
 
 
+def merge_locks(first, second):
+    """Що повертати на місце в кінці: пізніша з двох дат по кожному ключу.
+
+    Знімати блокування доводиться двічі - перед будівниками зарплати (їх лишив
+    попередній прогін) і після них (липень вони закривають самі). Повернути
+    треба те, що справді має стояти: липневу дату з другого зняття, а якщо
+    будівників пропустили - те, що було до першого.
+    """
+    out = dict(first)
+    for key, value in second.items():
+        if value and (not out.get(key) or str(value) > str(out[key])):
+            out[key] = value
+    return out
+
+
 def relock_periods(saved):
     vals = {k: v for k, v in saved.items() if v}
     if vals:
@@ -1377,13 +1392,11 @@ def purchase_requests(PR, P, tx):
             st = call("purchase.order", "read", [po],
                       ["state", "picking_ids", "invoice_ids", "order_line"])[0]
             if st["state"] in ("draft", "sent"):
-                # чарівник OCA лишає ціну нулем: каталогу постачальника в демо немає
+                # ціну ставить l10n_ua_purchase (каталог -> історія -> облікова ціна);
+                # тут лишається тільки ставка ПДВ: у рядок з чарівника вона не їде
                 for ln in call("purchase.order.line", "read", st["order_line"],
                                ["product_id", "price_unit"]):
-                    code = call("product.product", "read", [ln["product_id"][0]],
-                                ["default_code"])[0]["default_code"]
                     call("purchase.order.line", "write", [ln["id"]], {
-                        "price_unit": prices.get(code, ln["price_unit"]),
                         "tax_ids": [(6, 0, [tx["purchase20"]])] if tx["purchase20"] else False})
                 call("purchase.order", "write", [po],
                      {"date_order": order_day + " 09:00:00", "partner_ref": ref})
@@ -1488,59 +1501,39 @@ def cost_calculation():
 # =====================================================================================
 # 17. Склад: інвентаризація, акт приймання, протокол якості
 # =====================================================================================
-INVENTORY_DATE = "2026-09-30"
+# Кінець вересня, але не пізніше за сьогодні: інвентаризацію не проводять наперед
+# (l10n_ua_stock_docs зупиняє майбутню дату помилкою), а демо збирається до 30-го.
+INVENTORY_DATE = min(date(2026, 9, 30), date.today()).isoformat()
+INVENTORY_BASIS = "Наказ № 27 від 25.09.2026 про річну інвентаризацію"
 INVENTORY_SURPLUS = ("M06", 40.0)     # лишок кромки ПВХ
 INVENTORY_SHORTAGE = ("M13", -12.0)   # нестача ручок
 
 
-def _post_inventory_valuation(inv):
-    """Дописати проводки коригування залишків, якщо вони лишилися чернетками.
-
-    Нативний `_create_account_move` кличе `_post(soft=True)`, а м'яке проведення
-    відкладає запис із датою в майбутньому - опис датовано 30 вересня, а демо
-    збирається раніше. Документ інвентаризації свою проводку 947 -> 719 проводить
-    жорстко, тому без цього кроку в книгах на кілька днів висить дебет 947 без
-    зустрічного кредиту 201.
-    """
-    moves = call("ua.stock.inventory", "read", [inv], ["move_ids"])[0]["move_ids"]
-    if not moves:
-        return 0
-    entries = [m["account_move_id"][0] for m in
-               call("stock.move", "read", moves, ["account_move_id"])
-               if m["account_move_id"]]
-    drafts = call("account.move", "search", [["id", "in", entries], ["state", "=", "draft"]])
-    if drafts:
-        # Odoo не дає провести запис, у якого стоїть автопроведення на майбутню дату
-        call("account.move", "write", drafts, {"auto_post": "no"})
-        call("account.move", "action_post", drafts)
-        say(f"   інвентаризація: проведено {len(drafts)} відкладені проводки оцінки запасів")
-    return len(drafts)
-
-
 def inventory_count(P):
-    """Інвентаризація на 30 вересня: один лишок і одна нестача.
+    """Інвентаризація вересня: один лишок і одна нестача.
 
     Нативне коригування дає Дт 201 / Кт 947 на лишок і Дт 947 / Кт 201 на нестачу;
     l10n_ua_stock_docs додає проводку Дт 947 / Кт 719, бо лишок - це дохід.
+    Обидві проводки датує сам документ - скриптові доробляти нічого.
     """
     wh = call("stock.warehouse", "search_read", [["company_id", "=", COMPANY]],
               fields=["lot_stock_id"], limit=1)
     if not wh:
         say("Інвентаризація: складу не знайдено - пропущено.")
         return None
-    ids = call("ua.stock.inventory", "search", [["date", "=", INVENTORY_DATE]])
+    # шукаємо за підставою, а не за датою: дата залежить від дня збірки демо
+    ids = call("ua.stock.inventory", "search", [["basis", "=", INVENTORY_BASIS]])
     if not ids:
         ids = [call("ua.stock.inventory", "create", {
             "company_id": COMPANY, "date": INVENTORY_DATE,
             "location_id": wh[0]["lot_stock_id"][0],
-            "basis": "Наказ № 27 від 25.09.2026 про річну інвентаризацію",
+            "basis": INVENTORY_BASIS,
             "chair": "Прокопів Наталія Богданівна, головна бухгалтерка",
             "members": "Шевчук Віталій Олегович; Стефанишин Оксана Ігорівна",
             "keeper": "Комірник Мельник Ігор Романович"})]
     inv = ids[0]
     state = call("ua.stock.inventory", "read", [inv], ["state"])[0]["state"]
     if state == "done":
-        _post_inventory_valuation(inv)
         r = call("ua.stock.inventory", "read", [inv],
                  ["name", "amount_surplus", "amount_shortage"])[0]
         say(f"Інвентаризація {r['name']}: уже проведено, лишки "
@@ -1556,9 +1549,7 @@ def inventory_count(P):
             continue
         call("ua.stock.inventory.line", "write", [line[0]["id"]],
              {"qty_fact": line[0]["qty_book"] + diff})
-    call("ua.stock.inventory", "action_apply", [inv],
-         context={"force_period_date": INVENTORY_DATE})
-    _post_inventory_valuation(inv)
+    call("ua.stock.inventory", "action_apply", [inv])
     r = call("ua.stock.inventory", "read", [inv],
              ["name", "amount_surplus", "amount_shortage", "line_ids", "surplus_move_id"])[0]
     say(f"Інвентаризація {r['name']} на {INVENTORY_DATE}: {len(r['line_ids'])} позицій, "
@@ -1959,7 +1950,7 @@ def control_table(extra=None):
         f"{'сходиться' if abs(stock_side - zvv) < 1 else 'РОЗБІЖНІСТЬ ' + format(stock_side - zvv, ',.2f')}")
     say("  901 собівартість реалізації по місяцях: "
         + ", ".join(f"{m:02d}.2026 {v:,.2f}" for m, v in account_by_month("901")))
-    say(f"  Інвентаризація 30.09: лишок на 719 {account_balance('719'):,.2f}, "
+    say(f"  Інвентаризація {INVENTORY_DATE}: лишок на 719 {account_balance('719'):,.2f}, "
         f"нестача на 947 {account_balance('947'):,.2f}")
     say("-" * 96)
     rows, salary_payments, unreconciled, by_month = salary_circle()
@@ -2025,10 +2016,17 @@ def control_table(extra=None):
 def main():
     say("== база %s на %s ==" % (DB, URL))
     ensure_chart()
-    run_payroll_builders()
-    saved = unlock_periods()
+    # Знімаємо блокування ДВІЧІ. Перший раз - до будівників: липнева дата, яку
+    # повернув попередній прогін, інакше валить demo_company.py на перерахунку
+    # липневих листків (саме через це другий прогін раніше вимагав SKIP_PAYROLL=1).
+    # Другий - після будівників: липень вони закривають наново, а бізнес-частині
+    # ще писати липневу первинку.
+    before = unlock_periods()
+    saved = before
     extra = {}
     try:
+        run_payroll_builders()
+        saved = merge_locks(before, unlock_periods())
         company_details()
         admin_groups()
         PR = partners()

@@ -267,6 +267,84 @@ class TestUaPurchase(TransactionCase):
         self.assertEqual(order.ua_request_id, request)
         self.assertEqual(order.ua_expense_account_id, self.acc_92)
 
+    def _order_from_request(self, request):
+        """Провести запит чарівником OCA і віддати рядок замовлення."""
+        line = request.line_ids
+        request.button_to_approve()
+        request.button_approved()
+        wizard = self.env["purchase.request.line.make.purchase.order"].with_context(
+            active_model="purchase.request.line",
+            active_ids=line.ids,
+            active_id=line.id,
+        ).create({"supplier_id": self.vendor.id})
+        wizard.make_purchase_order()
+        return line.purchase_lines
+
+    def test_order_price_from_product_when_nothing_else_is_known(self):
+        """Чарівник OCA ставить нуль - рядок не має лишитися нульовим.
+
+        Ні каталогу постачальника, ні історії закупівель: ціна береться
+        з облікової ціни товару, як у звичайному замовленні Odoo.
+        """
+        po_line = self._order_from_request(self._request(qty=3.0))
+        self.assertAlmostEqual(po_line.price_unit, 100.0, 2)
+        self.assertAlmostEqual(po_line.order_id.amount_untaxed, 300.0, 2)
+
+    def test_order_price_from_last_confirmed_order(self):
+        """Історія важить більше за облікову ціну: 137,50 з минулого замовлення."""
+        previous = self.env["purchase.order"].create({
+            "partner_id": self.vendor.id,
+            "order_line": [(0, 0, {
+                "product_id": self.product_b.id,
+                "product_qty": 10,
+                "price_unit": 137.5,
+                "tax_ids": [(5, 0, 0)],
+            })],
+        })
+        previous.button_confirm()
+        po_line = self._order_from_request(self._request(qty=4.0, product=self.product_b))
+        self.assertAlmostEqual(po_line.price_unit, 137.5, 2)
+
+    def test_order_price_from_posted_bill(self):
+        """Замовлень не було - беремо ціну з проведеного рахунку постачальника."""
+        bill = self.env["account.move"].create({
+            "move_type": "in_invoice",
+            "partner_id": self.vendor.id,
+            "invoice_date": fields.Date.context_today(self),
+            "journal_id": self.purchase_journal.id,
+            "invoice_line_ids": [(0, 0, {
+                "product_id": self.product_b.id,
+                "quantity": 5,
+                "price_unit": 88.0,
+                "tax_ids": [(5, 0, 0)],
+                "account_id": self.acc_92.id,
+            })],
+        })
+        bill.action_post()
+        po_line = self._order_from_request(self._request(qty=2.0, product=self.product_b))
+        self.assertAlmostEqual(po_line.price_unit, 88.0, 2)
+
+    def test_order_price_from_supplierinfo_wins(self):
+        """Каталог постачальника є - ціну рахує Odoo, історію не питаємо."""
+        self.env["product.supplierinfo"].create({
+            "partner_id": self.vendor.id,
+            "product_tmpl_id": self.product_b.product_tmpl_id.id,
+            "price": 61.0,
+            "min_qty": 0.0,
+        })
+        previous = self.env["purchase.order"].create({
+            "partner_id": self.vendor.id,
+            "order_line": [(0, 0, {
+                "product_id": self.product_b.id,
+                "product_qty": 10,
+                "price_unit": 137.5,
+                "tax_ids": [(5, 0, 0)],
+            })],
+        })
+        previous.button_confirm()
+        po_line = self._order_from_request(self._request(qty=4.0, product=self.product_b))
+        self.assertAlmostEqual(po_line.price_unit, 61.0, 2)
+
     def test_expense_account_lands_on_bill(self):
         """Рахунок витрат із замовлення перебиває рахунок з товару."""
         order = self.env["purchase.order"].create({

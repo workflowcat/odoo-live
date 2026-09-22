@@ -842,6 +842,17 @@ if call("ua.period.close", "read", [q2_id], ["state"])[0]["state"] != "closed":
     call("ua.period.close", "write", [q2_id], {"state": "closed", "lock_date": "2026-06-30", "closed_user_id": UID})
     print("Q2 2026 (квартал) позначено закритим (пряме проведення стану - у модулі немає перевірки блокерів для кварталу).")
 
+# ---- далі скрипт ще пише в липень, а липень щойно закрито ------------------------------------------
+# Перезбір банківської виписки видаляє рядки виписки журналу і імпортує їх заново. На другому
+# прогоні серед них уже є липневі (їх дописує demo_business.py під липневі платежі), і видалення
+# впирається в глобальну дату блокування, яку цей самий скрипт щойно поставив. Знімаємо її до
+# кінця файлу і повертаємо в останньому рядку - так само, як demo_business.py робить навколо
+# своєї частини.
+_saved_lock = call("res.company", "read", [COMPANY], ["fiscalyear_lock_date"])[0]["fiscalyear_lock_date"]
+if _saved_lock:
+    call("res.company", "write", [COMPANY], {"fiscalyear_lock_date": False})
+    print(f"Дату блокування {_saved_lock} тимчасово знято до кінця скрипта.")
+
 # ---- виписка банку за серпень з реальних сум: аванс 20.08, податки, зарплата 04.09 ------------------
 def money(x): return f"{x:.2f}".replace(".", ",")
 rows = ["Дата;Номер документа;Контрагент;Рахунок контрагента;Призначення платежу;Дебет;Кредит;Валюта"]
@@ -878,13 +889,16 @@ open(csv_path, "w", encoding="utf-8-sig").write("\n".join(rows) + "\n")
 import base64
 jr = call("account.journal", "search_read", [["type", "=", "bank"], ["company_id", "=", COMPANY]], fields=["id"])[0]["id"]
 mp = call("account.statement.import.sheet.mapping", "search", [["name", "ilike", "Виписка"]])[0]
-for st in call("account.bank.statement", "search", [["journal_id", "=", jr]]):
-    call("account.bank.statement", "unlink", [st])
-for ln_ in call("account.bank.statement.line", "search", [["journal_id", "=", jr]]):
-    call("account.bank.statement.line", "unlink", [ln_])
-wid = call("account.statement.import", "create", {"statement_file": base64.b64encode(open(csv_path, "rb").read()).decode(), "statement_filename": os.path.basename(csv_path), "sheet_mapping_id": mp}, context={"journal_id": jr})
-call("account.statement.import", "import_file_button", [wid], context={"journal_id": jr})
-print(f"\nВиписка: {len(rows) - 1} операцій імпортовано у журнал банку ({csv_path})")
+# Імпортуємо один раз. Раніше тут спершу вимітало ВСІ виписки і рядки журналу, а на
+# другому прогоні серед них уже були липневі рядки і рядки під платежі постачальникам,
+# які дописує demo_business.py: видалення впиралося в дату блокування, а те, що встигло
+# зникнути, ніхто не відновлював - гроші зависали на 333 «в дорозі».
+if call("account.bank.statement", "search_count", [["journal_id", "=", jr]]):
+    print(f"\nВиписка за серпень уже в журналі банку - імпорт пропущено ({csv_path}).")
+else:
+    wid = call("account.statement.import", "create", {"statement_file": base64.b64encode(open(csv_path, "rb").read()).decode(), "statement_filename": os.path.basename(csv_path), "sheet_mapping_id": mp}, context={"journal_id": jr})
+    call("account.statement.import", "import_file_button", [wid], context={"journal_id": jr})
+    print(f"\nВиписка: {len(rows) - 1} операцій імпортовано у журнал банку ({csv_path})")
 
 # ---- об'єднана звітність за серпень: XML у вкладеннях майстра ---------------------------------------
 wiz = call("ua.payroll.report.wizard", "create", {"company_id": COMPANY, "year": 2026, "month": 8, "doc_type": "HZ", "number": 1, "with_d1": True, "with_4df": True, "with_d5": True})
@@ -928,3 +942,8 @@ for child_name, child_bd in [("Ковальчук Тарас Романович"
 alloc_targets = [E[5], E[6], E[8], E[2], E[13]]   # Ковальчук (діти), Мельничук (дитина з інвалідністю), Шевчук (УБД), Стефанишин (особливі умови), Федорів (одинока мати)
 call("hr.employee", "ua_ensure_allocations", alloc_targets)
 print("Додаткові відпустки (УБД, на дітей, особливі умови праці): підстави записано, річне нарахування соціальної на дітей виконано.")
+
+# ---- повертаємо дату блокування, зняту після закриття липня ----------------------------------------
+if _saved_lock:
+    call("res.company", "write", [COMPANY], {"fiscalyear_lock_date": _saved_lock})
+    print(f"Дату блокування повернуто: {_saved_lock}.")

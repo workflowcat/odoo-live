@@ -70,6 +70,10 @@
           <td class="ua-key">Період:</td>
           <td><t t-out="doc.date_from.strftime('%d.%m.%Y')"/> - <t t-out="doc.date_to.strftime('%d.%m.%Y')"/></td>
         </tr>
+        <tr t-if="doc.zvv_basis">
+          <td class="ua-key">База розподілу ЗВВ:</td>
+          <td><span t-field="doc.zvv_basis"/></td>
+        </tr>
         <tr t-if="doc.note">
           <td class="ua-key">Примітка:</td>
           <td><t t-out="doc.note"/></td>

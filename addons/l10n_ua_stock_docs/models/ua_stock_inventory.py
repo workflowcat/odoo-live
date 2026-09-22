@@ -158,7 +158,11 @@ class UaStockInventory(models.Model):
         before = self.env["stock.move"].search(
             [("is_inventory", "=", True), ("product_id", "=", line.product_id.id)]).ids
         target.inventory_quantity = target.quantity + line.qty_diff
-        target.action_apply_inventory()
+        # Дата документа їде в нативне коригування: `stock_account` читає
+        # `force_period_date` і ставить її своїй проводці оцінки запасів. Без цього
+        # нативна проводка датувалася б сьогоднішнім днем, а наша 947 -> 719 - датою
+        # опису, і два боки однієї операції розходилися б по періодах.
+        target.with_context(force_period_date=self.date).action_apply_inventory()
         return self.env["stock.move"].search([
             ("is_inventory", "=", True),
             ("product_id", "=", line.product_id.id),
@@ -168,10 +172,26 @@ class UaStockInventory(models.Model):
         ])
 
     def action_apply(self):
-        """Провести: коригування складу плюс проводка лишків 947 -> 719."""
+        """Провести: коригування складу плюс проводка лишків 947 -> 719.
+
+        Обидві проводки - нативна оцінка запасів і наша 947 -> 719 - датуються
+        датою опису і проводяться одразу. Тому дата в майбутньому не приймається:
+        запаси рахують у день підрахунку, а не наперед. Якби ми пустили майбутню
+        дату, нативне мʼяке проведення відклало б свою проводку в чернетку з
+        автопроведенням, а наша лягла б у книги вже сьогодні - і на рахунку 947
+        висів би дебет без зустрічного кредиту 201.
+        """
         for record in self:
             if record.state != "counting":
                 raise UserError("Спершу заповніть опис залишками складу.")
+            today = fields.Date.context_today(record)
+            if record.date > today:
+                raise UserError(
+                    "Інвентаризацію «%s» датовано %s - цей день ще не настав. "
+                    "Опис складають у день підрахунку: поставте дату не пізнішу "
+                    "за %s." % (record.name,
+                                record.date.strftime("%d.%m.%Y"),
+                                today.strftime("%d.%m.%Y")))
             moves = self.env["stock.move"]
             for line in record.line_ids:
                 if record.company_id.currency_id.is_zero(line.qty_diff):

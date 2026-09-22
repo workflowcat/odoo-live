@@ -11,6 +11,11 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB = os.environ.get("PAYROLL_DB", "payroll").strip()
+# Доступ до бази - зі змінних оточення, як у psql. Типові значення - ті, з якими
+# піднято docker-compose.yml; на іншому стенді досить виставити PGHOST/PGUSER/PGPASSWORD.
+DB_HOST = os.environ.get("PGHOST", "db")
+DB_USER = os.environ.get("PGUSER", "odoo")
+DB_PASSWORD = os.environ.get("PGPASSWORD", "odoo")
 
 SCRIPT = r"""
 import base64
@@ -94,12 +99,16 @@ if not File.search([("case_id", "=", bondar.id), ("name", "=", "dovidka_bondar.p
 
 # ---- прийнята: Мельник Ірина, перший день у вересні 2026, потім два документи позначені підписаними
 if not Case.search([("last_name", "=", "Мельник")]):
-    bday = date(1990, 5, 10)
+    # Дата народження навмисно не 10.05.1990: з неї РНОКПП виходив 3300212329 - той самий,
+    # що в Мельник Ірини Володимирівни зі scripts/demo_company.py. Один код на двох людей
+    # ламав повторний прогін демо: будівник зарплати брав не ту картку і виписував другий
+    # комплект липневих і серпневих листків.
+    bday = date(1991, 7, 23)
     melnyk = Case.with_company(company).create({
         "company_id": company.id, "stage": "onboarding", "last_name": "Мельник", "first_name": "Ірина",
         "job_title": "Менеджерка з персоналу", "department_id": dept.id, "birthday": bday, "sex": "female",
         "rnokpp": make_rnokpp(bday, False), "id_doc_type": "id_card", "id_doc_number": "234567890",
-        "id_doc_unzr": "19900510" + "01234", "id_doc_issued_by": "ГУ ДМС у Київській області",
+        "id_doc_unzr": bday.strftime("%Y%m%d") + "01234", "id_doc_issued_by": "ГУ ДМС у Київській області",
         "id_doc_date": date(2020, 3, 15), "reg_address": "м. Київ, вул. Демонстраційна, 5",
         "pd_consent": True, "date_from": date(2026, 9, 1), "wage": 32000,
         "mil_status": "liable", "mil_tcc": "Оболонський РТЦК та СП", "mil_doc_type": "ticket",
@@ -182,7 +191,8 @@ for st, _label in Doc._fields["state"].selection:
 # Одноразовий контейнер бере базу з рядка команди, тому працює для payroll, demo і тестових.
 proc = subprocess.run(
     ["docker", "compose", "run", "--rm", "--no-deps", "-T", "odoo", "sh", "-c",
-     f"odoo shell -c /etc/odoo/odoo.conf --db_host=db --db_user=odoo --db_password=odoo -d {DB} --no-http --log-level=warn"],
+     f"odoo shell -c /etc/odoo/odoo.conf --db_host={DB_HOST} --db_user={DB_USER} "
+     f"--db_password={DB_PASSWORD} -d {DB} --no-http --log-level=warn"],
     input=SCRIPT, capture_output=True, text=True, cwd=ROOT,
 )
 print(proc.stdout.strip())

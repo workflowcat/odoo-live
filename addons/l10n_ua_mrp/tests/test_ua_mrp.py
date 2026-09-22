@@ -417,6 +417,93 @@ class TestUaMrp(AccountTestInvoicingCommon):
             html = self.env["ir.actions.report"]._render_qweb_html(xmlid, record.ids)[0]
             self.assertTrue(len(html) > 400, "порожня форма %s" % xmlid)
 
+    # --- 16. ЗВВ на три вироби без нарядів --------------------------------
+    def test_16_calculation_spreads_zvv_without_workorders(self):
+        """Специфікації без операцій - ЗВВ ділиться за вартістю матеріалів.
+
+        Знайдено на збірці демо-простору: розподіл ішов лише за годинами нарядів,
+        а наряди є тільки там, де в специфікації прописані операції. Без них
+        частку отримував один-єдиний виріб періоду, решта - нуль, і в калькуляції
+        стояв ЗВВ 0,00 при розподілених сотнях тисяч.
+
+        Три вироби з різними наборами матеріалів: стіл (1 стільниця + 4 ніжки +
+        8 гвинтів = 240), табурет (4 ніжки + 4 гвинти = 120), полиця (1 стільниця
+        + 2 гвинти = 110). Разом матеріалів 470, ЗВВ до розподілу 4 700, тобто
+        рівно по 10 гривень на кожну гривню матеріалів.
+        """
+        start = fields.Date.context_today(self.env.user).replace(day=1)
+        finished = fields.Datetime.to_datetime(start)
+        stool = self._product("Табурет", self.categ_finished, 0.0)
+        shelf = self._product("Полиця", self.categ_finished, 0.0)
+        bom_stool = self.env["mrp.bom"].create({
+            "product_tmpl_id": stool.product_tmpl_id.id,
+            "product_qty": 1.0, "type": "normal",
+            "bom_line_ids": [
+                (0, 0, {"product_id": self.leg.id, "product_qty": 4.0}),
+                (0, 0, {"product_id": self.screw.id, "product_qty": 4.0}),
+            ],
+        })
+        bom_shelf = self.env["mrp.bom"].create({
+            "product_tmpl_id": shelf.product_tmpl_id.id,
+            "product_qty": 1.0, "type": "normal",
+            "bom_line_ids": [
+                (0, 0, {"product_id": self.top.id, "product_qty": 1.0}),
+                (0, 0, {"product_id": self.screw.id, "product_qty": 2.0}),
+            ],
+        })
+        self._receive(self.top, 2)
+        self._receive(self.leg, 8)
+        self._receive(self.screw, 14)
+        self._produce(1, date_finished=finished)
+        for product, bom in ((stool, bom_stool), (shelf, bom_shelf)):
+            production = self.env["mrp.production"].create({
+                "product_id": product.id, "bom_id": bom.id,
+                "product_qty": 1.0, "company_id": self.company.id,
+            })
+            production.action_confirm()
+            production.qty_producing = 1.0
+            production.move_raw_ids.picked = True
+            production.button_mark_done()
+            production.date_finished = finished
+
+        self._zvv_entry(4700.0, start)
+        allocation = self.env["ua.zvv.allocation"].create({
+            "company_id": self.company.id, "date_from": start,
+            "normal_hours": 100.0, "actual_hours": 100.0,
+        })
+        allocation.action_post()
+        self.assertAlmostEqual(allocation.amount_allocated, 4700.0, delta=CENT)
+
+        calculation = self.env["ua.cost.calculation"].create({
+            "company_id": self.company.id, "date_from": start,
+        })
+        calculation.action_compute()
+        self.assertEqual(len(calculation.line_ids), 3)
+        self.assertEqual(calculation.zvv_basis, "material",
+                         "нарядів немає в жодного виробу - база інша, ніж години")
+        shares = {line.product_id: line.amount_zvv for line in calculation.line_ids}
+        self.assertAlmostEqual(shares[self.table], 2400.0, delta=CENT)   # 240 × 10
+        self.assertAlmostEqual(shares[stool], 1200.0, delta=CENT)        # 120 × 10
+        self.assertAlmostEqual(shares[shelf], 1100.0, delta=CENT)        # 110 × 10
+        self.assertAlmostEqual(calculation.amount_zvv, 4700.0, delta=CENT,
+                               msg="частки мають скластися в розподілену суму")
+        self.assertAlmostEqual(calculation.amount_material, 470.0, delta=CENT)
+        for line in calculation.line_ids:
+            self.assertGreater(line.amount_zvv, 0.0,
+                               "жоден виріб не лишається без ЗВВ")
+
+    # --- 17. Копійки округлення не губляться ------------------------------
+    def test_17_spread_keeps_every_kopeck(self):
+        """Три рівні частки від суми, що не ділиться на три, дають ціле."""
+        Calculation = self.env["ua.cost.calculation"]
+        weights = {self.top: 1.0, self.leg: 1.0, self.screw: 1.0}
+        shares = Calculation._spread(100.0, weights)
+        self.assertAlmostEqual(sum(shares.values()), 100.0, delta=CENT)
+        self.assertEqual(sorted(round(v, 2) for v in shares.values()),
+                         [33.33, 33.33, 33.34])
+        self.assertEqual(Calculation._spread(0.0, weights),
+                         {self.top: 0.0, self.leg: 0.0, self.screw: 0.0})
+
     # --- 15. Період розподілу: витрати сусіднього місяця не беруться -------
     def test_15_zvv_period_bounds(self):
         start = fields.Date.context_today(self.env.user).replace(day=1)

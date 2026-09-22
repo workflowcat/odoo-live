@@ -47,13 +47,47 @@ def _ensure_uk_lang(env):
     return Lang.search([("code", "=", UK)], limit=1)
 
 
+def _chart_companies(env):
+    """Компанії, у яких план рахунків уже завантажено.
+
+    Перекладати назви рахунків можна тільки там, де ці рахунки є. Компанія без
+    плану (а на встановленні модуля таких зазвичай усі) віддає `chart_template`
+    порожнім, і `_load_translations` на ній падає - раніше це валило переклад
+    усім компаніям разом, і назви лишалися англійськими.
+    """
+    Chart = env["account.chart.template"].sudo()
+    codes = set(Chart._get_chart_template_mapping(get_all=True))
+    return env["res.company"].sudo().search([("chart_template", "!=", False)]).filtered(
+        lambda company: company.chart_template in codes)
+
+
 def _load_uk_names(env):
+    """Українські назви рахунків з шаблону - по одній компанії за раз.
+
+    Два входи ведуть сюди: `_post_load_data` (план щойно завантажили) і
+    `post_init_hook` (модуль ставлять на базу, де план уже стоїть, - ремонт).
+    Компанія без плану просто пропускається, а збій на одній компанії не
+    забирає переклад у решти.
+    """
     if not _ensure_uk_lang(env):
-        return
-    try:
-        env["account.chart.template"]._load_translations(langs=["uk_UA"], companies=env["res.company"].search([]))
-    except Exception as e:   # шаблон іншої країни або інша версія Odoo
-        _logger.warning("Не вдалося застосувати переклади плану рахунків: %s", e)
+        return 0
+    companies = _chart_companies(env)
+    if not companies:
+        _logger.info(
+            "Плану рахунків ще немає: українські назви рахунків стануть на місце "
+            "разом із планом (_post_load_data).")
+        return 0
+    Chart = env["account.chart.template"].sudo()
+    done = 0
+    for company in companies:
+        try:
+            Chart.with_company(company)._load_translations(langs=[UK], companies=company)
+            done += 1
+        except Exception as e:   # шаблон іншої країни або інша версія Odoo
+            _logger.warning(
+                "Компанія «%s»: переклади плану рахунків не застосовано (%s)",
+                company.display_name, e)
+    return done
 
 
 def _short_codes(env):

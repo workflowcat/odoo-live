@@ -13,8 +13,11 @@
   (те саме число, яким нативна оцінка запасів кредитувала 201);
 * оплата праці - `_cal_cost()` нарядів (години × вартість години робочого
   центру), те саме число, яким `mrp_account` дебетував 231;
-* ЗВВ - частка проведених розподілів ЗВВ періоду, пропорційна годинам нарядів
-  виробу.
+* ЗВВ - частка проведених розподілів ЗВВ періоду. Головна база розподілу -
+  години нарядів виробу; коли в специфікаціях немає операцій (звичайна справа),
+  годин немає ні в кого, і тоді база - вартість матеріалів періоду, а якщо і
+  матеріалів немає - випуск у натурі. Яку базу взято, видно в полі «База
+  розподілу ЗВВ».
 
 Четвертої статті немає навмисно: якщо цех несе витрати, яких у нарядах і
 комплектуючих не видно, вони приходять через 91 і потрапляють у ЗВВ.
@@ -26,6 +29,14 @@ from dateutil.relativedelta import relativedelta
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+
+# Бази розподілу ЗВВ між виробами, у порядку, в якому документ їх пробує.
+ZVV_BASIS = [
+    ("hours", "Години нарядів"),
+    ("material", "Вартість матеріалів"),
+    ("quantity", "Випуск у натурі"),
+    ("even", "Порівну між виробами"),
+]
 
 
 class UaCostCalculation(models.Model):
@@ -56,6 +67,11 @@ class UaCostCalculation(models.Model):
     amount_total = fields.Monetary(
         "Виробнича собівартість", currency_field="currency_id",
         compute="_compute_totals", store=True)
+    zvv_basis = fields.Selection(
+        ZVV_BASIS, string="База розподілу ЗВВ", readonly=True,
+        help="Чим міряли частку виробу в ЗВВ періоду. Години нарядів - головна "
+             "база; коли нарядів немає в жодного виробу, беремо вартість "
+             "матеріалів, далі випуск у натурі, в останню чергу - порівну.")
     note = fields.Char("Примітка")
 
     _dates = models.Constraint(
@@ -126,6 +142,43 @@ class UaCostCalculation(models.Model):
     def _hours(production):
         return sum(production.workorder_ids.mapped("duration")) / 60.0
 
+    @staticmethod
+    def _zvv_basis_and_weights(buckets):
+        """Чим міряємо частку виробу в ЗВВ періоду.
+
+        Головна база - години нарядів: ЗВВ ідуть за завантаженням цеху. Але
+        наряди є тільки там, де в специфікації прописані операції, а їх часто
+        немає зовсім. Тоді годин нуль у всіх виробів, і розподіл за ними дав би
+        нуль кожному (а одному-єдиному виробу в періоді - усе): у калькуляції
+        стояв би ЗВВ 0,00 при розподілених сотнях тисяч. Запасна база -
+        вартість матеріалів періоду (більше матеріалів - більше роботи цеху),
+        за нею випуск у натурі, і вже в останню чергу порівну.
+        """
+        for basis, key in (("hours", "hours"), ("material", "material"),
+                           ("quantity", "quantity")):
+            weights = {product: bucket[key] for product, bucket in buckets.items()}
+            if sum(weights.values()) > 0:
+                return basis, weights
+        return "even", {product: 1.0 for product in buckets}
+
+    @staticmethod
+    def _spread(amount, weights):
+        """Розкидати суму за вагами. Сума часток дорівнює цілому до копійки.
+
+        Копійки округлення дістаються найбільшій частці - інакше рядки
+        калькуляції не склалися б у розподілену суму документа ЗВВ.
+        """
+        total = sum(weights.values())
+        if not total or not amount:
+            return {key: 0.0 for key in weights}
+        shares = {key: round(amount * weight / total, 2)
+                  for key, weight in weights.items()}
+        gap = round(amount - sum(shares.values()), 2)
+        if gap:
+            biggest = sorted(weights, key=lambda key: (-weights[key], key.id))[0]
+            shares[biggest] = round(shares[biggest] + gap, 2)
+        return shares
+
     def action_compute(self):
         """Перезібрати рядки. Ідемпотентно: старі рядки замінюються новими."""
         for record in self:
@@ -135,7 +188,6 @@ class UaCostCalculation(models.Model):
                     "За період %s - %s немає закритих замовлень на виробництво."
                     % (record.date_from, record.date_to))
             zvv_total = record._zvv_allocated()
-            hours_total = sum(record._hours(mo) for mo in productions)
             buckets = {}
             for production in productions:
                 key = production.product_id
@@ -148,24 +200,21 @@ class UaCostCalculation(models.Model):
                 bucket["labour"] += record._labour_cost(production)
                 bucket["hours"] += record._hours(production)
                 bucket["orders"] |= production
+            basis, weights = record._zvv_basis_and_weights(buckets)
+            shares = record._spread(zvv_total, weights)
             lines = []
             for product, bucket in sorted(buckets.items(), key=lambda item: item[0].display_name):
-                if hours_total > 0:
-                    zvv = round(zvv_total * bucket["hours"] / hours_total, 2)
-                elif len(buckets) == 1:
-                    zvv = zvv_total
-                else:
-                    zvv = 0.0
                 lines.append((0, 0, {
                     "product_id": product.id,
                     "quantity": bucket["quantity"],
                     "amount_material": round(bucket["material"], 2),
                     "amount_labour": round(bucket["labour"], 2),
-                    "amount_zvv": zvv,
+                    "amount_zvv": shares[product],
                     "hours": round(bucket["hours"], 2),
                     "production_ids": [(6, 0, bucket["orders"].ids)],
                 }))
             record.line_ids = [(5, 0, 0)] + lines
+            record.zvv_basis = basis
         return True
 
 
