@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_group_consolidation,ua.group.consolidation accountant,model_ua_group_consolidation,account.group_account_readonly,1,1,1,1

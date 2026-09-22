@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_profit_param_list" model="ir.ui.view">
+    <field name="name">ua.profit.param.list</field>
+    <field name="model">ua.profit.param</field>
+    <field name="arch" type="xml">
+      <list string="Параметри податку на прибуток" editable="bottom">
+        <field name="key"/>
+        <field name="name"/>
+        <field name="valid_from"/>
+        <field name="value"/>
+        <field name="source"/>
+        <field name="company_id" groups="base.group_multi_company"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_profit_param" model="ir.actions.act_window">
+    <field name="name">Параметри податку на прибуток</field>
+    <field name="res_model">ua.profit.param</field>
+    <field name="view_mode">list</field>
+  </record>
+</odoo>

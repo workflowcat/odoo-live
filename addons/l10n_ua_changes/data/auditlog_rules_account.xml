@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Облікова частина журналу змін: рахунки і рядки проводок.
+
+  Правило на `account.move` уже є в data/auditlog_rules.xml (стан, дата, опис),
+  і другого правила на ту саму модель auditlog не дозволяє - unique(model_id).
+  Тому тут не нове правило, а дописані поля до наявного: контрагент, сума
+  документа і журнал. Разом із проведенням (поле `state`) цього досить, щоб
+  правки проведеного рахунку були видні бухгалтеру, а не лише в базі.
+
+  Рядок проводки (`account.move.line`) своєї моделі в журналі ще не мав -
+  правило нижче. Білий список вузький: рахунок, контрагент, дебет і кредит.
+  Решти полів правило не бачить, тому перерахунки і технічні мітки в чергу
+  не сиплються.
+
+  noupdate="1": те, що бухгалтер виправив руками, оновлення модуля не затирає.
+-->
+<odoo noupdate="1">
+
+  <!-- Дописані поля до наявного правила на account.move. -->
+  <record id="field_account_move_partner" model="ua.change.field">
+    <field name="rule_id" ref="rule_account_move" />
+    <field name="sequence">20</field>
+    <field name="field_name">partner_id</field>
+    <field name="label">Контрагент</field>
+  </record>
+  <record id="field_account_move_amount_total" model="ua.change.field">
+    <field name="rule_id" ref="rule_account_move" />
+    <field name="sequence">30</field>
+    <field name="field_name">amount_total</field>
+    <field name="label">Сума документа</field>
+  </record>
+  <record id="field_account_move_journal" model="ua.change.field">
+    <field name="rule_id" ref="rule_account_move" />
+    <field name="sequence">40</field>
+    <field name="field_name">journal_id</field>
+    <field name="label">Журнал</field>
+  </record>
+
+  <!-- Рядок проводки: хто переставив рахунок, контрагента або суму. -->
+  <record id="rule_account_move_line" model="auditlog.rule">
+    <field name="name">Журнал змін: рядок проводки</field>
+    <field name="model_id" search="[('model', '=', 'account.move.line')]" />
+    <field name="log_type">full</field>
+    <field name="log_read" eval="False" />
+    <field name="log_create" eval="False" />
+    <field name="log_write" eval="True" />
+    <field name="log_unlink" eval="True" />
+    <field name="log_export_data" eval="False" />
+    <field name="state">confirmed</field>
+    <field name="ua_area">account</field>
+    <field name="ua_period_date">date</field>
+    <field name="ua_label">move_id.name+name</field>
+    <field name="ua_field_ids" eval="[
+      Command.create({'field_name': 'account_id', 'label': 'Рахунок'}),
+      Command.create({'field_name': 'partner_id', 'label': 'Контрагент'}),
+      Command.create({'field_name': 'debit', 'label': 'Дебет'}),
+      Command.create({'field_name': 'credit', 'label': 'Кредит'}),
+    ]" />
+  </record>
+
+</odoo>

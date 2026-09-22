@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_ua_profit_root" name="Податок на прибуток"
+            parent="account.menu_finance" sequence="28"
+            groups="account.group_account_user,account.group_account_readonly"/>
+  <menuitem id="menu_ua_profit_declaration" name="Декларації"
+            parent="menu_ua_profit_root" action="action_ua_profit_declaration" sequence="10"/>
+  <menuitem id="menu_ua_profit_param" name="Параметри"
+            parent="menu_ua_profit_root" action="action_ua_profit_param" sequence="90"
+            groups="account.group_account_manager"/>
+</odoo>

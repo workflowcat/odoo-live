@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_profit_declaration_list" model="ir.ui.view">
+    <field name="name">ua.profit.declaration.list</field>
+    <field name="model">ua.profit.declaration</field>
+    <field name="arch" type="xml">
+      <list string="Декларації з податку на прибуток">
+        <field name="year"/>
+        <field name="income_total"/>
+        <field name="finres"/>
+        <field name="diff_total"/>
+        <field name="tax_base"/>
+        <field name="tax_amount"/>
+        <field name="advance_paid"/>
+        <field name="tax_to_pay"/>
+        <field name="state"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="company_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_profit_declaration_form" model="ir.ui.view">
+    <field name="name">ua.profit.declaration.form</field>
+    <field name="model">ua.profit.declaration</field>
+    <field name="arch" type="xml">
+      <form string="Декларація з податку на прибуток">
+        <header>
+          <button name="action_compute" type="object" string="Розрахувати"
+                  class="oe_highlight" invisible="state != 'draft'"/>
+          <button name="action_confirm" type="object" string="Підтвердити"
+                  invisible="state != 'draft'"/>
+          <button name="action_draft" type="object" string="У чернетку"
+                  invisible="state != 'confirmed'"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <h1><field name="name" readonly="1"/></h1>
+          <group>
+            <group string="Платник і період">
+              <field name="company_id" groups="base.group_multi_company"
+                     readonly="state != 'draft'"/>
+              <field name="year" readonly="state != 'draft'"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+            <group string="Ставка і поріг">
+              <field name="rate"/>
+              <field name="low_income_limit"/>
+              <field name="low_income"/>
+            </group>
+          </group>
+          <group>
+            <group string="З фінансової звітності">
+              <field name="income_total"/>
+              <field name="finres"/>
+            </group>
+            <group string="Різниці">
+              <field name="diff_amortisation"/>
+              <field name="diff_loss"/>
+              <field name="diff_total"/>
+            </group>
+          </group>
+          <group>
+            <group string="Податок">
+              <field name="tax_base"/>
+              <field name="tax_amount"/>
+            </group>
+            <group string="Сплата">
+              <field name="advance_paid" readonly="state != 'draft'"/>
+              <field name="tax_to_pay"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Рядки декларації">
+              <field name="line_ids" readonly="1">
+                <list string="Рядки декларації">
+                  <field name="code"/>
+                  <field name="name"/>
+                  <field name="amount"/>
+                  <field name="currency_id" column_invisible="1"/>
+                </list>
+              </field>
+            </page>
+            <page string="Примітки розрахунку">
+              <field name="note"/>
+            </page>
+          </notebook>
+          <div class="alert alert-info" role="alert" invisible="not low_income">
+            Дохід не перевищує поріг пп. 134.1.1 ПКУ: різниці можна не застосовувати,
+            крім збитків минулих років, а звітний період - рік.
+          </div>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_profit_declaration" model="ir.actions.act_window">
+    <field name="name">Декларації з податку на прибуток</field>
+    <field name="res_model">ua.profit.declaration</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>

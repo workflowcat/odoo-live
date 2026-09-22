@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Стандартна форма чарівника: жодного власного віджета. Результат
+         відкривається у звичайному перегляді звіту mis_builder. -->
+    <record id="ua_group_consolidation_view_form" model="ir.ui.view">
+        <field name="name">ua.group.consolidation.form</field>
+        <field name="model">ua.group.consolidation</field>
+        <field name="arch" type="xml">
+            <form string="Консолідація групи">
+                <sheet>
+                    <group>
+                        <group string="Що зводимо">
+                            <field name="form" />
+                            <field name="company_ids" widget="many2many_tags" />
+                        </group>
+                        <group string="Період">
+                            <field name="date_from" />
+                            <field name="date_to" />
+                            <field name="currency_id" groups="base.group_multi_currency" />
+                        </group>
+                    </group>
+                    <p class="text-muted">
+                        Колонки звіту: по одній на компанію, «Разом до елімінації»,
+                        «Елімінація ВГО» (взаємні розрахунки для балансу, внутрішньогрупові
+                        доходи і витрати для фінрезультатів) і «Консолідовано».
+                        Якщо дзеркальні книги компаній розійшлися, контрольний рядок
+                        форми покаже розбіжність звірки.
+                    </p>
+                </sheet>
+                <footer>
+                    <button
+                        name="action_build"
+                        type="object"
+                        string="Зібрати звіт"
+                        class="btn-primary"
+                    />
+                    <button string="Скасувати" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ua_group_consolidation" model="ir.actions.act_window">
+        <field name="name">Консолідація групи</field>
+        <field name="res_model">ua.group.consolidation</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+        id="menu_ua_group_consolidation"
+        parent="l10n_ua_finrep.menu_ua_finrep_root"
+        name="Консолідація групи"
+        action="action_ua_group_consolidation"
+        sequence="50"
+    />
+</odoo>

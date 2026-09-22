@@ -15,6 +15,7 @@
         "data/auditlog_rules.xml",
         "views/ua_change_log_views.xml",
         "views/ua_period_close_views.xml",
+        "data/auditlog_rules_account.xml",
     ],
     "installable": True,
 }

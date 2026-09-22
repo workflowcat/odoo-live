@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="0">
+    <!-- Ставка податку на прибуток. Основна ставка не змінювалась з 2014 року,
+         але запис однаково датований: новий закон - новий рядок, код не чіпаємо. -->
+    <record id="p_rate_2014" model="ua.profit.param">
+      <field name="key">profit_tax_rate</field>
+      <field name="name">Ставка податку на прибуток, %</field>
+      <field name="valid_from">2014-01-01</field>
+      <field name="value">18</field>
+      <field name="source">п. 136.1 ПКУ</field>
+    </record>
+
+    <!-- Поріг малодохідника: до нього різниці можна не застосовувати
+         (крім збитків минулих років) і звітувати раз на рік. -->
+    <record id="p_low_income_2017" model="ua.profit.param">
+      <field name="key">profit_low_income_limit</field>
+      <field name="name">Поріг малодохідника, грн річного доходу</field>
+      <field name="valid_from">2017-01-01</field>
+      <field name="value">20000000</field>
+      <field name="source">пп. 134.1.1 ПКУ у редакції до 2018 року</field>
+    </record>
+    <record id="p_low_income_2018" model="ua.profit.param">
+      <field name="key">profit_low_income_limit</field>
+      <field name="name">Поріг малодохідника, грн річного доходу</field>
+      <field name="valid_from">2018-01-01</field>
+      <field name="value">40000000</field>
+      <field name="source">пп. 134.1.1 ПКУ</field>
+    </record>
+  </data>
+</odoo>
