@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="action_report_ua_inventory_list" model="ir.actions.report">
+    <field name="name">Інвентаризаційний опис</field>
+    <field name="model">ua.stock.inventory</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_stock_docs.report_ua_inventory_list</field>
+    <field name="report_file">l10n_ua_stock_docs.report_ua_inventory_list</field>
+    <field name="binding_model_id" ref="model_ua_stock_inventory"/>
+    <field name="binding_type">report</field>
+    <field name="paperformat_id" ref="l10n_ua_docs.paperformat_ua_docs_a4"/>
+    <field name="print_report_name">'Інвентаризаційний опис %s' % (object.name or '')</field>
+  </record>
+
+  <record id="action_report_ua_inventory_sheet" model="ir.actions.report">
+    <field name="name">Звіряльна відомість</field>
+    <field name="model">ua.stock.inventory</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_stock_docs.report_ua_inventory_sheet</field>
+    <field name="report_file">l10n_ua_stock_docs.report_ua_inventory_sheet</field>
+    <field name="binding_model_id" ref="model_ua_stock_inventory"/>
+    <field name="binding_type">report</field>
+    <field name="paperformat_id" ref="l10n_ua_docs.paperformat_ua_docs_a4"/>
+    <field name="print_report_name">'Звіряльна відомість %s' % (object.name or '')</field>
+  </record>
+
+  <record id="action_report_ua_acceptance_act" model="ir.actions.report">
+    <field name="name">Акт приймання-передачі ТМЦ</field>
+    <field name="model">stock.picking</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_stock_docs.report_ua_acceptance_act</field>
+    <field name="report_file">l10n_ua_stock_docs.report_ua_acceptance_act</field>
+    <field name="binding_model_id" ref="stock.model_stock_picking"/>
+    <field name="binding_type">report</field>
+    <field name="paperformat_id" ref="l10n_ua_docs.paperformat_ua_docs_a4"/>
+    <field name="print_report_name">'Акт приймання-передачі %s' % (object.name or '')</field>
+  </record>
+
+  <record id="action_report_ua_quality_protocol" model="ir.actions.report">
+    <field name="name">Протокол перевірки якості</field>
+    <field name="model">ua.quality.protocol</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_stock_docs.report_ua_quality_protocol</field>
+    <field name="report_file">l10n_ua_stock_docs.report_ua_quality_protocol</field>
+    <field name="binding_model_id" ref="model_ua_quality_protocol"/>
+    <field name="binding_type">report</field>
+    <field name="paperformat_id" ref="l10n_ua_docs.paperformat_ua_docs_a4"/>
+    <field name="print_report_name">'Протокол якості %s' % (object.name or '')</field>
+  </record>
+
+  <template id="ua_stock_docs_style">
+    <style>
+      .ua-sd { font-size: 11px; }
+      .ua-sd h3 { text-align: center; margin-bottom: 2px; }
+      .ua-sd .ua-sub { text-align: center; margin-bottom: 10px; }
+      .ua-sd table.ua-grid { width: 100%; border-collapse: collapse; margin-top: 8px; }
+      .ua-sd table.ua-grid th, .ua-sd table.ua-grid td {
+        border: 1px solid #000; padding: 3px 4px; vertical-align: top; }
+      .ua-sd table.ua-grid th { text-align: center; font-weight: bold; }
+      .ua-sd .ua-num { text-align: right; }
+      .ua-sd table.ua-req { width: 100%; margin-bottom: 6px; }
+      .ua-sd table.ua-req td { padding: 1px 4px; vertical-align: top; }
+      .ua-sd table.ua-req td.ua-key { width: 200px; color: #444; }
+      .ua-sd .ua-sign { margin-top: 24px; width: 100%; }
+      .ua-sd .ua-sign td { padding-top: 16px; }
+    </style>
+  </template>
+
+  <template id="ua_inventory_header">
+    <table class="ua-req">
+      <tr>
+        <td class="ua-key">Підприємство:</td>
+        <td><strong t-out="doc.company_id.name"/>
+          <t t-if="doc.company_id.company_registry">, ЄДРПОУ <t t-out="doc.company_id.company_registry"/></t>
+        </td>
+      </tr>
+      <tr>
+        <td class="ua-key">Склад:</td>
+        <td><t t-out="doc.location_id.complete_name"/></td>
+      </tr>
+      <tr>
+        <td class="ua-key">Дата інвентаризації:</td>
+        <td><t t-out="doc.date.strftime('%d.%m.%Y')"/></td>
+      </tr>
+      <tr t-if="doc.basis">
+        <td class="ua-key">Підстава:</td>
+        <td><t t-out="doc.basis"/></td>
+      </tr>
+      <tr t-if="doc.keeper">
+        <td class="ua-key">Матеріально відповідальна особа:</td>
+        <td><t t-out="doc.keeper"/></td>
+      </tr>
+    </table>
+  </template>
+
+  <template id="ua_inventory_signatures">
+    <table class="ua-sign">
+      <tr>
+        <td>Голова комісії <t t-out="doc.chair or '______________________'"/> ____________</td>
+      </tr>
+      <tr>
+        <td>Члени комісії <t t-out="doc.members or '______________________'"/> ____________</td>
+      </tr>
+      <tr>
+        <td>Матеріально відповідальна особа <t t-out="doc.keeper or '______________________'"/> ____________</td>
+      </tr>
+    </table>
+  </template>
+
+  <!-- Інвентаризаційний опис: усе, що рахували. -->
+  <template id="report_ua_inventory_list_document">
+    <div class="page ua-sd">
+      <t t-call="l10n_ua_stock_docs.ua_stock_docs_style"/>
+      <h3>Інвентаризаційний опис запасів</h3>
+      <div class="ua-sub">№ <t t-out="doc.name"/>, Положення № 879</div>
+      <t t-call="l10n_ua_stock_docs.ua_inventory_header"/>
+
+      <table class="ua-grid">
+        <thead>
+          <tr>
+            <th>№</th><th>Номенклатура</th><th>Артикул</th><th>Од.</th>
+            <th>За обліком</th><th>Фактично</th><th>Облікова ціна</th><th>Сума фактично</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr t-foreach="doc.line_ids" t-as="line">
+            <td class="ua-num"><t t-out="line_index + 1"/></td>
+            <td><t t-out="line.product_id.display_name"/></td>
+            <td><t t-out="line.product_id.default_code or ''"/></td>
+            <td><t t-out="line.uom_id.name"/></td>
+            <td class="ua-num"><t t-out="'%.3f' % line.qty_book"/></td>
+            <td class="ua-num"><t t-out="'%.3f' % line.qty_fact"/></td>
+            <td class="ua-num"><t t-out="'%.2f' % line.cost"/></td>
+            <td class="ua-num"><t t-out="'%.2f' % (line.qty_fact * line.cost)"/></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <t t-call="l10n_ua_stock_docs.ua_inventory_signatures"/>
+    </div>
+  </template>
+
+  <template id="report_ua_inventory_list">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_stock_docs.report_ua_inventory_list_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+
+  <!-- Звіряльна відомість: тільки розбіжності. -->
+  <template id="report_ua_inventory_sheet_document">
+    <t t-set="rows" t-value="doc._lines_with_diff()"/>
+    <div class="page ua-sd">
+      <t t-call="l10n_ua_stock_docs.ua_stock_docs_style"/>
+      <h3>Звіряльна відомість результатів інвентаризації</h3>
+      <div class="ua-sub">№ <t t-out="doc.name"/>, Положення № 879</div>
+      <t t-call="l10n_ua_stock_docs.ua_inventory_header"/>
+
+      <table class="ua-grid">
+        <thead>
+          <tr>
+            <th>№</th><th>Номенклатура</th><th>Од.</th>
+            <th>За обліком</th><th>Фактично</th>
+            <th>Лишок, к-ть</th><th>Лишок, сума</th>
+            <th>Нестача, к-ть</th><th>Нестача, сума</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr t-foreach="rows" t-as="line">
+            <td class="ua-num"><t t-out="line_index + 1"/></td>
+            <td><t t-out="line.product_id.display_name"/></td>
+            <td><t t-out="line.uom_id.name"/></td>
+            <td class="ua-num"><t t-out="'%.3f' % line.qty_book"/></td>
+            <td class="ua-num"><t t-out="'%.3f' % line.qty_fact"/></td>
+            <td class="ua-num"><t t-if="line.qty_diff &gt; 0"><t t-out="'%.3f' % line.qty_diff"/></t></td>
+            <td class="ua-num"><t t-if="line.qty_diff &gt; 0"><t t-out="'%.2f' % line.amount_diff"/></t></td>
+            <td class="ua-num"><t t-if="line.qty_diff &lt; 0"><t t-out="'%.3f' % (-line.qty_diff)"/></t></td>
+            <td class="ua-num"><t t-if="line.qty_diff &lt; 0"><t t-out="'%.2f' % (-line.amount_diff)"/></t></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="6">Разом лишки (Кт 719)</th>
+            <th class="ua-num"><t t-out="'%.2f' % doc.amount_surplus"/></th>
+            <th>Разом нестачі (Дт 947)</th>
+            <th class="ua-num"><t t-out="'%.2f' % doc.amount_shortage"/></th>
+          </tr>
+        </tfoot>
+      </table>
+
+      <t t-call="l10n_ua_stock_docs.ua_inventory_signatures"/>
+    </div>
+  </template>
+
+  <template id="report_ua_inventory_sheet">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_stock_docs.report_ua_inventory_sheet_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+
+  <!-- Акт приймання-передачі ТМЦ: сторони, позиції, підписи «передав / прийняв». -->
+  <template id="report_ua_acceptance_act_document">
+    <t t-set="seller" t-value="doc._ua_docs_seller()"/>
+    <t t-set="buyer" t-value="doc._ua_docs_buyer()"/>
+    <t t-set="rows" t-value="doc._ua_docs_lines()"/>
+    <t t-set="totals" t-value="doc._ua_docs_totals()"/>
+    <t t-set="parties" t-value="doc._ua_act_parties()"/>
+    <t t-set="doc_date" t-value="doc._ua_docs_date()"/>
+    <div class="page ua-sd">
+      <t t-call="l10n_ua_stock_docs.ua_stock_docs_style"/>
+      <h3>Акт приймання-передачі товарно-матеріальних цінностей</h3>
+      <div class="ua-sub">№ <t t-out="doc._ua_docs_number()"/><t t-if="doc_date"> від <t t-out="doc_date.strftime('%d.%m.%Y')"/></t></div>
+
+      <t t-set="party" t-value="seller"/>
+      <t t-set="role" t-value="'Передав'"/>
+      <t t-call="l10n_ua_docs.ua_docs_party_block"/>
+      <t t-set="party" t-value="buyer"/>
+      <t t-set="role" t-value="'Прийняв'"/>
+      <t t-call="l10n_ua_docs.ua_docs_party_block"/>
+
+      <table class="ua-req">
+        <tr t-if="doc._ua_docs_basis()">
+          <td class="ua-key">Підстава:</td>
+          <td><t t-out="doc._ua_docs_basis()"/></td>
+        </tr>
+        <tr>
+          <td class="ua-key">Стан цінностей:</td>
+          <td><t t-out="parties['condition']"/></td>
+        </tr>
+      </table>
+
+      <table class="ua-grid">
+        <thead>
+          <tr>
+            <th>№</th><th>Найменування</th><th>Артикул</th><th>Од.</th>
+            <th>Кількість</th><th>Ціна</th><th>Сума</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr t-foreach="rows" t-as="row">
+            <td class="ua-num"><t t-out="row['index']"/></td>
+            <td><t t-out="row['name']"/></td>
+            <td><t t-out="row['code']"/></td>
+            <td><t t-out="row['uom']"/></td>
+            <td class="ua-num"><t t-out="'%.3f' % row['quantity']"/></td>
+            <td class="ua-num"><t t-out="'%.2f' % row['price']"/></td>
+            <td class="ua-num"><t t-out="'%.2f' % row['subtotal']"/></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="6">Разом без ПДВ</th>
+            <th class="ua-num"><t t-out="doc._ua_docs_money_text(totals['untaxed'])"/></th>
+          </tr>
+          <tr t-if="totals['has_vat']">
+            <th colspan="6"><t t-out="totals['vat_label']"/></th>
+            <th class="ua-num"><t t-out="doc._ua_docs_money_text(totals['tax'])"/></th>
+          </tr>
+          <tr>
+            <th colspan="6">Разом до передачі</th>
+            <th class="ua-num"><t t-out="doc._ua_docs_money_text(totals['total'])"/></th>
+          </tr>
+        </tfoot>
+      </table>
+
+      <p>Усього передано <t t-out="totals['count']"/> найменувань на суму
+        <strong><t t-out="totals['words']"/></strong>.</p>
+      <p>Претензій щодо кількості, якості та комплектності сторони не мають.</p>
+
+      <table class="ua-sign">
+        <tr>
+          <td>Передав: <t t-out="parties['handover'] or '______________________'"/> ____________</td>
+          <td>Прийняв: <t t-out="parties['receiver'] or '______________________'"/> ____________</td>
+        </tr>
+      </table>
+    </div>
+  </template>
+
+  <template id="report_ua_acceptance_act">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_stock_docs.report_ua_acceptance_act_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+
+  <!-- Протокол перевірки якості. -->
+  <template id="report_ua_quality_protocol_document">
+    <div class="page ua-sd">
+      <t t-call="l10n_ua_stock_docs.ua_stock_docs_style"/>
+      <h3>Протокол перевірки якості</h3>
+      <div class="ua-sub">№ <t t-out="doc.name"/> від <t t-out="doc.date.strftime('%d.%m.%Y')"/></div>
+
+      <table class="ua-req">
+        <tr>
+          <td class="ua-key">Підприємство:</td>
+          <td><strong t-out="doc.company_id.name"/></td>
+        </tr>
+        <tr>
+          <td class="ua-key">Номенклатура:</td>
+          <td><t t-out="doc.product_id.display_name"/></td>
+        </tr>
+        <tr t-if="doc.lot_id">
+          <td class="ua-key">Партія / серійний номер:</td>
+          <td><t t-out="doc.lot_id.name"/></td>
+        </tr>
+        <tr>
+          <td class="ua-key">Кількість:</td>
+          <td><t t-out="'%.3f' % doc.quantity"/> <t t-out="doc.uom_id.name"/></td>
+        </tr>
+        <tr t-if="doc.picking_id">
+          <td class="ua-key">Документ складу:</td>
+          <td><t t-out="doc.picking_id.name"/></td>
+        </tr>
+      </table>
+
+      <table class="ua-grid">
+        <thead>
+          <tr><th>№</th><th>Параметр</th><th>Од.</th><th>Норма</th><th>Виміряно</th><th>Результат</th></tr>
+        </thead>
+        <tbody>
+          <tr t-foreach="doc.line_ids" t-as="line">
+            <td class="ua-num"><t t-out="line_index + 1"/></td>
+            <td><t t-out="line.name"/></td>
+            <td><t t-out="line.uom or ''"/></td>
+            <td><t t-out="line.norm or ''"/></td>
+            <td><t t-out="line.value or ''"/></td>
+            <td><t t-out="'Норма' if line.result == 'ok' else 'Не в нормі'"/></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p t-if="doc.note"><t t-out="doc.note"/></p>
+      <p>Висновок:
+        <strong><t t-out="dict(doc._fields['state'].selection).get(doc.state, '')"/></strong>
+      </p>
+
+      <table class="ua-sign">
+        <tr>
+          <td>Перевіряв: <t t-out="doc.inspector or '______________________'"/> ____________</td>
+        </tr>
+      </table>
+    </div>
+  </template>
+
+  <template id="report_ua_quality_protocol">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_stock_docs.report_ua_quality_protocol_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+
+</odoo>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+
+    <record id="seq_ua_zvv_allocation" model="ir.sequence">
+      <field name="name">Розподіл ЗВВ</field>
+      <field name="code">ua.zvv.allocation</field>
+      <field name="prefix">ЗВВ/%(year)s/</field>
+      <field name="padding">4</field>
+      <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_ua_cost_calculation" model="ir.sequence">
+      <field name="name">Калькуляція собівартості</field>
+      <field name="code">ua.cost.calculation</field>
+      <field name="prefix">КС/%(year)s/</field>
+      <field name="padding">4</field>
+      <field name="company_id" eval="False"/>
+    </record>
+
+  </data>
+</odoo>

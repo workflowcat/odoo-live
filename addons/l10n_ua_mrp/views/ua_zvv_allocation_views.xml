@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="view_ua_zvv_allocation_list" model="ir.ui.view">
+    <field name="name">ua.zvv.allocation.list</field>
+    <field name="model">ua.zvv.allocation</field>
+    <field name="arch" type="xml">
+      <list string="Розподіл ЗВВ">
+        <field name="name"/>
+        <field name="date_from"/>
+        <field name="date_to"/>
+        <field name="normal_hours"/>
+        <field name="actual_hours"/>
+        <field name="coefficient"/>
+        <field name="amount_base" sum="ЗВВ періоду"/>
+        <field name="amount_allocated" sum="Розподілено"/>
+        <field name="amount_unallocated" sum="Нерозподілено"/>
+        <field name="state" widget="badge"/>
+        <field name="currency_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_zvv_allocation_form" model="ir.ui.view">
+    <field name="name">ua.zvv.allocation.form</field>
+    <field name="model">ua.zvv.allocation</field>
+    <field name="arch" type="xml">
+      <form string="Розподіл ЗВВ">
+        <header>
+          <button name="action_compute" type="object" string="Розрахувати"
+                  invisible="state != 'draft'"/>
+          <button name="action_post" type="object" string="Провести"
+                  class="oe_highlight" invisible="state != 'draft'"/>
+          <button name="action_open_move" type="object" string="Проводка"
+                  invisible="not move_id"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
+        </header>
+        <sheet>
+          <div class="oe_title">
+            <h1><field name="name" readonly="1"/></h1>
+          </div>
+          <group>
+            <group string="Період">
+              <field name="date_from" readonly="state != 'draft'"/>
+              <field name="date_to" readonly="state != 'draft'"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+              <field name="note" readonly="state != 'draft'"/>
+            </group>
+            <group string="Потужність">
+              <field name="normal_hours" readonly="state != 'draft'"/>
+              <field name="actual_hours" readonly="state != 'draft'"/>
+              <field name="fixed_share" readonly="state != 'draft'"/>
+              <field name="coefficient"/>
+            </group>
+          </group>
+          <group>
+            <group string="Витрати періоду">
+              <field name="amount_base"/>
+              <field name="amount_fixed"/>
+              <field name="amount_variable"/>
+            </group>
+            <group string="Результат">
+              <field name="amount_allocated"/>
+              <field name="amount_unallocated"/>
+              <field name="move_id"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Рахунки ЗВВ">
+              <field name="line_ids" readonly="1">
+                <list>
+                  <field name="account_id"/>
+                  <field name="amount" sum="Сума"/>
+                  <field name="amount_allocated" sum="Розподілено"/>
+                  <field name="currency_id" column_invisible="1"/>
+                </list>
+              </field>
+            </page>
+          </notebook>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_zvv_allocation" model="ir.actions.act_window">
+    <field name="name">Розподіл ЗВВ</field>
+    <field name="res_model">ua.zvv.allocation</field>
+    <field name="view_mode">list,form</field>
+  </record>
+
+</odoo>

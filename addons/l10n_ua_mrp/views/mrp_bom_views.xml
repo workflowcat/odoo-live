@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="view_mrp_bom_form_ua_cost" model="ir.ui.view">
+    <field name="name">mrp.bom.form.ua.cost</field>
+    <field name="model">mrp.bom</field>
+    <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='product_qty']" position="after">
+        <field name="ua_currency_id" invisible="1"/>
+        <field name="ua_cost_material"/>
+        <field name="ua_cost_operation"/>
+        <field name="ua_cost_total"/>
+        <field name="ua_available_qty"/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_mrp_bom_list_ua_cost" model="ir.ui.view">
+    <field name="name">mrp.bom.list.ua.cost</field>
+    <field name="model">mrp.bom</field>
+    <field name="inherit_id" ref="mrp.mrp_bom_tree_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='product_qty']" position="after">
+        <field name="ua_cost_total"/>
+        <field name="ua_available_qty"/>
+        <field name="ua_currency_id" column_invisible="1"/>
+      </xpath>
+    </field>
+  </record>
+
+</odoo>

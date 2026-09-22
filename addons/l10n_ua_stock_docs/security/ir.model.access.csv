@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_stock_inventory_user,ua.stock.inventory user,model_ua_stock_inventory,base.group_user,1,0,0,0
+access_ua_stock_inventory_line_user,ua.stock.inventory.line user,model_ua_stock_inventory_line,base.group_user,1,0,0,0
+access_ua_stock_inventory_keeper,ua.stock.inventory keeper,model_ua_stock_inventory,stock.group_stock_manager,1,1,1,1
+access_ua_stock_inventory_line_keeper,ua.stock.inventory.line keeper,model_ua_stock_inventory_line,stock.group_stock_manager,1,1,1,1
+access_ua_stock_inventory_accountant,ua.stock.inventory accountant,model_ua_stock_inventory,account.group_account_user,1,1,1,1
+access_ua_stock_inventory_line_accountant,ua.stock.inventory.line accountant,model_ua_stock_inventory_line,account.group_account_user,1,1,1,1
+access_ua_quality_protocol_user,ua.quality.protocol user,model_ua_quality_protocol,base.group_user,1,0,0,0
+access_ua_quality_protocol_line_user,ua.quality.protocol.line user,model_ua_quality_protocol_line,base.group_user,1,0,0,0
+access_ua_quality_protocol_keeper,ua.quality.protocol keeper,model_ua_quality_protocol,stock.group_stock_user,1,1,1,1
+access_ua_quality_protocol_line_keeper,ua.quality.protocol.line keeper,model_ua_quality_protocol_line,stock.group_stock_user,1,1,1,1

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_ua_mrp_costing" name="Собівартість"
+            parent="mrp.menu_mrp_root" sequence="25"
+            groups="mrp.group_mrp_manager,account.group_account_user"/>
+  <menuitem id="menu_ua_cost_calculation" name="Калькуляція собівартості"
+            parent="menu_ua_mrp_costing" action="action_ua_cost_calculation" sequence="10"/>
+  <menuitem id="menu_ua_zvv_allocation" name="Розподіл ЗВВ"
+            parent="menu_ua_mrp_costing" action="action_ua_zvv_allocation" sequence="20"
+            groups="account.group_account_user"/>
+</odoo>

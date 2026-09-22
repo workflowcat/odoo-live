@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="view_ua_cost_calculation_list" model="ir.ui.view">
+    <field name="name">ua.cost.calculation.list</field>
+    <field name="model">ua.cost.calculation</field>
+    <field name="arch" type="xml">
+      <list string="Калькуляція собівартості">
+        <field name="name"/>
+        <field name="date_from"/>
+        <field name="date_to"/>
+        <field name="amount_material" sum="Матеріали"/>
+        <field name="amount_labour" sum="Оплата праці"/>
+        <field name="amount_zvv" sum="ЗВВ"/>
+        <field name="amount_total" sum="Разом"/>
+        <field name="currency_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_cost_calculation_form" model="ir.ui.view">
+    <field name="name">ua.cost.calculation.form</field>
+    <field name="model">ua.cost.calculation</field>
+    <field name="arch" type="xml">
+      <form string="Калькуляція собівартості">
+        <header>
+          <button name="action_compute" type="object" string="Зібрати" class="oe_highlight"/>
+        </header>
+        <sheet>
+          <div class="oe_title">
+            <h1><field name="name" readonly="1"/></h1>
+          </div>
+          <group>
+            <group string="Період">
+              <field name="date_from"/>
+              <field name="date_to"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+            </group>
+            <group string="Підсумок">
+              <field name="amount_material"/>
+              <field name="amount_labour"/>
+              <field name="amount_zvv"/>
+              <field name="amount_total"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+          </group>
+          <group>
+            <field name="product_ids" widget="many2many_tags"/>
+            <field name="note"/>
+          </group>
+          <notebook>
+            <page string="Вироби">
+              <field name="line_ids" readonly="1">
+                <list>
+                  <field name="product_id"/>
+                  <field name="quantity"/>
+                  <field name="uom_id"/>
+                  <field name="hours"/>
+                  <field name="amount_material" sum="Матеріали"/>
+                  <field name="amount_labour" sum="Оплата праці"/>
+                  <field name="amount_zvv" sum="ЗВВ"/>
+                  <field name="amount_total" sum="Разом"/>
+                  <field name="amount_unit"/>
+                  <field name="currency_id" column_invisible="1"/>
+                </list>
+              </field>
+            </page>
+          </notebook>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_cost_calculation" model="ir.actions.act_window">
+    <field name="name">Калькуляція собівартості</field>
+    <field name="res_model">ua.cost.calculation</field>
+    <field name="view_mode">list,form</field>
+  </record>
+
+</odoo>

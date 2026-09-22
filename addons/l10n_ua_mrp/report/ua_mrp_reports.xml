@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="action_report_ua_cost_calculation" model="ir.actions.report">
+    <field name="name">Калькуляція собівартості</field>
+    <field name="model">ua.cost.calculation</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_mrp.report_ua_cost_calculation</field>
+    <field name="report_file">l10n_ua_mrp.report_ua_cost_calculation</field>
+    <field name="binding_model_id" ref="model_ua_cost_calculation"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Калькуляція %s' % (object.name or '')</field>
+  </record>
+
+  <record id="action_report_ua_zvv_allocation" model="ir.actions.report">
+    <field name="name">Розрахунок розподілу ЗВВ</field>
+    <field name="model">ua.zvv.allocation</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_mrp.report_ua_zvv_allocation</field>
+    <field name="report_file">l10n_ua_mrp.report_ua_zvv_allocation</field>
+    <field name="binding_model_id" ref="model_ua_zvv_allocation"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Розподіл ЗВВ %s' % (object.name or '')</field>
+  </record>
+
+  <record id="action_report_ua_bom_cost" model="ir.actions.report">
+    <field name="name">Вартість специфікації</field>
+    <field name="model">mrp.bom</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_mrp.report_ua_bom_cost</field>
+    <field name="report_file">l10n_ua_mrp.report_ua_bom_cost</field>
+    <field name="binding_model_id" ref="mrp.model_mrp_bom"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Вартість специфікації %s' % (object.display_name or '')</field>
+  </record>
+
+  <template id="ua_mrp_style">
+    <style>
+      .ua-mrp { font-size: 11px; }
+      .ua-mrp h3 { text-align: center; margin-bottom: 2px; }
+      .ua-mrp .ua-sub { text-align: center; margin-bottom: 10px; }
+      .ua-mrp table.ua-grid { width: 100%; border-collapse: collapse; margin-top: 8px; }
+      .ua-mrp table.ua-grid th, .ua-mrp table.ua-grid td {
+        border: 1px solid #000; padding: 3px 4px; vertical-align: top; }
+      .ua-mrp table.ua-grid th { text-align: center; font-weight: bold; }
+      .ua-mrp .ua-num { text-align: right; }
+      .ua-mrp table.ua-req { width: 100%; margin-bottom: 6px; }
+      .ua-mrp table.ua-req td { padding: 1px 4px; vertical-align: top; }
+      .ua-mrp table.ua-req td.ua-key { width: 170px; color: #444; }
+      .ua-mrp .ua-sign { margin-top: 26px; width: 100%; }
+      .ua-mrp .ua-sign td { padding-top: 16px; }
+    </style>
+  </template>
+
+  <!-- Калькуляція: виріб у рядку, стаття витрат у колонці. -->
+  <template id="report_ua_cost_calculation_document">
+    <div class="page ua-mrp">
+      <t t-call="l10n_ua_mrp.ua_mrp_style"/>
+      <h3>Калькуляція собівартості продукції</h3>
+      <div class="ua-sub">№ <t t-out="doc.name"/></div>
+
+      <table class="ua-req">
+        <tr>
+          <td class="ua-key">Підприємство:</td>
+          <td><strong t-out="doc.company_id.name"/>
+            <t t-if="doc.company_id.company_registry">, ЄДРПОУ <t t-out="doc.company_id.company_registry"/></t>
+          </td>
+        </tr>
+        <tr>
+          <td class="ua-key">Період:</td>
+          <td><t t-out="doc.date_from.strftime('%d.%m.%Y')"/> - <t t-out="doc.date_to.strftime('%d.%m.%Y')"/></td>
+        </tr>
+        <tr t-if="doc.note">
+          <td class="ua-key">Примітка:</td>
+          <td><t t-out="doc.note"/></td>
+        </tr>
+      </table>
+
+      <table class="ua-grid">
+        <thead>
+          <tr>
+            <th>№</th>
+            <th>Виріб</th>
+            <th>Од.</th>
+            <th>Випуск</th>
+            <th>Матеріали</th>
+            <th>Оплата праці</th>
+            <th>ЗВВ</th>
+            <th>Разом</th>
+            <th>На одиницю</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr t-foreach="doc.line_ids" t-as="line">
+            <td class="ua-num"><t t-out="line_index + 1"/></td>
+            <td><t t-out="line.product_id.display_name"/></td>
+            <td><t t-out="line.uom_id.name"/></td>
+            <td class="ua-num"><t t-out="'%.3f' % line.quantity"/></td>
+            <td class="ua-num"><t t-out="'%.2f' % line.amount_material"/></td>
+            <td class="ua-num"><t t-out="'%.2f' % line.amount_labour"/></td>
+            <td class="ua-num"><t t-out="'%.2f' % line.amount_zvv"/></td>
+            <td class="ua-num"><t t-out="'%.2f' % line.amount_total"/></td>
+            <td class="ua-num"><t t-out="'%.2f' % line.amount_unit"/></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="4">Разом</th>
+            <th class="ua-num"><t t-out="'%.2f' % doc.amount_material"/></th>
+            <th class="ua-num"><t t-out="'%.2f' % doc.amount_labour"/></th>
+            <th class="ua-num"><t t-out="'%.2f' % doc.amount_zvv"/></th>
+            <th class="ua-num"><t t-out="'%.2f' % doc.amount_total"/></th>
+            <th></th>
+          </tr>
+        </tfoot>
+      </table>
+
+      <table class="ua-sign">
+        <tr>
+          <td>Головний бухгалтер ______________________</td>
+          <td>Економіст ______________________</td>
+        </tr>
+      </table>
+    </div>
+  </template>
+
+  <template id="report_ua_cost_calculation">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_mrp.report_ua_cost_calculation_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+
+  <!-- Розподіл ЗВВ: розрахунок коефіцієнта і рахунки, з яких зібрано базу. -->
+  <template id="report_ua_zvv_allocation_document">
+    <div class="page ua-mrp">
+      <t t-call="l10n_ua_mrp.ua_mrp_style"/>
+      <h3>Розрахунок розподілу загальновиробничих витрат</h3>
+      <div class="ua-sub">№ <t t-out="doc.name"/>, п. 16 П(С)БО 16</div>
+
+      <table class="ua-req">
+        <tr>
+          <td class="ua-key">Підприємство:</td>
+          <td><strong t-out="doc.company_id.name"/></td>
+        </tr>
+        <tr>
+          <td class="ua-key">Період:</td>
+          <td><t t-out="doc.date_from.strftime('%d.%m.%Y')"/> - <t t-out="doc.date_to.strftime('%d.%m.%Y')"/></td>
+        </tr>
+        <tr>
+          <td class="ua-key">Нормальна потужність:</td>
+          <td><t t-out="'%.2f' % doc.normal_hours"/> год</td>
+        </tr>
+        <tr>
+          <td class="ua-key">Фактично відпрацьовано:</td>
+          <td><t t-out="'%.2f' % doc.actual_hours"/> год</td>
+        </tr>
+        <tr>
+          <td class="ua-key">Коефіцієнт завантаження:</td>
+          <td><t t-out="'%.4f' % doc.coefficient"/></td>
+        </tr>
+      </table>
+
+      <table class="ua-grid">
+        <thead>
+          <tr><th>Показник</th><th>Сума, грн</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>ЗВВ періоду</td><td class="ua-num"><t t-out="'%.2f' % doc.amount_base"/></td></tr>
+          <tr><td>у тому числі постійні</td><td class="ua-num"><t t-out="'%.2f' % doc.amount_fixed"/></td></tr>
+          <tr><td>у тому числі змінні</td><td class="ua-num"><t t-out="'%.2f' % doc.amount_variable"/></td></tr>
+          <tr><td>Розподілено у виробництво (Дт 231)</td><td class="ua-num"><t t-out="'%.2f' % doc.amount_allocated"/></td></tr>
+          <tr><td>Нерозподілені постійні ЗВВ (Дт 901)</td><td class="ua-num"><t t-out="'%.2f' % doc.amount_unallocated"/></td></tr>
+        </tbody>
+      </table>
+
+      <table class="ua-grid" t-if="doc.line_ids">
+        <thead>
+          <tr><th>Рахунок</th><th>Сума за період</th><th>З них розподілено</th></tr>
+        </thead>
+        <tbody>
+          <tr t-foreach="doc.line_ids" t-as="line">
+            <td><t t-out="line.account_id.code"/> <t t-out="line.account_id.name"/></td>
+            <td class="ua-num"><t t-out="'%.2f' % line.amount"/></td>
+            <td class="ua-num"><t t-out="'%.2f' % line.amount_allocated"/></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="ua-sign">
+        <tr>
+          <td>Головний бухгалтер ______________________</td>
+          <td>Економіст ______________________</td>
+        </tr>
+      </table>
+    </div>
+  </template>
+
+  <template id="report_ua_zvv_allocation">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_mrp.report_ua_zvv_allocation_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+
+  <!-- Вартість специфікації і доступність комплектуючих. -->
+  <template id="report_ua_bom_cost_document">
+    <div class="page ua-mrp">
+      <t t-call="l10n_ua_mrp.ua_mrp_style"/>
+      <h3>Вартість специфікації</h3>
+      <div class="ua-sub"><t t-out="doc.display_name"/></div>
+
+      <table class="ua-req">
+        <tr>
+          <td class="ua-key">Виріб:</td>
+          <td><strong t-out="doc.product_tmpl_id.display_name"/></td>
+        </tr>
+        <tr>
+          <td class="ua-key">Партія специфікації:</td>
+          <td><t t-out="'%.3f' % doc.product_qty"/> <t t-out="doc.product_uom_id.name"/></td>
+        </tr>
+        <tr>
+          <td class="ua-key">Можемо зібрати:</td>
+          <td><t t-out="'%.3f' % doc.ua_available_qty"/></td>
+        </tr>
+      </table>
+
+      <table class="ua-grid">
+        <thead>
+          <tr>
+            <th>№</th><th>Компонент</th><th>Потреба</th><th>Од.</th>
+            <th>Облікова ціна</th><th>Сума</th><th>На складі</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr t-foreach="doc.bom_line_ids" t-as="line">
+            <td class="ua-num"><t t-out="line_index + 1"/></td>
+            <td><t t-out="line.product_id.display_name"/></td>
+            <td class="ua-num"><t t-out="'%.3f' % line.product_qty"/></td>
+            <td><t t-out="line.product_uom_id.name"/></td>
+            <td class="ua-num"><t t-out="'%.2f' % line.product_id.standard_price"/></td>
+            <td class="ua-num"><t t-out="'%.2f' % (line.product_qty * line.product_id.standard_price)"/></td>
+            <td class="ua-num"><t t-out="'%.3f' % line.product_id.qty_available"/></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="5">Матеріали на одиницю</th>
+            <th class="ua-num"><t t-out="'%.2f' % doc.ua_cost_material"/></th>
+            <th></th>
+          </tr>
+          <tr>
+            <th colspan="5">Операції на одиницю</th>
+            <th class="ua-num"><t t-out="'%.2f' % doc.ua_cost_operation"/></th>
+            <th></th>
+          </tr>
+          <tr>
+            <th colspan="5">Разом на одиницю</th>
+            <th class="ua-num"><t t-out="'%.2f' % doc.ua_cost_total"/></th>
+            <th></th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </template>
+
+  <template id="report_ua_bom_cost">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_mrp.report_ua_bom_cost_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+
+</odoo>
