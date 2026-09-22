@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Складальне креслення FPV «Шершень» 7", вид згори.
+     Кожна позиція специфікації - група з id pos-1 .. pos-11, а всередині неї
+     та сама геометрія під id bom-1 .. bom-11. Два імені навмисно: pos-N просив
+     екран збирання, bom-N чекає ua_assembly() в l10n_ua_mrp. Номер - порядковий
+     номер рядка специфікації (sequence, далі id), від одиниці. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 560" width="680" height="560"
+     font-family="Helvetica, Arial, sans-serif">
+  <title>FPV «Шершень» 7&quot;, вид згори</title>
+  <desc>Складальне креслення: 11 позицій специфікації, 6 операцій маршруту.</desc>
+
+  <defs>
+    <marker id="lead" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <circle cx="4" cy="4" r="2.4" fill="#1f2933"/>
+    </marker>
+    <style>
+      .part { fill: #e9eef3; stroke: #1f2933; stroke-width: 2; }
+      .metal { fill: #cfd8e0; stroke: #1f2933; stroke-width: 2; }
+      .board { fill: #d8e6d5; stroke: #1f2933; stroke-width: 2; }
+      .soft { fill: #f3e2c7; stroke: #1f2933; stroke-width: 2; }
+      .prop { fill: none; stroke: #1f2933; stroke-width: 1.6; stroke-dasharray: 5 4; }
+      .lead { stroke: #1f2933; stroke-width: 1.2; }
+      .num { font-size: 15px; font-weight: bold; fill: #1f2933; }
+      .cap { font-size: 12px; fill: #1f2933; }
+      .frame { fill: none; stroke: #1f2933; stroke-width: 1.5; }
+      .axis { stroke: #8a97a3; stroke-width: 1; stroke-dasharray: 8 6; }
+    </style>
+  </defs>
+
+  <rect x="8" y="8" width="664" height="544" class="frame" rx="4"/>
+  <text x="24" y="34" class="cap" font-size="14" font-weight="bold">
+    FPV «Шершень» 7&quot; - складальне креслення, вид згори (М 1:2)
+  </text>
+  <line x1="340" y1="70" x2="340" y2="470" class="axis"/>
+  <line x1="120" y1="280" x2="560" y2="280" class="axis"/>
+  <text x="330" y="86" class="cap">ніс</text>
+
+  <!-- 1. Рама: карбонова X-подібна дека з чотирма променями -->
+  <g id="pos-1">
+    <g id="bom-1">
+    <path class="part" d="M175 140 L230 195 L450 195 L505 140 L530 165 L470 225
+                          L470 335 L530 395 L505 420 L450 365 L230 365 L175 420
+                          L150 395 L210 335 L210 225 L150 165 Z"/>
+    <rect x="290" y="230" width="100" height="100" rx="8" class="part"/>
+    </g>
+  </g>
+
+  <!-- 2. Мотори 2207, чотири штуки -->
+  <g id="pos-2">
+    <g id="bom-2">
+    <circle cx="176" cy="164" r="26" class="metal"/>
+    <circle cx="504" cy="164" r="26" class="metal"/>
+    <circle cx="176" cy="396" r="26" class="metal"/>
+    <circle cx="504" cy="396" r="26" class="metal"/>
+    <circle cx="176" cy="164" r="8" fill="#1f2933"/>
+    <circle cx="504" cy="164" r="8" fill="#1f2933"/>
+    <circle cx="176" cy="396" r="8" fill="#1f2933"/>
+    <circle cx="504" cy="396" r="8" fill="#1f2933"/>
+    </g>
+  </g>
+
+  <!-- 3. Регулятор ESC 4-в-1 у центральному стеку (нижня плата) -->
+  <g id="pos-3">
+    <g id="bom-3">
+    <rect x="302" y="292" width="76" height="34" rx="4" class="board"/>
+    <line x1="310" y1="300" x2="370" y2="300" class="lead"/>
+    <line x1="310" y1="308" x2="370" y2="308" class="lead"/>
+    <line x1="310" y1="316" x2="370" y2="316" class="lead"/>
+    </g>
+  </g>
+
+  <!-- 4. Політний контролер (верхня плата стека) -->
+  <g id="pos-4">
+    <g id="bom-4">
+    <rect x="302" y="238" width="76" height="46" rx="4" class="board"/>
+    <rect x="330" y="252" width="20" height="18" rx="2" class="metal"/>
+    </g>
+  </g>
+
+  <!-- 5. Приймач ELRS з антенами -->
+  <g id="pos-5">
+    <g id="bom-5">
+    <rect x="392" y="248" width="34" height="20" rx="3" class="board"/>
+    <path d="M426 252 L462 236" class="lead" marker-end="url(#lead)"/>
+    <path d="M426 264 L462 280" class="lead" marker-end="url(#lead)"/>
+    </g>
+  </g>
+
+  <!-- 6. Камера FPV у носовій частині -->
+  <g id="pos-6">
+    <g id="bom-6">
+    <rect x="312" y="150" width="56" height="44" rx="6" class="part"/>
+    <circle cx="340" cy="172" r="14" class="metal"/>
+    <circle cx="340" cy="172" r="6" fill="#1f2933"/>
+    </g>
+  </g>
+
+  <!-- 7. Відеопередавач VTX -->
+  <g id="pos-7">
+    <g id="bom-7">
+    <rect x="254" y="248" width="34" height="24" rx="3" class="board"/>
+    <line x1="260" y1="256" x2="282" y2="256" class="lead"/>
+    <line x1="260" y1="264" x2="282" y2="264" class="lead"/>
+    </g>
+  </g>
+
+  <!-- 8. Антена відео на кормі -->
+  <g id="pos-8">
+    <g id="bom-8">
+    <path d="M340 330 L340 392" class="lead"/>
+    <circle cx="340" cy="400" r="13" class="metal"/>
+    <path d="M340 413 L340 436" class="lead"/>
+    </g>
+  </g>
+
+  <!-- 9. Пропелери 7 дюймів, чотири штуки -->
+  <g id="pos-9">
+    <g id="bom-9">
+    <circle cx="176" cy="164" r="66" class="prop"/>
+    <circle cx="504" cy="164" r="66" class="prop"/>
+    <circle cx="176" cy="396" r="66" class="prop"/>
+    <circle cx="504" cy="396" r="66" class="prop"/>
+    </g>
+  </g>
+
+  <!-- 10. Акумулятор Li-ion 6S зверху на деці -->
+  <g id="pos-10">
+    <g id="bom-10">
+    <rect x="286" y="186" width="108" height="56" rx="6" class="soft" opacity="0.92"/>
+    <line x1="296" y1="200" x2="384" y2="200" class="lead"/>
+    <line x1="296" y1="214" x2="384" y2="214" class="lead"/>
+    <line x1="296" y1="228" x2="384" y2="228" class="lead"/>
+    </g>
+  </g>
+
+  <!-- 11. Ремінець і комплект пакування -->
+  <g id="pos-11">
+    <g id="bom-11">
+    <rect x="280" y="196" width="120" height="12" rx="3" class="metal" opacity="0.85"/>
+    <rect x="280" y="224" width="120" height="12" rx="3" class="metal" opacity="0.85"/>
+    </g>
+  </g>
+
+  <!-- Виноски позицій -->
+  <g class="lead">
+    <path d="M150 165 L86 120" marker-end="url(#lead)"/>
+    <path d="M176 138 L116 78" marker-end="url(#lead)"/>
+    <path d="M302 309 L214 309" marker-end="url(#lead)"/>
+    <path d="M302 254 L214 254" marker-end="url(#lead)"/>
+    <path d="M426 258 L516 258" marker-end="url(#lead)"/>
+    <path d="M368 158 L444 122" marker-end="url(#lead)"/>
+    <path d="M254 260 L180 260" marker-end="url(#lead)"/>
+    <path d="M353 400 L432 432" marker-end="url(#lead)"/>
+    <path d="M242 164 L242 112" marker-end="url(#lead)"/>
+    <path d="M394 214 L486 190" marker-end="url(#lead)"/>
+    <path d="M280 230 L200 206" marker-end="url(#lead)"/>
+  </g>
+
+  <g class="num">
+    <text x="70" y="116">1</text>
+    <text x="104" y="74">2</text>
+    <text x="200" y="314">3</text>
+    <text x="200" y="259">4</text>
+    <text x="520" y="263">5</text>
+    <text x="448" y="118">6</text>
+    <text x="166" y="265">7</text>
+    <text x="436" y="446">8</text>
+    <text x="236" y="106">9</text>
+    <text x="490" y="186">10</text>
+    <text x="186" y="202">11</text>
+  </g>
+
+  <g class="cap">
+    <text x="24" y="500">1 рама · 2 мотори (4) · 3 ESC 4-в-1 · 4 політний контролер · 5 приймач ELRS · 6 камера</text>
+    <text x="24" y="518">7 відеопередавач · 8 антена відео · 9 пропелери (4) · 10 акумулятор 6S · 11 ремінець і пакування</text>
+    <text x="24" y="540">Операції маршруту: 1 розкрій і рама · 2 пайка силової · 3 монтаж і прошивка · 4 збирання · 5 ВТК · 6 пакування</text>
+  </g>
+</svg>

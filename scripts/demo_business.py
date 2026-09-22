@@ -29,7 +29,21 @@ ENV = dict(l.split("=", 1) for l in open(os.path.join(ROOT, ".env")).read().spli
 URL = os.environ.get("ODOO_URL", "http://127.0.0.1:8131").rstrip("/")
 DB = os.environ.get("DEMO_DB", "demo").strip()
 PW = ENV["ODOO_ADMIN_USER_PASSWORD"].strip()
-COMPANY = 1
+CO_ID = 1   # id компанії в базі: перша компанія стенду
+
+# Компанія демо в одному місці: перейменування - один рядок тут. Реквізити, які
+# пише кадровий будівник (scripts/demo_company.py), звіряються з цим словником, а
+# розбіжність друкується попередженням, а не мовчки лишається в базі.
+COMPANY = {
+    "name": "ТОВ «Ясен Меблі»",
+    "short": "Ясен Меблі",
+    "city": "Львів",
+    "street": "вул. Городоцька, 174",
+    "zip": "79022",
+    "edrpou7": "4381207",
+    "vat": "438120726558",
+    "actual": "81130, Сокільники, вул. Промислова, 8",
+}
 
 _opener = urllib.request.build_opener()
 _opener.addheaders = [("User-Agent", "Mozilla/5.0 (Macintosh) AppleWebKit/537.36 Chrome/128 Safari/537.36")]
@@ -110,13 +124,13 @@ def ensure_chart():
     на завантаження плану (_post_load_data у l10n_ua_chart, l10n_ua_bank, l10n_ua_cash),
     тому тут нічого доробляти не треба.
     """
-    co = call("res.company", "read", [COMPANY], ["country_id", "chart_template"])[0]
+    co = call("res.company", "read", [CO_ID], ["country_id", "chart_template"])[0]
     ua = call("res.country", "search", [["code", "=", "UA"]])[0]
     if not co["country_id"] or co["country_id"][0] != ua:
-        call("res.company", "write", [COMPANY], {"country_id": ua})
+        call("res.company", "write", [CO_ID], {"country_id": ua})
     if co["chart_template"] != "ua_psbo":
         say("План рахунків ua_psbo ще не завантажено - завантажуємо через try_loading.")
-        call("account.chart.template", "try_loading", "ua_psbo", COMPANY, False)
+        call("account.chart.template", "try_loading", "ua_psbo", CO_ID, False)
     say("План рахунків: ua_psbo, країна: Україна.")
 
 
@@ -156,14 +170,14 @@ LOCKS = ["fiscalyear_lock_date", "tax_lock_date", "hard_lock_date",
 def read_locks():
     fields_present = call("res.company", "fields_get", [], {"attributes": ["type"]})
     keys = [k for k in LOCKS if k in fields_present]
-    return keys, call("res.company", "read", [COMPANY], keys)[0]
+    return keys, call("res.company", "read", [CO_ID], keys)[0]
 
 
 def unlock_periods():
     keys, saved = read_locks()
     vals = {k: False for k in keys if saved.get(k)}
     if vals:
-        call("res.company", "write", [COMPANY], vals)
+        call("res.company", "write", [CO_ID], vals)
         say("Дати блокування тимчасово знято: " + ", ".join(vals))
     return {k: saved.get(k) for k in keys}
 
@@ -186,7 +200,7 @@ def merge_locks(first, second):
 def relock_periods(saved):
     vals = {k: v for k, v in saved.items() if v}
     if vals:
-        call("res.company", "write", [COMPANY], vals)
+        call("res.company", "write", [CO_ID], vals)
         say("Дати блокування повернуто: " + ", ".join(f"{k}={v}" for k, v in vals.items()))
 
 
@@ -194,19 +208,26 @@ def relock_periods(saved):
 # 4. Реквізити компанії для первинки і ПДВ
 # =====================================================================================
 def company_details():
-    co = call("res.company", "read", [COMPANY], ["partner_id", "company_registry"])[0]
-    call("res.company", "write", [COMPANY], {
-        "vat": "438120726558",
+    co = call("res.company", "read", [CO_ID], ["partner_id", "company_registry", "name"])[0]
+    call("res.company", "write", [CO_ID], {
+        "name": COMPANY["name"],
+        "street": COMPANY["street"], "city": COMPANY["city"], "zip": COMPANY["zip"],
+        "company_registry": edrpou(COMPANY["edrpou7"]),
+        "vat": COMPANY["vat"],
         "ua_acts_on_basis": "Статуту",
         "ua_cash_limit": 20000.0,
         "ua_dps_reg": "13", "ua_dps_raj": "06", "ua_dps_sti": "1306",
     })
     call("res.partner", "write", [co["partner_id"][0]], {
-        "vat": "438120726558",
+        "vat": COMPANY["vat"],
         "ua_vat_payer_status": "payer",
-        "ua_actual_address": "81130, Сокільники, вул. Промислова, 8",
+        "ua_actual_address": COMPANY["actual"],
     })
-    say("Реквізити компанії: ІПН, ліміт каси 20 000 грн, коди ДПІ Львівщини.")
+    if co["name"] != COMPANY["name"]:
+        say(f"Назву компанії змінено: «{co['name']}» -> «{COMPANY['name']}» "
+            f"(джерело - словник COMPANY на початку скрипта).")
+    say(f"Реквізити компанії «{COMPANY['name']}»: ІПН, ліміт каси 20 000 грн, "
+        f"коди ДПІ Львівщини.")
 
 
 def pricelists():
@@ -217,11 +238,11 @@ def pricelists():
     завести окремий експортний - валюта замовлення related до прайс-листа, тому
     інакше експорт у євро не оформити.
     """
-    uah = call("res.company", "read", [COMPANY], ["currency_id"])[0]["currency_id"][0]
+    uah = call("res.company", "read", [CO_ID], ["currency_id"])[0]["currency_id"][0]
     eur = call("res.currency", "search", [["name", "=", "EUR"]], context={"active_test": False})
     call("res.currency", "write", eur, {"active": True})
     export = upsert("product.pricelist", [["name", "=", "Експорт (EUR)"]],
-                    {"name": "Експорт (EUR)", "currency_id": eur[0], "company_id": COMPANY})
+                    {"name": "Експорт (EUR)", "currency_id": eur[0], "company_id": CO_ID})
     wrong = [p for p in call("product.pricelist", "search", [["currency_id", "!=", uah]])
              if p != export]
     if wrong:
@@ -373,13 +394,25 @@ GOODS = [
     ("F08", "Тумба приліжкова «Соната»", 4700.0, "9403500000",
      [("M02", 1), ("M06", 6), ("M12", 1), ("M13", 1), ("M09", 0.4), ("M16", 1)]),
 ]
+# Габарит для карти складу: скільки місць займає одиниця (s=1, m=4, l=16).
+# Листи, скло і корпусні меблі - великі; брус, тканина, стільці - середні;
+# фурнітура, кріплення і хімія - дрібні.
+SIZE = {
+    "M01": "l", "M02": "l", "M03": "l", "M04": "m", "M05": "m", "M06": "s",
+    "M07": "s", "M08": "s", "M09": "s", "M10": "s", "M11": "s", "M12": "s",
+    "M13": "s", "M14": "s", "M15": "s", "M16": "s", "M17": "m", "M18": "m",
+    "M19": "l", "M20": "l",
+    "F01": "l", "F02": "l", "F03": "m", "F04": "m", "F05": "l", "F06": "l",
+    "F07": "l", "F08": "m",
+}
+
 SERVICES = [
     ("SV1", "Доставка меблів по Україні", 1800.0),
     ("SV2", "Збирання меблів у замовника", 2600.0),
 ]
 
 
-def _account_by_code(code, company=COMPANY):
+def _account_by_code(code, company=CO_ID):
     """Рахунок за кодом у конкретній компанії.
 
     Код рахунку в Odoo 19 залежить від компанії, тому й пошук іде в її контексті:
@@ -400,14 +433,14 @@ def native_valuation():
     ручні проводки собівартості з цього скрипта були б другим обліком тих самих сум,
     тому вони лишаються тільки для бази без l10n_ua_mrp.
     """
-    co = call("res.company", "read", [COMPANY], ["inventory_valuation", "cost_method"])[0]
+    co = call("res.company", "read", [CO_ID], ["inventory_valuation", "cost_method"])[0]
     return co["inventory_valuation"] == "real_time", co
 
 
 def taxes():
     def one(use, amount, zero_kind=None):
         dom = [["type_tax_use", "=", use], ["amount", "=", amount],
-               ["company_id", "=", COMPANY], ["amount_type", "=", "percent"]]
+               ["company_id", "=", CO_ID], ["amount_type", "=", "percent"]]
         if zero_kind:
             dom.append(["tax_group_id.ua_vat_zero_kind", "=", zero_kind])
         ids = call("account.tax", "search", dom, limit=1)
@@ -435,22 +468,29 @@ def products(tx):
         "property_account_expense_categ_id": _account_by_code("949"),
         "property_account_income_categ_id": _account_by_code("703")})
     P = {}
+    size = "ua_size" in call("product.template", "fields_get", ["ua_size"], ["type"])
     for code, name, price, uktzed in COMPONENTS:
-        tid = upsert("product.template", [["default_code", "=", code]], {
+        vals = {
             "name": name, "default_code": code, "type": "consu", "is_storable": True,
             "categ_id": cat_mat, "standard_price": price, "list_price": price * 1.4,
             "ua_uktzed": uktzed, "purchase_ok": True, "sale_ok": False,
             "supplier_taxes_id": [(6, 0, [tx["purchase20"]])] if tx["purchase20"] else False,
-            "taxes_id": [(6, 0, [tx["sale20"]])] if tx["sale20"] else False})
+            "taxes_id": [(6, 0, [tx["sale20"]])] if tx["sale20"] else False}
+        if size:
+            vals["ua_size"] = SIZE[code]
+        tid = upsert("product.template", [["default_code", "=", code]], vals)
         P[code] = call("product.product", "search", [["product_tmpl_id", "=", tid]])[0]
     comp_price = dict((c[0], c[2]) for c in COMPONENTS)
     for code, name, price, uktzed, bom in GOODS:
         cost = round(sum(comp_price[m] * q for m, q in bom), 2)
-        tid = upsert("product.template", [["default_code", "=", code]], {
+        vals = {
             "name": name, "default_code": code, "type": "consu", "is_storable": True,
             "categ_id": cat_fin, "standard_price": cost, "list_price": price,
             "ua_uktzed": uktzed, "purchase_ok": False, "sale_ok": True,
-            "taxes_id": [(6, 0, [tx["sale20"]])] if tx["sale20"] else False})
+            "taxes_id": [(6, 0, [tx["sale20"]])] if tx["sale20"] else False}
+        if size:
+            vals["ua_size"] = SIZE[code]
+        tid = upsert("product.template", [["default_code", "=", code]], vals)
         P[code] = call("product.product", "search", [["product_tmpl_id", "=", tid]])[0]
     for code, name, price in SERVICES:
         tid = upsert("product.template", [["default_code", "=", code]], {
@@ -460,7 +500,8 @@ def products(tx):
             "taxes_id": [(6, 0, [tx["sale20"]])] if tx["sale20"] else False})
         P[code] = call("product.product", "search", [["product_tmpl_id", "=", tid]])[0]
     say(f"Номенклатура: {len(COMPONENTS)} матеріалів, {len(GOODS)} готових виробів, "
-        f"{len(SERVICES)} послуги; УКТ ЗЕД проставлено.")
+        f"{len(SERVICES)} послуги; УКТ ЗЕД проставлено, габарит S/M/L "
+        + ("проставлено" if size else "пропущено - поля ua_size ще немає") + ".")
     return P
 
 
@@ -472,7 +513,7 @@ def boms(P):
             continue
         call("mrp.bom", "create", {
             "product_tmpl_id": tmpl, "product_qty": 1, "type": "normal",
-            "company_id": COMPANY,
+            "company_id": CO_ID,
             "bom_line_ids": [(0, 0, {"product_id": P[m], "product_qty": q}) for m, q in bom]})
         n += 1
     say(f"Специфікації (BOM): {n} створено, усього {call('mrp.bom', 'search_count', [])}.")
@@ -488,7 +529,7 @@ def nbu_rates():
     call("res.currency", "write", eur + usd, {"active": True})
     if not prov:
         prov = [call("res.currency.rate.provider", "create", {
-            "service": "NBU", "company_id": COMPANY, "currency_ids": [(6, 0, eur + usd)],
+            "service": "NBU", "company_id": CO_ID, "currency_ids": [(6, 0, eur + usd)],
             "interval_type": "days", "interval_number": 1})]
     else:
         call("res.currency.rate.provider", "write", prov, {"currency_ids": [(6, 0, eur + usd)]})
@@ -509,8 +550,8 @@ def nbu_rates():
         for d, e_rate, u_rate in manual:
             for cur, uah in ((eur[0], e_rate), (usd[0], u_rate)):
                 upsert("res.currency.rate",
-                       [["name", "=", d], ["currency_id", "=", cur], ["company_id", "=", COMPANY]],
-                       {"name": d, "currency_id": cur, "company_id": COMPANY,
+                       [["name", "=", d], ["currency_id", "=", cur], ["company_id", "=", CO_ID]],
+                       {"name": d, "currency_id": cur, "company_id": CO_ID,
                         "inverse_company_rate": uah})
         say("Курси НБУ: вставлено вручну 12 записів (EUR і USD, липень-вересень) - "
             "зовнішній API недоступний або не дав даних.")
@@ -587,7 +628,7 @@ def purchases(PR, P, tx):
             po = ids[0]
         else:
             po = call("purchase.order", "create", {
-                "partner_id": PR[sup], "partner_ref": ref, "company_id": COMPANY,
+                "partner_id": PR[sup], "partner_ref": ref, "company_id": CO_ID,
                 "date_order": day + " 09:00:00",
                 "order_line": [(0, 0, {
                     "product_id": P[code], "product_qty": qty,
@@ -616,7 +657,7 @@ def purchases(PR, P, tx):
         if call("account.move", "search_count", [["ref", "=", key], ["move_type", "=", "in_invoice"]]):
             continue
         mid = call("account.move", "create", {
-            "move_type": "in_invoice", "partner_id": PR[sup], "company_id": COMPANY,
+            "move_type": "in_invoice", "partner_id": PR[sup], "company_id": CO_ID,
             "invoice_date": day, "date": day, "ref": key,
             "ua_in_pn_registered": True,
             "invoice_line_ids": [(0, 0, {
@@ -656,7 +697,7 @@ def manufacturing(P):
                        call("product.product", "read", [P[code]], ["product_tmpl_id"])[0]["product_tmpl_id"][0]]])[0]
             mo = call("mrp.production", "create", {
                 "product_id": P[code], "product_qty": qty, "bom_id": bom,
-                "origin": ref, "company_id": COMPANY,
+                "origin": ref, "company_id": CO_ID,
                 "date_start": day + " 08:00:00"})
         st = call("mrp.production", "read", [mo], ["state", "move_raw_ids"])[0]
         if st["state"] == "draft":
@@ -695,14 +736,14 @@ def manufacturing(P):
 def production_cost_entries(costs):
     """Собівартість періодичним методом: Дт 23 / Кт 201, далі Дт 26 / Кт 23."""
     a23, a201, a26 = _account_by_code("23"), _account_by_code("201"), _account_by_code("26")
-    jr = call("account.journal", "search", [["type", "=", "general"], ["company_id", "=", COMPANY]])[0]
+    jr = call("account.journal", "search", [["type", "=", "general"], ["company_id", "=", CO_ID]])[0]
     n = 0
     for ref, (code, qty, amount, day) in costs.items():
         key = f"Собівартість випуску {ref}"
         if call("account.move", "search_count", [["ref", "=", key]]):
             continue
         mid = call("account.move", "create", {
-            "journal_id": jr, "company_id": COMPANY, "date": day, "ref": key,
+            "journal_id": jr, "company_id": CO_ID, "date": day, "ref": key,
             "line_ids": [
                 (0, 0, {"account_id": a23, "name": f"Матеріали у виробництво {ref}",
                         "debit": amount, "credit": 0.0}),
@@ -744,12 +785,12 @@ RETURN_ORDER = "ЗМ-2026-06"   # з нього оформимо поверне�
 
 
 def _bank_journal():
-    return call("account.journal", "search", [["type", "=", "bank"], ["company_id", "=", COMPANY]])[0]
+    return call("account.journal", "search", [["type", "=", "bank"], ["company_id", "=", CO_ID]])[0]
 
 
 def _cash_journal():
     """Журнал каси. Його заводить l10n_ua_cash на завантаження плану ua_psbo."""
-    ids = call("account.journal", "search", [["type", "=", "cash"], ["company_id", "=", COMPANY]])
+    ids = call("account.journal", "search", [["type", "=", "cash"], ["company_id", "=", CO_ID]])
     if not ids:
         sys.exit("Немає касового журналу: модуль l10n_ua_cash мав створити його разом із планом.")
     return ids[0]
@@ -771,7 +812,7 @@ def _statement_echo(journal, payment_id, amount, day, kind, memo):
         return
     partner = call("account.payment", "read", [payment_id], ["partner_id"])[0]["partner_id"]
     line = call("account.bank.statement.line", "create", {
-        "journal_id": journal, "company_id": COMPANY, "date": day, "payment_ref": memo,
+        "journal_id": journal, "company_id": CO_ID, "date": day, "payment_ref": memo,
         "amount": round(amount, 2) * (1 if kind == "inbound" else -1),
         "partner_id": partner[0] if partner else False})
     call("ua.bank.ops", "action_match_payments", line_id=line)
@@ -787,7 +828,7 @@ def _pay(partner, amount, day, kind, memo, journal=None, dest=None, ptype=None):
         vals = {"payment_type": kind,
                 "partner_type": ptype or ("customer" if kind == "inbound" else "supplier"),
                 "partner_id": partner, "amount": round(amount, 2), "date": day,
-                "journal_id": journal, "company_id": COMPANY, "memo": memo}
+                "journal_id": journal, "company_id": CO_ID, "memo": memo}
         if dest:
             vals["destination_account_id"] = dest
         pid = call("account.payment", "create", vals)
@@ -837,7 +878,7 @@ def sales(PR, P, tx):
             so = ids[0]
         else:
             so = call("sale.order", "create", {
-                "partner_id": PR[cust], "client_order_ref": ref, "company_id": COMPANY,
+                "partner_id": PR[cust], "client_order_ref": ref, "company_id": CO_ID,
                 "date_order": day + " 10:00:00",
                 "order_line": [(0, 0, {"product_id": P[c], "product_uom_qty": q,
                                        "price_unit": prices[c],
@@ -878,7 +919,7 @@ def export_sale(PR, P, tx, export_pricelist):
         so = ids[0]
     else:
         so = call("sale.order", "create", {
-            "partner_id": PR[cust], "client_order_ref": ref, "company_id": COMPANY,
+            "partner_id": PR[cust], "client_order_ref": ref, "company_id": CO_ID,
             "date_order": day + " 10:00:00", "pricelist_id": export_pricelist,
             "order_line": [(0, 0, {"product_id": P[c], "product_uom_qty": q,
                                    "price_unit": round(dict((g[0], g[2]) for g in GOODS)[c] / 47.0, 2),
@@ -947,10 +988,10 @@ def cogs_entries():
     дорівнює вартості готової продукції на складі.
     """
     a901, a26 = _account_by_code("901"), _account_by_code("26")
-    jr = call("account.journal", "search", [["type", "=", "general"], ["company_id", "=", COMPANY]])[0]
+    jr = call("account.journal", "search", [["type", "=", "general"], ["company_id", "=", CO_ID]])[0]
     picks = call("stock.picking", "search_read",
                  [["state", "=", "done"], ["picking_type_code", "=", "outgoing"],
-                  ["company_id", "=", COMPANY]],
+                  ["company_id", "=", CO_ID]],
                  fields=["name", "date_done", "move_ids"])
     n, total = 0, 0.0
     for pk in picks:
@@ -971,7 +1012,7 @@ def cogs_entries():
             continue
         day = (pk["date_done"] or "")[:10] or "2026-09-30"
         mid = call("account.move", "create", {
-            "journal_id": jr, "company_id": COMPANY, "date": day, "ref": key,
+            "journal_id": jr, "company_id": CO_ID, "date": day, "ref": key,
             "line_ids": [(0, 0, {"account_id": a901, "name": key, "debit": amount, "credit": 0.0}),
                          (0, 0, {"account_id": a26, "name": key, "debit": 0.0, "credit": amount})]})
         call("account.move", "action_post", [mid])
@@ -984,7 +1025,7 @@ def tax_invoices():
     """Податкові накладні на всі вихідні рахунки платникам ПДВ; частину реєструємо."""
     moves = call("account.move", "search_read",
                  [["move_type", "=", "out_invoice"], ["state", "=", "posted"],
-                  ["company_id", "=", COMPANY], ["reversed_entry_id", "=", False],
+                  ["company_id", "=", CO_ID], ["reversed_entry_id", "=", False],
                   ["partner_id.ua_vat_payer_status", "=", "payer"]],
                  fields=["invoice_date", "name"])
     made = 0
@@ -1015,7 +1056,7 @@ def tax_invoices():
 def bank_money(PR):
     bills = call("account.move", "search_read",
                  [["move_type", "=", "in_invoice"], ["state", "=", "posted"],
-                  ["company_id", "=", COMPANY], ["invoice_date", "<=", "2026-09-15"]],
+                  ["company_id", "=", CO_ID], ["invoice_date", "<=", "2026-09-15"]],
                  fields=["partner_id", "amount_total", "invoice_date", "name", "payment_state"])
     paid = 0
     for b in bills:
@@ -1029,7 +1070,7 @@ def bank_money(PR):
         _reconcile_payment_with_invoice(p, b["id"])
         paid += 1
     # сплата ПДВ за липень і серпень: Дт 6412 / Кт 311
-    jr = call("account.journal", "search", [["type", "=", "general"], ["company_id", "=", COMPANY]])[0]
+    jr = call("account.journal", "search", [["type", "=", "general"], ["company_id", "=", CO_ID]])[0]
     a6412, a311 = _account_by_code("6412"), _account_by_code("311")
     n = 0
     for day, amount, label in [("2026-08-28", 72000.0, "ПДВ за липень 2026"),
@@ -1038,7 +1079,7 @@ def bank_money(PR):
         if call("account.move", "search_count", [["ref", "=", key]]):
             continue
         mid = call("account.move", "create", {
-            "journal_id": jr, "company_id": COMPANY, "date": day, "ref": key,
+            "journal_id": jr, "company_id": CO_ID, "date": day, "ref": key,
             "line_ids": [(0, 0, {"account_id": a6412, "partner_id": PR["DPS"], "name": key,
                                  "debit": amount, "credit": 0.0}),
                          (0, 0, {"account_id": a311, "partner_id": PR["DPS"], "name": key,
@@ -1066,9 +1107,9 @@ def cash_deposit_statement_line():
     if call("account.bank.statement.line", "search_count", [["payment_ref", "=", ref]]):
         return
     call("account.bank.statement.line", "create", {
-        "journal_id": journal, "company_id": COMPANY,
+        "journal_id": journal, "company_id": CO_ID,
         "date": (date.fromisoformat(CASH_DEPOSIT[0]) + timedelta(days=1)).isoformat(),
-        "payment_ref": ref, "amount": CASH_DEPOSIT[1], "partner_name": "ТОВ «Ясен Меблі»"})
+        "payment_ref": ref, "amount": CASH_DEPOSIT[1], "partner_name": COMPANY["name"]})
     result = call("ua.bank.ops", "action_apply_rules", journal_id=journal)
     say("Каса -> банк: " + result["message"].replace("\n", " | "))
 
@@ -1108,7 +1149,7 @@ def cash_orders(PR):
     if not rep:
         rid = call("ua.advance.report", "create", {
             "partner_id": person, "date": "2026-09-15", "payment_id": adv,
-            "company_id": COMPANY,
+            "company_id": CO_ID,
             "line_ids": [
                 (0, 0, {"name": "Пально-мастильні матеріали, чек № 0451",
                         "amount": 3800.0, "expense_account_id": _account_by_code("93")}),
@@ -1125,7 +1166,7 @@ def cash_orders(PR):
     book = call("ua.cash.book", "search", [["date_from", "=", "2026-09-01"]])
     if not book:
         book = [call("ua.cash.book", "create", {
-            "company_id": COMPANY, "journal_id": cash,
+            "company_id": CO_ID, "journal_id": cash,
             "date_from": "2026-09-01", "date_to": "2026-09-30"})]
     call("ua.cash.book", "action_compute", book)
     b = call("ua.cash.book", "read", book, ["opening_balance", "total_in", "total_out",
@@ -1150,12 +1191,12 @@ ASSETS = [
 
 
 def assets(PR, tx):
-    jr = call("account.journal", "search", [["type", "=", "general"], ["company_id", "=", COMPANY]])[0]
+    jr = call("account.journal", "search", [["type", "=", "general"], ["company_id", "=", CO_ID]])[0]
     a152, a6441, a631 = _account_by_code("152"), _account_by_code("6441"), _account_by_code("631")
     created = []
     for code, name, group, value, day, place, who in ASSETS:
         prof = call("account.asset.profile", "search",
-                    [["ua_tax_group", "=", group], ["company_id", "=", COMPANY]], limit=1)
+                    [["ua_tax_group", "=", group], ["company_id", "=", CO_ID]], limit=1)
         if not prof:
             say(f"   профіль {group} не знайдено - {code} пропущено")
             continue
@@ -1169,7 +1210,7 @@ def assets(PR, tx):
         if not call("account.move", "search_count", [["ref", "=", key]]):
             vat = round(value * 0.2, 2)
             mid = call("account.move", "create", {
-                "journal_id": jr, "company_id": COMPANY, "date": day, "ref": key,
+                "journal_id": jr, "company_id": CO_ID, "date": day, "ref": key,
                 "line_ids": [
                     (0, 0, {"account_id": a152, "partner_id": PR["DEMO-S03"], "name": name,
                             "debit": value, "credit": 0.0}),
@@ -1186,7 +1227,7 @@ def assets(PR, tx):
         # Рахунки і журнал актив бере з профілю; у самого активу таких полів немає,
         # а строк і метод по RPC не підтягуються onchange - переносимо явно.
         vals = {"name": name, "code": code, "profile_id": prof[0], "purchase_value": value,
-                "date_start": day, "company_id": COMPANY, "method": pr["method"],
+                "date_start": day, "company_id": CO_ID, "method": pr["method"],
                 "method_number": pr["method_number"], "method_period": pr["method_period"],
                 "method_time": pr["method_time"], "prorata": pr["prorata"],
                 "ua_location": place, "ua_responsible": who,
@@ -1218,7 +1259,7 @@ def assets(PR, tx):
             break
     # відомість амортизації за вересень
     sheet = call("ua.depreciation.sheet", "create",
-                 {"company_id": COMPANY, "date_from": "2026-09-01", "date_to": "2026-09-30"})
+                 {"company_id": CO_ID, "date_from": "2026-09-01", "date_to": "2026-09-30"})
     try:
         call("ua.depreciation.sheet", "action_compute", [sheet])
     except RpcError:
@@ -1256,7 +1297,7 @@ def crm(PR):
             continue
         call("crm.lead", "create", {
             "name": name, "partner_id": PR[cust], "type": "opportunity",
-            "expected_revenue": value, "probability": prob, "company_id": COMPANY,
+            "expected_revenue": value, "probability": prob, "company_id": CO_ID,
             "stage_id": stages[min(stage_idx, len(stages) - 1)]["id"] if stages else False})
         made += 1
     say(f"CRM: {made} нових нагод, усього {call('crm.lead', 'search_count', [])}; "
@@ -1322,12 +1363,64 @@ def buyer_user():
                          "purchase_request.group_purchase_request_manager",
                          "stock.group_stock_user", "base.group_user"])
     vals = {"name": BUYER_NAME, "login": BUYER_LOGIN, "password": PW,
-            "company_id": COMPANY, "company_ids": [(6, 0, [COMPANY])],
+            "company_id": CO_ID, "company_ids": [(6, 0, [CO_ID])],
             "lang": "uk_UA", "group_ids": [(4, g) for g in groups]}
     if ids:
         call("res.users", "write", [ids[0]], vals)
         return ids[0]
     return call("res.users", "create", vals)
+
+
+# Користувач зовнішнього тестового сайту. Пароль лежить у 1Password і читається
+# щоразу під час прогону: ні в цьому файлі, ні в .env його немає.
+LAB_LOGIN = "lab"
+LAB_NAME = "Лабораторія (зовнішній тестовий сайт)"
+LAB_OP_REF = "op://ToolKit/Odoo Lab/password"
+OP_BIN = os.path.expanduser("~/.local/bin/op")
+
+
+def _op_read(ref):
+    """Значення з 1Password або None. Саме значення ніде не друкуємо."""
+    if not os.path.exists(OP_BIN):
+        say(f"УВАГА: op CLI не знайдено ({OP_BIN}) - користувача {LAB_LOGIN} пропущено.")
+        return None
+    p = subprocess.run([OP_BIN, "read", ref], capture_output=True, text=True)
+    if p.returncode != 0 or not p.stdout.strip():
+        first = (p.stderr or "").strip().splitlines()
+        say(f"УВАГА: 1Password не дав {ref} ({first[0][:110] if first else 'порожньо'}) - "
+            f"користувача {LAB_LOGIN} пропущено.")
+        return None
+    return p.stdout.strip()
+
+
+def lab_user():
+    """Користувач lab для зовнішнього тестового сайту: склад + виробництво.
+
+    Ідемпотентно: якщо 1Password недоступний, наявного користувача лишаємо як є,
+    а відсутнього просто не заводимо - пароля в репозиторії не тримаємо.
+    """
+    ids = call("res.users", "search", [["login", "=", LAB_LOGIN]],
+               context={"active_test": False})
+    pwd = _op_read(LAB_OP_REF)
+    if not pwd:
+        if ids:
+            say(f"Користувач {LAB_LOGIN} на місці (id {ids[0]}), пароль не чіпали.")
+        return ids[0] if ids else None
+    groups = _group_ids(["base.group_user", "stock.group_stock_user",
+                         "mrp.group_mrp_user"])
+    vals = {"name": LAB_NAME, "login": LAB_LOGIN, "password": pwd,
+            "company_id": CO_ID, "company_ids": [(6, 0, [CO_ID])],
+            "lang": "uk_UA", "active": True, "group_ids": [(4, g) for g in groups]}
+    if ids:
+        call("res.users", "write", [ids[0]], vals)
+        uid = ids[0]
+        what = "оновлено"
+    else:
+        uid = call("res.users", "create", vals)
+        what = "створено"
+    say(f"Користувач {LAB_LOGIN} {what} (id {uid}): склад + виробництво, "
+        f"пароль з 1Password ToolKit > Odoo Lab.")
+    return uid
 
 
 def _as_buyer(model, method, *a, **kw):
@@ -1343,7 +1436,7 @@ def purchase_requests(PR, P, tx):
     закупівель. Рахунок витрат на запиті не ставимо: він перебив би рахунок 201 у
     рядку рахунку постачальника, і матеріали не потрапили б у запаси.
     """
-    call("res.company", "write", [COMPANY], {"ua_purchase_approval_limit": APPROVAL_LIMIT})
+    call("res.company", "write", [CO_ID], {"ua_purchase_approval_limit": APPROVAL_LIMIT})
     buyer_user()
     prices = dict((c[0], c[2]) for c in COMPONENTS)
     blocked = 0
@@ -1354,7 +1447,7 @@ def purchase_requests(PR, P, tx):
             req = ids[0]
         else:
             req = call("purchase.request", "create", {
-                "origin": ref, "company_id": COMPANY, "date_start": day,
+                "origin": ref, "company_id": CO_ID, "date_start": day,
                 "description": f"Заявка підрозділу «{dept}» на матеріали",
                 "ua_department_id": depts[0] if depts else False,
                 "line_ids": [(0, 0, {
@@ -1457,7 +1550,7 @@ def zvv_allocation():
     ids = call("ua.zvv.allocation", "search", [["date_from", "=", "2026-08-01"]])
     if not ids:
         ids = [call("ua.zvv.allocation", "create", {
-            "company_id": COMPANY, "date_from": "2026-08-01", "date_to": "2026-08-31",
+            "company_id": CO_ID, "date_from": "2026-08-01", "date_to": "2026-08-31",
             "normal_hours": 1300.0, "actual_hours": 1040.0, "fixed_share": 70.0,
             "note": "Розподіл ЗВВ за серпень 2026 (п. 16 П(С)БО 16)"})]
     z = call("ua.zvv.allocation", "read", ids, ["state"])[0]
@@ -1482,7 +1575,7 @@ def cost_calculation():
     ids = call("ua.cost.calculation", "search", [["date_from", "=", "2026-08-01"]])
     if not ids:
         ids = [call("ua.cost.calculation", "create", {
-            "company_id": COMPANY, "date_from": "2026-08-01", "date_to": "2026-08-31",
+            "company_id": CO_ID, "date_from": "2026-08-01", "date_to": "2026-08-31",
             "note": "Калькуляція за серпень 2026"})]
     try:
         call("ua.cost.calculation", "action_compute", ids)
@@ -1516,7 +1609,7 @@ def inventory_count(P):
     l10n_ua_stock_docs додає проводку Дт 947 / Кт 719, бо лишок - це дохід.
     Обидві проводки датує сам документ - скриптові доробляти нічого.
     """
-    wh = call("stock.warehouse", "search_read", [["company_id", "=", COMPANY]],
+    wh = call("stock.warehouse", "search_read", [["company_id", "=", CO_ID]],
               fields=["lot_stock_id"], limit=1)
     if not wh:
         say("Інвентаризація: складу не знайдено - пропущено.")
@@ -1525,7 +1618,7 @@ def inventory_count(P):
     ids = call("ua.stock.inventory", "search", [["basis", "=", INVENTORY_BASIS]])
     if not ids:
         ids = [call("ua.stock.inventory", "create", {
-            "company_id": COMPANY, "date": INVENTORY_DATE,
+            "company_id": CO_ID, "date": INVENTORY_DATE,
             "location_id": wh[0]["lot_stock_id"][0],
             "basis": INVENTORY_BASIS,
             "chair": "Прокопів Наталія Богданівна, головна бухгалтерка",
@@ -1562,7 +1655,7 @@ def acceptance_act():
     """Акт приймання-передачі ТМЦ на одній проведеній доставці."""
     picks = call("stock.picking", "search_read",
                  [["state", "=", "done"], ["picking_type_code", "=", "outgoing"],
-                  ["company_id", "=", COMPANY]],
+                  ["company_id", "=", CO_ID]],
                  fields=["name", "partner_id"], order="id", limit=1)
     if not picks:
         say("Акт приймання: проведених відвантажень немає - пропущено.")
@@ -1582,7 +1675,7 @@ def quality_protocol(P):
     ids = call("ua.quality.protocol", "search", [["note", "=", key]])
     if not ids:
         ids = [call("ua.quality.protocol", "create", {
-            "company_id": COMPANY, "date": "2026-09-17", "product_id": P["F01"],
+            "company_id": CO_ID, "date": "2026-09-17", "product_id": P["F01"],
             "quantity": 8.0, "inspector": "Технік-конструктор Дудник О. В.",
             "note": key})]
         call("ua.quality.protocol", "action_fill_checklist", ids)
@@ -1594,9 +1687,438 @@ def quality_protocol(P):
 
 
 # =====================================================================================
+# 17-б. Склад: зони, стелажі, розкладання, мінімальні залишки, завскладі
+# =====================================================================================
+# Склад стає багатокроковим: приймання окремою зоною, відвантаження окремою зоною,
+# виробництво з підбором і здачею. Усе це - рідні прапорці stock.warehouse, жодного
+# свого поля. Далі - дерево полиць усередині WH/Stock і правила розкладання.
+WH_STEPS = {"reception_steps": "two_steps",      # WH/Приймання -> WH/Stock
+            "delivery_steps": "pick_ship",       # WH/Stock -> WH/Відвантаження
+            "manufacture_steps": "pbm_sam"}      # підбір -> цех -> здача на склад
+WH_INPUT_NAME = "Приймання"
+WH_OUTPUT_NAME = "Відвантаження"
+ZONE_RAW = "Сировина"
+ZONE_FIN = "Готова"
+SHELVES_RAW = ["A1-1", "A1-2", "A2-1", "B1-1", "B1-2",
+               "B2-1", "B2-2", "C1-1", "C1-2", "C2-1"]
+SHELVES_FIN = ["Ряд 1", "Ряд 2", "Ряд 3"]
+# По дві позиції на полицю: плити й деревина в ряду A, хімія в B1, фурнітура в B2-C1,
+# оббивка в C1-2, скло і дзеркала в C2.
+RAW_SHELF = {"M01": "A1-1", "M02": "A1-1", "M03": "A1-2", "M04": "A1-2",
+             "M05": "A2-1", "M06": "A2-1", "M07": "B1-1", "M08": "B1-1",
+             "M09": "B1-2", "M10": "B1-2", "M11": "B2-1", "M12": "B2-1",
+             "M13": "B2-2", "M14": "B2-2", "M15": "C1-1", "M16": "C1-1",
+             "M17": "C1-2", "M18": "C1-2", "M19": "C2-1", "M20": "C2-1"}
+FIN_SHELF = {"F01": "Ряд 1", "F02": "Ряд 1", "F03": "Ряд 1",
+             "F04": "Ряд 2", "F05": "Ряд 2", "F06": "Ряд 2",
+             "F07": "Ряд 3", "F08": "Ряд 3"}
+SPREAD_ORIGIN = "Розкладання залишків по стелажах"
+# Мінімальні залишки: шість позицій, перші дві навмисно нижче мінімуму.
+ORDERPOINT_CODES = ["M17", "M06", "M01", "M11", "M13", "M19"]
+# Нижче мінімуму мають лишитися саме ці дві: відкрите надходження ЗП-2026-10 везе
+# M11 і M13, і правило на них уже не порожнє - воно покрите заявкою в дорозі.
+ORDERPOINT_BELOW = ("M17", "M06")
+
+# Завскладі: логін, ПІБ, назва групи, зони. Пароль - той самий, що в адміністратора
+# (ODOO_ADMIN_USER_PASSWORD з .env): зайвого секрету в демо не заводимо.
+KEEPERS = [
+    ("petrenko", "Петренко Василь Ігорович", "Склад: приймання і сировина",
+     ("input", "raw", "qc")),
+    ("tkach", "Ткач Олена Миколаївна", "Склад: виробництво",
+     ("pbm", "sam", "production")),
+    ("koval", "Коваль Андрій Степанович", "Склад: готова і відвантаження",
+     ("fin", "output", "pack")),
+]
+# Моделі, на яких тримається обмеження, і поля локацій у кожній.
+KEEPER_RULE_MODELS = {
+    "stock.quant": ["location_id"],
+    "stock.move": ["location_id", "location_dest_id"],
+    "stock.move.line": ["location_id", "location_dest_id"],
+    "stock.picking": ["location_id", "location_dest_id"],
+    "stock.location": ["id"],
+}
+
+
+STOCK_SETTINGS = {
+    "group_stock_multi_locations": True,   # локації видно й можна вибирати
+    "group_stock_adv_location": True,      # маршрути і багатокрокові потоки
+    "group_stock_production_lot": True,    # партії і серійні номери
+    "group_mrp_routings": True,            # маршрути виробництва і наряди
+}
+
+
+def stock_settings():
+    """Рідні перемикачі налаштувань складу і виробництва (res.config.settings)."""
+    cur = call("res.config.settings", "default_get", list(STOCK_SETTINGS))
+    todo = {k: v for k, v in STOCK_SETTINGS.items() if not cur.get(k)}
+    if not todo:
+        say("Налаштування складу: багато локацій, маршрути, партії, наряди - уже увімкнені.")
+        return
+    wiz = call("res.config.settings", "create", todo)
+    call("res.config.settings", "execute", [wiz])
+    say("Налаштування складу увімкнено: " + ", ".join(sorted(todo)) + ".")
+
+
+def _wh():
+    return call("stock.warehouse", "search_read", [["company_id", "=", CO_ID]],
+                fields=["name", "code", "lot_stock_id", "wh_input_stock_loc_id",
+                        "wh_qc_stock_loc_id", "wh_output_stock_loc_id",
+                        "wh_pack_stock_loc_id", "pbm_loc_id", "sam_loc_id",
+                        "int_type_id", "in_type_id", "out_type_id", "pick_type_id",
+                        "reception_steps", "delivery_steps", "manufacture_steps"],
+                context={"active_test": False})[0]
+
+
+def _loc(name, parent):
+    ids = call("stock.location", "search",
+               [["name", "=", name], ["location_id", "=", parent]],
+               context={"active_test": False})
+    vals = {"name": name, "location_id": parent, "usage": "internal",
+            "company_id": CO_ID, "active": True}
+    if ids:
+        call("stock.location", "write", [ids[0]], vals)
+        return ids[0]
+    return call("stock.location", "create", vals)
+
+
+def warehouse_layout():
+    """Багатокроковий склад, зони і дерево полиць. Повертає карту локацій."""
+    wh = _wh()
+    changed = {k: v for k, v in WH_STEPS.items() if wh.get(k) != v}
+    if changed:
+        call("stock.warehouse", "write", [wh["id"]], changed)
+        wh = _wh()
+    call("stock.warehouse", "write", [wh["id"]], {"name": COMPANY["short"]})
+    # Рідні зони: перейменовуємо вхід і вихід, розархівовуємо контроль якості й пакування
+    # (їх рідні прапорці вмикають лише на три кроки, а в дереві вони потрібні).
+    call("stock.location", "write", [wh["wh_input_stock_loc_id"][0]],
+         {"name": WH_INPUT_NAME, "active": True})
+    call("stock.location", "write", [wh["wh_output_stock_loc_id"][0]],
+         {"name": WH_OUTPUT_NAME, "active": True})
+    for key in ("wh_qc_stock_loc_id", "wh_pack_stock_loc_id", "pbm_loc_id", "sam_loc_id"):
+        if wh.get(key):
+            call("stock.location", "write", [wh[key][0]], {"active": True})
+    # Тип «Внутрішні переміщення» рідно вимкнений на складі в один крок.
+    types = call("stock.picking.type", "search",
+                 [["warehouse_id", "=", wh["id"]], ["code", "=", "internal"]],
+                 context={"active_test": False})
+    call("stock.picking.type", "write", types, {"active": True})
+
+    stock = wh["lot_stock_id"][0]
+    L = {"stock": stock, "input": wh["wh_input_stock_loc_id"][0],
+         "output": wh["wh_output_stock_loc_id"][0],
+         "qc": wh["wh_qc_stock_loc_id"] and wh["wh_qc_stock_loc_id"][0],
+         "pack": wh["wh_pack_stock_loc_id"] and wh["wh_pack_stock_loc_id"][0],
+         "pbm": wh["pbm_loc_id"] and wh["pbm_loc_id"][0],
+         "sam": wh["sam_loc_id"] and wh["sam_loc_id"][0],
+         "int_type": wh["int_type_id"][0], "wh": wh["id"]}
+    L["raw"] = _loc(ZONE_RAW, stock)
+    L["fin"] = _loc(ZONE_FIN, stock)
+    for shelf in SHELVES_RAW:
+        L["raw:" + shelf] = _loc(shelf, L["raw"])
+    for row in SHELVES_FIN:
+        L["fin:" + row] = _loc(row, L["fin"])
+    live = call("stock.location", "search_count",
+                [["usage", "=", "internal"], ["company_id", "in", [CO_ID, False]]])
+    say(f"Склад: приймання {wh['reception_steps']}, відвантаження {wh['delivery_steps']}, "
+        f"виробництво {wh['manufacture_steps']}; живих внутрішніх локацій {live} "
+        f"({len(SHELVES_RAW)} полиць сировини, {len(SHELVES_FIN)} ряди готової), "
+        f"тип «Внутрішні переміщення» увімкнено.")
+    return L
+
+
+def putaway_rules(P, L):
+    """Правила розкладання: за категорією в зону, за товаром - на полицю."""
+    cat_mat = call("product.category", "search", [["name", "=", "Сировина і матеріали"]])
+    cat_fin = call("product.category", "search", [["name", "=", "Готова продукція"]])
+    n = 0
+
+    def rule(loc_in, loc_out, product=None, category=None):
+        dom = [["location_in_id", "=", loc_in], ["company_id", "=", CO_ID]]
+        dom.append(["product_id", "=", product] if product else ["category_id", "=", category])
+        vals = {"location_in_id": loc_in, "location_out_id": loc_out, "company_id": CO_ID}
+        if product:
+            vals["product_id"] = product
+        else:
+            vals["category_id"] = category
+        upsert("stock.putaway.rule", dom, vals)
+
+    if cat_mat:
+        rule(L["stock"], L["raw"], category=cat_mat[0])
+        n += 1
+    if cat_fin:
+        rule(L["stock"], L["fin"], category=cat_fin[0])
+        n += 1
+    # Правило спрацьовує на один крок, тому товарні правила пишемо і від WH/Stock,
+    # і від зони: інакше надходження доїжджає лише до зони і лягає там.
+    for code, shelf in RAW_SHELF.items():
+        rule(L["stock"], L["raw:" + shelf], product=P[code])
+        rule(L["raw"], L["raw:" + shelf], product=P[code])
+        n += 2
+    for code, row in FIN_SHELF.items():
+        rule(L["stock"], L["fin:" + row], product=P[code])
+        rule(L["fin"], L["fin:" + row], product=P[code])
+        n += 2
+    say(f"Правила розкладання: {n} (дві за категорією в зони, решта за товаром на полиці); "
+        f"усього в базі {call('stock.putaway.rule', 'search_count', [])}.")
+    return n
+
+
+def spread_quants(P, L, day="2026-09-30"):
+    """Залишки з самої WH/Stock - на полиці, одним внутрішнім переміщенням.
+
+    Після цього на батьківській локації не лишається нічого: екрани «Розкласти» і
+    карта складу показують товар саме там, де він лежить.
+    """
+    ids = call("stock.picking", "search", [["origin", "=", SPREAD_ORIGIN]])
+    if ids and call("stock.picking", "read", ids, ["state"])[0]["state"] == "done":
+        say("Розкладання по стелажах: уже зроблено.")
+        return ids[0]
+    by_id = {pid: code for code, pid in P.items()}
+    quants = call("stock.quant", "search_read",
+                  [["location_id", "=", L["stock"]], ["quantity", ">", 0]],
+                  fields=["product_id", "quantity"])
+    moves = []
+    for q in quants:
+        code = by_id.get(q["product_id"][0]) or ""
+        shelf = RAW_SHELF.get(code) and ("raw:" + RAW_SHELF[code]) or \
+            (FIN_SHELF.get(code) and ("fin:" + FIN_SHELF[code]))
+        dest = L.get(shelf) if shelf else (L["raw"] if code.startswith("M") else L["fin"])
+        moves.append((0, 0, {"product_id": q["product_id"][0],
+                             "product_uom_qty": q["quantity"], "company_id": CO_ID,
+                             "location_id": L["stock"], "location_dest_id": dest}))
+    if not moves:
+        say("Розкладання по стелажах: на WH/Stock нічого не лежить.")
+        return None
+    pid = ids[0] if ids else call("stock.picking", "create", {
+        "picking_type_id": L["int_type"], "company_id": CO_ID, "origin": SPREAD_ORIGIN,
+        "location_id": L["stock"], "location_dest_id": L["raw"],
+        "scheduled_date": day + " 08:00:00", "move_ids": moves})
+    call("stock.picking", "action_confirm", [pid])
+    call("stock.picking", "action_assign", [pid])
+    _validate_picking(pid, day)
+    left = call("stock.quant", "search_count",
+                [["location_id", "=", L["stock"]], ["quantity", ">", 0]])
+    say(f"Розкладання по стелажах: {len(moves)} позицій рознесено; на самій WH/Stock "
+        f"лишилось {left} залишків.")
+    return pid
+
+
+def capacities(L):
+    """Місць на кожній полиці і в кожній зоні складу.
+
+    Рахуємо від того, що реально лежить (`ua_capacity_used` = кількість × габарит
+    товару), і даємо запас: у «Ясен Меблів» переповнених полиць бути не має.
+    """
+    if "ua_capacity" not in call("stock.location", "fields_get", ["ua_capacity"], ["type"]):
+        say("Місткість полиць: поля ua_capacity немає - пропущено.")
+        return 0, 0
+    keys = ["raw:" + s for s in SHELVES_RAW] + ["fin:" + r for r in SHELVES_FIN]
+    rows = []
+    for key in keys:
+        used = call("stock.location", "read", [L[key]], ["ua_capacity_used"])[0]["ua_capacity_used"]
+        cap = max(40, int(used * 1.6) + 20)
+        call("stock.location", "write", [L[key]], {"ua_capacity": cap})
+        rows.append((key, cap, used))
+    raw_cap = sum(c for k, c, _u in rows if k.startswith("raw:"))
+    fin_cap = sum(c for k, c, _u in rows if k.startswith("fin:"))
+    call("stock.location", "write", [L["raw"]], {"ua_capacity": raw_cap})
+    call("stock.location", "write", [L["fin"]], {"ua_capacity": fin_cap})
+    call("stock.location", "write", [L["stock"]], {"ua_capacity": raw_cap + fin_cap})
+    for key in ("input", "output", "qc", "pack", "pbm", "sam"):
+        if not L.get(key):
+            continue
+        used = call("stock.location", "read", [L[key]], ["ua_capacity_used"])[0]["ua_capacity_used"]
+        call("stock.location", "write", [L[key]],
+             {"ua_capacity": max(200, int(used * 1.6) + 20)})
+    over = [(k, c, u) for k, c, u in rows if u > c]
+    say(f"Місткість: {len(rows)} полиць (сировина {raw_cap} місць, готова {fin_cap}), "
+        f"зони і зовнішні локації теж заповнені; переповнених {len(over)}.")
+    return len(rows), len(over)
+
+
+def orderpoints(P, L):
+    """Мінімальні залишки на шести позиціях, дві з них навмисно нижче мінімуму."""
+    made = 0
+    for code in ORDERPOINT_CODES:
+        pid = P[code]
+        qty = call("product.product", "read", [pid], ["qty_available"],
+                   context={"location": L["stock"]})[0]["qty_available"]
+        if code in ORDERPOINT_BELOW:
+            mn = round(qty) + 60
+            mx = mn + 120
+        else:
+            mn = max(0.0, round(qty * 0.3))
+            mx = max(mn, round(qty * 0.6))
+        vals = {"product_id": pid, "location_id": L["stock"], "warehouse_id": L["wh"],
+                "company_id": CO_ID, "product_min_qty": mn, "product_max_qty": mx,
+                "trigger": "manual"}
+        upsert("stock.warehouse.orderpoint",
+               [["product_id", "=", pid], ["location_id", "=", L["stock"]]], vals)
+        made += 1
+    rows = call("stock.warehouse.orderpoint", "search_read",
+                [["company_id", "=", CO_ID]],
+                fields=["product_id", "qty_on_hand", "product_min_qty", "qty_to_order"])
+    below = [r for r in rows if r["qty_to_order"] > 0]
+    say(f"Мінімальні залишки: {made} правил, нижче мінімуму {len(below)} "
+        + ("(" + ", ".join(f"{r['product_id'][1][:24]}: {r['qty_on_hand']:.0f} < "
+                           f"{r['product_min_qty']:.0f}" for r in below) + ")" if below else ""))
+    return len(rows), len(below)
+
+
+def keepers(L):
+    """Три завскладі, кожен бачить лише свої локації.
+
+    Рідна Odoo 19 CE не вміє обмежувати користувача локаціями: група
+    `stock.group_stock_multi_locations` лише показує поле локації, а прав не ділить.
+    Тому тут - рідний механізм правил запису: на кожного завскладу своя група і
+    правило `ir.rule` на stock.quant / stock.move / stock.move.line / stock.picking з
+    доменом `location_id child_of [дозволені]`. Це налаштування демо, а не модуля:
+    id локацій зашиваються в домен у момент створення правила.
+    """
+    multi = _group_ids(["stock.group_stock_multi_locations"])
+    base = _group_ids(["base.group_user", "stock.group_stock_user"])
+    models = {m: call("ir.model", "search", [["model", "=", m]])[0]
+              for m in KEEPER_RULE_MODELS}
+    out = []
+    for login, name, group_name, keys in KEEPERS:
+        loc_ids = sorted({L[k] for k in keys if L.get(k)})
+        if "production" in keys:
+            prod = call("stock.location", "search",
+                        [["usage", "=", "production"], ["company_id", "in", [CO_ID, False]]])
+            loc_ids = sorted(set(loc_ids) | set(prod))
+        gid = upsert("res.groups", [["name", "=", group_name]], {"name": group_name})
+        for model, fields_ in KEEPER_RULE_MODELS.items():
+            parts = ["('%s', 'child_of', %s)" % (f, loc_ids) for f in fields_]
+            domain = ("['|', " if len(parts) > 1 else "[") + ", ".join(parts) + "]"
+            if model == "stock.location":
+                # Не внутрішні локації (постачальники, покупці, виробництво, списання)
+                # лишаємо видимими всім: без них завсклад не відкриє власний документ -
+                # у надходженні джерело «Постачальники», у відвантаженні «Покупці».
+                domain = "['|', ('usage', '!=', 'internal'), " + domain[1:]
+            rule_name = f"{group_name}: {model}"
+            upsert("ir.rule", [["name", "=", rule_name]], {
+                "name": rule_name, "model_id": models[model], "domain_force": domain,
+                "groups": [(6, 0, [gid])], "active": True,
+                "perm_read": True, "perm_write": True,
+                "perm_create": True, "perm_unlink": True})
+        ids = call("res.users", "search", [["login", "=", login]],
+                   context={"active_test": False})
+        vals = {"name": name, "login": login, "password": PW, "lang": "uk_UA",
+                "company_id": CO_ID, "company_ids": [(6, 0, [CO_ID])], "active": True,
+                "group_ids": [(4, g) for g in base + multi + [gid]]}
+        if ids:
+            call("res.users", "write", [ids[0]], vals)
+            uid = ids[0]
+        else:
+            uid = call("res.users", "create", vals)
+        out.append((login, uid, len(loc_ids)))
+    say("Завскладі: " + "; ".join(f"{lg} (id {u}, локацій {n})" for lg, u, n in out)
+        + " - права через власні групи і ir.rule на quant/move/move.line/picking.")
+    return out
+
+
+def open_operations(PR, P, L, tx):
+    """Три незавершені операції: надходження, виробництво, відвантаження."""
+    stats = {}
+    # 1. Відкрите надходження: замовлення підтверджене, приймання ще не проведене
+    ref = "ЗП-2026-10"
+    ids = call("purchase.order", "search", [["partner_ref", "=", ref]])
+    if not ids:
+        price = dict((c[0], c[2]) for c in COMPONENTS)
+        ids = [call("purchase.order", "create", {
+            "partner_id": PR["DEMO-S03"], "partner_ref": ref, "company_id": CO_ID,
+            "date_order": "2026-09-28 09:00:00",
+            "order_line": [(0, 0, {"product_id": P[c], "product_qty": q,
+                                   "price_unit": price[c],
+                                   "date_planned": "2026-09-29 09:00:00",
+                                   "tax_ids": [(6, 0, [tx["purchase20"]])] if tx["purchase20"] else False})
+                           for c, q in (("M13", 180), ("M11", 200))]})]
+    if call("purchase.order", "read", ids, ["state"])[0]["state"] in ("draft", "sent"):
+        call("purchase.order", "button_confirm", ids)
+    picks = call("purchase.order", "read", ids, ["picking_ids"])[0]["picking_ids"]
+    call("stock.picking", "action_assign", picks)
+    st = call("stock.picking", "read", picks, ["name", "state", "location_dest_id"])
+    stats["incoming"] = st
+    say("Відкрите надходження: " + ", ".join(
+        f"{p['name']} -> {p['location_dest_id'][1]} ({p['state']})" for p in st))
+
+    # 2. Виробниче замовлення в роботі: комплектація підібрана, випуск не закритий
+    mo_ref = "ВЗ-2026-10"
+    mids = call("mrp.production", "search", [["origin", "=", mo_ref]])
+    if not mids:
+        tmpl = call("product.product", "read", [P["F03"]], ["product_tmpl_id"])[0]["product_tmpl_id"][0]
+        bom = call("mrp.bom", "search", [["product_tmpl_id", "=", tmpl]])[0]
+        mids = [call("mrp.production", "create", {
+            "product_id": P["F03"], "product_qty": 10, "bom_id": bom,
+            "origin": mo_ref, "company_id": CO_ID,
+            "date_start": "2026-09-29 08:00:00"})]
+    if call("mrp.production", "read", mids, ["state"])[0]["state"] == "draft":
+        call("mrp.production", "action_confirm", mids)
+    mo = call("mrp.production", "read", mids, ["state", "picking_ids", "name"])[0]
+    # На складі з підбором (pbm_sam) замовлення тягне за собою переміщення
+    # «Підбір комплектуючих» - проводимо його, щоб сировина стала в цеху під резерв.
+    for pid in mo["picking_ids"]:
+        if call("stock.picking", "read", [pid], ["state"])[0]["state"] not in ("done", "cancel"):
+            call("stock.picking", "action_assign", [pid])
+            _validate_picking(pid, "2026-09-29")
+    call("mrp.production", "action_assign", mids)
+    # Кількість у випуску переводить замовлення зі стану «підтверджене» у «в роботі»
+    call("mrp.production", "write", mids, {"qty_producing": 6})
+    mo = call("mrp.production", "read", mids, ["state", "name", "move_raw_ids"])[0]
+    raws = call("stock.move", "read", mo["move_raw_ids"],
+                ["product_id", "product_uom_qty", "quantity", "state"])
+    reserved = sum(1 for r in raws if r["state"] in ("assigned", "partially_available"))
+    stats["mo"] = (mo["name"], mo["state"], reserved, len(raws))
+    say(f"Виробниче замовлення в роботі: {mo['name']} ({mo['state']}), "
+        f"зарезервовано {reserved} з {len(raws)} рядків сировини.")
+
+    # 3. Відвантаження готове: підбір проведено, доставка чекає водія
+    so_ref = "ЗМ-2026-20"
+    sids = call("sale.order", "search", [["client_order_ref", "=", so_ref]])
+    if not sids:
+        sids = [call("sale.order", "create", {
+            "partner_id": PR["DEMO-C01"], "client_order_ref": so_ref,
+            "company_id": CO_ID, "date_order": "2026-09-29 10:00:00",
+            "order_line": [(0, 0, {"product_id": P["F01"], "product_uom_qty": 3}),
+                           (0, 0, {"product_id": P["F03"], "product_uom_qty": 6})]})]
+    if call("sale.order", "read", sids, ["state"])[0]["state"] in ("draft", "sent"):
+        call("sale.order", "action_confirm", sids)
+    picks = call("sale.order", "read", sids, ["picking_ids"])[0]["picking_ids"]
+    rows = call("stock.picking", "read", picks,
+                ["name", "state", "picking_type_id", "location_id", "location_dest_id"])
+    for p in sorted(rows, key=lambda r: r["id"]):
+        if p["location_dest_id"][0] == L["output"] and p["state"] not in ("done", "cancel"):
+            call("stock.picking", "action_assign", [p["id"]])
+            _validate_picking(p["id"], "2026-09-30")
+    # Перечитуємо список: після підбору Odoo додає до замовлення саме відвантаження
+    picks = call("sale.order", "read", sids, ["picking_ids"])[0]["picking_ids"]
+    rows = call("stock.picking", "read", picks, ["name", "state", "picking_type_id"])
+    stats["delivery"] = rows
+    say("Відвантаження: " + ", ".join(
+        f"{p['name']} {p['picking_type_id'][1]} ({p['state']})" for p in rows))
+    return stats
+
+
+def warehouse(PR, P, tx):
+    stock_settings()
+    L = warehouse_layout()
+    putaway_rules(P, L)
+    spread_quants(P, L)
+    total_op, below = orderpoints(P, L)
+    who = keepers(L)
+    ops = open_operations(PR, P, L, tx)
+    # Місткість - останньою: підбір комплектуючих уже переклав частину сировини
+    # у цех, і запас рахується від того, що справді лежить на кожній локації.
+    caps = capacities(L)
+    return {"locations": L, "orderpoints": total_op, "orderpoints_below": below,
+            "keepers": who, "ops": ops, "capacity": caps}
+
+
+# =====================================================================================
 # 18. Група компаній: друга компанія, дзеркальний рахунок, консолідація
 # =====================================================================================
-CO2_NAME = "ТОВ «Ясен Логістика»"
+CO2_NAME = "ТОВ «%s Логістика»" % COMPANY["short"].split()[0]
 INTERCO_REF = "Транспортні послуги за вересень 2026 (внутрішньогрупові)"
 INTERCO_QTY = 18.0
 CONSOLIDATION_NAME = "Консолідація групи: Ф1 на 2026-09-30"
@@ -1609,7 +2131,7 @@ def group_company(P, tx):
     тут заради двох речей - дзеркального рахунку OCA і консолідації.
     """
     ua = call("res.country", "search", [["code", "=", "UA"]])[0]
-    uah = call("res.company", "read", [COMPANY], ["currency_id"])[0]["currency_id"][0]
+    uah = call("res.company", "read", [CO_ID], ["currency_id"])[0]["currency_id"][0]
     ids = call("res.company", "search", [["name", "=", CO2_NAME]])
     if ids:
         co2 = ids[0]
@@ -1623,9 +2145,9 @@ def group_company(P, tx):
     if info["chart_template"] != "ua_psbo":
         call("account.chart.template", "try_loading", "ua_psbo", co2, False,
              context={"allowed_company_ids": [co2]})
-    call("res.company", "write", [COMPANY, co2],
+    call("res.company", "write", [CO_ID, co2],
          {"intercompany_invoicing": True, "invoice_auto_validation": True})
-    co1_partner = call("res.company", "read", [COMPANY], ["partner_id"])[0]["partner_id"][0]
+    co1_partner = call("res.company", "read", [CO_ID], ["partner_id"])[0]["partner_id"][0]
     call("res.partner", "write", [info["partner_id"][0]], {
         "supplier_rank": 1, "customer_rank": 1, "ua_vat_payer_status": "payer",
         "vat": ipn_from_edrpou(edrpou("4477203")), "lang": "uk_UA"})
@@ -1670,7 +2192,7 @@ def interco_invoice(co2, co1_partner, P, tx):
                ["name", "amount_total", "state", "auto_invoice_id"])[0]
     mirror = call("account.move", "search_read", [["auto_invoice_id", "=", ids[0]]],
                   fields=["name", "move_type", "state", "amount_total", "company_id"],
-                  context={"allowed_company_ids": [COMPANY, co2]})
+                  context={"allowed_company_ids": [CO_ID, co2]})
     if mirror:
         m = mirror[0]
         say(f"Внутрішньогруповий рахунок {src['name']} на {src['amount_total']:,.2f} "
@@ -1684,13 +2206,13 @@ def interco_invoice(co2, co1_partner, P, tx):
 
 def consolidation(co2):
     """Консолідація Ф1 за третій квартал чарівником l10n_ua_group."""
-    ctx = {"allowed_company_ids": [COMPANY, co2]}
+    ctx = {"allowed_company_ids": [CO_ID, co2]}
     ids = call("mis.report.instance", "search",
                [["ua_group_consolidation", "=", True], ["name", "=", CONSOLIDATION_NAME]],
                context=ctx)
     if not ids:
         wiz = call("ua.group.consolidation", "create", {
-            "company_ids": [(6, 0, [COMPANY, co2])], "form": "f1",
+            "company_ids": [(6, 0, [CO_ID, co2])], "form": "f1",
             "date_from": "2026-07-01", "date_to": "2026-09-30"}, context=ctx)
         act = call("ua.group.consolidation", "action_build", [wiz], context=ctx)
         ids = [act["res_id"]]
@@ -1726,10 +2248,10 @@ def consolidated_rows(instance, ctx_companies):
 # =====================================================================================
 def profit_declaration(year=2026):
     ids = call("ua.profit.declaration", "search",
-               [["company_id", "=", COMPANY], ["year", "=", year]])
+               [["company_id", "=", CO_ID], ["year", "=", year]])
     if not ids:
         ids = [call("ua.profit.declaration", "create",
-                    {"company_id": COMPANY, "year": year, "advance_paid": 0.0})]
+                    {"company_id": CO_ID, "year": year, "advance_paid": 0.0})]
     if call("ua.profit.declaration", "read", ids, ["state"])[0]["state"] != "draft":
         call("ua.profit.declaration", "action_draft", ids)
     call("ua.profit.declaration", "action_compute", ids)
@@ -1753,7 +2275,7 @@ def vat_by_month():
     for m, last in [(7, 31), (8, 31), (9, 30)]:
         wiz = call("ua.vat.cabinet", "create", {"date_from": f"2026-{m:02d}-01",
                                                 "date_to": f"2026-{m:02d}-{last}",
-                                                "company_id": COMPANY})
+                                                "company_id": CO_ID})
         call("ua.vat.cabinet", "action_compute", [wiz])
         r = call("ua.vat.cabinet", "read", [wiz],
                  ["pz_total", "pk_total", "due_total", "ua_fe_vat", "ua_r_export_base",
@@ -1763,7 +2285,7 @@ def vat_by_month():
 
 
 def osv():
-    rid = call("ua.osv.report", "create", {"company_id": COMPANY,
+    rid = call("ua.osv.report", "create", {"company_id": CO_ID,
                                            "date_from": "2026-07-01", "date_to": "2026-09-30"})
     call("ua.osv.report", "action_compute", [rid])
     return call("ua.osv.report", "read", [rid],
@@ -1798,10 +2320,86 @@ def finrep_balance():
     return out
 
 
+def _f1_rows(instance, cid):
+    ctx = {"allowed_company_ids": sorted({CO_ID, cid})}
+    try:
+        res = call("mis.report.instance", "compute", [instance], context=ctx)
+    except RpcError as e:
+        return {"error": str(e)[:160]}
+    vals = {}
+    for line in res.get("body", []):
+        m = re.match(r"^(\d{4})\b", line.get("label") or "")
+        cells = line.get("cells") or []
+        val = cells[0].get("val") if cells and isinstance(cells[0], dict) else None
+        if m:
+            vals["r" + m.group(1)] = val
+    return vals
+
+
+def finrep_f1(cid, name):
+    """Ф1 окремої компанії: рідний звіт l10n_ua_finrep, копія на потрібну компанію."""
+    d = call("ir.model.data", "search_read",
+             [["module", "=", "l10n_ua_finrep"], ["name", "=", "instance_f1"]],
+             fields=["res_id"])
+    if not d:
+        return {"error": "звіт Ф1 не знайдено"}
+    base = d[0]["res_id"]
+    info = call("mis.report.instance", "read", [base], ["company_id"])[0]
+    if info["company_id"] and info["company_id"][0] == cid:
+        return _f1_rows(base, cid)
+    label = f"Ф1. Баланс - {name}"
+    # Адміністратор має бачити обидві компанії: правило множинності на
+    # mis.report.instance читає саме allowed_company_ids, і з однією компанією
+    # копія звіту стає для нього недоступною.
+    ctx = {"allowed_company_ids": sorted({CO_ID, cid})}
+    ids = call("mis.report.instance", "search", [["name", "=", label]], context=ctx)
+    if not ids:
+        try:
+            # copy() в Odoo 19 віддає список id, а не один id
+            made = call("mis.report.instance", "copy", [base],
+                        {"name": label, "company_id": cid}, context=ctx)
+            ids = made if isinstance(made, list) else [made]
+        except RpcError as e:
+            return {"error": str(e)[:160]}
+    return _f1_rows(ids[0], cid)
+
+
+def companies_control():
+    """Дт = Кт і баланс Ф1 окремо по кожній компанії бази."""
+    out = []
+    for c in call("res.company", "search_read", [], fields=["name"], order="id"):
+        res = call("account.move.line", "read_group",
+                   [["parent_state", "=", "posted"], ["company_id", "=", c["id"]]],
+                   ["debit:sum", "credit:sum"], [])
+        dt = round(res[0]["debit"], 2) if res and res[0].get("debit") else 0.0
+        kt = round(res[0]["credit"], 2) if res and res[0].get("credit") else 0.0
+        f1 = finrep_f1(c["id"], c["name"])
+        out.append((c["name"], dt, kt, f1))
+    return out
+
+
+def warehouse_control():
+    """Мінімальні залишки нижче норми і відкриті операції складу й виробництва."""
+    rows = call("stock.warehouse.orderpoint", "search_read", [],
+                fields=["product_id", "company_id", "qty_on_hand",
+                        "product_min_qty", "qty_to_order"])
+    below = [r for r in rows if (r["qty_to_order"] or 0) > 0]
+    open_pick = call("stock.picking", "search_read",
+                     [["state", "in", ["draft", "waiting", "confirmed", "assigned"]]],
+                     fields=["name", "state", "picking_type_id"])
+    open_mo = call("mrp.production", "search_read",
+                   [["state", "not in", ["done", "cancel"]]],
+                   fields=["name", "state"])
+    by_state = {}
+    for p in open_pick:
+        by_state[p["state"]] = by_state.get(p["state"], 0) + 1
+    return rows, below, open_pick, open_mo, by_state
+
+
 def _accounts_like(code):
     return call("account.account", "search",
-                [["code", "=like", f"{code}%"], ["company_ids", "in", COMPANY]],
-                context={"allowed_company_ids": [COMPANY]})
+                [["code", "=like", f"{code}%"], ["company_ids", "in", CO_ID]],
+                context={"allowed_company_ids": [CO_ID]})
 
 
 def account_balance(code, date_to="2026-09-30", date_from=None):
@@ -1809,7 +2407,7 @@ def account_balance(code, date_to="2026-09-30", date_from=None):
     if not accs:
         return 0.0
     dom = [["account_id", "in", accs], ["parent_state", "=", "posted"],
-           ["date", "<=", date_to], ["company_id", "=", COMPANY]]
+           ["date", "<=", date_to], ["company_id", "=", CO_ID]]
     if date_from:
         dom.append(["date", ">=", date_from])
     res = call("account.move.line", "read_group", dom, ["balance:sum"], [])
@@ -1823,7 +2421,7 @@ def account_by_journal(code, date_to="2026-09-30"):
         return []
     res = call("account.move.line", "read_group",
                [["account_id", "in", accs], ["parent_state", "=", "posted"],
-                ["date", "<=", date_to], ["company_id", "=", COMPANY]],
+                ["date", "<=", date_to], ["company_id", "=", CO_ID]],
                ["balance:sum"], ["journal_id"])
     return [(r["journal_id"][1], round(r["balance"], 2)) for r in res]
 
@@ -1850,14 +2448,14 @@ def salary_circle():
                             ["state", "in", ["posted", "paid", "in_process"]]],
                            fields=["amount", "is_matched"])
     lines = call("account.bank.statement.line", "search_count",
-                 [["company_id", "=", COMPANY], ["is_reconciled", "=", False]])
+                 [["company_id", "=", CO_ID], ["is_reconciled", "=", False]])
     # залишок 661 по місяцях: видно, що саме не виплачено
     by_month = []
     for month, last in ((7, 31), (8, 31), (9, 30)):
         from_, to_ = f"2026-{month:02d}-01", f"2026-{month:02d}-{last}"
         got = call("account.move.line", "read_group",
                    [["account_id", "in", call("account.account", "search", [["code", "=like", "661%"]])],
-                    ["parent_state", "=", "posted"], ["company_id", "=", COMPANY],
+                    ["parent_state", "=", "posted"], ["company_id", "=", CO_ID],
                     ["date", ">=", from_], ["date", "<=", to_]], ["balance:sum"], [])
         by_month.append((month, round(got[0]["balance"] if got and got[0].get("balance") else 0.0, 2)))
     return rows, salary_payments, lines, by_month
@@ -1878,7 +2476,8 @@ def control_table(extra=None):
     extra = extra or {}
     say("")
     say("=" * 96)
-    say("КОНТРОЛЬНА ТАБЛИЦЯ ДЕМО-БАЗИ «ЯСЕН МЕБЛІ» (липень-вересень 2026)")
+    say("КОНТРОЛЬНА ТАБЛИЦЯ ДЕМО-БАЗИ «%s» (липень-вересень 2026)"
+        % COMPANY["short"].upper())
     say("=" * 96)
     models = [
         ("res.partner", [["ref", "like", "DEMO-"]], "контрагенти демо"),
@@ -1911,6 +2510,9 @@ def control_table(extra=None):
         ("ua.cost.calculation", [], "калькуляції собівартості"),
         ("ua.stock.inventory", [["state", "=", "done"]], "проведені інвентаризації"),
         ("ua.quality.protocol", [], "протоколи якості"),
+        ("stock.location", [["usage", "=", "internal"]], "внутрішні локації складу"),
+        ("stock.putaway.rule", [], "правила розкладання"),
+        ("stock.warehouse.orderpoint", [], "правила мінімального залишку"),
         ("res.company", [], "компанії групи"),
         ("account.move", [["auto_generated", "=", True]], "дзеркальні рахунки ВГО"),
         ("mis.report.instance", [["ua_group_consolidation", "=", True]], "консолідації"),
@@ -1924,7 +2526,7 @@ def control_table(extra=None):
         say(f"  {label:<42} {n}")
     say("-" * 96)
     res = call("account.move.line", "read_group",
-               [["parent_state", "=", "posted"], ["company_id", "=", COMPANY]],
+               [["parent_state", "=", "posted"], ["company_id", "=", CO_ID]],
                ["debit:sum", "credit:sum"], [])
     dt = round(res[0]["debit"], 2) if res else 0.0
     kt = round(res[0]["credit"], 2) if res else 0.0
@@ -2009,6 +2611,42 @@ def control_table(extra=None):
             f"(рядок 06) {dec['tax_amount']:,.2f}; до сплати (рядок 19) "
             f"{dec['tax_to_pay']:,.2f}; малодохідник: "
             f"{'так' if dec['low_income'] else 'ні'}")
+    say("-" * 96)
+    for name, dt, kt, f1 in companies_control():
+        ok = "сходиться" if abs(dt - kt) < 0.01 else "РОЗБІЖНІСТЬ " + format(dt - kt, ",.2f")
+        say(f"  {name}: Дт {dt:,.2f} = Кт {kt:,.2f} -> {ok}")
+        if f1.get("error"):
+            say(f"     Ф1: не порахувалась ({f1['error']})")
+        else:
+            a, p = f1.get("r1300"), f1.get("r1900")
+            if a is None or p is None:
+                say(f"     Ф1: немає рядків 1300/1900 ({list(f1)[:6]})")
+            else:
+                say(f"     Ф1: Актив {a:,.2f} = Пасив {p:,.2f} -> "
+                    f"{'сходиться' if abs(a - p) < 1 else 'РОЗБІЖНІСТЬ ' + format(a - p, ',.2f')}")
+    say("-" * 96)
+    rows, below, open_pick, open_mo, by_state = warehouse_control()
+    say(f"  Мінімальні залишки: {len(rows)} правил, нижче мінімуму {len(below)}"
+        + ("" if not below else " ("
+           + ", ".join(f"{r['product_id'][1][:22]} {r['qty_on_hand']:.0f}/"
+                       f"{r['product_min_qty']:.0f}" for r in below) + ")"))
+    say(f"  Відкриті переміщення: {len(open_pick)} ("
+        + ", ".join(f"{k} {v}" for k, v in sorted(by_state.items())) + ")")
+    say("  З них: " + ", ".join(f"{p['name']} {p['state']}" for p in open_pick[:8]))
+    say(f"  Незакриті виробничі замовлення: {len(open_mo)} ("
+        + ", ".join(f"{m['name']} {m['state']}" for m in open_mo) + ")")
+    caps = call("stock.location", "search_read",
+                [["usage", "=", "internal"], ["ua_capacity", ">", 0],
+                 ["child_ids", "=", False]],
+                fields=["complete_name", "company_id", "ua_capacity",
+                        "ua_capacity_used"],
+                context={"allowed_company_ids": [c["id"] for c in
+                                                 call("res.company", "search_read", [], fields=["id"])]})
+    full = [r for r in caps if r["ua_capacity_used"] > r["ua_capacity"]]
+    say(f"  Місткість полиць: задано на {len(caps)} локаціях, переповнених {len(full)}"
+        + ("" if not full else " ("
+           + ", ".join(f"{r['complete_name']} {r['ua_capacity_used']}/{r['ua_capacity']}"
+                       for r in full) + ")"))
     say("=" * 96)
 
 
@@ -2058,18 +2696,22 @@ def main():
         zvv = zvv_allocation()
         extra["zvv_allocated"] = call("ua.zvv.allocation", "read", [zvv],
                                       ["amount_allocated"])[0]["amount_allocated"]
-        stock_journal = call("res.company", "read", [COMPANY],
+        stock_journal = call("res.company", "read", [CO_ID],
                              ["account_stock_journal_id"])[0]["account_stock_journal_id"]
         extra["stock_journal"] = stock_journal[1] if stock_journal else ""
         cost_calculation()
         inventory_count(P)
         acceptance_act()
         quality_protocol(P)
+        # Склад робимо після того, як уся первинка кварталу вже проведена: зони й полиці
+        # не переписують готових документів, а залишки лягають на місце один раз.
+        extra["warehouse"] = warehouse(PR, P, tx)
+        lab_user()
         crm(PR)
         co2, co2_partner, co1_partner = group_company(P, tx)
         interco_invoice(co2, co1_partner, P, tx)
         instance, labels = consolidation(co2)
-        rows = consolidated_rows(instance, [COMPANY, co2])
+        rows = consolidated_rows(instance, [CO_ID, co2])
         extra["consolidated"] = rows
         extra["sum_labels"] = ("Разом до елімінації", "Елімінація ВГО", "Консолідовано")
         extra["elimination"] = rows.get("Елімінація ВГО", {}).get("r1300", 0.0)

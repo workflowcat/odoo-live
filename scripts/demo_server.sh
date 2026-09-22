@@ -4,6 +4,8 @@
 #   scripts/demo_server.sh            зібрати базу, якщо її немає, і подати на 8131
 #   scripts/demo_server.sh stop       зупинити і прибрати контейнер демо
 #   scripts/demo_server.sh reset      видалити базу і зібрати заново
+#   scripts/demo_server.sh upgrade [модулі]   оновити модулі в наявній базі
+#                                     (типово - усі з MODULES) і подати знову
 #
 # База і порт беруться зі змінних DEMO_DB і DEMO_PORT, ім'я контейнера - з бази.
 # Так поруч із робочим демо можна зібрати чернетку, нічого не зачепивши:
@@ -95,6 +97,21 @@ case "${1:-start}" in
         stop_container
         echo "Демо зупинено ($NAME прибрано). База $DB на місці."
         exit 0
+        ;;
+    upgrade)
+        # Оновлення коду модулів у наявній базі: нові поля з'являються в схемі
+        # без перезбирання всього кварталу. Без аргументу оновлюємо весь набір.
+        UPG="${2:-$MODULES}"
+        if ! db_exists; then
+            echo "Бази $DB немає - спершу scripts/demo_server.sh reset" >&2
+            exit 2
+        fi
+        stop_container
+        docker compose exec -T db psql -U odoo -d postgres -c \
+            "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='$DB'" >/dev/null 2>&1 || true
+        echo "== оновлюємо модулі: $UPG =="
+        docker compose run --rm --no-deps -T odoo sh -c \
+            "pip install -q --break-system-packages pypdf >/dev/null 2>&1; exec odoo $ODOO_ARGS -d '$DB' --db-filter='.*' -u '$UPG' --stop-after-init --log-level=warn"
         ;;
     reset)
         stop_container
