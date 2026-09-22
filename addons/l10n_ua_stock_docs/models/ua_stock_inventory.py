@@ -23,12 +23,25 @@
 * нестачі понад норми до встановлення винних мають висіти на позабалансовому
   субрахунку 072 - позабаланс у продукті не ведеться;
 * різниця по товару лягає на один quant локації, а не розкидається по всіх.
+
+Зовнішній клієнт (складський екран поза Odoo) працює тими самими трьома
+дієсловами, що й решта продукту: створити - `ua_get_or_create`, показати план -
+`plan`, провести - `action_apply`. Стан документа клієнт не пише: для цього є
+`action_start_count`. Мітка операції клієнта лежить у `ua_client_ref` і не
+повторюється в межах компанії, тому повторний виклик після обриву звʼязку дає той
+самий документ, а не другий.
 """
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
 ACC_SURPLUS = "ua_psbp_719"
 ACC_SHORTAGE = "ua_psbp_947"
+
+
+def _qty(value):
+    """Кількість для людського рядка: без хвоста нулів, але з дробом, коли він є."""
+    text = "%.3f" % value
+    return text.rstrip("0").rstrip(".") if "." in text else text
 
 
 class UaStockInventory(models.Model):
@@ -57,6 +70,15 @@ class UaStockInventory(models.Model):
     state = fields.Selection(
         [("draft", "Чернетка"), ("counting", "Підрахунок"), ("done", "Проведено")],
         string="Стан", default="draft", required=True, copy=False)
+    ua_client_ref = fields.Char(
+        "Мітка операції", index=True, copy=False,
+        help="Мітка зовнішнього клієнта. Не повторюється в межах компанії: "
+             "повторне створення з тією самою міткою віддає той самий документ.")
+
+    _ua_client_ref_unique = models.Constraint(
+        "UNIQUE(company_id, ua_client_ref)",
+        "Документ інвентаризації з такою міткою операції в цій компанії вже є.",
+    )
 
     line_ids = fields.One2many("ua.stock.inventory.line", "inventory_id", string="Рядки")
     move_ids = fields.Many2many("stock.move", string="Коригування", readonly=True, copy=False)
@@ -105,30 +127,54 @@ class UaStockInventory(models.Model):
             "У плані рахунків компанії «%s» немає рахунку %s."
             % (self.company_id.name, code))
 
-    def _quants(self):
+    def _quants(self, category_ids=None, location_ids=None):
+        """Залишки складу документа, за потреби звужені категорією і полицями.
+
+        Категорія береться разом із дочірніми (`child_of`): «Сировина» накриває
+        всі свої підкатегорії. Полиці так само, і завжди в межах локації
+        документа - звуження не може вивести опис за склад, на який його виписано.
+        """
         self.ensure_one()
-        return self.env["stock.quant"].search([
+        domain = [
             ("location_id", "child_of", self.location_id.id),
             ("company_id", "=", self.company_id.id),
-        ])
+        ]
+        if location_ids:
+            allowed = self.env["stock.location"].search([
+                ("id", "child_of", list(location_ids)),
+                ("id", "child_of", self.location_id.id),
+            ])
+            domain.append(("location_id", "in", allowed.ids))
+        if category_ids:
+            categories = self.env["product.category"].search(
+                [("id", "child_of", list(category_ids))])
+            domain.append(("product_id.categ_id", "in", categories.ids))
+        return self.env["stock.quant"].search(domain)
 
     # ------------------------------------------------------------------
     # Дії
     # ------------------------------------------------------------------
-    def action_fill(self):
-        """Заповнити опис залишками складу. Старі рядки замінюються свіжими."""
+    def action_fill(self, category_ids=None, location_ids=None):
+        """Заповнити опис залишками складу. Старі рядки замінюються свіжими.
+
+        Без аргументів - уся локація, як було. З `category_ids` і `location_ids`
+        (списки id) опис звужується: комірник рахує одну категорію за раз, і
+        сировина не лізе в опис готової продукції.
+        """
         for record in self:
             if record.state == "done":
                 raise UserError("Інвентаризацію «%s» уже проведено." % record.name)
             totals = {}
-            for quant in record._quants():
+            for quant in record._quants(category_ids, location_ids):
                 if not quant.product_id.is_storable:
                     continue
                 totals.setdefault(quant.product_id, 0.0)
                 totals[quant.product_id] += quant.quantity
             if not totals:
                 raise UserError(
-                    "У локації «%s» немає залишків." % record.location_id.display_name)
+                    "У локації «%s» немає залишків%s."
+                    % (record.location_id.display_name,
+                       " за заданим звуженням" if (category_ids or location_ids) else ""))
             record.line_ids = [(5, 0, 0)] + [
                 (0, 0, {
                     "product_id": product.id,
@@ -141,6 +187,130 @@ class UaStockInventory(models.Model):
             ]
             record.state = "counting"
         return True
+
+    def action_start_count(self):
+        """Перевести опис із чернетки в підрахунок, не пишучи `state` ззовні.
+
+        Потрібно тому, що зовнішній клієнт часто приносить свої рядки: він будує
+        аркуш підрахунку сам зі `stock.quant` і не кличе `action_fill`. Без цієї
+        кнопки йому довелося б писати внутрішній стан моделі руками.
+        """
+        for record in self:
+            if record.state == "done":
+                raise UserError("Інвентаризацію «%s» уже проведено." % record.name)
+            if not record.line_ids:
+                raise UserError(
+                    "Опис «%s» порожній: додайте рядки або заповніть залишками."
+                    % record.name)
+            record.state = "counting"
+        return True
+
+    @api.model
+    def ua_get_or_create(self, client_ref, vals=None):
+        """Документ за міткою клієнта: є - віддаємо, немає - створюємо.
+
+        Захист від подвійного запису при обриві звʼязку. Другий виклик із тією
+        самою міткою повертає перший документ і НЕ чіпає його вміст: клієнт
+        повторює запит, а не переписує чужий підрахунок.
+        """
+        if not client_ref:
+            raise UserError("Без мітки операції документ не створюється.")
+        values = dict(vals or {})
+        company_id = values.get("company_id") or self.env.company.id
+        existing = self.search([
+            ("ua_client_ref", "=", client_ref),
+            ("company_id", "=", company_id),
+        ], limit=1)
+        if existing:
+            return existing
+        values["company_id"] = company_id
+        values["ua_client_ref"] = client_ref
+        return self.create(values)
+
+    def plan(self):
+        """Що зробить проведення: розбіжності, суми на 947 і 719, дата, перешкоди.
+
+        Рядки того самого вигляду, що в `ua.period.close.plan()`: `text`, `level`
+        (`info` / `warn` / `crit`), за потреби `target`. Хоч один рядок `crit` -
+        `action_apply` впаде, і кнопка підтвердження нічого не змінить.
+        """
+        self.ensure_one()
+        currency = self.company_id.currency_id
+        today = fields.Date.context_today(self)
+        target_lines = {"model": "ua.stock.inventory.line",
+                        "domain": [("inventory_id", "=", self.id)]}
+
+        if self.state == "done":
+            return [{
+                "text": "Інвентаризацію «%s» уже проведено %s: повторне проведення "
+                        "нічого не додасть." % (self.name, self.date.strftime("%d.%m.%Y")),
+                "level": "info",
+                "target": target_lines,
+            }]
+
+        rows = []
+        if self.state != "counting":
+            rows.append({
+                "text": "Опис ще не в підрахунку: заповніть його залишками або "
+                        "додайте рядки і натисніть «Почати підрахунок».",
+                "level": "crit",
+                "target": target_lines,
+            })
+        if self.date > today:
+            rows.append({
+                "text": "Дату опису поставлено на %s - цей день ще не настав. Запаси "
+                        "рахують у день підрахунку, тому проведення не пройде." % (
+                            self.date.strftime("%d.%m.%Y")),
+                "level": "crit",
+            })
+
+        diff_lines = self._lines_with_diff()
+        rows.append({
+            "text": "Розбіжностей: %s рядків із %s." % (len(diff_lines), len(self.line_ids)),
+            "level": "info",
+            "target": target_lines,
+        })
+        if diff_lines:
+            for line in diff_lines[:20]:
+                rows.append({
+                    "text": "%s: за обліком %s, фактично %s, різниця %s на %.2f %s." % (
+                        line.product_id.display_name,
+                        _qty(line.qty_book), _qty(line.qty_fact), _qty(line.qty_diff),
+                        line.amount_diff, currency.symbol or currency.name),
+                    "level": "info",
+                })
+        if not currency.is_zero(self.amount_surplus):
+            rows.append({
+                "text": "Лишок %.2f: нативна оцінка запасів кладе Дт 201 Кт 947, а документ "
+                        "перекидає цю суму Дт 947 Кт 719 - лишок це дохід, а не менша "
+                        "нестача." % self.amount_surplus,
+                "level": "info",
+            })
+        if not currency.is_zero(self.amount_shortage):
+            rows.append({
+                "text": "Нестача %.2f: Дт 947 Кт 201. Норми природного убутку не рахуються, "
+                        "уся сума йде на 947 - розподіл «у межах норм / понад норми» "
+                        "робить бухгалтер." % self.amount_shortage,
+                "level": "warn",
+            })
+        if not diff_lines:
+            rows.append({
+                "text": "Розбіжностей немає: проведення лише закриє документ, жодної "
+                        "проводки не буде.",
+                "level": "warn",
+            })
+        else:
+            rows.append({
+                "text": "Обидві проводки - нативна оцінка запасів і наша 947 -> 719 - "
+                        "лягають датою опису %s." % self.date.strftime("%d.%m.%Y"),
+                "level": "info",
+            })
+        if any(row["level"] == "crit" for row in rows):
+            rows.append({
+                "text": "Поки ці перешкоди лишаються, провести опис не вийде.",
+                "level": "warn",
+            })
+        return rows
 
     def _apply_line(self, line):
         """Коригування залишку по одному рядку. Повертає створене переміщення."""

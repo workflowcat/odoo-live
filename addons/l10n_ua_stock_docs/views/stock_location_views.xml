@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="view_location_form_ua_capacity" model="ir.ui.view">
+    <field name="name">stock.location.form.ua.capacity</field>
+    <field name="model">stock.location</field>
+    <field name="inherit_id" ref="stock.view_location_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//group[@name='additional_info']" position="inside">
+        <field name="ua_capacity" invisible="usage != 'internal'"/>
+        <field name="ua_capacity_used" invisible="usage != 'internal'"/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_location_tree_ua_capacity" model="ir.ui.view">
+    <field name="name">stock.location.list.ua.capacity</field>
+    <field name="model">stock.location</field>
+    <field name="inherit_id" ref="stock.view_location_tree2"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='usage']" position="after">
+        <field name="ua_capacity" optional="show"/>
+        <field name="ua_capacity_used" optional="show"/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="product_template_form_view_ua_size" model="ir.ui.view">
+    <field name="name">product.template.form.ua.size</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_form_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//page[@name='inventory']" position="inside">
+        <group>
+          <group string="Місце на складі">
+            <field name="ua_size" widget="radio" options="{'horizontal': true}"/>
+          </group>
+        </group>
+      </xpath>
+    </field>
+  </record>
+
+</odoo>

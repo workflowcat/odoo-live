@@ -1,9 +1,9 @@
 {
   "totals": {
     "modules": 42,
-    "models": 98,
-    "methods": 273,
-    "fields": 257
+    "models": 100,
+    "methods": 277,
+    "fields": 263
   },
   "areas": [
     {
@@ -3867,7 +3867,7 @@
             },
             {
               "name": "action_fill",
-              "signature": "action_fill()",
+              "signature": "action_fill(category_ids=None, location_ids=None)",
               "doc": "Заповнити опис залишками складу. Старі рядки замінюються свіжими.",
               "module": "l10n_ua_stock_docs",
               "file": "addons/l10n_ua_stock_docs/models/ua_stock_inventory.py",
@@ -3880,6 +3880,32 @@
               "module": "l10n_ua_stock_docs",
               "file": "addons/l10n_ua_stock_docs/models/ua_stock_inventory.py",
               "decorators": []
+            },
+            {
+              "name": "action_start_count",
+              "signature": "action_start_count()",
+              "doc": "Перевести опис із чернетки в підрахунок, не пишучи `state` ззовні.",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/ua_stock_inventory.py",
+              "decorators": []
+            },
+            {
+              "name": "plan",
+              "signature": "plan()",
+              "doc": "Що зробить проведення: розбіжності, суми на 947 і 719, дата, перешкоди.",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/ua_stock_inventory.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_get_or_create",
+              "signature": "ua_get_or_create(client_ref, vals=None)",
+              "doc": "Документ за міткою клієнта: є - віддаємо, немає - створюємо.",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/ua_stock_inventory.py",
+              "decorators": [
+                "api.model"
+              ]
             }
           ],
           "fields": []
@@ -4427,6 +4453,32 @@
           ]
         },
         {
+          "model": "mrp.routing.workcenter",
+          "ours": false,
+          "modules": [
+            "l10n_ua_mrp"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_checks",
+              "type": "Text",
+              "label": "Перевірка",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/mrp_routing_workcenter.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_steps",
+              "type": "Text",
+              "label": "Кроки",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/mrp_routing_workcenter.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
           "model": "online.bank.statement.provider",
           "ours": false,
           "modules": [
@@ -4465,10 +4517,45 @@
           "model": "product.template",
           "ours": false,
           "modules": [
+            "l10n_ua_mrp",
+            "l10n_ua_stock_docs",
             "l10n_ua_vat"
           ],
-          "methods": [],
+          "methods": [
+            {
+              "name": "ua_assembly",
+              "signature": "ua_assembly()",
+              "doc": "Креслення і операції з позиціями - усе, що треба екрану збирання.",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/product_template.py",
+              "decorators": []
+            }
+          ],
           "fields": [
+            {
+              "name": "ua_drawing_name",
+              "type": "Char",
+              "label": "Файл креслення",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/product_template.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_drawing_svg",
+              "type": "Binary",
+              "label": "Складальне креслення",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/product_template.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_size",
+              "type": "Selection",
+              "label": "Габарит",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/product_template.py",
+              "groups": ""
+            },
             {
               "name": "ua_uktzed",
               "type": "Char",
@@ -4553,6 +4640,24 @@
               "label": "Договір №",
               "module": "l10n_ua_docs_sale",
               "file": "addons/l10n_ua_docs_sale/models/sale_order.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "stock.location",
+          "ours": false,
+          "modules": [
+            "l10n_ua_stock_docs"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_capacity",
+              "type": "Integer",
+              "label": "Місць",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_location.py",
               "groups": ""
             }
           ]

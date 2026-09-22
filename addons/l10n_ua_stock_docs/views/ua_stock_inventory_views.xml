@@ -26,6 +26,8 @@
         <header>
           <button name="action_fill" type="object" string="Заповнити залишками"
                   invisible="state == 'done'"/>
+          <button name="action_start_count" type="object" string="Почати підрахунок"
+                  invisible="state != 'draft'"/>
           <button name="action_apply" type="object" string="Провести"
                   class="oe_highlight" invisible="state != 'counting'"/>
           <button name="action_open_moves" type="object" string="Коригування"
@@ -41,6 +43,7 @@
               <field name="date" readonly="state == 'done'"/>
               <field name="location_id" readonly="state == 'done'"/>
               <field name="basis" readonly="state == 'done'"/>
+              <field name="ua_client_ref" readonly="1"/>
               <field name="company_id" groups="base.group_multi_company"/>
             </group>
             <group string="Комісія">

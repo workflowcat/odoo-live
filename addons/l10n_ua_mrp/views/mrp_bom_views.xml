@@ -29,4 +29,22 @@
     </field>
   </record>
 
+  <record id="view_mrp_routing_workcenter_form_ua_steps" model="ir.ui.view">
+    <field name="name">mrp.routing.workcenter.form.ua.steps</field>
+    <field name="model">mrp.routing.workcenter</field>
+    <field name="inherit_id" ref="mrp.mrp_routing_workcenter_form_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//group[@name='workorder']" position="after">
+        <group string="Кроки" colspan="2">
+          <field name="ua_steps" nolabel="1" colspan="2"
+                 placeholder="По кроку в рядок: що зробити на цій операції."/>
+        </group>
+        <group string="Перевірка" colspan="2">
+          <field name="ua_checks" nolabel="1" colspan="2"
+                 placeholder="По пункту в рядок: що перевіряє ВТК після операції."/>
+        </group>
+      </xpath>
+    </field>
+  </record>
+
 </odoo>

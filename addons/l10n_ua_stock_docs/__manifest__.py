@@ -17,8 +17,13 @@
                    "Протокол перевірки якості - простий документ ВТК на виріб або партію: "
                    "перелік параметрів, норма, виміряне значення, висновок «придатний / "
                    "не придатний».\n\n"
-                   "Опис у docs/base/spec-mrp-stock.md.",
-    "version": "19.0.1.0.0",
+                   "Місткість полиці - «Місць» на локації і габарит S/M/L на товарі "
+                   "(1/4/16 місць): карта складу бачить, де полиця переповнена. Нативні "
+                   "категорії зберігання лишаються на місці, наші два поля лише рахують "
+                   "заповнення.\n\n"
+                   "Опис у docs/base/spec-mrp-stock.md, виклики для зовнішнього клієнта - "
+                   "у docs/base/spec-stock-api-notes.md.",
+    "version": "19.0.1.0.1",
     "category": "Inventory/Localizations",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -28,6 +33,7 @@
         "security/ir.model.access.csv",
         "data/ir_sequence_data.xml",
         "report/ua_stock_docs_reports.xml",
+        "views/stock_location_views.xml",
         "views/ua_stock_inventory_views.xml",
         "views/ua_quality_protocol_views.xml",
         "views/ua_stock_docs_menus.xml",

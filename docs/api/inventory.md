@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 42. Моделей: 98. Методів: 273. Збережених полів на чужих моделях: 257.
+Модулів: 42. Моделей: 100. Методів: 277. Збережених полів на чужих моделях: 263.
 
 ## Зарплата
 
@@ -897,8 +897,11 @@
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
 | `action_apply()` | Провести: коригування складу плюс проводка лишків 947 -> 719. | `l10n_ua_stock_docs` |
-| `action_fill()` | Заповнити опис залишками складу. Старі рядки замінюються свіжими. | `l10n_ua_stock_docs` |
+| `action_fill(category_ids=None, location_ids=None)` | Заповнити опис залишками складу. Старі рядки замінюються свіжими. | `l10n_ua_stock_docs` |
 | `action_open_moves()` | - | `l10n_ua_stock_docs` |
+| `action_start_count()` | Перевести опис із чернетки в підрахунок, не пишучи `state` ззовні. | `l10n_ua_stock_docs` |
+| `plan()` | Що зробить проведення: розбіжності, суми на 947 і 719, дата, перешкоди. | `l10n_ua_stock_docs` |
+| `ua_get_or_create(client_ref, vals=None)` | Документ за міткою клієнта: є - віддаємо, немає - створюємо. | `l10n_ua_stock_docs` |
 
 ### `ua.vat.cabinet`
 
@@ -1039,6 +1042,15 @@
 | `ua_finrep_form` | Selection | Українська форма | `l10n_ua_finrep` |
 | `ua_group_consolidation` | Boolean | Консолідація групи | `l10n_ua_group` |
 
+### `mrp.routing.workcenter`
+
+доповнена модель · `l10n_ua_mrp`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_checks` | Text | Перевірка | `l10n_ua_mrp` |
+| `ua_steps` | Text | Кроки | `l10n_ua_mrp` |
+
 ### `online.bank.statement.provider`
 
 доповнена модель · `l10n_ua_bank_online`
@@ -1054,10 +1066,17 @@
 
 ### `product.template`
 
-доповнена модель · `l10n_ua_vat`
+доповнена модель · `l10n_ua_mrp`, `l10n_ua_stock_docs`, `l10n_ua_vat`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `ua_assembly()` | Креслення і операції з позиціями - усе, що треба екрану збирання. | `l10n_ua_mrp` |
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
+| `ua_drawing_name` | Char | Файл креслення | `l10n_ua_mrp` |
+| `ua_drawing_svg` | Binary | Складальне креслення | `l10n_ua_mrp` |
+| `ua_size` | Selection | Габарит | `l10n_ua_stock_docs` |
 | `ua_uktzed` | Char | Код УКТ ЗЕД | `l10n_ua_vat` |
 | `ua_vat_relief_id` | Many2one | ua.vat.relief | `l10n_ua_vat` |
 | `ua_vat_treatment` | Selection | Режим ПДВ товару | `l10n_ua_vat` |
@@ -1086,6 +1105,14 @@
 | --- | --- | --- | --- |
 | `ua_contract_date` | Date | Дата договору | `l10n_ua_docs_sale` |
 | `ua_contract_number` | Char | Договір № | `l10n_ua_docs_sale` |
+
+### `stock.location`
+
+доповнена модель · `l10n_ua_stock_docs`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_capacity` | Integer | Місць | `l10n_ua_stock_docs` |
 
 ### `stock.picking`
 

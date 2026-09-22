@@ -9,6 +9,8 @@
 
 Запуск: чиста база через docker compose run, теги ua_mrp.
 """
+import base64
+
 from dateutil.relativedelta import relativedelta
 
 from odoo import fields
@@ -503,6 +505,125 @@ class TestUaMrp(AccountTestInvoicingCommon):
                          [33.33, 33.33, 33.34])
         self.assertEqual(Calculation._spread(0.0, weights),
                          {self.top: 0.0, self.leg: 0.0, self.screw: 0.0})
+
+    # --- 18. Складальна карта: групи за операціями і порядок позицій -------
+    def test_18_assembly_groups(self):
+        """Пʼять позицій на три операції плюс одна без операції.
+
+        Порядок позицій - порядок рядків специфікації (`sequence`), тому номери
+        на кресленні (`bom-N`) не залежать від того, в якій операції рядок.
+        Рядок без операції не зникає: він іде останньою групою «Без операції».
+        """
+        frame = self._product("Рама карбон", self.categ_raw, 900.0)
+        motor = self._product("Мотор", self.categ_raw, 400.0)
+        esc = self._product("Регулятор", self.categ_raw, 300.0)
+        camera = self._product("Камера", self.categ_raw, 800.0)
+        strap = self._product("Стяжка", self.categ_raw, 5.0)
+        drone = self._product("Дрон 7\"", self.categ_finished, 0.0)
+
+        centers = {}
+        for name in ("Рама", "Електроніка", "Пакування"):
+            centers[name] = self.env["mrp.workcenter"].sudo().create({
+                "name": name, "company_id": self.company.id})
+        bom = self.env["mrp.bom"].create({
+            "product_tmpl_id": drone.product_tmpl_id.id,
+            "product_qty": 1.0,
+            "type": "normal",
+            "operation_ids": [
+                (0, 0, {"name": "Збирання рами", "workcenter_id": centers["Рама"].id,
+                        "sequence": 10, "time_cycle_manual": 20.0,
+                        "ua_steps": "Розпакувати раму\nЗатягнути стійки\n",
+                        "ua_checks": "Люфтів немає"}),
+                (0, 0, {"name": "Електроніка", "workcenter_id": centers["Електроніка"].id,
+                        "sequence": 20, "time_cycle_manual": 45.0,
+                        "ua_steps": "Припаяти регулятори"}),
+                (0, 0, {"name": "Пакування", "workcenter_id": centers["Пакування"].id,
+                        "sequence": 30, "time_cycle_manual": 10.0}),
+            ],
+        })
+        operations = bom.operation_ids.sorted(lambda op: (op.sequence, op.id))
+        assembly_op, electronics_op, packing_op = operations
+        for sequence, product, quantity, operation in (
+            (1, frame, 1.0, assembly_op),
+            (2, motor, 4.0, electronics_op),
+            (3, esc, 4.0, assembly_op),
+            (4, strap, 10.0, self.env["mrp.routing.workcenter"]),
+            (5, camera, 1.0, packing_op),
+        ):
+            self.env["mrp.bom.line"].create({
+                "bom_id": bom.id,
+                "product_id": product.id,
+                "product_qty": quantity,
+                "sequence": sequence,
+                "operation_id": operation.id or False,
+            })
+
+        # мотор лежить на окремій полиці - її і має показати карта
+        shelf = self.env["stock.location"].sudo().create({
+            "name": "Полиця М1",
+            "location_id": self.stock_location.id,
+            "usage": "internal",
+            "company_id": self.company.id,
+        })
+        self.env["stock.quant"].with_context(inventory_mode=True).create({
+            "product_id": motor.id,
+            "location_id": shelf.id,
+            "inventory_quantity": 8.0,
+        }).action_apply_inventory()
+
+        card = drone.product_tmpl_id.ua_assembly()
+        names = [group["name"] for group in card["operations"]]
+        self.assertEqual(
+            names, ["Збирання рами", "Електроніка", "Пакування", "Без операції"])
+        groups = {group["name"]: group for group in card["operations"]}
+        self.assertEqual([part["pos"] for part in groups["Збирання рами"]["parts"]], [1, 3])
+        self.assertEqual([part["pos"] for part in groups["Електроніка"]["parts"]], [2])
+        self.assertEqual([part["pos"] for part in groups["Пакування"]["parts"]], [5])
+        self.assertEqual([part["pos"] for part in groups["Без операції"]["parts"]], [4])
+        self.assertEqual(groups["Збирання рами"]["workcenter"], "Рама")
+        self.assertAlmostEqual(groups["Електроніка"]["time_minutes"], 45.0, delta=CENT)
+        self.assertEqual(groups["Збирання рами"]["steps"],
+                         ["Розпакувати раму", "Затягнути стійки"])
+        self.assertEqual(groups["Збирання рами"]["checks"], ["Люфтів немає"])
+        self.assertEqual(groups["Пакування"]["steps"], [])
+        self.assertEqual(groups["Без операції"]["time_minutes"], 0.0)
+        self.assertEqual(groups["Електроніка"]["parts"][0]["bin_location"],
+                         shelf.display_name)
+        self.assertAlmostEqual(
+            groups["Електроніка"]["parts"][0]["qty"], 4.0, delta=CENT)
+        self.assertIsNone(groups["Без операції"]["parts"][0]["bin_location"])
+
+        # специфікація на партію 2: кількості діляться навпіл - карта на один виріб
+        bom.product_qty = 2.0
+        card = drone.product_tmpl_id.ua_assembly()
+        groups = {group["name"]: group for group in card["operations"]}
+        self.assertAlmostEqual(
+            groups["Електроніка"]["parts"][0]["qty"], 2.0, delta=CENT)
+
+    # --- 19. Виріб без специфікації: операцій немає -----------------------
+    def test_19_assembly_without_bom(self):
+        lonely = self._product("Наклейка", self.categ_raw, 3.0)
+        card = lonely.product_tmpl_id.ua_assembly()
+        self.assertEqual(card["operations"], [])
+        self.assertIsNone(card["drawing_svg"])
+        # у виробу зі специфікацією без операцій усе в одній групі
+        card = self.table.product_tmpl_id.ua_assembly()
+        self.assertEqual([group["name"] for group in card["operations"]], ["Без операції"])
+        self.assertEqual(len(card["operations"][0]["parts"]), 3)
+
+    # --- 20. Креслення повертається тим самим текстом ---------------------
+    def test_20_drawing_round_trip(self):
+        svg = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
+               '<g id="bom-1"><rect width="10" height="10"/></g></svg>')
+        template = self.table.product_tmpl_id
+        template.write({
+            "ua_drawing_svg": base64.b64encode(svg.encode()),
+            "ua_drawing_name": "shershen-7.svg",
+        })
+        card = template.ua_assembly()
+        self.assertEqual(card["drawing_svg"], svg)
+        self.assertEqual(card["drawing_name"], "shershen-7.svg")
+        self.assertIn('id="bom-1"', card["drawing_svg"])
 
     # --- 15. Період розподілу: витрати сусіднього місяця не беруться -------
     def test_15_zvv_period_bounds(self):

@@ -46,6 +46,22 @@ class TestUaStockDocs(AccountTestInvoicingCommon):
         })
         cls.board = cls._product("Плита ДСП", 150.0)
         cls.varnish = cls._product("Лак меблевий", 80.0)
+        # Друга категорія потрібна для звуження опису: комірник рахує по одній.
+        cls.category_goods = cls.env["product.category"].with_company(cls.company).create({
+            "name": "Фурнітура",
+            "property_valuation": "real_time",
+            "property_cost_method": "average",
+            "property_stock_valuation_account_id": cls.chart.ref("ua_psbp_201").id,
+            "property_account_expense_categ_id": cls.chart.ref("ua_psbp_943").id,
+        })
+        cls.handle = cls.env["product.product"].create({
+            "name": "Ручка меблева",
+            "is_storable": True,
+            "type": "consu",
+            "categ_id": cls.category_goods.id,
+            "standard_price": 30.0,
+            "list_price": 60.0,
+        })
 
     # --- службове -------------------------------------------------------
 
@@ -280,3 +296,143 @@ class TestUaStockDocs(AccountTestInvoicingCommon):
         self.assertIn("Зовнішній огляд", text)
         self.assertIn("Придатний", text)
         self.assertIn("Контролер Бондар Б. Б.", text)
+
+    # --- 12. Звуження опису категорією і полицею --------------------------
+    def test_12_fill_narrowed(self):
+        """Опис за однією категорією не бачить чужої, за полицею - чужої полиці."""
+        self._seed(self.board, 10)     # Сировина і матеріали
+        self._seed(self.varnish, 4)    # Сировина і матеріали
+        self._seed(self.handle, 6)     # Фурнітура
+        inventory = self._inventory()
+        inventory.action_fill(category_ids=[self.category_goods.id])
+        self.assertEqual(inventory.line_ids.product_id, self.handle)
+        self.assertAlmostEqual(self._line(inventory, self.handle).qty_book, 6.0, delta=CENT)
+
+        # без звуження - усі три товари
+        inventory.action_fill()
+        self.assertEqual(len(inventory.line_ids), 3)
+
+        # звуження полицею: окрема полиця з власним залишком
+        shelf = self.env["stock.location"].sudo().create({
+            "name": "Полиця А1",
+            "location_id": self.stock_location.id,
+            "usage": "internal",
+            "company_id": self.company.id,
+            "ua_capacity": 10,
+        })
+        self.env["stock.quant"].with_context(inventory_mode=True).create({
+            "product_id": self.varnish.id,
+            "location_id": shelf.id,
+            "inventory_quantity": 2.0,
+        }).action_apply_inventory()
+        inventory.action_fill(location_ids=[shelf.id])
+        self.assertEqual(inventory.line_ids.product_id, self.varnish)
+        # на полиці лежать рівно 2, а не 4 + 2 усього складу
+        self.assertAlmostEqual(self._line(inventory, self.varnish).qty_book, 2.0, delta=CENT)
+
+    # --- 13. План збігається з тим, що проведення справді проведе ----------
+    def test_13_plan_matches_apply(self):
+        self._seed(self.board, 10)
+        self._seed(self.varnish, 4)
+        inventory = self._inventory()
+        inventory.action_fill()
+        self._line(inventory, self.board).qty_fact = 12   # лишок 2 × 150 = 300
+        self._line(inventory, self.varnish).qty_fact = 1  # нестача 3 × 80 = 240
+
+        rows = inventory.plan()
+        self.assertTrue(all(set(row) <= {"text", "level", "target"} for row in rows))
+        self.assertTrue(all(row["level"] in ("info", "warn", "crit") for row in rows))
+        self.assertFalse([row for row in rows if row["level"] == "crit"])
+        text = "\n".join(row["text"] for row in rows)
+        self.assertIn("Розбіжностей: 2 рядків із 2", text)
+        self.assertIn("Лишок 300.00", text)
+        self.assertIn("Нестача 240.00", text)
+        self.assertIn("947", text)
+        self.assertIn("719", text)
+        self.assertIn(inventory.date.strftime("%d.%m.%Y"), text)
+
+        mark = self._last_line_id()
+        inventory.action_apply()
+        # план обіцяв 300 лишку і 240 нестачі - стільки й лягло
+        self.assertAlmostEqual(self._balance("ua_psbp_719", mark), -300.0, delta=CENT)
+        self.assertAlmostEqual(self._balance("ua_psbp_947", mark), 240.0, delta=CENT)
+        self.assertTrue(all(row["level"] == "info" for row in inventory.plan()))
+
+    # --- 14. План показує перешкоди: майбутня дата і порожній опис ---------
+    def test_14_plan_blockers(self):
+        self._seed(self.board, 10)
+        inventory = self._inventory()
+        crit = [row for row in inventory.plan() if row["level"] == "crit"]
+        self.assertTrue(crit, "чернетка без рядків має бути перешкодою")
+
+        inventory.action_fill()
+        self._line(inventory, self.board).qty_fact = 11
+        inventory.date = fields.Date.add(fields.Date.context_today(self.env.user), days=3)
+        crit = [row for row in inventory.plan() if row["level"] == "crit"]
+        self.assertTrue(any("не настав" in row["text"] for row in crit))
+        with self.assertRaises(Exception):
+            inventory.action_apply()
+
+    # --- 15. Мітка клієнта: другий виклик віддає той самий документ --------
+    def test_15_get_or_create_is_idempotent(self):
+        values = {
+            "company_id": self.company.id,
+            "location_id": self.stock_location.id,
+            "basis": "Наказ № 13",
+        }
+        first = self.env["ua.stock.inventory"].ua_get_or_create("wh-2026-09-22-01", values)
+        second = self.env["ua.stock.inventory"].ua_get_or_create("wh-2026-09-22-01", values)
+        self.assertEqual(first, second)
+        self.assertEqual(self.env["ua.stock.inventory"].search_count(
+            [("ua_client_ref", "=", "wh-2026-09-22-01")]), 1)
+        # інша мітка - інший документ
+        third = self.env["ua.stock.inventory"].ua_get_or_create("wh-2026-09-22-02", values)
+        self.assertNotEqual(first, third)
+
+    # --- 16. Стан міняє кнопка, а не запис поля ззовні ---------------------
+    def test_16_start_count(self):
+        inventory = self.env["ua.stock.inventory"].ua_get_or_create("wh-2026-09-22-03", {
+            "company_id": self.company.id,
+            "location_id": self.stock_location.id,
+            "line_ids": [(0, 0, {
+                "product_id": self.board.id,
+                "qty_book": 10.0,
+                "qty_fact": 10.0,
+                "cost": 150.0,
+            })],
+        })
+        self.assertEqual(inventory.state, "draft")
+        inventory.action_start_count()
+        self.assertEqual(inventory.state, "counting")
+        empty = self._inventory()
+        with self.assertRaises(Exception):
+            empty.action_start_count()
+
+    # --- 17. Зайнято місць: кількість × габарит ---------------------------
+    def test_17_capacity_used(self):
+        shelf = self.env["stock.location"].sudo().create({
+            "name": "Полиця Б2",
+            "location_id": self.stock_location.id,
+            "usage": "internal",
+            "company_id": self.company.id,
+            "ua_capacity": 20,
+        })
+        self.board.product_tmpl_id.ua_size = "l"    # 16 місць за штуку
+        self.varnish.product_tmpl_id.ua_size = "s"  # 1 місце за штуку
+        for product, quantity in ((self.board, 1.0), (self.varnish, 5.0)):
+            self.env["stock.quant"].with_context(inventory_mode=True).create({
+                "product_id": product.id,
+                "location_id": shelf.id,
+                "inventory_quantity": quantity,
+            }).action_apply_inventory()
+        shelf.invalidate_recordset()
+        # 1 × 16 + 5 × 1 = 21 місце на полиці з 20 - переповнення видно
+        self.assertEqual(shelf.ua_capacity_used, 21)
+        self.assertGreater(shelf.ua_capacity_used, shelf.ua_capacity)
+        # батьківська локація бачить залишки дітей
+        self.stock_location.invalidate_recordset()
+        self.assertGreaterEqual(self.stock_location.ua_capacity_used, 21)
+        # товар без габариту - одне місце за штуку
+        self.varnish.product_tmpl_id.ua_size = False
+        shelf.invalidate_recordset()
+        self.assertEqual(shelf.ua_capacity_used, 21)

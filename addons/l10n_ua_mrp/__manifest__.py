@@ -14,8 +14,11 @@
                    "матеріали, пряма оплата праці, ЗВВ по кожному виробу, з друкованою формою. "
                    "Третя: вартість специфікації з урахуванням вкладених специфікацій і "
                    "відповідь на питання «скільки можемо зібрати з того, що є на складі».\n\n"
+                   "Для екрана збирання: складальне креслення SVG на товарі, кроки і пункти "
+                   "перевірки на операції маршруту, і складальна карта ua_assembly() - "
+                   "операції з позиціями специфікації, кількостями на виріб і полицями.\n\n"
                    "Опис у docs/base/spec-mrp-stock.md.",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0.1",
     "category": "Manufacturing/Localizations",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -28,6 +31,7 @@
         "views/ua_zvv_allocation_views.xml",
         "views/ua_cost_calculation_views.xml",
         "views/mrp_bom_views.xml",
+        "views/product_views.xml",
         "views/ua_mrp_menus.xml",
     ],
     "installable": True,
