@@ -57,10 +57,14 @@ def manifests():
 
 MANIFESTS = manifests()
 DEPENDS = {name: list(data.get("depends") or []) for name, data in MANIFESTS.items()}
-SHELVED_MODULES = sorted(
-    name for name in (os.listdir(SHELVED) if os.path.isdir(SHELVED) else [])
-    if os.path.isdir(os.path.join(SHELVED, name))
-)
+# Відкладені екрани переїхали в репозиторій odoo-ui (reference/owl-2026-09-22); тут лишається
+# лише перелік їхніх назв, щоб жоден модуль ядра на них не посилався.
+SHELVED_MODULES = sorted([
+    "l10n_ua_bank_ui", "l10n_ua_card_ui", "l10n_ua_dashboard", "l10n_ua_hire_ui", "l10n_ua_home",
+    "l10n_ua_papers", "l10n_ua_payroll_ui", "l10n_ua_people", "l10n_ua_period",
+    "l10n_ua_reporting_ui", "l10n_ua_setup_ui", "l10n_ua_shell",
+] + [name for name in (os.listdir(SHELVED) if os.path.isdir(SHELVED) else [])
+     if os.path.isdir(os.path.join(SHELVED, name))])
 
 
 def chain_to_ui(module, seen=None, path=None):

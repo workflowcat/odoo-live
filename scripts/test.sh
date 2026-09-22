@@ -12,10 +12,10 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-MODULE="l10n_ua_payroll_tests"
+MODULE="${TEST_MODULES:-l10n_ua_payroll_tests}"   # TEST_MODULES=l10n_ua_navigation - весь продукт (тести ua_vat, ua_cash... живуть у своїх модулях)
 TEST_TAGS="${TEST_TAGS:-ua_golden,ua_leaves}"
 DB="${TEST_DB:-payroll_golden_$$}"
-LOG="$(mktemp -t payroll_test)"
+LOG="$(mktemp "${TMPDIR:-/tmp}/payroll_test.XXXXXX")"   # GNU mktemp вимагає XXXXXX
 STARTED_AT=$SECONDS
 
 # Проєкт docker compose зветься за текою (odoo-live-base), тому томи і контейнери
@@ -50,17 +50,17 @@ set +e
 # Конфіг стенда (/etc/odoo/odoo.conf) лишається чинним для db_host і addons_path,
 # але його dbfilter = ^payroll$ і db_name тут ні до чого - перекриваємо в рядку команди.
 docker compose run --rm --no-deps -T \
-    odoo odoo \
+    odoo sh -c "pip install --break-system-packages pypdf >/dev/null 2>&1; exec odoo \
     --addons-path=/mnt/extra-addons \
     --db_host=db --db_user=odoo --db_password=odoo \
-    --database="$DB" \
+    --database=$DB \
     --db-filter='.*' \
-    --init="$MODULE" \
+    --init=$MODULE \
     --without-demo=True \
-    --test-tags="$TEST_TAGS" \
+    --test-tags=$TEST_TAGS \
     --stop-after-init \
     --max-cron-threads=0 \
-    --log-level=test \
+    --log-level=test" \
     2>&1 | tee "$LOG"
 ODOO_CODE=${PIPESTATUS[0]}
 set -e
