@@ -2709,6 +2709,11 @@ def main():
         lab_user()
         crm(PR)
         co2, co2_partner, co1_partner = group_company(P, tx)
+        # Odoo 19 додає нову компанію всім внутрішнім користувачам; складському lab
+        # «Логістика» (лише послуги) не потрібна - прибираємо, АероСіч лишається.
+        lab_ids = call("res.users", "search", [["login", "=", LAB_LOGIN]])
+        if lab_ids:
+            call("res.users", "write", lab_ids, {"company_ids": [(3, co2)]})
         interco_invoice(co2, co1_partner, P, tx)
         instance, labels = consolidation(co2)
         rows = consolidated_rows(instance, [CO_ID, co2])
