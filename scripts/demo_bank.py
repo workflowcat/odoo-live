@@ -21,7 +21,10 @@ PW = ENV["ODOO_ADMIN_USER_PASSWORD"].strip()
 
 OPENING_REF = "Початковий залишок на поточному рахунку"
 OPENING_DATE = "2026-08-01"
-OPENING_AMOUNT = 1200000.00
+# Квартал видатковий (три місяці зарплати на 23 людей проти виторгу), тому початкового
+# мільйона не вистачало: тепер, коли платежі відомостей справді йдуть через банк, залишок
+# на рахунку видно в контрольній таблиці, і він не має бути від'ємним.
+OPENING_AMOUNT = 2700000.00
 DEMO_IBAN = "UA213052990000026007233566001"
 MONO_JOURNAL = "Monobank (еквайринг)"
 MONO_CODE = "MONO"
@@ -70,6 +73,18 @@ company = call("res.users", "read", [UID], ["company_id"])[0]["company_id"][0]
 journal = call("account.journal", "search", [["type", "=", "bank"], ["company_id", "=", company]], limit=1)
 if not journal:
     raise SystemExit("У компанії немає банківського журналу.")
+
+# 0. Вимкнути годинний крон OCA «Pull Online Bank Statements».
+# Демо-режим провайдера віддає вигаданий зразок, прив'язаний до місяця вікна: раз на
+# годину крон дописував у той самий журнал ще одну «зарплату за вересень», під якою немає
+# жодного нарахування, і правило звірки кодувало її на 661. Кнопка «Завантажити за місяць»
+# працює як працювала - вимикаємо саме фонове підтягування зразка.
+cron = call("ir.model.data", "search_read",
+            [["module", "=", "account_statement_import_online"],
+             ["name", "=", "ir_cron_account_pull_online_bank_statements"]], fields=["res_id"])
+if cron:
+    call("ir.cron", "write", [cron[0]["res_id"]], {"active": False})
+    print("Фонове підтягування виписок (крон OCA) вимкнено: демо-зразок не вигадує зарплату.")
 
 # 1. Початковий залишок
 existing = call("account.move", "search", [["ref", "=", OPENING_REF], ["company_id", "=", company]])

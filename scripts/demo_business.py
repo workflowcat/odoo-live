@@ -711,18 +711,46 @@ def _cash_journal():
     return ids[0]
 
 
+def _statement_echo(journal, payment_id, amount, day, kind, memo):
+    """Рядок виписки під платіж банку і зведення його з цим платежем.
+
+    Банківський журнал платить через 333 «Грошові кошти в дорозі»: платіж кладе туди
+    гроші і чекає, поки банк підтвердить їх випискою. У демо виписку за квартал ми
+    складаємо самі, тож кожна оплата постачальнику і кожне надходження від покупця
+    отримують свій рядок того самого дня - інакше на 333 назавжди лишився б мільйон
+    «у дорозі». Зарплата йде тим самим шляхом, тільки її рядки приходять з файлу виписки
+    (scripts/demo_company.py)."""
+    if call("account.journal", "read", [journal], ["type"])[0]["type"] != "bank":
+        return
+    if call("account.bank.statement.line", "search_count",
+            [["journal_id", "=", journal], ["payment_ref", "=", memo]]):
+        return
+    partner = call("account.payment", "read", [payment_id], ["partner_id"])[0]["partner_id"]
+    line = call("account.bank.statement.line", "create", {
+        "journal_id": journal, "company_id": COMPANY, "date": day, "payment_ref": memo,
+        "amount": round(amount, 2) * (1 if kind == "inbound" else -1),
+        "partner_id": partner[0] if partner else False})
+    call("ua.bank.board", "run_action", "match_payments", {"line_id": line})
+
+
 def _pay(partner, amount, day, kind, memo, journal=None, dest=None, ptype=None):
-    """Платіж: ідемпотентний за memo."""
+    """Платіж: ідемпотентний за memo. Банківський - одразу з рядком виписки під ним."""
+    journal = journal or _bank_journal()
     ids = call("account.payment", "search", [["memo", "=", memo]])
     if ids:
-        return ids[0]
-    vals = {"payment_type": kind, "partner_type": ptype or ("customer" if kind == "inbound" else "supplier"),
-            "partner_id": partner, "amount": round(amount, 2), "date": day,
-            "journal_id": journal or _bank_journal(), "company_id": COMPANY, "memo": memo}
-    if dest:
-        vals["destination_account_id"] = dest
-    pid = call("account.payment", "create", vals)
-    call("account.payment", "action_post", [pid])
+        pid = ids[0]
+    else:
+        vals = {"payment_type": kind,
+                "partner_type": ptype or ("customer" if kind == "inbound" else "supplier"),
+                "partner_id": partner, "amount": round(amount, 2), "date": day,
+                "journal_id": journal, "company_id": COMPANY, "memo": memo}
+        if dest:
+            vals["destination_account_id"] = dest
+        pid = call("account.payment", "create", vals)
+        call("account.payment", "action_post", [pid])
+    # рядок виписки заводимо і для вже створеного платежу: перерваний прогін інакше
+    # лишив би гроші на 333
+    _statement_echo(journal, pid, amount, day, kind, memo)
     return pid
 
 
@@ -979,6 +1007,28 @@ def bank_money(PR):
 # =====================================================================================
 # 12. Каса: ПКО, ВКО, підзвіт і авансовий звіт
 # =====================================================================================
+# Здача понадлімітної готівки: (дата ВКО, сума). Банк зараховує наступного дня.
+CASH_DEPOSIT = ("2026-09-14", 15000.0)
+
+
+def cash_deposit_statement_line():
+    """Зарахування здачі готівки у виписці. Закриває 333 після ВКО з каси.
+
+    Рядок заводимо тут, а не у виписці з demo_company.py: там її будують із зарплатних
+    сум, а ця операція народжується разом із касовими ордерами - хай дата і сума живуть
+    в одному місці."""
+    ref = "Зарахування готівки згідно заяви на переказ (здача понадлімітної готівки)"
+    journal = _bank_journal()
+    if call("account.bank.statement.line", "search_count", [["payment_ref", "=", ref]]):
+        return
+    call("account.bank.statement.line", "create", {
+        "journal_id": journal, "company_id": COMPANY,
+        "date": (date.fromisoformat(CASH_DEPOSIT[0]) + timedelta(days=1)).isoformat(),
+        "payment_ref": ref, "amount": CASH_DEPOSIT[1], "partner_name": "ТОВ «Ясен Меблі»"})
+    result = call("ua.bank.board", "run_action", "apply_rules", {"journal_id": journal})
+    say("Каса -> банк: " + result["message"].replace("\n", " | "))
+
+
 def cash_orders(PR):
     cash = _cash_journal()
     a3721 = _account_by_code("3721") or _account_by_code("372")
@@ -1002,10 +1052,13 @@ def cash_orders(PR):
     call("account.payment", "write", [adv], {"ua_person": pname,
                                              "ua_document": "Паспорт громадянина України, ID-картка"})
     made.append(adv)
-    # ВКО: здача понадлімітної готівки в банк
-    made.append(_pay(PR["DEMO-S10"], 15000.0, "2026-09-14", "outbound",
+    # ВКО: здача понадлімітної готівки в банк. Дт 333 / Кт 301 - гроші вийшли з каси, але
+    # на рахунок ще не зайшли; наступного дня банк зараховує їх, і рядок виписки нижче
+    # закриває 333 правилом «Готівка в дорозі». Без цього рядка 333 висіла б назавжди.
+    made.append(_pay(PR["DEMO-S10"], CASH_DEPOSIT[1], CASH_DEPOSIT[0], "outbound",
                      "Здача готівки в банк на поточний рахунок", journal=cash,
                      dest=_account_by_code("333") or _account_by_code("311")))
+    cash_deposit_statement_line()
     # авансовий звіт
     rep = call("ua.advance.report", "search", [["payment_id", "=", adv]])
     if not rep:
@@ -1230,6 +1283,35 @@ def account_balance(code, date_to="2026-09-30"):
     return round(res[0]["balance"] if res and res[0].get("balance") else 0.0, 2)
 
 
+def salary_circle():
+    """Зарплатне коло: 661 - 333 - 311. Що має бути видно бухгалтеру.
+
+    661 закриває платіж відомості, 333 - рядок виписки, зведений з цим платежем, і через
+    311 зарплата проходить рівно один раз. Залишок на 661 - це те, що нараховано й ще не
+    виплачено (вересень у роботі), а не подвоєння."""
+    rows = []
+    for code, label in (("661", "розрахунки за заробітною платою"),
+                        ("333", "грошові кошти в дорозі"),
+                        ("311", "поточні рахунки в банку")):
+        rows.append((code, label, account_balance(code)))
+    salary_payments = call("account.payment", "search_read",
+                           [["payment_order_id", "!=", False],
+                            ["state", "in", ["posted", "paid", "in_process"]]],
+                           fields=["amount", "is_matched"])
+    lines = call("account.bank.statement.line", "search_count",
+                 [["company_id", "=", COMPANY], ["is_reconciled", "=", False]])
+    # залишок 661 по місяцях: видно, що саме не виплачено
+    by_month = []
+    for month, last in ((7, 31), (8, 31), (9, 30)):
+        from_, to_ = f"2026-{month:02d}-01", f"2026-{month:02d}-{last}"
+        got = call("account.move.line", "read_group",
+                   [["account_id", "in", call("account.account", "search", [["code", "=like", "661%"]])],
+                    ["parent_state", "=", "posted"], ["company_id", "=", COMPANY],
+                    ["date", ">=", from_], ["date", "<=", to_]], ["balance:sum"], [])
+        by_month.append((month, round(got[0]["balance"] if got and got[0].get("balance") else 0.0, 2)))
+    return rows, salary_payments, lines, by_month
+
+
 def stock_value():
     prods = call("product.product", "search_read",
                  [["is_storable", "=", True]], fields=["default_code", "qty_available",
@@ -1296,6 +1378,16 @@ def control_table():
         f"(різниця {mat - b201:,.2f})")
     say(f"  Готова продукція {fin:,.2f} vs рахунок 26 {b26:,.2f}  "
         f"(різниця {fin - b26:,.2f}); незавершене 23 = {b23:,.2f}")
+    say("-" * 96)
+    rows, salary_payments, unreconciled, by_month = salary_circle()
+    for code, label, value in rows:
+        say(f"  Рахунок {code} ({label}) на 30.09.2026: {value:,.2f}")
+    say("  661 по місяцях: " + ", ".join(f"{m:02d}.2026 {v:,.2f}" for m, v in by_month))
+    total = round(sum(p["amount"] for p in salary_payments), 2)
+    arrived = sum(1 for p in salary_payments if p["is_matched"])
+    say(f"  Зарплатних платежів проведено {len(salary_payments)} на {total:,.2f}; "
+        f"зведено з випискою {arrived}")
+    say(f"  Незвірених рядків виписки лишилось: {unreconciled}")
     say("-" * 96)
     for m, r in vat_by_month():
         say(f"  ПДВ {m:02d}.2026: ПЗ {r['pz_total']:,.2f}, ПК {r['pk_total']:,.2f}, "

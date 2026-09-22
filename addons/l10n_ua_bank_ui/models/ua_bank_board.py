@@ -121,18 +121,28 @@ class UaBankBoard(models.AbstractModel):
                 "total": connect.total_steps if connect else 0}
 
     def _get_unreconciled(self, company, limit=40):
+        """Незвірені рядки і позначка «платіж знайдено».
+
+        Позначку рахує сам рядок (`_ua_find_payment` у l10n_ua_bank): екран лише показує
+        те, що знайшла логіка, і дає кнопку, яка кличе ту саму дію."""
         lines = self.env["account.bank.statement.line"].search([
             ("company_id", "=", company.id), ("is_reconciled", "=", False),
         ], order="date desc, id desc", limit=limit)
-        return [{
-            "id": line.id,
-            "journal_id": line.journal_id.id,
-            "journal": line.journal_id.name,
-            "date": line.date.strftime("%d.%m.%Y") if line.date else "",
-            "ref": line.payment_ref or "",
-            "partner": line.partner_name or (line.partner_id.name or ""),
-            "amount": self._r2(line.amount),
-        } for line in lines]
+        rows = []
+        for line in lines:
+            payment = line._ua_find_payment()
+            rows.append({
+                "id": line.id,
+                "journal_id": line.journal_id.id,
+                "journal": line.journal_id.name,
+                "date": line.date.strftime("%d.%m.%Y") if line.date else "",
+                "ref": line.payment_ref or "",
+                "partner": line.partner_name or (line.partner_id.name or ""),
+                "amount": self._r2(line.amount),
+                "payment_id": payment.id or False,
+                "payment_label": payment.name or payment.memo or "" if payment else "",
+            })
+        return rows
 
     def _get_statements(self, company, year, month, limit=24):
         first, last = self._bounds(year, month)
@@ -185,6 +195,7 @@ class UaBankBoard(models.AbstractModel):
         "pull_all": "action_pull_all",
         "test": "action_test",
         "apply_rules": "action_apply_rules",
+        "match_payments": "action_match_payments",
         "import_file": "action_import_file",
         "create_provider": "action_create_provider",
         "open_rules": "action_open_rules",
@@ -196,7 +207,7 @@ class UaBankBoard(models.AbstractModel):
     }
 
     # Ключі, за якими стоїть банківська логіка, а не екран: їх виконує ua.bank.ops.
-    OPS_ACTIONS = ("pull", "pull_month", "pull_all", "test", "apply_rules",
+    OPS_ACTIONS = ("pull", "pull_month", "pull_all", "test", "apply_rules", "match_payments",
                    "create_provider", "open_providers")
 
     @api.model

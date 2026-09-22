@@ -86,6 +86,22 @@ class OnlineBankStatementProvider(models.Model):
     )
 
     # ------------------------------------------------------------------ рушій
+    def _pull(self, date_since, date_until):
+        """Завантажити виписку і одразу звести свіжі рядки з проведеними платежами.
+
+        Зарплату платять відомістю до того, як приходить виписка. Якщо не звести рядок з
+        платежем тут, наступний прогін правил закодує його на 661 - і та сама сума ляже
+        двічі. Правила за текстом лишаються ручною дією бухгалтера («Застосувати
+        правила»), а зведення з платежем робимо самі: воно не вгадує, а знаходить."""
+        Line = self.env["account.bank.statement.line"]
+        last = Line.search([], order="id desc", limit=1).id or 0
+        result = super()._pull(date_since, date_until)
+        fresh = Line.search([("id", ">", last), ("journal_id", "in", self.journal_id.ids),
+                             ("is_reconciled", "=", False)], order="date, id")
+        if fresh:
+            fresh._ua_match_payment()
+        return result
+
     @api.model
     def _get_available_services(self):
         return super()._get_available_services() + [

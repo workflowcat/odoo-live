@@ -1,7 +1,7 @@
 {
     "name": "Банк: екран рахунків і звірки (Україна)",
     "summary": "Клієнтська дія «Банк» на OWL над операціями l10n_ua_bank_online",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Accounting",
     "author": "Bot&Partners",
     "license": "LGPL-3",

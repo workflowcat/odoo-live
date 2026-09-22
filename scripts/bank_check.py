@@ -197,6 +197,104 @@ if test_lines:
 left = call("account.bank.statement.line", "search_count", test_domain)
 check("тестовий місяць прибрано зі стенду", left == 0, f"лишилось рядків: {left}")
 
+# 10в. Рахунок 333 у журналі і зведення рядка виписки з проведеним платежем.
+# Працюємо в тому самому порожньому місяці, що й підтягування вище, і прибираємо по собі:
+# серпневі й вересневі дані стенду лишаються недоторканими.
+def account_id(code):
+    found = call("account.account", "search", [["code", "=", code]], limit=1) or \
+        call("account.account", "search", [["code", "=like", f"{code}%"]], order="code", limit=1)
+    return found[0] if found else False
+
+
+TRANSIT = account_id("333")
+transit = call("account.account", "read", [TRANSIT], ["code", "reconcile"])[0]
+check("у плані є рахунок 333 «Грошові кошти в дорозі»", transit["code"] == "333", transit["code"])
+check("333 звірюваний: на ньому сходяться платіж і виписка", transit["reconcile"])
+method_lines = call("account.payment.method.line", "search_read",
+                    [["journal_id", "=", journal_id]], fields=["payment_account_id", "name"])
+check("банківський журнал платить через 333 в обидва боки",
+      bool(method_lines) and all((m["payment_account_id"] or [0])[0] == TRANSIT for m in method_lines),
+      str([(m["name"], (m["payment_account_id"] or ["", ""])[1][:24]) for m in method_lines]))
+
+MATCH_DAY = f"{TEST_YEAR}-{TEST_MONTH:02d}-05"
+made_payments, made_lines = [], []
+pairs = call("res.partner.bank", "search_read",
+             [["partner_id.employee_ids", "!=", False]], fields=["partner_id", "acc_number"], limit=2)
+if len(pairs) < 2:
+    check("на стенді є два працівники з рахунками для перевірки зведення", False, str(len(pairs)))
+else:
+    def make_payment(pair, amount):
+        pid = call("account.payment", "create", {
+            "payment_type": "outbound", "partner_type": "supplier",
+            "partner_id": pair["partner_id"][0], "partner_bank_id": pair["id"],
+            "amount": amount, "date": MATCH_DAY, "journal_id": journal_id,
+            "destination_account_id": account_id("661"),
+            "memo": "Перевірка зведення виписки з платежем"})
+        call("account.payment", "action_post", [pid])
+        made_payments.append(pid)
+        return pid
+
+    def make_line(pair, amount):
+        lid = call("account.bank.statement.line", "create", {
+            "journal_id": journal_id, "date": MATCH_DAY, "amount": -amount,
+            "payment_ref": "Заробітна плата за перевірку, остаточний розрахунок",
+            "account_number": pair["acc_number"], "partner_name": pair["partner_id"][1]})
+        made_lines.append(lid)
+        return lid
+
+    exact, partial = make_payment(pairs[0], 4321.55), make_payment(pairs[1], 7654.33)
+    paid = call("account.payment", "read", [exact], ["outstanding_account_id", "state"])[0]
+    check("проведений платіж кредитує 333, а не рахунок банку",
+          (paid["outstanding_account_id"] or [0])[0] == TRANSIT,
+          str(paid["outstanding_account_id"]))
+
+    line_exact = make_line(pairs[0], 4321.55)
+    line_partial = make_line(pairs[1], 7554.33)   # на 100 менше: часткова оплата
+
+    screen = call("ua.bank.board", "get_screen_data")
+    marks = {row["id"]: row.get("payment_id") for row in screen["unreconciled"]}
+    check("екран «Банк» позначає рядок, під яким є платіж", bool(marks.get(line_exact)),
+          f"рядок {line_exact}: платіж {marks.get(line_exact)}")
+    check("екран не обіцяє платіж там, де сума інша", not marks.get(line_partial),
+          f"рядок {line_partial}: платіж {marks.get(line_partial)}")
+
+    one = call("ua.bank.board", "run_action", "match_payments", {"line_id": line_exact})
+    check("кнопка «платіж знайдено» зводить рядок з платежем", one.get("matched") == 1, one.get("message", ""))
+    state = call("account.bank.statement.line", "read", [line_exact], ["is_reconciled"])[0]
+    check("зведений рядок виписки вважається звіреним", state["is_reconciled"])
+    matched = call("account.payment", "read", [exact], ["is_matched"])[0]
+    check("платіж позначено як такий, що дійшов до банку", matched["is_matched"])
+    residual = call("account.move.line", "search_read",
+                    [["account_id", "=", TRANSIT], ["date", "=", MATCH_DAY], ["reconciled", "=", False]],
+                    fields=["amount_residual"])
+    check("333 за зведеною парою закрито",
+          all(abs(r["amount_residual"]) != 4321.55 for r in residual), str(len(residual)))
+
+    # лише цей рядок: решта стенду лишається як є
+    rules = call("ua.bank.board", "run_action", "apply_rules", {"line_id": line_partial})
+    check("правило 661 мовчить там, де під рядком стоїть платіж", rules.get("waiting", 0) == 1,
+          rules.get("message", ""))
+    left = call("account.bank.statement.line", "read", [line_partial], ["is_reconciled"])[0]
+    check("часткова оплата лишається бухгалтерові, а не дублює 661", not left["is_reconciled"])
+
+# прибираємо за собою: спершу знімаємо звірку, потім скасовуємо платежі і видаляємо рядки
+for record_model, ids in (("account.bank.statement.line", made_lines), ("account.payment", made_payments)):
+    for record in ids:
+        move = call(record_model, "read", [record], ["move_id"])[0]["move_id"]
+        if move:
+            amls = call("account.move.line", "search", [["move_id", "=", move[0]]])
+            if amls:
+                call("account.move.line", "remove_move_reconcile", amls)
+if made_payments:
+    call("account.payment", "action_cancel", made_payments)
+if made_lines:
+    call("account.bank.statement.line", "unlink", made_lines)
+if made_payments:
+    call("account.payment", "unlink", made_payments)
+left_over = call("account.bank.statement.line", "search_count",
+                 [["journal_id", "=", journal_id], ["date", "=", MATCH_DAY]])
+check("перевірку зведення прибрано зі стенду", left_over == 0, f"лишилось рядків: {left_over}")
+
 # 11. Меню «Банк» бачить бухгалтер
 lana_uid = rpc("common", "login", DB, "lana", ENV.get("LANA_PASSWORD", "").strip())
 if lana_uid:

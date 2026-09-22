@@ -109,7 +109,7 @@
           <div class="o_ua_bank_section">
             <h5>Незвірені рядки, усі періоди</h5>
             <table class="o_ua_table">
-              <thead><tr><th>Дата</th><th>Призначення</th><th>Контрагент</th><th class="text-end">Сума</th></tr></thead>
+              <thead><tr><th>Дата</th><th>Призначення</th><th>Контрагент</th><th class="text-end">Сума</th><th>Платіж</th></tr></thead>
               <tbody>
                 <tr t-foreach="this.unreconciled" t-as="l" t-key="l.id" class="o_ua_bank_clickable"
                     t-on-click="() => this.openLine(l)">
@@ -117,8 +117,13 @@
                   <td t-esc="l.ref"/>
                   <td t-esc="l.partner || '—'"/>
                   <td class="text-end" t-esc="this.money(l.amount)"/>
+                  <td t-on-click.stop="() => this.matchPayment(l)">
+                    <button t-if="l.payment_id" class="btn btn-sm btn-link p-0" t-att-disabled="state.busy">
+                      <span class="o_ua_pill o_ua_pill_ok">платіж знайдено</span>
+                    </button>
+                  </td>
                 </tr>
-                <tr t-if="!this.unreconciled.length"><td colspan="4" class="text-muted">Незвірених рядків немає.</td></tr>
+                <tr t-if="!this.unreconciled.length"><td colspan="5" class="text-muted">Незвірених рядків немає.</td></tr>
               </tbody>
             </table>
           </div>

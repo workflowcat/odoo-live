@@ -119,28 +119,58 @@ class UaBankOps(models.AbstractModel):
             return None
         return self.env["res.partner"].search([("name", "=", name)], limit=1) or None
 
-    @api.model
-    def action_apply_rules(self, journal_id=None):
-        """Проставити рахунок незвіреним рядкам за правилами звірки.
+    def _unreconciled(self, company, journal_id=None, line_id=None):
+        """Незвірені рядки: один названий (кнопка біля рядка) або весь рахунок."""
+        Line = self.env["account.bank.statement.line"]
+        if line_id:
+            line = Line.browse(int(line_id)).exists()
+            return line.filtered(lambda l: l.company_id == company and not l.is_reconciled)
+        return Line.search(Line._ua_match_domain(company, journal_id), order="date, id")
 
-        Правила - записи account.reconcile.model (їх бачить і змінює бухгалтер).
-        Рядку замінюємо тимчасовий рахунок банку на рахунок з правила; після цього
-        рядок вважається звіреним. Рядки без збігу лишаємо бухгалтеру.
+    @api.model
+    def action_match_payments(self, journal_id=None, line_id=None):
+        """Звести незвірені рядки виписки з уже проведеними платежами.
+
+        Окремий вхід для екрана «Банк»: кнопка біля рядка (line_id) або весь рахунок."""
+        company = self._company()
+        lines = self._unreconciled(company, journal_id, line_id)
+        matched = lines._ua_match_payment()
+        return {
+            "matched": matched,
+            "message": (_("Зведено з платежами: %s.") % matched) if matched else
+                       _("Платежів під ці рядки немає."),
+        }
+
+    @api.model
+    def action_apply_rules(self, journal_id=None, line_id=None):
+        """Закрити незвірені рядки виписки: спершу платежами, потім правилами.
+
+        Спершу зводимо рядок з уже проведеним платежем відомості - там уже є і рахунок,
+        який закривається, і одержувач. Лише те, під чим платежу немає, кодуємо правилом
+        за текстом призначення (`account.reconcile.model`, їх бачить і змінює бухгалтер):
+        рядку замінюємо тимчасовий рахунок банку на рахунок з правила, після чого рядок
+        вважається звіреним.
+
+        Рядок, під яким платіж є, але зійтися не зміг (інша сума, часткова оплата),
+        правило не чіпає: він лишається в «Незвірених» і чекає на бухгалтера. Рядки без
+        збігу - так само.
         """
         company = self._company()
-        domain = [("company_id", "=", company.id), ("is_reconciled", "=", False)]
-        if journal_id:
-            domain.append(("journal_id", "=", int(journal_id)))
-        lines = self.env["account.bank.statement.line"].search(domain, order="date, id")
+        lines = self._unreconciled(company, journal_id, line_id)
+        matched = lines._ua_match_payment()
+        rest = lines.filtered(lambda line: not line.is_reconciled)
         models_ = self._reconcile_models(company)
-        if not models_:
+        if not models_ and not matched:
             raise UserError(_("Немає правил звірки. Створіть їх у розділі «Бухоблік → Правила звірки»."))
-        applied, skipped = 0, 0
+        applied, skipped, waiting = 0, 0, 0
         by_rule = {}
-        for line in lines:
+        for line in rest:
             account, model = self._rule_account(models_, line.payment_ref or "")
             if not account:
                 skipped += 1
+                continue
+            if line._ua_payment_blocks_rule(account):
+                waiting += 1
                 continue
             _liquidity, suspense, _other = line._seek_for_lines()
             if not suspense:
@@ -155,11 +185,16 @@ class UaBankOps(models.AbstractModel):
             applied += 1
             by_rule[model.name] = by_rule.get(model.name, 0) + 1
         detail = ", ".join("%s: %s" % (name, count) for name, count in sorted(by_rule.items()))
+        message = _("Зведено з платежами: %s. Звірено за правилами: %s. Лишилося вручну: %s.") % (
+            matched, applied, skipped)
+        if waiting:
+            message += _(" Чекають на платіж: %s.") % waiting
         return {
+            "matched": matched,
             "applied": applied,
             "skipped": skipped,
-            "message": _("Звірено за правилами: %s. Лишилося вручну: %s.%s") % (
-                applied, skipped, ("\n" + detail) if detail else ""),
+            "waiting": waiting,
+            "message": message + (("\n" + detail) if detail else ""),
         }
 
     # ------------------------------------------------------------------ з'єднання

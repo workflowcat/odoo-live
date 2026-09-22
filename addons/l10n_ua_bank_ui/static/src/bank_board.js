@@ -122,6 +122,11 @@ export class UaBankBoard extends Component {
         return this.run("apply_rules", { journal_id: this.state.journalId });
     }
 
+    /** Звести рядок виписки з платежем, який під ним знайшла логіка. */
+    matchPayment(line) {
+        return this.run("match_payments", { line_id: line.id });
+    }
+
     reconcile() {
         return this.run("open_reconcile", { journal_id: this.state.journalId });
     }
