@@ -2,7 +2,7 @@
   "totals": {
     "modules": 42,
     "models": 100,
-    "methods": 277,
+    "methods": 282,
     "fields": 263
   },
   "areas": [
@@ -5491,6 +5491,26 @@
               ]
             },
             {
+              "name": "floor_packages",
+              "signature": "floor_packages(company_id)",
+              "doc": "Що стоїть нерозкладеним: приймання, підлоги полиць і свіжий випуск.",
+              "module": "l10n_ua_api",
+              "file": "addons/l10n_ua_api/models/ua_api.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "inventory_plan",
+              "signature": "inventory_plan(inventory_id)",
+              "doc": "Що зробить проведення інвентаризації - третє дієслово екрана складу.",
+              "module": "l10n_ua_api",
+              "file": "addons/l10n_ua_api/models/ua_api.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
               "name": "month_summary",
               "signature": "month_summary(company_id, year, month)",
               "doc": "Усе, що показує екран місяця зарплати, одним читанням.",
@@ -5501,9 +5521,39 @@
               ]
             },
             {
+              "name": "product_assembly",
+              "signature": "product_assembly(product_id)",
+              "doc": "Складальна карта виробу з полицями, де комплектуючі лежать ЗАРАЗ.",
+              "module": "l10n_ua_api",
+              "file": "addons/l10n_ua_api/models/ua_api.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
               "name": "reporting_status",
               "signature": "reporting_status(company_id, year, month=None)",
               "doc": "Стан звітності за період: по рядку на кожен звіт робочого місця.",
+              "module": "l10n_ua_api",
+              "file": "addons/l10n_ua_api/models/ua_api.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "stock_glance",
+              "signature": "stock_glance(company_id, location_ids=None, category_ids=None)",
+              "doc": "Залишки з першого погляду: скільки лежить, скільки треба, на скільки вистачить.",
+              "module": "l10n_ua_api",
+              "file": "addons/l10n_ua_api/models/ua_api.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "warehouse_map",
+              "signature": "warehouse_map(company_id)",
+              "doc": "Карта складу: дерево локацій із місткістю, заповненням і вмістом.",
               "module": "l10n_ua_api",
               "file": "addons/l10n_ua_api/models/ua_api.py",
               "decorators": [

@@ -113,6 +113,11 @@ Odoo; зовнішньому клієнтові він незручний чер
 | `ua.api.documents_for_month(company_id, year, month)` | вісім видів документів місяця з перевірками, у сталому порядку |
 | `ua.api.employee_card(employee_id)` | картка працівника: вкладки, документи, накази, відпустки, військовий облік |
 | `ua.api.reporting_status(company_id, year, month)` | стан кожного звіту робочого місця за період |
+| `ua.api.warehouse_map(company_id)` | карта складу: дерево локацій, місткість, зайняті місця, переповнення, вміст полиці |
+| `ua.api.stock_glance(company_id, location_ids, category_ids)` | залишки з мінімумом, потребою на місяць, «на скільки виробів вистачить» і габаритом |
+| `ua.api.floor_packages(company_id)` | нерозкладене: приймання, підлоги полиць, свіжий випуск із виробництва |
+| `ua.api.product_assembly(product_id)` | складальна карта виробу: креслення, операції, позиції, полиці |
+| `ua.api.inventory_plan(inventory_id)` | план проведення інвентаризації і чи пройде воно взагалі |
 
 Решта читань - звичайні `get_*` моделей із `inventory.md`
 (`ua.payroll.param.get_all`, `ua.cpi.index.get_map`, `ua.kp.code.suggest`...).
@@ -127,6 +132,7 @@ Odoo; зовнішньому клієнтові він незручний чер
 | `ua.period.close.plan(company, year, month)` | рядки `{text, level, target}`, level: `info` / `warn` / `crit` |
 | `ua.period.close.blocker_rows(company, year, month)` | перешкоди `{key, text, short, plan, target}`; порожньо = можна |
 | `ua.hire.case.action_hire_plan()` | те саме для прийняття на роботу |
+| `ua.stock.inventory.plan()` | те саме для інвентаризації; через `ua.api.inventory_plan()` іде разом із шапкою документа і `can_apply` |
 
 План - це читання. Порожній список перешкод означає «дія пройде».
 
@@ -225,6 +231,81 @@ ua.explain.explain(model, res_id, field=None, when="auto")
 
 У JSON-RPC усі вони приходять як `error.data.message` плюс `error.data.name` із
 класом винятку. Розрізняйте за `name`, а не за текстом.
+
+## Підводні камені
+
+Місця, де нативний Odoo 19 поводиться не так, як здається. Кожне коштувало комусь
+години; перелік ведеться саме тому, що з `fields_get()` цього не видно.
+
+### Склад і рухи
+
+- **У `stock.move` немає поля `name`** (`_rec_name = "reference"`). `create` з `name`
+  падає. Опис позиції - `description_picking`.
+- **Кількість приймання пишеться на `stock.move`**, поля `quantity` і `picked`, а не
+  на `stock.move.line`.
+- **`stock.picking.button_validate()` без контексту повертає ОПИС ВІКНА майстра**
+  дозамовлення, а не `true`. Щоб провести без дозамовлення, потрібні обидва ключі:
+  `{"skip_backorder": true, "picking_ids_not_to_backorder": [<id>]}`. Обидва читає
+  нативний `stock_picking.py`.
+- **Види документів шукаються через `picking_type_code`** (`incoming`, `outgoing`,
+  `internal`) - і на `stock.picking`, і на `stock.move.line` (там поле `picking_code`).
+- **Рухи розкладаються на види** полями `stock.move.line`: `location_usage`,
+  `location_dest_usage`, `production_id`, `is_inventory`. Окремого поля «вид руху»
+  немає.
+- **Внутрішній вид документа може бути вимкнений**: склад з одноступеневим прийманням
+  створюється без нього. Шукайте з `{"context": {"active_test": false}}` і вмикайте
+  явно.
+- **Локація `WH/Input` теж буває вимкнена** - вона зʼявляється лише при двокроковому
+  прийманні (`stock.warehouse.reception_steps`).
+
+### Товар і категорія
+
+- **`product.template.categ_id` у Odoo 19 не обовʼязкове і не має замовчування.**
+  Товар без категорії - звичайна річ, і `child_of` з порожнім id валиться всередині
+  ORM на `TypeError`, а не на людській помилці. Тому в `ua.api` категорія приходить
+  як `false`, а не як `[0, ""]`, і порожні id зі звужень викидаються.
+- **Тип товару** - `is_storable` (булеве), а не `type = "product"`: у 19 `type`
+  лишився лише для `consu` / `service` / `combo`.
+- **Габарит і місткість** - наші два поля: `product.template.ua_size` (`s`/`m`/`l` =
+  1/4/16 місць, порожнє рахується як `s`) і `stock.location.ua_capacity` («Місць»,
+  руками; 0 - не задано). `stock.location.ua_capacity_used` обчислюване і НЕ
+  зберігається, тому його немає в `inventory.md` - читається звичайним `read` /
+  `search_read`. Заповнення рахується по локації разом із дочірніми. Переповнення
+  нічого не блокує: обмеження розкладання вміє нативна `stock.storage.category`, і
+  вона лишається на місці.
+
+### Компанії
+
+- **`res.company` з `limit=1` віддає НЕ ту компанію**, коли баз кілька: демо
+  багатокомпанійне. Брати треба компанію користувача (`env.user.company_id`) або за
+  назвою. Усі читання `ua.api` приймають `company_id` першим аргументом саме тому.
+
+### Виробництво
+
+- **`mrp.bom.line.operation_id` («Споживається в операції») - нативне поле самого
+  `mrp`**, Enterprise `mrp_workorder` для нього не потрібен. У формі специфікації воно
+  під групою `mrp.group_mrp_routings`.
+- **Місця під текст в операції маршруту нативно НЕМАЄ**: ні опису, ні нотатки - аркуш
+  операції (`worksheet`) і контрольні точки якості приходять з Enterprise. Тому наші
+  `mrp.routing.workcenter.ua_steps` і `ua_checks`, по пункту в рядок.
+- **Норма часу операції** - `time_cycle_manual` (хвилини), рахунок - `time_cycle` /
+  `time_total`.
+
+### Ключ API
+
+- **`res.users.apikeys._generate(scope, name, expiration_date)` приватний.** Публічний
+  `generate()` спершу перевіряє ВЖЕ наявний ключ того самого користувача, тому першого
+  ключа ним не зробити.
+- **Ключ дістається `env.user`, а не переданому користувачеві**: виклик іде
+  `env["res.users.apikeys"].with_user(user).sudo()._generate(...)`.
+- **Безстроковий ключ мусить бути ГЛОБАЛЬНИМ, `scope=None`.** Перевірка bearer кличе
+  `_check_credentials(scope="rpc")`, а такої області не існує: ключ зі `scope="rpc"`
+  мовчки не пускає.
+- **Базу вибирає заголовок `X-Odoo-Database`.** Сеансова кука лишається потрібною
+  лише для PDF (`/report/pdf/...`) - bearer там не працює.
+- Службовий користувач складу і його ключ заводяться скриптом
+  `python3 scripts/api_key.py --db payroll`. Ключ показується ОДИН раз: у базі лежить
+  лише хеш, місце ключа - 1Password, не файл поруч із кодом.
 
 ## Правило версій
 
