@@ -35,7 +35,7 @@ TEST_TAGS=ua_golden,ua_leaves,ua_payments,ua_regress,ua_changes,ua_period,ua_che
 | Контроль | `l10n_ua_changes`, `l10n_ua_explain`, перевірки `ua.checks.mixin` |
 | Бухоблік | `l10n_ua_chart`, `l10n_ua_vat`, `l10n_ua_ledger`, `l10n_ua_finrep` (mis_builder), `l10n_ua_assets` (account_asset_management), `l10n_ua_nbu` (currency_rate_update), `l10n_ua_cash`, `l10n_ua_bank`, `l10n_ua_bank_online`, `l10n_ua_docs` (+ `_sale`, `_stock`), `l10n_ua_fop`, `l10n_ua_migrate` |
 | Закупівлі | `bp_purchase_intake` |
-| Інтерфейс | стандартні подання Odoo; `l10n_ua_navigation` - три розділи меню (Зарплата, Кадри, Звітність) і українські назви довідників; `l10n_ua_screen` - спільні хелпери моделей (без екранів). Власні екрани OWL відкладено: `shelved/addons-owl/`, тег `ui-owl-2026-09-22` |
+| Інтерфейс | стандартні подання Odoo; `l10n_ua_navigation` - три розділи меню (Зарплата, Кадри, Звітність) і українські назви довідників; `l10n_ua_screen` - спільні хелпери моделей (без екранів). Ітерації інтерфейсу - окремий репозиторій `odoo-ui` (workflowcat/odoo-ui), читає ядро через `docs/api/`; старі екрани OWL там у `reference/`, тег ядра `ui-owl-2026-09-22` |
 | OCA без змін | див. `docs/base/oca-vendored.md` (коміти в `addons/OCA_*.commit`) |
 | Поза Odoo | `assistant/` (вебасистент працівника, Worker), `reference/payroll_core` (незалежний перерахунок зарплати) |
 
@@ -49,6 +49,7 @@ TEST_TAGS=ua_golden,ua_leaves,ua_payments,ua_regress,ua_changes,ua_period,ua_che
 - `docs/payroll/` - зарплата: README, еталонні сценарії, аркуш для бухгалтера, специфікації.
 - `docs/purchase/README.md` - розбір вхідних рахунків.
 - `docs/base/demo-data.md` - як зібрати демо і що в ньому є.
+- `docs/api/` - контракт для інтерфейсу; `docs/agents/` - нотатки між агентами (core / docs / ui), `CLAUDE.md` - правила.
 
 ## Стенди
 
