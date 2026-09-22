@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_ua_purchase_pad" name="Пад швидкого замовлення"
+            parent="purchase.menu_procurement_management"
+            action="l10n_ua_purchase.action_ua_purchase_pad" sequence="35"
+            groups="purchase.group_purchase_user"/>
+  <menuitem id="menu_ua_purchase_order_by_request" name="Замовлення за запитами"
+            parent="purchase.menu_procurement_management"
+            action="action_ua_purchase_order_by_request" sequence="36"
+            groups="purchase.group_purchase_user"/>
+</odoo>

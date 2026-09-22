@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_partner_form_ua_supplier" model="ir.ui.view">
+    <field name="name">res.partner.form.ua.supplier</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_partner_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//notebook" position="inside">
+        <page string="Паспорт постачальника" name="ua_supplier">
+          <group>
+            <group string="Ризик">
+              <field name="ua_supplier_risk_level"/>
+              <field name="ua_supplier_risk_score"/>
+              <field name="ua_supplier_risk_note"/>
+            </group>
+            <group string="Сигнали">
+              <field name="ua_supplier_edr_terminated"/>
+              <field name="ua_supplier_vat_non_payer"/>
+              <field name="ua_supplier_kyc_block"/>
+              <field name="ua_supplier_signals_date"/>
+              <button name="action_ua_supplier_sync" type="object"
+                      string="Оновити сигнали" class="btn-secondary"/>
+            </group>
+          </group>
+          <group>
+            <group string="Закупівлі">
+              <field name="ua_purchase_bill_count"/>
+              <field name="ua_purchase_bill_total"/>
+              <field name="ua_purchase_paid_total"/>
+              <field name="ua_purchase_open_balance"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+            <group string="Дисципліна">
+              <field name="ua_purchase_avg_delay_days"/>
+              <field name="ua_purchase_overprice_count"/>
+              <button name="action_ua_supplier_bills" type="object"
+                      string="Рахунки постачальника" class="btn-secondary"/>
+            </group>
+          </group>
+        </page>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_res_partner_filter_ua_supplier" model="ir.ui.view">
+    <field name="name">res.partner.search.ua.supplier</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_res_partner_filter"/>
+    <field name="arch" type="xml">
+      <filter name="inactive" position="before">
+        <filter name="ua_supplier_risk_high" string="Високий ризик"
+                domain="[('ua_supplier_risk_level', '=', 'high')]"/>
+        <separator/>
+      </filter>
+      <group name="group_by" position="inside">
+        <filter name="group_ua_supplier_risk" string="Ризик постачальника"
+                domain="[]" context="{'group_by': 'ua_supplier_risk_level'}"/>
+      </group>
+    </field>
+  </record>
+</odoo>

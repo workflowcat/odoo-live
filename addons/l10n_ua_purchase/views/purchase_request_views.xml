@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_purchase_request_form_ua" model="ir.ui.view">
+    <field name="name">purchase.request.form.ua</field>
+    <field name="model">purchase.request</field>
+    <field name="inherit_id" ref="purchase_request.view_purchase_request_form"/>
+    <field name="arch" type="xml">
+      <field name="picking_type_id" position="after">
+        <field name="ua_department_id" readonly="is_editable == False"/>
+        <field name="ua_expense_account_id" readonly="is_editable == False"/>
+        <field name="ua_over_limit" invisible="1"/>
+      </field>
+    </field>
+  </record>
+
+  <record id="view_purchase_request_tree_ua" model="ir.ui.view">
+    <field name="name">purchase.request.list.ua</field>
+    <field name="model">purchase.request</field>
+    <field name="inherit_id" ref="purchase_request.view_purchase_request_tree"/>
+    <field name="arch" type="xml">
+      <field name="state" position="before">
+        <field name="ua_department_id" optional="show"/>
+      </field>
+    </field>
+  </record>
+
+  <record id="view_purchase_request_search_ua" model="ir.ui.view">
+    <field name="name">purchase.request.search.ua</field>
+    <field name="model">purchase.request</field>
+    <field name="inherit_id" ref="purchase_request.view_purchase_request_search"/>
+    <field name="arch" type="xml">
+      <field name="state" position="after">
+        <field name="ua_department_id"/>
+      </field>
+      <xpath expr="//search/group" position="inside">
+        <filter name="group_ua_department" string="Підрозділ" domain="[]"
+                context="{'group_by': 'ua_department_id'}"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>

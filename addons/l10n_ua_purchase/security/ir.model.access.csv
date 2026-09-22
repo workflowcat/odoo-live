@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_purchase_pad_user,ua.purchase.pad,model_ua_purchase_pad,purchase.group_purchase_user,1,1,1,1
+access_ua_purchase_pad_request_user,ua.purchase.pad request user,model_ua_purchase_pad,purchase_request.group_purchase_request_user,1,1,1,1

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_purchase_pad_form" model="ir.ui.view">
+    <field name="name">ua.purchase.pad.form</field>
+    <field name="model">ua.purchase.pad</field>
+    <field name="arch" type="xml">
+      <form string="Пад швидкого замовлення">
+        <group>
+          <field name="description"/>
+          <field name="department_id"/>
+          <field name="expense_account_id"/>
+        </group>
+        <group>
+          <field name="raw_text" nolabel="1" widget="text"
+                 placeholder="АРТ-001 x 5&#10;АРТ-002;3&#10;АРТ-003 4&#10;АРТ-004"/>
+        </group>
+        <footer>
+          <button name="action_create_request" type="object"
+                  string="Створити запит" class="btn-primary"/>
+          <button string="Скасувати" class="btn-secondary" special="cancel"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_purchase_pad" model="ir.actions.act_window">
+    <field name="name">Пад швидкого замовлення</field>
+    <field name="res_model">ua.purchase.pad</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+  </record>
+</odoo>
