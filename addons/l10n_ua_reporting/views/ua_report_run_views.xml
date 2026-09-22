@@ -1,6 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <!-- Клієнтська дія «Звітність» і корінь розділу живуть у l10n_ua_reporting_ui. -->
+  <!-- Голий Odoo (2026-09-22): OWL-екран l10n_ua_reporting_ui знято з полиці, стандартні
+       список/пошук/форма нижче - єдиний вхід у ua.report.run. Меню на дію action_ua_report_run
+       навмисно не додаємо - меню веде окремий агент. -->
+
+  <record id="view_ua_report_run_list" model="ir.ui.view">
+    <field name="name">ua.report.run.list</field>
+    <field name="model">ua.report.run</field>
+    <field name="arch" type="xml">
+      <list string="Звітність" default_order="year desc, month desc, quarter desc, date desc, id desc">
+        <field name="name"/>
+        <field name="report_code"/>
+        <field name="year"/>
+        <field name="quarter" optional="hide"/>
+        <field name="month" optional="show"/>
+        <field name="date" optional="hide"/>
+        <field name="doc_kind"/>
+        <field name="state" widget="badge"
+               decoration-danger="state == 'draft'" decoration-warning="state == 'checked'"
+               decoration-info="state == 'generated'" decoration-success="state == 'submitted'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_report_run_search" model="ir.ui.view">
+    <field name="name">ua.report.run.search</field>
+    <field name="model">ua.report.run</field>
+    <field name="arch" type="xml">
+      <search string="Звітність">
+        <field name="name"/>
+        <field name="report_code"/>
+        <field name="year"/>
+        <filter name="draft" string="Чернетка" domain="[('state', '=', 'draft')]"/>
+        <filter name="checked" string="Перевірено" domain="[('state', '=', 'checked')]"/>
+        <filter name="generated" string="Сформовано" domain="[('state', '=', 'generated')]"/>
+        <filter name="submitted" string="Подано" domain="[('state', '=', 'submitted')]"/>
+        <separator/>
+        <filter name="this_year" string="Цей рік" domain="[('year', '=', context_today().year)]"/>
+        <group>
+          <filter name="group_report_code" string="Звіт" context="{'group_by': 'report_code'}"/>
+          <filter name="group_year" string="Рік" context="{'group_by': 'year'}"/>
+          <filter name="group_state" string="Стан" context="{'group_by': 'state'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="view_ua_report_run_form" model="ir.ui.view">
+    <field name="name">ua.report.run.form</field>
+    <field name="model">ua.report.run</field>
+    <field name="arch" type="xml">
+      <form string="Звітний прогін">
+        <header>
+          <button name="action_refresh" type="object" string="Перевірити" invisible="state == 'submitted'"/>
+          <button name="action_generate" type="object" string="Сформувати" class="oe_highlight" invisible="state == 'submitted'"/>
+          <button name="action_mark_submitted" type="object" string="Позначити поданим" invisible="state != 'generated'"/>
+          <button name="action_reset" type="object" string="Повернути в чернетку" invisible="state == 'draft'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,checked,generated,submitted"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="report_code" readonly="state != 'draft'"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+              <field name="doc_kind" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="year" readonly="state != 'draft'" options="{'enable_formatting': False}"/>
+              <field name="month" readonly="state != 'draft'" invisible="report_code in ('staff', 'orders')"/>
+              <field name="date" readonly="state != 'draft'" invisible="report_code != 'staff'"/>
+              <field name="quarter" readonly="1" invisible="not quarter"/>
+            </group>
+          </group>
+          <group invisible="not base_run_id" string="Коригування">
+            <field name="base_run_id" readonly="1"/>
+            <field name="correction_no" readonly="1"/>
+          </group>
+          <group invisible="state != 'submitted'" string="Подання">
+            <field name="submitted_date" readonly="1"/>
+            <field name="submitted_by" readonly="1"/>
+          </group>
+          <notebook>
+            <!-- ua.report.check не редагується з UI: рядки пише лише action_refresh() (див. модель),
+                 тож список тут завжди readonly. -->
+            <page string="Перевірки" name="ua_checks">
+              <field name="check_ids" readonly="1">
+                <list create="false" edit="false" delete="false"
+                      decoration-danger="level == 'error'" decoration-warning="level == 'warn'" decoration-muted="level == 'ok'">
+                  <field name="sequence" column_invisible="1"/>
+                  <field name="level" widget="badge"
+                         decoration-danger="level == 'error'" decoration-warning="level == 'warn'" decoration-success="level == 'ok'"/>
+                  <field name="title"/>
+                  <field name="detail"/>
+                  <field name="value"/>
+                  <field name="target_model" optional="hide"/>
+                </list>
+              </field>
+            </page>
+            <page string="Вкладення" name="attachments">
+              <field name="attachment_ids" widget="many2many_binary" readonly="1"/>
+              <field name="receipt_ids" widget="many2many_binary" readonly="1" invisible="not receipt_ids"/>
+            </page>
+            <page string="Примітка" name="note">
+              <field name="note"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_report_run" model="ir.actions.act_window">
+    <field name="name">Звітність</field>
+    <field name="res_model">ua.report.run</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_ua_report_run_search"/>
+    <field name="context">{'search_default_this_year': 1}</field>
+  </record>
 
   <!-- ua.report.check не редагується з UI: рядки пише лише action_refresh() (див. модель).
        Форма і список тут лише на випадок технічного відкриття (напр. з developer mode) - readonly. -->

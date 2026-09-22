@@ -174,7 +174,7 @@ class UaPaymentsPlan(models.AbstractModel):
             "date": deadline.strftime("%d.%m.%Y"),
             "label": "Об'єднана звітність, %s квартал %s" % (quarter, year),
             "amount": 0.0, "detail": "Д1, 4ДФ, Д5", "state": dstate, "state_class": dcls,
-            "target": self._xmlid_target("l10n_ua_reporting_ui.action_ua_reporting") or {
+            "target": self._xmlid_target("l10n_ua_reporting.action_ua_report_run") or {
                 "model": "ua.report.run", "domain": [("company_id", "=", company.id)],
                 "name": "Податкова звітність"},
         })

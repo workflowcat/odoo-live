@@ -51,14 +51,10 @@ def call(model, method, *a, **kw):
     return rpc("object", "execute_kw", DB, UID, PW, model, method, list(a), kw)
 
 
-def board_action(key, params=None):
-    """Одна дія екрана «Банк».
-
-    Банківські дії переїхали з ua.bank.board у ua.bank.ops; екран лишив по собі один
-    вхід - run_action(ключ, параметри), і кличе ops сам. Прямих action_* на дошці більше
-    немає, тому звертаємося саме через ключ.
-    """
-    return call("ua.bank.board", "run_action", key, params or {})
+def bank_op(method, **params):
+    """Одна банківська операція: ua.bank.ops, та сама логіка, що й за чарівником
+    «Операції банку»."""
+    return call("ua.bank.ops", method, **params)
 
 
 def account(*codes):
@@ -107,7 +103,7 @@ else:
 # 1б. Реквізити демо-з'єднання, щоб на екрані було видно рахунок
 provider = call("online.bank.statement.provider", "search", [["journal_id", "=", journal[0]]], limit=1)
 if not provider:
-    action = board_action("create_provider", {"journal_id": journal[0], "service": "ua_privat"})
+    action = bank_op("action_create_provider", journal_id=journal[0], service="ua_privat")
     provider = [action["res_id"]]
     print(f"Створено з'єднання {provider[0]} для журналу {journal[0]}.")
 call("online.bank.statement.provider", "write", provider,
@@ -121,17 +117,17 @@ if not mono:
     print(f"Створено журнал «{MONO_JOURNAL}» ({mono[0]}).")
 mono_provider = call("online.bank.statement.provider", "search", [["journal_id", "=", mono[0]]], limit=1)
 if not mono_provider:
-    action = board_action("create_provider", {"journal_id": mono[0], "service": "ua_mono"})
+    action = bank_op("action_create_provider", journal_id=mono[0], service="ua_mono")
     mono_provider = [action["res_id"]]
 call("online.bank.statement.provider", "write", mono_provider,
      {"service": "ua_mono", "ua_demo": True, "ua_account": MONO_IBAN, "statement_creation_mode": "monthly"})
 today = __import__("datetime").date.today()
-pull = board_action("pull_month", {"journal_id": mono[0], "year": today.year, "month": today.month})
+pull = bank_op("action_pull_month", journal_id=mono[0], year=today.year, month=today.month)
 print(f"Monobank: {pull['message']}")
 
 # 2. Звірка за правилами
 before = call("account.bank.statement.line", "search_count", [["is_reconciled", "=", False]])
-result = board_action("apply_rules")
+result = bank_op("action_apply_rules")
 after = call("account.bank.statement.line", "search_count", [["is_reconciled", "=", False]])
 print(result["message"].replace("\n", " | "))
 print(f"Незвірених рядків: було {before}, стало {after}.")
@@ -141,8 +137,11 @@ rest = call("account.bank.statement.line", "search_read", [["is_reconciled", "="
 for line in rest:
     print(f"  лишилось: {line['date']} {line['payment_ref'][:60]} {line['amount']:,.2f}")
 
-balance = call("ua.bank.board", "get_screen_data")
-print("Залишок за рахунком:", balance["totals"]["balance"])
+balances = call("account.journal", "read", [journal[0], mono[0]], ["name"])
+for row in balances:
+    lines = call("account.bank.statement.line", "search_count",
+                 [["journal_id", "=", row["id"]]])
+    print(f"Рядків виписки на рахунку {row['name']}: {lines}")
 
 # 3. Підготовка до підключення: чек-лист на кожен банківський журнал.
 # Ключів банку ще немає, тому кроки лишаються невиконаними. Це і є стан справ.

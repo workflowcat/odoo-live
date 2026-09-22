@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- П'ять розділів верхнього меню. Одна навігація на застосунок.
+<!-- Три власні розділи меню: «Зарплата», «Кадри», «Звітність». Один власник меню на
+     весь продукт: пункти оголошують логічні модулі своїми ідентифікаторами, місце їм
+     ставить цей файл.
 
-     Раніше навігація існувала тричі: це меню, старий розділ «Зарплата» модуля
-     payroll на 38 пунктів і «Пульт команд» на 51 картку. Старі дві вимкнено,
-     їхні пункти переїхали сюди.
+     Рідні розділи Odoo (Співробітники, Бухоблік, Продажі, Склад, Виробництво, CRM,
+     Контакти, Дискусії, Календар) лишаються на місці й видимими: продукт іде голим
+     Odoo. Нічого не вимикається через active="False".
 
-     Корінь із дією і дітьми показує лише дітей, тому кожен робочий екран має
-     власний пункт першим у своєму розділі. -->
+     Банківські і облікові пункти стоять у рідному «Бухобліку», бо там же живуть
+     журнали, виписки і звірка OCA. -->
 <odoo>
   <!-- Назва дії стоїть у стежці навігації, тому вирівнюємо її зі своїм словом:
        у системі людина - «працівник», не «співробітник». -->
   <!-- Виконавці за договором ЦПХ/ФОП - контрагенти, не працівники: у кадровий облік не входять
-       (правило бухгалтера Лани, 2026-09-16). Прибираємо їх з карток і оргструктури; свій екран -
+       (правило бухгалтера Лани, 2026-09-16). Прибираємо їх з карток і оргструктури; свій перелік -
        «Договори ЦПХ» - у модулі l10n_ua_gph. -->
   <record id="hr.open_view_employee_list_my" model="ir.actions.act_window">
     <field name="name">Картки працівників</field>
@@ -33,180 +35,178 @@
   </record>
 
   <!-- ================================================================= розділи -->
-  <menuitem id="menu_ua_people_root" name="Працівники" sequence="2"/>
-  <menuitem id="menu_ua_setup_root" name="Налаштування зарплати" sequence="5"/>
+  <menuitem id="menu_ua_payroll_root" name="Зарплата" sequence="1"
+            groups="hr.group_hr_user,account.group_account_user"/>
+  <menuitem id="menu_ua_hr_root" name="Кадри" sequence="2" groups="hr.group_hr_user"/>
+  <menuitem id="menu_ua_reporting_root" name="Звітність" sequence="4"
+            groups="hr.group_hr_user,account.group_account_user"/>
 
   <!-- ================================================================= 1. Зарплата -->
-  <menuitem id="menu_ua_period_screen" name="Період" parent="l10n_ua_period.menu_ua_period_root"
-            action="l10n_ua_period.action_ua_period" sequence="1"/>
-  <menuitem id="l10n_ua_dashboard.menu_ua_dashboard_root" name="Зведення"
-            parent="l10n_ua_period.menu_ua_period_root" sequence="2"/>
+  <menuitem id="menu_ua_months" name="Місяці" parent="menu_ua_payroll_root"
+            action="l10n_ua_changes.action_ua_period_close" sequence="10"/>
+
+  <menuitem id="menu_ua_payslips" name="Листки" parent="menu_ua_payroll_root" sequence="20"/>
   <menuitem id="payroll.hr_payslip_menu" name="Розрахункові листки"
-            parent="l10n_ua_period.menu_ua_period_root" sequence="3"/>
+            parent="menu_ua_payslips" sequence="10"/>
   <menuitem id="payroll.hr_payslip_run_menu" name="Пакети листків"
-            parent="l10n_ua_period.menu_ua_period_root" sequence="4"/>
-  <menuitem id="l10n_ua_payroll_ui.menu_ua_payment_batch" name="Відомості на перерахування"
-            parent="l10n_ua_period.menu_ua_period_root" sequence="5"/>
-  <menuitem id="l10n_ua_payroll_ui.menu_ua_advance_sheet" name="Авансові відомості"
-            parent="l10n_ua_period.menu_ua_period_root" sequence="6"/>
-  <menuitem id="menu_ua_history_periods" name="Закриті періоди"
-            parent="l10n_ua_period.menu_ua_period_root"
-            action="l10n_ua_changes.action_ua_period_close" sequence="7" active="False"/>
-  <menuitem id="l10n_ua_changes.menu_ua_changes_root" name="Журнал змін"
-            parent="l10n_ua_period.menu_ua_period_root" sequence="8"/>
-  <!-- Пункт оголошено в логічному модулі l10n_ua_gph без батька: розділ-батько живе тут,
-       в інтерфейсі. Ідентифікатор лишається за своїм модулем, тому в базі нічого не переїжджає. -->
+            parent="menu_ua_payslips" sequence="20"/>
+  <menuitem id="l10n_ua_payroll_rules.menu_ua_advance" name="Аванс за місяць"
+            parent="menu_ua_payslips" sequence="30"/>
+
+  <menuitem id="menu_ua_payroll_docs" name="Документи" parent="menu_ua_payroll_root" sequence="30"/>
+  <menuitem id="menu_ua_advance_sheets" name="Авансові відомості" parent="menu_ua_payroll_docs"
+            action="l10n_ua_payroll_rules.action_ua_advance_sheet" sequence="10"/>
+  <menuitem id="menu_ua_pfu_claims" name="Заяви-розрахунки ПФУ" parent="menu_ua_payroll_docs"
+            action="l10n_ua_hr_docs.action_ua_pfu_claim" sequence="20"/>
+  <menuitem id="menu_ua_income_certificates" name="Довідки про доходи" parent="menu_ua_payroll_docs"
+            action="l10n_ua_payroll_reports.action_ua_income_certificate_register" sequence="30"/>
+  <menuitem id="menu_ua_income_certificate_new" name="Створити довідку про доходи"
+            parent="menu_ua_payroll_docs"
+            action="l10n_ua_payroll_reports.action_ua_income_certificate" sequence="40"/>
+
+  <menuitem id="menu_ua_payouts" name="Виплати" parent="menu_ua_payroll_root" sequence="40"/>
+  <menuitem id="menu_ua_payment_orders" name="Відомості на перерахування" parent="menu_ua_payouts"
+            action="l10n_ua_payments.action_ua_payment_order" sequence="10"/>
+  <menuitem id="menu_ua_bank_ops_payroll" name="Операції банку" parent="menu_ua_payouts"
+            action="l10n_ua_bank_online.action_ua_bank_ops" sequence="20"/>
   <menuitem id="l10n_ua_gph.menu_ua_gph" name="Договори ЦПХ"
-            parent="l10n_ua_period.menu_ua_period_root" sequence="6"/>
+            parent="menu_ua_payouts" sequence="30"/>
 
-  <!-- ================================================================= 2. Працівники -->
-  <!-- «Люди»: один екран замість чотирьох пунктів нижче (spec-people.md). Пункти лишаються
-       вимкненими (active="False"), не видаленими - самі дії лишаються, бо на них ведуть
-       цілі з інших екранів (наприклад, «Штатний розпис» цього екрана відкриває чинний
-       ua.staff.list через ту саму дію, що стояла за пунктом «Штатні розписи»). -->
-  <menuitem id="l10n_ua_hire_ui.menu_ua_hire" name="Прийняття"
-            parent="menu_ua_people_root" sequence="0"/>
-  <menuitem id="menu_ua_people_screen" name="Люди" parent="menu_ua_people_root"
-            action="l10n_ua_people.action_ua_people" sequence="0" groups="hr.group_hr_user"/>
-  <menuitem id="menu_ua_people_employees" name="Картки працівників" parent="menu_ua_people_root"
-            action="hr.open_view_employee_list_my" sequence="1" groups="hr.group_hr_user" active="False"/>
-  <menuitem id="menu_ua_people_orders" name="Накази" parent="menu_ua_people_root"
-            action="l10n_ua_hr_orders.action_ua_hr_order" sequence="4" groups="hr.group_hr_user"/>
-  <menuitem id="menu_ua_people_leaves" name="Відсутності" parent="menu_ua_people_root"
-            action="action_ua_leaves" sequence="5" groups="hr.group_hr_user"/>
-  <menuitem id="menu_ua_people_org_chart" name="Оргструктура" parent="menu_ua_people_root"
-            action="hr_org_chart.action_hr_employee_org_chart" sequence="2" groups="hr.group_hr_user" active="False"/>
-  <menuitem id="menu_ua_people_departments" name="Підрозділи" parent="menu_ua_people_root"
-            action="hr.hr_department_kanban_action" sequence="3" groups="hr.group_hr_user" active="False"/>
-  <menuitem id="menu_ua_people_timesheet" name="Табелі" parent="menu_ua_people_root"
-            action="l10n_ua_hr_docs.action_ua_timesheet_sheet" sequence="6" groups="hr.group_hr_user"/>
-  <menuitem id="l10n_ua_payroll_ui.menu_ua_staff_list_docs" name="Штатні розписи"
-            parent="menu_ua_people_root" sequence="5" active="False"/>
-  <menuitem id="l10n_ua_hr_orders.menu_ua_hr_doc_requirement" name="Обов'язкові документи"
-            parent="menu_ua_people_root" sequence="6"/>
-  <menuitem id="l10n_ua_hr_orders.menu_ua_hr_doc_pack"
-            parent="l10n_ua_payroll_ui.menu_ua_payroll_docs" active="False"/>
-  <!-- військовий облік лишається групою: свого екрана в нього ще немає -->
-  <menuitem id="l10n_ua_payroll_ui.menu_ua_military" name="Військовий облік"
-            parent="menu_ua_people_root" sequence="9"/>
-  <menuitem id="l10n_ua_payroll_ui.menu_ua_military_list" name="Списки персонального обліку"
-            action="l10n_ua_military.action_ua_military_list"
-            parent="l10n_ua_payroll_ui.menu_ua_military" sequence="2"/>
-  <menuitem id="l10n_ua_payroll_ui.menu_ua_military_notice" name="Повідомлення до ТЦК"
-            action="l10n_ua_military.action_ua_military_notice"
-            parent="l10n_ua_payroll_ui.menu_ua_military" sequence="3"/>
-  <menuitem id="l10n_ua_payroll_ui.menu_ua_military_reserved" name="Списки заброньованих"
-            action="l10n_ua_military.action_ua_military_reserved"
-            parent="l10n_ua_payroll_ui.menu_ua_military" sequence="4"/>
-
-  <!-- ================================================================= 3. Банк -->
-  <menuitem id="l10n_ua_bank_ui.menu_ua_bank_board" name="Банк" parent="" sequence="3"/>
-  <menuitem id="menu_ua_bank_screen" name="Рахунки і виписки"
-            parent="l10n_ua_bank_ui.menu_ua_bank_board"
-            action="l10n_ua_bank_ui.action_ua_bank_board" sequence="1"/>
-  <menuitem id="menu_ua_setup_bank" name="Підключення банків"
-            parent="l10n_ua_bank_ui.menu_ua_bank_board"
-            action="l10n_ua_bank_online.action_ua_bank_connect" sequence="2"/>
-
-  <!-- ================================================================= 4. Звітність -->
-  <menuitem id="l10n_ua_reporting_ui.menu_ua_reporting_root" name="Звітність" sequence="4"/>
-  <menuitem id="menu_ua_reporting_screen" name="Звіти періоду"
-            parent="l10n_ua_reporting_ui.menu_ua_reporting_root"
-            action="l10n_ua_reporting_ui.action_ua_reporting" sequence="1"/>
-  <menuitem id="l10n_ua_payroll_ui.menu_ua_pfu_claim_docs" name="Заяви-розрахунки ПФУ"
-            parent="l10n_ua_reporting_ui.menu_ua_reporting_root" sequence="2"/>
-
-  <!-- ================================================================= 5. Налаштування -->
-  <menuitem id="menu_ua_setup_profile" name="Анкета компанії" parent="menu_ua_setup_root"
-            action="l10n_ua_setup_ui.action_ua_setup_board" sequence="1"/>
-  <menuitem id="menu_ua_setup_params" name="Параметри зарплати" parent="menu_ua_setup_root"
-            action="l10n_ua_payroll_rules.action_ua_payroll_param" sequence="2"/>
-  <menuitem id="menu_ua_setup_cpi" name="Індекси споживчих цін" parent="menu_ua_setup_root"
-            action="l10n_ua_index.action_ua_cpi_index" sequence="3"/>
-  <!-- Довідник кодів професій оголошено в l10n_ua_kp без батька: розділ-батько живе тут. -->
-  <menuitem id="l10n_ua_kp.menu_ua_kp_code" name="Коди професій"
-            parent="menu_ua_setup_root" sequence="35"/>
-  <menuitem id="menu_ua_setup_accounts" name="Проводки зарплати" parent="menu_ua_setup_root"
-            action="l10n_ua_payroll_account.action_ua_payroll_account_map" sequence="4"/>
+  <menuitem id="menu_ua_payroll_params" name="Параметри" parent="menu_ua_payroll_root" sequence="50"/>
+  <menuitem id="l10n_ua_payroll_rules.menu_ua_payroll_param" name="Параметри зарплати"
+            parent="menu_ua_payroll_params" sequence="10"/>
+  <menuitem id="l10n_ua_index.menu_ua_cpi_index" name="Індекси споживчих цін"
+            parent="menu_ua_payroll_params" sequence="20"/>
+  <menuitem id="l10n_ua_payroll_account.menu_ua_payroll_account_map" name="Проводки зарплати"
+            parent="menu_ua_payroll_params" sequence="30"/>
   <menuitem id="l10n_ua_average.menu_ua_earnings_history" name="Історія заробітку"
-            parent="menu_ua_setup_root" sequence="5"/>
-  <menuitem id="l10n_ua_onboarding.menu_ua_employee_import" active="False"/>
+            parent="menu_ua_payroll_params" sequence="40"/>
+  <menuitem id="menu_ua_setup_profile" name="Анкета компанії" parent="menu_ua_payroll_params"
+            action="l10n_ua_setup.action_ua_setup_profile" sequence="50"/>
+  <menuitem id="l10n_ua_changes.menu_ua_changes_root" name="Журнал змін"
+            parent="menu_ua_payroll_params" sequence="60"/>
+  <menuitem id="l10n_ua_kp.menu_ua_kp_code" name="Коди професій"
+            parent="menu_ua_payroll_params" sequence="70"/>
 
   <!-- Технічні таблиці: лише в режимі розробника. Бухгалтер їх не редагує. -->
-  <menuitem id="menu_ua_setup_questions" name="Питання анкети" parent="menu_ua_setup_root"
-            action="l10n_ua_setup.action_ua_setup_question" sequence="20" groups="base.group_no_one"/>
-  <menuitem id="menu_ua_setup_profile_table" name="Анкети (таблиця)" parent="menu_ua_setup_root"
-            action="l10n_ua_setup.action_ua_setup_profile" sequence="21" groups="base.group_no_one"/>
+  <menuitem id="menu_ua_setup_questions" name="Питання анкети" parent="menu_ua_payroll_params"
+            action="l10n_ua_setup.action_ua_setup_question" sequence="90"/>
+  <menuitem id="payroll.payroll_menu_configuration" name="Довідники payroll"
+            parent="menu_ua_payroll_params" sequence="95"/>
+  <menuitem id="payroll.hr_payroll_structure_menu" name="Структури зарплати"
+            parent="payroll.payroll_menu_configuration" sequence="10"/>
+  <menuitem id="payroll.menu_hr_salary_rule_category" name="Категорії правил"
+            parent="payroll.payroll_menu_configuration" sequence="20"/>
+  <menuitem id="payroll.menu_action_hr_salary_rule_form" name="Правила розрахунку"
+            parent="payroll.payroll_menu_configuration" sequence="30"/>
+  <menuitem id="payroll.hr_contribution_register_menu" name="Реєстри внесків"
+            parent="payroll.payroll_menu_configuration" sequence="40"/>
+  <menuitem id="payroll.menu_payroll_global_settings" name="Налаштування payroll"
+            parent="payroll.payroll_menu_configuration" sequence="50"/>
   <!-- Атрибут groups у menuitem додає групу до наявних, а меню видно за будь-якою з них.
-       Тому ці два пункти лишалися видними бухгалтеру: перезаписуємо перелік груп. -->
+       Тому перелік груп технічних пунктів перезаписуємо записом. -->
   <record id="menu_ua_setup_questions" model="ir.ui.menu">
     <field name="group_ids" eval="[(6, 0, [ref('base.group_no_one')])]"/>
   </record>
-  <record id="menu_ua_setup_profile_table" model="ir.ui.menu">
-    <field name="group_ids" eval="[(6, 0, [ref('base.group_no_one')])]"/>
-  </record>
-  <menuitem id="payroll.hr_payroll_structure_menu" name="Структури зарплати"
-            parent="menu_ua_setup_root" sequence="22" groups="base.group_no_one"/>
-  <menuitem id="payroll.menu_hr_salary_rule_category" name="Категорії правил"
-            parent="menu_ua_setup_root" sequence="23" groups="base.group_no_one"/>
-  <menuitem id="payroll.menu_action_hr_salary_rule_form" name="Правила розрахунку"
-            parent="menu_ua_setup_root" sequence="24" groups="base.group_no_one"/>
-  <menuitem id="payroll.hr_contribution_register_menu" name="Реєстри накопичення"
-            parent="menu_ua_setup_root" sequence="25" groups="base.group_no_one"/>
-  <menuitem id="payroll.menu_payroll_global_settings" name="Налаштування модуля payroll"
-            parent="menu_ua_setup_root" sequence="26" groups="base.group_no_one"/>
-
-  <!-- ================================================================= вимкнене -->
-  <!-- Стара навігація модуля payroll: другий розділ із назвою «Зарплата». -->
-  <menuitem id="payroll.payroll_menu_root" active="False"/>
-  <menuitem id="l10n_ua_payroll_ui.menu_ua_payroll_calc" active="False"/>
-  <menuitem id="l10n_ua_payroll_ui.menu_ua_payroll_reporting" active="False"/>
-  <menuitem id="l10n_ua_payroll_ui.menu_ua_payroll_docs" active="False"/>
-  <menuitem id="payroll.payroll_menu_configuration" active="False"/>
-
-
-  <!-- Чарівники без пунктів меню: періодичні документи створює екран «Звітність». -->
-  <menuitem id="l10n_ua_payroll_reports.menu_ua_payroll_report" active="False"/>
-  <menuitem id="l10n_ua_payroll_reports.menu_ua_hire_notice" active="False"/>
-  <menuitem id="l10n_ua_hr_docs.menu_ua_staff_list" active="False"/>
-  <menuitem id="l10n_ua_hr_docs.menu_ua_timesheet" active="False"/>
-  <menuitem id="l10n_ua_hr_orders.menu_ua_hr_order_register"
-            parent="l10n_ua_payroll_ui.menu_ua_payroll_docs" active="False"/>
-  <menuitem id="l10n_ua_payroll_rules.menu_ua_advance" active="False"/>
-
-  <!-- Стандартні застосунки, яких бухгалтер не використовує: лише в режимі розробника.
-       Модулі потрібні як залежності (стрічка, календар відсутностей, облік), тому не видаляються.
-       Робочі сторінки звідти вже стоять у наших розділах: картки, відсутності, оргструктура. -->
-  <record id="mail.menu_root_discuss" model="ir.ui.menu">
-    <field name="group_ids" eval="[(6, 0, [ref('base.group_no_one')])]"/>
-  </record>
-  <record id="calendar.mail_menu_calendar" model="ir.ui.menu">
-    <field name="group_ids" eval="[(6, 0, [ref('base.group_no_one')])]"/>
-  </record>
-  <record id="contacts.menu_contacts" model="ir.ui.menu">
-    <field name="group_ids" eval="[(6, 0, [ref('base.group_no_one')])]"/>
-  </record>
-  <record id="account.menu_finance" model="ir.ui.menu">
-    <field name="group_ids" eval="[(6, 0, [ref('base.group_no_one')])]"/>
-  </record>
-  <record id="hr.menu_hr_root" model="ir.ui.menu">
-    <field name="group_ids" eval="[(6, 0, [ref('base.group_no_one')])]"/>
-  </record>
-  <record id="hr_holidays.menu_hr_holidays_root" model="ir.ui.menu">
-    <field name="group_ids" eval="[(6, 0, [ref('base.group_no_one')])]"/>
-  </record>
-  <record id="base.menu_tests" model="ir.ui.menu">
+  <record id="payroll.payroll_menu_configuration" model="ir.ui.menu">
     <field name="group_ids" eval="[(6, 0, [ref('base.group_no_one')])]"/>
   </record>
 
-  <!-- Пункти-дублі: та сама дія вже є в новому розділі або в картці працівника. -->
-  <menuitem id="l10n_ua_payroll_ui.menu_ua_income_certificate" active="False"/>
-  <menuitem id="l10n_ua_hr_orders.menu_ua_hr_order"
-            parent="l10n_ua_payroll_ui.menu_ua_payroll_docs" active="False"/>
-  <menuitem id="l10n_ua_payroll_ui.menu_ua_timesheet_docs" active="False"/>
-  <menuitem id="l10n_ua_changes.menu_ua_period_close"
-            parent="l10n_ua_payroll_ui.menu_ua_payroll_calc" active="False"/>
-  <menuitem id="l10n_ua_index.menu_ua_cpi_index" active="False"/>
-  <menuitem id="l10n_ua_payroll_rules.menu_ua_payroll_param" active="False"/>
-  <menuitem id="l10n_ua_payroll_account.menu_ua_payroll_account_map" active="False"/>
+  <!-- ================================================================= 2. Кадри -->
+  <menuitem id="menu_ua_hr_employees" name="Картки працівників" parent="menu_ua_hr_root"
+            action="hr.open_view_employee_list_my" sequence="10"/>
+  <menuitem id="menu_ua_hr_hire" name="Прийняття" parent="menu_ua_hr_root"
+            action="l10n_ua_hire.action_ua_hire_case" sequence="20"/>
+  <menuitem id="l10n_ua_hr_orders.menu_ua_hr_order" name="Накази"
+            parent="menu_ua_hr_root" sequence="30"/>
+  <menuitem id="l10n_ua_hr_orders.menu_ua_hr_order_register" name="Журнал реєстрації наказів"
+            parent="menu_ua_hr_root" sequence="35"/>
+  <menuitem id="menu_ua_hr_staff_list" name="Штатний розпис" parent="menu_ua_hr_root"
+            action="l10n_ua_hr_docs.action_ua_staff_list" sequence="40"/>
+  <menuitem id="l10n_ua_hr_docs.menu_ua_staff_list" name="Створити штатний розпис"
+            parent="menu_ua_hr_root" sequence="45"/>
+  <menuitem id="menu_ua_hr_timesheets" name="Табелі" parent="menu_ua_hr_root"
+            action="l10n_ua_hr_docs.action_ua_timesheet_sheet" sequence="50"/>
+  <menuitem id="l10n_ua_hr_docs.menu_ua_timesheet" name="Створити табель"
+            parent="menu_ua_hr_root" sequence="55"/>
+  <menuitem id="menu_ua_hr_leaves" name="Відсутності" parent="menu_ua_hr_root"
+            action="action_ua_leaves" sequence="60"/>
+
+  <menuitem id="menu_ua_military" name="Військовий облік" parent="menu_ua_hr_root" sequence="70"/>
+  <menuitem id="menu_ua_military_liable" name="Військовозобов'язані" parent="menu_ua_military"
+            action="l10n_ua_military.action_ua_military_liable" sequence="10"/>
+  <menuitem id="menu_ua_military_needs_check" name="Потребують звірки" parent="menu_ua_military"
+            action="l10n_ua_military.action_ua_military_needs_check" sequence="20"/>
+  <menuitem id="menu_ua_military_list" name="Списки персонального обліку" parent="menu_ua_military"
+            action="l10n_ua_military.action_ua_military_list" sequence="30"/>
+  <menuitem id="menu_ua_military_list_new" name="Створити список персонального обліку"
+            parent="menu_ua_military"
+            action="l10n_ua_military.action_ua_military_list_wizard" sequence="35"/>
+  <menuitem id="menu_ua_military_notice" name="Повідомлення до ТЦК" parent="menu_ua_military"
+            action="l10n_ua_military.action_ua_military_notice" sequence="40"/>
+  <menuitem id="menu_ua_military_notice_new" name="Створити повідомлення до ТЦК"
+            parent="menu_ua_military"
+            action="l10n_ua_military.action_ua_military_notice_wizard" sequence="45"/>
+  <menuitem id="menu_ua_military_reserved" name="Списки заброньованих" parent="menu_ua_military"
+            action="l10n_ua_military.action_ua_military_reserved" sequence="50"/>
+  <menuitem id="menu_ua_military_reserved_new" name="Створити список заброньованих"
+            parent="menu_ua_military"
+            action="l10n_ua_military.action_ua_military_reserved_wizard" sequence="55"/>
+
+  <menuitem id="menu_ua_hr_refs" name="Довідники" parent="menu_ua_hr_root" sequence="80"/>
+  <menuitem id="l10n_ua_hr_orders.menu_ua_hr_doc_requirement" name="Обов'язкові документи"
+            parent="menu_ua_hr_refs" sequence="10"/>
+  <menuitem id="l10n_ua_hr_orders.menu_ua_hr_doc_pack" name="Перевірка документів"
+            parent="menu_ua_hr_refs" sequence="20"/>
+  <menuitem id="menu_ua_hr_employee_documents" name="Документи працівників" parent="menu_ua_hr_refs"
+            action="l10n_ua_hr_card.action_ua_employee_document" sequence="30"/>
+  <menuitem id="menu_ua_hr_departments" name="Підрозділи" parent="menu_ua_hr_refs"
+            action="hr.hr_department_kanban_action" sequence="40"/>
+  <menuitem id="menu_ua_hr_org_chart" name="Оргструктура" parent="menu_ua_hr_refs"
+            action="hr_org_chart.action_hr_employee_org_chart" sequence="50"/>
+  <menuitem id="l10n_ua_onboarding.menu_ua_employee_import" name="Перенесення працівників"
+            parent="menu_ua_hr_refs" sequence="60"/>
+
+  <!-- ================================================================= 3. Звітність -->
+  <menuitem id="menu_ua_reporting_tax" name="ДПС" parent="menu_ua_reporting_root" sequence="10"/>
+  <menuitem id="menu_ua_report_runs" name="Звіти періоду" parent="menu_ua_reporting_tax"
+            action="l10n_ua_reporting.action_ua_report_run" sequence="10"/>
+  <menuitem id="l10n_ua_payroll_reports.menu_ua_payroll_report" name="Об'єднана звітність (XML)"
+            parent="menu_ua_reporting_tax" sequence="20"/>
+  <menuitem id="l10n_ua_payroll_reports.menu_ua_hire_notice" name="Повідомлення про прийняття (XML)"
+            parent="menu_ua_reporting_tax" sequence="30"/>
+
+  <!-- ПДВ і фінзвітність лишаються у «Бухобліку» своїми модулями; тут - посилання
+       на ті самі дії, щоб звітність бухгалтера була в одному місці. -->
+  <menuitem id="menu_ua_reporting_vat" name="ПДВ" parent="menu_ua_reporting_root" sequence="20"/>
+  <menuitem id="menu_ua_reporting_vat_documents" name="Податкові документи"
+            parent="menu_ua_reporting_vat" action="l10n_ua_vat.action_ua_vat_document" sequence="10"/>
+  <menuitem id="menu_ua_reporting_vat_cabinet" name="Кабінет ПДВ"
+            parent="menu_ua_reporting_vat" action="l10n_ua_vat.action_ua_vat_cabinet" sequence="20"/>
+
+  <menuitem id="menu_ua_reporting_finrep" name="Фінзвітність" parent="menu_ua_reporting_root"
+            sequence="30"/>
+  <menuitem id="menu_ua_reporting_f1" name="Ф1. Баланс" parent="menu_ua_reporting_finrep"
+            action="l10n_ua_finrep.action_f1" sequence="10"/>
+  <menuitem id="menu_ua_reporting_f2" name="Ф2. Звіт про фінансові результати"
+            parent="menu_ua_reporting_finrep" action="l10n_ua_finrep.action_f2" sequence="20"/>
+  <menuitem id="menu_ua_reporting_f1m" name="Ф1-м. Баланс (малі)"
+            parent="menu_ua_reporting_finrep" action="l10n_ua_finrep.action_f1m" sequence="30"/>
+  <menuitem id="menu_ua_reporting_f2m" name="Ф2-м. Фінрезультати (малі)"
+            parent="menu_ua_reporting_finrep" action="l10n_ua_finrep.action_f2m" sequence="40"/>
+
+  <!-- ================================================================= банк у «Бухобліку» -->
+  <menuitem id="menu_ua_bank_reconcile" name="Звірка виписок"
+            parent="account_usability.menu_accounting_bank_and_cash"
+            action="account_reconcile_oca.action_bank_statement_line_reconcile_all" sequence="10"/>
+  <menuitem id="menu_ua_bank_ops" name="Операції банку"
+            parent="account_usability.menu_accounting_bank_and_cash"
+            action="l10n_ua_bank_online.action_ua_bank_ops" sequence="20"/>
+  <menuitem id="menu_ua_bank_connect" name="Підключення банків"
+            parent="account_usability.menu_accounting_bank_and_cash"
+            action="l10n_ua_bank_online.action_ua_bank_connect" sequence="30"/>
+  <menuitem id="menu_ua_bank_providers" name="Онлайн-виписки (провайдери)"
+            parent="account_usability.menu_accounting_bank_and_cash"
+            action="account_statement_import_online.online_bank_statement_provider_action"
+            sequence="40"/>
 </odoo>

@@ -81,7 +81,7 @@
             </page>
             <page string="Примітка" name="note"><field name="ua_note"/></page>
             <page string="Перевірки" name="ua_checks">
-              <field name="checks_text" readonly="1" nolabel="1"/>
+              <field name="checks_html" readonly="1" nolabel="1"/>
             </page>
           </notebook>
         </sheet>

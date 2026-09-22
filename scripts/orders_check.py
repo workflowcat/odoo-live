@@ -109,7 +109,7 @@ check("немає другого наказу на ту саму відпуст�
       str(Order.search_count([("leave_id", "=", order2.leave_id.id)])))
 
 # ---- 7. картка: друк наказу веде на проведений ua.hr.order, коли він є
-hire_action = emp.action_ua_card_print_order()
+hire_action = emp.action_ua_print_last_order()
 check("картка: друк наказу веде на звіт ua.hr.order (прийняття)", hire_action.get("report_name") ==
       "l10n_ua_hr_orders.report_ua_hr_order", str(hire_action))
 
@@ -119,7 +119,7 @@ dismiss_order = Order.create({
     "date_to": date(2026, 12, 1), "dismissal_basis": "ст. 38 КЗпП (заява працівника)",
 })
 dismiss_order.action_post()
-dismiss_action = emp.action_ua_card_print_order()
+dismiss_action = emp.action_ua_print_last_order()
 check("картка: друк наказу веде на звіт ua.hr.order (звільнення)", dismiss_action.get("report_name") ==
       "l10n_ua_hr_orders.report_ua_hr_order" and dismiss_action.get("context", {}).get("active_ids") == [dismiss_order.id],
       str(dismiss_action))
@@ -133,7 +133,7 @@ emp2.version_id.write({
     "contract_date_start": date(2019, 1, 1), "wage": 15000,
     "ua_order_ref": "Наказ № 5-к від 03.01.2019",
 })
-legacy_action = emp2.action_ua_card_print_order()
+legacy_action = emp2.action_ua_print_last_order()
 check("картка: резерв П-1 для перенесеної історії без запису наказу", legacy_action.get("report_name") ==
       "l10n_ua_hr_docs.report_ua_order_hire", str(legacy_action))
 

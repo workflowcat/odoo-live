@@ -4,16 +4,41 @@
     <field name="name">ua.period.close.list</field>
     <field name="model">ua.period.close</field>
     <field name="arch" type="xml">
-      <list string="Закриття періодів" decoration-muted="state == 'open'">
+      <list string="Місяці" decoration-muted="state == 'open'">
         <field name="name"/>
         <field name="kind"/>
         <field name="state"/>
         <field name="hard"/>
+        <field name="payslip_count"/>
+        <field name="new_change_count"/>
         <field name="lock_date" options="{'numeric': True}"/>
         <field name="closed_user_id"/>
         <field name="closed_date" options="{'numeric': True}"/>
         <field name="changes_accepted"/>
+        <field name="company_id" column_invisible="1"/>
       </list>
+    </field>
+  </record>
+
+  <record id="view_ua_period_close_search" model="ir.ui.view">
+    <field name="name">ua.period.close.search</field>
+    <field name="model">ua.period.close</field>
+    <field name="arch" type="xml">
+      <search string="Місяці">
+        <field name="name"/>
+        <field name="year"/>
+        <filter name="open" string="Відкриті" domain="[('state', '=', 'open')]"/>
+        <filter name="closed" string="Закриті" domain="[('state', '=', 'closed')]"/>
+        <separator/>
+        <filter name="months" string="Місяці" domain="[('kind', '=', 'month')]"/>
+        <filter name="quarters" string="Квартали" domain="[('kind', '=', 'quarter')]"/>
+        <filter name="years" string="Роки" domain="[('kind', '=', 'year')]"/>
+        <group>
+          <filter name="group_year" string="Рік" context="{'group_by': 'year'}"/>
+          <filter name="group_kind" string="Вид" context="{'group_by': 'kind'}"/>
+          <filter name="group_state" string="Стан" context="{'group_by': 'state'}"/>
+        </group>
+      </search>
     </field>
   </record>
 
@@ -23,14 +48,37 @@
     <field name="arch" type="xml">
       <form string="Період">
         <header>
+          <button name="action_prepare_month" type="object" string="Підготувати місяць"
+                  invisible="kind != 'month' or state == 'closed'"/>
+          <button name="action_accept_changes" type="object" string="Прийняти зміни"
+                  invisible="kind != 'month' or state == 'closed' or new_change_count == 0"/>
           <button name="action_close" type="object" string="Закрити місяць" class="btn-primary"
-                  invisible="state == 'closed'"/>
+                  invisible="kind != 'month' or state == 'closed'"/>
+          <button name="action_close_quarter" type="object" string="Закрити квартал" class="btn-primary"
+                  invisible="kind != 'quarter' or state == 'closed'"/>
+          <button name="action_close_year" type="object" string="Закрити рік" class="btn-primary"
+                  invisible="kind != 'year' or state == 'closed'"
+                  confirm="Рік закривається остаточно: зняти цю дату блокування не можна. Продовжити?"/>
           <button name="action_reopen" type="object" string="Відкрити знову"
                   invisible="state != 'closed' or hard"
                   confirm="Дата блокування зміститься назад. Продовжити?"/>
           <field name="state" widget="statusbar"/>
         </header>
         <sheet>
+          <div class="oe_button_box" name="button_box">
+            <button name="action_open_payslips" type="object" class="oe_stat_button" icon="fa-list-alt"
+                    invisible="kind != 'month'">
+              <field name="payslip_count" widget="statinfo" string="Листки"/>
+            </button>
+            <button name="action_open_draft_moves" type="object" class="oe_stat_button" icon="fa-pencil"
+                    invisible="kind != 'month'">
+              <field name="draft_move_count" widget="statinfo" string="Чернетки проводок"/>
+            </button>
+            <button name="action_open_changes" type="object" class="oe_stat_button" icon="fa-history"
+                    invisible="kind != 'month'">
+              <field name="new_change_count" widget="statinfo" string="Непереглянуті зміни"/>
+            </button>
+          </div>
           <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
           <group>
             <group>
@@ -49,22 +97,24 @@
               <field name="reopened_date" invisible="not reopened_date"/>
             </group>
           </group>
-          <group>
-            <field name="reopen_reason" placeholder="Причина, чому період відкрили знову"/>
-          </group>
+          <notebook>
+            <page string="План" name="plan">
+              <field name="plan_html" readonly="1" nolabel="1"/>
+            </page>
+            <page string="Причина відкриття" name="reopen">
+              <field name="reopen_reason" nolabel="1"
+                     placeholder="Причина, чому період відкрили знову"/>
+            </page>
+          </notebook>
         </sheet>
       </form>
     </field>
   </record>
 
   <record id="action_ua_period_close" model="ir.actions.act_window">
-    <field name="name">Закриті періоди</field>
+    <field name="name">Місяці</field>
     <field name="res_model">ua.period.close</field>
     <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_ua_period_close_search"/>
   </record>
-
-  <!-- Батьківський розділ живе в інтерфейсі (l10n_ua_payroll_ui), тому місце пункту
-       ставить l10n_ua_navigation: журнал змін - логіка і від інтерфейсу не залежить. -->
-  <menuitem id="menu_ua_period_close" name="Закриті періоди"
-            action="action_ua_period_close" sequence="80" groups="account.group_account_manager"/>
 </odoo>

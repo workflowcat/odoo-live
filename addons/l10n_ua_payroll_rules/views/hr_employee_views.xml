@@ -13,7 +13,7 @@
             <group string="Пільги">
               <field name="ua_psp"/><field name="ua_psp_children" invisible="ua_psp not in ('child', 'child150')"/><field name="ua_disability_group"/>
             </group>
-            <group string="Відпустка">
+            <group name="ua_leave" string="Відпустка">
               <field name="ua_vacation_days_year"/><field name="ua_vacation_accrued"/><field name="ua_vacation_used"/><field name="ua_vacation_balance"/>
               <field name="ua_vacation_opening_balance"/><field name="ua_vacation_opening_date"/>
             </group>

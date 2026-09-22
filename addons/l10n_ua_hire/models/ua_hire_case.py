@@ -51,6 +51,8 @@ EXTRACTABLE = [f for key, _t, names in SECTIONS if key in ("candidate", "identit
                for f in names if f not in ("job_title", "department_id", "expected_wage", "source", "interview_date",
                                           "pd_consent", "screening_note")]
 
+CHECK_LEVEL_LABELS = {"ok": "OK", "warn": "УВАГА", "error": "ПОМИЛКА"}
+CHECK_LEVEL_ORDER = {"error": 0, "warn": 1, "ok": 2}
 DIGITS_ONLY = ("rnokpp", "id_doc_unzr")
 # Пакет першого дня: ключ, назва, звіт. Наказ після прийняття друкується з проведеного наказу.
 PACKAGE = [
@@ -172,6 +174,11 @@ class UaHireCase(models.Model):
     j30_run_id = fields.Many2one("ua.report.run", "J3001005", readonly=True, copy=False)
     notice_id = fields.Many2one("ua.military.notice", "Повідомлення ТЦК", readonly=True, copy=False)
     hired_date = fields.Date("Прийнято", readonly=True, copy=False)
+
+    # Текстовий підсумок _checks() для сторінки «Перевірки» форми (тим самим рядком, що і
+    # ua.checks.mixin у інших картках місяця, але без самого міксину - формат _checks() тут
+    # інший (title/detail/section), і його читають action_hire_plan/action_hire та scripts/hire_check.py.
+    checks_text = fields.Text("Перевірки", compute="_compute_checks_text")
 
     @api.depends("last_name", "first_name", "middle_name")
     def _compute_name(self):
@@ -330,6 +337,23 @@ class UaHireCase(models.Model):
             if field_name in names:
                 return key
         return ""
+
+    def _compute_checks_text(self):
+        for case in self:
+            if not case.id:
+                case.checks_text = ""
+                continue
+            checks = sorted(case._checks(), key=lambda c: CHECK_LEVEL_ORDER.get(c["level"], 9))
+            if not checks:
+                case.checks_text = _("Перевірок немає.")
+                continue
+            lines = []
+            for c in checks:
+                line = "%s: %s" % (CHECK_LEVEL_LABELS.get(c["level"], c["level"].upper()), c["title"])
+                if c.get("detail"):
+                    line += " (%s)" % c["detail"]
+                lines.append(line)
+            case.checks_text = "\n".join(lines)
 
     # ------------------------------------------------------------------ пакет першого дня
     def _blank(self, value, width=16):

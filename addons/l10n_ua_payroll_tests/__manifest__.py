@@ -6,7 +6,7 @@
                    "версія контракту, історія заробітку, відпустки, листок. Порівнюються підсумки "
                    "рядків листка до копійки і, де еталон їх містить, обороти проводки. "
                    "Запуск: scripts/test.sh (чиста база, без стенда).",
-    "version": "19.0.1.4.0",
+    "version": "19.0.2.0.0",
     "category": "Human Resources/Payroll",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -32,6 +32,13 @@
         "l10n_ua_hr_orders",
         # журнал змін на OCA auditlog (тег ua_changes)
         "l10n_ua_changes",
+        # голий Odoo: стандартні подання, перевірки документів, місяць, прийняття,
+        # звітність, анкета, картка працівника
+        "l10n_ua_hire",
+        "l10n_ua_reporting",
+        "l10n_ua_setup",
+        "l10n_ua_military",
+        "l10n_ua_gph",
     ],
     "data": [],
     "installable": True,

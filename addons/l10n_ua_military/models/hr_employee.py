@@ -91,6 +91,13 @@ class HrEmployee(models.Model):
         self.sudo().write({"ua_mil_last_check": today})
         return today
 
+    def action_ua_mil_register_check(self):
+        """Кнопка форми працівника: та сама звірка, що й для списку персонального обліку -
+        лише позначаємо джерело в примітці події. Повертає False - форма просто перечитує поля."""
+        self.ensure_one()
+        self.ua_mil_register_check(note=_("Звірка через форму працівника"))
+        return False
+
     @api.constrains("ua_mil_doc_type", "ua_mil_status")
     def _check_ua_mil_doc_type(self):
         for emp in self:

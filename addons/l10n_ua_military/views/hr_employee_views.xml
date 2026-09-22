@@ -7,6 +7,8 @@
     <field name="arch" type="xml">
       <notebook position="inside">
         <page string="Військовий облік" name="ua_military" groups="hr.group_hr_user">
+          <button name="action_ua_mil_register_check" type="object" string="Записати звірку ТЦК"
+                  class="btn btn-secondary mb-2"/>
           <group>
             <group string="Облік">
               <field name="ua_mil_status"/>

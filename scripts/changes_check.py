@@ -176,17 +176,22 @@ err = fails(lambda: call("ua.period.close", "close_year", Y2))
 check("рік без закритих кварталів не закривається", "закрити не можна" in err.lower(), err[:120])
 call("res.company", "write", [1], {"fiscalyear_lock_date": False, "tax_lock_date": False})
 
-# 7. сторінка «Період»
-data = call("ua.period.board", "get_screen_data", year=YEAR, month=MONTH)
-step = [s for s in data["steps"] if s["key"] == "changes"]
-check("на сторінці «Період» є крок «Перевірка змін»", bool(step), str([s["key"] for s in data["steps"]]))
-# Крок більше не носить окремого «fact»: факти стали підзаголовком і рядками кроку
-# (docs/payroll/spec-period-v2.md), тому питаємо саме їх.
-body = step[0] if step else {}
-check("крок знає число змін", bool(body.get("subtitle") or body.get("rows")),
-      str(body.get("subtitle") or [r.get("text") for r in (body.get("rows") or [])][:2]))
-check("сторінка віддає стан закриття", "close" in data and "state" in data["close"], str(data.get("close")))
-check("сторінка віддає число непереглянутих змін", "new_changes" in data, str(data.get("new_changes")))
+# 7. місяць у стандартному списку: форма ua.period.close бачить зміни і стан
+found = call("ua.period.close", "search",
+             [["company_id", "=", 1], ["year", "=", YEAR], ["month", "=", MONTH],
+              ["kind", "=", "month"]], limit=1)
+record_id = found[0] if found else call("ua.period.close", "create",
+                                        {"company_id": 1, "year": YEAR, "month": MONTH})
+row = call("ua.period.close", "read", [record_id],
+           ["state", "new_change_count", "payslip_count", "plan_html"])[0]
+check("картка місяця відкривається", bool(row), str(record_id))
+check("картка знає число непереглянутих змін", isinstance(row["new_change_count"], int),
+      str(row["new_change_count"]))
+check("картка знає стан закриття", row["state"] in ("open", "closed"), row["state"])
+check("картка малює план закриття", "<li" in (row["plan_html"] or ""), (row["plan_html"] or "")[:80])
+check("число змін на картці збігається з журналом",
+      row["new_change_count"] == call("ua.change.log", "count_new", 1, YEAR, MONTH),
+      str(row["new_change_count"]))
 
 # 8. права
 lana_pw = ENV.get("LANA_PASSWORD", "").strip()

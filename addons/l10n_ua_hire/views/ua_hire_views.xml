@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <!-- Клієнтська дія «Прийняття» і її пункт меню живуть у l10n_ua_hire_ui: тут лишається
-       лише те, що стосується самих даних. -->
+  <!-- Прийняття на роботу: стандартні list/form/search, без клієнтської дії. Меню ставить
+       l10n_ua_navigation. -->
 
   <!-- «Новий працівник» зі списку працівників веде повз перевірки справи прийняття (обов'язкові
-       поля, документи, наказ). Поки немає клієнтського редиректу на список - ховаємо кнопку
-       створення і показуємо, де оформити прийняття. -->
+       поля, документи, наказ). Оформлюють через дію «Прийняття» нижче. -->
   <record id="hr_employee_view_list_no_create" model="ir.ui.view">
     <field name="name">hr.employee.list.ua.hire.no.create</field>
     <field name="model">hr.employee</field>
@@ -15,5 +14,229 @@
         <attribute name="create">false</attribute>
       </xpath>
     </field>
+  </record>
+
+  <record id="view_ua_hire_case_form" model="ir.ui.view">
+    <field name="name">ua.hire.case.form</field>
+    <field name="model">ua.hire.case</field>
+    <field name="arch" type="xml">
+      <form string="Справа прийняття">
+        <header>
+          <button name="action_start_onboarding" type="object" string="Оформлення"
+                  invisible="stage != 'candidate'" class="oe_highlight"/>
+          <button name="action_extract" type="object" string="Витягти дані"
+                  invisible="stage in ('hired', 'declined')"/>
+          <button name="action_hire" type="object" string="Прийняти"
+                  invisible="stage != 'onboarding'" class="oe_highlight"
+                  confirm="Прийняти на роботу? Створяться картка працівника, наказ і подання J3001005."/>
+          <button name="action_decline" type="object" string="Відмова"
+                  invisible="stage in ('hired', 'declined')" confirm="Позначити відмову кандидату?"/>
+          <button name="action_reopen" type="object" string="Відкрити знову"
+                  invisible="stage != 'declined'"/>
+          <button name="%(l10n_ua_hire.action_report_hire_statement)d" type="action" string="Заява"
+                  invisible="stage == 'candidate'"/>
+          <button name="%(l10n_ua_hire.action_report_hire_order_draft)d" type="action" string="Проєкт наказу"
+                  invisible="stage == 'candidate'"/>
+          <button name="%(l10n_ua_hire.action_report_hire_contract)d" type="action" string="Договір"
+                  invisible="stage == 'candidate'"/>
+          <button name="%(l10n_ua_hire.action_report_hire_nda)d" type="action" string="NDA"
+                  invisible="stage == 'candidate'"/>
+          <button name="%(l10n_ua_hire.action_report_hire_consent)d" type="action" string="Згода на ПД"
+                  invisible="stage == 'candidate'"/>
+          <button name="%(l10n_ua_hire.action_report_hire_ack)d" type="action" string="Лист ознайомлення"
+                  invisible="stage == 'candidate'"/>
+          <button name="%(l10n_ua_hire.action_report_hire_file_inventory)d" type="action" string="Опис документів"
+                  invisible="stage == 'candidate'"/>
+          <field name="stage" widget="statusbar" statusbar_visible="candidate,onboarding,hired"/>
+        </header>
+        <sheet>
+          <div class="oe_title">
+            <h1><field name="name" readonly="1"/></h1>
+          </div>
+          <field name="currency_id" invisible="1"/>
+          <group>
+            <group>
+              <field name="company_id" groups="base.group_multi_company"/>
+              <field name="job_title" readonly="stage in ('hired', 'declined')"/>
+              <field name="department_id" readonly="stage in ('hired', 'declined')"/>
+            </group>
+            <group>
+              <field name="decline_reason" invisible="stage != 'declined'"/>
+              <field name="employee_id" invisible="not employee_id"/>
+              <field name="order_id" invisible="not order_id"/>
+              <field name="j30_run_id" invisible="not j30_run_id"/>
+              <field name="notice_id" invisible="not notice_id"/>
+              <field name="hired_date" invisible="not hired_date"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Дані" name="data">
+              <group string="Кандидат">
+                <group>
+                  <field name="last_name" readonly="stage in ('hired', 'declined')"/>
+                  <field name="first_name" readonly="stage in ('hired', 'declined')"/>
+                  <field name="middle_name" readonly="stage in ('hired', 'declined')"/>
+                  <field name="phone" readonly="stage in ('hired', 'declined')"/>
+                  <field name="email" readonly="stage in ('hired', 'declined')"/>
+                  <field name="source" readonly="stage in ('hired', 'declined')"/>
+                </group>
+                <group>
+                  <field name="expected_wage" readonly="stage in ('hired', 'declined')"/>
+                  <field name="interview_date" readonly="stage in ('hired', 'declined')"/>
+                  <field name="pd_consent" readonly="stage in ('hired', 'declined')"/>
+                  <field name="screening_note" readonly="stage in ('hired', 'declined')"/>
+                </group>
+              </group>
+              <group string="Особа">
+                <group>
+                  <field name="birthday" readonly="stage in ('hired', 'declined')"/>
+                  <field name="sex" readonly="stage in ('hired', 'declined')"/>
+                  <field name="rnokpp" readonly="stage in ('hired', 'declined')"/>
+                  <field name="id_doc_type" readonly="stage in ('hired', 'declined')"/>
+                  <field name="id_doc_series" readonly="stage in ('hired', 'declined')"/>
+                  <field name="id_doc_number" readonly="stage in ('hired', 'declined')"/>
+                  <field name="id_doc_unzr" readonly="stage in ('hired', 'declined')"/>
+                </group>
+                <group>
+                  <field name="id_doc_issued_by" readonly="stage in ('hired', 'declined')"/>
+                  <field name="id_doc_date" readonly="stage in ('hired', 'declined')"/>
+                  <field name="reg_address" readonly="stage in ('hired', 'declined')"/>
+                  <field name="actual_address" readonly="stage in ('hired', 'declined')"/>
+                </group>
+              </group>
+              <group string="Освіта і трудова">
+                <group>
+                  <field name="diploma_number" readonly="stage in ('hired', 'declined')"/>
+                  <field name="education_year" readonly="stage in ('hired', 'declined')"/>
+                </group>
+                <group>
+                  <field name="labor_book_number" readonly="stage in ('hired', 'declined')"/>
+                  <field name="electronic_labor_book" readonly="stage in ('hired', 'declined')"/>
+                </group>
+              </group>
+              <group string="Військовий облік">
+                <group>
+                  <field name="mil_status" readonly="stage in ('hired', 'declined')"/>
+                  <field name="mil_category" readonly="stage in ('hired', 'declined')"/>
+                  <field name="mil_rank" readonly="stage in ('hired', 'declined')"/>
+                  <field name="mil_vos" readonly="stage in ('hired', 'declined')"/>
+                  <field name="mil_tcc" readonly="stage in ('hired', 'declined')"/>
+                  <field name="mil_fitness" readonly="stage in ('hired', 'declined')"/>
+                </group>
+                <group>
+                  <field name="mil_doc_type" readonly="stage in ('hired', 'declined')"/>
+                  <field name="mil_doc_series" readonly="stage in ('hired', 'declined')"/>
+                  <field name="mil_doc_number" readonly="stage in ('hired', 'declined')"/>
+                  <field name="mil_doc_date" readonly="stage in ('hired', 'declined')"/>
+                  <field name="mil_reserve_number" readonly="stage in ('hired', 'declined')"/>
+                  <field name="mil_reserve_date" readonly="stage in ('hired', 'declined')"/>
+                  <field name="mil_reserve_filename" invisible="1"/>
+                  <field name="mil_reserve_file" filename="mil_reserve_filename" readonly="stage in ('hired', 'declined')"/>
+                </group>
+              </group>
+              <group string="Умови">
+                <group>
+                  <field name="date_from" readonly="stage in ('hired', 'declined')"/>
+                  <field name="wage" readonly="stage in ('hired', 'declined')"/>
+                  <field name="fte" readonly="stage in ('hired', 'declined')"/>
+                  <field name="contract_kind" readonly="stage in ('hired', 'declined')"/>
+                  <field name="main_job" readonly="stage in ('hired', 'declined')"/>
+                  <field name="kp_code" readonly="stage in ('hired', 'declined')"/>
+                  <field name="trial_date_end" readonly="stage in ('hired', 'declined')"/>
+                </group>
+                <group>
+                  <field name="pay_advance_percent" readonly="stage in ('hired', 'declined')"/>
+                  <field name="pay_advance_day" readonly="stage in ('hired', 'declined')"/>
+                  <field name="pay_final_day" readonly="stage in ('hired', 'declined')"/>
+                </group>
+              </group>
+            </page>
+            <page string="Файли" name="files">
+              <field name="file_ids" readonly="stage in ('hired', 'declined')">
+                <list editable="bottom">
+                  <field name="name"/>
+                  <field name="doc_type"/>
+                  <field name="filename" column_invisible="1"/>
+                  <field name="file" filename="filename" string="Файл"/>
+                  <field name="extract_state" readonly="1"/>
+                  <field name="extract_note" readonly="1"/>
+                </list>
+              </field>
+            </page>
+            <page string="Пропозиції" name="proposals">
+              <field name="proposal_ids" readonly="1">
+                <list decoration-muted="state != 'pending'">
+                  <field name="field_name"/>
+                  <field name="value"/>
+                  <field name="file_id"/>
+                  <field name="quote"/>
+                  <field name="confidence"/>
+                  <field name="model"/>
+                  <field name="state"/>
+                  <field name="decided_by"/>
+                  <field name="decided_at"/>
+                  <button name="action_accept" type="object" string="Прийняти" icon="fa-check"
+                          invisible="state != 'pending'"/>
+                  <button name="action_reject" type="object" string="Відхилити" icon="fa-times"
+                          invisible="state != 'pending'"/>
+                </list>
+              </field>
+            </page>
+            <page string="Перевірки" name="ua_checks">
+              <field name="checks_text" readonly="1" nolabel="1"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_hire_case_list" model="ir.ui.view">
+    <field name="name">ua.hire.case.list</field>
+    <field name="model">ua.hire.case</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="name"/>
+        <field name="job_title"/>
+        <field name="department_id"/>
+        <field name="date_from" options="{'numeric': True}"/>
+        <field name="stage" widget="badge"
+               decoration-success="stage == 'hired'" decoration-danger="stage == 'declined'"
+               decoration-info="stage == 'onboarding'"/>
+        <field name="company_id" groups="base.group_multi_company"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_hire_case_search" model="ir.ui.view">
+    <field name="name">ua.hire.case.search</field>
+    <field name="model">ua.hire.case</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="name"/>
+        <field name="job_title"/>
+        <field name="department_id"/>
+        <field name="company_id" groups="base.group_multi_company"/>
+        <filter name="candidate" string="Кандидат" domain="[('stage', '=', 'candidate')]"/>
+        <filter name="onboarding" string="Оформлення" domain="[('stage', '=', 'onboarding')]"/>
+        <filter name="hired" string="Прийнято" domain="[('stage', '=', 'hired')]"/>
+        <filter name="declined" string="Відмова" domain="[('stage', '=', 'declined')]"/>
+        <separator/>
+        <group>
+          <filter name="group_stage" string="Етап" context="{'group_by': 'stage'}"/>
+          <filter name="group_department" string="Підрозділ" context="{'group_by': 'department_id'}"/>
+          <filter name="group_company" string="Компанія" context="{'group_by': 'company_id'}"
+                  groups="base.group_multi_company"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_hire_case" model="ir.actions.act_window">
+    <field name="name">Прийняття</field>
+    <field name="res_model">ua.hire.case</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_ua_hire_case_search"/>
   </record>
 </odoo>

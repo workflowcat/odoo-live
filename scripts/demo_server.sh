@@ -16,10 +16,10 @@ DB="${DEMO_DB:-demo}"
 PORT="${DEMO_PORT:-8131}"
 NAME="odoo-live-base-demo"
 
-# Повний набір демо-простору. Решту тягнуть залежності: l10n_ua_home дає зарплату
-# і кадри, l10n_ua_assets - account_asset_management, l10n_ua_finrep - mis_builder,
-# l10n_ua_nbu - currency_rate_update, l10n_ua_ledger - account_financial_report.
-MODULES="l10n_ua_home,l10n_ua_papers,l10n_ua_explain,l10n_ua_chart,l10n_ua_vat,l10n_ua_cash,l10n_ua_ledger,l10n_ua_finrep,l10n_ua_assets,l10n_ua_nbu,l10n_ua_docs,l10n_ua_migrate,l10n_ua_partner_edr,account_payment_order,sale_management,purchase,stock,mrp,crm,contacts,auditlog,hr_employee_document"
+# Повний набір демо-простору. Увесь наш продукт тягне один модуль l10n_ua_navigation
+# (меню над стандартними поданнями); решта - рідні застосунки Odoo для демонстрації
+# продажів, складу і виробництва.
+MODULES="l10n_ua_navigation,sale_management,purchase,stock,mrp,crm,auditlog"
 
 ODOO_ARGS="--addons-path=/mnt/extra-addons --db_host=db --db_user=odoo --db_password=odoo --max-cron-threads=0"
 

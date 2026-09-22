@@ -3,5 +3,12 @@ from . import test_leaves
 from . import test_regress
 from . import test_payments
 from . import test_bank_matching
+from . import test_bank_ops
 from . import test_documents
 from . import test_changes
+from . import test_period
+from . import test_checks
+from . import test_hire
+from . import test_reporting
+from . import test_setup
+from . import test_employee_form

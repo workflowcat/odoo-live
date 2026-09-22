@@ -1,26 +1,41 @@
 {
-    "name": "Україна: п'ять розділів меню",
-    "summary": "Верхнє меню під роботу бухгалтера: Зарплата, Працівники, Банк, Історія, Налаштування",
-    "version": "19.0.1.1.0",
+    "name": "Україна: меню продукту",
+    "summary": "Три власні розділи - Зарплата, Кадри, Звітність - над стандартними поданнями Odoo; "
+               "єдиний власник меню і українських назв довідників",
+    "version": "19.0.2.0.0",
     "category": "Human Resources/Payroll",
     "author": "Bot&Partners",
     "license": "LGPL-3",
+    # Верхній модуль продукту: `-i l10n_ua_navigation` ставить усе.
     "depends": [
+        # рідні застосунки, чиї дії стоять у наших розділах
         "hr", "hr_holidays", "hr_org_chart", "contacts", "calendar",
-        "l10n_ua_period", "l10n_ua_changes", "l10n_ua_reporting",
-        "l10n_ua_dashboard", "l10n_ua_index", "l10n_ua_bank_online",
-        "l10n_ua_payroll_account", "l10n_ua_hr_orders", "l10n_ua_hr_docs", "l10n_ua_setup", "l10n_ua_average", "l10n_ua_onboarding", "l10n_ua_payroll_ui", "l10n_ua_military",
-        "l10n_ua_people",
-        # логічні модулі, чиї пункти меню розставляє саме ця навігація
-        "l10n_ua_gph", "l10n_ua_kp", "l10n_ua_hire",
-        # екрани: їхні дії і пункти меню розставляє ця навігація, тому вони мусять стояти раніше
-        "l10n_ua_hire_ui", "l10n_ua_reporting_ui", "l10n_ua_setup_ui", "l10n_ua_bank_ui",
+        # зарплата
+        "l10n_ua_payroll_rules", "l10n_ua_average", "l10n_ua_index", "l10n_ua_gph",
+        "l10n_ua_payroll_account", "l10n_ua_payments", "l10n_ua_explain",
+        # кадри
+        "l10n_ua_hr_card", "l10n_ua_hr_orders", "l10n_ua_hr_docs", "l10n_ua_military",
+        "l10n_ua_kp", "l10n_ua_onboarding", "l10n_ua_hire",
+        # звітність і контроль
+        "l10n_ua_payroll_reports", "l10n_ua_reporting", "l10n_ua_changes", "l10n_ua_setup",
+        # бухоблік
+        "l10n_ua_chart", "l10n_ua_vat", "l10n_ua_ledger", "l10n_ua_finrep", "l10n_ua_assets",
+        "l10n_ua_nbu", "l10n_ua_cash", "l10n_ua_bank", "l10n_ua_bank_online",
+        "l10n_ua_docs", "l10n_ua_docs_sale", "l10n_ua_docs_stock", "l10n_ua_fop",
+        "l10n_ua_migrate",
+        # контрагенти і закупівлі
+        "l10n_ua_partner_edr", "bp_kyc", "bp_purchase_intake",
+        # OCA, чиї пункти меню перейменовуються і переставляються тут
+        "account_usability", "account_financial_report", "account_reconcile_oca",
+        "account_statement_import_online",
     ],
-    "data": ["views/menus_areas.xml", "views/hr_leave_views.xml", "data/res_lang_data.xml"],
-    "assets": {
-        "web.assets_backend": [
-            "l10n_ua_navigation/static/src/navigation.scss",
-        ],
-    },
+    "data": [
+        "views/menus_areas.xml",
+        "views/hr_leave_views.xml",
+        "views/hr_payslip_views.xml",
+        "data/res_lang_data.xml",
+    ],
+    "post_init_hook": "post_init_hook",
     "installable": True,
+    "application": True,
 }

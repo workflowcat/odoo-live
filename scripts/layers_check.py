@@ -2,15 +2,18 @@
 # -*- coding: utf-8 -*-
 """Перевірка поділу на логіку і інтерфейс. Стенд не потрібен - читаємо самі файли.
 
-Правило одне: логіка не знає про інтерфейс.
+Від 2026-09-22 продукт іде голим Odoo: власних екранів немає, уся робота йде через
+стандартні списки, форми, кнопки і чарівники. Відкладені екрани лежать поза addons/,
+у shelved/addons-owl/, і Odoo їх не бачить.
+
+Правила:
   1. жоден НЕ-UI модуль не залежить від UI-модуля - ні прямо, ні через ланцюг;
   2. жоден НЕ-UI модуль не посилається в XML на ідентифікатор UI-модуля
      (пункт меню під чужим розділом падає на порожній базі);
-  3. свій НЕ-UI модуль (l10n_ua_*, bp_*) не везе static/src - екран є екран.
-
-Винятків із правила 3 більше немає: останні чотири змішані модулі поділено на пару
-«логіка + <модуль>_ui» (hire, reporting, setup, bank_online -> bank_ui). Модуль із
-бізнес-моделлю, у якому з'явиться static/src, провалює перевірку.
+  3. у addons/ немає жодного власного static/src - екранів ми більше не пишемо;
+     тема прийде окремим модулем, тоді це правило перепишемо разом із нею;
+  4. жоден модуль у addons/ не згадує відкладений екран (shelved/addons-owl);
+  5. єдиний UI-модуль - l10n_ua_navigation - справді везе меню.
 
 Запуск: python3 scripts/layers_check.py"""
 import ast
@@ -20,23 +23,10 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ADDONS = os.path.join(ROOT, "addons")
+SHELVED = os.path.join(ROOT, "shelved", "addons-owl")
 
-# Модулі інтерфейсу: меню, каркас, екрани. Їм можна залежати від будь-чого.
-UI_MODULES = {
-    "l10n_ua_shell",
-    "l10n_ua_navigation",
-    "l10n_ua_home",
-    "l10n_ua_period",
-    "l10n_ua_papers",
-    "l10n_ua_people",
-    "l10n_ua_dashboard",
-    "l10n_ua_card_ui",
-    "l10n_ua_payroll_ui",
-    "l10n_ua_hire_ui",
-    "l10n_ua_reporting_ui",
-    "l10n_ua_setup_ui",
-    "l10n_ua_bank_ui",
-}
+# Модуль інтерфейсу рівно один: власник меню. Йому можна залежати від будь-чого.
+UI_MODULES = {"l10n_ua_navigation"}
 OURS = re.compile(r"^(l10n_ua_|bp_)")
 
 errors = []
@@ -67,6 +57,10 @@ def manifests():
 
 MANIFESTS = manifests()
 DEPENDS = {name: list(data.get("depends") or []) for name, data in MANIFESTS.items()}
+SHELVED_MODULES = sorted(
+    name for name in (os.listdir(SHELVED) if os.path.isdir(SHELVED) else [])
+    if os.path.isdir(os.path.join(SHELVED, name))
+)
 
 
 def chain_to_ui(module, seen=None, path=None):
@@ -85,6 +79,22 @@ def chain_to_ui(module, seen=None, path=None):
     return None
 
 
+def files_of(name, suffixes):
+    for base, _dirs, file_names in os.walk(os.path.join(ADDONS, name)):
+        if "__pycache__" in base:
+            continue
+        for file_name in file_names:
+            if file_name.endswith(suffixes):
+                yield os.path.join(base, file_name)
+
+
+def read_no_comments(path):
+    text = open(path, encoding="utf-8", errors="replace").read()
+    if path.endswith(".xml"):
+        text = re.sub(r"<!--.*?-->", "", text, flags=re.S)
+    return text
+
+
 # 1. залежності
 for name in sorted(DEPENDS):
     if name in UI_MODULES:
@@ -98,34 +108,49 @@ for name in sorted(MANIFESTS):
     if name in UI_MODULES or not OURS.match(name):
         continue
     hits = []
-    for base, _dirs, files in os.walk(os.path.join(ADDONS, name)):
-        for file_name in files:
-            if not file_name.endswith(".xml"):
-                continue
-            path = os.path.join(base, file_name)
-            text = open(path, encoding="utf-8", errors="replace").read()
-            # коментарі не рахуємо: у них пояснення, а не посилання
-            text = re.sub(r"<!--.*?-->", "", text, flags=re.S)
-            for match in XMLID.finditer(text):
-                hits.append("%s: %s" % (os.path.relpath(path, ADDONS), match.group(0)))
+    for path in files_of(name, (".xml",)):
+        for match in XMLID.finditer(read_no_comments(path)):
+            hits.append("%s: %s" % (os.path.relpath(path, ADDONS), match.group(0)))
     check(f"{name}: XML не посилається на інтерфейс", not hits, "; ".join(hits[:4]))
 
-# 3. static/src у своїх не-UI модулях - винятків немає
+# 3. static/src у addons/ більше немає взагалі - вендорований OCA не рахуємо
 for name in sorted(MANIFESTS):
-    if name in UI_MODULES or not OURS.match(name):
+    if not OURS.match(name):
         continue
     has_assets = os.path.isdir(os.path.join(ADDONS, name, "static", "src"))
-    check(f"{name}: логіка без static/src", not has_assets, "є static/src" if has_assets else "")
+    check(f"{name}: без static/src", not has_assets, "є static/src" if has_assets else "")
 
-# 4. кожен модуль інтерфейсу справді везе екран або меню: назва _ui без static/src і без
-#    даних меню означала б, що поділ зробили наполовину.
+# 4. жодного ЖИВОГО посилання на відкладений екран у addons/
+#    Живе посилання - це depends у маніфесті, ідентифікатор у XML, env.ref або import
+#    у Python. Згадка в коментарі чи в тексті міграції, яка саме прибирає старий модуль,
+#    посиланням не є: теки migrations/ пропускаємо, у Python дивимось лише на ref/import.
+if SHELVED_MODULES:
+    names = "|".join(SHELVED_MODULES)
+    XML_REF = re.compile(r"\b(%s)\.[a-zA-Z0-9_]+" % names)
+    PY_REF = re.compile(r"""(?:env\.ref\(\s*["']|odoo\.addons\.)(%s)\b""" % names)
+    for name in sorted(MANIFESTS):
+        if not OURS.match(name):
+            continue
+        hits = [dep for dep in DEPENDS.get(name, []) if dep in SHELVED_MODULES]
+        for path in files_of(name, (".xml", ".py")):
+            if os.sep + "migrations" + os.sep in path:
+                continue
+            text = read_no_comments(path)
+            finder = XML_REF if path.endswith(".xml") else PY_REF
+            for match in finder.finditer(text):
+                hits.append("%s: %s" % (os.path.relpath(path, ADDONS), match.group(0)))
+        check(f"{name}: не посилається на відкладені екрани", not hits, "; ".join(hits[:4]))
+else:
+    check("тека відкладених екранів на місці", False, SHELVED)
+
+# 5. модуль інтерфейсу справді везе меню
 for name in sorted(UI_MODULES):
     if name not in MANIFESTS:
+        check(f"{name}: модуль є в addons/", False)
         continue
-    assets = MANIFESTS[name].get("assets") or {}
     data = MANIFESTS[name].get("data") or []
-    has_screen = bool(assets) or any(("menu" in f or "views" in f) for f in data)
-    check(f"{name}: модуль інтерфейсу везе екран чи меню", has_screen)
+    check(f"{name}: модуль інтерфейсу везе меню",
+          any("menu" in f for f in data), str(data))
 
 if errors:
     print(f"\nПЕРЕВІРКУ НЕ ПРОЙДЕНО: {len(errors)} з {total} пунктів провалено")

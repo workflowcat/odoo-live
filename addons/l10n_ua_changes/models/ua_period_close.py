@@ -10,6 +10,8 @@
 """
 from datetime import date, timedelta
 
+from markupsafe import Markup, escape
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
@@ -30,8 +32,9 @@ class UaPeriodClose(models.Model):
     name = fields.Char("Період", compute="_compute_name", store=True)
     company_id = fields.Many2one("res.company", "Компанія", required=True,
                                  default=lambda s: s.env.company)
-    year = fields.Integer("Рік", required=True)
-    month = fields.Integer("Місяць", required=True)
+    year = fields.Integer("Рік", required=True, default=lambda s: fields.Date.context_today(s).year)
+    month = fields.Integer("Місяць", required=True,
+                           default=lambda s: fields.Date.context_today(s).month)
     kind = fields.Selection(KINDS, "Період", default="month", required=True)
     state = fields.Selection(STATES, "Стан", default="open", required=True)
     hard = fields.Boolean("Остаточно", help="Дата блокування, яку не можна зняти")
@@ -42,6 +45,11 @@ class UaPeriodClose(models.Model):
     reopened_user_id = fields.Many2one("res.users", "Відкрив", readonly=True)
     reopened_date = fields.Datetime("Відкрито", readonly=True)
     changes_accepted = fields.Integer("Прийнято змін", readonly=True)
+
+    plan_html = fields.Html("План", compute="_compute_plan_html", sanitize=False)
+    payslip_count = fields.Integer("Листки", compute="_compute_counts")
+    draft_move_count = fields.Integer("Чернетки проводок", compute="_compute_counts")
+    new_change_count = fields.Integer("Непереглянуті зміни", compute="_compute_counts")
 
     _period_uniq = models.Constraint("unique(company_id, year, month, kind)", "Період уже є в списку.")
     _month_ok = models.Constraint("CHECK (month BETWEEN 1 AND 12)", "Місяць від 1 до 12.")
@@ -65,6 +73,15 @@ class UaPeriodClose(models.Model):
                 rec.name = "%s квартал %s" % ((rec.month - 1) // 3 + 1, rec.year)
             else:
                 rec.name = "%s %s" % (MONTHS_UA.get(rec.month, rec.month), rec.year)
+
+    @api.onchange("kind")
+    def _onchange_kind(self):
+        """Квартал числиться останнім місяцем кварталу, рік - груднем."""
+        for rec in self:
+            if rec.kind == "quarter" and rec.month:
+                rec.month = ((rec.month - 1) // 3 + 1) * 3
+            elif rec.kind == "year":
+                rec.month = 12
 
     # ------------------------------------------------------------------ межі
     @staticmethod
@@ -188,6 +205,120 @@ class UaPeriodClose(models.Model):
         })
         return lines
 
+    # ------------------------------------------------------------------ план на формі
+    LEVEL_CLASS = {"info": "", "warn": "text-warning", "crit": "text-danger"}
+    LEVEL_WORDS = {"info": "", "warn": "увага", "crit": "перешкода"}
+
+    def _plan_rows(self):
+        """Рядки плану для цього запису: місяць, квартал або рік - за видом періоду."""
+        self.ensure_one()
+        if self.kind == "quarter":
+            quarter = (self.month - 1) // 3 + 1
+            reasons = self.quarter_blockers(self.company_id, self.year, quarter)
+            head = _("Закриття %s кварталу %s поставить податкову дату блокування на кінець "
+                     "кварталу.") % (quarter, self.year)
+        elif self.kind == "year":
+            reasons = self.year_blockers(self.company_id, self.year)
+            head = _("Закриття %s року поставить остаточну дату блокування 31.12 - зняти її "
+                     "не можна.") % self.year
+        else:
+            return self.plan(self.company_id, self.year, self.month)
+        rows = [{"text": head, "level": "info"}]
+        rows += [{"text": reason, "level": "crit"} for reason in reasons]
+        return rows
+
+    def _compute_plan_html(self):
+        for rec in self:
+            if not rec.id or not rec.year or not rec.month:
+                rec.plan_html = False
+                continue
+            try:
+                rows = rec._plan_rows()
+            except Exception:
+                rec.plan_html = Markup("<p>План не порахувався.</p>")
+                continue
+            items = []
+            for row in rows:
+                level = row.get("level") or "info"
+                link = Markup("")
+                target = row.get("target") or {}
+                if target.get("model") and target.get("res_id"):
+                    link = Markup(' <a href="/odoo/m-%s/%s">відкрити запис</a>') % (
+                        target["model"], int(target["res_id"]))
+                elif target.get("model"):
+                    link = Markup(" <span class=\"text-muted\">(%s)</span>") % escape(target["model"])
+                word = self.LEVEL_WORDS.get(level) or ""
+                mark = Markup("<b>%s:</b> ") % word if word else Markup("")
+                items.append(Markup('<li class="%s">%s%s%s</li>') % (
+                    self.LEVEL_CLASS.get(level, ""), mark, escape(row.get("text") or ""), link))
+            rec.plan_html = Markup('<ul class="o_ua_plan">%s</ul>') % Markup("").join(items)
+
+    def _compute_counts(self):
+        for rec in self:
+            if not rec.id or not rec.year or not rec.month:
+                rec.payslip_count = rec.draft_move_count = rec.new_change_count = 0
+                continue
+            first, last = self._bounds(rec.year, rec.month)
+            rec.payslip_count = self.env["hr.payslip"].search_count([
+                ("company_id", "=", rec.company_id.id),
+                ("date_from", ">=", first), ("date_from", "<=", last)])
+            rec.draft_move_count = self.env["account.move"].search_count([
+                ("company_id", "=", rec.company_id.id), ("date", ">=", first),
+                ("date", "<=", last), ("state", "=", "draft")])
+            rec.new_change_count = self.env["ua.change.log"].count_new(
+                rec.company_id, rec.year, rec.month)
+
+    def _period_domain(self, model, date_field):
+        first, last = self._bounds(self.year, self.month)
+        return [("company_id", "=", self.company_id.id),
+                (date_field, ">=", fields.Date.to_string(first)),
+                (date_field, "<=", fields.Date.to_string(last))]
+
+    def _open_list(self, model, domain, name):
+        return {"type": "ir.actions.act_window", "name": name, "res_model": model,
+                "view_mode": "list,form", "domain": domain, "target": "current"}
+
+    def action_open_payslips(self):
+        self.ensure_one()
+        return self._open_list("hr.payslip", self._period_domain("hr.payslip", "date_from"),
+                               _("Листки: %s") % self.name)
+
+    def action_open_draft_moves(self):
+        self.ensure_one()
+        return self._open_list("account.move",
+                               self._period_domain("account.move", "date") + [("state", "=", "draft")],
+                               _("Чернетки проводок: %s") % self.name)
+
+    def action_open_changes(self):
+        self.ensure_one()
+        return self._open_list("ua.change.log", [
+            ("company_id", "=", self.company_id.id), ("year", "=", self.year),
+            ("month", "=", self.month)], _("Журнал змін: %s") % self.name)
+
+    # ------------------------------------------------------------------ кнопки місяця
+    def action_prepare_month(self):
+        """Підготувати місяць: табель, пакет листків, розрахунок.
+
+        Сама процедура живе в hr.payslip.run.ua_prepare_month() - тут лише кнопка."""
+        self.ensure_one()
+        result = self.env["hr.payslip.run"].with_company(self.company_id).ua_prepare_month(
+            self.company_id, self.year, self.month)
+        self.invalidate_recordset(["payslip_count", "plan_html"])
+        return self._notify(result.get("message") or _("Місяць підготовано."))
+
+    def action_accept_changes(self):
+        """Прийняти всі непереглянуті зміни місяця."""
+        self.ensure_one()
+        count = self.env["ua.change.log"].with_company(self.company_id).accept_period(
+            self.year, self.month)
+        self.invalidate_recordset(["new_change_count", "plan_html"])
+        return self._notify(_("Прийнято змін: %s.") % count)
+
+    def _notify(self, message):
+        """Повідомлення про зроблене, не залишаючи форму."""
+        return {"type": "ir.actions.client", "tag": "display_notification",
+                "params": {"message": message, "type": "success", "sticky": False}}
+
     # ------------------------------------------------------------------ дії
     @api.model
     def ensure_for(self, company, year, month):
@@ -240,7 +371,20 @@ class UaPeriodClose(models.Model):
 
     def action_close(self):
         self.ensure_one()
-        self.close_period(self.year, self.month, self.hard)
+        self.with_company(self.company_id).close_period(self.year, self.month, self.hard)
+        self.invalidate_recordset()
+        return True
+
+    def action_close_quarter(self):
+        self.ensure_one()
+        self.with_company(self.company_id).close_quarter(self.year, (self.month - 1) // 3 + 1)
+        self.invalidate_recordset()
+        return True
+
+    def action_close_year(self):
+        self.ensure_one()
+        self.with_company(self.company_id).close_year(self.year)
+        self.invalidate_recordset()
         return True
 
     def action_reopen(self):

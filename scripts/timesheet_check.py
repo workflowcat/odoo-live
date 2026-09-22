@@ -153,18 +153,20 @@ if state0 == "draft":
 state_now = call("ua.timesheet.sheet", "read", [sheet], ["state"])[0]["state"]
 check("стан табеля повернуто", state_now == state0, f"{state0} → {state_now}")
 
-# 7. Табель формує себе сам: сторінка «Період» на місяць без табеля
+# 7. Табель формує себе сам: ua_compose() на місяць без табеля (та сама процедура,
+#    яку кличуть кнопка «Підготувати місяць» і щоденний cron)
 TEST_YEAR, TEST_MONTH = YEAR + 5, MONTH
+COMPANY_ID = call("res.users", "read", [UID], ["company_id"])[0]["company_id"][0]
 existing_test = call("ua.timesheet.sheet", "search",
                      [["year", "=", TEST_YEAR], ["month", "=", TEST_MONTH], ["department_id", "=", False]])
 if existing_test:
     call("ua.timesheet.sheet", "action_draft", existing_test)
     call("ua.timesheet.sheet", "unlink", existing_test)
 
-call("ua.period.board", "get_screen_data", TEST_YEAR, TEST_MONTH)
+call("ua.timesheet.sheet", "ua_compose", COMPANY_ID, TEST_YEAR, TEST_MONTH)
 created = call("ua.timesheet.sheet", "search",
                [["year", "=", TEST_YEAR], ["month", "=", TEST_MONTH], ["department_id", "=", False]])
-check("відкриття «Період» за місяць без табеля створює табель", len(created) == 1, f"{len(created)} табелів")
+check("виклик ua_compose за місяць без табеля створює табель", len(created) == 1, f"{len(created)} табелів")
 test_sheet = created[0]
 test_lines = call("ua.timesheet.line", "search_read", [["sheet_id", "=", test_sheet]], fields=["employee_id"])
 check("у новому табелі є рядки", len(test_lines) > 0, f"{len(test_lines)} рядків")
@@ -179,19 +181,19 @@ gph_fop = [k for k in kinds if k.get("ua_contract_kind") in ("gph", "fop")]
 check("табель не містить ЦПХ/ФОП контракторів", len(gph_fop) == 0, f"{len(gph_fop)} таких рядків")
 
 # другий раз - без дубля
-call("ua.period.board", "get_screen_data", TEST_YEAR, TEST_MONTH)
+call("ua.timesheet.sheet", "ua_compose", COMPANY_ID, TEST_YEAR, TEST_MONTH)
 after_second = call("ua.timesheet.sheet", "search",
                     [["year", "=", TEST_YEAR], ["month", "=", TEST_MONTH], ["department_id", "=", False]])
-check("повторне відкриття не створює дубля", after_second == [test_sheet], f"{after_second}")
+check("повторний виклик не створює дубля", after_second == [test_sheet], f"{after_second}")
 
-# затверджений табель відкриття «Період» не чіпає
+# затверджений табель повторний виклик не чіпає
 call("ua.timesheet.sheet", "action_confirm", [test_sheet])
 lines_before = sorted(l["id"] for l in test_lines)
-call("ua.period.board", "get_screen_data", TEST_YEAR, TEST_MONTH)
+call("ua.timesheet.sheet", "ua_compose", COMPANY_ID, TEST_YEAR, TEST_MONTH)
 state_after = call("ua.timesheet.sheet", "read", [test_sheet], ["state"])[0]["state"]
 lines_after = sorted(call("ua.timesheet.line", "search", [["sheet_id", "=", test_sheet]]))
 check("затверджений табель лишається затвердженим", state_after == "confirmed", state_after)
-check("рядки затвердженого табеля не змінюються повторним відкриттям", lines_after == lines_before,
+check("рядки затвердженого табеля не змінюються повторним викликом", lines_after == lines_before,
       f"{lines_after} проти {lines_before}")
 
 # прибираємо тестовий табель

@@ -98,26 +98,19 @@ try:
 except UserError:
     check("друк без report_xmlid відмовляє", True)
 
-# ---- 3. вкладка «Документи» картки OWL: get_card_documents і дії через hr.employee
-Employee = env["hr.employee"].sudo()
-rows = Employee.browse(emp.id).get_card_documents()
-check("get_card_documents повертає рядок на кожен документ", len(rows) == len(emp.ua_document_ids), str(len(rows)))
-row_by_id = {r["id"]: r for r in rows}
-contract_row = row_by_id[doc.id]
-check("рядок несе позначку стану і дату підпису", contract_row["state"] == "signed" and contract_row["signed_date"] == date.today().strftime("%d.%m.%Y"))
-check("«не потрібен» не пропонує підписати", row_by_id[no_report_doc.id]["can_sign"] is False)
+# ---- 3. дії документа на стандартній формі: action_mark_signed / action_print
 statement_doc = pkg("statement")
-statement_row = row_by_id[statement_doc.id]
-check("«на підпис» пропонує підписати", statement_row["can_sign"] is True)
-Employee.browse(emp.id).action_ua_card_document_sign(statement_row["id"])
-check("action_ua_card_document_sign підписує через картку", statement_doc.state == "signed")
-print_result = Employee.browse(emp.id).action_ua_card_document_print(statement_row["id"])
-check("action_ua_card_document_print повертає дію друку", isinstance(print_result, dict) and print_result.get("type") == "ir.actions.act_url")
-
-other_emp = env["hr.employee"].search([("id", "!=", emp.id)], limit=1)
-if other_emp:
-    check("картка іншого працівника не підписує чужий документ",
-          Employee.browse(other_emp.id).action_ua_card_document_sign(statement_row["id"]) is False)
+check("«на підпис» стоїть у стані to_sign", statement_doc.state == "to_sign", statement_doc.state)
+statement_doc.action_mark_signed()
+check("action_mark_signed підписує документ", statement_doc.state == "signed")
+check("підпис ставить сьогоднішню дату", statement_doc.signed_date == date.today(), str(statement_doc.signed_date))
+print_result = statement_doc.action_print()
+check("action_print повертає дію друку", isinstance(print_result, dict) and print_result.get("type") in ("ir.actions.act_url", "ir.actions.report"), str(print_result)[:80])
+try:
+    no_report_doc.action_print()
+    check("«не потрібен» без звіту не друкується", False)
+except Exception as e:
+    check("«не потрібен» без звіту не друкується", "звіт" in str(e) or "report" in str(e).lower(), str(e)[:80])
 
 # ---- 4. фільтр «на підпис» на стандартному вигляді
 to_sign_action = env.ref("l10n_ua_hr_card.action_ua_employee_document")

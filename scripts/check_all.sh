@@ -1,10 +1,12 @@
 #!/bin/bash
 # Запускає ВСІ scripts/*_check.py підряд, кожен на базі, яку він очікує (див. шапку скрипта).
+# Перевірок екранів більше немає: продукт іде голим Odoo, і views_check.py проходить
+# усі пункти меню, кнопки і звіти замість чотирнадцяти скриптів окремих екранів.
 # Падіння одного не спиняє решту: у кінці один підсумок і ненульовий код, якщо щось провалилось.
 #
 #   scripts/check_all.sh              усе
 #   ALLOW_SKIP=1 scripts/check_all.sh відсутня база дає SKIP, а не провал
-#   ONLY=bank,nav scripts/check_all.sh лише названі перевірки
+#   ONLY=views,words scripts/check_all.sh лише названі перевірки
 #
 # Порт стенду береться з .env цього ж дерева (ODOO_PORT), а не з 8110 сусіднього.
 set -uo pipefail
@@ -66,37 +68,25 @@ run_check() {
 
 #          скрипт               база           змінні середовища
 run_check layers_check.py       -
+run_check words_check.py        -
 run_check advance_check.py      payroll_test   PAYROLL_CHECK_DB=payroll_test
-run_check bank_check.py         payroll        PAYROLL_DB=payroll
 run_check card_check.py         payroll        PAYROLL_DB=payroll
-run_check card_ui_check.py      payroll        PAYROLL_DB=payroll
 run_check changes_check.py      payroll_test   PAYROLL_CHECK_DB=payroll_test
-run_check checks_check.py       payroll        PAYROLL_DB=payroll
 run_check correction_check.py   payroll        PAYROLL_DB=payroll
-run_check dashboard_check.py    payroll        PAYROLL_DB=payroll
 run_check docs_check.py         payroll        PAYROLL_CHECK_DB=payroll
 run_check documents_check.py    payroll        PAYROLL_DB=payroll
 run_check explain_check.py      payroll        PAYROLL_DB=payroll
 run_check gph_check.py          payroll        PAYROLL_DB=payroll
-run_check hire_check.py         payroll        PAYROLL_DB=payroll
-run_check home_check.py         payroll        PAYROLL_DB=payroll
 run_check import_check.py       payroll        PAYROLL_DB=payroll
 run_check kp_check.py           payroll        PAYROLL_DB=payroll
 run_check leaves_check.py       payroll        PAYROLL_CHECK_DB=payroll
 run_check military_check.py     payroll        PAYROLL_DB=payroll
-run_check nav_check.py          payroll        PAYROLL_DB=payroll
 run_check orders_check.py       payroll        PAYROLL_DB=payroll
-run_check papers_check.py       payroll        PAYROLL_DB=payroll
 run_check payments_check.py     payroll        PAYROLL_DB=payroll
 run_check payroll_check.py      payroll_test   PAYROLL_CHECK_DB=payroll_test
-run_check people_check.py       payroll        PAYROLL_DB=payroll
-run_check period_check.py       payroll        PAYROLL_DB=payroll
-run_check readonly_check.py     payroll        PAYROLL_DB=payroll
-run_check reporting_check.py    payroll        PAYROLL_DB=payroll
-run_check setup_check.py        payroll        PAYROLL_DB=payroll
-run_check shell_check.py        payroll        PAYROLL_DB=payroll
 run_check timesheet_check.py    payroll        PAYROLL_DB=payroll
 run_check vacation_check.py     payroll        PAYROLL_DB=payroll
+run_check views_check.py        payroll        PAYROLL_DB=payroll
 
 echo
 printf '%s\n' "${REPORT[@]}"

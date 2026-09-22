@@ -8,10 +8,11 @@
         <header>
           <button name="action_fill" type="object" string="Заповнити з каталогу"/>
           <button name="action_propose" type="object" string="Підказати з опису"/>
+          <button name="action_apply" type="object" string="Застосувати" class="oe_highlight"/>
           <button name="action_test_month" type="object" string="Пробний місяць"/>
           <button name="action_ready" type="object" string="Готово до перевірки"
                   invisible="state != 'draft'"/>
-          <button name="action_activate" type="object" string="Затвердити" class="oe_highlight"
+          <button name="action_activate" type="object" string="Затвердити"
                   invisible="state == 'active'"/>
           <button name="action_draft" type="object" string="Повернути в чернетку"
                   invisible="state == 'draft'"/>
@@ -34,9 +35,222 @@
           <group>
             <field name="description" placeholder="Українське ТОВ, меблі, 20 працівників, більшість на окладі, двоє на пів ставки, банк ПриватБанк"/>
           </group>
+          <!-- Розділи анкети - одна сторінка на розділ каталогу питань (ua_setup_question_data.xml).
+               Той самий рядок answer_ids показаний кілька разів, кожен раз відфільтрований доменом
+               на свій розділ - каталог стабільний (текст питань узятий з анкети бухгалтера і не
+               змінюється), тож фіксовані домени тут безпечні. -->
           <notebook>
-            <page string="Питання" name="answers">
-              <field name="answer_ids">
+            <page string="1. Компанія" name="section_01">
+              <field name="answer_ids" domain="[('section', '=', '1. Компанія')]">
+                <list editable="bottom" default_order="sequence" create="false" delete="false"
+                      decoration-danger="state == 'missing' and required"
+                      decoration-warning="state == 'proposed'"
+                      decoration-muted="state == 'confirmed'">
+                  <field name="sequence" column_invisible="1"/>
+                  <field name="name" readonly="1"/>
+                  <field name="value"/>
+                  <field name="state"/>
+                  <field name="required" readonly="1" widget="boolean_toggle" optional="show"/>
+                  <field name="options" readonly="1" optional="hide"/>
+                  <field name="source" optional="hide"/>
+                  <field name="note" optional="hide"/>
+                  <button name="action_confirm" type="object" string="Затвердити" icon="fa-check"
+                          invisible="state == 'confirmed'"/>
+                </list>
+              </field>
+            </page>
+            <page string="2. Система оподаткування" name="section_02">
+              <field name="answer_ids" domain="[('section', '=', '2. Система оподаткування')]" nolabel="1">
+                <list editable="bottom" default_order="sequence" create="false" delete="false"
+                      decoration-danger="state == 'missing' and required"
+                      decoration-warning="state == 'proposed'"
+                      decoration-muted="state == 'confirmed'">
+                  <field name="sequence" column_invisible="1"/>
+                  <field name="name" readonly="1"/>
+                  <field name="value"/>
+                  <field name="state"/>
+                  <field name="required" readonly="1" widget="boolean_toggle" optional="show"/>
+                  <field name="options" readonly="1" optional="hide"/>
+                  <field name="source" optional="hide"/>
+                  <field name="note" optional="hide"/>
+                  <button name="action_confirm" type="object" string="Затвердити" icon="fa-check"
+                          invisible="state == 'confirmed'"/>
+                </list>
+              </field>
+            </page>
+            <page string="3. Клієнти і валюта" name="section_03">
+              <field name="answer_ids" domain="[('section', '=', '3. Клієнти і валюта')]" nolabel="1">
+                <list editable="bottom" default_order="sequence" create="false" delete="false"
+                      decoration-danger="state == 'missing' and required"
+                      decoration-warning="state == 'proposed'"
+                      decoration-muted="state == 'confirmed'">
+                  <field name="sequence" column_invisible="1"/>
+                  <field name="name" readonly="1"/>
+                  <field name="value"/>
+                  <field name="state"/>
+                  <field name="required" readonly="1" widget="boolean_toggle" optional="show"/>
+                  <field name="options" readonly="1" optional="hide"/>
+                  <field name="source" optional="hide"/>
+                  <field name="note" optional="hide"/>
+                  <button name="action_confirm" type="object" string="Затвердити" icon="fa-check"
+                          invisible="state == 'confirmed'"/>
+                </list>
+              </field>
+            </page>
+            <page string="4. Банк і підписи" name="section_04">
+              <field name="answer_ids" domain="[('section', '=', '4. Банк і підписи')]" nolabel="1">
+                <list editable="bottom" default_order="sequence" create="false" delete="false"
+                      decoration-danger="state == 'missing' and required"
+                      decoration-warning="state == 'proposed'"
+                      decoration-muted="state == 'confirmed'">
+                  <field name="sequence" column_invisible="1"/>
+                  <field name="name" readonly="1"/>
+                  <field name="value"/>
+                  <field name="state"/>
+                  <field name="required" readonly="1" widget="boolean_toggle" optional="show"/>
+                  <field name="options" readonly="1" optional="hide"/>
+                  <field name="source" optional="hide"/>
+                  <field name="note" optional="hide"/>
+                  <button name="action_confirm" type="object" string="Затвердити" icon="fa-check"
+                          invisible="state == 'confirmed'"/>
+                </list>
+              </field>
+            </page>
+            <page string="5. Люди і форми залучення" name="section_05">
+              <field name="answer_ids" domain="[('section', '=', '5. Люди і форми залучення')]" nolabel="1">
+                <list editable="bottom" default_order="sequence" create="false" delete="false"
+                      decoration-danger="state == 'missing' and required"
+                      decoration-warning="state == 'proposed'"
+                      decoration-muted="state == 'confirmed'">
+                  <field name="sequence" column_invisible="1"/>
+                  <field name="name" readonly="1"/>
+                  <field name="value"/>
+                  <field name="state"/>
+                  <field name="required" readonly="1" widget="boolean_toggle" optional="show"/>
+                  <field name="options" readonly="1" optional="hide"/>
+                  <field name="source" optional="hide"/>
+                  <field name="note" optional="hide"/>
+                  <button name="action_confirm" type="object" string="Затвердити" icon="fa-check"
+                          invisible="state == 'confirmed'"/>
+                </list>
+              </field>
+            </page>
+            <page string="6. Зарплата" name="section_06">
+              <field name="answer_ids" domain="[('section', '=', '6. Зарплата')]" nolabel="1">
+                <list editable="bottom" default_order="sequence" create="false" delete="false"
+                      decoration-danger="state == 'missing' and required"
+                      decoration-warning="state == 'proposed'"
+                      decoration-muted="state == 'confirmed'">
+                  <field name="sequence" column_invisible="1"/>
+                  <field name="name" readonly="1"/>
+                  <field name="value"/>
+                  <field name="state"/>
+                  <field name="required" readonly="1" widget="boolean_toggle" optional="show"/>
+                  <field name="options" readonly="1" optional="hide"/>
+                  <field name="source" optional="hide"/>
+                  <field name="note" optional="hide"/>
+                  <button name="action_confirm" type="object" string="Затвердити" icon="fa-check"
+                          invisible="state == 'confirmed'"/>
+                </list>
+              </field>
+            </page>
+            <page string="7. Військовий облік і бронювання" name="section_07">
+              <field name="answer_ids" domain="[('section', '=', '7. Військовий облік і бронювання')]" nolabel="1">
+                <list editable="bottom" default_order="sequence" create="false" delete="false"
+                      decoration-danger="state == 'missing' and required"
+                      decoration-warning="state == 'proposed'"
+                      decoration-muted="state == 'confirmed'">
+                  <field name="sequence" column_invisible="1"/>
+                  <field name="name" readonly="1"/>
+                  <field name="value"/>
+                  <field name="state"/>
+                  <field name="required" readonly="1" widget="boolean_toggle" optional="show"/>
+                  <field name="options" readonly="1" optional="hide"/>
+                  <field name="source" optional="hide"/>
+                  <field name="note" optional="hide"/>
+                  <button name="action_confirm" type="object" string="Затвердити" icon="fa-check"
+                          invisible="state == 'confirmed'"/>
+                </list>
+              </field>
+            </page>
+            <page string="8. Облік і Дія.City" name="section_08">
+              <field name="answer_ids" domain="[('section', '=', '8. Облік і Дія.City')]" nolabel="1">
+                <list editable="bottom" default_order="sequence" create="false" delete="false"
+                      decoration-danger="state == 'missing' and required"
+                      decoration-warning="state == 'proposed'"
+                      decoration-muted="state == 'confirmed'">
+                  <field name="sequence" column_invisible="1"/>
+                  <field name="name" readonly="1"/>
+                  <field name="value"/>
+                  <field name="state"/>
+                  <field name="required" readonly="1" widget="boolean_toggle" optional="show"/>
+                  <field name="options" readonly="1" optional="hide"/>
+                  <field name="source" optional="hide"/>
+                  <field name="note" optional="hide"/>
+                  <button name="action_confirm" type="object" string="Затвердити" icon="fa-check"
+                          invisible="state == 'confirmed'"/>
+                </list>
+              </field>
+            </page>
+            <page string="9. Вхідні залишки і історія" name="section_09">
+              <field name="answer_ids" domain="[('section', '=', '9. Вхідні залишки і історія')]" nolabel="1">
+                <list editable="bottom" default_order="sequence" create="false" delete="false"
+                      decoration-danger="state == 'missing' and required"
+                      decoration-warning="state == 'proposed'"
+                      decoration-muted="state == 'confirmed'">
+                  <field name="sequence" column_invisible="1"/>
+                  <field name="name" readonly="1"/>
+                  <field name="value"/>
+                  <field name="state"/>
+                  <field name="required" readonly="1" widget="boolean_toggle" optional="show"/>
+                  <field name="options" readonly="1" optional="hide"/>
+                  <field name="source" optional="hide"/>
+                  <field name="note" optional="hide"/>
+                  <button name="action_confirm" type="object" string="Затвердити" icon="fa-check"
+                          invisible="state == 'confirmed'"/>
+                </list>
+              </field>
+            </page>
+            <page string="10. Ролі і відповідальні" name="section_10">
+              <field name="answer_ids" domain="[('section', '=', '10. Ролі і відповідальні')]" nolabel="1">
+                <list editable="bottom" default_order="sequence" create="false" delete="false"
+                      decoration-danger="state == 'missing' and required"
+                      decoration-warning="state == 'proposed'"
+                      decoration-muted="state == 'confirmed'">
+                  <field name="sequence" column_invisible="1"/>
+                  <field name="name" readonly="1"/>
+                  <field name="value"/>
+                  <field name="state"/>
+                  <field name="required" readonly="1" widget="boolean_toggle" optional="show"/>
+                  <field name="options" readonly="1" optional="hide"/>
+                  <field name="source" optional="hide"/>
+                  <field name="note" optional="hide"/>
+                  <button name="action_confirm" type="object" string="Затвердити" icon="fa-check"
+                          invisible="state == 'confirmed'"/>
+                </list>
+              </field>
+            </page>
+            <page string="11. Плани" name="section_11">
+              <field name="answer_ids" domain="[('section', '=', '11. Плани')]" nolabel="1">
+                <list editable="bottom" default_order="sequence" create="false" delete="false"
+                      decoration-danger="state == 'missing' and required"
+                      decoration-warning="state == 'proposed'"
+                      decoration-muted="state == 'confirmed'">
+                  <field name="sequence" column_invisible="1"/>
+                  <field name="name" readonly="1"/>
+                  <field name="value"/>
+                  <field name="state"/>
+                  <field name="required" readonly="1" widget="boolean_toggle" optional="show"/>
+                  <field name="options" readonly="1" optional="hide"/>
+                  <field name="source" optional="hide"/>
+                  <field name="note" optional="hide"/>
+                  <button name="action_confirm" type="object" string="Затвердити" icon="fa-check"
+                          invisible="state == 'confirmed'"/>
+                </list>
+              </field>
+            </page>
+            <page string="Усі питання" name="answers_flat">
+              <field name="answer_ids" create="false" delete="false" nolabel="1">
                 <list editable="bottom" default_order="sequence"
                       decoration-danger="state == 'missing' and required"
                       decoration-warning="state == 'proposed'"
@@ -94,8 +308,9 @@
     </field>
   </record>
 
-  <!-- Екран анкети на OWL живе в l10n_ua_setup_ui. Таблиці лишаються тут:
-       окремі дії для перегляду і пошуку в режимі розробника. -->
+  <!-- Голий Odoo (2026-09-22): OWL-екран l10n_ua_setup_ui знято з полиці, форма вище - єдиний
+       вхід в анкету. Назва дії і група group_no_one на її пункті меню лишаються на розсуд
+       того, хто зводить меню - тут лише сама дія. -->
 
   <record id="action_ua_setup_profile" model="ir.actions.act_window">
     <field name="name">Анкети (таблиця)</field>

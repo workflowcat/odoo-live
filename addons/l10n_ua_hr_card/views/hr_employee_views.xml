@@ -1,5 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+  <!-- Ці дві дії - лише домен/контекст на active_id (звичний прийом кнопки з форми, напр.
+       quotient-кнопки в ядрі: act_window обчислює domain/context у контексті виклику, а той
+       містить active_id) - визначені РАНІШЕ форми нижче, бо кнопки форми посилаються на них
+       через %(xmlid)d, а це підставляється в порядку файлу, не за списком data в маніфесті.
+       Пакет документів і друк наказу лишаються поза цим файлом - обидва живуть у моделях
+       l10n_ua_hr_orders, який залежить від l10n_ua_hr_card, а не навпаки. -->
+  <record id="action_ua_earnings_history_employee" model="ir.actions.act_window">
+    <field name="name">Історія заробітку</field>
+    <field name="res_model">ua.earnings.history</field>
+    <field name="view_mode">list</field>
+    <field name="domain">[('employee_id', '=', active_id)]</field>
+    <field name="context">{'default_employee_id': active_id}</field>
+  </record>
+
+  <record id="action_ua_new_leave_employee" model="ir.actions.act_window">
+    <field name="name">Відпустка</field>
+    <field name="res_model">hr.leave</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+    <field name="context">{'default_employee_id': active_id}</field>
+  </record>
+
   <!-- Пріоритет вищий за стандартний (16), щоб застосуватись після інших українських модулів,
        які теж наслідують hr.view_employee_form: поля, що переносяться (position="move"),
        мають уже існувати у зведеному дереві вигляду.
@@ -53,6 +75,22 @@
           </page>
         </xpath>
 
+        <!-- Документи прострочені - те саме червоне попередження, що показувала картка. -->
+        <xpath expr="//page[@name='ua_docs']//field[@name='ua_document_ids']/list" position="attributes">
+          <attribute name="decoration-danger">ua_doc_state == 'expired'</attribute>
+        </xpath>
+        <xpath expr="//page[@name='ua_docs']//field[@name='ua_document_ids']/list/field[@name='valid_until']" position="after">
+          <field name="ua_doc_state" column_invisible="1"/>
+        </xpath>
+
+        <xpath expr="//page[@name='ua_docs']" position="after">
+          <page name="ua_vacation" string="Відпустки" groups="hr.group_hr_user">
+            <button name="%(l10n_ua_hr_card.action_ua_new_leave_employee)d" type="action"
+                    string="Оформити відпустку" class="btn btn-secondary mb-2"/>
+            <group name="ua_vacation_groups"/>
+          </page>
+        </xpath>
+
         <!-- ==================== Крок 2: наповнення груп (перенесені поля position="move" + нові) ==================== -->
         <xpath expr="//group[@name='ua_card_grp_ident']" position="inside">
           <field name="ua_last_name" position="move"/>
@@ -64,6 +102,7 @@
           <field name="place_of_birth" position="move"/>
           <field name="country_of_birth" position="move"/>
           <field name="country_id" position="move"/>
+          <field name="ua_previous_employee_id"/>
         </xpath>
 
         <xpath expr="//group[@name='ua_card_grp_iddoc']" position="inside">
@@ -197,6 +236,34 @@
           <xpath expr="//page[@name='personal_information']/group/group[1]/div[1]" position="move"/>
         </xpath>
 
+        <!-- ==================== Відпустки: винести з «Зарплата» окремою вкладкою ====================
+             Обидві групи вже існують у групі «ua» (Зарплата) - «Відпустка» (щорічна, з l10n_ua_payroll_rules)
+             і «Додаткові відпустки» (УБД, соціальна на дітей, особливі умови праці, з l10n_ua_average);
+             переносимо цілими групами, нічого не рахуємо заново. «Лікарняні» (відсоток, стаж) лишається
+             в Зарплаті - це факт оплати, не залишок відпустки. -->
+        <xpath expr="//group[@name='ua_vacation_groups']" position="inside">
+          <xpath expr="//page[@name='ua']//group[@name='ua_leave']" position="move"/>
+          <xpath expr="//page[@name='ua']//group[@name='ua_extra_leaves']" position="move"/>
+        </xpath>
+
+        <!-- ==================== Зарплата: версії контракту (ставка, сумісництво) і історія заробітку ==================== -->
+        <xpath expr="//group[@name='ua']" position="after">
+          <button name="%(l10n_ua_hr_card.action_ua_earnings_history_employee)d" type="action"
+                  string="Історія заробітку" class="btn btn-secondary mb-2"/>
+          <group string="Версії контракту">
+            <field name="version_ids" nolabel="1" colspan="2" readonly="1">
+              <list create="false" default_order="contract_date_start">
+                <field name="job_title"/>
+                <field name="wage"/>
+                <field name="ua_internal_parttime"/>
+                <field name="contract_date_start" options="{'numeric': True}"/>
+                <field name="contract_date_end" options="{'numeric': True}"/>
+                <field name="ua_order_ref"/>
+              </list>
+            </field>
+          </group>
+        </xpath>
+
         <!-- ==================== Приватна інформація: сховати, дублікатів немає ==================== -->
         <xpath expr="//page[@name='personal_information']" position="attributes">
           <attribute name="invisible">1</attribute>
@@ -270,6 +337,26 @@
               </field>
             </group>
           </page>
+        </xpath>
+
+        <!-- ==================== Порядок вкладок: Огляд, Робота, Особова картка, Зарплата,
+             Документи, Військовий облік, Відпустки, Контракт, решта нативних. Пересувати можна
+             лише сторінки, які вже існують у зведеному дереві - тому це останній крок файлу
+             (як і «Огляд» вище), після того як усі сторінки цього і залежних модулів вставлені. ==================== -->
+        <xpath expr="//page[@name='ua_card']" position="after">
+          <xpath expr="//page[@name='ua']" position="move"/>
+        </xpath>
+        <xpath expr="//page[@name='ua']" position="after">
+          <xpath expr="//page[@name='ua_docs']" position="move"/>
+        </xpath>
+        <xpath expr="//page[@name='ua_docs']" position="after">
+          <xpath expr="//page[@name='ua_military']" position="move"/>
+        </xpath>
+        <xpath expr="//page[@name='ua_military']" position="after">
+          <xpath expr="//page[@name='ua_vacation']" position="move"/>
+        </xpath>
+        <xpath expr="//page[@name='ua_vacation']" position="after">
+          <xpath expr="//page[@name='payroll_information']" position="move"/>
         </xpath>
 
       </data>

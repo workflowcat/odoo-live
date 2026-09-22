@@ -730,7 +730,7 @@ def _statement_echo(journal, payment_id, amount, day, kind, memo):
         "journal_id": journal, "company_id": COMPANY, "date": day, "payment_ref": memo,
         "amount": round(amount, 2) * (1 if kind == "inbound" else -1),
         "partner_id": partner[0] if partner else False})
-    call("ua.bank.board", "run_action", "match_payments", {"line_id": line})
+    call("ua.bank.ops", "action_match_payments", line_id=line)
 
 
 def _pay(partner, amount, day, kind, memo, journal=None, dest=None, ptype=None):
@@ -1025,7 +1025,7 @@ def cash_deposit_statement_line():
         "journal_id": journal, "company_id": COMPANY,
         "date": (date.fromisoformat(CASH_DEPOSIT[0]) + timedelta(days=1)).isoformat(),
         "payment_ref": ref, "amount": CASH_DEPOSIT[1], "partner_name": "ТОВ «Ясен Меблі»"})
-    result = call("ua.bank.board", "run_action", "apply_rules", {"journal_id": journal})
+    result = call("ua.bank.ops", "action_apply_rules", journal_id=journal)
     say("Каса -> банк: " + result["message"].replace("\n", " | "))
 
 

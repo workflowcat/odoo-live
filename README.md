@@ -5,7 +5,8 @@
 KYC і ЄДР. Одна гілка `main`, одна система.
 
 Правила: спершу нативний Odoo, потім OCA 19.0 без змін, наше українське - тонко зверху.
-Логіка окремо від інтерфейсу (`scripts/layers_check.py` стежить). Кожен модуль ставиться на
+Інтерфейс - голий Odoo: стандартні списки, форми, кнопки і чарівники, меню в одному
+модулі (`scripts/layers_check.py` стежить). Кожен модуль ставиться на
 порожню базу і має справжні Odoo-тести. Гроші звіряються з одним файлом чисел, який підтверджує
 бухгалтер.
 
@@ -16,11 +17,11 @@ cp .env.example .env                 # заповнити; .env не в репо
 ./scripts/demo_server.sh reset       # база demo з усіма модулями, сервер на http://127.0.0.1:8131
 python3 scripts/demo_business.py     # ТОВ «Ясен Меблі»: зарплата, продажі, склад, виробництво, ПДВ, банк, каса, ОЗ
 ./scripts/test.sh                    # еталонні тести зарплати на свіжій базі (~25 с)
-TEST_TAGS=ua_golden,ua_leaves,ua_payments,ua_regress ./scripts/test.sh
-./scripts/check_all.sh               # 32 перевірки стенду (docker compose up -d, порт ODOO_PORT з .env)
+TEST_TAGS=ua_golden,ua_leaves,ua_payments,ua_regress,ua_changes,ua_period,ua_checks,ua_hire,ua_reporting,ua_setup,ua_bank,ua_card,ua_documents ./scripts/test.sh
+./scripts/check_all.sh               # перевірки стенду (docker compose up -d, порт ODOO_PORT з .env)
 ```
 
-Повне встановлення продукту на порожню базу: `-i l10n_ua_home` (тягне все, ~107 модулів).
+Повне встановлення продукту на порожню базу: `-i l10n_ua_navigation` (тягне все).
 
 ## Що де
 
@@ -34,7 +35,7 @@ TEST_TAGS=ua_golden,ua_leaves,ua_payments,ua_regress ./scripts/test.sh
 | Контроль | `l10n_ua_changes`, `l10n_ua_explain`, перевірки `ua.checks.mixin` |
 | Бухоблік | `l10n_ua_chart`, `l10n_ua_vat`, `l10n_ua_ledger`, `l10n_ua_finrep` (mis_builder), `l10n_ua_assets` (account_asset_management), `l10n_ua_nbu` (currency_rate_update), `l10n_ua_cash`, `l10n_ua_bank`, `l10n_ua_bank_online`, `l10n_ua_docs` (+ `_sale`, `_stock`), `l10n_ua_fop`, `l10n_ua_migrate` |
 | Закупівлі | `bp_purchase_intake` |
-| Інтерфейс | `l10n_ua_screen` (API екранів), `l10n_ua_shell`, `l10n_ua_navigation`, `l10n_ua_home`, `l10n_ua_period`, `l10n_ua_papers`, `l10n_ua_people`, `l10n_ua_dashboard`, `l10n_ua_card_ui`, `l10n_ua_hire_ui`, `l10n_ua_reporting_ui`, `l10n_ua_setup_ui`, `l10n_ua_bank_ui` |
+| Інтерфейс | стандартні подання Odoo; `l10n_ua_navigation` - три розділи меню (Зарплата, Кадри, Звітність) і українські назви довідників; `l10n_ua_screen` - спільні хелпери моделей (без екранів). Власні екрани OWL відкладено: `shelved/addons-owl/`, тег `ui-owl-2026-09-22` |
 | OCA без змін | див. `docs/base/oca-vendored.md` (коміти в `addons/OCA_*.commit`) |
 | Поза Odoo | `assistant/` (вебасистент працівника, Worker), `reference/payroll_core` (незалежний перерахунок зарплати) |
 
