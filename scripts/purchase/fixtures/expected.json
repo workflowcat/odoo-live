@@ -1,0 +1,39 @@
+{
+ "buyer": {
+  "name": "ТОВ «Ясен Меблі»",
+  "code": "43715285",
+  "address": "79018, м. Львів, вул. Городоцька, 172"
+ },
+ "invoices": {
+  "01-nova-poshta": {
+   "number": "НП-2026-0917",
+   "supplier_code": "31316718",
+   "supplier_ipn": "313167116014",
+   "supplier_iban": "UA863052990000026004000123456",
+   "amount_untaxed": "16000.00",
+   "amount_tax": "3200.00",
+   "amount_total": "19200.00",
+   "lines": 3
+  },
+  "03-bad-code": {
+   "number": "ВП-118",
+   "supplier_code": "12345670",
+   "supplier_ipn": "",
+   "supplier_iban": "UA213223130000026007233566001",
+   "amount_untaxed": "10000.00",
+   "amount_tax": "2000.00",
+   "amount_total": "12600.00",
+   "lines": 2
+  },
+  "02-nova-poshta-repeat": {
+   "number": "НП-2026-0917",
+   "supplier_code": "31316718",
+   "supplier_ipn": "313167116014",
+   "supplier_iban": "UA863052990000026004000123456",
+   "amount_untaxed": "16000.00",
+   "amount_tax": "3200.00",
+   "amount_total": "19200.00",
+   "lines": 3
+  }
+ }
+}
