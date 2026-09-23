@@ -17,6 +17,14 @@
 `ua_get_or_create` - рівно той механізм, що вже стоїть на `ua.stock.inventory`.
 Мітку клієнт раніше ліпив у `origin` (`WEB/<opId>`), але `origin` це підстава
 документа, він не унікальний і в нього пишуть люди.
+
+Третє - сума документа для журналу. Нативна доставка грошей не знає: ціни живуть
+у закупівлі й продажу, а оцінку несе рух (`stock.move.value`). Журнал складу
+(«Надходження» у вигляді 1С) хоче колонку «Сума», тому `ua_amount` - сума рядків
+за собівартістю: проведений рух дає свою оцінку (`value`), непроведений -
+кількість × облікову ціну товару в компанії документа. Поле не зберігається:
+облікова ціна змінюється, і збережене число застаріло б. Відповідальний - нативне
+`user_id`, свого поля не треба.
 """
 from odoo import api, fields, models
 from odoo.exceptions import UserError
@@ -39,10 +47,33 @@ class StockPicking(models.Model):
         help="Мітка зовнішнього клієнта. Не повторюється в межах компанії: "
              "повторне створення з тією самою міткою віддає ту саму доставку.")
 
+    ua_amount = fields.Float(
+        "Сума за собівартістю", digits=(16, 2), compute="_compute_ua_amount",
+        help="Проведений рух - його оцінка, непроведений - кількість × облікова ціна "
+             "товару. Скасовані рядки не рахуються.")
+
     _ua_client_ref_unique = models.Constraint(
         "UNIQUE(company_id, ua_client_ref)",
         "Доставка з такою міткою операції в цій компанії вже є.",
     )
+
+    @api.depends("move_ids.state", "move_ids.quantity", "move_ids.product_uom_qty",
+                 "move_ids.value")
+    def _compute_ua_amount(self):
+        for picking in self:
+            total = 0.0
+            for move in picking.move_ids:
+                if move.state == "cancel":
+                    continue
+                if move.state == "done" and move.value:
+                    total += abs(move.value)
+                    continue
+                quantity = move.quantity or move.product_uom_qty
+                in_product_uom = move.product_uom._compute_quantity(
+                    quantity, move.product_id.uom_id, round=False)
+                price = move.product_id.with_company(picking.company_id).standard_price
+                total += in_product_uom * price
+            picking.ua_amount = round(total, 2)
 
     @api.model
     def ua_get_or_create(self, client_ref, vals=None):

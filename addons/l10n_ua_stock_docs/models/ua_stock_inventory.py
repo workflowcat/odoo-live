@@ -30,6 +30,10 @@
 `action_start_count`. Мітка операції клієнта лежить у `ua_client_ref` і не
 повторюється в межах компанії, тому повторний виклик після обриву звʼязку дає той
 самий документ, а не другий.
+
+Для журналу («Інвентаризація» у вигляді 1С) у документа є відповідальний
+(`user_id`, хто завів опис, його можна змінити) і сума за фактом
+(`amount_fact` = Σ фактична кількість × облікова ціна рядка).
 """
 from odoo import api, fields, models
 from odoo.exceptions import UserError
@@ -80,6 +84,9 @@ class UaStockInventory(models.Model):
         "Документ інвентаризації з такою міткою операції в цій компанії вже є.",
     )
 
+    user_id = fields.Many2one(
+        "res.users", string="Відповідальний", default=lambda self: self.env.user,
+        help="Хто веде опис. Типово - той, хто його завів.")
     line_ids = fields.One2many("ua.stock.inventory.line", "inventory_id", string="Рядки")
     move_ids = fields.Many2many("stock.move", string="Коригування", readonly=True, copy=False)
     surplus_move_id = fields.Many2one(
@@ -90,10 +97,15 @@ class UaStockInventory(models.Model):
         "Лишки", currency_field="currency_id", compute="_compute_amounts", store=True)
     amount_shortage = fields.Monetary(
         "Нестачі", currency_field="currency_id", compute="_compute_amounts", store=True)
+    amount_fact = fields.Monetary(
+        "Сума за фактом", currency_field="currency_id", compute="_compute_amounts",
+        store=True, help="Фактична кількість × облікова ціна, по всіх рядках.")
 
-    @api.depends("line_ids.amount_diff")
+    @api.depends("line_ids.amount_diff", "line_ids.qty_fact", "line_ids.cost")
     def _compute_amounts(self):
         for record in self:
+            record.amount_fact = round(
+                sum(line.qty_fact * line.cost for line in record.line_ids), 2)
             amounts = record.line_ids.mapped("amount_diff")
             record.amount_surplus = sum(value for value in amounts if value > 0)
             record.amount_shortage = -sum(value for value in amounts if value < 0)

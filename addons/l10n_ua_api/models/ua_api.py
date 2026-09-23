@@ -7,10 +7,12 @@
 мовчки. Тут та сама збірка живе один раз, у ядрі, поруч із логікою, яку вона
 читає, і описана в `docs/api/`.
 
-Читань девʼять. Чотири бек-офісні: місяць зарплати, документи місяця, картка
-працівника, стан звітності. Пʼять складських: карта складу з місткістю полиць,
+Читань одинадцять. Чотири бек-офісні: місяць зарплати, документи місяця, картка
+працівника, стан звітності. Одне спільне: перевірки будь-якого запису
+(`record_checks`). Шість складських: карта складу з місткістю полиць і зонами,
 залишки з мінімумом і потребою, нерозкладене на підлозі, складальна карта виробу,
-план інвентаризації. Останні пʼять живуть у розділі «склад» наприкінці файла.
+план інвентаризації, картка наряду для кіоску цеху. Складські живуть у розділі
+«склад» наприкінці файла.
 
 Правила цієї моделі, усі чотири однаково суворі:
 
@@ -64,7 +66,8 @@ FLOOR_NAME = "Підлога"
 CONSUMPTION_DAYS = 60
 # Скільки днів готова продукція лічиться «щойно з виробництва».
 FRESH_MO_DAYS = 3
-# Рядків залишків за один виклик. Більше - це вже вивантаження, а не екран.
+# Рядків залишків за один виклик. Більше - це вже вивантаження, а не екран;
+# далі - сторінками через offset.
 GLANCE_LIMIT = 500
 
 # Картка працівника: поля вкладок стандартної форми hr.employee. Перелік навмисно
@@ -176,6 +179,36 @@ class UaApi(models.AbstractModel):
             "warns": summary["warns"],
             "checks": [self._plain(row) for row in summary["checks"]],
         }
+
+    # ------------------------------------------------------------------ перевірки запису
+    @api.model
+    def record_checks(self, model, res_id):
+        """Перевірки одного запису: публічний вхід до `_checks()` будь-якої моделі.
+
+        Вхід: model - назва моделі (`hr.payslip`, `ua.timesheet.sheet`...), res_id -
+        id запису.
+
+        Вихід:
+          model, res_id, name   що саме перевірили
+          has_checks            True, якщо модель уміє себе перевіряти
+                                (домішка `ua.checks.mixin`); False - `checks` порожні
+          level                 найгірший рівень: ok | warn | error
+          errors, warns         лічильники
+          checks                [{level, text, fact, target}] - рядки `_checks()` як є
+
+        Права - права самого запису: `check_access("read")` на ньому, без sudo().
+        Неіснуючий запис або модель - UserError з людським текстом.
+        """
+        if not model or model not in self.env:
+            raise UserError("Моделі «%s» немає." % model)
+        record = self.env[model].browse(int(res_id or 0))
+        if not record.exists():
+            raise UserError("Запису %s з id %s немає." % (model, res_id))
+        record.check_access("read")
+        rows = self._check_rows(record)
+        return self._plain(dict(
+            rows, model=model, res_id=record.id, name=record.display_name or "",
+            has_checks=hasattr(record, "_checks_summary")))
 
     @api.model
     def _document_domain(self, company, year, month, binding):
@@ -469,7 +502,7 @@ class UaApi(models.AbstractModel):
 
     # ================================================================== склад
     #
-    # Пʼять читань складу і виробництва. Ті самі правила, що й вище: жодного
+    # Шість читань складу і виробництва. Ті самі правила, що й вище: жодного
     # запису, жодного другого розрахунку, жодного sudo(). Числа беруться з полів
     # ядра - `stock.location.ua_capacity_used`, `product.template._ua_slots()`,
     # `ua.stock.inventory.plan()`, `product.template.ua_assembly()` - а не
@@ -540,6 +573,11 @@ class UaApi(models.AbstractModel):
             overflow          True, якщо місткість задано і used > capacity
             fill              заповнення у відсотках (0-999) або False без місткості
             floor             True для локації «Підлога» - підлоги полиці
+            purpose           призначення зони (`ua_purpose`): receiving | storage |
+                              hazard | quality | production | finished | shipping |
+                              reject, або False; purpose_label - підпис
+            plan              {x, y, w, h} - прямокутник зони на плані в клітинках
+                              (`ua_plan_*`), або False, коли ширина чи висота нуль
             items             [{product, code, category, quantity, reserved, uom, size,
                                size_label, slots}] - ВЛАСНИЙ вміст локації, без дочірніх
             target            {model: stock.quant, domain: [...]} - показати ці залишки
@@ -557,6 +595,7 @@ class UaApi(models.AbstractModel):
         ], order="product_id, id")
 
         labels = self._labels("product.template", "ua_size")
+        purposes = self._labels("stock.location", "ua_purpose")
         own_items, own_slots = {}, {}
         for quant in quants:
             size, slots = self._size_of(quant.product_id)
@@ -597,6 +636,11 @@ class UaApi(models.AbstractModel):
                 "overflow": bool(capacity and used > capacity),
                 "fill": min(round(used * 100.0 / capacity, 1), 999.0) if capacity else False,
                 "floor": (location.name or "") == FLOOR_NAME,
+                "purpose": location.ua_purpose or False,
+                "purpose_label": purposes.get(location.ua_purpose, ""),
+                "plan": {"x": location.ua_plan_x, "y": location.ua_plan_y,
+                         "w": location.ua_plan_w, "h": location.ua_plan_h}
+                        if location.ua_plan_w and location.ua_plan_h else False,
                 "items": own_items.get(location.id, []),
                 "target": {"model": "stock.quant",
                            "domain": [("location_id", "=", location.id),
@@ -614,18 +658,23 @@ class UaApi(models.AbstractModel):
 
     # ------------------------------------------------------------------ залишки
     @api.model
-    def stock_glance(self, company_id, location_ids=None, category_ids=None):
+    def stock_glance(self, company_id, location_ids=None, category_ids=None, query=None,
+                     offset=0, limit=500):
         """Залишки з першого погляду: скільки лежить, скільки треба, на скільки вистачить.
 
         Вхід: company_id; location_ids (список id локацій разом із дочірніми, або
         False - усі внутрішні); category_ids (список id категорій разом із дочірніми,
-        або False - усі).
+        або False - усі); query (рядок: частина назви або внутрішнього коду товару,
+        без регістру; порожнє - без пошуку); offset (скільки рядків пропустити, з
+        нуля); limit (рядків на сторінку, 1..500, типово 500).
 
         Вихід:
           company    {id, name}
-          count      скільки рядків віддано
-          truncated  True, якщо рядків більше за 500 і перелік обрізано;
-                     звузьте локацією або категорією - це екран, а не вивантаження
+          total      скільки рядків усього під цими звуженнями й пошуком
+          offset     з якого рядка віддано, limit - розмір сторінки
+          count      скільки рядків віддано в цій сторінці
+          truncated  True, якщо після цієї сторінки є ще рядки
+                     (offset + count < total): наступна - offset + count
           rows       по рядку на залишок (товар × локація), у порядку товар, локація:
             product     [id, назва], code - внутрішній код
             category    [id, назва]
@@ -659,10 +708,16 @@ class UaApi(models.AbstractModel):
         if chosen:
             categories = self.env["product.category"].search([("id", "child_of", chosen)])
             domain.append(("product_id.categ_id", "in", categories.ids))
+        text = (query or "").strip()
+        if text:
+            domain += ["|", ("product_id.name", "ilike", text),
+                       ("product_id.default_code", "ilike", text)]
+        offset = max(int(offset or 0), 0)
+        limit = min(max(int(limit or GLANCE_LIMIT), 1), GLANCE_LIMIT)
 
         total = self.env["stock.quant"].search_count(domain)
         quants = self.env["stock.quant"].search(
-            domain, order="product_id, location_id, id", limit=GLANCE_LIMIT)
+            domain, order="product_id, location_id, id", offset=offset, limit=limit)
         products = quants.mapped("product_id")
 
         # вільне по всій вибірці, мінімум, витрата, останній рух, специфікації
@@ -748,8 +803,11 @@ class UaApi(models.AbstractModel):
 
         return self._plain({
             "company": {"id": company.id, "name": company.name},
+            "total": total,
+            "offset": offset,
+            "limit": limit,
             "count": len(rows),
-            "truncated": total > len(rows),
+            "truncated": offset + len(rows) < total,
             "rows": rows,
         })
 
@@ -768,8 +826,13 @@ class UaApi(models.AbstractModel):
                         замовлень, закритих за останні 3 дні і досі у виробничій
                         локації)
             product     [id, назва], code, uom
+            category    [id, назва] категорії товару або False
+            lot         [id, назва] партії / серійного номера залишку або False
             location    [id, назва], quantity, reserved, free
-            size, size_label, slots   габарит і скільки місць займе цей залишок
+            size, size_label   габарит товару - `product.template.ua_size`, те саме
+                        поле, яке читають карта і `stock.location.ua_capacity_used`
+            per_unit    місць на ОДНУ одиницю (S/M/L = 1/4/16)
+            slots       quantity × per_unit - скільки місць займе цей залишок
             order       [id, назва] замовлення на виробництво для source=production,
                         інакше False
             done_date   коли замовлення закрито (лише для source=production)
@@ -836,6 +899,8 @@ class UaApi(models.AbstractModel):
             "source": source,
             "product": [quant.product_id.id, quant.product_id.display_name],
             "code": quant.product_id.default_code or "",
+            "category": self._category_pair(quant.product_id),
+            "lot": [quant.lot_id.id, quant.lot_id.display_name] if quant.lot_id else False,
             "uom": quant.product_uom_id.display_name or "",
             "location": [quant.location_id.id, quant.location_id.display_name],
             "quantity": self._r2(quant.quantity),
@@ -843,6 +908,7 @@ class UaApi(models.AbstractModel):
             "free": self._r2(quant.available_quantity),
             "size": size,
             "size_label": self._labels("product.template", "ua_size").get(size, ""),
+            "per_unit": slots,
             "slots": self._r2(quant.quantity * slots),
             "order": False,
             "done_date": False,
@@ -868,7 +934,9 @@ class UaApi(models.AbstractModel):
                        порядку маршруту; рядки специфікації без операції - остання
                        група «Без операції»
             parts      [{pos, product, product_id, qty, bin_location, bin_source}]
-              pos          номер позиції на кресленні (елемент `bom-N` у SVG)
+              pos          номер позиції на кресленні: елемент з id `bom-N` у SVG,
+                           де N = pos. Це єдиний обовʼязковий id; інших схем
+                           (pos-N тощо) договір не знає
               qty          потреба на ОДНУ одиницю виробу, в одиниці самого компонента
               bin_location полиця рядком; спершу та, де комплектуюча ЛЕЖИТЬ зараз
                            (найбільший залишок), і лише якщо її ніде немає - та, куди
@@ -973,4 +1041,70 @@ class UaApi(models.AbstractModel):
             "plan": rows,
             "crit": crit,
             "can_apply": not crit,
+        })
+
+    # ------------------------------------------------------------------ картка наряду
+    @api.model
+    def workorder_card(self, workorder_id):
+        """Картка наряду для кіоску цеху: що робити, чим, і що вже перевірено.
+
+        Вхід: workorder_id - id `mrp.workorder`.
+
+        Вихід:
+          workorder  {id, name, production: [id, назва], product: [id, назва],
+                      workcenter: [id, назва], state, state_label, qty_production,
+                      qty_producing, duration_expected, duration (хвилини),
+                      date_start, date_finished, target}
+          steps      кроки операції (`mrp.routing.workcenter.ua_steps`), по пункту
+          checks     `mrp.workorder.ua_check_rows()` - [{index, text, result, note,
+                      user, date}], result: ok | fail | False
+          open       скільки пунктів ще без відповіді
+          failed     скільки пунктів із відповіддю «ні»
+          parts      [{product: [id, назва], code, qty, uom, picked}] - рядки
+                      списання замовлення, що споживаються в ЦІЙ операції
+
+        Писати - нативно: `mrp.workorder.button_start()`, `button_pending()`,
+        `button_finish()`; відповідь на пункт - `mrp.workorder.ua_answer_check(index,
+        result, note)`. Цей виклик лише читає.
+        """
+        workorder = self.env["mrp.workorder"].browse(int(workorder_id or 0))
+        if not workorder.exists():
+            raise UserError("Наряду з id %s немає." % workorder_id)
+        states = self._labels("mrp.workorder", "state")
+        checks = workorder.ua_check_rows()
+        moves = workorder.production_id.move_raw_ids.filtered(
+            lambda move: move.operation_id == workorder.operation_id
+            and move.state != "cancel")
+        return self._plain({
+            "workorder": {
+                "id": workorder.id,
+                "name": workorder.name or "",
+                "production": [workorder.production_id.id,
+                               workorder.production_id.display_name],
+                "product": [workorder.product_id.id, workorder.product_id.display_name]
+                           if workorder.product_id else False,
+                "workcenter": [workorder.workcenter_id.id,
+                               workorder.workcenter_id.display_name],
+                "state": workorder.state or "",
+                "state_label": states.get(workorder.state, ""),
+                "qty_production": workorder.qty_production,
+                "qty_producing": workorder.qty_producing,
+                "duration_expected": self._r2(workorder.duration_expected),
+                "duration": self._r2(workorder.duration),
+                "date_start": workorder.date_start or False,
+                "date_finished": workorder.date_finished or False,
+                "target": {"model": "mrp.workorder", "res_id": workorder.id},
+            },
+            "steps": self.env["product.template"]._ua_text_items(
+                workorder.operation_id.ua_steps),
+            "checks": checks,
+            "open": sum(1 for row in checks if not row["result"]),
+            "failed": sum(1 for row in checks if row["result"] == "fail"),
+            "parts": [{
+                "product": [move.product_id.id, move.product_id.display_name],
+                "code": move.product_id.default_code or "",
+                "qty": self._r2(move.product_uom_qty),
+                "uom": move.product_uom.display_name or "",
+                "picked": bool(move.picked),
+            } for move in moves.sorted(lambda move: (move.sequence, move.id))],
         })

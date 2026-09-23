@@ -14,6 +14,7 @@ import base64
 from dateutil.relativedelta import relativedelta
 
 from odoo import fields
+from odoo.exceptions import UserError
 from odoo.tests import tagged
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
@@ -639,3 +640,46 @@ class TestUaMrp(AccountTestInvoicingCommon):
         })
         allocation.action_compute()
         self.assertAlmostEqual(allocation.amount_base, 1500.0, delta=CENT)
+
+    # --- 21. Замовлення за міткою клієнта: повтор віддає те саме ------------
+    def test_21_production_get_or_create_is_idempotent(self):
+        Production = self.env["mrp.production"]
+        values = {"product_id": self.table.id, "product_qty": 1.0, "bom_id": self.bom.id}
+        first = Production.ua_get_or_create("lab-S5", values)
+        second = Production.ua_get_or_create("lab-S5", dict(values, product_qty=7.0))
+        self.assertEqual(first, second)
+        self.assertEqual(second.product_qty, 1.0, "повтор не переписує замовлення")
+        self.assertEqual(first.company_id, self.company)
+        self.assertEqual(Production.search_count([("ua_client_ref", "=", "lab-S5")]), 1)
+        with self.assertRaises(UserError):
+            Production.ua_get_or_create(False, values)
+
+    # --- 22. Відповіді на перевірку наряду: одна на пункт, знімок тексту ----
+    def test_22_workorder_check_answers(self):
+        workcenter = self.env["mrp.workcenter"].create({
+            "name": "ВТК", "company_id": self.company.id})
+        operation = self.env["mrp.routing.workcenter"].create({
+            "name": "Контроль", "workcenter_id": workcenter.id, "bom_id": self.bom.id,
+            "time_cycle_manual": 10.0, "ua_checks": "Стільниця рівна\n\nНіжки однакові"})
+        order = self.env["mrp.production"].create({
+            "product_id": self.table.id, "product_qty": 1.0, "bom_id": self.bom.id})
+        order.action_confirm()
+        workorder = order.workorder_ids.filtered(lambda wo: wo.operation_id == operation)
+        self.assertEqual(len(workorder), 1)
+
+        rows = workorder.ua_check_rows()
+        self.assertEqual([(row["index"], row["text"], row["result"]) for row in rows],
+                         [(1, "Стільниця рівна", False), (2, "Ніжки однакові", False)],
+                         "порожній рядок пунктом не рахується")
+        workorder.ua_answer_check(2, "fail", "ніжка коротша на 2 мм")
+        # технолог переписав пункт - відповідь лишається з тим текстом, на який відповідали
+        operation.ua_checks = "Стільниця рівна\nНіжки однакові за довжиною"
+        rows = workorder.ua_check_rows()
+        self.assertEqual(rows[1]["text"], "Ніжки однакові")
+        self.assertEqual((rows[1]["result"], rows[1]["note"]), ("fail", "ніжка коротша на 2 мм"))
+        self.assertEqual(workorder.ua_check_ids.company_id, self.company)
+        with self.assertRaises(Exception), self.cr.savepoint():
+            self.env["ua.workorder.check"].create({
+                "workorder_id": workorder.id, "sequence": 2, "name": "дубль",
+                "result": "ok"})
+            self.env.flush_all()

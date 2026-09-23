@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Правила компанії: опис інвентаризації і протокол ВТК однієї компанії не видно
+       з іншої. Той самий домен, що в нативних документах складу. -->
+  <record id="rule_ua_stock_inventory_company" model="ir.rule">
+    <field name="name">Інвентаризація: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_stock_inventory"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_stock_inventory_line_company" model="ir.rule">
+    <field name="name">Рядок інвентаризації: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_stock_inventory_line"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_quality_protocol_company" model="ir.rule">
+    <field name="name">Протокол ВТК: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_quality_protocol"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_quality_protocol_line_company" model="ir.rule">
+    <field name="name">Рядок протоколу ВТК: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_quality_protocol_line"/>
+    <field name="domain_force">[('protocol_id.company_id', 'in', company_ids)]</field>
+  </record>
+</odoo>

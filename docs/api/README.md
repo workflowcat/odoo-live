@@ -113,11 +113,13 @@ Odoo; зовнішньому клієнтові він незручний чер
 | `ua.api.documents_for_month(company_id, year, month)` | вісім видів документів місяця з перевірками, у сталому порядку |
 | `ua.api.employee_card(employee_id)` | картка працівника: вкладки, документи, накази, відпустки, військовий облік |
 | `ua.api.reporting_status(company_id, year, month)` | стан кожного звіту робочого місця за період |
-| `ua.api.warehouse_map(company_id)` | карта складу: дерево локацій, місткість, зайняті місця, переповнення, вміст полиці |
-| `ua.api.stock_glance(company_id, location_ids, category_ids)` | залишки з мінімумом, потребою на місяць, «на скільки виробів вистачить» і габаритом |
-| `ua.api.floor_packages(company_id)` | нерозкладене: приймання, підлоги полиць, свіжий випуск із виробництва |
+| `ua.api.record_checks(model, res_id)` | перевірки одного запису будь-якої моделі з `ua.checks.mixin` |
+| `ua.api.warehouse_map(company_id)` | карта складу: дерево локацій, місткість, зайняті місця, переповнення, вміст полиці, призначення і місце зони на плані |
+| `ua.api.stock_glance(company_id, location_ids, category_ids, query, offset, limit)` | залишки з мінімумом, потребою на місяць, «на скільки виробів вистачить» і габаритом; пошук і сторінки |
+| `ua.api.floor_packages(company_id)` | нерозкладене: приймання, підлоги полиць, свіжий випуск із виробництва; з партією і категорією |
 | `ua.api.product_assembly(product_id)` | складальна карта виробу: креслення, операції, позиції, полиці |
 | `ua.api.inventory_plan(inventory_id)` | план проведення інвентаризації і чи пройде воно взагалі |
+| `ua.api.workorder_card(workorder_id)` | картка наряду для кіоску цеху: кроки, пункти перевірки з відповідями, комплектуючі операції |
 
 Решта читань - звичайні `get_*` моделей із `inventory.md`
 (`ua.payroll.param.get_all`, `ua.cpi.index.get_map`, `ua.kp.code.suggest`...).
@@ -163,6 +165,23 @@ Odoo; зовнішньому клієнтові він незручний чер
 
 Підсумок документа - найгірший рівень плюс лічильники: `{"level", "errors", "warns"}`.
 `ua.api.documents_for_month()` віддає і рядки, і підсумок.
+
+`_checks()` приватний, і ззовні його не покличеш. Публічний вхід - одне читання для
+будь-якого запису:
+
+```
+call("ua.api", "record_checks", ["ua.timesheet.sheet", 12])
+```
+
+```json
+{"model": "ua.timesheet.sheet", "res_id": 12, "name": "Табель 03/2026", "has_checks": true,
+ "level": "error", "errors": 1, "warns": 0,
+ "checks": [{"level": "error", "text": "…", "fact": "1", "target": {"model": "hr.employee", "domain": [["id", "in", [23]]]}}]}
+```
+
+Модель без домішки віддає `has_checks: false`, `level: "ok"` і порожні `checks`.
+Права - права самого запису (`check_access("read")`, з правилами компанії); чужий
+запис - `AccessError`, неіснуючий запис або модель - `UserError`.
 
 ### Ціль (`target`)
 
@@ -273,6 +292,10 @@ ua.explain.explain(model, res_id, field=None, when="auto")
   `search_read`. Заповнення рахується по локації разом із дочірніми. Переповнення
   нічого не блокує: обмеження розкладання вміє нативна `stock.storage.category`, і
   вона лишається на місці.
+- **Коди габариту - малими літерами**: `s`, `m`, `l`. Таблиця з ключами `S`/`M`/`L`
+  не знайде жодного і мовчки впаде на замовчування - саме так «вільно 22» на картці
+  полиці розійшлося з «влізе 5 з 8» у плані. Місць на штуку ядро віддає готовими:
+  `sizes` у `warehouse_map`, `per_unit` у `floor_packages`.
 
 ### Компанії
 

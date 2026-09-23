@@ -18,7 +18,7 @@
                    "перевірки на операції маршруту, і складальна карта ua_assembly() - "
                    "операції з позиціями специфікації, кількостями на виріб і полицями.\n\n"
                    "Опис у docs/base/spec-mrp-stock.md.",
-    "version": "19.0.1.0.1",
+    "version": "19.0.1.0.2",
     "category": "Manufacturing/Localizations",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -26,6 +26,7 @@
     "post_init_hook": "post_init_hook",
     "data": [
         "security/ir.model.access.csv",
+        "security/ua_mrp_security.xml",
         "data/ir_sequence_data.xml",
         "report/ua_mrp_reports.xml",
         "views/ua_zvv_allocation_views.xml",

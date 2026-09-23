@@ -10,6 +10,8 @@
         <field name="date"/>
         <field name="location_id"/>
         <field name="basis"/>
+        <field name="user_id" optional="show"/>
+        <field name="amount_fact" sum="За фактом" optional="show"/>
         <field name="amount_surplus" sum="Лишки"/>
         <field name="amount_shortage" sum="Нестачі"/>
         <field name="state" widget="badge"/>
@@ -43,6 +45,7 @@
               <field name="date" readonly="state == 'done'"/>
               <field name="location_id" readonly="state == 'done'"/>
               <field name="basis" readonly="state == 'done'"/>
+              <field name="user_id" readonly="state == 'done'"/>
               <field name="ua_client_ref" readonly="1"/>
               <field name="company_id" groups="base.group_multi_company"/>
             </group>
@@ -54,6 +57,7 @@
           </group>
           <group>
             <group string="Результат">
+              <field name="amount_fact"/>
               <field name="amount_surplus"/>
               <field name="amount_shortage"/>
               <field name="surplus_move_id"/>

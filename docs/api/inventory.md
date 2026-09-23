@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 42. Моделей: 96. Методів: 311. Збережених полів на чужих моделях: 264.
+Модулів: 42. Моделей: 98. Методів: 316. Збережених полів на чужих моделях: 271.
 
 ## Зарплата
 
@@ -1040,6 +1040,18 @@
 | `ua_finrep_form` | Selection | Українська форма | `l10n_ua_finrep` |
 | `ua_group_consolidation` | Boolean | Консолідація групи | `l10n_ua_group` |
 
+### `mrp.production`
+
+доповнена модель · `l10n_ua_mrp`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `ua_get_or_create(client_ref, vals=None)` | Замовлення за міткою клієнта: є - віддаємо, немає - створюємо. | `l10n_ua_mrp` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_client_ref` | Char | Мітка операції | `l10n_ua_mrp` |
+
 ### `mrp.routing.workcenter`
 
 доповнена модель · `l10n_ua_mrp`
@@ -1048,6 +1060,19 @@
 | --- | --- | --- | --- |
 | `ua_checks` | Text | Перевірка | `l10n_ua_mrp` |
 | `ua_steps` | Text | Кроки | `l10n_ua_mrp` |
+
+### `mrp.workorder`
+
+доповнена модель · `l10n_ua_mrp`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `ua_answer_check(index, result, note=None)` | Записати відповідь на пункт перевірки. Повторна відповідь оновлює першу. | `l10n_ua_mrp` |
+| `ua_check_rows()` | Пункти перевірки наряду з відповідями. | `l10n_ua_mrp` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_check_ids` | One2many | ua.workorder.check | `l10n_ua_mrp` |
 
 ### `online.bank.statement.provider`
 
@@ -1111,6 +1136,11 @@
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `ua_capacity` | Integer | Місць | `l10n_ua_stock_docs` |
+| `ua_plan_h` | Integer | План: висота | `l10n_ua_stock_docs` |
+| `ua_plan_w` | Integer | План: ширина | `l10n_ua_stock_docs` |
+| `ua_plan_x` | Integer | План: X | `l10n_ua_stock_docs` |
+| `ua_plan_y` | Integer | План: Y | `l10n_ua_stock_docs` |
+| `ua_purpose` | Selection | Призначення зони | `l10n_ua_stock_docs` |
 
 ### `stock.picking`
 
@@ -1296,9 +1326,11 @@
 | `inventory_plan(inventory_id)` | Що зробить проведення інвентаризації - третє дієслово екрана складу. | `l10n_ua_api` |
 | `month_summary(company_id, year, month)` | Усе, що показує екран місяця зарплати, одним читанням. | `l10n_ua_api` |
 | `product_assembly(product_id)` | Складальна карта виробу з полицями, де комплектуючі лежать ЗАРАЗ. | `l10n_ua_api` |
+| `record_checks(model, res_id)` | Перевірки одного запису: публічний вхід до `_checks()` будь-якої моделі. | `l10n_ua_api` |
 | `reporting_status(company_id, year, month=None)` | Стан звітності за період: по рядку на кожен звіт робочого місця. | `l10n_ua_api` |
-| `stock_glance(company_id, location_ids=None, category_ids=None)` | Залишки з першого погляду: скільки лежить, скільки треба, на скільки вистачить. | `l10n_ua_api` |
+| `stock_glance(company_id, location_ids=None, category_ids=None, query=None, offset=0, limit=500)` | Залишки з першого погляду: скільки лежить, скільки треба, на скільки вистачить. | `l10n_ua_api` |
 | `warehouse_map(company_id)` | Карта складу: дерево локацій із місткістю, заповненням і вмістом. | `l10n_ua_api` |
+| `workorder_card(workorder_id)` | Картка наряду для кіоску цеху: що робити, чим, і що вже перевірено. | `l10n_ua_api` |
 
 ### `ua.screen`
 

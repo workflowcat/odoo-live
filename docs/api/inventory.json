@@ -1,9 +1,9 @@
 {
   "totals": {
     "modules": 42,
-    "models": 96,
-    "methods": 311,
-    "fields": 264
+    "models": 98,
+    "methods": 316,
+    "fields": 271
   },
   "areas": [
     {
@@ -4631,6 +4631,35 @@
           ]
         },
         {
+          "model": "mrp.production",
+          "ours": false,
+          "modules": [
+            "l10n_ua_mrp"
+          ],
+          "methods": [
+            {
+              "name": "ua_get_or_create",
+              "signature": "ua_get_or_create(client_ref, vals=None)",
+              "doc": "Замовлення за міткою клієнта: є - віддаємо, немає - створюємо.",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/mrp_workorder.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": [
+            {
+              "name": "ua_client_ref",
+              "type": "Char",
+              "label": "Мітка операції",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/mrp_workorder.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
           "model": "mrp.routing.workcenter",
           "ours": false,
           "modules": [
@@ -4652,6 +4681,41 @@
               "label": "Кроки",
               "module": "l10n_ua_mrp",
               "file": "addons/l10n_ua_mrp/models/mrp_routing_workcenter.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "mrp.workorder",
+          "ours": false,
+          "modules": [
+            "l10n_ua_mrp"
+          ],
+          "methods": [
+            {
+              "name": "ua_answer_check",
+              "signature": "ua_answer_check(index, result, note=None)",
+              "doc": "Записати відповідь на пункт перевірки. Повторна відповідь оновлює першу.",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/mrp_workorder.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_check_rows",
+              "signature": "ua_check_rows()",
+              "doc": "Пункти перевірки наряду з відповідями.",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/mrp_workorder.py",
+              "decorators": []
+            }
+          ],
+          "fields": [
+            {
+              "name": "ua_check_ids",
+              "type": "One2many",
+              "label": "ua.workorder.check",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/mrp_workorder.py",
               "groups": ""
             }
           ]
@@ -4834,6 +4898,46 @@
               "name": "ua_capacity",
               "type": "Integer",
               "label": "Місць",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_location.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_plan_h",
+              "type": "Integer",
+              "label": "План: висота",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_location.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_plan_w",
+              "type": "Integer",
+              "label": "План: ширина",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_location.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_plan_x",
+              "type": "Integer",
+              "label": "План: X",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_location.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_plan_y",
+              "type": "Integer",
+              "label": "План: Y",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_location.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_purpose",
+              "type": "Selection",
+              "label": "Призначення зони",
               "module": "l10n_ua_stock_docs",
               "file": "addons/l10n_ua_stock_docs/models/stock_location.py",
               "groups": ""
@@ -5745,6 +5849,16 @@
               ]
             },
             {
+              "name": "record_checks",
+              "signature": "record_checks(model, res_id)",
+              "doc": "Перевірки одного запису: публічний вхід до `_checks()` будь-якої моделі.",
+              "module": "l10n_ua_api",
+              "file": "addons/l10n_ua_api/models/ua_api.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
               "name": "reporting_status",
               "signature": "reporting_status(company_id, year, month=None)",
               "doc": "Стан звітності за період: по рядку на кожен звіт робочого місця.",
@@ -5756,7 +5870,7 @@
             },
             {
               "name": "stock_glance",
-              "signature": "stock_glance(company_id, location_ids=None, category_ids=None)",
+              "signature": "stock_glance(company_id, location_ids=None, category_ids=None, query=None, offset=0, limit=500)",
               "doc": "Залишки з першого погляду: скільки лежить, скільки треба, на скільки вистачить.",
               "module": "l10n_ua_api",
               "file": "addons/l10n_ua_api/models/ua_api.py",
@@ -5768,6 +5882,16 @@
               "name": "warehouse_map",
               "signature": "warehouse_map(company_id)",
               "doc": "Карта складу: дерево локацій із місткістю, заповненням і вмістом.",
+              "module": "l10n_ua_api",
+              "file": "addons/l10n_ua_api/models/ua_api.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "workorder_card",
+              "signature": "workorder_card(workorder_id)",
+              "doc": "Картка наряду для кіоску цеху: що робити, чим, і що вже перевірено.",
               "module": "l10n_ua_api",
               "file": "addons/l10n_ua_api/models/ua_api.py",
               "decorators": [

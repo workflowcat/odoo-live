@@ -37,14 +37,15 @@ DOCUMENT_KINDS = ["timesheet", "staff_list", "advance_sheet", "pfu_claim", "paym
 # Ключі верхнього рівня складських відповідей.
 MAP_KEYS = {"company", "sizes", "roots", "locations"}
 MAP_LOCATION_KEYS = {"id", "name", "path", "parent_id", "level", "capacity", "used",
-                     "own", "free", "overflow", "fill", "floor", "items", "target"}
-GLANCE_KEYS = {"company", "count", "truncated", "rows"}
+                     "own", "free", "overflow", "fill", "floor", "purpose",
+                     "purpose_label", "plan", "items", "target"}
+GLANCE_KEYS = {"company", "total", "offset", "limit", "count", "truncated", "rows"}
 GLANCE_ROW_KEYS = {"product", "code", "category", "location", "uom", "qty", "reserved",
                    "free", "free_total", "value", "min", "month", "need", "level",
                    "enough_for", "size", "size_label", "slots", "last_move", "target"}
-FLOOR_ROW_KEYS = {"source", "product", "code", "uom", "location", "quantity", "reserved",
-                  "free", "size", "size_label", "slots", "order", "done_date", "suggest",
-                  "target"}
+FLOOR_ROW_KEYS = {"source", "product", "code", "category", "lot", "uom", "location",
+                  "quantity", "reserved", "free", "size", "size_label", "per_unit", "slots",
+                  "order", "done_date", "suggest", "target"}
 ASSEMBLY_KEYS = {"product", "code", "drawing_svg", "drawing_name", "operations",
                  "total_minutes"}
 PART_KEYS = {"pos", "product", "product_id", "qty", "bin_location", "bin_source"}

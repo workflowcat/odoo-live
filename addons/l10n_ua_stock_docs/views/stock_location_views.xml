@@ -9,6 +9,12 @@
       <xpath expr="//group[@name='additional_info']" position="inside">
         <field name="ua_capacity" invisible="usage != 'internal'"/>
         <field name="ua_capacity_used" invisible="usage != 'internal'"/>
+        <field name="ua_purpose" invisible="usage != 'internal'"/>
+        <label for="ua_plan_x" string="На плані (X, Y, ш × в)" invisible="usage != 'internal'"/>
+        <div class="o_row" invisible="usage != 'internal'">
+          <field name="ua_plan_x"/> <field name="ua_plan_y"/>
+          <field name="ua_plan_w"/> <field name="ua_plan_h"/>
+        </div>
       </xpath>
     </field>
   </record>
@@ -21,6 +27,7 @@
       <xpath expr="//field[@name='usage']" position="after">
         <field name="ua_capacity" optional="show"/>
         <field name="ua_capacity_used" optional="show"/>
+        <field name="ua_purpose" optional="show"/>
       </xpath>
     </field>
   </record>

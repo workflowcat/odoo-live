@@ -9,3 +9,6 @@ access_ua_cost_calculation_accountant,ua.cost.calculation accountant,model_ua_co
 access_ua_cost_calculation_line_accountant,ua.cost.calculation.line accountant,model_ua_cost_calculation_line,account.group_account_user,1,1,1,1
 access_ua_cost_calculation_planner,ua.cost.calculation planner,model_ua_cost_calculation,mrp.group_mrp_manager,1,1,1,1
 access_ua_cost_calculation_line_planner,ua.cost.calculation.line planner,model_ua_cost_calculation_line,mrp.group_mrp_manager,1,1,1,1
+access_ua_workorder_check_user,ua.workorder.check user,model_ua_workorder_check,base.group_user,1,0,0,0
+access_ua_workorder_check_worker,ua.workorder.check worker,model_ua_workorder_check,mrp.group_mrp_user,1,1,1,0
+access_ua_workorder_check_manager,ua.workorder.check manager,model_ua_workorder_check,mrp.group_mrp_manager,1,1,1,1

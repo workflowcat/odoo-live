@@ -561,3 +561,77 @@ class TestUaStockDocs(AccountTestInvoicingCommon):
             "location_dest_id": warehouse.lot_stock_id.id,
         })
         self.assertEqual(theirs, again)
+
+    # --- 21. Сума документа для журналу: собівартість рядків ------------------
+    def test_21_picking_amount_at_cost(self):
+        """Надходження: 3 × 150 + 2 × 80 = 610.00 і до, і після проведення."""
+        picking = self.env["stock.picking"].create(self._picking_values(move_ids=[
+            (0, 0, {"product_id": self.board.id, "product_uom_qty": 3.0,
+                    "location_id": self.env.ref("stock.stock_location_suppliers").id,
+                    "location_dest_id": self.stock_location.id}),
+            (0, 0, {"product_id": self.varnish.id, "product_uom_qty": 2.0,
+                    "location_id": self.env.ref("stock.stock_location_suppliers").id,
+                    "location_dest_id": self.stock_location.id}),
+        ]))
+        self.assertAlmostEqual(picking.ua_amount, 610.0, delta=CENT)
+        # відповідальний - нативне поле, свого немає
+        self.assertIn("user_id", picking._fields)
+
+        picking.action_confirm()
+        for move in picking.move_ids:
+            move.quantity = move.product_uom_qty
+            move.picked = True
+        picking.button_validate()
+        self.assertEqual(picking.state, "done")
+        picking.invalidate_recordset(["ua_amount"])
+        # проведений рух несе свою оцінку; без закупівлі це та сама облікова ціна
+        self.assertAlmostEqual(picking.ua_amount, 610.0, delta=CENT)
+        self.assertAlmostEqual(sum(abs(value) for value in picking.move_ids.mapped("value")),
+                               610.0, delta=CENT)
+
+        cancelled = self.env["stock.picking"].create(self._picking_values(move_ids=[
+            (0, 0, {"product_id": self.board.id, "product_uom_qty": 1.0,
+                    "location_id": self.env.ref("stock.stock_location_suppliers").id,
+                    "location_dest_id": self.stock_location.id})]))
+        cancelled.action_cancel()
+        self.assertEqual(cancelled.ua_amount, 0.0, "скасовані рядки не рахуються")
+
+    # --- 22. Інвентаризація: відповідальний і сума за фактом ------------------
+    def test_22_inventory_responsible_and_fact_amount(self):
+        """Фактично 4 плити по 150 і 1 лак по 80: 600 + 80 = 680.00."""
+        self._seed(self.board, 5)
+        self._seed(self.varnish, 1)
+        inventory = self._inventory()
+        self.assertEqual(inventory.user_id, self.env.user, "типово - хто завів")
+        inventory.action_fill()
+        self._line(inventory, self.board).qty_fact = 4
+        self.assertAlmostEqual(inventory.amount_fact, 680.0, delta=CENT)
+        self.assertAlmostEqual(inventory.amount_shortage, 150.0, delta=CENT)
+
+    # --- 23. Правила компанії: чужого опису і протоколу не видно --------------
+    def test_23_company_rules(self):
+        """Користувач першої компанії не бачить опис і протокол ВТК другої."""
+        other = self.env["res.company"].create({"name": "Третя компанія"})
+        other_stock = self.env["stock.warehouse"].search(
+            [("company_id", "=", other.id)], limit=1).lot_stock_id
+        foreign = self.env["ua.stock.inventory"].create({
+            "company_id": other.id, "location_id": other_stock.id})
+        foreign.line_ids = [(0, 0, {"product_id": self.board.id, "qty_book": 1.0,
+                                    "qty_fact": 1.0, "cost": 150.0})]
+        protocol = self.env["ua.quality.protocol"].create({
+            "company_id": other.id, "product_id": self.board.id,
+            "line_ids": [(0, 0, {"name": "Вологість", "norm": "8%", "value": "7%"})]})
+        own = self._inventory()
+
+        user = self.env["res.users"].create({
+            "name": "Комірник першої", "login": "ua_stock_docs_one_company",
+            "company_id": self.company.id, "company_ids": [(6, 0, [self.company.id])],
+            "group_ids": [(6, 0, [self.env.ref("stock.group_stock_user").id])]})
+        Inventory = self.env["ua.stock.inventory"].with_user(user)
+        self.assertEqual(Inventory.search([("id", "in", (own | foreign).ids)]), own)
+        self.assertFalse(self.env["ua.stock.inventory.line"].with_user(user).search(
+            [("inventory_id", "=", foreign.id)]))
+        self.assertFalse(self.env["ua.quality.protocol"].with_user(user).search(
+            [("id", "=", protocol.id)]))
+        self.assertFalse(self.env["ua.quality.protocol.line"].with_user(user).search(
+            [("protocol_id", "=", protocol.id)]))

@@ -2,7 +2,7 @@
 
 Протокол, вхід і спільні форми даних - у `README.md`. Тут - що саме викликає екран у
 кожному процесі продукту, у порядку, і які відповіді на це приходять. Вісім процесів
-бек-офісу (зарплата, кадри, звітність, бухоблік) і вісім екранів складу й виробництва.
+бек-офісу (зарплата, кадри, звітність, бухоблік) і десять екранів складу й виробництва.
 
 Відповіді процесів 1-8 зняті з ЖИВОЇ демо-бази (`scripts/demo_server.sh`, порт 8131,
 база `demo`, компанія «ТОВ «Ясен Меблі»», вересень 2026) через `POST /jsonrpc`. Вони
@@ -502,7 +502,7 @@ call("account.move", "search_read",
 
 ## Склад і виробництво
 
-Вісім екранів складського клієнта поза Odoo. Пʼять читань `ua.api` складають те, що
+Десять екранів складського клієнта поза Odoo. Шість читань `ua.api` складають те, що
 клієнт раніше збирав із пʼяти-восьми викликів `search_read` і власної таблички
 місткостей у файлі поруч із кодом; решта - нативні моделі `stock` і `mrp`, бо свого
 там нічого й не треба.
@@ -540,7 +540,7 @@ call("ua.api", "warehouse_map", [1])
   "locations": [
     {"id": 5, "name": "Запаси", "path": "WH/Запаси", "parent_id": [4, "WH"], "level": 0,
      "capacity": 0, "used": 0, "own": 0, "free": false, "overflow": false, "fill": false,
-     "floor": false, "items": [],
+     "floor": false, "purpose": false, "purpose_label": "", "plan": false, "items": [],
      "target": {"model": "stock.quant",
                 "domain": [["location_id","=",5],["quantity",">",0]], "name": "WH/Запаси"}}
   ]
@@ -552,7 +552,8 @@ call("ua.api", "warehouse_map", [1])
 ```json
 {"id": 14, "name": "Полиця М2", "path": "WH/Запаси/Полиця М2", "parent_id": [5, "WH/Запаси"],
  "level": 1, "capacity": 2, "used": 48, "own": 48, "free": 0, "overflow": true, "fill": 999.0,
- "floor": false,
+ "floor": false, "purpose": "storage", "purpose_label": "Зберігання",
+ "plan": {"x": 8, "y": 1, "w": 5, "h": 3},
  "items": [{"product": [7, "Рама карбон"], "code": "RM-7", "category": [4, "Комплектуючі"],
             "quantity": 3.0, "reserved": 0.0, "uom": "Units",
             "size": "l", "size_label": "L - велике", "slots": 48.0}],
@@ -567,11 +568,22 @@ call("ua.api", "warehouse_map", [1])
   `stock.storage.category`, і вона лишилась на місці.
 - Дерево будується з `roots` і `parent_id`; `level` - глибина від найвищої локації
   переліку, з нуля.
+- `purpose` - призначення зони, `stock.location.ua_purpose`: `receiving` (приймання),
+  `storage` (зберігання), `hazard` (небезпечні вантажі, шафа АКБ), `quality` (ВТК),
+  `production`, `finished` (готова продукція), `shipping`, `reject` (брак), або
+  `false`; `purpose_label` - підпис українською.
+- `plan` - прямокутник зони на плані складу в клітинках від лівого верхнього кута,
+  поля `ua_plan_x`, `ua_plan_y`, `ua_plan_w`, `ua_plan_h`. Ширина або висота нуль -
+  `plan: false`, зона на плані не намальована. Розмір сітки ядро не задає: клієнт
+  бере найбільші `x + w` і `y + h`. У демо «АероСіч» сітка 24 × 14, девʼять зон.
 
-**Місткість ставить людина**, і це єдиний запис цього екрана:
+**Місткість, призначення і місце на плані ставить людина** - це єдиний запис
+цього екрана:
 
 ```
 call("stock.location", "write", [[14], {"ua_capacity": 24}])
+call("stock.location", "write", [[14], {"ua_purpose": "hazard",
+     "ua_plan_x": 8, "ua_plan_y": 10, "ua_plan_w": 4, "ua_plan_h": 3}])
 ```
 
 ---
@@ -583,10 +595,12 @@ call("stock.location", "write", [[14], {"ua_capacity": 24}])
 ```
 call("ua.api", "stock_glance", [1])
 call("ua.api", "stock_glance", [1], {"location_ids": [5], "category_ids": [4]})
+call("ua.api", "stock_glance", [1], {"query": "2207", "offset": 0, "limit": 100})
 ```
 
 ```json
-{"company": {"id": 1, "name": "ТОВ «Ясен Меблі»"}, "count": 0, "truncated": false, "rows": []}
+{"company": {"id": 1, "name": "ТОВ «Ясен Меблі»"}, "total": 0, "offset": 0, "limit": 500,
+ "count": 0, "truncated": false, "rows": []}
 ```
 
 Форма рядка:
@@ -612,8 +626,12 @@ call("ua.api", "stock_glance", [1], {"location_ids": [5], "category_ids": [4]})
   на партію 2 з 8 гвинтами дає 4.
 - `level`: `bad` (вільного мінус), `warn` (мінімум задано і вільного менше),
   інакше `ok`.
-- Рядків за виклик не більше 500; коли їх більше, `truncated` стає `true` -
-  звужуйте локацією або категорією.
+- `query` - частина назви або внутрішнього коду товару (`default_code`), без
+  регістру. Пошук іде в ядрі, тому знаходить товар і за межами першої сторінки.
+- Сторінки: `offset` (з нуля) і `limit` (1..500, типово 500; більше ядро обріже до
+  500 і скаже це в `limit`). `total` - скільки рядків усього під звуженнями й
+  пошуком; `truncated` - чи є рядки після цієї сторінки (`offset + count < total`).
+  Наступна сторінка - `offset + count`. Порядок сталий: товар, локація, id залишку.
 
 ---
 
@@ -770,10 +788,11 @@ call("ua.api", "floor_packages", [1])
 Форма рядка:
 
 ```json
-{"source": "floor", "product": [6, "Мотор 2207"], "code": "MT-2207", "uom": "Units",
+{"source": "floor", "product": [6, "Мотор 2207"], "code": "MT-2207",
+ "category": [4, "Комплектуючі"], "lot": [12, "АКБ-2607"], "uom": "Units",
  "location": [15, "WH/Запаси/Полиця М1/Підлога"],
  "quantity": 1.0, "reserved": 0.0, "free": 1.0,
- "size": "m", "size_label": "M - середнє", "slots": 4.0,
+ "size": "m", "size_label": "M - середнє", "per_unit": 4, "slots": 4.0,
  "order": false, "done_date": false,
  "suggest": {"location": [13, "WH/Запаси/Полиця М1"], "why": "правило розкладання"},
  "target": {"model": "stock.quant", "res_id": 44}}
@@ -784,6 +803,15 @@ call("ua.api", "floor_packages", [1])
   замовлень, закритих за останні 3 дні і ДОСІ у виробничій локації; такий рядок несе
   `order` і `done_date`).
 - `suggest` - нативне правило розкладання (`_get_putaway_strategy`), або `false`.
+- `category` - категорія товару `[id, назва]` або `false`; `lot` - партія або серійний
+  номер САМЕ ЦЬОГО залишку (`stock.quant.lot_id`) або `false`. Один товар із двома
+  партіями на підлозі - два рядки.
+- Габарит один на все ядро: `size` - це `product.template.ua_size` (той самий, що
+  читає `product.product`), `per_unit` - місць на одну штуку, `slots` = `quantity ×
+  per_unit`. Тим самим числом рахують `warehouse_map` і `stock.location.ua_capacity_used`,
+  тому «влізе / не влізе» на полицю рахується з `slots` рядка і `free` полиці з карти,
+  без власної таблиці габаритів. Коди габариту - малими літерами (`s`/`m`/`l`), як у
+  `sizes` карти; порівнювати з великими `S`/`M`/`L` не можна.
 - Сам рух - окрема дія, див. «Переміщення».
 
 ---
@@ -854,7 +882,10 @@ call("ua.api", "product_assembly", [9])
 ```
 
 - `drawing_svg` приходить РОЗКОДОВАНИМ текстом SVG, не base64: вставляйте як є.
-  Домовленість про вміст файла одна - елемент позиції має id `bom-N`, де N - `pos`.
+  Домовленість про вміст файла одна і обовʼязкова: елемент позиції має id `bom-N`,
+  де N - `pos`. Інших id договір не знає - `pos-N` з першої ітерації UI прибрано і з
+  демо-креслення «Шершень» (`scripts/demo_aerosich.py` знімає його при записі), тому
+  підсвічуйте лише `#bom-N`. Позиції без елемента на кресленні просто не світяться.
 - `pos` - порядок рядків специфікації (`sequence`, далі `id`), з одиниці. Окремого
   поля «номер позиції» немає свідомо: два джерела правди про порядок розійшлися б
   після першого ж перетягування рядка.
@@ -873,6 +904,99 @@ call("ua.api", "product_assembly", [9])
 виробництво - нативна `mrp.production`; `ua.api` його не створює.
 
 Підводні камені нативного складу зібрані в `README.md`, розділ «Підводні камені».
+
+---
+
+### Журнали
+
+Журнали «Надходження» і «Інвентаризація» (зокрема у вигляді 1С) - звичайний
+`search_read`; свого читання тут немає. Колонки «Сума» і «Відповідальний»:
+
+```
+call("stock.picking", "search_read",
+     [[["picking_type_code","=","incoming"]],
+      ["name","date_done","scheduled_date","partner_id","state","origin",
+       "user_id","ua_amount"]],
+     {"order": "scheduled_date desc, id desc", "limit": 100})
+
+call("ua.stock.inventory", "search_read",
+     [[], ["name","date","location_id","state","user_id",
+           "amount_fact","amount_surplus","amount_shortage"]],
+     {"limit": 100})
+```
+
+- `stock.picking.user_id` - нативний «Відповідальний»; порожній буває, його ставлять
+  руками.
+- `stock.picking.ua_amount` - сума документа за собівартістю: проведений рядок дає
+  свою оцінку (`stock.move.value`), непроведений - кількість × облікова ціна товару в
+  компанії документа; скасовані рядки не рахуються. Поле НЕ зберігається (облікова
+  ціна змінюється), тому його немає в `inventory.md`, фільтрувати й сортувати за ним
+  не можна - лише читати. Ціни закупівлі тут немає: вона живе в `purchase.order.line`.
+- `ua.stock.inventory.user_id` - хто веде опис (типово той, хто завів);
+  `amount_fact` - Σ фактична кількість × облікова ціна рядка.
+- Ціна і сума по рядку форми приймання: `stock.move` поле `value` (проведений) або
+  `product_id` → `standard_price` × `quantity`.
+
+---
+
+### Кіоск цеху
+
+Наряди пишуться НАТИВНО - `mrp.workorder` у CE 19 має всі кнопки. Своє тут лише
+відповіді на пункти перевірки операції і одне читання.
+
+**1. Що робити на наряді.**
+
+```
+call("mrp.workorder", "search_read",
+     [[["workcenter_id","=",3],["state","in",["ready","progress","waiting"]]],
+      ["name","production_id","product_id","state","duration_expected"]])
+call("ua.api", "workorder_card", [21])
+```
+
+Форма відповіді:
+
+```json
+{"workorder": {"id": 21, "name": "Пайка силової частини",
+               "production": [7, "АС/MO/00007"], "product": [40, "FPV-дрон «Шершень» 7\""],
+               "workcenter": [3, "Пайка"], "state": "ready", "state_label": "Готово",
+               "qty_production": 1.0, "qty_producing": 0.0,
+               "duration_expected": 40.0, "duration": 0.0,
+               "date_start": false, "date_finished": false,
+               "target": {"model": "mrp.workorder", "res_id": 21}},
+ "steps": ["Залудити майданчики ESC", "Припаяти три фази кожного мотора за схемою"],
+ "checks": [{"index": 1, "text": "Опір між фазами однаковий", "result": false,
+             "note": "", "user": false, "date": false}],
+ "open": 1, "failed": 0,
+ "parts": [{"product": [12, "Мотор безколекторний 2207 1950KV"], "code": "D02",
+            "qty": 4.0, "uom": "Units", "picked": false}]}
+```
+
+- `steps` і `checks` - з операції маршруту (`ua_steps`, `ua_checks`, по пункту в
+  рядок); `index` пункту - з одиниці.
+- `parts` - рядки списання замовлення, що споживаються в ЦІЙ операції (нативне
+  `operation_id` рядка специфікації); `qty` - на все замовлення.
+- `duration*` - хвилини.
+
+**2. Писати.**
+
+```
+call("mrp.workorder", "button_start", [[21]])      # таймер і стан «В роботі»
+call("mrp.workorder", "button_pending", [[21]])    # пауза
+call("mrp.workorder", "ua_answer_check", [[21], 1, "fail"], {"note": "КЗ на раму"})
+call("mrp.workorder", "button_finish", [[21]])     # закрити наряд
+```
+
+- `ua_answer_check(index, result, note=None)`: `result` - `ok` або `fail`; повторна
+  відповідь на той самий пункт оновлює першу; повертає `checks` у тій самій формі.
+  Текст пункту зберігається знімком - якщо технолог потім переписав перевірку,
+  відповідь лишається з тим текстом, на який відповідали.
+- Закритий або скасований наряд відповідей не приймає (`UserError`); пункту поза
+  переліком - теж `UserError`.
+- `button_finish()` відповіді НЕ перевіряє: закриття лишається нативним. Чи пускати
+  людину далі з `open > 0` або `failed > 0` - рішення кіоску.
+- Замовлення на виробництво за міткою клієнта:
+  `mrp.production.ua_get_or_create(client_ref, vals)` - той самий захист від дубля, що
+  на приймання і описі.
 
 ---
 

@@ -23,7 +23,7 @@
                    "заповнення.\n\n"
                    "Опис у docs/base/spec-mrp-stock.md, виклики для зовнішнього клієнта - "
                    "у docs/base/spec-stock-api-notes.md.",
-    "version": "19.0.1.0.2",
+    "version": "19.0.1.0.3",
     "category": "Inventory/Localizations",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -31,6 +31,7 @@
     "post_init_hook": "post_init_hook",
     "data": [
         "security/ir.model.access.csv",
+        "security/ua_stock_docs_security.xml",
         "data/ir_sequence_data.xml",
         "report/ua_stock_docs_reports.xml",
         "views/stock_location_views.xml",

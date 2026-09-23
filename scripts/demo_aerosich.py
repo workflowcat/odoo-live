@@ -281,7 +281,7 @@ COMPONENTS = [
     ("D14", "Пропелер 10\" дволопатевий", 140.0, "8803300000", "s", "none", True),
     ("D15", "Акумулятор Li-ion 6S 6000 мАг", 5200.0, "8507600000", "m", "lot", True),
 ]
-# Специфікації: порядок рядків = номери позицій на кресленні (pos-1 .. pos-11).
+# Специфікації: порядок рядків = номери позицій на кресленні (id bom-1 .. bom-11).
 DRONES = [
     ("FPV7", "FPV-дрон «Шершень» 7\"", 29800.0, "8806210000", "l",
      [("D01", 1), ("D02", 4), ("D03", 1), ("D04", 1), ("D05", 1), ("D06", 1),
@@ -446,6 +446,23 @@ FINISHED_LOC = "Готові дрони"
 # карбоновій полиці з рамами. Решта лишається з запасом. Так карта складу показує
 # рівно два переповнення, а не випадкове число.
 OVERFULL = [BATTERY_LOC, "К-1"]
+RECEIVING_LOC = "Приймання"
+QUALITY_LOC = "ВТК"
+# Зони на плані складу (запит UI 2026-09-23-002): призначення і прямокутник у
+# клітинках, план 24 × 14. «Комплектуючі» - рамка навколо своїх полиць і шафи.
+# Місткість приймання і ВТК стала: там нічого не лежить довго.
+ZONES = {
+    RECEIVING_LOC: ("receiving", 0, 0, 6, 4),
+    QUALITY_LOC: ("quality", 0, 10, 6, 4),
+    "Комплектуючі": ("storage", 7, 0, 12, 14),
+    "К-1": ("storage", 8, 1, 5, 3),
+    "К-2": ("storage", 13, 1, 5, 3),
+    "К-3": ("storage", 8, 5, 5, 3),
+    "К-4": ("storage", 13, 5, 5, 3),
+    "Шафа акумуляторів": ("hazard", 8, 10, 4, 3),
+    "Готові дрони": ("finished", 20, 0, 4, 8),
+}
+FIXED_CAPACITY = {RECEIVING_LOC: 40, QUALITY_LOC: 16}
 SHELF_OF = {"D01": "К-1", "D12": "К-1", "D02": "К-2", "D13": "К-2", "D09": "К-2",
             "D14": "К-2", "D03": "К-3", "D04": "К-3", "D05": "К-3", "D06": "К-3",
             "D07": "К-3", "D08": "К-3", "D11": "К-4"}
@@ -485,6 +502,16 @@ def warehouse(P):
         L[s] = loc(s, L["zone"])
     L[BATTERY_LOC] = loc(BATTERY_LOC, L["zone"])
     L[FINISHED_LOC] = loc(FINISHED_LOC, stock)
+    L[RECEIVING_LOC] = loc(RECEIVING_LOC, stock)
+    L[QUALITY_LOC] = loc(QUALITY_LOC, stock)
+    zones = 0
+    if has_field("stock.location", "ua_purpose"):
+        for name, (purpose, x, y, w, h) in ZONES.items():
+            key = "zone" if name == "Комплектуючі" else name
+            call("stock.location", "write", [L[key]], {
+                "ua_purpose": purpose, "ua_plan_x": x, "ua_plan_y": y,
+                "ua_plan_w": w, "ua_plan_h": h})
+            zones += 1
     types = call("stock.picking.type", "search",
                  [["warehouse_id", "=", wh["id"]], ["code", "=", "internal"]],
                  context={"active_test": False})
@@ -521,7 +548,8 @@ def warehouse(P):
         rule(L["zone"], L[BATTERY_LOC], product=P[code])
         n += 2
     say(f"Склад «{COMPANY['short']}»: зона комплектуючих із {len(SHELVES)} полицями, "
-        f"{BATTERY_LOC.lower()} і «{FINISHED_LOC}»; правил розкладання {n}; "
+        f"{BATTERY_LOC.lower()}, «{FINISHED_LOC}», «{RECEIVING_LOC}» і «{QUALITY_LOC}»; "
+        f"зон на плані {zones}; правил розкладання {n}; "
         f"місткість {'проставимо після завантаження' if cap else 'пропущено - поля ua_capacity ще немає'}.")
     return L
 
@@ -536,11 +564,13 @@ def capacities(L):
     if not has_field("stock.location", "ua_capacity"):
         say("Місткість полиць: поля ua_capacity немає - пропущено.")
         return 0, 0
-    names = SHELVES + [BATTERY_LOC, FINISHED_LOC]
+    names = SHELVES + [BATTERY_LOC, FINISHED_LOC, RECEIVING_LOC, QUALITY_LOC]
     rows = []
     for name in names:
         used = call("stock.location", "read", [L[name]], ["ua_capacity_used"])[0]["ua_capacity_used"]
-        if name in OVERFULL:
+        if name in FIXED_CAPACITY:
+            cap = FIXED_CAPACITY[name]
+        elif name in OVERFULL:
             cap = max(1, int(used * 0.7))       # менше, ніж лежить: полиця переповнена
         else:
             cap = max(20, int(used * 1.5) + 10)  # з запасом
@@ -548,7 +578,7 @@ def capacities(L):
         rows.append((name, cap, used))
     # Зона і склад цілком: сума дітей, щоб карта читалася на будь-якому рівні
     call("stock.location", "write", [L["zone"]],
-         {"ua_capacity": sum(c for n, c, _u in rows if n != FINISHED_LOC)})
+         {"ua_capacity": sum(c for n, c, _u in rows if n in SHELVES + [BATTERY_LOC])})
     call("stock.location", "write", [L["stock"]],
          {"ua_capacity": sum(c for _n, c, _u in rows)})
     over = [(n, c, u) for n, c, u in rows if u > c]
@@ -945,9 +975,18 @@ def drawing(T):
     if not os.path.exists(DRAWING):
         say(f"УВАГА: креслення {DRAWING} немає.")
         return None
-    raw = open(DRAWING, "rb").read()
+    # Договір (docs/api/screens.md, «Збирання»): елемент позиції має id `bom-N`, і
+    # лише його. Файл-джерело ще несе обгортки `pos-N` з першої ітерації UI - у базу
+    # вони не йдуть: знімаємо id з обгортки, група лишається, SVG валідний.
+    text = re.sub(r'<g id="pos-\d+">', "<g>", open(DRAWING, encoding="utf-8").read())
+    # і коментар-шапку про «два імені» - у базі лишається лише правда про bom-N
+    text = re.sub(r"<!--(?:(?!-->).)*?pos-\d.*?-->",
+                  "<!-- Складальне креслення FPV «Шершень» 7\", вид згори. Елемент позиції - "
+                  "id bom-N, N = номер рядка специфікації від одиниці. -->",
+                  text, count=1, flags=re.S)
+    raw = text.encode("utf-8")
     data = base64.b64encode(raw).decode()
-    ids = sorted(set(re.findall(r'id="(pos-\d+|bom-\d+)"', raw.decode("utf-8"))))
+    ids = sorted(set(re.findall(r'id="(pos-\d+|bom-\d+)"', text)))
     tmpl = T["FPV7"]
     if has_field("product.template", "ua_drawing_svg"):
         vals = {"ua_drawing_svg": data}
@@ -963,8 +1002,11 @@ def drawing(T):
                 "mimetype": "image/svg+xml", "type": "binary", "datas": data,
                 "company_id": CO})
         where = "вкладення drawing.svg (поля ua_drawing_svg ще немає)"
-    say(f"Креслення «Шершень» 7\": {len(raw):,} байтів, {len([i for i in ids if i.startswith('pos-')])} позицій "
-        f"(id pos-1..pos-11 і bom-1..bom-11) -> {where}.")
+    bom_ids = [i for i in ids if i.startswith("bom-")]
+    if len(bom_ids) != len(ids):
+        say("УВАГА: у кресленні лишились id, крім bom-N: " + ", ".join(sorted(set(ids) - set(bom_ids))))
+    say(f"Креслення «Шершень» 7\": {len(raw):,} байтів, {len(bom_ids)} позицій "
+        f"(id bom-1..bom-{len(bom_ids)}) -> {where}.")
     return where
 
 
@@ -1072,6 +1114,7 @@ def control_table(extra):
         ("mrp.workorder", [["company_id", "=", CO]], "наряди"),
         ("stock.lot", [["company_id", "=", CO]], "партії і серійні номери"),
         ("stock.location", [["company_id", "=", CO], ["usage", "=", "internal"]], "внутрішні локації"),
+        ("stock.location", [["company_id", "=", CO], ["ua_plan_w", ">", 0]], "зони на плані"),
         ("stock.putaway.rule", [["company_id", "=", CO]], "правила розкладання"),
         ("stock.picking", [["company_id", "=", CO], ["state", "=", "done"]], "проведені переміщення"),
         ("stock.picking", [["company_id", "=", CO], ["state", "in", ["draft", "waiting", "confirmed", "assigned"]]], "відкриті переміщення"),
