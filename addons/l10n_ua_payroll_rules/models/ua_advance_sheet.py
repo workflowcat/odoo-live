@@ -75,6 +75,13 @@ class UaAdvanceSheet(models.Model):
         doc.action_refill()
         return doc
 
+    def action_compose_month(self):
+        """Кнопка списку «Створити за місяць»: відомість поточного місяця, одразу порахована."""
+        today = fields.Date.context_today(self)
+        doc = self.ua_compose(self.env.company, today.year, today.month)
+        return {"type": "ir.actions.act_window", "name": doc.name, "res_model": "ua.advance.sheet",
+                "view_mode": "form", "res_id": doc.id, "target": "current"}
+
     def action_refill(self):
         """Видалити рядки і заповнити знову з чернеток листків місяця. Лише для чернетки документа.
 

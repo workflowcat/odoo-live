@@ -91,6 +91,13 @@ class UaPfuClaim(models.Model):
         claim.action_refill()
         return claim
 
+    def action_compose_month(self):
+        """Кнопка списку «Створити за місяць»: заява-розрахунок за поточний місяць."""
+        today = fields.Date.context_today(self)
+        claim = self.ua_compose(self.env.company, today.year, today.month)
+        return {"type": "ir.actions.act_window", "name": claim.name, "res_model": "ua.pfu.claim",
+                "view_mode": "form", "res_id": claim.id, "target": "current"}
+
     def action_refill(self):
         """Видалити рядки і заповнити знову: рядки SICK_PFU і MAT листків пакета, відпустка з номером е-ЛН, дні з _ua_leave_calendar_days()."""
         for doc in self:

@@ -28,9 +28,9 @@
         <header>
           <button name="action_compute" type="object" string="Розрахувати"
                   class="oe_highlight" invisible="state != 'draft'"/>
-          <button name="action_confirm" type="object" string="Підтвердити"
+          <button name="action_confirm" type="object" string="Затвердити"
                   invisible="state != 'draft'"/>
-          <button name="action_draft" type="object" string="У чернетку"
+          <button name="action_draft" type="object" string="Повернути в чернетку"
                   invisible="state != 'confirmed'"/>
           <field name="state" widget="statusbar"/>
         </header>

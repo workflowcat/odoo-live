@@ -247,6 +247,8 @@ class TestDocumentDateIsUserDate(TransactionCase):
         reserved = self.env["ua.military.reserved"].create({"company_id": self.env.company.id})
         self.assertEqual(str(reserved.date), "2026-09-22")
 
-    def test_wizard_defaults_use_the_same_date(self):
-        wizard = self.env["ua.staff.list.wizard"].create({})
-        self.assertEqual(str(wizard.date), "2026-09-22")
+    def test_doc_check_default_date_is_kyiv_date(self):
+        """Майстра штатного розпису більше немає (2026-09-22); те саме правило дати
+        перевіряємо на новому документі «Перевірка документів»."""
+        doc = self.env["ua.hr.doc.check"].create({"company_id": self.env.company.id})
+        self.assertEqual(str(doc.date), "2026-09-22")

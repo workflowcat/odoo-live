@@ -3,3 +3,4 @@ from . import account_asset_profile
 from . import account_asset
 from . import account_asset_remove
 from . import account_chart_template
+from . import ua_depreciation_sheet

@@ -2,7 +2,7 @@
 <odoo>
   <record id="action_report_ua_income_certificate" model="ir.actions.report">
     <field name="name">Довідка про доходи</field>
-    <field name="model">ua.income.certificate.wizard</field>
+    <field name="model">ua.income.certificate</field>
     <field name="report_type">qweb-pdf</field>
     <field name="report_name">l10n_ua_payroll_reports.report_ua_income_certificate</field>
     <field name="report_file">l10n_ua_payroll_reports.report_ua_income_certificate</field>
@@ -14,15 +14,14 @@
       <t t-foreach="docs" t-as="w">
         <t t-set="emp" t-value="w.employee_id.sudo()"/>
         <t t-set="company" t-value="w.employee_id.company_id"/>
-        <t t-set="rows" t-value="content[w.id]['rows']"/>
-        <t t-set="totals" t-value="content[w.id]['totals']"/>
+        <t t-set="rows" t-value="w.line_ids"/>
         <div class="page" style="font-family: DejaVu Sans, sans-serif; font-size:12px;">
           <div style="text-align:center;">
             <b><t t-out="company.name"/></b><br/>
             <span style="font-size:10px;">ЄДРПОУ <t t-out="company.company_registry or ''"/><t t-if="company.street"> · <t t-out="company.zip or ''"/>, <t t-out="company.city or ''"/>, <t t-out="company.street"/></t></span>
           </div>
           <h3 style="text-align:center; margin-top:18px;">ДОВІДКА ПРО ДОХОДИ</h3>
-          <p style="text-align:center;">Довідка № <t t-out="w.cert_number or '____'"/> від <t t-out="w.cert_date.strftime('%d.%m.%Y') if w.cert_date else '____________'"/></p>
+          <p style="text-align:center;">Довідка № <t t-out="w.number or '____'"/> від <t t-out="w.date.strftime('%d.%m.%Y') if w.date else '____________'"/></p>
           <p>Видана <b><t t-out="emp.name"/></b><t t-if="emp.ua_rnokpp">, РНОКПП <t t-out="emp.ua_rnokpp"/></t> про те,
              що він (вона) працює в <t t-out="company.name"/> на посаді «<t t-out="emp.job_title or emp.job_id.name or '-'"/>»
              <t t-if="emp.department_id">підрозділу <t t-out="emp.department_id.name"/></t>.</p>
@@ -39,18 +38,18 @@
             </thead>
             <tbody>
               <tr t-foreach="rows" t-as="r">
-                <td><t t-out="r['period']"/></td>
-                <td class="text-end"><t t-out="'{:,.2f}'.format(r['gross']).replace(',', '&#160;').replace('.', ',')"/></td>
-                <td class="text-end"><t t-out="'{:,.2f}'.format(r['pdfo']).replace(',', '&#160;').replace('.', ',')"/></td>
-                <td class="text-end"><t t-out="'{:,.2f}'.format(r['vz']).replace(',', '&#160;').replace('.', ',')"/></td>
-                <td t-if="w.show_net" class="text-end"><t t-out="'{:,.2f}'.format(r['net']).replace(',', '&#160;').replace('.', ',')"/></td>
+                <td><t t-out="r.period"/></td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(r.gross).replace(',', '&#160;').replace('.', ',')"/></td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(r.pdfo).replace(',', '&#160;').replace('.', ',')"/></td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(r.vz).replace(',', '&#160;').replace('.', ',')"/></td>
+                <td t-if="w.show_net" class="text-end"><t t-out="'{:,.2f}'.format(r.net).replace(',', '&#160;').replace('.', ',')"/></td>
               </tr>
               <tr style="font-weight:bold; border-top:2px solid #333;">
                 <td>Разом</td>
-                <td class="text-end"><t t-out="'{:,.2f}'.format(totals['gross']).replace(',', '&#160;').replace('.', ',')"/></td>
-                <td class="text-end"><t t-out="'{:,.2f}'.format(totals['pdfo']).replace(',', '&#160;').replace('.', ',')"/></td>
-                <td class="text-end"><t t-out="'{:,.2f}'.format(totals['vz']).replace(',', '&#160;').replace('.', ',')"/></td>
-                <td t-if="w.show_net" class="text-end"><t t-out="'{:,.2f}'.format(totals['net']).replace(',', '&#160;').replace('.', ',')"/></td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(w.total_gross).replace(',', '&#160;').replace('.', ',')"/></td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(w.total_pdfo).replace(',', '&#160;').replace('.', ',')"/></td>
+                <td class="text-end"><t t-out="'{:,.2f}'.format(w.total_vz).replace(',', '&#160;').replace('.', ',')"/></td>
+                <td t-if="w.show_net" class="text-end"><t t-out="'{:,.2f}'.format(w.total_net).replace(',', '&#160;').replace('.', ',')"/></td>
               </tr>
             </tbody>
           </table>

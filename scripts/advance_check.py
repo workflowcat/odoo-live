@@ -78,11 +78,10 @@ if old:
     call("ua.advance.sheet", "unlink", old)
     print(f"Прибрано стару відомість(и): {old}")
 
-# ---- 3. майстер створює відомість -------------------------------------------------------
-wid = call("ua.payroll.advance.wizard", "create", {"company_id": COMPANY, "year": YEAR, "month": MONTH, "percent": 50.0, "pay_date": "2026-10-20"})
-res = call("ua.payroll.advance.wizard", "action_fill", [wid])
-assert res["res_model"] == "ua.advance.sheet", res
-sheet_id = res["res_id"]
+# ---- 3. ua_compose складає відомість -----------------------------------------------------
+sheet_id = call("ua.advance.sheet", "ua_compose", COMPANY, YEAR, MONTH)[0]
+call("ua.advance.sheet", "write", [sheet_id], {"percent": 50.0, "pay_date": "2026-10-20"})
+call("ua.advance.sheet", "action_refill", [sheet_id])
 sheet = call("ua.advance.sheet", "read", [sheet_id], ["name", "state", "total", "line_ids"])[0]
 print(f"Відомість: {sheet['name']} (id={sheet_id}), стан={sheet['state']}, рядків={len(sheet['line_ids'])}, разом={sheet['total']:.2f}")
 assert sheet["state"] == "draft"

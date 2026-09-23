@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Операції банку стоять там, де людина дивиться на виписки, а не окремим пунктом меню. -->
+  <record id="view_bank_statement_tree_ua_ops" model="ir.ui.view">
+    <field name="name">account.bank.statement.list.ua.ops</field>
+    <field name="model">account.bank.statement</field>
+    <field name="inherit_id" ref="account.view_bank_statement_tree"/>
+    <field name="arch" type="xml">
+      <list position="inside">
+        <header>
+          <button name="action_ua_pull" type="object" display="always"
+                  string="Завантажити виписку" class="btn-primary"/>
+          <button name="action_ua_pull_all" type="object" display="always"
+                  string="Завантажити за всі рахунки"/>
+          <button name="action_ua_match_payments" type="object" display="always"
+                  string="Звести з платежами"/>
+          <button name="action_ua_apply_rules" type="object" display="always"
+                  string="Застосувати правила звірки"/>
+        </header>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_account_journal_form_ua_ops" model="ir.ui.view">
+    <field name="name">account.journal.form.ua.ops</field>
+    <field name="model">account.journal</field>
+    <field name="inherit_id" ref="account.view_account_journal_form"/>
+    <field name="arch" type="xml">
+      <sheet position="before">
+        <header>
+          <button name="action_ua_bank_test" type="object" string="Перевірити з'єднання"
+                  invisible="type != 'bank'"/>
+          <button name="action_ua_bank_provider" type="object" string="З'єднання з банком"
+                  invisible="type != 'bank'"/>
+        </header>
+      </sheet>
+    </field>
+  </record>
+
+  <record id="view_ua_bank_pull_form" model="ir.ui.view">
+    <field name="name">ua.bank.pull.form</field>
+    <field name="model">ua.bank.pull</field>
+    <field name="arch" type="xml">
+      <form string="Завантажити виписку">
+        <group>
+          <field name="journal_id"/>
+          <field name="year" options="{'enable_formatting': False}"/>
+          <field name="month"/>
+        </group>
+        <footer>
+          <button name="action_pull" type="object" string="Завантажити" class="btn-primary"/>
+          <button string="Закрити" class="btn-secondary" special="cancel"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+</odoo>

@@ -18,6 +18,22 @@
       </notebook>
     </field>
   </record>
+  <!-- Новий контрагент з ЄДР - кнопка в шапці списку контактів: меню відкриває
+       сторінку, а разовий діалог належить кнопці. -->
+  <record id="view_partner_tree_ua_edr" model="ir.ui.view">
+    <field name="name">res.partner.list.ua.edr</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_partner_tree"/>
+    <field name="arch" type="xml">
+      <list position="inside">
+        <header>
+          <button name="action_ua_new_from_edr" type="object" display="always"
+                  string="Контрагент з ЄДР" class="btn-primary"/>
+        </header>
+      </list>
+    </field>
+  </record>
+
   <record id="action_partner_fill_edr" model="ir.actions.server">
     <field name="name">Заповнити з ЄДР</field><field name="model_id" ref="base.model_res_partner"/><field name="binding_model_id" ref="base.model_res_partner"/>
     <field name="binding_view_types">list,form</field><field name="state">code</field><field name="code">records.action_fill_from_edr()</field>

@@ -1,5 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_ua_hr_order,ua.hr.order,model_ua_hr_order,hr.group_hr_user,1,1,1,1
 access_ua_hr_doc_requirement,ua.hr.doc.requirement,model_ua_hr_doc_requirement,hr.group_hr_user,1,1,1,1
-access_ua_hr_order_register_wizard,ua.hr.order.register.wizard,model_ua_hr_order_register_wizard,hr.group_hr_user,1,1,1,1
-access_ua_hr_doc_pack_wizard,ua.hr.doc.pack.wizard,model_ua_hr_doc_pack_wizard,hr.group_hr_user,1,1,1,1
+access_ua_hr_doc_check,ua.hr.doc.check,model_ua_hr_doc_check,hr.group_hr_user,1,1,1,1
+access_ua_hr_doc_check_line,ua.hr.doc.check.line,model_ua_hr_doc_check_line,hr.group_hr_user,1,1,1,1

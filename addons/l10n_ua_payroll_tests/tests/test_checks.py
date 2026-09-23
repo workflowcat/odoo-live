@@ -25,6 +25,8 @@ DOCUMENT_MODELS = [
     "ua.military.list",
     "ua.military.notice",
     "ua.military.reserved",
+    "ua.hr.doc.check",
+    "ua.income.certificate",
     "account.payment.order",
 ]
 
@@ -68,8 +70,12 @@ class TestUaChecks(TransactionCase):
         # account.payment.order сюди не входить: відомість на перерахування потребує
         # проведених листків із сумами до виплати, і цей ланцюг будує test_payments.py.
         for model in ("ua.timesheet.sheet", "ua.staff.list", "ua.advance.sheet",
-                      "ua.pfu.claim", "ua.military.reserved"):
+                      "ua.pfu.claim", "ua.military.reserved", "ua.hr.doc.check"):
             out[model] = self.env[model].ua_compose(self.company, YEAR, MONTH)
+
+        # Довідка про доходи - документ на людину, тому працівника передаємо явно.
+        out["ua.income.certificate"] = self.env["ua.income.certificate"].ua_compose(
+            self.company, YEAR, MONTH, employee=self.employee)
 
         mlist = self.env["ua.military.list"].create({
             "company_id": self.company.id, "tcc": "Львівський міський ТЦК та СП"})

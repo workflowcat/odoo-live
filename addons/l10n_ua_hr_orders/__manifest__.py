@@ -1,7 +1,7 @@
 {
     "name": "Кадрові накази (Україна)",
     "summary": "Наказ як документ, що проводить кадрову зміну; журнал реєстрації за реєстрами К-1/В-2; пакет обов'язкових документів",
-    "version": "19.0.1.5.1",
+    "version": "19.0.1.6.0",
     "license": "LGPL-3",
     "author": "Bot&Partners",
     "category": "Human Resources",
@@ -16,7 +16,7 @@
         "views/ua_hr_order_views.xml",
         "views/ua_hr_doc_requirement_views.xml",
         "views/hr_employee_views.xml",
-        "wizards/ua_hr_order_wizards_views.xml",
+        "views/ua_hr_doc_check_views.xml",
         "views/menus.xml",
     ],
     "post_init_hook": "post_init_hook",

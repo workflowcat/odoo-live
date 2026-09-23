@@ -3,4 +3,4 @@ access_ua_bank_connect_user,ua.bank.connect user,model_ua_bank_connect,base.grou
 access_ua_bank_connect_acc,ua.bank.connect account,model_ua_bank_connect,account.group_account_user,1,1,1,1
 access_ua_bank_connect_step_user,ua.bank.connect.step user,model_ua_bank_connect_step,base.group_user,1,0,0,0
 access_ua_bank_connect_step_acc,ua.bank.connect.step account,model_ua_bank_connect_step,account.group_account_user,1,1,1,1
-access_ua_bank_ops_wizard_acc,ua.bank.ops.wizard account,model_ua_bank_ops_wizard,account.group_account_user,1,1,1,1
+access_ua_bank_pull_acc,ua.bank.pull account,model_ua_bank_pull,account.group_account_user,1,1,1,1

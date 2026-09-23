@@ -190,6 +190,18 @@ class UaHrOrder(models.Model):
         self.ensure_one()
         return _("Наказ № %(num)s від %(date)s") % {"num": self.name, "date": self.date.strftime("%d.%m.%Y")}
 
+    def action_print_register(self):
+        """Друк журналу реєстрації: вибрані накази, а без вибору - усе, що показує список.
+
+        Журнал - не окремий документ, а перелік наказів реєстру за рік, тому рядки
+        обирає пошук на списку «Журнал реєстрації наказів», а не поля майстра."""
+        orders = self
+        if not orders:
+            orders = self.search(self.env.context.get("active_domain") or [])
+        if not orders:
+            raise UserError(_("Немає наказів для друку."))
+        return self.env.ref("l10n_ua_hr_orders.action_report_ua_hr_order_register").report_action(orders)
+
     def content_line(self):
         """Короткий однорядковий зміст наказу - для журналу реєстрації."""
         self.ensure_one()

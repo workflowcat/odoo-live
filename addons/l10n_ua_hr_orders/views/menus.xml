@@ -6,9 +6,9 @@
   <menuitem id="menu_ua_hr_order" name="Накази"
             action="action_ua_hr_order" sequence="1" groups="hr.group_hr_user"/>
   <menuitem id="menu_ua_hr_order_register" name="Журнал реєстрації"
-            action="l10n_ua_hr_orders.action_ua_hr_order_register_wizard" sequence="2" groups="hr.group_hr_user"/>
+            action="l10n_ua_hr_orders.action_ua_hr_order_register" sequence="2" groups="hr.group_hr_user"/>
   <menuitem id="menu_ua_hr_doc_pack" name="Перевірка документів"
-            action="l10n_ua_hr_orders.action_ua_hr_doc_pack_wizard" sequence="3" groups="hr.group_hr_user"/>
+            action="l10n_ua_hr_orders.action_ua_hr_doc_check" sequence="3" groups="hr.group_hr_user"/>
   <menuitem id="menu_ua_hr_doc_requirement" name="Обов'язкові документи"
             action="action_ua_hr_doc_requirement" sequence="4" groups="hr.group_hr_manager"/>
 </odoo>

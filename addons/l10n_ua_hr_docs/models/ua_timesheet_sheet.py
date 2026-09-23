@@ -71,6 +71,13 @@ class UaTimesheetSheet(models.Model):
         """Табель місяця для «Паперів»: той самий ідемпотентний _ua_ensure_for()."""
         return self._ua_ensure_for(as_company(self.env, company), int(year), int(month))
 
+    def action_compose_month(self):
+        """Кнопка списку «Створити за місяць»: табель поточного місяця, одразу заповнений."""
+        today = fields.Date.context_today(self)
+        doc = self.ua_compose(self.env.company, today.year, today.month)
+        return {"type": "ir.actions.act_window", "name": doc.name, "res_model": "ua.timesheet.sheet",
+                "view_mode": "form", "res_id": doc.id, "target": "current"}
+
     def action_refill(self):
         """Видалити рядки і заповнити знову: працівник за день - код (Р, ВХ, В, ТН, НА, ВП, «-»)."""
         for doc in self:

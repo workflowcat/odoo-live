@@ -7,15 +7,21 @@
 
 Залишок на кінець дня порівнюється з лімітом каси компанії (поле ua_cash_limit).
 Перевищення позначається; понадлімітну готівку належить здати в банк.
+
+Книга - запис, а не разовий розрахунок: складена книга лишається в базі зі своїми
+аркушами. Пункт меню відкриває список складених книг, кнопка «Сформувати» в шапці
+списку питає касу і період діалогом, результат відкривається сторінкою.
 """
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
 
-class UaCashBook(models.TransientModel):
+class UaCashBook(models.Model):
     _name = "ua.cash.book"
     _description = "Касова книга (КО-4)"
+    _order = "date_from desc, id desc"
 
+    name = fields.Char("Назва", compute="_compute_name", store=True)
     company_id = fields.Many2one(
         "res.company", "Компанія", required=True, default=lambda self: self.env.company
     )
@@ -46,6 +52,39 @@ class UaCashBook(models.TransientModel):
     over_limit = fields.Boolean("Ліміт перевищено", readonly=True)
     over_limit_days = fields.Integer("Днів із перевищенням", readonly=True)
     line_ids = fields.One2many("ua.cash.book.line", "book_id", "Аркуші", readonly=True)
+
+    @api.depends("journal_id", "date_from", "date_to")
+    def _compute_name(self):
+        for book in self:
+            book.name = "Касова книга %s · %s - %s" % (
+                book.journal_id.name or "",
+                book.date_from.strftime("%d.%m.%Y") if book.date_from else "",
+                book.date_to.strftime("%d.%m.%Y") if book.date_to else "")
+
+    def action_compose(self):
+        """Кнопка «Скласти» в діалозі: порахувати і відкрити книгу сторінкою."""
+        self.ensure_one()
+        self.action_compute()
+        return {
+            "type": "ir.actions.act_window",
+            "name": self.display_name,
+            "res_model": "ua.cash.book",
+            "res_id": self.id,
+            "view_mode": "form",
+            "views": [(self.env.ref("l10n_ua_cash.view_ua_cash_book_form").id, "form")],
+            "target": "current",
+        }
+
+    def action_ask(self):
+        """Кнопка «Сформувати» в шапці списку: діалог параметрів нової книги."""
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Касова книга (КО-4)",
+            "res_model": "ua.cash.book",
+            "view_mode": "form",
+            "views": [(self.env.ref("l10n_ua_cash.view_ua_cash_book_ask").id, "form")],
+            "target": "new",
+        }
 
     @api.model
     def _default_journal(self):
@@ -182,7 +221,7 @@ class UaCashBook(models.TransientModel):
         return self.env.ref("l10n_ua_cash.action_report_ua_cash_book").report_action(self)
 
 
-class UaCashBookLine(models.TransientModel):
+class UaCashBookLine(models.Model):
     _name = "ua.cash.book.line"
     _description = "Аркуш касової книги за день"
     _order = "sequence, id"
@@ -200,7 +239,7 @@ class UaCashBookLine(models.TransientModel):
     entry_ids = fields.One2many("ua.cash.book.entry", "line_id", "Ордери дня")
 
 
-class UaCashBookEntry(models.TransientModel):
+class UaCashBookEntry(models.Model):
     _name = "ua.cash.book.entry"
     _description = "Рядок аркуша касової книги"
     _order = "sequence, id"

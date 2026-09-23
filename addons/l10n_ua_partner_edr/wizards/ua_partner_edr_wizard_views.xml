@@ -7,8 +7,4 @@
         <footer><button name="action_create" type="object" string="Заповнити з ЄДР" class="btn-primary"/><button string="Закрити" class="btn-secondary" special="cancel"/></footer></form>
     </field>
   </record>
-  <record id="action_ua_partner_edr_wizard" model="ir.actions.act_window">
-    <field name="name">Контрагент з ЄДР</field><field name="res_model">ua.partner.edr.wizard</field><field name="view_mode">form</field><field name="target">new</field>
-  </record>
-  <menuitem id="menu_ua_partner_edr" name="Контрагент з ЄДР" parent="contacts.menu_contacts" action="action_ua_partner_edr_wizard" sequence="5"/>
 </odoo>

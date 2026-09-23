@@ -2,7 +2,7 @@
 <odoo>
   <record id="action_report_ua_hr_doc_pack" model="ir.actions.report">
     <field name="name">Перевірка документів</field>
-    <field name="model">ua.hr.doc.pack.wizard</field>
+    <field name="model">ua.hr.doc.check</field>
     <field name="report_type">qweb-pdf</field>
     <field name="report_name">l10n_ua_hr_orders.report_ua_hr_doc_pack</field>
     <field name="report_file">l10n_ua_hr_orders.report_ua_hr_doc_pack</field>
@@ -12,32 +12,29 @@
 
   <template id="report_ua_hr_doc_pack">
     <t t-call="web.basic_layout">
-      <t t-foreach="docs" t-as="w">
-        <t t-set="requirements" t-value="env['ua.hr.doc.requirement'].sudo().search([])"/>
-        <t t-set="employees" t-value="w.employee_ids.sorted(lambda e: e.name)"/>
+      <t t-foreach="docs" t-as="doc">
+        <t t-set="m" t-value="doc.matrix()"/>
         <div class="page" style="font-family: DejaVu Sans, sans-serif; font-size: 9px;">
           <h3 style="margin-bottom:2px;">Перевірка документів</h3>
-          <div><t t-out="w.company_id.name"/></div>
+          <div><t t-out="doc.company_id.name"/> · на <t t-out="doc.date and doc.date.strftime('%d.%m.%Y')"/></div>
           <table class="table table-sm" style="font-size:9px; margin-top:8px;">
             <thead>
               <tr>
                 <th>Документ</th>
-                <t t-foreach="employees" t-as="emp"><th><t t-out="emp.name"/></th></t>
+                <t t-foreach="m['employees']" t-as="emp"><th><t t-out="emp"/></th></t>
               </tr>
             </thead>
             <tbody>
-              <t t-foreach="requirements" t-as="req">
+              <t t-foreach="m['requirements']" t-as="req">
                 <tr>
-                  <td><t t-out="req.name"/></td>
-                  <t t-foreach="employees" t-as="emp">
-                    <t t-set="kind" t-value="emp.sudo().ua_contract_kind or 'employment'"/>
-                    <t t-set="covered" t-value="req._is_covered(emp) if req._applies(kind) else None"/>
-                    <t t-set="mark" t-value="'є' if covered is True else ('немає' if covered is False else 'н/п')"/>
+                  <td><t t-out="req"/></td>
+                  <t t-foreach="m['employees']" t-as="emp">
+                    <t t-set="mark" t-value="m['cells'].get((emp, req), '')"/>
                     <td t-att-style="'font-weight:bold; color:#a00;' if mark == 'немає' else ''"><t t-out="mark"/></td>
                   </t>
                 </tr>
               </t>
-              <tr t-if="not employees"><td colspan="1">Немає працівників у виборі.</td></tr>
+              <tr t-if="not m['employees']"><td colspan="1">Немає працівників у переліку.</td></tr>
             </tbody>
           </table>
         </div>

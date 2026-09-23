@@ -20,5 +20,4 @@
   <record id="action_ua_payroll_report_wizard" model="ir.actions.act_window">
     <field name="name">Об'єднана звітність (XML)</field><field name="res_model">ua.payroll.report.wizard</field><field name="view_mode">form</field><field name="target">new</field>
   </record>
-  <menuitem id="menu_ua_payroll_report" name="Об'єднана звітність (XML)" parent="hr.menu_hr_root" action="action_ua_payroll_report_wizard" sequence="50" groups="hr.group_hr_user"/>
 </odoo>

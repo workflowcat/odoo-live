@@ -150,10 +150,16 @@ check("звіт чекліста перейменовано", report_act.name ==
 # пунктів (перевірено і на "payroll", і тут - до будь-яких змін цього завдання, отже це не
 # регресія цієї роботи, а наявна вада стенду поза цим завданням). Джерело правди - views/menus.xml
 # (перейменовано вище); саму дію пункту меню перевірено окремо нижче.
-wizard_action = env.ref("l10n_ua_hr_orders.action_ua_hr_doc_pack_wizard")
-check("дія майстра перейменована", wizard_action.name == "Перевірка документів", wizard_action.name)
+check_action = env.ref("l10n_ua_hr_orders.action_ua_hr_doc_check")
+check("дія веде на список документів", check_action.res_model == "ua.hr.doc.check", check_action.res_model)
+check("дія не діалог", check_action.target == "current", check_action.target)
 menu = env.ref("l10n_ua_hr_orders.menu_ua_hr_doc_pack")
-check("пункт меню існує і веде на майстер", menu.action.id == wizard_action.id, str(menu.action))
+check("пункт меню існує і веде на список перевірок", menu.action.id == check_action.id, str(menu.action))
+doc = env["ua.hr.doc.check"].ua_compose(env.company)
+check("ua_compose складає перевірку з рядками", bool(doc.line_ids), "%s рядків" % len(doc.line_ids))
+check("перевірки документа дають рядки", bool(doc._checks()), "%s перевірок" % len(doc._checks()))
+register_action = env.ref("l10n_ua_hr_orders.action_ua_hr_order_register")
+check("журнал реєстрації - список наказів", register_action.res_model == "ua.hr.order", register_action.res_model)
 
 # ---- 11a. підстава за замовчуванням («заява») - для прийняття, відпустки, звільнення
 new_order = Order.new({"order_type": "hire"})

@@ -610,7 +610,7 @@ class TestUaVat(AccountTestInvoicingCommon):
 
     # --- 18. Зведення за період -----------------------------------------------
 
-    def test_18_cabinet_totals_are_consistent(self):
+    def test_18_period_totals_are_consistent(self):
         """Зведення сходиться саме з собою.
 
         Рахунок клієнту 1000 + 20 % (ПДВ 200,00) і рахунок постачальника
@@ -624,25 +624,25 @@ class TestUaVat(AccountTestInvoicingCommon):
             self.vendor, datetime.date(2026, 11, 12),
             [(self.goods, 1, 2000.0, self.tax_purchase_20)],
             move_type="in_invoice")
-        cabinet = self.env["ua.vat.cabinet"].create({
+        period = self.env["ua.vat.period"].create({
             "date_from": datetime.date(2026, 11, 1),
             "date_to": datetime.date(2026, 11, 30),
         })
-        cabinet.action_compute()
-        self.assertAlmostEqual(cabinet.ua_r1_base, 1000.0, delta=CENT)
-        self.assertAlmostEqual(cabinet.ua_r1_vat, 200.0, delta=CENT)
-        self.assertAlmostEqual(cabinet.ua_pk1_base, 2000.0, delta=CENT)
-        self.assertAlmostEqual(cabinet.ua_pk1_vat, 400.0, delta=CENT)
-        self.assertAlmostEqual(cabinet.pz_total, 200.0, delta=0.01)
-        self.assertAlmostEqual(cabinet.pk_total, 400.0, delta=0.01)
-        self.assertAlmostEqual(cabinet.due_total, -200.0, delta=0.01)
+        period.action_compute()
+        self.assertAlmostEqual(period.ua_r1_base, 1000.0, delta=CENT)
+        self.assertAlmostEqual(period.ua_r1_vat, 200.0, delta=CENT)
+        self.assertAlmostEqual(period.ua_pk1_base, 2000.0, delta=CENT)
+        self.assertAlmostEqual(period.ua_pk1_vat, 400.0, delta=CENT)
+        self.assertAlmostEqual(period.pz_total, 200.0, delta=0.01)
+        self.assertAlmostEqual(period.pk_total, 400.0, delta=0.01)
+        self.assertAlmostEqual(period.due_total, -200.0, delta=0.01)
         # Рядок 9 дорівнює ПЗ, рядки 18 і 19 - різниці.
-        self.assertAlmostEqual(cabinet.ua_pz_total, cabinet.pz_total, delta=0.01)
-        self.assertAlmostEqual(cabinet.ua_pk_total, cabinet.pk_total, delta=0.01)
-        self.assertAlmostEqual(cabinet.ua_r18, 0.0, delta=0.01)
-        self.assertAlmostEqual(cabinet.ua_r19, 200.0, delta=0.01)
+        self.assertAlmostEqual(period.ua_pz_total, period.pz_total, delta=0.01)
+        self.assertAlmostEqual(period.ua_pk_total, period.pk_total, delta=0.01)
+        self.assertAlmostEqual(period.ua_r18, 0.0, delta=0.01)
+        self.assertAlmostEqual(period.ua_r19, 200.0, delta=0.01)
 
-    def test_19_cabinet_zero_split_adds_up(self):
+    def test_19_period_zero_split_adds_up(self):
         """Звільнені і 0 % експорт розділяються, а разом дають нульовий кошик.
 
         Звільнений продаж 5000,00 і експортний 3000,00 у грудні 2026:
@@ -659,17 +659,17 @@ class TestUaVat(AccountTestInvoicingCommon):
         self._invoice(
             nonresident, datetime.date(2026, 12, 6),
             [(self.goods, 1, 3000.0, self.tax_sale_zero)])
-        cabinet = self.env["ua.vat.cabinet"].create({
+        period = self.env["ua.vat.period"].create({
             "date_from": datetime.date(2026, 12, 1),
             "date_to": datetime.date(2026, 12, 31),
         })
-        cabinet.action_compute()
-        self.assertAlmostEqual(cabinet.ua_r_exempt_base, 5000.0, delta=0.01)
-        self.assertAlmostEqual(cabinet.ua_r_export_base, 3000.0, delta=0.01)
-        self.assertAlmostEqual(cabinet.ua_r0_base, 8000.0, delta=0.01)
+        period.action_compute()
+        self.assertAlmostEqual(period.ua_r_exempt_base, 5000.0, delta=0.01)
+        self.assertAlmostEqual(period.ua_r_export_base, 3000.0, delta=0.01)
+        self.assertAlmostEqual(period.ua_r0_base, 8000.0, delta=0.01)
         self.assertAlmostEqual(
-            cabinet.ua_r_exempt_base + cabinet.ua_r_export_base,
-            cabinet.ua_r0_base, delta=0.01,
+            period.ua_r_exempt_base + period.ua_r_export_base,
+            period.ua_r0_base, delta=0.01,
             msg="розділення нульових обсягів не сходиться з кошиком")
 
     # --- 20. Митний ПДВ --------------------------------------------------------

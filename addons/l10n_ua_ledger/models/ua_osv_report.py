@@ -24,10 +24,20 @@ TRIAL_BALANCE = "report.account_financial_report.trial_balance"
 DETAIL_PREFIX = {"c3": 3, "c2": 2, "c1": 1}
 
 
-class UaOsvReport(models.TransientModel):
+class UaOsvReport(models.Model):
     _name = "ua.osv.report"
     _inherit = "ua.ledger.base"
     _description = "Оборотно-сальдова відомість"
+    _order = "date_from desc, id desc"
+    _ua_result_view = "l10n_ua_ledger.view_ua_osv_report_form"
+    _ua_ask_view = "l10n_ua_ledger.view_ua_osv_report_ask"
+
+    name = fields.Char("Назва", compute="_compute_name", store=True)
+
+    @api.depends("date_from", "date_to")
+    def _compute_name(self):
+        for osv in self:
+            osv.name = "Оборотно-сальдова відомість %s" % osv._ua_period_label()
 
     detail = fields.Selection(
         [
@@ -186,7 +196,7 @@ class UaOsvReport(models.TransientModel):
         return self.env.ref("l10n_ua_ledger.action_report_ua_osv_xlsx").report_action(self)
 
 
-class UaOsvLine(models.TransientModel):
+class UaOsvLine(models.Model):
     _name = "ua.osv.line"
     _description = "Рядок оборотно-сальдової відомості"
     _order = "sequence, id"
@@ -219,9 +229,10 @@ class UaOsvLine(models.TransientModel):
         card.action_compute()
         return {
             "type": "ir.actions.act_window",
-            "name": "Картка рахунку %s" % (self.code or ""),
+            "name": card.display_name,
             "res_model": "ua.account.card",
             "res_id": card.id,
             "view_mode": "form",
-            "target": "new",
+            "views": [(self.env.ref("l10n_ua_ledger.view_ua_account_card_form").id, "form")],
+            "target": "current",
         }

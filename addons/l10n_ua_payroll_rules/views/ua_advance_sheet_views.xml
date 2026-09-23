@@ -55,6 +55,10 @@
     <field name="name">ua.advance.sheet.list</field><field name="model">ua.advance.sheet</field>
     <field name="arch" type="xml">
       <list string="Авансові відомості">
+        <header>
+          <button name="action_compose_month" type="object" display="always"
+                  string="Створити за місяць" class="btn-primary"/>
+        </header>
         <field name="name"/>
         <field name="pay_date" options="{'numeric': True}"/>
         <field name="total" sum="Разом"/>

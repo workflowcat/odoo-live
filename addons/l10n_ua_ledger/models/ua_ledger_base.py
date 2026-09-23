@@ -1,9 +1,14 @@
 """Спільна основа трьох регістрів: період, компанія, вибірки з головної книги.
 
-Регістри - транзитні (нічого не пишуть у постійні таблиці) і рахують лише з
-account.move.line проведених документів обраної компанії. Назви рахунків беруться
-з плану, тому українські назви дає план (модуль l10n_ua_chart), а не цей модуль.
-Короткі коди (92, 661) теж дає план.
+Регістри - записи: складений регістр лишається в базі зі своїми рядками, щоб
+«ОСВ за серпень» можна було відкрити пізніше такою самою сторінкою, а не складати
+наново. Рахують лише з account.move.line проведених документів обраної компанії.
+Назви рахунків беруться з плану, тому українські назви дає план (модуль
+l10n_ua_chart), а не цей модуль. Короткі коди (92, 661) теж дає план.
+
+Шлях той самий в усіх трьох: пункт меню відкриває список складених регістрів,
+кнопка «Сформувати» в шапці списку питає параметри діалогом, `action_compose()`
+рахує і відкриває результат сторінкою.
 """
 from odoo import fields, models
 
@@ -33,8 +38,44 @@ class UaLedgerBase(models.AbstractModel):
     date_from = fields.Date("Період з", required=True, default=lambda self: self._default_date_from())
     date_to = fields.Date("Період по", required=True, default=fields.Date.context_today)
 
+    # Подання: сторінка результату (action_compose) і діалог параметрів (action_ask).
+    # Ставить кожен регістр своїми xmlid.
+    _ua_result_view = None
+    _ua_ask_view = None
+
     def _default_date_from(self):
         return fields.Date.context_today(self).replace(day=1)
+
+    def _ua_period_label(self):
+        self.ensure_one()
+        d1 = self.date_from.strftime("%d.%m.%Y") if self.date_from else ""
+        d2 = self.date_to.strftime("%d.%m.%Y") if self.date_to else ""
+        return "%s - %s" % (d1, d2)
+
+    def action_compose(self):
+        """Кнопка «Скласти» в діалозі параметрів: порахувати і відкрити результат сторінкою."""
+        self.ensure_one()
+        self.action_compute()
+        return {
+            "type": "ir.actions.act_window",
+            "name": self.display_name,
+            "res_model": self._name,
+            "res_id": self.id,
+            "view_mode": "form",
+            "views": [(self.env.ref(self._ua_result_view).id, "form")],
+            "target": "current",
+        }
+
+    def action_ask(self):
+        """Кнопка «Сформувати» в шапці списку: діалог параметрів нового регістра."""
+        return {
+            "type": "ir.actions.act_window",
+            "name": self._description,
+            "res_model": self._name,
+            "view_mode": "form",
+            "views": [(self.env.ref(self._ua_ask_view).id, "form")],
+            "target": "new",
+        }
 
     def _aml_domain(self, extra=None):
         """Проведені рядки обраної компанії."""

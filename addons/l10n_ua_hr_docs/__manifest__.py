@@ -1,7 +1,7 @@
 {
     "name": "Кадрові документи (Україна)",
     "summary": "Накази про прийняття, звільнення, відпустку; штатний розпис; табель П-5; Заява-розрахунок до ПФУ",
-    "version": "19.0.1.5.0",
+    "version": "19.0.1.6.0",
     "license": "LGPL-3",
     "author": "Bot&Partners",
     "category": "Human Resources",
@@ -9,7 +9,6 @@
     "data": [
         "security/ir.model.access.csv",
         "data/ir_sequence_data.xml", "data/ir_cron_timesheet.xml",
-        "wizards/ua_hr_docs_wizards_views.xml",
         "report/ua_orders_report.xml",
         "report/ua_staff_list_report.xml",
         "report/ua_timesheet_report.xml",

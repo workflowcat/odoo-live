@@ -34,6 +34,20 @@
     <field name="context">{}</field>
   </record>
 
+  <!-- Звірка виписок з меню: дія OCA чекає active_id журналу (її відкривають з картки
+       журналу), а з меню його немає, і сторінка падала. Тут те саме подання без
+       прив'язки до журналу - усі незвірені рядки, журнал обирає пошук. -->
+  <record id="action_ua_bank_reconcile" model="ir.actions.act_window">
+    <field name="name">Звірка виписок</field>
+    <field name="res_model">account.bank.statement.line</field>
+    <field name="view_mode">kanban,list</field>
+    <field name="domain">[]</field>
+    <field name="context">{'search_default_not_reconciled': True, 'view_ref': 'account_reconcile_oca.bank_statement_line_form_reconcile_view'}</field>
+    <field name="view_ids" eval="[(5, 0, 0),
+        (0, 0, {'view_mode': 'kanban', 'view_id': ref('account_reconcile_oca.bank_statement_line_reconcile_view')}),
+        (0, 0, {'view_mode': 'list', 'view_id': ref('account_statement_base.account_bank_statement_line_tree')})]"/>
+  </record>
+
   <!-- ================================================================= розділи -->
   <menuitem id="menu_ua_payroll_root" name="Зарплата" sequence="1"
             groups="hr.group_hr_user,account.group_account_user"/>
@@ -50,8 +64,6 @@
             parent="menu_ua_payslips" sequence="10"/>
   <menuitem id="payroll.hr_payslip_run_menu" name="Пакети листків"
             parent="menu_ua_payslips" sequence="20"/>
-  <menuitem id="l10n_ua_payroll_rules.menu_ua_advance" name="Аванс за місяць"
-            parent="menu_ua_payslips" sequence="30"/>
 
   <menuitem id="menu_ua_payroll_docs" name="Документи" parent="menu_ua_payroll_root" sequence="30"/>
   <menuitem id="menu_ua_advance_sheets" name="Авансові відомості" parent="menu_ua_payroll_docs"
@@ -59,16 +71,11 @@
   <menuitem id="menu_ua_pfu_claims" name="Заяви-розрахунки ПФУ" parent="menu_ua_payroll_docs"
             action="l10n_ua_hr_docs.action_ua_pfu_claim" sequence="20"/>
   <menuitem id="menu_ua_income_certificates" name="Довідки про доходи" parent="menu_ua_payroll_docs"
-            action="l10n_ua_payroll_reports.action_ua_income_certificate_register" sequence="30"/>
-  <menuitem id="menu_ua_income_certificate_new" name="Створити довідку про доходи"
-            parent="menu_ua_payroll_docs"
-            action="l10n_ua_payroll_reports.action_ua_income_certificate" sequence="40"/>
+            action="l10n_ua_payroll_reports.action_ua_income_certificate" sequence="30"/>
 
   <menuitem id="menu_ua_payouts" name="Виплати" parent="menu_ua_payroll_root" sequence="40"/>
   <menuitem id="menu_ua_payment_orders" name="Відомості на перерахування" parent="menu_ua_payouts"
             action="l10n_ua_payments.action_ua_payment_order" sequence="10"/>
-  <menuitem id="menu_ua_bank_ops_payroll" name="Операції банку" parent="menu_ua_payouts"
-            action="l10n_ua_bank_online.action_ua_bank_ops" sequence="20"/>
   <menuitem id="l10n_ua_gph.menu_ua_gph" name="Договори ЦПХ"
             parent="menu_ua_payouts" sequence="30"/>
 
@@ -121,14 +128,12 @@
             parent="menu_ua_hr_root" sequence="30"/>
   <menuitem id="l10n_ua_hr_orders.menu_ua_hr_order_register" name="Журнал реєстрації наказів"
             parent="menu_ua_hr_root" sequence="35"/>
+  <menuitem id="l10n_ua_hr_orders.menu_ua_hr_doc_pack" name="Перевірка документів"
+            parent="menu_ua_hr_root" sequence="36"/>
   <menuitem id="menu_ua_hr_staff_list" name="Штатний розпис" parent="menu_ua_hr_root"
             action="l10n_ua_hr_docs.action_ua_staff_list" sequence="40"/>
-  <menuitem id="l10n_ua_hr_docs.menu_ua_staff_list" name="Створити штатний розпис"
-            parent="menu_ua_hr_root" sequence="45"/>
   <menuitem id="menu_ua_hr_timesheets" name="Табелі" parent="menu_ua_hr_root"
             action="l10n_ua_hr_docs.action_ua_timesheet_sheet" sequence="50"/>
-  <menuitem id="l10n_ua_hr_docs.menu_ua_timesheet" name="Створити табель"
-            parent="menu_ua_hr_root" sequence="55"/>
   <menuitem id="menu_ua_hr_leaves" name="Відсутності" parent="menu_ua_hr_root"
             action="action_ua_leaves" sequence="60"/>
 
@@ -139,25 +144,14 @@
             action="l10n_ua_military.action_ua_military_needs_check" sequence="20"/>
   <menuitem id="menu_ua_military_list" name="Списки персонального обліку" parent="menu_ua_military"
             action="l10n_ua_military.action_ua_military_list" sequence="30"/>
-  <menuitem id="menu_ua_military_list_new" name="Створити список персонального обліку"
-            parent="menu_ua_military"
-            action="l10n_ua_military.action_ua_military_list_wizard" sequence="35"/>
   <menuitem id="menu_ua_military_notice" name="Повідомлення до ТЦК" parent="menu_ua_military"
             action="l10n_ua_military.action_ua_military_notice" sequence="40"/>
-  <menuitem id="menu_ua_military_notice_new" name="Створити повідомлення до ТЦК"
-            parent="menu_ua_military"
-            action="l10n_ua_military.action_ua_military_notice_wizard" sequence="45"/>
   <menuitem id="menu_ua_military_reserved" name="Списки заброньованих" parent="menu_ua_military"
             action="l10n_ua_military.action_ua_military_reserved" sequence="50"/>
-  <menuitem id="menu_ua_military_reserved_new" name="Створити список заброньованих"
-            parent="menu_ua_military"
-            action="l10n_ua_military.action_ua_military_reserved_wizard" sequence="55"/>
 
   <menuitem id="menu_ua_hr_refs" name="Довідники" parent="menu_ua_hr_root" sequence="80"/>
   <menuitem id="l10n_ua_hr_orders.menu_ua_hr_doc_requirement" name="Обов'язкові документи"
             parent="menu_ua_hr_refs" sequence="10"/>
-  <menuitem id="l10n_ua_hr_orders.menu_ua_hr_doc_pack" name="Перевірка документів"
-            parent="menu_ua_hr_refs" sequence="20"/>
   <menuitem id="menu_ua_hr_employee_documents" name="Документи працівників" parent="menu_ua_hr_refs"
             action="l10n_ua_hr_card.action_ua_employee_document" sequence="30"/>
   <menuitem id="menu_ua_hr_departments" name="Підрозділи" parent="menu_ua_hr_refs"
@@ -171,18 +165,14 @@
   <menuitem id="menu_ua_reporting_tax" name="ДПС" parent="menu_ua_reporting_root" sequence="10"/>
   <menuitem id="menu_ua_report_runs" name="Звіти періоду" parent="menu_ua_reporting_tax"
             action="l10n_ua_reporting.action_ua_report_run" sequence="10"/>
-  <menuitem id="l10n_ua_payroll_reports.menu_ua_payroll_report" name="Об'єднана звітність (XML)"
-            parent="menu_ua_reporting_tax" sequence="20"/>
-  <menuitem id="l10n_ua_payroll_reports.menu_ua_hire_notice" name="Повідомлення про прийняття (XML)"
-            parent="menu_ua_reporting_tax" sequence="30"/>
 
   <!-- ПДВ і фінзвітність лишаються у «Бухобліку» своїми модулями; тут - посилання
        на ті самі дії, щоб звітність бухгалтера була в одному місці. -->
   <menuitem id="menu_ua_reporting_vat" name="ПДВ" parent="menu_ua_reporting_root" sequence="20"/>
   <menuitem id="menu_ua_reporting_vat_documents" name="Податкові документи"
             parent="menu_ua_reporting_vat" action="l10n_ua_vat.action_ua_vat_document" sequence="10"/>
-  <menuitem id="menu_ua_reporting_vat_cabinet" name="Кабінет ПДВ"
-            parent="menu_ua_reporting_vat" action="l10n_ua_vat.action_ua_vat_cabinet" sequence="20"/>
+  <menuitem id="menu_ua_reporting_vat_period" name="Зведення ПДВ за період"
+            parent="menu_ua_reporting_vat" action="l10n_ua_vat.action_ua_vat_period" sequence="20"/>
 
   <menuitem id="menu_ua_reporting_finrep" name="Фінзвітність" parent="menu_ua_reporting_root"
             sequence="30"/>
@@ -196,12 +186,14 @@
             parent="menu_ua_reporting_finrep" action="l10n_ua_finrep.action_f2m" sequence="40"/>
 
   <!-- ================================================================= банк у «Бухобліку» -->
+  <!-- Операції банку (завантажити виписку, звести з платежами, правила) - кнопки в
+       шапці цього списку; окремого пункту меню в них більше немає. -->
+  <menuitem id="menu_ua_bank_statements" name="Виписки"
+            parent="account_usability.menu_accounting_bank_and_cash"
+            action="account.action_bank_statement_tree" sequence="5"/>
   <menuitem id="menu_ua_bank_reconcile" name="Звірка виписок"
             parent="account_usability.menu_accounting_bank_and_cash"
-            action="account_reconcile_oca.action_bank_statement_line_reconcile_all" sequence="10"/>
-  <menuitem id="menu_ua_bank_ops" name="Операції банку"
-            parent="account_usability.menu_accounting_bank_and_cash"
-            action="l10n_ua_bank_online.action_ua_bank_ops" sequence="20"/>
+            action="action_ua_bank_reconcile" sequence="10"/>
   <menuitem id="menu_ua_bank_connect" name="Підключення банків"
             parent="account_usability.menu_accounting_bank_and_cash"
             action="l10n_ua_bank_online.action_ua_bank_connect" sequence="30"/>

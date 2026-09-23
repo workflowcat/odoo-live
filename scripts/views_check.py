@@ -3,6 +3,11 @@
 Продукт іде голим Odoo, тому перевірка одна і проста: пройти всі пункти під трьома
 нашими розділами («Зарплата», «Кадри», «Звітність») і довести, що
   - у пункта є дія, і це НЕ клієнтська дія (власних екранів більше немає);
+  - дія пункту меню відкриває СТОРІНКУ, а не діалог (target != "new"), - рішення
+    Andrii від 2026-09-22: меню веде на список або форму, діалог буває лише з кнопки
+    на відкритому записі;
+  - у кожного списку документа (модель має ua_compose) є чим завести новий запис:
+    або кнопка в шапці списку, або дозволене «Новий»;
   - список, форма і пошук цієї дії будуються без помилки (get_views);
   - кожна кнопка type="object" у побудованій арці має метод на моделі;
   - кожен звіт, прив'язаний до побаченої моделі, рендериться хоча б для одного запису;
@@ -39,8 +44,23 @@ ROOTS = ["l10n_ua_navigation.menu_ua_payroll_root",
          "l10n_ua_navigation.menu_ua_hr_root",
          "l10n_ua_navigation.menu_ua_reporting_root"]
 
+# Наші пункти в рідних розділах Odoo («Бухоблік», «Закупівлі», «Основні засоби»):
+# правило про сторінку з меню чинне і для них.
+OURS_IN_NATIVE = [
+    "l10n_ua_ledger.menu_ua_ledger_root",
+    "l10n_ua_cash.menu_ua_cash_root",
+    "l10n_ua_vat.menu_ua_vat_root",
+    "l10n_ua_finrep.menu_ua_finrep_root",
+    "l10n_ua_assets.menu_ua_depreciation_sheet",
+    "l10n_ua_purchase.menu_ua_purchase_order_by_request",
+    "l10n_ua_migrate.menu_ua_migrate",
+    "l10n_ua_navigation.menu_ua_bank_statements",
+    "l10n_ua_navigation.menu_ua_bank_reconcile",
+    "l10n_ua_navigation.menu_ua_bank_connect",
+]
+
 menus = env["ir.ui.menu"]
-for xmlid in ROOTS:
+for xmlid in ROOTS + OURS_IN_NATIVE:
     root = env.ref(xmlid, raise_if_not_found=False)
     check("розділ %s на місці" % xmlid, bool(root))
     if not root:
@@ -64,6 +84,9 @@ for menu in menus.sorted("complete_name"):
           getattr(action, "tag", ""))
     if action._name != "ir.actions.act_window":
         continue
+    # Меню відкриває сторінку. Діалог (target="new") - лише з кнопки на відкритому записі.
+    check("%s: дія відкривається сторінкою" % name, (action.target or "current") != "new",
+          "target=%s" % action.target)
     model = action.res_model
     models_seen.add(model)
     modes = [m.strip() for m in (action.view_mode or "list,form").split(",") if m.strip()]
@@ -118,6 +141,16 @@ for menu in menus.sorted("complete_name"):
             if not hasattr(target, method):
                 missing.append("%s.%s" % (target._name, method))
         check("%s/%s: кнопки мають методи" % (name, mode), not missing, "; ".join(sorted(set(missing))))
+
+        # Список документа має чим завести новий запис: кнопка в шапці або «Новий».
+        if mode == "list" and hasattr(env[model], "ua_compose"):
+            roots = tree.xpath("/list") or [tree]
+            header_buttons = [b for b in tree.xpath("//list/header/button")
+                              if b.get("name") and not b.get("invisible")]
+            can_create = (roots[0].get("create") or "1") not in ("0", "false", "False")
+            check("%s/list: є чим завести документ (%s)" % (name, model),
+                  bool(header_buttons) or can_create,
+                  "ні кнопки в шапці, ні «Новий»")
 
 # ------------------------------------------------------------------ звіти
 Report = env["ir.actions.report"]

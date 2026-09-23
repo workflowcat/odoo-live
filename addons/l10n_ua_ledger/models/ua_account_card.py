@@ -9,13 +9,26 @@
 протилежного боку тієї самої проводки через кому, без сум. Для проводки з
 кількома рядками це перелік, а не розклад.
 """
-from odoo import fields, models
+from odoo import api, fields, models
 
 
-class UaAccountCard(models.TransientModel):
+class UaAccountCard(models.Model):
     _name = "ua.account.card"
     _inherit = "ua.ledger.base"
     _description = "Картка рахунку"
+    _order = "date_from desc, id desc"
+    _ua_result_view = "l10n_ua_ledger.view_ua_account_card_form"
+    _ua_ask_view = "l10n_ua_ledger.view_ua_account_card_ask"
+
+    name = fields.Char("Назва", compute="_compute_name", store=True)
+
+    @api.depends("account_id", "partner_id", "date_from", "date_to")
+    def _compute_name(self):
+        for card in self:
+            who = " · %s" % card.partner_id.name if card.partner_id else ""
+            card.name = "Картка рахунку %s%s · %s" % (
+                card._acc_code(card.account_id) if card.account_id else "",
+                who, card._ua_period_label())
 
     account_id = fields.Many2one("account.account", "Рахунок", required=True)
     partner_id = fields.Many2one(
@@ -95,7 +108,7 @@ class UaAccountCard(models.TransientModel):
         return self.env.ref("l10n_ua_ledger.action_report_ua_account_card_xlsx").report_action(self)
 
 
-class UaAccountCardLine(models.TransientModel):
+class UaAccountCardLine(models.Model):
     _name = "ua.account.card.line"
     _description = "Рядок картки рахунку"
     _order = "sequence, id"

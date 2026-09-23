@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <record id="view_ua_vat_cabinet_form" model="ir.ui.view">
-    <field name="name">ua.vat.cabinet.form</field>
-    <field name="model">ua.vat.cabinet</field>
+  <record id="view_ua_vat_period_form" model="ir.ui.view">
+    <field name="name">ua.vat.period.form</field>
+    <field name="model">ua.vat.period</field>
     <field name="arch" type="xml">
       <form string="Зведення ПДВ за період">
+        <header>
+          <button name="action_compute" type="object" string="Порахувати" class="btn-primary"/>
+        </header>
+        <sheet>
+        <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
         <group>
           <group>
             <field name="date_from"/>
@@ -15,9 +20,6 @@
             <field name="currency_id" invisible="1"/>
           </group>
         </group>
-        <div class="oe_button_box" name="compute">
-          <button name="action_compute" type="object" string="Порахувати" class="btn-primary"/>
-        </div>
         <group>
           <group string="Разом за період">
             <field name="pz_total"/>
@@ -76,14 +78,48 @@
             <field name="problems" nolabel="1"/>
           </page>
         </notebook>
+        </sheet>
       </form>
     </field>
   </record>
 
-  <record id="action_ua_vat_cabinet" model="ir.actions.act_window">
+  <record id="view_ua_vat_period_list" model="ir.ui.view">
+    <field name="name">ua.vat.period.list</field>
+    <field name="model">ua.vat.period</field>
+    <field name="arch" type="xml">
+      <list>
+        <header>
+          <button name="action_compose_month" type="object" display="always"
+                  string="Створити за місяць" class="btn-primary"/>
+        </header>
+        <field name="name"/>
+        <field name="date_from" options="{'numeric': True}"/>
+        <field name="date_to" options="{'numeric': True}"/>
+        <field name="pz_total" sum="Разом"/>
+        <field name="pk_total" sum="Разом"/>
+        <field name="due_total" sum="Разом"/>
+        <field name="currency_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_vat_period_search" model="ir.ui.view">
+    <field name="name">ua.vat.period.search</field>
+    <field name="model">ua.vat.period</field>
+    <field name="arch" type="xml">
+      <search string="Зведення ПДВ">
+        <field name="name"/>
+        <group>
+          <filter name="group_date" string="Період з" context="{'group_by': 'date_from'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_vat_period" model="ir.actions.act_window">
     <field name="name">Зведення ПДВ за період</field>
-    <field name="res_model">ua.vat.cabinet</field>
-    <field name="view_mode">form</field>
-    <field name="target">new</field>
+    <field name="res_model">ua.vat.period</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_ua_vat_period_search"/>
   </record>
 </odoo>

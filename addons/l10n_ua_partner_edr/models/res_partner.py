@@ -32,6 +32,16 @@ def split_address(text):
 class ResPartner(models.Model):
     _inherit = "res.partner"
 
+    def action_ua_new_from_edr(self):
+        """Кнопка «Контрагент з ЄДР» у шапці списку: разовий діалог на одне поле - код."""
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Контрагент з ЄДР"),
+            "res_model": "ua.partner.edr.wizard",
+            "view_mode": "form",
+            "target": "new",
+        }
+
     ua_edr_kind = fields.Selection([("company", "Юрособа"), ("fop", "ФОП")], "Тип у ЄДР", readonly=True)
     ua_edr_full_name = fields.Char("Повна назва (ЄДР)", readonly=True)
     ua_edr_status = fields.Char("Стан у ЄДР", readonly=True)

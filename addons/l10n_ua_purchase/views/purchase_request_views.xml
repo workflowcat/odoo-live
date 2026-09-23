@@ -21,6 +21,12 @@
       <field name="state" position="before">
         <field name="ua_department_id" optional="show"/>
       </field>
+      <list position="inside">
+        <header>
+          <button name="action_ua_pad" type="object" display="always"
+                  string="Пад" class="btn-primary"/>
+        </header>
+      </list>
     </field>
   </record>
 

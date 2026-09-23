@@ -67,6 +67,12 @@ class UaStaffList(models.Model):
         doc.action_refill()
         return doc
 
+    def action_compose_today(self):
+        """Кнопка списку «Створити на сьогодні»: розпис на поточну дату, одразу заповнений."""
+        doc = self.ua_compose(self.env.company)
+        return {"type": "ir.actions.act_window", "name": doc.name, "res_model": "ua.staff.list",
+                "view_mode": "form", "res_id": doc.id, "target": "current"}
+
     def action_refill(self):
         """Видалити рядки і заповнити знову: підрозділ / посада / код КП / оклад -> сума ставок і фонд."""
         for doc in self:

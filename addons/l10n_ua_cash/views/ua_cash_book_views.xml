@@ -1,89 +1,151 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Пункт меню відкриває список складених касових книг; «Сформувати» в шапці списку
+     питає касу і період діалогом, результат відкривається сторінкою. -->
 <odoo>
-  <record id="view_ua_cash_book_form" model="ir.ui.view">
-    <field name="name">ua.cash.book.form</field>
+  <record id="view_ua_cash_book_ask" model="ir.ui.view">
+    <field name="name">ua.cash.book.ask</field>
     <field name="model">ua.cash.book</field>
     <field name="arch" type="xml">
       <form string="Касова книга">
         <group>
           <group>
             <field name="journal_id"/>
-            <field name="account_id" readonly="1"/>
             <field name="company_id" groups="base.group_multi_company"/>
-            <field name="currency_id" invisible="1"/>
           </group>
           <group>
             <field name="date_from"/>
             <field name="date_to"/>
             <field name="limit_amount"/>
+            <field name="currency_id" invisible="1"/>
           </group>
         </group>
         <footer>
-          <button name="action_compute" type="object" string="Скласти" class="oe_highlight"/>
-          <button name="action_print" type="object" string="Друк КО-4"/>
+          <button name="action_compose" type="object" string="Скласти" class="oe_highlight"/>
           <button string="Закрити" class="btn-secondary" special="cancel"/>
         </footer>
-        <div class="alert alert-warning" role="alert" invisible="not over_limit">
-          Перевищення ліміту каси: <field name="over_limit_days" nolabel="1" readonly="1"/> дн.
-          Понадлімітну готівку належить здати в банк.
-        </div>
-        <group>
-          <group>
-            <field name="opening_balance" readonly="1"/>
-            <field name="total_in" readonly="1"/>
-          </group>
-          <group>
-            <field name="total_out" readonly="1"/>
-            <field name="closing_balance" readonly="1"/>
-            <field name="over_limit" invisible="1"/>
-          </group>
-        </group>
-        <field name="line_ids" readonly="1">
-          <list string="Аркуші">
-            <field name="date"/>
-            <field name="opening_balance"/>
-            <field name="total_in" sum="Надходження"/>
-            <field name="total_out" sum="Видаток"/>
-            <field name="closing_balance" decoration-danger="over_limit"/>
-            <field name="limit_amount" optional="hide"/>
-            <field name="over_limit" widget="boolean_toggle" readonly="1"/>
-            <field name="currency_id" column_invisible="1"/>
-          </list>
-          <form string="Аркуш касової книги">
-            <group>
-              <group>
-                <field name="date" readonly="1"/>
-                <field name="opening_balance" readonly="1"/>
-                <field name="closing_balance" readonly="1"/>
-              </group>
-              <group>
-                <field name="total_in" readonly="1"/>
-                <field name="total_out" readonly="1"/>
-                <field name="over_limit" readonly="1"/>
-                <field name="currency_id" invisible="1"/>
-              </group>
-            </group>
-            <field name="entry_ids" readonly="1">
-              <list string="Ордери дня">
-                <field name="document"/>
-                <field name="person"/>
-                <field name="counterpart"/>
-                <field name="amount_in" sum="Надходження"/>
-                <field name="amount_out" sum="Видаток"/>
-                <field name="move_id" optional="hide"/>
-                <field name="currency_id" column_invisible="1"/>
-              </list>
-            </field>
-          </form>
-        </field>
       </form>
     </field>
   </record>
 
+  <record id="view_ua_cash_book_form" model="ir.ui.view">
+    <field name="name">ua.cash.book.form</field>
+    <field name="model">ua.cash.book</field>
+    <field name="arch" type="xml">
+      <form string="Касова книга">
+        <header>
+          <button name="action_compute" type="object" string="Перерахувати" class="oe_highlight"/>
+          <button name="action_print" type="object" string="Друк КО-4"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="journal_id"/>
+              <field name="account_id" readonly="1"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+            <group>
+              <field name="date_from"/>
+              <field name="date_to"/>
+              <field name="limit_amount"/>
+            </group>
+          </group>
+          <div class="alert alert-warning" role="alert" invisible="not over_limit">
+            Перевищення ліміту каси: <field name="over_limit_days" nolabel="1" readonly="1"/> дн.
+            Понадлімітну готівку належить здати в банк.
+          </div>
+          <group>
+            <group>
+              <field name="opening_balance" readonly="1"/>
+              <field name="total_in" readonly="1"/>
+            </group>
+            <group>
+              <field name="total_out" readonly="1"/>
+              <field name="closing_balance" readonly="1"/>
+              <field name="over_limit" invisible="1"/>
+            </group>
+          </group>
+          <field name="line_ids" readonly="1">
+            <list string="Аркуші">
+              <field name="date"/>
+              <field name="opening_balance"/>
+              <field name="total_in" sum="Надходження"/>
+              <field name="total_out" sum="Видаток"/>
+              <field name="closing_balance" decoration-danger="over_limit"/>
+              <field name="limit_amount" optional="hide"/>
+              <field name="over_limit" widget="boolean_toggle" readonly="1"/>
+              <field name="currency_id" column_invisible="1"/>
+            </list>
+            <form string="Аркуш касової книги">
+              <group>
+                <group>
+                  <field name="date" readonly="1"/>
+                  <field name="opening_balance" readonly="1"/>
+                  <field name="closing_balance" readonly="1"/>
+                </group>
+                <group>
+                  <field name="total_in" readonly="1"/>
+                  <field name="total_out" readonly="1"/>
+                  <field name="over_limit" readonly="1"/>
+                  <field name="currency_id" invisible="1"/>
+                </group>
+              </group>
+              <field name="entry_ids" readonly="1">
+                <list string="Ордери дня">
+                  <field name="document"/>
+                  <field name="person"/>
+                  <field name="counterpart"/>
+                  <field name="amount_in" sum="Надходження"/>
+                  <field name="amount_out" sum="Видаток"/>
+                  <field name="move_id" optional="hide"/>
+                  <field name="currency_id" column_invisible="1"/>
+                </list>
+              </field>
+            </form>
+          </field>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_cash_book_list" model="ir.ui.view">
+    <field name="name">ua.cash.book.list</field>
+    <field name="model">ua.cash.book</field>
+    <field name="arch" type="xml">
+      <list create="0">
+        <header>
+          <button name="action_ask" type="object" display="always"
+                  string="Сформувати" class="btn-primary"/>
+        </header>
+        <field name="name"/>
+        <field name="journal_id"/>
+        <field name="date_from" options="{'numeric': True}"/>
+        <field name="date_to" options="{'numeric': True}"/>
+        <field name="total_in"/>
+        <field name="total_out"/>
+        <field name="closing_balance"/>
+        <field name="over_limit" widget="boolean_toggle" readonly="1"/>
+        <field name="currency_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+
   <record id="action_ua_cash_book" model="ir.actions.act_window">
-    <field name="name">Касова книга (КО-4)</field>
+    <field name="name">Касові книги (КО-4)</field>
     <field name="res_model">ua.cash.book</field>
-    <field name="view_mode">form</field>
-    <field name="target">new</field>
+    <field name="view_mode">list,form</field>
+    <field name="target">current</field>
+  </record>
+
+  <record id="action_ua_cash_book_list_view" model="ir.actions.act_window.view">
+    <field name="sequence">1</field><field name="view_mode">list</field>
+    <field name="view_id" ref="view_ua_cash_book_list"/>
+    <field name="act_window_id" ref="action_ua_cash_book"/>
+  </record>
+  <record id="action_ua_cash_book_form_view" model="ir.actions.act_window.view">
+    <field name="sequence">2</field><field name="view_mode">form</field>
+    <field name="view_id" ref="view_ua_cash_book_form"/>
+    <field name="act_window_id" ref="action_ua_cash_book"/>
   </record>
 </odoo>

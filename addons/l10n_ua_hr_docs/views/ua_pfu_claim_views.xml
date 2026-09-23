@@ -89,6 +89,10 @@
     <field name="model">ua.pfu.claim</field>
     <field name="arch" type="xml">
       <list>
+        <header>
+          <button name="action_compose_month" type="object" display="always"
+                  string="Створити за місяць" class="btn-primary"/>
+        </header>
         <field name="name"/>
         <field name="payslip_run_id"/>
         <field name="total"/>

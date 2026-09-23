@@ -690,13 +690,24 @@ class UaReportRun(models.Model):
         return self._render_pdf("l10n_ua_hr_docs.action_report_ua_staff_list", sheet)
 
     def _generate_orders(self):
+        """Журнал реєстрації за рік, по одному файлу на реєстр.
+
+        Майстра журналу більше немає (2026-09-22): журнал - це самі накази, тому звіт
+        рендериться просто з їхнього переліку за рік і реєстр."""
         self.ensure_one()
         c = self.company_id
+        Order = self.env["ua.hr.order"]
+        labels = dict(Order._fields["register"].selection)
         atts = self.env["ir.attachment"]
         for register in ("k1", "v2"):
-            w = self.env["ua.hr.order.register.wizard"].create({"company_id": c.id, "year": self.year, "register": register})
-            atts |= self._render_pdf("l10n_ua_hr_orders.action_report_ua_hr_order_register", w,
-                                     name="%s_%s_%s.pdf" % (dict(w._fields["register"].selection).get(register), self.year, register))
+            orders = Order.search([
+                ("company_id", "=", c.id), ("register", "=", register),
+                ("date", ">=", "%s-01-01" % self.year), ("date", "<=", "%s-12-31" % self.year),
+            ], order="date, name")
+            if not orders:
+                continue
+            atts |= self._render_pdf("l10n_ua_hr_orders.action_report_ua_hr_order_register", orders,
+                                     name="%s_%s_%s.pdf" % (labels.get(register), self.year, register))
         return atts
 
     def _render_pdf(self, report_xmlid, doc, name=None):

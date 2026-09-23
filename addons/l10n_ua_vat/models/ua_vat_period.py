@@ -2,6 +2,10 @@
 """Зведення ПДВ за період: скільки нарахували, скільки в кредиті, скільки до
 сплати, і що в періоді не доробили.
 
+Запис на період, а не разовий розрахунок: зведення за серпень має лишатися таким,
+яким його бачив бухгалтер, коли подавав декларацію. Тому це звичайна модель зі своїм
+списком по місяцях; «Порахувати» перезаписує числа з книг на поточний момент.
+
 Це рахунок, а не екран: усі числа - поля моделі, і будь-який звіт чи тест бере
 їх напряму. Проблеми періоду складаємо простим списком рядків, без розмітки.
 
@@ -27,9 +31,12 @@ from odoo import api, fields, models
 _logger = logging.getLogger(__name__)
 
 
-class UaVatCabinet(models.TransientModel):
-    _name = "ua.vat.cabinet"
+class UaVatPeriod(models.Model):
+    _name = "ua.vat.period"
     _description = "Зведення ПДВ за період"
+    _order = "date_from desc, id desc"
+
+    name = fields.Char("Назва", compute="_compute_name", store=True)
 
     def _default_date_from(self):
         return fields.Date.context_today(self).replace(day=1)
@@ -44,7 +51,7 @@ class UaVatCabinet(models.TransientModel):
         string="Період по", required=True, default=_default_date_to)
     company_id = fields.Many2one(
         "res.company", string="Компанія",
-        default=lambda self: self.env.company, readonly=True)
+        default=lambda self: self.env.company, required=True)
     currency_id = fields.Many2one(
         "res.currency", related="company_id.currency_id")
 
@@ -96,6 +103,42 @@ class UaVatCabinet(models.TransientModel):
     # Розділ III.
     ua_r18 = fields.Float(string="р.18 до сплати", readonly=True)
     ua_r19 = fields.Float(string="р.19 від'ємне значення", readonly=True)
+
+    @api.depends("date_from", "date_to")
+    def _compute_name(self):
+        for period in self:
+            if period.date_from and period.date_to \
+                    and period.date_from.year == period.date_to.year \
+                    and period.date_from.month == period.date_to.month:
+                period.name = "ПДВ %02d.%s" % (period.date_from.month, period.date_from.year)
+            else:
+                period.name = "ПДВ %s - %s" % (
+                    period.date_from.strftime("%d.%m.%Y") if period.date_from else "",
+                    period.date_to.strftime("%d.%m.%Y") if period.date_to else "")
+
+    @api.model
+    def ua_compose(self, company, year=None, month=None, **params):
+        """Нове зведення ПДВ за місяць, одразу пораховане."""
+        if isinstance(company, int):
+            company = self.env["res.company"].browse(company)
+        company = company or self.env.company
+        today = fields.Date.context_today(self)
+        year, month = int(year or today.year), int(month or today.month)
+        last = calendar.monthrange(year, month)[1]
+        period = self.create({
+            "company_id": company.id,
+            "date_from": fields.Date.to_date("%04d-%02d-01" % (year, month)),
+            "date_to": fields.Date.to_date("%04d-%02d-%02d" % (year, month, last)),
+        })
+        period.action_compute()
+        return period
+
+    def action_compose_month(self):
+        """Кнопка списку «Створити за місяць»: зведення поточного місяця."""
+        today = fields.Date.context_today(self)
+        period = self.ua_compose(self.env.company, today.year, today.month)
+        return {"type": "ir.actions.act_window", "name": period.name, "res_model": "ua.vat.period",
+                "view_mode": "form", "res_id": period.id, "target": "current"}
 
     @api.onchange("date_from", "date_to")
     def _onchange_period(self):
@@ -195,10 +238,10 @@ class UaVatCabinet(models.TransientModel):
     def action_compute(self):
         """Кнопка «Порахувати»: перерахувати зведення за період."""
         self.ensure_one()
-        self.write(self._ua_cabinet_vals())
+        self.write(self._ua_period_vals())
         return True
 
-    def _ua_cabinet_vals(self):
+    def _ua_period_vals(self):
         """Зведення ПДВ за період як словник значень.
 
         Кожен блок окремо в try: збій однієї перевірки не валить решту чисел.

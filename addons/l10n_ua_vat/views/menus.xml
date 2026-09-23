@@ -11,10 +11,10 @@
             action="action_ua_vat_document"
             sequence="10"/>
 
-  <menuitem id="menu_ua_vat_cabinet"
+  <menuitem id="menu_ua_vat_period"
             name="Зведення за період"
             parent="menu_ua_vat_root"
-            action="action_ua_vat_cabinet"
+            action="action_ua_vat_period"
             sequence="20"/>
 
   <menuitem id="menu_ua_vat_compensation"

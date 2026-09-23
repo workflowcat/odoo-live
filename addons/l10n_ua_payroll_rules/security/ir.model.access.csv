@@ -1,6 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_ua_payroll_param_user,ua.payroll.param user,model_ua_payroll_param,hr.group_hr_user,1,0,0,0
 access_ua_payroll_param_manager,ua.payroll.param manager,model_ua_payroll_param,hr.group_hr_manager,1,1,1,1
-access_ua_payroll_advance_wizard,ua.payroll.advance.wizard,model_ua_payroll_advance_wizard,hr.group_hr_user,1,1,1,1
 access_ua_advance_sheet_user,ua.advance.sheet user,model_ua_advance_sheet,hr.group_hr_user,1,1,1,1
 access_ua_advance_line_user,ua.advance.line user,model_ua_advance_line,hr.group_hr_user,1,1,1,1

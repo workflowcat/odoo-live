@@ -1,7 +1,7 @@
 {
     "name": "Україна: банк онлайн (ПриватБанк, Monobank) і робоче місце звірки",
     "summary": "Виписки з банку через API замість файлів: провайдери, підтягування, правила звірки, чек-лист підключення",
-    "version": "19.0.1.5.0",
+    "version": "19.0.1.6.0",
     "category": "Accounting",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -21,7 +21,7 @@
         "data/ua_statement_mappings.xml",
         "views/online_bank_statement_provider_views.xml",
         "views/ua_bank_connect_views.xml",
-        "wizards/ua_bank_ops_wizard_views.xml",
+        "views/account_bank_statement_views.xml",
     ],
     "installable": True,
 }

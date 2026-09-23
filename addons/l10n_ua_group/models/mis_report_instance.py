@@ -32,6 +32,20 @@ class MisReportInstance(models.Model):
              "елімінація внутрішньогрупових оборотів і підсумок.",
     )
 
+    def action_ua_group_consolidation(self):
+        """Кнопка «Сформувати» в шапці списку: діалог параметрів консолідації.
+
+        Діалог - разова дія з кнопки; сам звіт і далі відкривається сторінкою
+        mis_builder, і список цієї сторінки веде пункт меню."""
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Консолідація групи",
+            "res_model": "ua.group.consolidation",
+            "view_mode": "form",
+            "views": [(self.env.ref("l10n_ua_group.ua_group_consolidation_view_form").id, "form")],
+            "target": "new",
+        }
+
     def _ua_group_matrix(self):
         """{підпис колонки: {код рядка або ім'я контролю: сума}}."""
         self.ensure_one()

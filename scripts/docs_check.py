@@ -17,6 +17,7 @@ BASE = f"http://127.0.0.1:{PORT}"
 DB = os.environ.get("PAYROLL_CHECK_DB", "payroll")
 PW = ENV["ODOO_ADMIN_USER_PASSWORD"].strip()
 RUN_NAME = "Зарплата за серпень 2026"
+COMPANY_ID = int(os.environ.get("PAYROLL_COMPANY_ID", "1"))
 
 
 def rpc(service, method, *args):
@@ -59,17 +60,13 @@ def check(label, cond):
 
 
 # 1. Табель обліку робочого часу за 08.2026
-wiz_id = call("ua.timesheet.wizard", "create", {"year": 2026, "month": 8})
-action = call("ua.timesheet.wizard", "action_create", [wiz_id])
-timesheet_id = action["res_id"]
+timesheet_id = call("ua.timesheet.sheet", "ua_compose", COMPANY_ID, 2026, 8)[0]
 timesheet = call("ua.timesheet.sheet", "read", [timesheet_id], ["name", "line_ids", "state"])[0]
 print(f"Табель: {timesheet['name']} (id={timesheet_id}, стан={timesheet['state']}, рядків={len(timesheet['line_ids'])})")
 check(f"табель має >= 15 рядків ({len(timesheet['line_ids'])})", len(timesheet["line_ids"]) >= 15)
 
 # 2. Штатний розпис на 2026-08-31
-wiz_id = call("ua.staff.list.wizard", "create", {"date": "2026-08-31"})
-action = call("ua.staff.list.wizard", "action_create", [wiz_id])
-staff_list_id = action["res_id"]
+staff_list_id = call("ua.staff.list", "ua_compose", COMPANY_ID, 2026, 8)[0]
 staff_list = call("ua.staff.list", "read", [staff_list_id], ["name", "total_units", "total_fund", "state"])[0]
 print(f"Штатний розпис: {staff_list['name']} (id={staff_list_id}, стан={staff_list['state']}, штатних одиниць={staff_list['total_units']}, фонд={staff_list['total_fund']})")
 check(f"штатний розпис total_units > 10 ({staff_list['total_units']})", staff_list["total_units"] > 10)
@@ -97,9 +94,10 @@ for label, report_name, res_id in [
 # Довідка про доходи: майстер рахує суми з проведених листків і друкує PDF
 emp_ids = call("hr.employee", "search", [["active", "=", True], ["name", "like", "Крамар"]], limit=1)
 if emp_ids:
-    cert_id = call("ua.income.certificate.wizard", "create",
+    cert_id = call("ua.income.certificate", "create",
                    {"employee_id": emp_ids[0], "date_from": "2026-07-01", "date_to": "2026-08-31",
                     "purpose": "для подання до банку"})
+    call("ua.income.certificate", "action_refill", [cert_id])
     slips = call("hr.payslip", "search_read",
                  [["employee_id", "=", emp_ids[0]], ["state", "=", "done"],
                   ["date_from", ">=", "2026-07-01"], ["date_to", "<=", "2026-08-31"]],

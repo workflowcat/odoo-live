@@ -14,7 +14,7 @@
                    "ОЗ-6 - і відомість нарахування амортизації за місяць. "
                    "Модуль логічний: жодного OWL, жодної залежності від модулів інтерфейсу. "
                    "Опис у docs/base/spec-assets-nbu.md.",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Accounting/Localizations",
     "author": "Bot&Partners",
     "license": "LGPL-3",

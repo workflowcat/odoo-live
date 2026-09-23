@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 42. Моделей: 100. Методів: 283. Збережених полів на чужих моделях: 264.
+Модулів: 42. Моделей: 96. Методів: 311. Збережених полів на чужих моделях: 264.
 
 ## Зарплата
 
@@ -15,6 +15,7 @@
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
+| `action_compose_month()` | Кнопка списку «Створити за місяць»: відомість поточного місяця, одразу порахована. | `l10n_ua_payroll_rules` |
 | `action_confirm()` | - | `l10n_ua_payroll_rules` |
 | `action_draft()` | - | `l10n_ua_payroll_rules` |
 | `action_refill()` | Видалити рядки і заповнити знову з чернеток листків місяця. Лише для чернетки документа. | `l10n_ua_payroll_rules` |
@@ -62,13 +63,16 @@
 | --- | --- | --- |
 | `action_generate()` | - | `l10n_ua_payroll_reports` |
 
-### `ua.income.certificate.wizard`
+### `ua.income.certificate`
 
 наша модель · `l10n_ua_payroll_reports`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
-| `action_print()` | - | `l10n_ua_payroll_reports` |
+| `action_confirm()` | Видати довідку: присвоїти номер із послідовності і дату видачі. | `l10n_ua_payroll_reports` |
+| `action_draft()` | - | `l10n_ua_payroll_reports` |
+| `action_refill()` | Видалити рядки і заповнити знову з проведених листків періоду. | `l10n_ua_payroll_reports` |
+| `ua_compose(company, year=None, month=None, employee=None, date_from=None, date_to=None, **params)` | Нова довідка про доходи, одразу заповнена листками періоду. | `l10n_ua_payroll_reports` |
 
 ### `ua.payments.plan`
 
@@ -77,14 +81,6 @@
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
 | `month_rows(company, year, month)` | Рядки календаря виплат місяця: минулий місяць - факт, поточний - план. | `l10n_ua_payments` |
-
-### `ua.payroll.advance.wizard`
-
-наша модель · `l10n_ua_payroll_rules`
-
-| Метод | Що робить | Модуль |
-| --- | --- | --- |
-| `action_fill()` | - | `l10n_ua_payroll_rules` |
 
 ### `ua.payroll.param`
 
@@ -434,13 +430,18 @@
 | `action_accept()` | - | `l10n_ua_hire` |
 | `action_reject()` | - | `l10n_ua_hire` |
 
-### `ua.hr.doc.pack.wizard`
+### `ua.hr.doc.check`
 
 наша модель · `l10n_ua_hr_orders`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
-| `action_print()` | - | `l10n_ua_hr_orders` |
+| `action_compose_today()` | Кнопка списку «Створити на сьогодні». | `l10n_ua_hr_orders` |
+| `action_confirm()` | - | `l10n_ua_hr_orders` |
+| `action_draft()` | - | `l10n_ua_hr_orders` |
+| `action_refill()` | Видалити рядки і заповнити знову: кожен працівник компанії x кожна вимога. | `l10n_ua_hr_orders` |
+| `matrix()` | Матриця для друку: (працівники, вимоги, {(employee_id, requirement_id): мітка}). | `l10n_ua_hr_orders` |
+| `ua_compose(company, year=None, month=None, date=None, **params)` | Нова перевірка документів на дату, одразу заповнена. | `l10n_ua_hr_orders` |
 
 ### `ua.hr.doc.requirement`
 
@@ -462,19 +463,12 @@
 | `action_cancel()` | - | `l10n_ua_hr_orders` |
 | `action_post()` | - | `l10n_ua_hr_orders` |
 | `action_post()` | - | `l10n_ua_hr_orders` |
+| `action_print_register()` | Друк журналу реєстрації: вибрані накази, а без вибору - усе, що показує список. | `l10n_ua_hr_orders` |
 | `action_ua_open_leave()` | - | `l10n_ua_hr_orders` |
 | `action_ua_open_payments()` | - | `l10n_ua_hr_orders` |
 | `action_ua_open_slips()` | - | `l10n_ua_hr_orders` |
 | `action_ua_open_version()` | - | `l10n_ua_hr_orders` |
 | `content_line()` | Короткий однорядковий зміст наказу - для журналу реєстрації. | `l10n_ua_hr_orders` |
-
-### `ua.hr.order.register.wizard`
-
-наша модель · `l10n_ua_hr_orders`
-
-| Метод | Що робить | Модуль |
-| --- | --- | --- |
-| `action_print()` | - | `l10n_ua_hr_orders` |
 
 ### `ua.kp.code`
 
@@ -496,20 +490,13 @@
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
+| `action_compose_all()` | Кнопка списку «Створити за всіма ТЦК»: по одному документу на кожен ТЦК. | `l10n_ua_military` |
 | `action_confirm()` | - | `l10n_ua_military` |
 | `action_create_all_tcc(company_id=None, doc_date=None, variant='all')` | Створити по одному чернетковому списку на кожен ТЦК, де є хоча б один військовозобов'язаний. | `l10n_ua_military` |
 | `action_draft()` | - | `l10n_ua_military` |
 | `action_reconcile()` | Звірка з ТЦК: записує дату звірки всім працівникам у списку і подію в їхню хроніку. | `l10n_ua_military` |
 | `action_refill()` | Видалити рядки і заповнити знову з hr.employee: працівники цього ТЦК, що підлягають обліку | `l10n_ua_military` |
-
-### `ua.military.list.wizard`
-
-наша модель · `l10n_ua_military`
-
-| Метод | Що робить | Модуль |
-| --- | --- | --- |
-| `action_create()` | - | `l10n_ua_military` |
-| `action_create_all()` | Створити списки по всіх ТЦК, де є хоча б один військовозобов'язаний. | `l10n_ua_military` |
+| `ua_compose(company, year=None, month=None, date=None, tcc=None, variant='all', **params)` | Новий список персонального обліку, одразу заповнений. | `l10n_ua_military` |
 
 ### `ua.military.notice`
 
@@ -517,17 +504,11 @@
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
+| `action_compose_month()` | Кнопка списку «Створити за місяць»: повідомлення за поточний місяць. | `l10n_ua_military` |
 | `action_confirm()` | - | `l10n_ua_military` |
 | `action_draft()` | - | `l10n_ua_military` |
 | `action_refill()` | - | `l10n_ua_military` |
-
-### `ua.military.notice.wizard`
-
-наша модель · `l10n_ua_military`
-
-| Метод | Що робить | Модуль |
-| --- | --- | --- |
-| `action_create()` | - | `l10n_ua_military` |
+| `ua_compose(company, year=None, month=None, date_from=None, date_to=None, **params)` | Нове повідомлення ТЦК за період, одразу заповнене. | `l10n_ua_military` |
 
 ### `ua.military.reserved`
 
@@ -535,18 +516,11 @@
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
+| `action_compose_today()` | Кнопка списку «Створити на сьогодні»: список заброньованих на поточну дату. | `l10n_ua_military` |
 | `action_confirm()` | - | `l10n_ua_military` |
 | `action_draft()` | - | `l10n_ua_military` |
 | `action_refill()` | - | `l10n_ua_military` |
 | `ua_compose(company, year=None, month=None, date=None, **params)` | Новий список заброньованих на дату, одразу заповнений. | `l10n_ua_military` |
-
-### `ua.military.reserved.wizard`
-
-наша модель · `l10n_ua_military`
-
-| Метод | Що робить | Модуль |
-| --- | --- | --- |
-| `action_create()` | - | `l10n_ua_military` |
 
 ### `ua.pfu.claim`
 
@@ -555,6 +529,7 @@
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
 | `action_accept()` | ПФУ прийняв заяву. | `l10n_ua_hr_docs` |
+| `action_compose_month()` | Кнопка списку «Створити за місяць»: заява-розрахунок за поточний місяць. | `l10n_ua_hr_docs` |
 | `action_confirm()` | - | `l10n_ua_hr_docs` |
 | `action_done()` | - | `l10n_ua_hr_docs` |
 | `action_draft()` | - | `l10n_ua_hr_docs` |
@@ -572,18 +547,11 @@
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
+| `action_compose_today()` | Кнопка списку «Створити на сьогодні»: розпис на поточну дату, одразу заповнений. | `l10n_ua_hr_docs` |
 | `action_confirm()` | - | `l10n_ua_hr_docs` |
 | `action_draft()` | - | `l10n_ua_hr_docs` |
 | `action_refill()` | Видалити рядки і заповнити знову: підрозділ / посада / код КП / оклад -> сума ставок і фонд. | `l10n_ua_hr_docs` |
 | `ua_compose(company, year=None, month=None, date=None, **params)` | Новий штатний розпис на дату, одразу заповнений поточним складом. | `l10n_ua_hr_docs` |
-
-### `ua.staff.list.wizard`
-
-наша модель · `l10n_ua_hr_docs`
-
-| Метод | Що робить | Модуль |
-| --- | --- | --- |
-| `action_create()` | Створити документ і відкрити його форму; якщо на цю дату вже є чернетка - відкрити її. | `l10n_ua_hr_docs` |
 
 ### `ua.timesheet.sheet`
 
@@ -591,19 +559,12 @@
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
+| `action_compose_month()` | Кнопка списку «Створити за місяць»: табель поточного місяця, одразу заповнений. | `l10n_ua_hr_docs` |
 | `action_confirm()` | - | `l10n_ua_hr_docs` |
 | `action_draft()` | - | `l10n_ua_hr_docs` |
 | `action_recompute_payslips()` | Перерахувати чернетки листків періоду за виправленим табелем. | `l10n_ua_hr_docs` |
 | `action_refill()` | Видалити рядки і заповнити знову: працівник за день - код (Р, ВХ, В, ТН, НА, ВП, «-»). | `l10n_ua_hr_docs` |
 | `ua_compose(company, year=None, month=None, **params)` | Табель місяця для «Паперів»: той самий ідемпотентний _ua_ensure_for(). | `l10n_ua_hr_docs` |
-
-### `ua.timesheet.wizard`
-
-наша модель · `l10n_ua_hr_docs`
-
-| Метод | Що робить | Модуль |
-| --- | --- | --- |
-| `action_create()` | Створити документ і відкрити його форму; якщо на цей період уже є чернетка - відкрити її. | `l10n_ua_hr_docs` |
 
 ### `hr.payslip.run`
 
@@ -768,13 +729,13 @@
 | `action_pull_month(journal_id, year, month)` | - | `l10n_ua_bank_online` |
 | `action_test(journal_id)` | - | `l10n_ua_bank_online` |
 
-### `ua.bank.ops.wizard`
+### `ua.bank.pull`
 
 наша модель · `l10n_ua_bank_online`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
-| `action_run()` | Одна дія за фіксованим ключем operation - решта веде до ua.bank.ops. | `l10n_ua_bank_online` |
+| `action_pull()` | Одна дія: завантажити виписку рахунку за місяць. | `l10n_ua_bank_online` |
 
 ### `ua.cash.book`
 
@@ -782,6 +743,8 @@
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
+| `action_ask()` | Кнопка «Сформувати» в шапці списку: діалог параметрів нової книги. | `l10n_ua_cash` |
+| `action_compose()` | Кнопка «Скласти» в діалозі: порахувати і відкрити книгу сторінкою. | `l10n_ua_cash` |
 | `action_compute()` | Перерахувати книгу. Ідемпотентно: попередні аркуші стираються. | `l10n_ua_cash` |
 | `action_print()` | - | `l10n_ua_cash` |
 
@@ -799,6 +762,9 @@
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
+| `action_ask()` | Кнопка «Сформувати» в шапці списку: діалог параметрів нової відомості. | `l10n_ua_assets` |
+| `action_compose()` | Кнопка «Скласти» в діалозі: відкрити складену відомість сторінкою. | `l10n_ua_assets` |
+| `action_compute()` | «Перерахувати»: рядки читаються з таблиці амортизації щоразу, тому тут | `l10n_ua_assets` |
 | `action_print()` | - | `l10n_ua_assets` |
 | `month_name()` | - | `l10n_ua_assets` |
 | `sheet_rows()` | Готові рядки відомості для друку. | `l10n_ua_assets` |
@@ -836,6 +802,15 @@
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
 | `action_build()` | Зібрати звіт і відкрити його. Повертає дію на mis.report.instance. | `l10n_ua_group` |
+
+### `ua.ledger.base`
+
+наша модель · `l10n_ua_ledger`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_ask()` | Кнопка «Сформувати» в шапці списку: діалог параметрів нового регістра. | `l10n_ua_ledger` |
+| `action_compose()` | Кнопка «Скласти» в діалозі параметрів: порахувати і відкрити результат сторінкою. | `l10n_ua_ledger` |
 
 ### `ua.migrate`
 
@@ -903,14 +878,6 @@
 | `plan()` | Що зробить проведення: розбіжності, суми на 947 і 719, дата, перешкоди. | `l10n_ua_stock_docs` |
 | `ua_get_or_create(client_ref, vals=None)` | Документ за міткою клієнта: є - віддаємо, немає - створюємо. | `l10n_ua_stock_docs` |
 
-### `ua.vat.cabinet`
-
-наша модель · `l10n_ua_vat`
-
-| Метод | Що робить | Модуль |
-| --- | --- | --- |
-| `action_compute()` | Кнопка «Порахувати»: перерахувати зведення за період. | `l10n_ua_vat` |
-
 ### `ua.vat.compensation`
 
 наша модель · `l10n_ua_vat`
@@ -930,6 +897,16 @@
 | `action_export_xml()` | «XML для ЄРПН»: перевірка, складання, вкладення, завантаження. | `l10n_ua_vat` |
 | `action_export_xml()` | Диспетчер: РК будуємо за J1201216, решту віддаємо конвеєру ПН. | `l10n_ua_vat` |
 | `action_mark_pn_registered()` | «Позначити зареєстрованою»: ставить сьогоднішню дату реєстрації, | `l10n_ua_vat` |
+
+### `ua.vat.period`
+
+наша модель · `l10n_ua_vat`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_compose_month()` | Кнопка списку «Створити за місяць»: зведення поточного місяця. | `l10n_ua_vat` |
+| `action_compute()` | Кнопка «Порахувати»: перерахувати зведення за період. | `l10n_ua_vat` |
+| `ua_compose(company, year=None, month=None, **params)` | Нове зведення ПДВ за місяць, одразу пораховане. | `l10n_ua_vat` |
 
 ### `ua.zvv.allocation`
 
@@ -967,6 +944,26 @@
 | `ua_rule` | Selection | Українське правило | `l10n_ua_assets` |
 | `ua_start_next_month` | Boolean | Амортизація з наступного місяця | `l10n_ua_assets` |
 | `ua_tax_group` | Selection | Податкова група | `l10n_ua_assets` |
+
+### `account.bank.statement`
+
+доповнена модель · `l10n_ua_bank_online`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_ua_apply_rules()` | «Застосувати правила звірки»: усі незвірені рядки компанії. | `l10n_ua_bank_online` |
+| `action_ua_match_payments()` | «Звести з платежами»: усі незвірені рядки компанії. | `l10n_ua_bank_online` |
+| `action_ua_pull()` | «Завантажити виписку»: діалог з трьох полів - рахунок, рік, місяць. | `l10n_ua_bank_online` |
+| `action_ua_pull_all()` | «Завантажити за всі рахунки»: поточний місяць, усі підключені рахунки. | `l10n_ua_bank_online` |
+
+### `account.journal`
+
+доповнена модель · `l10n_ua_bank_online`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_ua_bank_provider()` | «З'єднання з банком»: наявне відкриваємо, відсутнє - показуємо перелік. | `l10n_ua_bank_online` |
+| `action_ua_bank_test()` | «Перевірити з'єднання» на формі банківського журналу. | `l10n_ua_bank_online` |
 
 ### `account.move`
 
@@ -1036,6 +1033,7 @@
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
 | `action_ua_finrep_xml_draft()` | Кнопка «XML (чернетка формату)»: вкладення і посилання на завантаження. | `l10n_ua_finrep` |
+| `action_ua_group_consolidation()` | Кнопка «Сформувати» в шапці списку: діалог параметрів консолідації. | `l10n_ua_group` |
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
@@ -1205,6 +1203,10 @@
 
 доповнена модель · `l10n_ua_purchase`
 
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_ua_pad()` | Кнопка «Пад» у шапці списку: разовий діалог, з якого виходить запит. | `l10n_ua_purchase` |
+
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `ua_department_id` | Many2one | Підрозділ | `l10n_ua_purchase` |
@@ -1223,6 +1225,7 @@
 | `action_fill_from_edr()` | - | `l10n_ua_partner_edr` |
 | `action_new_kyc_case()` | - | `bp_kyc` |
 | `action_open_kyc_cases()` | - | `bp_kyc` |
+| `action_ua_new_from_edr()` | Кнопка «Контрагент з ЄДР» у шапці списку: разовий діалог на одне поле - код. | `l10n_ua_partner_edr` |
 | `action_ua_supplier_bills()` | Кнопка-лічильник: вхідні рахунки цього контрагента. | `l10n_ua_purchase` |
 | `action_ua_supplier_sync()` | «Оновити сигнали»: перечитати ЄДР, ПДВ і KYC та перерахувати ризик. | `l10n_ua_purchase` |
 

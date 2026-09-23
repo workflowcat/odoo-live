@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!-- Пункт меню відкриває СПИСОК зібраних консолідованих звітів; «Сформувати» в шапці
+     списку питає параметри діалогом, а результат, як і раніше, відкривається
+     сторінкою звіту mis_builder (рішення 2026-09-22: меню не відкриває діалог). -->
 <odoo>
     <!-- Стандартна форма чарівника: жодного власного віджета. Результат
          відкривається у звичайному перегляді звіту mis_builder. -->
@@ -19,13 +22,6 @@
                             <field name="currency_id" groups="base.group_multi_currency" />
                         </group>
                     </group>
-                    <p class="text-muted">
-                        Колонки звіту: по одній на компанію, «Разом до елімінації»,
-                        «Елімінація ВГО» (взаємні розрахунки для балансу, внутрішньогрупові
-                        доходи і витрати для фінрезультатів) і «Консолідовано».
-                        Якщо дзеркальні книги компаній розійшлися, контрольний рядок
-                        форми покаже розбіжність звірки.
-                    </p>
                 </sheet>
                 <footer>
                     <button
@@ -40,11 +36,40 @@
         </field>
     </record>
 
+    <record id="view_mis_report_instance_group_list" model="ir.ui.view">
+        <field name="name">mis.report.instance.list.ua.group</field>
+        <field name="model">mis.report.instance</field>
+        <field name="inherit_id" ref="mis_builder.mis_report_instance_view_list" />
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <list position="inside">
+                <header>
+                    <button
+                        name="action_ua_group_consolidation"
+                        type="object"
+                        display="always"
+                        string="Сформувати"
+                        class="btn-primary"
+                    />
+                </header>
+            </list>
+        </field>
+    </record>
+
     <record id="action_ua_group_consolidation" model="ir.actions.act_window">
         <field name="name">Консолідація групи</field>
-        <field name="res_model">ua.group.consolidation</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
+        <field name="res_model">mis.report.instance</field>
+        <field name="view_mode">list,form</field>
+        <field name="target">current</field>
+        <field name="domain">[('ua_group_consolidation', '=', True)]</field>
+        <field name="context">{'default_ua_group_consolidation': True}</field>
+    </record>
+
+    <record id="action_ua_group_consolidation_list_view" model="ir.actions.act_window.view">
+        <field name="sequence">1</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_mis_report_instance_group_list" />
+        <field name="act_window_id" ref="action_ua_group_consolidation" />
     </record>
 
     <menuitem

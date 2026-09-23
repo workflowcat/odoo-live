@@ -10,3 +10,4 @@ from . import ua_vat_rk_xml
 from . import ua_vat_compensation
 from . import account_move
 from . import account_payment
+from . import ua_vat_period

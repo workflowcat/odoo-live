@@ -8,4 +8,4 @@ access_ua_vat_compensation_user,ua.vat.compensation user,model_ua_vat_compensati
 access_ua_vat_compensation_manager,ua.vat.compensation manager,model_ua_vat_compensation,account.group_account_manager,1,1,1,1
 access_ua_vat_compensation_line_user,ua.vat.compensation.line user,model_ua_vat_compensation_line,base.group_user,1,0,0,0
 access_ua_vat_compensation_line_manager,ua.vat.compensation.line manager,model_ua_vat_compensation_line,account.group_account_manager,1,1,1,1
-access_ua_vat_cabinet,ua.vat.cabinet,model_ua_vat_cabinet,base.group_user,1,1,1,1
+access_ua_vat_period,ua.vat.period,model_ua_vat_period,base.group_user,1,1,1,1

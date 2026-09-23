@@ -14,3 +14,4 @@ from . import test_setup
 from . import test_employee_form
 from . import test_api
 from . import test_demo_costing
+from . import test_menu_documents

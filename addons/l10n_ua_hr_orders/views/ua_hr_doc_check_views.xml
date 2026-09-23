@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_hr_doc_check_form" model="ir.ui.view">
+    <field name="name">ua.hr.doc.check.form</field>
+    <field name="model">ua.hr.doc.check</field>
+    <field name="arch" type="xml">
+      <form string="Перевірка документів">
+        <header>
+          <button name="action_refill" type="object" string="Заповнити" invisible="state != 'draft'"/>
+          <button name="action_confirm" type="object" string="Затвердити" class="oe_highlight"
+                  invisible="state != 'draft'"/>
+          <button name="action_draft" type="object" string="Повернути в чернетку"
+                  invisible="state != 'confirmed'"/>
+          <button name="%(action_report_ua_hr_doc_pack)d" type="action" string="Друк"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="employee_count"/>
+              <field name="missing_count"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Рядки" name="lines">
+              <field name="line_ids" readonly="1">
+                <list default_group_by="employee_name" decoration-danger="status == 'missing'"
+                      decoration-muted="status == 'not_needed'">
+                  <field name="employee_name"/>
+                  <field name="requirement_name"/>
+                  <field name="source"/>
+                  <field name="status"/>
+                  <field name="employee_id" optional="hide"/>
+                  <field name="requirement_id" optional="hide"/>
+                </list>
+              </field>
+            </page>
+            <page string="Примітка" name="note">
+              <field name="note"/>
+            </page>
+            <page string="Перевірки" name="ua_checks">
+              <field name="checks_html" readonly="1" nolabel="1"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_hr_doc_check_list" model="ir.ui.view">
+    <field name="name">ua.hr.doc.check.list</field>
+    <field name="model">ua.hr.doc.check</field>
+    <field name="arch" type="xml">
+      <list>
+        <header>
+          <button name="action_compose_today" type="object" display="always"
+                  string="Створити на сьогодні" class="btn-primary"/>
+        </header>
+        <field name="name"/>
+        <field name="date" options="{'numeric': True}"/>
+        <field name="employee_count"/>
+        <field name="missing_count" decoration-danger="missing_count &gt; 0"/>
+        <field name="state"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_hr_doc_check" model="ir.actions.act_window">
+    <field name="name">Перевірки документів</field>
+    <field name="res_model">ua.hr.doc.check</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>

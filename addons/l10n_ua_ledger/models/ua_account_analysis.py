@@ -8,13 +8,25 @@
 кілька Кт» - точний окремий випадок цього ж правила. За побудовою сума
 кореспонденцій дорівнює обороту рахунку; це перевіряється полем control_ok.
 """
-from odoo import fields, models
+from odoo import api, fields, models
 
 
-class UaAccountAnalysis(models.TransientModel):
+class UaAccountAnalysis(models.Model):
     _name = "ua.account.analysis"
     _inherit = "ua.ledger.base"
     _description = "Аналіз рахунку"
+    _order = "date_from desc, id desc"
+    _ua_result_view = "l10n_ua_ledger.view_ua_account_analysis_form"
+    _ua_ask_view = "l10n_ua_ledger.view_ua_account_analysis_ask"
+
+    name = fields.Char("Назва", compute="_compute_name", store=True)
+
+    @api.depends("account_id", "date_from", "date_to")
+    def _compute_name(self):
+        for analysis in self:
+            analysis.name = "Аналіз рахунку %s · %s" % (
+                analysis._acc_code(analysis.account_id) if analysis.account_id else "",
+                analysis._ua_period_label())
 
     account_id = fields.Many2one("account.account", "Рахунок", required=True)
     line_ids = fields.One2many(
@@ -107,7 +119,7 @@ class UaAccountAnalysis(models.TransientModel):
         ).report_action(self)
 
 
-class UaAccountAnalysisLine(models.TransientModel):
+class UaAccountAnalysisLine(models.Model):
     _name = "ua.account.analysis.line"
     _description = "Рядок аналізу рахунку"
     _order = "sequence, id"

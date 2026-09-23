@@ -4,12 +4,19 @@
 Ведеться за офіційним витягом (постанова КМУ № 1487) окремо по кожному ТЦК та СП: один документ = один
 ТЦК. Рядки групуються за розділами форми - призовники / військовозобов'язані офіцери / військовозобов'язані
 рядового і сержантського складу / резервісти / жінки-військовозобов'язані (окремим списком)."""
+from datetime import date as date_type, timedelta
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 
 from .hr_employee import CATEGORY, DOC_TYPE, FITNESS, GROUP, LIABLE_STATUSES
 
 STATES = [("draft", "Чернетка"), ("confirmed", "Затверджено")]
+
+
+def _month_end(year, month):
+    """Останній день місяця."""
+    return date_type(year + (month == 12), month % 12 + 1, 1) - timedelta(days=1)
 VARIANT = [
     ("all", "Усі розділи"),
     ("women", "Жінки, військовозобов'язані"),
@@ -74,6 +81,35 @@ class UaMilitaryList(models.Model):
     def _unlink_except_draft(self):
         if any(doc.state != "draft" for doc in self):
             raise UserError("Видалити можна лише чернетку списку персонального обліку.")
+
+    @api.model
+    def ua_compose(self, company, year=None, month=None, date=None, tcc=None, variant="all", **params):
+        """Новий список персонального обліку, одразу заповнений.
+
+        ТЦК - явний, якщо його передали. Без ТЦК складаємо по одному списку на кожен
+        ТЦК, де є хоча б один військовозобов'язаний, і повертаємо перший: список ведеться
+        окремо по кожному ТЦК, і вибір одного з них - питання до даних, не до екрана."""
+        if isinstance(company, int):
+            company = self.env["res.company"].browse(company)
+        company = company or self.env.company
+        if not date:
+            date = (_month_end(int(year), int(month)) if year and month
+                    else fields.Date.context_today(self))
+        if tcc:
+            doc = self.create({"company_id": company.id, "date": date, "tcc": tcc, "variant": variant})
+            doc.action_refill()
+            return doc
+        ids = self.action_create_all_tcc(company.id, date, variant)
+        if not ids:
+            raise UserError("Немає жодного військовозобов'язаного працівника з указаним ТЦК та СП.")
+        return self.browse(ids)
+
+    def action_compose_all(self):
+        """Кнопка списку «Створити за всіма ТЦК»: по одному документу на кожен ТЦК."""
+        docs = self.ua_compose(self.env.company)
+        return {"type": "ir.actions.act_window", "name": "Списки персонального обліку",
+                "res_model": "ua.military.list", "view_mode": "list,form",
+                "domain": [("id", "in", docs.ids)], "target": "current"}
 
     def _domain(self):
         self.ensure_one()

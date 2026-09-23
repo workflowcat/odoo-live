@@ -7,6 +7,16 @@ from odoo.tools.misc import formatLang
 class PurchaseRequest(models.Model):
     _inherit = "purchase.request"
 
+    def action_ua_pad(self):
+        """Кнопка «Пад» у шапці списку: разовий діалог, з якого виходить запит."""
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Пад швидкого замовлення"),
+            "res_model": "ua.purchase.pad",
+            "view_mode": "form",
+            "target": "new",
+        }
+
     ua_department_id = fields.Many2one(
         comodel_name="hr.department",
         string="Підрозділ",

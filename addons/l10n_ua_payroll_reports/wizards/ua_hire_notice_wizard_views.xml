@@ -15,5 +15,4 @@
     <field name="name">Повідомлення про прийняття (J3001005)</field><field name="res_model">ua.hire.notice.wizard</field><field name="view_mode">form</field><field name="target">new</field>
     <field name="binding_model_id" ref="hr.model_hr_employee"/><field name="binding_view_types">list,form</field>
   </record>
-  <menuitem id="menu_ua_hire_notice" name="Повідомлення про прийняття" parent="hr.menu_hr_root" action="action_ua_hire_notice_wizard" sequence="49" groups="hr.group_hr_user"/>
 </odoo>

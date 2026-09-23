@@ -5,7 +5,7 @@
             groups="account.group_account_user,account.group_account_readonly"/>
   <menuitem id="menu_ua_cash_orders" name="Касові ордери"
             parent="menu_ua_cash_root" action="action_ua_cash_order" sequence="10"/>
-  <menuitem id="menu_ua_cash_book" name="Касова книга (КО-4)"
+  <menuitem id="menu_ua_cash_book" name="Касові книги (КО-4)"
             parent="menu_ua_cash_root" action="action_ua_cash_book" sequence="20"/>
   <menuitem id="menu_ua_advance_report" name="Авансові звіти"
             parent="menu_ua_cash_root" action="action_ua_advance_report" sequence="30"/>

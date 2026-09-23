@@ -2,8 +2,12 @@
 """Відомість нарахування амортизації за місяць.
 
 Регістр, який бухгалтер підшиває до проводки: за який місяць, по яких
-об'єктах, скільки нараховано, на який рахунок витрат. Даних своїх не
+об'єктах, скільки нараховано, на який рахунок витрат. Власних рядків не
 тримає - читає рядки амортизації OCA (account.asset.line) за місяць.
+
+Сама відомість - запис: складена відомість лишається в базі, щоб її можна було
+відкрити тією самою сторінкою. Пункт меню відкриває список відомостей, кнопка
+«Сформувати» в шапці списку питає місяць діалогом.
 """
 import calendar
 
@@ -16,10 +20,12 @@ MONTHS = [
 ]
 
 
-class UaDepreciationSheet(models.TransientModel):
+class UaDepreciationSheet(models.Model):
     _name = "ua.depreciation.sheet"
     _description = "Відомість нарахування амортизації за місяць"
+    _order = "year desc, month desc, id desc"
 
+    name = fields.Char("Назва", compute="_compute_name", store=True)
     company_id = fields.Many2one(
         "res.company",
         string="Компанія",
@@ -45,6 +51,51 @@ class UaDepreciationSheet(models.TransientModel):
     )
     date_from = fields.Date(string="З", compute="_compute_dates")
     date_to = fields.Date(string="По", compute="_compute_dates")
+
+    total_amount = fields.Float("Нараховано, разом", compute="_compute_total", store=True)
+    line_count = fields.Integer("Об'єктів", compute="_compute_total", store=True)
+
+    @api.depends("year", "month")
+    def _compute_name(self):
+        for sheet in self:
+            sheet.name = "Відомість амортизації за %s %s" % (sheet.month_name(), sheet.year or "")
+
+    @api.depends("year", "month", "only_posted", "company_id")
+    def _compute_total(self):
+        for sheet in self:
+            rows = sheet.sheet_rows()
+            sheet.total_amount = round(sum(row["amount"] for row in rows), 2)
+            sheet.line_count = len(rows)
+
+    def action_compose(self):
+        """Кнопка «Скласти» в діалозі: відкрити складену відомість сторінкою."""
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": self.display_name,
+            "res_model": "ua.depreciation.sheet",
+            "res_id": self.id,
+            "view_mode": "form",
+            "views": [(self.env.ref("l10n_ua_assets.view_ua_depreciation_sheet_form").id, "form")],
+            "target": "current",
+        }
+
+    def action_ask(self):
+        """Кнопка «Сформувати» в шапці списку: діалог параметрів нової відомості."""
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Відомість нарахування амортизації",
+            "res_model": "ua.depreciation.sheet",
+            "view_mode": "form",
+            "views": [(self.env.ref("l10n_ua_assets.view_ua_depreciation_sheet_ask").id, "form")],
+            "target": "new",
+        }
+
+    def action_compute(self):
+        """«Перерахувати»: рядки читаються з таблиці амортизації щоразу, тому тут
+        досить оновити підсумки відомості."""
+        self._compute_total()
+        return True
 
     @api.depends("year", "month")
     def _compute_dates(self):

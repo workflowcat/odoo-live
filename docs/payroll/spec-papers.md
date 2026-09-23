@@ -167,7 +167,7 @@
 Група `register` - журнали:
 
 | key | назва | модель | звіт |
-| order_register | Журнал реєстрації наказів | ua.hr.order.register.wizard | l10n_ua_hr_orders.action_report_ua_hr_order_register |
+| order_register | Журнал реєстрації наказів | ua.hr.order | l10n_ua_hr_orders.action_report_ua_hr_order_register |
 
 Журнал наказів у цьому зрізі йде без перегляду (`empty_text` пояснює, чому): його звіт
 будується з майстра, а майстер створювати заради перегляду не можна. Перенесення

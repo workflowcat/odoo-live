@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Кожен регістр однаковий на всі три: пункт меню відкриває СПИСОК складених
+     регістрів, кнопка «Сформувати» в шапці списку питає параметри діалогом,
+     результат відкривається сторінкою з кнопками «Перерахувати» і «Вивантажити
+     в xlsx». Діалог з меню знято (рішення 2026-09-22). -->
 <odoo>
 
   <!-- ================= Оборотно-сальдова відомість ================= -->
-  <record id="view_ua_osv_report_form" model="ir.ui.view">
-    <field name="name">ua.osv.report.form</field>
+  <record id="view_ua_osv_report_ask" model="ir.ui.view">
+    <field name="name">ua.osv.report.ask</field>
     <field name="model">ua.osv.report</field>
     <field name="arch" type="xml">
       <form string="Оборотно-сальдова відомість">
@@ -16,59 +20,117 @@
             <field name="detail"/>
             <field name="skip_zero"/>
             <field name="company_id" groups="base.group_multi_company"/>
-            <field name="currency_id" invisible="1"/>
           </group>
         </group>
         <footer>
-          <button name="action_compute" type="object" string="Скласти" class="oe_highlight"/>
-          <button name="action_print_xlsx" type="object" string="Вивантажити в xlsx"/>
+          <button name="action_compose" type="object" string="Скласти" class="oe_highlight"/>
           <button string="Закрити" class="btn-secondary" special="cancel"/>
         </footer>
-        <div class="alert alert-danger" role="alert" invisible="control_ok or not line_ids">
-          Оборот Дт не дорівнює обороту Кт. Подвійний запис порушено, відомість читати не можна.
-        </div>
-        <field name="line_ids" readonly="1">
-          <list string="Рядки" default_order="sequence">
-            <field name="code"/>
-            <field name="name"/>
-            <field name="open_debit" sum="Разом"/>
-            <field name="open_credit" sum="Разом"/>
-            <field name="debit" sum="Разом"/>
-            <field name="credit" sum="Разом"/>
-            <field name="close_debit" sum="Разом"/>
-            <field name="close_credit" sum="Разом"/>
-            <field name="class_name" optional="hide"/>
-            <field name="currency_id" column_invisible="1"/>
-            <button name="action_open_card" type="object" string="Картка" icon="fa-list"/>
-          </list>
-        </field>
-        <group>
-          <group>
-            <field name="total_open_debit" readonly="1"/>
-            <field name="total_debit" readonly="1"/>
-            <field name="total_close_debit" readonly="1"/>
-          </group>
-          <group>
-            <field name="total_open_credit" readonly="1"/>
-            <field name="total_credit" readonly="1"/>
-            <field name="total_close_credit" readonly="1"/>
-            <field name="control_ok" readonly="1"/>
-          </group>
-        </group>
       </form>
     </field>
   </record>
 
+  <record id="view_ua_osv_report_form" model="ir.ui.view">
+    <field name="name">ua.osv.report.form</field>
+    <field name="model">ua.osv.report</field>
+    <field name="arch" type="xml">
+      <form string="Оборотно-сальдова відомість">
+        <header>
+          <button name="action_compute" type="object" string="Перерахувати" class="oe_highlight"/>
+          <button name="action_print_xlsx" type="object" string="Вивантажити в xlsx"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="date_from"/>
+              <field name="date_to"/>
+            </group>
+            <group>
+              <field name="detail"/>
+              <field name="skip_zero"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+          </group>
+          <div class="alert alert-danger" role="alert" invisible="control_ok or not line_ids">
+            Оборот Дт не дорівнює обороту Кт. Подвійний запис порушено, відомість читати не можна.
+          </div>
+          <field name="line_ids" readonly="1">
+            <list string="Рядки" default_order="sequence">
+              <field name="code"/>
+              <field name="name"/>
+              <field name="open_debit" sum="Разом"/>
+              <field name="open_credit" sum="Разом"/>
+              <field name="debit" sum="Разом"/>
+              <field name="credit" sum="Разом"/>
+              <field name="close_debit" sum="Разом"/>
+              <field name="close_credit" sum="Разом"/>
+              <field name="class_name" optional="hide"/>
+              <field name="currency_id" column_invisible="1"/>
+              <button name="action_open_card" type="object" string="Картка" icon="fa-list"/>
+            </list>
+          </field>
+          <group>
+            <group>
+              <field name="total_open_debit" readonly="1"/>
+              <field name="total_debit" readonly="1"/>
+              <field name="total_close_debit" readonly="1"/>
+            </group>
+            <group>
+              <field name="total_open_credit" readonly="1"/>
+              <field name="total_credit" readonly="1"/>
+              <field name="total_close_credit" readonly="1"/>
+              <field name="control_ok" readonly="1"/>
+            </group>
+          </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_osv_report_list" model="ir.ui.view">
+    <field name="name">ua.osv.report.list</field>
+    <field name="model">ua.osv.report</field>
+    <field name="arch" type="xml">
+      <list create="0">
+        <header>
+          <button name="action_ask" type="object" display="always"
+                  string="Сформувати" class="btn-primary"/>
+        </header>
+        <field name="name"/>
+        <field name="date_from" options="{'numeric': True}"/>
+        <field name="date_to" options="{'numeric': True}"/>
+        <field name="detail"/>
+        <field name="total_debit"/>
+        <field name="total_credit"/>
+        <field name="control_ok" widget="boolean_toggle" readonly="1"/>
+        <field name="currency_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+
   <record id="action_ua_osv_report" model="ir.actions.act_window">
-    <field name="name">Оборотно-сальдова відомість</field>
+    <field name="name">Оборотно-сальдові відомості</field>
     <field name="res_model">ua.osv.report</field>
-    <field name="view_mode">form</field>
-    <field name="target">new</field>
+    <field name="view_mode">list,form</field>
+    <field name="target">current</field>
+  </record>
+
+  <record id="action_ua_osv_report_list_view" model="ir.actions.act_window.view">
+    <field name="sequence">1</field><field name="view_mode">list</field>
+    <field name="view_id" ref="view_ua_osv_report_list"/>
+    <field name="act_window_id" ref="action_ua_osv_report"/>
+  </record>
+  <record id="action_ua_osv_report_form_view" model="ir.actions.act_window.view">
+    <field name="sequence">2</field><field name="view_mode">form</field>
+    <field name="view_id" ref="view_ua_osv_report_form"/>
+    <field name="act_window_id" ref="action_ua_osv_report"/>
   </record>
 
   <!-- ================= Картка рахунку ================= -->
-  <record id="view_ua_account_card_form" model="ir.ui.view">
-    <field name="name">ua.account.card.form</field>
+  <record id="view_ua_account_card_ask" model="ir.ui.view">
+    <field name="name">ua.account.card.ask</field>
     <field name="model">ua.account.card</field>
     <field name="arch" type="xml">
       <form string="Картка рахунку">
@@ -81,53 +143,112 @@
             <field name="date_from"/>
             <field name="date_to"/>
             <field name="company_id" groups="base.group_multi_company"/>
-            <field name="currency_id" invisible="1"/>
           </group>
         </group>
         <footer>
-          <button name="action_compute" type="object" string="Скласти" class="oe_highlight"/>
-          <button name="action_print_xlsx" type="object" string="Вивантажити в xlsx"/>
+          <button name="action_compose" type="object" string="Скласти" class="oe_highlight"/>
           <button string="Закрити" class="btn-secondary" special="cancel"/>
         </footer>
-        <group>
-          <group>
-            <field name="opening_balance" readonly="1"/>
-            <field name="total_debit" readonly="1"/>
-          </group>
-          <group>
-            <field name="total_credit" readonly="1"/>
-            <field name="closing_balance" readonly="1"/>
-          </group>
-        </group>
-        <field name="line_ids" readonly="1">
-          <list string="Проводки" default_order="sequence">
-            <field name="date"/>
-            <field name="move_name"/>
-            <field name="ref" optional="show"/>
-            <field name="partner_name" optional="show"/>
-            <field name="label" optional="hide"/>
-            <field name="counterpart"/>
-            <field name="debit" sum="Оборот Дт"/>
-            <field name="credit" sum="Оборот Кт"/>
-            <field name="balance"/>
-            <field name="move_id" optional="hide"/>
-            <field name="currency_id" column_invisible="1"/>
-          </list>
-        </field>
       </form>
     </field>
   </record>
 
+  <record id="view_ua_account_card_form" model="ir.ui.view">
+    <field name="name">ua.account.card.form</field>
+    <field name="model">ua.account.card</field>
+    <field name="arch" type="xml">
+      <form string="Картка рахунку">
+        <header>
+          <button name="action_compute" type="object" string="Перерахувати" class="oe_highlight"/>
+          <button name="action_print_xlsx" type="object" string="Вивантажити в xlsx"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="account_id" options="{'no_create': True}"/>
+              <field name="partner_id" options="{'no_create': True}"/>
+            </group>
+            <group>
+              <field name="date_from"/>
+              <field name="date_to"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+          </group>
+          <group>
+            <group>
+              <field name="opening_balance" readonly="1"/>
+              <field name="total_debit" readonly="1"/>
+            </group>
+            <group>
+              <field name="total_credit" readonly="1"/>
+              <field name="closing_balance" readonly="1"/>
+            </group>
+          </group>
+          <field name="line_ids" readonly="1">
+            <list string="Проводки" default_order="sequence">
+              <field name="date"/>
+              <field name="move_name"/>
+              <field name="ref" optional="show"/>
+              <field name="partner_name" optional="show"/>
+              <field name="label" optional="hide"/>
+              <field name="counterpart"/>
+              <field name="debit" sum="Оборот Дт"/>
+              <field name="credit" sum="Оборот Кт"/>
+              <field name="balance"/>
+              <field name="move_id" optional="hide"/>
+              <field name="currency_id" column_invisible="1"/>
+            </list>
+          </field>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_account_card_list" model="ir.ui.view">
+    <field name="name">ua.account.card.list</field>
+    <field name="model">ua.account.card</field>
+    <field name="arch" type="xml">
+      <list create="0">
+        <header>
+          <button name="action_ask" type="object" display="always"
+                  string="Сформувати" class="btn-primary"/>
+        </header>
+        <field name="name"/>
+        <field name="account_id"/>
+        <field name="partner_id" optional="show"/>
+        <field name="date_from" options="{'numeric': True}"/>
+        <field name="date_to" options="{'numeric': True}"/>
+        <field name="total_debit"/>
+        <field name="total_credit"/>
+        <field name="closing_balance"/>
+        <field name="currency_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+
   <record id="action_ua_account_card" model="ir.actions.act_window">
-    <field name="name">Картка рахунку</field>
+    <field name="name">Картки рахунків</field>
     <field name="res_model">ua.account.card</field>
-    <field name="view_mode">form</field>
-    <field name="target">new</field>
+    <field name="view_mode">list,form</field>
+    <field name="target">current</field>
+  </record>
+
+  <record id="action_ua_account_card_list_view" model="ir.actions.act_window.view">
+    <field name="sequence">1</field><field name="view_mode">list</field>
+    <field name="view_id" ref="view_ua_account_card_list"/>
+    <field name="act_window_id" ref="action_ua_account_card"/>
+  </record>
+  <record id="action_ua_account_card_form_view" model="ir.actions.act_window.view">
+    <field name="sequence">2</field><field name="view_mode">form</field>
+    <field name="view_id" ref="view_ua_account_card_form"/>
+    <field name="act_window_id" ref="action_ua_account_card"/>
   </record>
 
   <!-- ================= Аналіз рахунку ================= -->
-  <record id="view_ua_account_analysis_form" model="ir.ui.view">
-    <field name="name">ua.account.analysis.form</field>
+  <record id="view_ua_account_analysis_ask" model="ir.ui.view">
+    <field name="name">ua.account.analysis.ask</field>
     <field name="model">ua.account.analysis</field>
     <field name="arch" type="xml">
       <form string="Аналіз рахунку">
@@ -135,7 +256,6 @@
           <group>
             <field name="account_id" options="{'no_create': True}"/>
             <field name="company_id" groups="base.group_multi_company"/>
-            <field name="currency_id" invisible="1"/>
           </group>
           <group>
             <field name="date_from"/>
@@ -143,39 +263,97 @@
           </group>
         </group>
         <footer>
-          <button name="action_compute" type="object" string="Скласти" class="oe_highlight"/>
-          <button name="action_print_xlsx" type="object" string="Вивантажити в xlsx"/>
+          <button name="action_compose" type="object" string="Скласти" class="oe_highlight"/>
           <button string="Закрити" class="btn-secondary" special="cancel"/>
         </footer>
-        <group>
-          <group>
-            <field name="opening_balance" readonly="1"/>
-            <field name="total_debit" readonly="1"/>
-          </group>
-          <group>
-            <field name="total_credit" readonly="1"/>
-            <field name="closing_balance" readonly="1"/>
-            <field name="control_ok" readonly="1"/>
-          </group>
-        </group>
-        <field name="line_ids" readonly="1">
-          <list string="Кореспонденції" default_order="sequence">
-            <field name="corr_code"/>
-            <field name="corr_name"/>
-            <field name="debit" sum="Разом Дт"/>
-            <field name="credit" sum="Разом Кт"/>
-            <field name="currency_id" column_invisible="1"/>
-          </list>
-        </field>
       </form>
     </field>
   </record>
 
+  <record id="view_ua_account_analysis_form" model="ir.ui.view">
+    <field name="name">ua.account.analysis.form</field>
+    <field name="model">ua.account.analysis</field>
+    <field name="arch" type="xml">
+      <form string="Аналіз рахунку">
+        <header>
+          <button name="action_compute" type="object" string="Перерахувати" class="oe_highlight"/>
+          <button name="action_print_xlsx" type="object" string="Вивантажити в xlsx"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="account_id" options="{'no_create': True}"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+            <group>
+              <field name="date_from"/>
+              <field name="date_to"/>
+            </group>
+          </group>
+          <group>
+            <group>
+              <field name="opening_balance" readonly="1"/>
+              <field name="total_debit" readonly="1"/>
+            </group>
+            <group>
+              <field name="total_credit" readonly="1"/>
+              <field name="closing_balance" readonly="1"/>
+              <field name="control_ok" readonly="1"/>
+            </group>
+          </group>
+          <field name="line_ids" readonly="1">
+            <list string="Кореспонденції" default_order="sequence">
+              <field name="corr_code"/>
+              <field name="corr_name"/>
+              <field name="debit" sum="Разом Дт"/>
+              <field name="credit" sum="Разом Кт"/>
+              <field name="currency_id" column_invisible="1"/>
+            </list>
+          </field>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_account_analysis_list" model="ir.ui.view">
+    <field name="name">ua.account.analysis.list</field>
+    <field name="model">ua.account.analysis</field>
+    <field name="arch" type="xml">
+      <list create="0">
+        <header>
+          <button name="action_ask" type="object" display="always"
+                  string="Сформувати" class="btn-primary"/>
+        </header>
+        <field name="name"/>
+        <field name="account_id"/>
+        <field name="date_from" options="{'numeric': True}"/>
+        <field name="date_to" options="{'numeric': True}"/>
+        <field name="total_debit"/>
+        <field name="total_credit"/>
+        <field name="control_ok" widget="boolean_toggle" readonly="1"/>
+        <field name="currency_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+
   <record id="action_ua_account_analysis" model="ir.actions.act_window">
-    <field name="name">Аналіз рахунку</field>
+    <field name="name">Аналізи рахунків</field>
     <field name="res_model">ua.account.analysis</field>
-    <field name="view_mode">form</field>
-    <field name="target">new</field>
+    <field name="view_mode">list,form</field>
+    <field name="target">current</field>
+  </record>
+
+  <record id="action_ua_account_analysis_list_view" model="ir.actions.act_window.view">
+    <field name="sequence">1</field><field name="view_mode">list</field>
+    <field name="view_id" ref="view_ua_account_analysis_list"/>
+    <field name="act_window_id" ref="action_ua_account_analysis"/>
+  </record>
+  <record id="action_ua_account_analysis_form_view" model="ir.actions.act_window.view">
+    <field name="sequence">2</field><field name="view_mode">form</field>
+    <field name="view_id" ref="view_ua_account_analysis_form"/>
+    <field name="act_window_id" ref="action_ua_account_analysis"/>
   </record>
 
   <!-- ================= Меню ================= -->

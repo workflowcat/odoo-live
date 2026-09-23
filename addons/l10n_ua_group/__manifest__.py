@@ -16,7 +16,7 @@
                    "OCA account_invoice_inter_company без змін, свого коду тут немає. "
                    "Модуль логічний: жодного OWL, жодної залежності від модулів інтерфейсу. "
                    "Опис у docs/base/spec-group-profit.md.",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Accounting/Localizations",
     "author": "Bot&Partners",
     "license": "AGPL-3",

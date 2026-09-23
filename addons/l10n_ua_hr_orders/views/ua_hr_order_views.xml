@@ -170,7 +170,12 @@
         <separator/>
         <filter name="k1" string="К-1" domain="[('register', '=', 'k1')]"/>
         <filter name="v2" string="В-2" domain="[('register', '=', 'v2')]"/>
+        <separator/>
+        <filter name="this_year" string="Цей рік"
+                domain="[('date', '&gt;=', (context_today() + relativedelta(month=1, day=1)).strftime('%Y-%m-%d')),
+                         ('date', '&lt;=', (context_today() + relativedelta(month=12, day=31)).strftime('%Y-%m-%d'))]"/>
         <group>
+          <filter name="group_register" string="Реєстр" context="{'group_by': 'register'}"/>
           <filter name="group_type" string="Вид наказу" context="{'group_by': 'order_type'}"/>
           <filter name="group_state" string="Стан" context="{'group_by': 'state'}"/>
           <filter name="group_employee" string="Працівник" context="{'group_by': 'employee_id'}"/>
@@ -185,5 +190,50 @@
     <field name="view_mode">list,form</field>
     <field name="search_view_id" ref="view_ua_hr_order_search"/>
     <field name="context">{}</field>
+  </record>
+
+  <!-- Журнал реєстрації наказів. Не окремий документ, а той самий перелік наказів:
+       реєстр і рік обирає пошук, «Друк журналу» друкує те, що на екрані. -->
+  <record id="view_ua_hr_order_register_list" model="ir.ui.view">
+    <field name="name">ua.hr.order.register.list</field>
+    <field name="model">ua.hr.order</field>
+    <field name="priority">32</field>
+    <field name="arch" type="xml">
+      <list create="0" edit="0" default_order="date, name">
+        <header>
+          <button name="action_print_register" type="object" display="always"
+                  string="Друк журналу" class="btn-primary"/>
+        </header>
+        <field name="name"/>
+        <field name="date" options="{'numeric': True}"/>
+        <field name="order_type"/>
+        <field name="register"/>
+        <field name="employee_id"/>
+        <field name="state" widget="badge" decoration-success="state == 'acknowledged'" decoration-info="state == 'posted'" decoration-danger="state == 'cancelled'"/>
+        <field name="ack_date" options="{'numeric': True}"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_hr_order_register" model="ir.actions.act_window">
+    <field name="name">Журнал реєстрації наказів</field>
+    <field name="res_model">ua.hr.order</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_ua_hr_order_search"/>
+    <field name="context">{'search_default_this_year': 1, 'search_default_group_register': 1}</field>
+  </record>
+
+  <record id="action_ua_hr_order_register_list_view" model="ir.actions.act_window.view">
+    <field name="sequence">1</field>
+    <field name="view_mode">list</field>
+    <field name="view_id" ref="view_ua_hr_order_register_list"/>
+    <field name="act_window_id" ref="action_ua_hr_order_register"/>
+  </record>
+
+  <record id="action_ua_hr_order_register_form_view" model="ir.actions.act_window.view">
+    <field name="sequence">2</field>
+    <field name="view_mode">form</field>
+    <field name="view_id" ref="view_ua_hr_order_form"/>
+    <field name="act_window_id" ref="action_ua_hr_order_register"/>
   </record>
 </odoo>

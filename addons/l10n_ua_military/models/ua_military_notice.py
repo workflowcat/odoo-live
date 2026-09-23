@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Повідомлення про зміну облікових даних за період: прийняті, звільнені і ті, у кого є подія «зміна даних»,
 серед працівників, що підлягають військовому обліку. Відповідає обов'язку повідомляти ТЦК протягом 7 днів."""
-from datetime import timedelta
+from datetime import date as date_type, timedelta
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
@@ -37,6 +37,30 @@ class UaMilitaryNotice(models.Model):
     def _unlink_except_draft(self):
         if any(doc.state != "draft" for doc in self):
             raise UserError("Видалити можна лише чернетку повідомлення.")
+
+    @api.model
+    def ua_compose(self, company, year=None, month=None, date_from=None, date_to=None, **params):
+        """Нове повідомлення ТЦК за період, одразу заповнене.
+
+        Межі періоду - явні, якщо їх передали, інакше весь місяць."""
+        if isinstance(company, int):
+            company = self.env["res.company"].browse(company)
+        company = company or self.env.company
+        if not (date_from and date_to):
+            today = fields.Date.context_today(self)
+            year, month = int(year or today.year), int(month or today.month)
+            date_from = date_type(year, month, 1)
+            date_to = date_type(year + (month == 12), month % 12 + 1, 1) - timedelta(days=1)
+        doc = self.create({"company_id": company.id, "date_from": date_from, "date_to": date_to})
+        doc.action_refill()
+        return doc
+
+    def action_compose_month(self):
+        """Кнопка списку «Створити за місяць»: повідомлення за поточний місяць."""
+        today = fields.Date.context_today(self)
+        doc = self.ua_compose(self.env.company, today.year, today.month)
+        return {"type": "ir.actions.act_window", "name": doc.name, "res_model": "ua.military.notice",
+                "view_mode": "form", "res_id": doc.id, "target": "current"}
 
     def action_refill(self):
         for doc in self:

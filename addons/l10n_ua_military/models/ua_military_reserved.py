@@ -52,6 +52,12 @@ class UaMilitaryReserved(models.Model):
         doc.action_refill()
         return doc
 
+    def action_compose_today(self):
+        """Кнопка списку «Створити на сьогодні»: список заброньованих на поточну дату."""
+        doc = self.ua_compose(self.env.company)
+        return {"type": "ir.actions.act_window", "name": doc.name, "res_model": "ua.military.reserved",
+                "view_mode": "form", "res_id": doc.id, "target": "current"}
+
     def action_refill(self):
         for doc in self:
             if doc.state != "draft":

@@ -1,8 +1,8 @@
 {
   "totals": {
     "modules": 42,
-    "models": 100,
-    "methods": 283,
+    "models": 96,
+    "methods": 311,
     "fields": 264
   },
   "areas": [
@@ -16,6 +16,14 @@
             "l10n_ua_payroll_rules"
           ],
           "methods": [
+            {
+              "name": "action_compose_month",
+              "signature": "action_compose_month()",
+              "doc": "Кнопка списку «Створити за місяць»: відомість поточного місяця, одразу порахована.",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/ua_advance_sheet.py",
+              "decorators": []
+            },
             {
               "name": "action_confirm",
               "signature": "action_confirm()",
@@ -170,19 +178,45 @@
           "fields": []
         },
         {
-          "model": "ua.income.certificate.wizard",
+          "model": "ua.income.certificate",
           "ours": true,
           "modules": [
             "l10n_ua_payroll_reports"
           ],
           "methods": [
             {
-              "name": "action_print",
-              "signature": "action_print()",
+              "name": "action_confirm",
+              "signature": "action_confirm()",
+              "doc": "Видати довідку: присвоїти номер із послідовності і дату видачі.",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/ua_income_certificate.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
               "doc": "",
               "module": "l10n_ua_payroll_reports",
-              "file": "addons/l10n_ua_payroll_reports/wizards/ua_income_certificate.py",
+              "file": "addons/l10n_ua_payroll_reports/models/ua_income_certificate.py",
               "decorators": []
+            },
+            {
+              "name": "action_refill",
+              "signature": "action_refill()",
+              "doc": "Видалити рядки і заповнити знову з проведених листків періоду.",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/ua_income_certificate.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_compose",
+              "signature": "ua_compose(company, year=None, month=None, employee=None, date_from=None, date_to=None, **params)",
+              "doc": "Нова довідка про доходи, одразу заповнена листками періоду.",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/ua_income_certificate.py",
+              "decorators": [
+                "api.model"
+              ]
             }
           ],
           "fields": []
@@ -203,24 +237,6 @@
               "decorators": [
                 "api.model"
               ]
-            }
-          ],
-          "fields": []
-        },
-        {
-          "model": "ua.payroll.advance.wizard",
-          "ours": true,
-          "modules": [
-            "l10n_ua_payroll_rules"
-          ],
-          "methods": [
-            {
-              "name": "action_fill",
-              "signature": "action_fill()",
-              "doc": "",
-              "module": "l10n_ua_payroll_rules",
-              "file": "addons/l10n_ua_payroll_rules/wizards/ua_advance_wizard.py",
-              "decorators": []
             }
           ],
           "fields": []
@@ -2096,19 +2112,61 @@
           "fields": []
         },
         {
-          "model": "ua.hr.doc.pack.wizard",
+          "model": "ua.hr.doc.check",
           "ours": true,
           "modules": [
             "l10n_ua_hr_orders"
           ],
           "methods": [
             {
-              "name": "action_print",
-              "signature": "action_print()",
+              "name": "action_compose_today",
+              "signature": "action_compose_today()",
+              "doc": "Кнопка списку «Створити на сьогодні».",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/ua_hr_doc_check.py",
+              "decorators": []
+            },
+            {
+              "name": "action_confirm",
+              "signature": "action_confirm()",
               "doc": "",
               "module": "l10n_ua_hr_orders",
-              "file": "addons/l10n_ua_hr_orders/wizards/ua_hr_order_wizards.py",
+              "file": "addons/l10n_ua_hr_orders/models/ua_hr_doc_check.py",
               "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/ua_hr_doc_check.py",
+              "decorators": []
+            },
+            {
+              "name": "action_refill",
+              "signature": "action_refill()",
+              "doc": "Видалити рядки і заповнити знову: кожен працівник компанії x кожна вимога.",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/ua_hr_doc_check.py",
+              "decorators": []
+            },
+            {
+              "name": "matrix",
+              "signature": "matrix()",
+              "doc": "Матриця для друку: (працівники, вимоги, {(employee_id, requirement_id): мітка}).",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/ua_hr_doc_check.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_compose",
+              "signature": "ua_compose(company, year=None, month=None, date=None, **params)",
+              "doc": "Нова перевірка документів на дату, одразу заповнена.",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/ua_hr_doc_check.py",
+              "decorators": [
+                "api.model"
+              ]
             }
           ],
           "fields": []
@@ -2189,6 +2247,14 @@
               "decorators": []
             },
             {
+              "name": "action_print_register",
+              "signature": "action_print_register()",
+              "doc": "Друк журналу реєстрації: вибрані накази, а без вибору - усе, що показує список.",
+              "module": "l10n_ua_hr_orders",
+              "file": "addons/l10n_ua_hr_orders/models/ua_hr_order.py",
+              "decorators": []
+            },
+            {
               "name": "action_ua_open_leave",
               "signature": "action_ua_open_leave()",
               "doc": "",
@@ -2226,24 +2292,6 @@
               "doc": "Короткий однорядковий зміст наказу - для журналу реєстрації.",
               "module": "l10n_ua_hr_orders",
               "file": "addons/l10n_ua_hr_orders/models/ua_hr_order.py",
-              "decorators": []
-            }
-          ],
-          "fields": []
-        },
-        {
-          "model": "ua.hr.order.register.wizard",
-          "ours": true,
-          "modules": [
-            "l10n_ua_hr_orders"
-          ],
-          "methods": [
-            {
-              "name": "action_print",
-              "signature": "action_print()",
-              "doc": "",
-              "module": "l10n_ua_hr_orders",
-              "file": "addons/l10n_ua_hr_orders/wizards/ua_hr_order_wizards.py",
               "decorators": []
             }
           ],
@@ -2335,6 +2383,14 @@
           ],
           "methods": [
             {
+              "name": "action_compose_all",
+              "signature": "action_compose_all()",
+              "doc": "Кнопка списку «Створити за всіма ТЦК»: по одному документу на кожен ТЦК.",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/ua_military_list.py",
+              "decorators": []
+            },
+            {
               "name": "action_confirm",
               "signature": "action_confirm()",
               "doc": "",
@@ -2375,32 +2431,16 @@
               "module": "l10n_ua_military",
               "file": "addons/l10n_ua_military/models/ua_military_list.py",
               "decorators": []
-            }
-          ],
-          "fields": []
-        },
-        {
-          "model": "ua.military.list.wizard",
-          "ours": true,
-          "modules": [
-            "l10n_ua_military"
-          ],
-          "methods": [
-            {
-              "name": "action_create",
-              "signature": "action_create()",
-              "doc": "",
-              "module": "l10n_ua_military",
-              "file": "addons/l10n_ua_military/wizards/ua_military_wizards.py",
-              "decorators": []
             },
             {
-              "name": "action_create_all",
-              "signature": "action_create_all()",
-              "doc": "Створити списки по всіх ТЦК, де є хоча б один військовозобов'язаний.",
+              "name": "ua_compose",
+              "signature": "ua_compose(company, year=None, month=None, date=None, tcc=None, variant='all', **params)",
+              "doc": "Новий список персонального обліку, одразу заповнений.",
               "module": "l10n_ua_military",
-              "file": "addons/l10n_ua_military/wizards/ua_military_wizards.py",
-              "decorators": []
+              "file": "addons/l10n_ua_military/models/ua_military_list.py",
+              "decorators": [
+                "api.model"
+              ]
             }
           ],
           "fields": []
@@ -2412,6 +2452,14 @@
             "l10n_ua_military"
           ],
           "methods": [
+            {
+              "name": "action_compose_month",
+              "signature": "action_compose_month()",
+              "doc": "Кнопка списку «Створити за місяць»: повідомлення за поточний місяць.",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/ua_military_notice.py",
+              "decorators": []
+            },
             {
               "name": "action_confirm",
               "signature": "action_confirm()",
@@ -2435,24 +2483,16 @@
               "module": "l10n_ua_military",
               "file": "addons/l10n_ua_military/models/ua_military_notice.py",
               "decorators": []
-            }
-          ],
-          "fields": []
-        },
-        {
-          "model": "ua.military.notice.wizard",
-          "ours": true,
-          "modules": [
-            "l10n_ua_military"
-          ],
-          "methods": [
+            },
             {
-              "name": "action_create",
-              "signature": "action_create()",
-              "doc": "",
+              "name": "ua_compose",
+              "signature": "ua_compose(company, year=None, month=None, date_from=None, date_to=None, **params)",
+              "doc": "Нове повідомлення ТЦК за період, одразу заповнене.",
               "module": "l10n_ua_military",
-              "file": "addons/l10n_ua_military/wizards/ua_military_wizards.py",
-              "decorators": []
+              "file": "addons/l10n_ua_military/models/ua_military_notice.py",
+              "decorators": [
+                "api.model"
+              ]
             }
           ],
           "fields": []
@@ -2464,6 +2504,14 @@
             "l10n_ua_military"
           ],
           "methods": [
+            {
+              "name": "action_compose_today",
+              "signature": "action_compose_today()",
+              "doc": "Кнопка списку «Створити на сьогодні»: список заброньованих на поточну дату.",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/ua_military_reserved.py",
+              "decorators": []
+            },
             {
               "name": "action_confirm",
               "signature": "action_confirm()",
@@ -2502,24 +2550,6 @@
           "fields": []
         },
         {
-          "model": "ua.military.reserved.wizard",
-          "ours": true,
-          "modules": [
-            "l10n_ua_military"
-          ],
-          "methods": [
-            {
-              "name": "action_create",
-              "signature": "action_create()",
-              "doc": "",
-              "module": "l10n_ua_military",
-              "file": "addons/l10n_ua_military/wizards/ua_military_wizards.py",
-              "decorators": []
-            }
-          ],
-          "fields": []
-        },
-        {
           "model": "ua.pfu.claim",
           "ours": true,
           "modules": [
@@ -2530,6 +2560,14 @@
               "name": "action_accept",
               "signature": "action_accept()",
               "doc": "ПФУ прийняв заяву.",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_pfu_claim.py",
+              "decorators": []
+            },
+            {
+              "name": "action_compose_month",
+              "signature": "action_compose_month()",
+              "doc": "Кнопка списку «Створити за місяць»: заява-розрахунок за поточний місяць.",
               "module": "l10n_ua_hr_docs",
               "file": "addons/l10n_ua_hr_docs/models/ua_pfu_claim.py",
               "decorators": []
@@ -2627,6 +2665,14 @@
           ],
           "methods": [
             {
+              "name": "action_compose_today",
+              "signature": "action_compose_today()",
+              "doc": "Кнопка списку «Створити на сьогодні»: розпис на поточну дату, одразу заповнений.",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_staff_list.py",
+              "decorators": []
+            },
+            {
               "name": "action_confirm",
               "signature": "action_confirm()",
               "doc": "",
@@ -2664,30 +2710,20 @@
           "fields": []
         },
         {
-          "model": "ua.staff.list.wizard",
-          "ours": true,
-          "modules": [
-            "l10n_ua_hr_docs"
-          ],
-          "methods": [
-            {
-              "name": "action_create",
-              "signature": "action_create()",
-              "doc": "Створити документ і відкрити його форму; якщо на цю дату вже є чернетка - відкрити її.",
-              "module": "l10n_ua_hr_docs",
-              "file": "addons/l10n_ua_hr_docs/wizards/ua_hr_docs_wizards.py",
-              "decorators": []
-            }
-          ],
-          "fields": []
-        },
-        {
           "model": "ua.timesheet.sheet",
           "ours": true,
           "modules": [
             "l10n_ua_hr_docs"
           ],
           "methods": [
+            {
+              "name": "action_compose_month",
+              "signature": "action_compose_month()",
+              "doc": "Кнопка списку «Створити за місяць»: табель поточного місяця, одразу заповнений.",
+              "module": "l10n_ua_hr_docs",
+              "file": "addons/l10n_ua_hr_docs/models/ua_timesheet_sheet.py",
+              "decorators": []
+            },
             {
               "name": "action_confirm",
               "signature": "action_confirm()",
@@ -2729,24 +2765,6 @@
               "decorators": [
                 "api.model"
               ]
-            }
-          ],
-          "fields": []
-        },
-        {
-          "model": "ua.timesheet.wizard",
-          "ours": true,
-          "modules": [
-            "l10n_ua_hr_docs"
-          ],
-          "methods": [
-            {
-              "name": "action_create",
-              "signature": "action_create()",
-              "doc": "Створити документ і відкрити його форму; якщо на цей період уже є чернетка - відкрити її.",
-              "module": "l10n_ua_hr_docs",
-              "file": "addons/l10n_ua_hr_docs/wizards/ua_hr_docs_wizards.py",
-              "decorators": []
             }
           ],
           "fields": []
@@ -3515,18 +3533,18 @@
           "fields": []
         },
         {
-          "model": "ua.bank.ops.wizard",
+          "model": "ua.bank.pull",
           "ours": true,
           "modules": [
             "l10n_ua_bank_online"
           ],
           "methods": [
             {
-              "name": "action_run",
-              "signature": "action_run()",
-              "doc": "Одна дія за фіксованим ключем operation - решта веде до ua.bank.ops.",
+              "name": "action_pull",
+              "signature": "action_pull()",
+              "doc": "Одна дія: завантажити виписку рахунку за місяць.",
               "module": "l10n_ua_bank_online",
-              "file": "addons/l10n_ua_bank_online/wizards/ua_bank_ops_wizard.py",
+              "file": "addons/l10n_ua_bank_online/wizards/ua_bank_pull.py",
               "decorators": []
             }
           ],
@@ -3539,6 +3557,22 @@
             "l10n_ua_cash"
           ],
           "methods": [
+            {
+              "name": "action_ask",
+              "signature": "action_ask()",
+              "doc": "Кнопка «Сформувати» в шапці списку: діалог параметрів нової книги.",
+              "module": "l10n_ua_cash",
+              "file": "addons/l10n_ua_cash/models/ua_cash_book.py",
+              "decorators": []
+            },
+            {
+              "name": "action_compose",
+              "signature": "action_compose()",
+              "doc": "Кнопка «Скласти» в діалозі: порахувати і відкрити книгу сторінкою.",
+              "module": "l10n_ua_cash",
+              "file": "addons/l10n_ua_cash/models/ua_cash_book.py",
+              "decorators": []
+            },
             {
               "name": "action_compute",
               "signature": "action_compute()",
@@ -3584,11 +3618,35 @@
           ],
           "methods": [
             {
+              "name": "action_ask",
+              "signature": "action_ask()",
+              "doc": "Кнопка «Сформувати» в шапці списку: діалог параметрів нової відомості.",
+              "module": "l10n_ua_assets",
+              "file": "addons/l10n_ua_assets/models/ua_depreciation_sheet.py",
+              "decorators": []
+            },
+            {
+              "name": "action_compose",
+              "signature": "action_compose()",
+              "doc": "Кнопка «Скласти» в діалозі: відкрити складену відомість сторінкою.",
+              "module": "l10n_ua_assets",
+              "file": "addons/l10n_ua_assets/models/ua_depreciation_sheet.py",
+              "decorators": []
+            },
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "«Перерахувати»: рядки читаються з таблиці амортизації щоразу, тому тут",
+              "module": "l10n_ua_assets",
+              "file": "addons/l10n_ua_assets/models/ua_depreciation_sheet.py",
+              "decorators": []
+            },
+            {
               "name": "action_print",
               "signature": "action_print()",
               "doc": "",
               "module": "l10n_ua_assets",
-              "file": "addons/l10n_ua_assets/wizard/ua_depreciation_sheet.py",
+              "file": "addons/l10n_ua_assets/models/ua_depreciation_sheet.py",
               "decorators": []
             },
             {
@@ -3596,7 +3654,7 @@
               "signature": "month_name()",
               "doc": "",
               "module": "l10n_ua_assets",
-              "file": "addons/l10n_ua_assets/wizard/ua_depreciation_sheet.py",
+              "file": "addons/l10n_ua_assets/models/ua_depreciation_sheet.py",
               "decorators": []
             },
             {
@@ -3604,7 +3662,7 @@
               "signature": "sheet_rows()",
               "doc": "Готові рядки відомості для друку.",
               "module": "l10n_ua_assets",
-              "file": "addons/l10n_ua_assets/wizard/ua_depreciation_sheet.py",
+              "file": "addons/l10n_ua_assets/models/ua_depreciation_sheet.py",
               "decorators": []
             },
             {
@@ -3612,7 +3670,7 @@
               "signature": "total()",
               "doc": "",
               "module": "l10n_ua_assets",
-              "file": "addons/l10n_ua_assets/wizard/ua_depreciation_sheet.py",
+              "file": "addons/l10n_ua_assets/models/ua_depreciation_sheet.py",
               "decorators": []
             }
           ],
@@ -3695,6 +3753,32 @@
               "doc": "Зібрати звіт і відкрити його. Повертає дію на mis.report.instance.",
               "module": "l10n_ua_group",
               "file": "addons/l10n_ua_group/wizard/ua_group_consolidation.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.ledger.base",
+          "ours": true,
+          "modules": [
+            "l10n_ua_ledger"
+          ],
+          "methods": [
+            {
+              "name": "action_ask",
+              "signature": "action_ask()",
+              "doc": "Кнопка «Сформувати» в шапці списку: діалог параметрів нового регістра.",
+              "module": "l10n_ua_ledger",
+              "file": "addons/l10n_ua_ledger/models/ua_ledger_base.py",
+              "decorators": []
+            },
+            {
+              "name": "action_compose",
+              "signature": "action_compose()",
+              "doc": "Кнопка «Скласти» в діалозі параметрів: порахувати і відкрити результат сторінкою.",
+              "module": "l10n_ua_ledger",
+              "file": "addons/l10n_ua_ledger/models/ua_ledger_base.py",
               "decorators": []
             }
           ],
@@ -3911,24 +3995,6 @@
           "fields": []
         },
         {
-          "model": "ua.vat.cabinet",
-          "ours": true,
-          "modules": [
-            "l10n_ua_vat"
-          ],
-          "methods": [
-            {
-              "name": "action_compute",
-              "signature": "action_compute()",
-              "doc": "Кнопка «Порахувати»: перерахувати зведення за період.",
-              "module": "l10n_ua_vat",
-              "file": "addons/l10n_ua_vat/wizard/ua_vat_cabinet.py",
-              "decorators": []
-            }
-          ],
-          "fields": []
-        },
-        {
           "model": "ua.vat.compensation",
           "ours": true,
           "modules": [
@@ -3992,6 +4058,42 @@
               "module": "l10n_ua_vat",
               "file": "addons/l10n_ua_vat/models/ua_vat_document.py",
               "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.vat.period",
+          "ours": true,
+          "modules": [
+            "l10n_ua_vat"
+          ],
+          "methods": [
+            {
+              "name": "action_compose_month",
+              "signature": "action_compose_month()",
+              "doc": "Кнопка списку «Створити за місяць»: зведення поточного місяця.",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/ua_vat_period.py",
+              "decorators": []
+            },
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "Кнопка «Порахувати»: перерахувати зведення за період.",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/ua_vat_period.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_compose",
+              "signature": "ua_compose(company, year=None, month=None, **params)",
+              "doc": "Нове зведення ПДВ за місяць, одразу пораховане.",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/ua_vat_period.py",
+              "decorators": [
+                "api.model"
+              ]
             }
           ],
           "fields": []
@@ -4153,6 +4255,74 @@
               "groups": ""
             }
           ]
+        },
+        {
+          "model": "account.bank.statement",
+          "ours": false,
+          "modules": [
+            "l10n_ua_bank_online"
+          ],
+          "methods": [
+            {
+              "name": "action_ua_apply_rules",
+              "signature": "action_ua_apply_rules()",
+              "doc": "«Застосувати правила звірки»: усі незвірені рядки компанії.",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/account_bank_statement.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_match_payments",
+              "signature": "action_ua_match_payments()",
+              "doc": "«Звести з платежами»: усі незвірені рядки компанії.",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/account_bank_statement.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_pull",
+              "signature": "action_ua_pull()",
+              "doc": "«Завантажити виписку»: діалог з трьох полів - рахунок, рік, місяць.",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/account_bank_statement.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_pull_all",
+              "signature": "action_ua_pull_all()",
+              "doc": "«Завантажити за всі рахунки»: поточний місяць, усі підключені рахунки.",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/account_bank_statement.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "account.journal",
+          "ours": false,
+          "modules": [
+            "l10n_ua_bank_online"
+          ],
+          "methods": [
+            {
+              "name": "action_ua_bank_provider",
+              "signature": "action_ua_bank_provider()",
+              "doc": "«З'єднання з банком»: наявне відкриваємо, відсутнє - показуємо перелік.",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/account_bank_statement.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_bank_test",
+              "signature": "action_ua_bank_test()",
+              "doc": "«Перевірити з'єднання» на формі банківського журналу.",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/account_bank_statement.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
         },
         {
           "model": "account.move",
@@ -4430,6 +4600,14 @@
               "doc": "Кнопка «XML (чернетка формату)»: вкладення і посилання на завантаження.",
               "module": "l10n_ua_finrep",
               "file": "addons/l10n_ua_finrep/models/mis_report.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_group_consolidation",
+              "signature": "action_ua_group_consolidation()",
+              "doc": "Кнопка «Сформувати» в шапці списку: діалог параметрів консолідації.",
+              "module": "l10n_ua_group",
+              "file": "addons/l10n_ua_group/models/mis_report_instance.py",
               "decorators": []
             }
           ],
@@ -5015,7 +5193,16 @@
           "modules": [
             "l10n_ua_purchase"
           ],
-          "methods": [],
+          "methods": [
+            {
+              "name": "action_ua_pad",
+              "signature": "action_ua_pad()",
+              "doc": "Кнопка «Пад» у шапці списку: разовий діалог, з якого виходить запит.",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/purchase_request.py",
+              "decorators": []
+            }
+          ],
           "fields": [
             {
               "name": "ua_department_id",
@@ -5101,6 +5288,14 @@
               "doc": "",
               "module": "bp_kyc",
               "file": "addons/bp_kyc/models/res_partner.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_new_from_edr",
+              "signature": "action_ua_new_from_edr()",
+              "doc": "Кнопка «Контрагент з ЄДР» у шапці списку: разовий діалог на одне поле - код.",
+              "module": "l10n_ua_partner_edr",
+              "file": "addons/l10n_ua_partner_edr/models/res_partner.py",
               "decorators": []
             },
             {

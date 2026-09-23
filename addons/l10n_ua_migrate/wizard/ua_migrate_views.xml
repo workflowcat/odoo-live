@@ -5,6 +5,10 @@
     <field name="model">ua.migrate</field>
     <field name="arch" type="xml">
       <form string="Перенесення з 1С/BAS">
+        <header>
+          <button name="action_import" type="object" string="Перенести" class="oe_highlight"
+                  invisible="state == 'done'"/>
+        </header>
         <group invisible="state == 'done'">
           <group>
             <field name="import_type"/>
@@ -19,11 +23,7 @@
         </group>
         <field name="result_html" readonly="1" invisible="state != 'done'"/>
         <field name="state" invisible="1"/>
-        <footer>
-          <button name="action_import" type="object" string="Перенести" class="oe_highlight"
-                  invisible="state == 'done'"/>
-          <button string="Закрити" class="btn-secondary" special="cancel"/>
-        </footer>
+
       </form>
     </field>
   </record>
@@ -32,6 +32,6 @@
     <field name="name">Перенесення з 1С/BAS</field>
     <field name="res_model">ua.migrate</field>
     <field name="view_mode">form</field>
-    <field name="target">new</field>
+    <field name="target">current</field>
   </record>
 </odoo>
