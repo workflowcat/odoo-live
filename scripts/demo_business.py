@@ -20,7 +20,7 @@ import re
 import subprocess
 import sys
 import urllib.request
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
@@ -1619,7 +1619,9 @@ def cost_calculation():
 # =====================================================================================
 # Кінець вересня, але не пізніше за сьогодні: інвентаризацію не проводять наперед
 # (l10n_ua_stock_docs зупиняє майбутню дату помилкою), а демо збирається до 30-го.
-INVENTORY_DATE = min(date(2026, 9, 30), date.today()).isoformat()
+# «Сьогодні» ядра - за часовим поясом користувача RPC (у admin порожній = UTC), не за годинником Mac:
+# після 00:00 за Києвом і до 00:00 UTC дата Mac уже завтрашня, і опис падає як «з майбутнього».
+INVENTORY_DATE = min(date(2026, 9, 30), datetime.now(timezone.utc).date()).isoformat()
 INVENTORY_BASIS = "Наказ № 27 від 25.09.2026 про річну інвентаризацію"
 INVENTORY_SURPLUS = ("M06", 40.0)     # лишок кромки ПВХ
 INVENTORY_SHORTAGE = ("M13", -12.0)   # нестача ручок
