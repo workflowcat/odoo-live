@@ -1080,6 +1080,14 @@ def _f1():
             made = call("mis.report.instance", "copy", [base],
                         {"name": label, "company_id": CO}, context=both)
             ids = made if isinstance(made, list) else [made]
+            # mis_builder.copy() сам дописує до назви «(copy)» і ігнорує нашу; без
+            # цього запису пошук за назвою вище на повторному прогоні не знаходить
+            # копію і робить ще одну.
+            # Назва перекладна: пишемо і українську (CTX), і англійську - demo_business.py
+            # шукає ту саму копію без мови.
+            call("mis.report.instance", "write", ids, {"name": label}, context=both)
+            call("mis.report.instance", "write", ids, {"name": label},
+                 context=dict(both, lang="en_US"))
         except RpcError as e:
             return {"error": str(e)[:160]}
     try:

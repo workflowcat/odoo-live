@@ -325,3 +325,35 @@ class TestUaFinrep(TransactionCase):
         self._eq(self.v1["1165"], 70000.0, "ряд. 1165 при кодах %s" % bank.code)
         self._eq(self.v1["1011"], 60000.0, "ряд. 1011 при кодах %s" % bank.code)
         self._eq(self.v2["2000"], 45000.0, "ряд. 2000 при кодах %s" % bank.code)
+
+    # ---- 15. Пункти меню ----------------------------------------------------
+
+    def test_15_menu_opens_preview_with_active_id(self):
+        """Пункт меню відкриває звіт компанії з id у active_id.
+
+        Віджет mis_builder 19.0 бере id звіту лише з active_id; без нього - «Invalid
+        ids list». Друга компанія отримує власну копію звіту, а не чужий."""
+        for form in ("f1", "f2", "f1m", "f2m"):
+            menu_action = self.env.ref("l10n_ua_finrep.action_open_%s" % form)
+            action = menu_action.run()
+            self.assertEqual(action["res_model"], "mis.report.instance")
+            self.assertEqual(action["view_id"], self.env.ref(
+                "mis_builder.mis_report_instance_result_view_form").id)
+            self.assertEqual(action["context"]["active_id"], action["res_id"], form)
+            self.assertEqual(action["context"]["active_model"], "mis.report.instance")
+            instance = self.env["mis.report.instance"].browse(action["res_id"])
+            self.assertEqual(instance.company_id, self.env.company, form)
+            self.assertEqual(instance.ua_finrep_form, form)
+
+        other = self.env["res.company"].create({"name": "Друга компанія фінзвітності"})
+        self.env.user.company_ids |= other
+        env2 = self.env(context=dict(self.env.context, allowed_company_ids=[other.id]))
+        action = env2.ref("l10n_ua_finrep.action_open_f1").run()
+        instance = env2["mis.report.instance"].browse(action["res_id"])
+        self.assertEqual(instance.company_id, other)
+        self.assertEqual(instance.report_id, self.f1.report_id)
+        self.assertTrue(instance.period_ids, "копія без колонки")
+        self.assertEqual(instance.name, self.f1.name, "у назві копії лишилося «(copy)»")
+        # Повторний клік бере той самий звіт, не плодить копії.
+        again = env2.ref("l10n_ua_finrep.action_open_f1").run()
+        self.assertEqual(again["res_id"], instance.id)

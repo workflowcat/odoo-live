@@ -42,6 +42,12 @@
         <field name="inherit_id" ref="mis_builder.mis_report_instance_view_list" />
         <field name="mode">primary</field>
         <field name="arch" type="xml">
+            <!-- Рядок відкриває сам звіт (preview), а не картку налаштувань:
+                 у меню - один клік до таблиці. -->
+            <list position="attributes">
+                <attribute name="action">preview</attribute>
+                <attribute name="type">object</attribute>
+            </list>
             <list position="inside">
                 <header>
                     <button

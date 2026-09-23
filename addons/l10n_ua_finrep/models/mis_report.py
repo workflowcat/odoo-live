@@ -14,7 +14,8 @@
 import re
 import xml.etree.ElementTree as ET
 
-from odoo import fields, models
+from odoo import api, fields, models
+from odoo.exceptions import UserError
 
 from odoo.addons.mis_builder.models.accounting_none import AccountingNone
 
@@ -56,6 +57,65 @@ class MisReportInstance(models.Model):
         store=True,
         readonly=True,
     )
+
+    # --- відкриття звіту -----------------------------------------------------
+
+    def preview(self):
+        """Перегляд звіту з id у контексті.
+
+        Віджет mis_builder 19.0 бере id звіту з `props.value`, якого в полях
+        Odoo 19 вже немає, тож лишається запасний шлях - `active_id` у
+        контексті. Кнопка на записі кладе його сама, а пункт меню і дія, що
+        повертає preview() з коду, - ні, і віджет падає з «Invalid ids list».
+        Тому кладемо `active_id` тут, для будь-якого виклику preview()."""
+        action = super().preview()
+        context = dict(action.get("context") or {})
+        context.update(active_model=self._name, active_id=self.id, active_ids=self.ids)
+        action["context"] = context
+        action.setdefault("name", self.name)
+        return action
+
+    @api.model
+    def _ua_finrep_open(self, form):
+        """Пункт меню форми: звіт поточної компанії, відкритий на перегляд.
+
+        Звіт шукаємо серед звітів однієї компанії (консолідації групи - багато
+        компаній - не беремо). Якщо в компанії його ще немає, копіюємо готовий
+        звіт модуля (`instance_<форма>`): той самий шаблон, колонка «поточний
+        рік», лише інша компанія. Період відносний, тож окремого звіту на рік
+        не треба."""
+        company = self.env.company
+        instance = self.search([
+            ("ua_finrep_form", "=", form),
+            ("multi_company", "=", False),
+            ("company_id", "=", company.id),
+        ], order="sequence, id", limit=1)
+        if not instance:
+            template = self.env.ref("l10n_ua_finrep.instance_%s" % form,
+                                    raise_if_not_found=False)
+            if template:
+                copied = template.sudo().copy({"company_id": company.id})
+                # copy() mis_builder дописує до назви «(copy)» - повертаємо назву шаблону.
+                copied.name = template.sudo().name
+            else:
+                report = self.env["mis.report"].sudo().search(
+                    [("ua_finrep_form", "=", form)], limit=1)
+                if not report:
+                    raise UserError("Немає шаблону форми %s." % form)
+                copied = self.sudo().create({
+                    "name": report.name,
+                    "report_id": report.id,
+                    "company_id": company.id,
+                    "target_move": "posted",
+                    "widget_show_pivot_date": True,
+                    "widget_show_settings_button": True,
+                    "period_ids": [(0, 0, {
+                        "name": "Поточний рік", "mode": "relative", "type": "y",
+                        "offset": 0, "duration": 1, "sequence": 1,
+                    })],
+                })
+            instance = self.browse(copied.id)
+        return instance.preview()
 
     # --- читання порахованого ------------------------------------------------
 

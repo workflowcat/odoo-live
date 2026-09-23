@@ -177,13 +177,13 @@
   <menuitem id="menu_ua_reporting_finrep" name="Фінзвітність" parent="menu_ua_reporting_root"
             sequence="30"/>
   <menuitem id="menu_ua_reporting_f1" name="Ф1. Баланс" parent="menu_ua_reporting_finrep"
-            action="l10n_ua_finrep.action_f1" sequence="10"/>
+            action="l10n_ua_finrep.action_open_f1" sequence="10"/>
   <menuitem id="menu_ua_reporting_f2" name="Ф2. Звіт про фінансові результати"
-            parent="menu_ua_reporting_finrep" action="l10n_ua_finrep.action_f2" sequence="20"/>
+            parent="menu_ua_reporting_finrep" action="l10n_ua_finrep.action_open_f2" sequence="20"/>
   <menuitem id="menu_ua_reporting_f1m" name="Ф1-м. Баланс (малі)"
-            parent="menu_ua_reporting_finrep" action="l10n_ua_finrep.action_f1m" sequence="30"/>
+            parent="menu_ua_reporting_finrep" action="l10n_ua_finrep.action_open_f1m" sequence="30"/>
   <menuitem id="menu_ua_reporting_f2m" name="Ф2-м. Фінрезультати (малі)"
-            parent="menu_ua_reporting_finrep" action="l10n_ua_finrep.action_f2m" sequence="40"/>
+            parent="menu_ua_reporting_finrep" action="l10n_ua_finrep.action_open_f2m" sequence="40"/>
 
   <!-- ================================================================= банк у «Бухобліку» -->
   <!-- Операції банку (завантажити виписку, звести з платежами, правила) - кнопки в

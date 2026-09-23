@@ -688,13 +688,15 @@ run_jul, jul = month_batch(2026, 7, "Зарплата за липень 2026", c
 run_aug, aug = month_batch(2026, 8, "Зарплата за серпень 2026", close=True)
 month_batch(2026, 9, "Зарплата за вересень 2026", close=False, advance=False)
 
-# довідка про доходи: майстер створює запис у реєстрі. Місце має значення - листки за
-# лютий-липень мають бути проведені до виклику, інакше майстер відмовляє.
-cert_ids = call("ua.income.certificate.register", "search", [["employee_id", "=", E[1]], ["date_from", "=", "2026-02-01"]])
+# довідка про доходи - документ ua.income.certificate (список довідок і є реєстром).
+# Місце має значення - листки за лютий-липень мають бути проведені до виклику,
+# інакше документ без рядків і видати його не можна.
+cert_ids = call("ua.income.certificate", "search", [["employee_id", "=", E[1]], ["date_from", "=", "2026-02-01"]])
 if not cert_ids:
-    cwid = call("ua.income.certificate.wizard", "create", {"employee_id": E[1], "date_from": "2026-02-01", "date_to": "2026-07-31", "purpose": "для подання до банку"})
-    call("ua.income.certificate.wizard", "action_print", [cwid])
-print("Довідка про доходи (реєстр виданих довідок) записана.")
+    cert_ids = call("ua.income.certificate", "ua_compose", COMPANY, employee=E[1], date_from="2026-02-01", date_to="2026-07-31")
+    call("ua.income.certificate", "write", cert_ids, {"purpose": "для подання до банку"})
+    call("ua.income.certificate", "action_confirm", cert_ids)
+print("Довідка про доходи видана (список довідок про доходи).")
 
 
 def refill_pfu_claim(run_id):

@@ -154,6 +154,24 @@ class TestUaGroup(AccountTestInvoicingCommon):
         self.assertEqual(signs.count("+"), 2, "компанії мають додаватись")
         self.assertEqual(signs.count("-"), 1, "елімінація має відніматись")
 
+    def test_01b_result_opens_with_active_id(self):
+        """Дія «Зібрати звіт» і рядок списку відкривають звіт з id у active_id.
+
+        Без active_id віджет mis_builder 19.0 падає з «Invalid ids list»."""
+        companies = self.group
+        wizard = self.env["ua.group.consolidation"].with_context(
+            allowed_company_ids=companies.ids).create({
+                "company_ids": [(6, 0, companies.ids)], "form": "f2",
+                "date_from": date(2026, 1, 1), "date_to": PIVOT,
+            })
+        action = wizard.action_build()
+        self.assertEqual(action["context"]["active_id"], action["res_id"])
+        self.assertEqual(action["context"]["active_model"], "mis.report.instance")
+        self.assertEqual(sorted(action["context"]["allowed_company_ids"]), sorted(companies.ids))
+        arch = self.env["mis.report.instance"].get_view(
+            self.env.ref("l10n_ua_group.view_mis_report_instance_group_list").id, "list")["arch"]
+        self.assertIn('action="preview"', arch, "рядок списку не відкриває звіт")
+
     # ---- 2. Кожна компанія окремо ------------------------------------------
 
     def test_02_company_columns_are_separate_books(self):

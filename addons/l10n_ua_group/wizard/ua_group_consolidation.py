@@ -219,15 +219,9 @@ class UaGroupConsolidation(models.TransientModel):
                     + [("-", elimination)]),
             },
         ])
-        return {
-            "type": "ir.actions.act_window",
-            "name": instance.name,
-            "res_model": "mis.report.instance",
-            "res_id": instance.id,
-            "view_mode": "form",
-            "view_id": self.env.ref(
-                "mis_builder.mis_report_instance_result_view_form").id,
-            "target": "current",
-            "context": dict(
-                self.env.context, allowed_company_ids=self.company_ids.ids),
-        }
+        # preview() з l10n_ua_finrep кладе id звіту в active_id - без нього
+        # віджет mis_builder 19.0 падає з «Invalid ids list».
+        action = instance.preview()
+        action["context"] = dict(
+            action["context"], allowed_company_ids=self.company_ids.ids)
+        return action

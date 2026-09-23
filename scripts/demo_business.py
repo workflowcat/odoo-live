@@ -1258,8 +1258,9 @@ def assets(PR, tx):
             say(f"   амортизація {ln['line_date']}: {str(e)[:200]}")
             break
     # відомість амортизації за вересень
-    sheet = call("ua.depreciation.sheet", "create",
-                 {"company_id": CO_ID, "date_from": "2026-09-01", "date_to": "2026-09-30"})
+    sheet = upsert("ua.depreciation.sheet",
+                   [["company_id", "=", CO_ID], ["year", "=", 2026], ["month", "=", "9"]],
+                   {"company_id": CO_ID, "year": 2026, "month": "9"})
     try:
         call("ua.depreciation.sheet", "action_compute", [sheet])
     except RpcError:
@@ -2294,12 +2295,16 @@ def profit_declaration(year=2026):
 # =====================================================================================
 def vat_by_month():
     out = []
-    for m, last in [(7, 31), (8, 31), (9, 30)]:
-        wiz = call("ua.vat.cabinet", "create", {"date_from": f"2026-{m:02d}-01",
-                                                "date_to": f"2026-{m:02d}-{last}",
-                                                "company_id": CO_ID})
-        call("ua.vat.cabinet", "action_compute", [wiz])
-        r = call("ua.vat.cabinet", "read", [wiz],
+    for m in (7, 8, 9):
+        # ua.vat.period - постійний запис на місяць: повторний прогін бере наявний
+        # і перераховує, а не плодить копії.
+        ids = call("ua.vat.period", "search", [["company_id", "=", CO_ID],
+                                               ["date_from", "=", f"2026-{m:02d}-01"]], limit=1)
+        if ids:
+            call("ua.vat.period", "action_compute", ids)
+        else:
+            ids = call("ua.vat.period", "ua_compose", CO_ID, 2026, m)
+        r = call("ua.vat.period", "read", ids,
                  ["pz_total", "pk_total", "due_total", "ua_fe_vat", "ua_r_export_base",
                   "ua_r19", "problems"])[0]
         out.append((m, r))
@@ -2307,8 +2312,9 @@ def vat_by_month():
 
 
 def osv():
-    rid = call("ua.osv.report", "create", {"company_id": CO_ID,
-                                           "date_from": "2026-07-01", "date_to": "2026-09-30"})
+    rid = upsert("ua.osv.report", [["company_id", "=", CO_ID], ["date_from", "=", "2026-07-01"],
+                                   ["date_to", "=", "2026-09-30"]],
+                 {"company_id": CO_ID, "date_from": "2026-07-01", "date_to": "2026-09-30"})
     call("ua.osv.report", "action_compute", [rid])
     return call("ua.osv.report", "read", [rid],
                 ["total_open_debit", "total_open_credit", "total_debit", "total_credit",
@@ -2381,6 +2387,10 @@ def finrep_f1(cid, name):
             made = call("mis.report.instance", "copy", [base],
                         {"name": label, "company_id": cid}, context=ctx)
             ids = made if isinstance(made, list) else [made]
+            # mis_builder.copy() сам дописує до назви «(copy)» і ігнорує нашу; без
+            # цього запису пошук за назвою вище на повторному прогоні не знаходить
+            # копію і робить ще одну.
+            call("mis.report.instance", "write", ids, {"name": label}, context=ctx)
         except RpcError as e:
             return {"error": str(e)[:160]}
     return _f1_rows(ids[0], cid)
