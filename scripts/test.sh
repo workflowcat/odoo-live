@@ -31,7 +31,7 @@ cleanup() {
     if [ "${KEEP_DB:-0}" = "1" ]; then
         echo "Базу залишено: $DB (лог: $LOG)"
     else
-        docker compose exec -T db dropdb -U odoo --if-exists "$DB" >/dev/null 2>&1 || true
+        docker compose exec -T db dropdb -U odoo --force --if-exists "$DB" >/dev/null 2>&1 || true
         rm -f "$LOG"
     fi
     exit $code
@@ -42,7 +42,7 @@ echo "== піднімаємо лише базу даних =="
 docker compose up -d --wait db
 
 echo "== створюємо порожню базу $DB =="
-docker compose exec -T db dropdb -U odoo --if-exists "$DB" >/dev/null
+docker compose exec -T db dropdb -U odoo --force --if-exists "$DB" >/dev/null
 docker compose exec -T db createdb -U odoo -O odoo "$DB"
 
 echo "== встановлюємо $MODULE і ганяємо тести (теги: $TEST_TAGS) =="
