@@ -4,14 +4,15 @@
   "description": "odoo-live bridge worker and the payroll stand container worker",
   "scripts": {
     "deploy:payroll": "bash scripts/deploy-payroll.sh",
-    "deploy:bridge": "wrangler deploy -c wrangler.jsonc"
+    "deploy:bridge": "cf deploy"
   },
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "@cloudflare/containers": "^0.3.7"
   },
   "private": true,
   "devDependencies": {
-    "wrangler": "^4.107.1"
+    "cf": "^1.0.0-beta.5",
+    "wrangler": "^4.143.0"
   }
 }

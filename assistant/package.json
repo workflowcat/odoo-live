@@ -5,13 +5,14 @@
   "type": "module",
   "description": "Web assistant for employees: answers from the payroll Odoo, sends requests to HR",
   "scripts": {
-    "dev": "wrangler dev --port 8787",
-    "deploy": "wrangler deploy"
+    "dev": "cf dev --port 8787",
+    "deploy": "cf deploy"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "latest"
   },
   "devDependencies": {
-    "wrangler": "^4.107.1"
+    "cf": "^1.0.0-beta.5",
+    "wrangler": "^4.143.0"
   }
 }
