@@ -5,6 +5,7 @@ export default defineConfig({
   worker: {
     name: "odoo-live",
     compatibilityDate: "2026-08-01",
+    observability: { enabled: true, issues: { enabled: true } },
     entrypoint: "./src/index.js",
     workersDev: true,
     env: {
