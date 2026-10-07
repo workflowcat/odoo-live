@@ -26,8 +26,8 @@ import json
 import logging
 from datetime import datetime, timedelta
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
-from urllib.request import Request, urlopen
+from urllib.parse import urlencode, urlsplit
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 import pytz
 
@@ -40,6 +40,25 @@ PRIVAT_BASE = "https://acp.privatbank.ua/api"
 MONO_BASE = "https://api.monobank.ua"
 TIMEOUT = 60
 USER_AGENT = "Odoo l10n_ua_bank_online"
+# Токен банку йде лише сюди. Поле «Адреса API» лишається для іншого шляху на тому
+# самому хості (нова версія API), а не для іншого сервера.
+ALLOWED_HOSTS = frozenset(urlsplit(base).hostname for base in (PRIVAT_BASE, MONO_BASE))
+
+
+class _NoRedirect(HTTPRedirectHandler):
+    """Переадресацію не виконуємо: заголовки з токеном пішли б на чужу адресу."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+def _ua_bank_url_ok(url):
+    try:
+        parts = urlsplit(url)
+        return (parts.scheme == "https" and parts.hostname in ALLOWED_HOSTS
+                and parts.port in (None, 443) and not parts.username and not parts.password)
+    except ValueError:
+        return False
 
 # Зразок для демо-режиму: (зсув у днях, шаблон призначення, сума, контрагент, рахунок контрагента).
 # У шаблоні {m} - назва місяця вікна, {y} - рік: тексти збігаються з тим, як їх пише банк,
@@ -122,9 +141,12 @@ class OnlineBankStatementProvider(models.Model):
     # ------------------------------------------------------------------ запит
     def _ua_fetch(self, url, headers):
         """Один вихід у мережу. Помилку банку показуємо текстом, а не трасуванням."""
+        if not _ua_bank_url_ok(url):
+            raise UserError(_("Адреса API має бути https-адресою банку: %s.")
+                            % ", ".join(sorted(ALLOWED_HOSTS)))
         headers = dict(headers or {}, **{"User-Agent": USER_AGENT, "Accept": "application/json"})
         try:
-            with urlopen(Request(url, headers=headers), timeout=TIMEOUT) as response:
+            with build_opener(_NoRedirect).open(Request(url, headers=headers), timeout=TIMEOUT) as response:
                 payload = response.read()
         except HTTPError as error:
             body = ""
@@ -143,7 +165,9 @@ class OnlineBankStatementProvider(models.Model):
         try:
             return json.loads(payload.decode("utf-8"))
         except ValueError as error:
-            raise UserError(_("Банк повернув не JSON: %s") % payload[:300]) from error
+            # Відповідь лишається в журналі сервера: на екран чужі байти не віддаємо.
+            _logger.warning("Банк повернув не JSON (%s): %r", urlsplit(url).hostname, payload[:300])
+            raise UserError(_("Банк повернув відповідь не у форматі JSON.")) from error
 
     def _ua_tz(self):
         return pytz.timezone(self.tz or "Europe/Kyiv")
