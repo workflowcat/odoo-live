@@ -17,7 +17,7 @@ cp .env.example .env                 # заповнити; .env не в репо
 ./scripts/demo_server.sh reset       # база demo з усіма модулями, сервер на http://127.0.0.1:8131
 python3 scripts/demo_business.py     # ТОВ «Ясен Меблі»: зарплата, продажі, склад, виробництво, ПДВ, банк, каса, ОЗ
 ./scripts/test.sh                    # еталонні тести зарплати на свіжій базі (~25 с)
-TEST_TAGS=ua_golden,ua_leaves,ua_payments,ua_regress,ua_changes,ua_period,ua_checks,ua_hire,ua_reporting,ua_setup,ua_bank,ua_card,ua_documents ./scripts/test.sh
+TEST_TAGS=ua_golden,ua_leaves,ua_payments,ua_regress,ua_changes,ua_period,ua_checks,ua_hire,ua_reporting,ua_setup,ua_bank,ua_card,ua_documents,ua_security ./scripts/test.sh
 ./scripts/check_all.sh               # перевірки стенду (docker compose up -d, порт ODOO_PORT з .env)
 ```
 

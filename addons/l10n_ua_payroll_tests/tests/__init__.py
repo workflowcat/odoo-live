@@ -16,3 +16,4 @@ from . import test_api
 from . import test_demo_costing
 from . import test_menu_documents
 from . import test_api_warehouse
+from . import test_security
