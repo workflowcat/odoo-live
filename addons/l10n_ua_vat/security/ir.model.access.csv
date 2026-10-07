@@ -4,8 +4,11 @@ access_ua_vat_relief_manager,ua.vat.relief manager,model_ua_vat_relief,account.g
 access_ua_vat_document_user,ua.vat.document user,model_ua_vat_document,base.group_user,1,0,0,0
 access_ua_vat_document_invoice,ua.vat.document invoice,model_ua_vat_document,account.group_account_invoice,1,1,1,0
 access_ua_vat_document_manager,ua.vat.document manager,model_ua_vat_document,account.group_account_manager,1,1,1,1
-access_ua_vat_compensation_user,ua.vat.compensation user,model_ua_vat_compensation,base.group_user,1,0,0,0
+access_ua_vat_compensation_user,ua.vat.compensation user,model_ua_vat_compensation,account.group_account_readonly,1,0,0,0
+access_ua_vat_compensation_accountant,ua.vat.compensation accountant,model_ua_vat_compensation,account.group_account_user,1,0,0,0
 access_ua_vat_compensation_manager,ua.vat.compensation manager,model_ua_vat_compensation,account.group_account_manager,1,1,1,1
-access_ua_vat_compensation_line_user,ua.vat.compensation.line user,model_ua_vat_compensation_line,base.group_user,1,0,0,0
+access_ua_vat_compensation_line_user,ua.vat.compensation.line user,model_ua_vat_compensation_line,account.group_account_readonly,1,0,0,0
+access_ua_vat_compensation_line_accountant,ua.vat.compensation.line accountant,model_ua_vat_compensation_line,account.group_account_user,1,0,0,0
 access_ua_vat_compensation_line_manager,ua.vat.compensation.line manager,model_ua_vat_compensation_line,account.group_account_manager,1,1,1,1
-access_ua_vat_period,ua.vat.period,model_ua_vat_period,base.group_user,1,1,1,1
+access_ua_vat_period,ua.vat.period,model_ua_vat_period,account.group_account_user,1,1,1,1
+access_ua_vat_period_readonly,ua.vat.period readonly,model_ua_vat_period,account.group_account_readonly,1,0,0,0

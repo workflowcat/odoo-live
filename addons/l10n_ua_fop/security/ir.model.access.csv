@@ -1,7 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_ua_fop_param_user,ua.fop.param user,model_ua_fop_param,base.group_user,1,0,0,0
 access_ua_fop_param_accountant,ua.fop.param accountant,model_ua_fop_param,account.group_account_manager,1,1,1,1
-access_ua_fop_income_user,ua.fop.income user,model_ua_fop_income,base.group_user,1,0,0,0
+access_ua_fop_income_user,ua.fop.income user,model_ua_fop_income,account.group_account_readonly,1,0,0,0
 access_ua_fop_income_accountant,ua.fop.income accountant,model_ua_fop_income,account.group_account_user,1,1,1,1
-access_ua_fop_quarter_user,ua.fop.quarter user,model_ua_fop_quarter,base.group_user,1,0,0,0
+access_ua_fop_quarter_user,ua.fop.quarter user,model_ua_fop_quarter,account.group_account_readonly,1,0,0,0
 access_ua_fop_quarter_accountant,ua.fop.quarter accountant,model_ua_fop_quarter,account.group_account_user,1,1,1,1

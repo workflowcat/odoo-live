@@ -1,10 +1,10 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_ua_zvv_allocation_user,ua.zvv.allocation user,model_ua_zvv_allocation,base.group_user,1,0,0,0
-access_ua_zvv_allocation_line_user,ua.zvv.allocation.line user,model_ua_zvv_allocation_line,base.group_user,1,0,0,0
+access_ua_zvv_allocation_user,ua.zvv.allocation user,model_ua_zvv_allocation,account.group_account_readonly,1,0,0,0
+access_ua_zvv_allocation_line_user,ua.zvv.allocation.line user,model_ua_zvv_allocation_line,account.group_account_readonly,1,0,0,0
 access_ua_zvv_allocation_accountant,ua.zvv.allocation accountant,model_ua_zvv_allocation,account.group_account_user,1,1,1,1
 access_ua_zvv_allocation_line_accountant,ua.zvv.allocation.line accountant,model_ua_zvv_allocation_line,account.group_account_user,1,1,1,1
-access_ua_cost_calculation_user,ua.cost.calculation user,model_ua_cost_calculation,base.group_user,1,0,0,0
-access_ua_cost_calculation_line_user,ua.cost.calculation.line user,model_ua_cost_calculation_line,base.group_user,1,0,0,0
+access_ua_cost_calculation_user,ua.cost.calculation user,model_ua_cost_calculation,account.group_account_readonly,1,0,0,0
+access_ua_cost_calculation_line_user,ua.cost.calculation.line user,model_ua_cost_calculation_line,account.group_account_readonly,1,0,0,0
 access_ua_cost_calculation_accountant,ua.cost.calculation accountant,model_ua_cost_calculation,account.group_account_user,1,1,1,1
 access_ua_cost_calculation_line_accountant,ua.cost.calculation.line accountant,model_ua_cost_calculation_line,account.group_account_user,1,1,1,1
 access_ua_cost_calculation_planner,ua.cost.calculation planner,model_ua_cost_calculation,mrp.group_mrp_manager,1,1,1,1

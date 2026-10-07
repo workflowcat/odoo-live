@@ -1,7 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_ua_profit_param_user,ua.profit.param user,model_ua_profit_param,base.group_user,1,0,0,0
 access_ua_profit_param_manager,ua.profit.param manager,model_ua_profit_param,account.group_account_manager,1,1,1,1
-access_ua_profit_declaration_user,ua.profit.declaration user,model_ua_profit_declaration,base.group_user,1,0,0,0
+access_ua_profit_declaration_user,ua.profit.declaration user,model_ua_profit_declaration,account.group_account_readonly,1,0,0,0
 access_ua_profit_declaration_accountant,ua.profit.declaration accountant,model_ua_profit_declaration,account.group_account_user,1,1,1,1
-access_ua_profit_declaration_line_user,ua.profit.declaration.line user,model_ua_profit_declaration_line,base.group_user,1,0,0,0
+access_ua_profit_declaration_line_user,ua.profit.declaration.line user,model_ua_profit_declaration_line,account.group_account_readonly,1,0,0,0
 access_ua_profit_declaration_line_accountant,ua.profit.declaration.line accountant,model_ua_profit_declaration_line,account.group_account_user,1,1,1,1
