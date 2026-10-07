@@ -117,6 +117,7 @@
     <field name="target">current</field>
     <field name="binding_model_id" ref="hr.model_hr_employee"/>
     <field name="binding_view_types">list,form</field>
+    <field name="group_ids" eval="[(4, ref('payroll.group_payroll_user'))]"/>
     <field name="context">{'default_employee_id': active_id, 'search_default_employee_id': active_id}</field>
   </record>
 </odoo>
