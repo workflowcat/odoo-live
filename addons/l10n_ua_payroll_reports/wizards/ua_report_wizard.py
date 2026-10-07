@@ -187,7 +187,9 @@ class UaPayrollReportWizard(models.TransientModel):
         """Рядки додатка з поданого XML: елементи T1RXXXX<колонка> з атрибутом ROWNUM."""
         from lxml import etree
 
-        root = etree.fromstring(data)
+        from ..models.ua_dps_xml import safe_fromstring
+
+        root = safe_fromstring(data)
         rows = {}
         for element in root.iter():
             tag = etree.QName(element).localname
