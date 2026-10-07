@@ -285,6 +285,9 @@ class UaReportRun(models.Model):
                                           ("state", "in", ("draft", "verify"))]))
 
         emps = self.env["hr.employee"].search([("company_id", "=", c.id), ("active", "=", True)])
+        # Картка без договору у звіт не йде (наприклад, картка адміністратора, яку Odoo заводить
+        # разом із базою): вимагати від неї РНОКПП - означає блокувати звіт через сторонній запис.
+        emps = emps.filtered(lambda e: any(v.contract_date_start for v in e.sudo().version_ids))
         bad = emps.filtered(lambda e: not (e.sudo().ua_rnokpp and len(e.sudo().ua_rnokpp) == 10 and e.sudo().ua_rnokpp.isdigit()))
         yield dict({
             "code": "rnokpp", "title": "Усі РНОКПП заповнені і мають 10 цифр",
