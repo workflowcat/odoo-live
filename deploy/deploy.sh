@@ -94,6 +94,17 @@ PROJECT="${PROJECT_OVERRIDE:-${COMPOSE_PROJECT_NAME:-odoo-$ENV_NAME}}"
 PG_USER="${PG_USER:-odoo}"
 ODOO_DB="${ODOO_DB:?ODOO_DB не заданий у $ENV_FILE}"
 ODOO_HTTP_PORT="${ODOO_HTTP_PORT:?ODOO_HTTP_PORT не заданий у $ENV_FILE}"
+# Пароль адміністратора prod задають явно. Порожнє значення, «admin» і рядок-коментар
+# зі зразка env (значення без лапок, що починається з «#») не приймаємо: інакше перший
+# деплой лишив би вхід admin/admin або пароль, який лежить у репозиторії.
+if [ "$ENV_NAME" = "prod" ]; then
+    case "${ODOO_ADMIN_USER_PASSWORD:-}" in
+        "" | admin | "#"*)
+            echo "ODOO_ADMIN_USER_PASSWORD у $ENV_FILE порожній або лишився зі зразка: задайте пароль адміністратора prod" >&2
+            exit 2
+            ;;
+    esac
+fi
 EDGE_NETWORK="${EDGE_NETWORK:-odoo-edge}"
 ODOO_IMAGE="${ODOO_IMAGE:-odoo-live-server}"
 BACKUP_DIR="$ROOT/deploy/backups/$ENV_NAME"
@@ -256,6 +267,9 @@ admin.lang = "uk_UA"
 admin.partner_id.lang = "uk_UA"
 env["ir.config_parameter"].sudo().set_param("ir_attachment.location", "db")
 env["ir.attachment"].sudo().force_storage()
+# Друк PDF: wkhtmltopdf працює всередині контейнера і бере стилі з 8069 напряму, а не
+# через зовнішню адресу за Cloudflare Access (те саме, що в scripts/demo_server.sh).
+env["ir.config_parameter"].sudo().set_param("report.url", "http://127.0.0.1:8069")
 env.cr.commit()
 print("ПІДГОТОВКА:", company.chart_template, company.country_id.code)
 PY
