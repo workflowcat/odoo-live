@@ -61,12 +61,12 @@ class UaHrDocRequirement(models.Model):
     _description = "Обов'язковий документ у пакеті працівника"
     _order = "sequence, id"
 
-    name = fields.Char(required=True)
-    code = fields.Char(required=True)
-    applies_to = fields.Selection(APPLIES_TO, default="all", required=True)
+    name = fields.Char("Назва", required=True)
+    code = fields.Char("Код", required=True)
+    applies_to = fields.Selection(APPLIES_TO, string="Кого стосується", default="all", required=True)
     source = fields.Selection(SOURCE, string="Джерело", default="employee", required=True)
-    active = fields.Boolean(default=True)
-    sequence = fields.Integer(default=10)
+    active = fields.Boolean("Чинний", default=True)
+    sequence = fields.Integer("Порядок", default=10)
 
     def _applies(self, kind):
         """kind: ua_contract_kind працівника (employment/gph/fop)."""

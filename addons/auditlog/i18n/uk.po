@@ -1,94 +1,106 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# * auditlog
+# 	* auditlog
 #
-# Translators:
-# OCA Transbot <transbot@odoo-community.org>, 2016
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 9.0c\n"
+"Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-26 01:45+0000\n"
-"PO-Revision-Date: 2016-11-26 01:45+0000\n"
-"Last-Translator: OCA Transbot <transbot@odoo-community.org>, 2016\n"
-"Language-Team: Ukrainian (https://www.transifex.com/oca/teams/23907/uk/)\n"
+"Last-Translator: \n"
+"Language-Team: none\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_rule__action_id
 msgid "Action"
-msgstr ""
+msgstr "Дія"
 
 #. module: auditlog
 #: model:ir.ui.menu,name:auditlog.menu_audit
 msgid "Audit"
-msgstr ""
+msgstr "Аудит змін"
 
 #. module: auditlog
 #: model:ir.model,name:auditlog.model_auditlog_autovacuum
 msgid "Auditlog - Delete old logs"
-msgstr ""
+msgstr "Аудит змін - видалення старих записів"
 
 #. module: auditlog
 #: model:ir.model,name:auditlog.model_auditlog_http_session
 msgid "Auditlog - HTTP User session log"
-msgstr ""
+msgstr "Аудит змін - сесія користувача"
 
 #. module: auditlog
 #: model:ir.model,name:auditlog.model_auditlog_http_request
 msgid "Auditlog - HTTP request log"
-msgstr ""
+msgstr "Аудит змін - HTTP-запит"
 
 #. module: auditlog
 #: model:ir.model,name:auditlog.model_auditlog_log
 msgid "Auditlog - Log"
-msgstr ""
+msgstr "Аудит змін - запис журналу"
 
 #. module: auditlog
 #: model:ir.model,name:auditlog.model_auditlog_log_line
 #: model:ir.model,name:auditlog.model_auditlog_log_line_view
 msgid "Auditlog - Log details (fields updated)"
-msgstr ""
+msgstr "Аудит змін - рядок змін (змінені поля)"
 
 #. module: auditlog
 #: model:ir.model,name:auditlog.model_auditlog_rule
 msgid "Auditlog - Rule"
-msgstr ""
+msgstr "Аудит змін - правило"
 
 #. module: auditlog
 #: model:res.groups,name:auditlog.group_auditlog_manager
 msgid "Auditlog Manager"
-msgstr ""
+msgstr "Аудит змін: адміністратор"
 
 #. module: auditlog
 #: model:ir.module.category,name:auditlog.security_auditlog_groups
+#: model:res.groups.privilege,name:auditlog.res_groups_privilege_auditlog
 msgid "Auditlog Rights"
-msgstr ""
+msgstr "Права на аудит змін"
 
 #. module: auditlog
 #: model:res.groups,name:auditlog.group_auditlog_user
 msgid "Auditlog User"
-msgstr ""
+msgstr "Аудит змін: користувач"
 
 #. module: auditlog
 #: model:ir.actions.server,name:auditlog.ir_cron_auditlog_autovacuum_ir_actions_server
 msgid "Auto-vacuum audit logs"
-msgstr ""
+msgstr "Очищення старих записів журналу змін"
 
 #. module: auditlog
-#: model:ir.model.fields,field_description:auditlog.field_auditlog_rule__capture_record
-msgid "Capture Record"
-msgstr ""
+#: model:ir.model.fields,help:auditlog.field_auditlog_rule__users_to_exclude_ids
+msgid "Changes made by these users are not logged."
+msgstr "Зміни цих користувачів не записуються."
+
+#. module: auditlog
+#: model:ir.model.fields,help:auditlog.field_auditlog_rule__fields_to_exclude_ids
+msgid "Changes made to these fields are not logged."
+msgstr "Зміни цих полів не записуються."
+
+#. module: auditlog
+#: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_rule_form
+msgid "Confirm"
+msgstr "Увімкнути"
+
+#. module: auditlog
+#: model:ir.model.fields.selection,name:auditlog.selection__auditlog_rule__state__confirmed
+#: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_rule_search
+msgid "Confirmed"
+msgstr "Увімкнено"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_http_request__user_context
 msgid "Context"
-msgstr ""
+msgstr "Контекст"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_autovacuum__create_uid
@@ -127,6 +139,11 @@ msgid "Description"
 msgstr "Опис"
 
 #. module: auditlog
+#: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_rule_form
+msgid "Description..."
+msgstr "Опис..."
+
+#. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_autovacuum__display_name
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log__display_name
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log_line__display_name
@@ -139,73 +156,72 @@ msgstr "Назва для відображення"
 #: model:ir.model.fields.selection,name:auditlog.selection__auditlog_rule__state__draft
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_rule_search
 msgid "Draft"
-msgstr ""
+msgstr "Чернетка"
 
 #. module: auditlog
 #. odoo-python
-#: code:addons/auditlog/models/log.py:0
+#: code:addons/auditlog/models/auditlog_log.py:0
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_log_form
 msgid "Exported Records"
-msgstr ""
+msgstr "Експортовані записи"
 
 #. module: auditlog
 #: model:ir.model.fields.selection,name:auditlog.selection__auditlog_log__log_type__fast
 #: model:ir.model.fields.selection,name:auditlog.selection__auditlog_rule__log_type__fast
 msgid "Fast log"
-msgstr ""
+msgstr "Швидкий запис"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log_line__field_id
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log_line_view__field_id
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_line_search
 msgid "Field"
-msgstr ""
+msgstr "Поле"
 
 #. module: auditlog
 #. odoo-python
-#: code:addons/auditlog/models/rule.py:0
+#: code:addons/auditlog/models/auditlog_rule.py:0
 msgid "Field 'model_id' cannot be empty."
-msgstr ""
+msgstr "Поле 'model_id' не може бути порожнім."
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_rule__fields_to_exclude_ids
 msgid "Fields to Exclude"
-msgstr ""
+msgstr "Поля-винятки"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log__line_ids
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_log_form
 msgid "Fields updated"
-msgstr ""
+msgstr "Змінені поля"
 
 #. module: auditlog
 #: model:ir.model.fields.selection,name:auditlog.selection__auditlog_log__log_type__full
 #: model:ir.model.fields.selection,name:auditlog.selection__auditlog_rule__log_type__full
 msgid "Full log"
-msgstr ""
+msgstr "Повний запис"
 
 #. module: auditlog
 #: model:ir.model.fields,help:auditlog.field_auditlog_rule__log_type
 msgid ""
-"Full log: make a diff between the data before and after the operation (log "
-"more info like computed fields which were updated, but it is slower)\n"
-"Fast log: only log the changes made through the create and write operations "
-"(less information, but it is faster)"
+"Full log: the previous values of updated fields are retrieved and stored on the log lines. This includes stored computed fields on the updated records that may be affected by the new values of other fields.\n"
+"Fast log: only log the new values assigned through the create and write operations (less information, but it is faster)."
 msgstr ""
+"Повний запис: попередні значення змінених полів зчитуються і зберігаються в "
+"рядках змін. Сюди входять і збережені обчислювані поля, на які могли "
+"вплинути нові значення інших полів.\n"
+"Швидкий запис: зберігаються лише нові значення, задані під час створення і "
+"зміни (менше даних, зате швидше)."
 
 #. module: auditlog
-#: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_http_request_search
-#: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_http_session_search
-#: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_line_search
-#: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_log_search
-#: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_rule_search
-msgid "Group By..."
-msgstr ""
+#: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_rule_form
+msgid "General"
+msgstr "Загальне"
 
 #. module: auditlog
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_log_form
 msgid "HTTP Context"
-msgstr ""
+msgstr "Контекст HTTP"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log__http_request_id
@@ -214,7 +230,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_line_search
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_log_search
 msgid "HTTP Request"
-msgstr ""
+msgstr "HTTP-запит"
 
 #. module: auditlog
 #: model:ir.actions.act_window,name:auditlog.action_auditlog_http_request_tree
@@ -223,7 +239,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_http_request_search
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_http_session_form
 msgid "HTTP Requests"
-msgstr ""
+msgstr "HTTP-запити"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_autovacuum__id
@@ -235,6 +251,14 @@ msgstr ""
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_rule__id
 msgid "ID"
 msgstr "ID"
+
+#. module: auditlog
+#: model:ir.model.fields,help:auditlog.field_auditlog_rule__capture_record
+msgid ""
+"In case of full logging, also log all values of records at the time of "
+"deletion."
+msgstr ""
+"Для повного запису: зберігати також усі значення запису на момент видалення."
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_autovacuum__write_uid
@@ -263,44 +287,54 @@ msgstr "Останнє оновлення"
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log_line_view__log_id
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_log_form
 msgid "Log"
-msgstr ""
+msgstr "Запис журналу"
 
 #. module: auditlog
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_log_form
 msgid "Log - Field updated"
-msgstr ""
+msgstr "Запис журналу - змінене поле"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_rule__log_create
 msgid "Log Creates"
-msgstr ""
+msgstr "Записувати створення"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_rule__log_unlink
 msgid "Log Deletes"
-msgstr ""
+msgstr "Записувати видалення"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_rule__log_export_data
 msgid "Log Exports"
-msgstr ""
+msgstr "Записувати експорт"
 
 #. module: auditlog
 #: model:ir.actions.act_window,name:auditlog.action_auditlog_line
 #: model:ir.ui.menu,name:auditlog.menu_auditlog_line
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_line_search
 msgid "Log Lines"
-msgstr ""
+msgstr "Рядки змін"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_rule__log_read
 msgid "Log Reads"
-msgstr ""
+msgstr "Записувати перегляд"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_rule__log_write
 msgid "Log Writes"
-msgstr ""
+msgstr "Записувати зміни"
+
+#. module: auditlog
+#: model:ir.model.fields,field_description:auditlog.field_auditlog_rule__capture_record
+msgid "Log values on deletion"
+msgstr "Зберігати значення під час видалення"
+
+#. module: auditlog
+#: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_rule_form
+msgid "Logging"
+msgstr "Що записувати"
 
 #. module: auditlog
 #: model:ir.actions.act_window,name:auditlog.action_auditlog_log_tree
@@ -309,13 +343,13 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_http_request_form
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_log_search
 msgid "Logs"
-msgstr ""
+msgstr "Журнал змін"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log__method
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log_line_view__method
 msgid "Method"
-msgstr ""
+msgstr "Метод"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log__model_id
@@ -324,19 +358,19 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_line_search
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_log_search
 msgid "Model"
-msgstr ""
+msgstr "Модель"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log_line_view__model_model
 msgid "Model Model"
-msgstr ""
+msgstr "Технічна назва моделі"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log__model_name
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log_line_view__model_name
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_rule__model_name
 msgid "Model Name"
-msgstr ""
+msgstr "Назва моделі"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_http_request__display_name
@@ -344,132 +378,127 @@ msgstr ""
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log_line_view__name
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_rule__name
 msgid "Name"
-msgstr "Name"
+msgstr "Назва"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log_line__new_value
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log_line_view__new_value
 msgid "New Value"
-msgstr ""
+msgstr "Стало"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log_line__new_value_text
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log_line_view__new_value_text
 msgid "New value Text"
-msgstr ""
+msgstr "Стало (текст)"
 
 #. module: auditlog
 #. odoo-python
-#: code:addons/auditlog/models/log.py:0
+#: code:addons/auditlog/models/auditlog_log_line.py:0
 msgid "No field defined to create line."
-msgstr ""
+msgstr "Не вказано поле для рядка змін."
 
 #. module: auditlog
 #. odoo-python
-#: code:addons/auditlog/models/rule.py:0
+#: code:addons/auditlog/models/auditlog_rule.py:0
 msgid "No model defined to create line."
-msgstr ""
+msgstr "Не вказано модель для рядка змін."
 
 #. module: auditlog
 #. odoo-python
-#: code:addons/auditlog/models/log.py:0
+#: code:addons/auditlog/models/auditlog_log.py:0
 msgid "No model defined to create log."
-msgstr ""
+msgstr "Не вказано модель для запису журналу."
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log_line__old_value
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log_line_view__old_value
 msgid "Old Value"
-msgstr ""
+msgstr "Було"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log_line__old_value_text
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log_line_view__old_value_text
 msgid "Old value Text"
-msgstr ""
+msgstr "Було (текст)"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_http_request__name
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_http_request_search
 msgid "Path"
-msgstr ""
+msgstr "Шлях"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log_line_view__res_id
 msgid "Res"
-msgstr ""
+msgstr "Запис"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log__res_id
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_line_search
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_log_search
 msgid "Resource ID"
-msgstr ""
+msgstr "ID запису"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log__res_ids
 msgid "Resource IDs"
-msgstr ""
+msgstr "ID записів"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log__name
 msgid "Resource Name"
-msgstr ""
+msgstr "Назва запису"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_http_request__root_url
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_http_request_search
 msgid "Root URL"
-msgstr ""
+msgstr "Коренева адреса (URL)"
 
 #. module: auditlog
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_rule_form
 msgid "Rule"
-msgstr ""
+msgstr "Правило"
 
 #. module: auditlog
 #: model:ir.actions.act_window,name:auditlog.action_auditlog_rule_tree
 #: model:ir.ui.menu,name:auditlog.menu_action_auditlog_rule_tree
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_rule_search
 msgid "Rules"
-msgstr ""
+msgstr "Правила"
 
 #. module: auditlog
 #: model:ir.model.fields,help:auditlog.field_auditlog_rule__model_id
 msgid "Select model for which you want to generate log."
-msgstr ""
-
-#. module: auditlog
-#: model:ir.model.fields,help:auditlog.field_auditlog_rule__capture_record
-msgid "Select this if you want to keep track of Unlink Record"
-msgstr ""
+msgstr "Модель, зміни якої треба записувати."
 
 #. module: auditlog
 #: model:ir.model.fields,help:auditlog.field_auditlog_rule__log_create
 msgid ""
-"Select this if you want to keep track of creation on any record of the model "
-"of this rule"
-msgstr ""
+"Select this if you want to keep track of creation on any record of the model"
+" of this rule"
+msgstr "Записувати створення будь-якого запису моделі цього правила"
 
 #. module: auditlog
 #: model:ir.model.fields,help:auditlog.field_auditlog_rule__log_unlink
 msgid ""
-"Select this if you want to keep track of deletion on any record of the model "
-"of this rule"
-msgstr ""
+"Select this if you want to keep track of deletion on any record of the model"
+" of this rule"
+msgstr "Записувати видалення будь-якого запису моделі цього правила"
 
 #. module: auditlog
 #: model:ir.model.fields,help:auditlog.field_auditlog_rule__log_export_data
 msgid ""
 "Select this if you want to keep track of exports of the model of this rule"
-msgstr ""
+msgstr "Записувати експорт даних моделі цього правила"
 
 #. module: auditlog
 #: model:ir.model.fields,help:auditlog.field_auditlog_rule__log_write
 msgid ""
 "Select this if you want to keep track of modification on any record of the "
 "model of this rule"
-msgstr ""
+msgstr "Записувати зміни будь-якого запису моделі цього правила"
 
 #. module: auditlog
 #: model:ir.model.fields,help:auditlog.field_auditlog_rule__log_read
@@ -477,66 +506,63 @@ msgid ""
 "Select this if you want to keep track of read/open on any record of the "
 "model of this rule"
 msgstr ""
+"Записувати перегляд і відкриття будь-якого запису моделі цього правила"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_http_request__http_session_id
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log__http_session_id
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log_line_view__http_session_id
 msgid "Session"
-msgstr ""
+msgstr "Сесія"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_http_session__name
 msgid "Session ID"
-msgstr ""
+msgstr "ID сесії"
+
+#. module: auditlog
+#: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_rule_form
+msgid "Set to Draft"
+msgstr "Повернути в чернетку"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_rule__state
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_rule_search
 msgid "State"
-msgstr ""
-
-#. module: auditlog
-#: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_rule_form
-msgid "Subscribe"
-msgstr ""
-
-#. module: auditlog
-#: model:ir.model.fields.selection,name:auditlog.selection__auditlog_rule__state__subscribed
-#: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_rule_search
-msgid "Subscribed"
-msgstr ""
+msgstr "Стан"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log__model_model
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_rule__model_model
 msgid "Technical Model Name"
-msgstr ""
+msgstr "Технічна назва моделі"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log_line__field_name
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log_line_view__field_name
 msgid "Technical name"
-msgstr ""
+msgstr "Технічна назва"
 
 #. module: auditlog
 #. odoo-python
-#: code:addons/auditlog/models/log.py:0
+#: code:addons/auditlog/models/auditlog_log_line.py:0
 msgid "The field 'field_id' cannot be empty."
-msgstr ""
+msgstr "Поле 'field_id' не може бути порожнім."
 
 #. module: auditlog
 #. odoo-python
-#: code:addons/auditlog/models/log.py:0
+#: code:addons/auditlog/models/auditlog_log.py:0
 msgid "The field 'model_id' cannot be empty."
-msgstr ""
+msgstr "Поле 'model_id' не може бути порожнім."
 
 #. module: auditlog
 #: model:ir.model.constraint,message:auditlog.constraint_auditlog_rule_model_uniq
 msgid ""
-"There is already a rule defined on this model\n"
+"There is already a rule defined on this model.\n"
 "You cannot define another: please edit the existing one."
 msgstr ""
+"Для цієї моделі вже є правило.\n"
+"Друге створити не можна - змініть наявне."
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_log__log_type
@@ -544,11 +570,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_rule__log_type
 msgid "Type"
 msgstr "Тип"
-
-#. module: auditlog
-#: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_rule_form
-msgid "Unsubscribe"
-msgstr ""
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_http_request__user_id
@@ -560,7 +581,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_line_search
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_log_search
 msgid "User"
-msgstr ""
+msgstr "Користувач"
 
 #. module: auditlog
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_http_request_search
@@ -568,40 +589,37 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_line_search
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_log_search
 msgid "User session"
-msgstr ""
+msgstr "Сесія користувача"
 
 #. module: auditlog
 #: model:ir.actions.act_window,name:auditlog.action_auditlog_http_session_tree
 #: model:ir.ui.menu,name:auditlog.menu_action_auditlog_http_session_tree
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_http_session_search
 msgid "User sessions"
-msgstr ""
+msgstr "Сесії користувачів"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_rule__user_ids
 msgid "Users"
-msgstr ""
+msgstr "Користувачі"
 
 #. module: auditlog
 #: model:ir.model.fields,field_description:auditlog.field_auditlog_rule__users_to_exclude_ids
 msgid "Users to Exclude"
-msgstr ""
+msgstr "Користувачі-винятки"
 
 #. module: auditlog
 #: model_terms:ir.ui.view,arch_db:auditlog.view_auditlog_log_form
 msgid "Values"
-msgstr ""
+msgstr "Значення"
 
 #. module: auditlog
 #. odoo-python
-#: code:addons/auditlog/models/rule.py:0
+#: code:addons/auditlog/models/auditlog_rule.py:0
 msgid "View logs"
-msgstr ""
+msgstr "Журнал змін"
 
 #. module: auditlog
 #: model:ir.model.fields,help:auditlog.field_auditlog_rule__user_ids
 msgid "if no user is added then it will applicable for all users"
-msgstr ""
-
-#~ msgid "Last Modified on"
-#~ msgstr "Остання модифікація"
+msgstr "Якщо користувачів не вказано, правило діє для всіх"
