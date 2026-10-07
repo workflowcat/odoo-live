@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Слід розрахунку однієї компанії не видно з іншої. Читати рядки напряму може
+       лише керівник зарплати (ir.model.access.csv); решта бачить слід через
+       ua.explain.explain(), який спершу перевіряє право на сам листок. -->
+  <record id="rule_ua_explain_trace_company" model="ir.rule">
+    <field name="name">Слід розрахунку: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_explain_trace"/>
+    <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+  </record>
+</odoo>
