@@ -35,7 +35,7 @@ class UaPeriodClose(models.Model):
     year = fields.Integer("Рік", required=True, default=lambda s: fields.Date.context_today(s).year)
     month = fields.Integer("Місяць", required=True,
                            default=lambda s: fields.Date.context_today(s).month)
-    kind = fields.Selection(KINDS, "Період", default="month", required=True)
+    kind = fields.Selection(KINDS, "Вид періоду", default="month", required=True)
     state = fields.Selection(STATES, "Стан", default="open", required=True)
     hard = fields.Boolean("Остаточно", help="Дата блокування, яку не можна зняти")
     lock_date = fields.Date("Дата блокування", readonly=True)
