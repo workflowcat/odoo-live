@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Правила компанії: записи однієї компанії не видно з іншої. Той самий домен,
+       що в нативних документах Odoo; рядок бере компанію в документа, на якому висить,
+       а довідник із порожньою компанією спільний для всіх. -->
+  <record id="rule_ua_hire_case_company" model="ir.rule">
+    <field name="name">Справа прийняття: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_hire_case"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_hire_file_company" model="ir.rule">
+    <field name="name">Файл справи прийняття: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_hire_file"/>
+    <field name="domain_force">[('case_id.company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_hire_proposal_company" model="ir.rule">
+    <field name="name">Пропозиція значення з документа: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_hire_proposal"/>
+    <field name="domain_force">[('case_id.company_id', 'in', company_ids)]</field>
+  </record>
+</odoo>

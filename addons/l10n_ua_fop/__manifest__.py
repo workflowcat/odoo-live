@@ -19,6 +19,7 @@
     "depends": ["account", "l10n_ua"],
     "data": [
         "security/ir.model.access.csv",
+        "security/ua_fop_security.xml",
         "data/ua_fop_param_data.xml",
         "views/ua_fop_param_views.xml",
         "views/ua_fop_income_views.xml",

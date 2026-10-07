@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Правила компанії: записи однієї компанії не видно з іншої. Той самий домен,
+       що в нативних документах Odoo; рядок бере компанію в документа, на якому висить,
+       а довідник із порожньою компанією спільний для всіх. -->
+  <record id="rule_ua_income_certificate_company" model="ir.rule">
+    <field name="name">Довідка про доходи: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_income_certificate"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_income_certificate_line_company" model="ir.rule">
+    <field name="name">Рядок довідки про доходи: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_income_certificate_line"/>
+    <field name="domain_force">[('certificate_id.company_id', 'in', company_ids)]</field>
+  </record>
+</odoo>

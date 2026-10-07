@@ -9,6 +9,7 @@
     "data": [
         "views/hr_employee_views.xml",
         "security/ir.model.access.csv",
+        "security/ua_payroll_account_security.xml",
         "data/account_map_data.xml",
         "views/ua_payroll_account_map_views.xml",
         "views/hr_department_views.xml",

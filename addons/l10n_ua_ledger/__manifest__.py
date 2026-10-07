@@ -15,6 +15,7 @@
     "depends": ["account", "l10n_ua", "account_financial_report", "report_xlsx"],
     "data": [
         "security/ir.model.access.csv",
+        "security/ua_ledger_security.xml",
         "report/ua_ledger_reports.xml",
         "views/ua_ledger_views.xml",
     ],

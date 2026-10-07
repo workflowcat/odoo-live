@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Правила компанії: записи однієї компанії не видно з іншої. Той самий домен,
+       що в нативних документах Odoo; рядок бере компанію в документа, на якому висить,
+       а довідник із порожньою компанією спільний для всіх. -->
+  <record id="rule_ua_hr_order_company" model="ir.rule">
+    <field name="name">Кадровий наказ: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_hr_order"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_hr_doc_check_company" model="ir.rule">
+    <field name="name">Перевірка документів: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_hr_doc_check"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_hr_doc_check_line_company" model="ir.rule">
+    <field name="name">Рядок перевірки документів: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_hr_doc_check_line"/>
+    <field name="domain_force">[('check_id.company_id', 'in', company_ids)]</field>
+  </record>
+</odoo>

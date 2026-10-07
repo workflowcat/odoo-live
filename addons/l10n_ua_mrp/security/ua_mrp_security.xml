@@ -6,4 +6,29 @@
     <field name="model_id" ref="model_ua_workorder_check"/>
     <field name="domain_force">[('company_id', 'in', company_ids)]</field>
   </record>
+
+  <!-- Правила компанії: записи однієї компанії не видно з іншої. -->
+  <record id="rule_ua_cost_calculation_company" model="ir.rule">
+    <field name="name">Калькуляція собівартості: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_cost_calculation"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_cost_calculation_line_company" model="ir.rule">
+    <field name="name">Рядок калькуляції собівартості: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_cost_calculation_line"/>
+    <field name="domain_force">[('calculation_id.company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_zvv_allocation_company" model="ir.rule">
+    <field name="name">Розподіл загальновиробничих витрат: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_zvv_allocation"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_zvv_allocation_line_company" model="ir.rule">
+    <field name="name">Рядок розподілу ЗВВ: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_zvv_allocation_line"/>
+    <field name="domain_force">[('allocation_id.company_id', 'in', company_ids)]</field>
+  </record>
 </odoo>

@@ -9,6 +9,7 @@
     "depends": ["l10n_ua_payroll_reports", "l10n_ua_hr_docs", "web"],
     "data": [
         "security/ir.model.access.csv",
+        "security/ua_setup_security.xml",
         "data/ua_setup_question_data.xml",
         "views/ua_setup_views.xml",
     ],

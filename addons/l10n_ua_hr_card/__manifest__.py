@@ -9,6 +9,7 @@
                 "hr_employee_document", "hr_holidays"],
     "data": [
         "security/ir.model.access.csv",
+        "security/ua_hr_card_security.xml",
         "report/ua_hr_card_report.xml",
         "views/hr_employee_views.xml",
         "views/ua_employee_document_views.xml",

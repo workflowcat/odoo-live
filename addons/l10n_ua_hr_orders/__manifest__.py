@@ -8,6 +8,7 @@
     "depends": ["l10n_ua_hr_docs", "l10n_ua_payroll_rules", "l10n_ua_average", "l10n_ua_military", "l10n_ua_hr_card"],
     "data": [
         "security/ir.model.access.csv",
+        "security/ua_hr_orders_security.xml",
         "data/ir_sequence_data.xml",
         "data/ua_hr_doc_requirement_data.xml",
         "report/ua_hr_order_report.xml",

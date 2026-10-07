@@ -15,6 +15,7 @@
     "post_init_hook": "post_init_hook",
     "data": [
         "security/ir.model.access.csv",
+        "security/ua_cash_security.xml",
         "data/ir_sequence_data.xml",
         "report/ua_cash_reports.xml",
         "views/res_company_views.xml",

@@ -8,6 +8,7 @@
     "depends": ["purchase", "account", "mail", "bp_bridge"],
     "data": [
         "security/ir.model.access.csv",
+        "security/bp_purchase_intake_security.xml",
         "data/sequence.xml",
         "views/intake_views.xml",
         "views/res_partner_views.xml",

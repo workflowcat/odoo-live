@@ -17,6 +17,7 @@
     "depends": ["account", "l10n_ua"],
     "data": [
         "security/ir.model.access.csv",
+        "security/ua_vat_security.xml",
         "views/ua_vat_relief_views.xml",
         "views/ua_vat_document_views.xml",
         "views/ua_vat_compensation_views.xml",

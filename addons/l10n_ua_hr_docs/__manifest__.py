@@ -8,6 +8,7 @@
     "depends": ["l10n_ua_payroll_reports", "l10n_ua_average", "l10n_ua_payroll_account", "mail"],
     "data": [
         "security/ir.model.access.csv",
+        "security/ua_hr_docs_security.xml",
         "data/ir_sequence_data.xml", "data/ir_cron_timesheet.xml",
         "report/ua_orders_report.xml",
         "report/ua_staff_list_report.xml",

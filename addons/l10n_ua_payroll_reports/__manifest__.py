@@ -9,6 +9,7 @@
     "external_dependencies": {"python": ["lxml"]},
     "data": [
         "security/ir.model.access.csv",
+        "security/ua_payroll_reports_security.xml",
         "data/ir_sequence_data.xml",
         "views/res_company_views.xml",
         "views/hr_version_views.xml",

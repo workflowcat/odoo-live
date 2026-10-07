@@ -14,6 +14,7 @@
     ],
     "data": [
         "security/ir.model.access.csv",
+        "security/ua_reporting_security.xml",
         "views/ua_report_run_views.xml",
     ],
     "installable": True,

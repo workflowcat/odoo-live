@@ -8,6 +8,7 @@
     "depends": ["payroll", "hr"],
     "data": [
         "security/ir.model.access.csv",
+        "security/ua_payroll_rules_security.xml",
         "data/ua_payroll_param_data.xml",
         "data/ua_salary_structure.xml",
         "data/ua_extra_rules.xml",
