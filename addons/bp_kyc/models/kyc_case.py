@@ -108,7 +108,7 @@ class KycCase(models.Model):
     def action_screen_odb(self):
         self.ensure_one()
         code = self._clean_code()
-        status, data = self.env["bp.bridge"].call("GET", f"/api/odb/screen/{code}")
+        status, data = self.env["bp.bridge"]._call("GET", f"/api/odb/screen/{code}")
         if status != 200:
             raise UserError(f"Скринінг не вдався: {data.get('error', data)}")
         reg = data.get("registry", {})
@@ -168,7 +168,7 @@ class KycCase(models.Model):
         text = (self.registry_name or self.partner_id.name or "").strip()
         if not text:
             raise UserError("Немає назви для пошуку.")
-        status, data = self.env["bp.bridge"].call("GET", "/api/odb/court", params={"text": text, "offset": 0})
+        status, data = self.env["bp.bridge"]._call("GET", "/api/odb/court", params={"text": text, "offset": 0})
         if status != 200:
             raise UserError(f"Пошук судових рішень не вдався: {data.get('error', data)}")
         items, count = self._extract_court(data)
@@ -237,22 +237,22 @@ class KycCase(models.Model):
         payload = self._register_payload()
         code = re.sub(r"\D", "", self.code or "")
         if self.register_id:
-            status, data = bridge.call("PATCH", f"/api/kyc/subjects/{self.register_id}",
+            status, data = bridge._call("PATCH", f"/api/kyc/subjects/{self.register_id}",
                                        {**payload, "_note": f"Odoo {self.name}: {dict(DECISIONS).get(self.decision, 'оновлення')}",
                                         "_source": "manual", "_author": f"{self.env.user.name} via Odoo"})
         else:
             sid = f"edrpou-{code}" if code else None
             body = {**payload, **({"id": sid} if sid else {})}
-            status, data = bridge.call("POST", "/api/kyc/subjects", body)
+            status, data = bridge._call("POST", "/api/kyc/subjects", body)
             if status == 409 and sid:
-                status, data = bridge.call("PATCH", f"/api/kyc/subjects/{sid}", {**payload, "_note": f"Odoo {self.name}", "_source": "manual"})
+                status, data = bridge._call("PATCH", f"/api/kyc/subjects/{sid}", {**payload, "_note": f"Odoo {self.name}", "_source": "manual"})
                 data = {**data, "id": sid}
         if status >= 400:
             raise UserError(f"Реєстр KYC відповів {status}: {data.get('error', data)}")
         rid = data.get("id") or (data.get("subject") or {}).get("id") or self.register_id
         self.write({"register_id": rid, "register_synced_at": fields.Datetime.now()})
         for s in self.screening_ids.filtered(lambda s: s.severity == "high" and not s.pushed):
-            st, _ = bridge.call("POST", f"/api/kyc/subjects/{rid}/risks", {
+            st, _ = bridge._call("POST", f"/api/kyc/subjects/{rid}/risks", {
                 "title": s.title or s.key, "statement": (s.detail or "")[:1000], "found_in": "OpenDataBot via Odoo",
                 "why": "Червоний маркер скринінгу", "severity": "high"})
             if st < 400:

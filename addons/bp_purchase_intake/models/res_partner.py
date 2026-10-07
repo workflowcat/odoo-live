@@ -36,6 +36,37 @@ class ResPartner(models.Model):
         for p in self:
             p.bp_intake_count = counts.get(p.id, 0)
 
+    def _bp_check_verify_rights(self, vals, creating=False):
+        """Статус «перевірено» знімає заборону проводити рахунок постачальника, тому
+        зняти «не перевірено» чи вписати, хто перевірив, може лише керівник закупівель
+        або бухгалтер-адміністратор - хоч кнопкою, хоч прямим записом поля. Поставити
+        «не перевірено» і стерти позначку перевірки може кожен, хто редагує картку."""
+        if self.env.su:
+            return
+        status = vals.get("bp_supplier_status") or False
+        if creating:
+            # Нова картка без статусу - звичайний контакт; право потрібне на «перевірено».
+            lifts = bool(status) and status != "unverified"
+        else:
+            lifts = "bp_supplier_status" in vals and status != "unverified" and any(
+                p.bp_supplier_status != status for p in self)
+        stamps = bool(vals.get("bp_verified_by") or vals.get("bp_verified_at"))
+        if not (lifts or stamps):
+            return
+        user = self.env.user
+        if not (user.has_group("purchase.group_purchase_manager") or user.has_group("account.group_account_manager")):
+            raise AccessError("Позначити постачальника перевіреним може керівник закупівель або бухгалтер-адміністратор.")
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            self._bp_check_verify_rights(vals, creating=True)
+        return super().create(vals_list)
+
+    def write(self, vals):
+        self._bp_check_verify_rights(vals)
+        return super().write(vals)
+
     def action_bp_mark_verified(self):
         user = self.env.user
         if not (user.has_group("purchase.group_purchase_manager") or user.has_group("account.group_account_manager")):
@@ -55,6 +86,8 @@ class ResPartner(models.Model):
                 "view_mode": "list,form", "domain": [("partner_id", "=", self.id)]}
 
     def action_bp_refresh_registry(self):
+        # Запит у міст іде з системним токеном, тож право на картку перевіряємо до нього.
+        self.check_access("write")
         for p in self:
             data, error = p._bp_registry_update()
             if error:
@@ -68,7 +101,7 @@ class ResPartner(models.Model):
         if not party_code_valid(code):
             return None, "код ЄДРПОУ/РНОКПП у картці відсутній або не проходить контрольну суму"
         try:
-            status, data = self.env["bp.bridge"].call("GET", f"/api/odb/screen/{code}")
+            status, data = self.env["bp.bridge"]._call("GET", f"/api/odb/screen/{code}")
         except Exception as e:  # bridge not configured or unreachable: keep the partner, report it
             return None, str(e)
         if status != 200:

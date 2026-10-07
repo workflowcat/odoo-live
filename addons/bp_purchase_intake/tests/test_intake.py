@@ -102,7 +102,7 @@ class TestIntake(TransactionCase):
 
         with patch.object(type(self.env["bp.ai"]), "to_markdown", fake_md), \
                 patch.object(type(self.env["bp.ai"]), "extract_json", fake_json), \
-                patch.object(type(self.env["bp.bridge"]), "call", fake_call):
+                patch.object(type(self.env["bp.bridge"]), "_call", fake_call):
             thread_id = self.env["mail.thread"].message_process("bp.purchase.intake", make_email(subject, msgid, with_pdf, image))
         self.seen = seen
         return self.Intake.browse(thread_id), calls

@@ -60,10 +60,12 @@ class ResPartner(models.Model):
         return code
 
     def action_fill_from_edr(self):
+        # Запит у міст іде з системним токеном, тож право на картку перевіряємо до нього.
+        self.check_access("write")
         Bridge = self.env["bp.bridge"]
         for partner in self:
             code = partner._ua_edr_code()
-            status, data = Bridge.call("GET", f"/api/odb/screen/{code}")
+            status, data = Bridge._call("GET", f"/api/odb/screen/{code}")
             if status != 200:
                 raise UserError(_("ЄДР не відповів для %s: %s", code, data.get("error", data)))
             partner._ua_apply_edr(code, data)
