@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Журнал змін копіює старі й нові значення полів: оклад, РНОКПП, суми листків,
+       IBAN. Тому його читають лише кадри і бухгалтерія (ir.model.access.csv), кожен
+       у межах своїх компаній і своєї ділянки:
+         кадровик          - кадри і табель;
+         розрахунок зарплати - ще й зарплата;
+         бухгалтер         - усі ділянки, бо саме він приймає зміни перед закриттям місяця.
+       Правила груп додаються одне до одного: бухгалтер-кадровик бачить усе. -->
+  <record id="rule_ua_change_log_company" model="ir.rule">
+    <field name="name">Журнал змін: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_change_log"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_change_log_hr" model="ir.rule">
+    <field name="name">Журнал змін: кадровик бачить кадри і табель</field>
+    <field name="model_id" ref="model_ua_change_log"/>
+    <field name="domain_force">[('area', 'in', ('hr', 'time'))]</field>
+    <field name="groups" eval="[(4, ref('hr.group_hr_user'))]"/>
+  </record>
+
+  <record id="rule_ua_change_log_payroll" model="ir.rule">
+    <field name="name">Журнал змін: розрахунок зарплати бачить кадри, табель і зарплату</field>
+    <field name="model_id" ref="model_ua_change_log"/>
+    <field name="domain_force">[('area', 'in', ('hr', 'time', 'payroll'))]</field>
+    <field name="groups" eval="[(4, ref('payroll.group_payroll_user'))]"/>
+  </record>
+
+  <record id="rule_ua_change_log_account" model="ir.rule">
+    <field name="name">Журнал змін: бухгалтер бачить усі ділянки</field>
+    <field name="model_id" ref="model_ua_change_log"/>
+    <field name="domain_force">[(1, '=', 1)]</field>
+    <field name="groups" eval="[(4, ref('account.group_account_user')), (4, ref('account.group_account_manager'))]"/>
+  </record>
+
+  <record id="rule_ua_period_close_company" model="ir.rule">
+    <field name="name">Закриття періоду: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_period_close"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+</odoo>

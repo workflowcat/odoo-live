@@ -111,7 +111,8 @@ class UaPeriodClose(models.Model):
         first, last = self._bounds(year, month)
         out = []
 
-        new_changes = self.env["ua.change.log"].count_new(company, year, month)
+        # Лише число: сторінку «Період» бачить і той, хто сам журнал не читає.
+        new_changes = self.env["ua.change.log"].sudo().count_new(company, year, month)
         if new_changes:
             out.append({
                 "key": "changes",
@@ -281,7 +282,7 @@ class UaPeriodClose(models.Model):
             rec.draft_move_count = self.env["account.move"].search_count([
                 ("company_id", "=", rec.company_id.id), ("date", ">=", first),
                 ("date", "<=", last), ("state", "=", "draft")])
-            rec.new_change_count = self.env["ua.change.log"].count_new(
+            rec.new_change_count = self.env["ua.change.log"].sudo().count_new(
                 rec.company_id, rec.year, rec.month)
 
     def _period_domain(self, model, date_field):

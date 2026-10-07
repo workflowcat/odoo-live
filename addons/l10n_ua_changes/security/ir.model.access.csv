@@ -1,6 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_ua_change_log_user,ua.change.log user,model_ua_change_log,base.group_user,1,0,0,0
 access_ua_change_log_hr,ua.change.log hr,model_ua_change_log,hr.group_hr_user,1,1,0,0
+access_ua_change_log_acc_user,ua.change.log accountant,model_ua_change_log,account.group_account_user,1,1,0,0
 access_ua_change_log_acc,ua.change.log account,model_ua_change_log,account.group_account_manager,1,1,0,1
 access_ua_period_close_user,ua.period.close user,model_ua_period_close,base.group_user,1,0,0,0
 access_ua_period_close_acc,ua.period.close account,model_ua_period_close,account.group_account_manager,1,1,1,1

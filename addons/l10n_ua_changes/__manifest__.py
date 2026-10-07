@@ -12,6 +12,7 @@
     ],
     "data": [
         "security/ir.model.access.csv",
+        "security/ua_changes_security.xml",
         "data/auditlog_rules.xml",
         "views/ua_change_log_views.xml",
         "views/ua_period_close_views.xml",
