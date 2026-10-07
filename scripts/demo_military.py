@@ -36,7 +36,7 @@ COMPANY = call("res.company", "search", [["name", "ilike", "Ясен Меблі"
 COMPANY = COMPANY[0] if COMPANY else 1
 
 employees = call("hr.employee", "search_read", [
-    ["company_id", "=", COMPANY], ["name", "not ilike", "Еталон"], ["name", "!=", "Administrator"],
+    ["company_id", "=", COMPANY], ["name", "not ilike", "Еталон"], ["name", "not in", ["Administrator", "Адміністратор"]],
 ], fields=["id", "name", "sex", "birthday"], order="name")
 
 men = [e for e in employees if e["sex"] == "male" and e["birthday"] and 18 <= age(e["birthday"]) <= 60]

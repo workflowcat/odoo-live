@@ -104,7 +104,7 @@ class UaPeriodClose(models.Model):
           short - позначка кроку: «непереглянутих змін: 5»;
           plan  - речення діалогу плану, з поясненням, що робити;
           target- ціль, яка відкриває саме ті записи, що заважають.
-        Порядок сталий: зміни, проводки, листки, табель.
+        Порядок сталий: зміни, проводки, банк, листки, табель.
         """
         company = self._as_company(company)
         year, month = int(year), int(month)
@@ -134,6 +134,22 @@ class UaPeriodClose(models.Model):
                 "short": _("чернеток проводок: %s") % len(drafts),
                 "plan": _("Чернеток проводок місяця: %s - їх треба провести або скасувати.") % len(drafts),
                 "target": {"model": "account.move", "domain": [("id", "in", drafts.ids)]},
+            })
+
+        # Ядро не дасть поставити дату блокування, поки в періоді є незведені рядки
+        # виписки. Без цієї перевірки сторінка казала «можна закривати», а закриття
+        # падало вже на самій даті блокування.
+        bank_lines = self.env["account.bank.statement.line"].search([
+            ("company_id", "=", company.id), ("date", "<=", last),
+            ("is_reconciled", "=", False), ("move_id.state", "in", ("draft", "posted")),
+        ])
+        if bank_lines:
+            out.append({
+                "key": "bank",
+                "text": _("незведених рядків виписки: %s") % len(bank_lines),
+                "short": _("незведених рядків виписки: %s") % len(bank_lines),
+                "plan": _("Незведених рядків банківської виписки: %s - зведіть їх з платежами.") % len(bank_lines),
+                "target": {"model": "account.bank.statement.line", "domain": [("id", "in", bank_lines.ids)]},
             })
 
         slips = self.env["hr.payslip"].search([

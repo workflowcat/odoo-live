@@ -8,3 +8,4 @@ worker/.wrangler/
 *.dump
 demo-out/
 .env.*-backup-*
+reference/erpkit/

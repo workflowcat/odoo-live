@@ -217,23 +217,24 @@ TERM_TABLES = [
 def _load_terms():
     path = os.path.join(os.path.dirname(__file__), "data", "terms_uk.json")
     if not os.path.exists(path):
-        return {}, {}, []
+        return {}, {}, [], {}
     with open(path, encoding="utf-8") as fh:
         data = json.load(fh)
-    return data.get("fill", {}), data.get("force", {}), data.get("replace", [])
+    return data.get("fill", {}), data.get("force", {}), data.get("replace", []), data.get("by_model", {})
 
 
 def apply_terms(env):
     """Українські слова поверх ядра й OCA: data/terms_uk.json.
 
+    by_model - слово лише в поданнях однієї моделі (вкладка «Payroll» у картці працівника);
     fill  - англійський рядок, для якого українського перекладу немає взагалі
             (нові рядки Odoo 19, модулі OCA без uk.po): ставимо, лише якщо порожньо;
     force - рядок, який ядро перекладає не так, як кажуть у бухгалтерії та кадрах
             («Співробітник» -> «Працівник»): ставимо завжди.
     Джерело - англійський текст, тому один запис закриває всі поля і подання з цим
     рядком. Повторний запуск нічого не псує."""
-    fill, force, replace = _load_terms()
-    if not fill and not force and not replace:
+    fill, force, replace, by_model = _load_terms()
+    if not fill and not force and not replace and not by_model:
         return
     cr = env.cr
     for table, column in TERM_TABLES:
@@ -251,17 +252,26 @@ def apply_terms(env):
                 cr.execute(query, (dst, src))
     # Подання: переклад живе по термінах усередині arch_db.
     View = env["ir.ui.view"].with_context(active_test=False)
-    cr.execute("SELECT id, arch_db->>'en_US', COALESCE(arch_db->>'uk_UA', arch_db->>'en_US') FROM ir_ui_view")
-    for view_id, arch_en, arch_uk in cr.fetchall():
+    arch_field = View._fields["arch_db"]
+    cr.execute("SELECT id, arch_db->>'en_US', COALESCE(arch_db->>'uk_UA', arch_db->>'en_US'), model FROM ir_ui_view")
+    for view_id, arch_en, arch_uk, view_model in cr.fetchall():
         if not arch_en:
             continue
+        # Перекладати можна лише цілий термін подання, а не будь-який підрядок.
+        try:
+            view_terms = set(arch_field.get_trans_terms(arch_en))
+        except Exception:
+            continue
+        uk_terms = arch_field.get_trans_terms(arch_uk) if arch_uk else []
         todo = {}
-        for src, dst in force.items():
-            if src in arch_en:
-                todo[src] = dst
-        for src, dst in fill.items():
-            if src in arch_en and src in (arch_uk or "") and src not in todo:
-                todo[src] = dst
+        own = by_model.get(view_model) or {}
+        for src in view_terms:
+            if src in own:
+                todo[src] = own[src]
+            elif src in force:
+                todo[src] = force[src]
+            elif src in fill and src in uk_terms:
+                todo[src] = fill[src]
         if todo:
             try:
                 with cr.savepoint():

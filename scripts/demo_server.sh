@@ -75,6 +75,9 @@ admin = env.ref("base.user_admin")
 admin.password = """$ADMIN_PW"""
 admin.lang = "uk_UA"
 admin.partner_id.lang = "uk_UA"
+# Час на екрані - київський (запит ui -> core 2026-09-24-001); ім'я - не англійське.
+env["res.users"].with_context(active_test=False).search([]).write({"tz": "Europe/Kyiv"})
+admin.partner_id.name = "Адміністратор"
 env.cr.commit()
 print("ПІДГОТОВКА: план", company.chart_template, "країна", company.country_id.code)
 PY

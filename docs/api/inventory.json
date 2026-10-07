@@ -1,8 +1,8 @@
 {
   "totals": {
-    "modules": 42,
-    "models": 98,
-    "methods": 316,
+    "modules": 43,
+    "models": 99,
+    "methods": 317,
     "fields": 271
   },
   "areas": [
@@ -5894,6 +5894,26 @@
               "doc": "Картка наряду для кіоску цеху: що робити, чим, і що вже перевірено.",
               "module": "l10n_ua_api",
               "file": "addons/l10n_ua_api/models/ua_api.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.navigation",
+          "ours": true,
+          "modules": [
+            "l10n_ua_navigation"
+          ],
+          "methods": [
+            {
+              "name": "apply",
+              "signature": "apply()",
+              "doc": "",
+              "module": "l10n_ua_navigation",
+              "file": "addons/l10n_ua_navigation/models/ua_navigation.py",
               "decorators": [
                 "api.model"
               ]
