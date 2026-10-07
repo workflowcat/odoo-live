@@ -307,6 +307,13 @@ def apply_navigation(env):
         menu = env.ref(xmlid, raise_if_not_found=False)
         if menu:
             menu.group_ids = [(6, 0, [no_one.id])]
+    # «Склад > Переміщення > Виробничі замовлення» ядро показує кожному комірнику, а
+    # список читає наряди, на які в нього прав немає, - сторінка падає. Лишаємо пункт
+    # тим, хто має права виробництва.
+    menu = env.ref("mrp.mrp_operation_picking", raise_if_not_found=False)
+    mrp_user = env.ref("mrp.group_mrp_user", raise_if_not_found=False)
+    if menu and mrp_user:
+        menu.group_ids = [(6, 0, [mrp_user.id])]
     for index, xmlid in enumerate(ROOT_SEQUENCE):
         menu = env.ref(xmlid, raise_if_not_found=False)
         if menu:

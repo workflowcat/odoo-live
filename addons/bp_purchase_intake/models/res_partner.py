@@ -13,8 +13,12 @@ class ResPartner(models.Model):
                                           "Статус постачальника", tracking=True, copy=False, index=True)
     bp_verified_by = fields.Many2one("res.users", "Перевірив", readonly=True, copy=False)
     bp_verified_at = fields.Datetime("Перевірено", readonly=True, copy=False)
-    bp_intake_id = fields.Many2one("bp.purchase.intake", "Створено з рахунку", readonly=True, copy=False)
-    bp_intake_count = fields.Integer("Вхідні рахунки", compute="_compute_bp_intake_count")
+    # Вхідні рахунки бачать закупівлі й бухгалтерія. Без groups картку контакту не міг
+    # відкрити ніхто інший (завсклад, кадровик): читання поля падало на правах.
+    bp_intake_id = fields.Many2one("bp.purchase.intake", "Створено з рахунку", readonly=True, copy=False,
+                                   groups="purchase.group_purchase_user,account.group_account_invoice")
+    bp_intake_count = fields.Integer("Вхідні рахунки", compute="_compute_bp_intake_count",
+                                     groups="purchase.group_purchase_user,account.group_account_invoice")
 
     bp_registry_name = fields.Char("Повна назва (ЄДР)", readonly=True, copy=False)
     bp_registry_status = fields.Char("Стан (ЄДР)", readonly=True, copy=False)

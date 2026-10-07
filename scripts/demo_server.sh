@@ -78,6 +78,9 @@ admin.partner_id.lang = "uk_UA"
 # Час на екрані - київський (запит ui -> core 2026-09-24-001); ім'я - не англійське.
 env["res.users"].with_context(active_test=False).search([]).write({"tz": "Europe/Kyiv"})
 admin.partner_id.name = "Адміністратор"
+# Друк PDF: wkhtmltopdf працює всередині контейнера і має брати стилі з 8069, а не з
+# зовнішнього порту демо, інакше форми виходять без оформлення.
+env["ir.config_parameter"].sudo().set_param("report.url", "http://127.0.0.1:8069")
 env.cr.commit()
 print("ПІДГОТОВКА: план", company.chart_template, "країна", company.country_id.code)
 PY
