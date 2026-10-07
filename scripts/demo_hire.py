@@ -97,34 +97,45 @@ if not File.search([("case_id", "=", bondar.id), ("name", "=", "dovidka_bondar.p
                                 "file_id": passport_file.id, "confidence": "low", "model": "claude-demo"})
     rejected.action_reject()
 
-# ---- прийнята: Мельник Ірина, перший день у вересні 2026, потім два документи позначені підписаними
-if not Case.search([("last_name", "=", "Мельник")]):
-    # Дата народження навмисно не 10.05.1990: з неї РНОКПП виходив 3300212329 - той самий,
-    # що в Мельник Ірини Володимирівни зі scripts/demo_company.py. Один код на двох людей
-    # ламав повторний прогін демо: будівник зарплати брав не ту картку і виписував другий
-    # комплект липневих і серпневих листків.
+# ---- прийнята: Яремчук Ірина, перший день у вересні 2026, потім два документи позначені підписаними.
+# Раніше ця справа звалася «Мельник Ірина» - так само, як менеджерка з персоналу Мельник Ірина
+# Володимирівна зі scripts/demo_world/people.json, і в списку людей стояли дві однакові на вигляд картки.
+if not Case.search([("last_name", "=", "Яремчук")]):
     bday = date(1991, 7, 23)
     melnyk = Case.with_company(company).create({
-        "company_id": company.id, "stage": "onboarding", "last_name": "Мельник", "first_name": "Ірина",
-        "job_title": "Менеджерка з персоналу", "department_id": dept.id, "birthday": bday, "sex": "female",
+        "company_id": company.id, "stage": "onboarding", "last_name": "Яремчук", "first_name": "Ірина",
+        "middle_name": "Миколаївна", "job_title": "Секретар", "department_id": dept.id, "birthday": bday, "sex": "female",
         "rnokpp": make_rnokpp(bday, False), "id_doc_type": "id_card", "id_doc_number": "234567890",
         "id_doc_unzr": bday.strftime("%Y%m%d") + "01234", "id_doc_issued_by": "ГУ ДМС у Київській області",
         "id_doc_date": date(2020, 3, 15), "reg_address": "м. Київ, вул. Демонстраційна, 5",
-        "pd_consent": True, "date_from": date(2026, 9, 1), "wage": 32000,
+        "pd_consent": True, "date_from": date(2026, 9, 1), "wage": 24000,
         "mil_status": "liable", "mil_tcc": "Оболонський РТЦК та СП", "mil_doc_type": "ticket",
         "mil_doc_number": "АБ 654321",
     })
-    for name, t in [("zayava_melnyk.pdf", "statement"), ("id-card_melnyk.png", "passport"),
-                    ("rnokpp_melnyk.png", "rnokpp"), ("vijskovyj_melnyk.png", "military_id"),
-                    ("zgoda_melnyk.png", "consent")]:
+    # поля справи, які форма показує: пошта, фактична адреса, освіта, трудова, випробування, військовий облік
+    extra = {"email": "yaremchuk@ukr.example", "actual_address": "м. Львів, вул. Зразкова, 12, кв. 4",
+             "diploma_number": "В21 № 104512", "education_year": 2013, "labor_book_number": "АЕ № 204518",
+             "kp_code": "4115", "trial_date_end": date(2026, 11, 30), "mil_rank": "солдат", "mil_vos": "837",
+             "mil_category": "ranks", "mil_fitness": "fit", "mil_doc_series": "АБ"}
+    melnyk.write({k: v for k, v in extra.items() if k in melnyk._fields})
+    for name, t in [("zayava_yaremchuk.pdf", "statement"), ("id-card_yaremchuk.png", "passport"),
+                    ("rnokpp_yaremchuk.png", "rnokpp"), ("vijskovyj_yaremchuk.png", "military_id"),
+                    ("zgoda_yaremchuk.png", "consent")]:
         melnyk.add_file(name, png, t)
     errs = [c for c in melnyk._checks() if c["level"] == "error"]
     if errs:
-        raise Exception("Мельник: справу не можна прийняти: %s" % errs)
+        raise Exception("Яремчук: справу не можна прийняти: %s" % errs)
     melnyk.action_hire()
     to_sign = melnyk.employee_id.ua_document_ids.filtered(lambda d: d.state == "to_sign")
     for d in to_sign[:2]:
         d.action_mark_signed()
+
+# справа Бондаря в оформленні: ті самі поля, щоб форма не була напівпорожня
+bondar_extra = {"email": "bondar@ukr.example", "actual_address": "м. Львів, вул. Прикладна, 7", "id_doc_series": False,
+                "diploma_number": "ВК № 330917", "education_year": 2010, "labor_book_number": "АВ № 918822", "kp_code": "2149.2",
+                "trial_date_end": today + timedelta(days=102), "mil_status": "liable", "mil_rank": "сержант", "mil_vos": "100",
+                "mil_category": "ranks", "mil_fitness": "fit", "mil_doc_series": "АА", "mil_tcc": "Львівський районний ТЦК та СП"}
+bondar.write({k: v for k, v in bondar_extra.items() if k in bondar._fields and not bondar[k]})
 
 # ---- відмова, з причиною
 if not Case.search([("last_name", "=", "Гриценко")]):
@@ -172,14 +183,14 @@ for cf, _label in Proposal._fields["confidence"].selection:
     if n:
         print(" ", cf, n)
 
-melnyk = Case.search([("last_name", "=", "Мельник")], limit=1)
-# Мельник не звільнена - раніше demo_company.py помилково архівував її як «застарілу» демо-картку
+melnyk = Case.search([("last_name", "=", "Яремчук")], limit=1)
+# Яремчук не звільнена - раніше demo_company.py помилково архівував її як «застарілу» демо-картку
 # (виправлено там). Тут - разова підстраховка на випадок, якщо запис уже встиг заархівуватись.
 if melnyk.employee_id and not melnyk.employee_id.active:
     melnyk.employee_id.sudo().write({"active": True})
     env.cr.commit()
 Doc = env["ua.employee.document"].sudo()
-print("Документи працівниці Мельник за станом:")
+print("Документи працівниці Яремчук за станом:")
 for st, _label in Doc._fields["state"].selection:
     n = Doc.search_count([("employee_id", "=", melnyk.employee_id.id), ("state", "=", st)])
     if n:
