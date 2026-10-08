@@ -116,6 +116,10 @@ mkdir -p "$BACKUP_DIR"
 # (той самий набір, що в scripts/demo_server.sh).
 PROD_MODULES="l10n_ua_navigation"
 DEMO_MODULES="l10n_ua_navigation,sale_management,purchase,stock,mrp,crm,auditlog"
+DEMO_MODULES="$DEMO_MODULES,purchase_request,l10n_ua_purchase,l10n_ua_mrp,l10n_ua_stock_docs"
+DEMO_MODULES="$DEMO_MODULES,l10n_ua_group,l10n_ua_profit_tax"
+# Ланцюг показової бази, порядок важливий (docs/base/show-overview.md).
+DEMO_SCRIPTS="demo_business demo_aerosich demo_show demo_fill"
 
 STEPS=""
 PROBLEMS=""
@@ -265,6 +269,9 @@ admin = env.ref("base.user_admin")
 admin.password = """${ODOO_ADMIN_USER_PASSWORD:-admin}"""
 admin.lang = "uk_UA"
 admin.partner_id.lang = "uk_UA"
+# Час на екрані - київський, ім'я адміністратора - не англійське (як у scripts/demo_server.sh).
+env["res.users"].with_context(active_test=False).search([]).write({"tz": "Europe/Kyiv"})
+admin.partner_id.name = "Адміністратор"
 env["ir.config_parameter"].sudo().set_param("ir_attachment.location", "db")
 env["ir.attachment"].sudo().force_storage()
 # Друк PDF: wkhtmltopdf працює всередині контейнера і бере стилі з 8069 напряму, а не
@@ -418,19 +425,23 @@ done_step
 
 # --- 7. демо-дані (лише staging) -------------------------------------------------------
 if [ "$ENV_NAME" = "staging" ] && [ "$DO_DEMO" = "1" ] && [ "$PROBLEM_COUNT" -eq 0 ]; then
-    step "демо-дані (scripts/demo_business.py)"
+    step "демо-дані ($DEMO_SCRIPTS)"
     DEMO_LOG="$BACKUP_DIR/demo-$STAMP.log"
+    : >"$DEMO_LOG"
     # scripts/demo_hire.py сам смикає `docker compose run odoo shell`, тому показуємо йому
     # наші файли і наш проєкт, інакше він піде в стенд розробки, якого на сервері немає
-    if COMPOSE_FILE="$ROOT/deploy/docker-compose.server.yml:$ROOT/deploy/docker-compose.$ENV_NAME.yml" \
-        COMPOSE_PROJECT_NAME="$PROJECT" \
-        ODOO_URL="http://127.0.0.1:$ODOO_HTTP_PORT" DEMO_DB="$ODOO_DB" \
-        python3 "$ROOT/scripts/demo_business.py" >"$DEMO_LOG" 2>&1; then
-        DEMO_LINE="демо-дані залито, лог $DEMO_LOG"
-    else
-        tail -30 "$DEMO_LOG" >&2
-        fail "demo_business.py впав, лог: $DEMO_LOG"
-    fi
+    for DEMO_SCRIPT in $DEMO_SCRIPTS; do
+        echo "== $DEMO_SCRIPT $(date +%H:%M:%S)" | tee -a "$DEMO_LOG"
+        if ! COMPOSE_FILE="$ROOT/deploy/docker-compose.server.yml:$ROOT/deploy/docker-compose.$ENV_NAME.yml" \
+            COMPOSE_PROJECT_NAME="$PROJECT" \
+            ODOO_URL="http://127.0.0.1:$ODOO_HTTP_PORT" DEMO_DB="$ODOO_DB" \
+            python3 "$ROOT/scripts/$DEMO_SCRIPT.py" >>"$DEMO_LOG" 2>&1; then
+            tail -30 "$DEMO_LOG" >&2
+            fail "$DEMO_SCRIPT.py впав, лог: $DEMO_LOG"
+            break
+        fi
+    done
+    [ "$PROBLEM_COUNT" -eq 0 ] && DEMO_LINE="демо-дані залито, лог $DEMO_LOG"
     done_step
 fi
 

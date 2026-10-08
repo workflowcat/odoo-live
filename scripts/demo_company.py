@@ -324,16 +324,16 @@ call("hr.employee", "write", [E[14]], {"ua_psp": "s200"})       # Данилюк
 # веде списки саме так). Категорія обліку - лише "officers" / "ranks" (офіційна форма, постанова № 1487).
 TCC1 = "Львівський РТЦК та СП"
 TCC2 = "Галицький РТЦК та СП"
-call("hr.employee", "write", [E[5]], {"ua_mil_status": "reserve", "ua_mil_category": "ranks", "ua_mil_tcc": TCC1})   # Ковальчук: резервіст
-call("hr.employee", "write", [E[6]], {"ua_mil_status": "removed"})   # Мельничук
-call("hr.employee", "write", [E[8]], {"ua_mil_status": "excluded"})   # Шевчук
-call("hr.employee", "write", [E[14]], {"ua_mil_status": "liable", "ua_mil_fitness": "limited", "ua_mil_category": "officers", "ua_mil_tcc": TCC2,
+call("hr.employee", "write", [E[5]], {"ua_mil_status": "reserve", "ua_mil_doc_type": "ticket", "ua_mil_category": "ranks", "ua_mil_tcc": TCC1})   # Ковальчук: резервіст
+call("hr.employee", "write", [E[6]], {"ua_mil_status": "removed", "ua_mil_doc_type": False})   # Мельничук
+call("hr.employee", "write", [E[8]], {"ua_mil_status": "excluded", "ua_mil_doc_type": False})   # Шевчук
+call("hr.employee", "write", [E[14]], {"ua_mil_status": "liable", "ua_mil_doc_type": "ticket", "ua_mil_fitness": "limited", "ua_mil_category": "officers", "ua_mil_tcc": TCC2,
                                        "ua_reserve_number": "РП-04521", "ua_reserve_date": "2026-08-15"})   # Данилюк: офіцер, резерв+ (юрисконсульт)
 call("hr.employee", "write", [E[15]], {"ua_mil_status": "liable", "ua_mil_doc_type": "temp", "ua_mil_category": "ranks", "ua_mil_tcc": TCC1})   # Гнатів
-call("hr.employee", "write", [E[16]], {"ua_mil_status": "liable", "ua_mil_group": "vms", "ua_mil_category": "officers", "ua_mil_tcc": TCC2, "ua_mil_reserved": True,
+call("hr.employee", "write", [E[16]], {"ua_mil_status": "liable", "ua_mil_doc_type": "ticket", "ua_mil_group": "vms", "ua_mil_category": "officers", "ua_mil_tcc": TCC2, "ua_mil_reserved": True,
                                        "ua_mil_reserve_order": "Рішення КЄК № 12 від 01.08.2026", "ua_mil_reserve_until": "2027-02-01"})   # Крамар: заброньований
-call("hr.employee", "write", [E[17]], {"ua_mil_status": "liable", "ua_mil_group": "other", "ua_mil_category": "ranks", "ua_mil_tcc": TCC1})   # Ткачук
-call("hr.employee", "write", [E[2]], {"ua_mil_status": "liable", "ua_mil_category": "ranks", "ua_mil_tcc": TCC1})   # Стефанишин: жінка, військовозобов'язана (окремий список)
+call("hr.employee", "write", [E[17]], {"ua_mil_status": "liable", "ua_mil_doc_type": "ticket", "ua_mil_group": "other", "ua_mil_category": "ranks", "ua_mil_tcc": TCC1})   # Ткачук
+call("hr.employee", "write", [E[2]], {"ua_mil_status": "liable", "ua_mil_doc_type": "ticket", "ua_mil_category": "ranks", "ua_mil_tcc": TCC1})   # Стефанишин: жінка, військовозобов'язана (окремий список)
 PRIOR = {
     1: [("ТОВ «Львівмеблі»", "Заступник директора", date(2010, 3, 1), date(2015, 1, 30))],
     2: [("ПП «Аудит-Сервіс»", "Бухгалтер", date(2012, 6, 1), date(2016, 8, 31))],

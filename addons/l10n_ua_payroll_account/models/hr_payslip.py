@@ -44,6 +44,9 @@ class HrPayslip(models.Model):
             for m in by_code.get(line.code, []):
                 debit = expense if m.debit_side == "expense" else self._ua_account(m.debit_code)
                 credit = expense if m.credit_side == "expense" else self._ua_account(m.credit_code)
+                # Повернення дзеркалить проводку оригінального листка.
+                if self.credit_note:
+                    debit, credit = credit, debit
                 out.append((debit, credit, amount, f"{m.name}: {line.name}"))
         return out
 
