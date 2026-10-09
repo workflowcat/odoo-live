@@ -404,6 +404,42 @@ class UaPeriodClose(models.Model):
         self.invalidate_recordset()
         return True
 
+    def _reopen_day(self):
+        self.ensure_one()
+        return self.lock_date or self._bounds(self.year, self.month)[1]
+
+    def _reopen_later(self):
+        """Пізніші закриті періоди того самого виду. Їх відкривають першими: дата
+        блокування в компанії одна, і період «під» пізнішим закритим лише числився б відкритим."""
+        self.ensure_one()
+        return self.search([("company_id", "=", self.company_id.id), ("state", "=", "closed"),
+                            ("kind", "=", self.kind), ("id", "!=", self.id),
+                            ("lock_date", ">", self._reopen_day())], order="lock_date desc")
+
+    def _lock_after_reopen(self, field, kinds):
+        """Що зробити з датою `field` після відкриття: (змінювати, нова дата).
+
+        Чіпаємо дату, лише коли вона дорівнює найпізнішому з наших закритих періодів,
+        тобто поставлена закриттям. Пізнішу дату поставив хтось інший - відмовляємо і
+        називаємо її. Ранішу знизили вручну - не піднімаємо і не знімаємо."""
+        self.ensure_one()
+        company = self.company_id.sudo()
+        current = company[field]
+        day = self._reopen_day()
+        others = self.search([("company_id", "=", company.id), ("state", "=", "closed"),
+                              ("kind", "in", kinds), ("id", "!=", self.id)]).filtered("lock_date")
+        remaining = max(others.mapped("lock_date"), default=False)
+        ours = max(day, remaining) if remaining else day
+        if not current or current < ours:
+            return False, current
+        if current > ours:
+            raise UserError(_(
+                "Дата блокування «%(label)s» стоїть на %(date)s - пізніше за всі закриті "
+                "періоди. Її встановлено не закриттям періоду. Змініть її в налаштуваннях "
+                "бухобліку і відкрийте період знову."
+            ) % {"label": company._fields[field].string, "date": current.strftime("%d.%m.%Y")})
+        return remaining != current, remaining
+
     def action_reopen(self):
         self.ensure_one()
         if not self.env.user.has_group("account.group_account_manager"):
@@ -412,11 +448,25 @@ class UaPeriodClose(models.Model):
             raise UserError(_("Період закрито остаточно. Відкрити не можна."))
         if not (self.reopen_reason or "").strip():
             raise UserError(_("Напишіть причину відкриття періоду."))
-        previous = self.search([("company_id", "=", self.company_id.id), ("state", "=", "closed"),
-                                ("id", "!=", self.id), ("lock_date", "<", self.lock_date)],
-                               order="lock_date desc", limit=1)
         company = self.company_id.sudo()
-        company.write({"fiscalyear_lock_date": previous.lock_date or False})
+        day = self._reopen_day()
+        if company.hard_lock_date and company.hard_lock_date >= day:
+            raise UserError(_("Остаточна дата блокування компанії %s накриває цей період. "
+                              "Відкрити не можна.") % company.hard_lock_date.strftime("%d.%m.%Y"))
+        later = self._reopen_later()
+        if later:
+            raise UserError(_("Спершу відкрийте пізніші закриті періоди: %s.")
+                            % ", ".join(later.mapped("name")))
+        # Місяць керує датою блокування проводок, квартал і рік - податковою датою.
+        # Місяць під закритим кварталом відкривається: звіт кварталу вже подано,
+        # виправлення йде уточнюючим розрахунком, квартал лишається закритим.
+        if self.kind == "month":
+            field, kinds = "fiscalyear_lock_date", ["month"]
+        else:
+            field, kinds = "tax_lock_date", ["quarter", "year"]
+        change, value = self._lock_after_reopen(field, kinds)
+        if change:
+            company.write({field: value})
         self.write({"state": "open", "reopened_user_id": self.env.uid,
                     "reopened_date": fields.Datetime.now()})
         self.env["ua.change.log"].sudo().with_context(ua_no_log=True).create({

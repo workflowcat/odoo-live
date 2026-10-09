@@ -239,3 +239,82 @@ class TestUaPeriod(TransactionCase):
                        "action_close_quarter", "action_close_year", "action_reopen"):
             self.assertIn(method, arch, "кнопка %s стоїть на формі" % method)
             self.assertTrue(hasattr(self.Close, method))
+
+    # ------------------------------------------------------------------ відкриття і дати блокування
+    def _manager(self):
+        self.env.user.group_ids |= self.env.ref("account.group_account_manager")
+
+    def _closed(self, kind, year, month, last):
+        """Закритий квартал без звітності: запис і дата, як їх лишає закриття."""
+        return self.Close.create({"company_id": self.company.id, "year": year, "month": month,
+                                  "kind": kind, "state": "closed", "lock_date": last})
+
+    def _reopen(self, record, reason="Помилка в табелі"):
+        record.reopen_reason = reason
+        record.action_reopen()
+
+    def test_16_month_under_later_closed_month_is_refused(self):
+        """Березень не відкрити, поки закритий квітень; у зворотному порядку дата спадає по одному."""
+        self._manager()
+        march = self.Close.browse(self.Close.close_period(YEAR, 3))
+        april = self.Close.browse(self.Close.close_period(YEAR, 4))
+        company = self.company.sudo()
+        self.assertEqual(company.fiscalyear_lock_date, date(YEAR, 4, 30))
+        with self.assertRaises(UserError):
+            self._reopen(march)
+        self.assertEqual(march.state, "closed")
+        self.assertEqual(company.fiscalyear_lock_date, date(YEAR, 4, 30), "дата не спадає під квітень")
+        self._reopen(april)
+        self.assertEqual(company.fiscalyear_lock_date, LAST, "лишається дата закритого березня")
+        self._reopen(march)
+        self.assertFalse(company.fiscalyear_lock_date, "закритих місяців немає - дати немає")
+
+    def test_17_quarter_reopen_restores_the_tax_lock(self):
+        """Квартал повертає податкову дату і не чіпає дату проводок; місяць під кварталом відкривається."""
+        self._manager()
+        march = self.Close.browse(self.Close.close_period(YEAR, 3))
+        self._closed("quarter", YEAR - 1, 12, date(YEAR - 1, 12, 31))
+        quarter = self._closed("quarter", YEAR, 3, LAST)
+        company = self.company.sudo()
+        company.tax_lock_date = LAST
+        self._reopen(quarter, "Уточнюючий розрахунок за квартал")
+        self.assertEqual(quarter.state, "open")
+        self.assertEqual(company.tax_lock_date, date(YEAR - 1, 12, 31),
+                         "податкова дата повертається на попередній закритий квартал")
+        self.assertEqual(company.fiscalyear_lock_date, LAST, "березень закритий - його дата на місці")
+        quarter.write({"state": "closed"})
+        self._reopen(march)
+        self.assertEqual(march.state, "open", "місяць під закритим кварталом відкривається")
+        self.assertEqual(quarter.state, "closed")
+        self.assertFalse(company.fiscalyear_lock_date)
+
+    def test_18_later_manual_lock_is_not_lowered(self):
+        """Дату, поставлену вручну пізніше за закриті періоди, відкриття не знижує."""
+        self._manager()
+        march = self.Close.browse(self.Close.close_period(YEAR, 3))
+        company = self.company.sudo()
+        company.fiscalyear_lock_date = date(YEAR, 6, 30)
+        with self.assertRaises(UserError):
+            self._reopen(march)
+        self.assertEqual(march.state, "closed")
+        self.assertEqual(company.fiscalyear_lock_date, date(YEAR, 6, 30))
+
+    def test_19_manually_lowered_lock_is_left_alone(self):
+        """Дату, знижену вручну, відкриття не піднімає і не знімає."""
+        self._manager()
+        march = self.Close.browse(self.Close.close_period(YEAR, 3))
+        company = self.company.sudo()
+        company.fiscalyear_lock_date = date(YEAR, 1, 31)
+        self._reopen(march)
+        self.assertEqual(march.state, "open")
+        self.assertEqual(company.fiscalyear_lock_date, date(YEAR, 1, 31))
+
+    def test_20_month_under_company_hard_lock_is_refused(self):
+        """Місяць під остаточною датою блокування компанії не відкривається."""
+        self._manager()
+        march = self.Close.browse(self.Close.close_period(YEAR, 3))
+        company = self.company.sudo()
+        company.hard_lock_date = LAST
+        with self.assertRaises(UserError):
+            self._reopen(march)
+        self.assertEqual(march.state, "closed")
