@@ -55,9 +55,14 @@ export async function answer(env, p, data, messages, modelOverride) {
       betas: ["server-side-fallback-2026-07-01"],
       fallbacks: "default",
       output_config: { effort: "medium" },
-      system,
+      // Prompt caching: the rules and the person's data are the same across the turns of one chat, so they are
+      // written once and re-read at a fraction of the price; the top-level marker does the same for the chat so far.
+      cache_control: { type: "ephemeral" },
+      system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
       messages,
     });
+    const u = resp.usage ?? {};
+    console.log(`claude tokens: fresh ${u.input_tokens ?? 0}, cache write ${u.cache_creation_input_tokens ?? 0}, cache read ${u.cache_read_input_tokens ?? 0}, out ${u.output_tokens ?? 0}`);
     if (resp.stop_reason === "refusal") return { text: "Я не можу відповісти на це питання. Поставте його HR через запит.", action: "question", model };
     const text = resp.content.filter((b) => b.type === "text").map((b) => b.text).join("");
     return { ...splitAction(text), model: resp.model || model };
