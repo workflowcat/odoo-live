@@ -2,13 +2,13 @@
 //   GET  /health
 //   GET  /api/odb/screen/:code        registry + risk markers, normalized (OpenDataBot v2, cached 24h in D1)
 //   GET  /api/odb/court?text=&offset= court decisions search, passthrough (billable, on demand)
-//   ANY  /api/kyc/*                   forward to kyc-service with its key (POST /subjects, PATCH /subjects/:id, ...)
+//   ANY  /api/kyc/*                   forward to Squibkit with its key (POST /subjects, PATCH /subjects/:id, ...)
 //   *                                 Odoo container when attached (see container.js); otherwise the status page
 import { OdooContainer, routeToOdoo } from "./container.js";
 export { OdooContainer };
 
 const ODB = "https://opendatabot.ua/api/v2";
-const KYC = "https://kyc-service.botpartners.workers.dev";
+const KYC = "https://kyc.bnp.works";
 
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json; charset=utf-8" } });
 const authed = (req, env) => (req.headers.get("Authorization") || "") === `Bearer ${env.BRIDGE_TOKEN}`;
@@ -98,7 +98,7 @@ function statusPage(env) {
   return new Response(`<!doctype html><html lang="uk"><meta charset="utf-8"><title>odoo-live</title>
 <style>body{font:15px/1.5 ui-monospace,Menlo,monospace;background:#f6f1e7;color:#1d1b18;max-width:640px;margin:8vh auto;padding:0 20px}h1{font:600 24px Georgia,serif}code{background:#eee6d6;padding:1px 6px}p{margin:8px 0}</style>
 <h1>odoo-live</h1>
-<p>Міст інтеграцій працює: <code>/api/odb/*</code> (OpenDataBot), <code>/api/kyc/*</code> (kyc-service).</p>
+<p>Міст інтеграцій працює: <code>/api/odb/*</code> (OpenDataBot), <code>/api/kyc/*</code> (Squibkit).</p>
 <p>Odoo на цьому домені ще не підключено: контейнер чекає на план Workers Paid. База даних живе на Supabase.</p>
 <p><code>GET /health</code></p></html>`, { headers: { "content-type": "text/html; charset=utf-8" } });
 }
