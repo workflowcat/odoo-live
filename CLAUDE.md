@@ -29,3 +29,12 @@ python3 scripts/contract_check.py                 # контракт docs/api н
 - Потрібне щось від іншої ролі - `python3 scripts/agent_note.py new request --to core|docs|ui "…"`.
 - Прийняв рішення, яке впливає на інших, - `agent_note.py new decision`.
 - На початку сесії: `python3 scripts/agent_note.py list --open --to <твоя роль>`.
+
+## Де живе код
+Андрій, 2026-10-17: джерело - Cloudflare Artifacts, репо `own/odoo-live`; GitHub `workflowcat/odoo-live` - копія. Без pull request: тести, потім пуш у `main`.
+```
+CFGIT_NS=own cfgit push                       # усі гілки в Artifacts own/odoo-live
+cfmirror own/odoo-live workflowcat/odoo-live  # потім копія на GitHub; без force, відмовить, якщо GitHub пішов сам
+```
+- Пуш нічого не деплоїть. На GitHub `.github/workflows/tests.yml` лише ганяє контракт і тести на свіжій базі. Сервер бере код сам, коли руками запускають `deploy/deploy.sh` (він тягне з GitHub, тому спершу дзеркало).
+- Прямо в GitHub `origin` не пушимо.
