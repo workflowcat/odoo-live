@@ -1,23 +1,18 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# * purchase_request
+# 	* purchase_request
 #
-# Translators:
-# OCA Transbot <transbot@odoo-community.org>, 2016
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 9.0c\n"
+"Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-17 00:52+0000\n"
-"PO-Revision-Date: 2016-09-17 00:52+0000\n"
-"Last-Translator: OCA Transbot <transbot@odoo-community.org>, 2016\n"
-"Language-Team: Ukrainian (https://www.transifex.com/oca/teams/23907/uk/)\n"
+"Last-Translator: \n"
+"Language-Team: none\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #. module: purchase_request
 #. odoo-python
@@ -26,19 +21,22 @@ msgid ""
 "<li><b>%(prl_name)s</b>: Ordered quantity %(prl_qty)s %(prl_uom)s, Planned "
 "date %(prl_date_planned)s</li>"
 msgstr ""
+"<li><b>%(prl_name)s</b>: замовлено %(prl_qty)s %(prl_uom)s, планова дата "
+"%(prl_date_planned)s</li>"
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/models/purchase_request_allocation.py:0
 msgid ""
-"<li><b>%(product_name)s</b>: Received quantity %(product_qty)s %"
-"(product_uom)s</li>"
+"<li><b>%(product_name)s</b>: Received quantity %(product_qty)s "
+"%(product_uom)s</li>"
 msgstr ""
+"<li><b>%(product_name)s</b>: отримано %(product_qty)s %(product_uom)s</li>"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.report_purchase_request
 msgid "<strong>Analytic Distribution</strong>"
-msgstr ""
+msgstr "<strong>Аналітичний розподіл</strong>"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.report_purchase_request
@@ -46,6 +44,8 @@ msgid ""
 "<strong>Assigned to:</strong>\n"
 "                                <br/>"
 msgstr ""
+"<strong>Відповідальний:</strong>\n"
+"                                <br/>"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.report_purchase_request
@@ -53,6 +53,8 @@ msgid ""
 "<strong>Creation Date:</strong>\n"
 "                                <br/>"
 msgstr ""
+"<strong>Дата створення:</strong>\n"
+"                                <br/>"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.report_purchase_request
@@ -60,16 +62,18 @@ msgid ""
 "<strong>Description:</strong>\n"
 "                                <br/>"
 msgstr ""
+"<strong>Опис:</strong>\n"
+"                                <br/>"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.report_purchase_request
 msgid "<strong>Description</strong>"
-msgstr ""
+msgstr "<strong>Опис</strong>"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.report_purchase_request
 msgid "<strong>Estimated Cost</strong>"
-msgstr ""
+msgstr "<strong>Орієнтовна вартість</strong>"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.report_purchase_request
@@ -77,16 +81,18 @@ msgid ""
 "<strong>Picking Type:</strong>\n"
 "                                <br/>"
 msgstr ""
+"<strong>Тип операції:</strong>\n"
+"                                <br/>"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.report_purchase_request
 msgid "<strong>Product UoM</strong>"
-msgstr ""
+msgstr "<strong>Од. вим.</strong>"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.report_purchase_request
 msgid "<strong>Qty</strong>"
-msgstr ""
+msgstr "<strong>К-сть</strong>"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.report_purchase_request
@@ -94,11 +100,13 @@ msgid ""
 "<strong>Request Reference:</strong>\n"
 "                                <br/>"
 msgstr ""
+"<strong>Номер запиту:</strong>\n"
+"                                <br/>"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.report_purchase_request
 msgid "<strong>Requested Date</strong>"
-msgstr ""
+msgstr "<strong>Потрібно на дату</strong>"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.report_purchase_request
@@ -106,6 +114,8 @@ msgid ""
 "<strong>Requested by:</strong>\n"
 "                                <br/>"
 msgstr ""
+"<strong>Замовив:</strong>\n"
+"                                <br/>"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.report_purchase_request
@@ -113,11 +123,13 @@ msgid ""
 "<strong>Source:</strong>\n"
 "                                <br/>"
 msgstr ""
+"<strong>Підстава:</strong>\n"
+"                                <br/>"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.report_purchase_request
 msgid "<strong>Specifications</strong>"
-msgstr ""
+msgstr "<strong>Специфікація</strong>"
 
 #. module: purchase_request
 #: model_terms:ir.actions.act_window,help:purchase_request.purchase_request_form_action
@@ -126,6 +138,9 @@ msgid ""
 "            a certain quantity of materials services, so that they are\n"
 "            available at a certain point in time."
 msgstr ""
+"Запит на закупівлю - це доручення відділу закупівель придбати\n"
+"            певну кількість матеріалів чи послуг, щоб вони\n"
+"            були в наявності на потрібну дату."
 
 #. module: purchase_request
 #. odoo-python
@@ -134,128 +149,130 @@ msgid ""
 "A sale/manufacturing order that generated this purchase request has been "
 "cancelled/deleted. Check if an action is needed."
 msgstr ""
+"Замовлення покупця або виробниче замовлення, з якого створено цей запит на "
+"закупівлю, скасовано чи видалено. Перевірте, чи запит ще потрібен."
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__message_needaction
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__message_needaction
 msgid "Action Needed"
-msgstr ""
+msgstr "Потрібна дія"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__activity_ids
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__activity_ids
 msgid "Activities"
-msgstr ""
+msgstr "Дії"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__activity_exception_decoration
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__activity_exception_decoration
 msgid "Activity Exception Decoration"
-msgstr ""
+msgstr "Позначка винятку дії"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__activity_state
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__activity_state
 msgid "Activity State"
-msgstr ""
+msgstr "Стан дії"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__activity_type_icon
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__activity_type_icon
 msgid "Activity Type Icon"
-msgstr ""
+msgstr "Значок типу дії"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 msgid "All Bought"
-msgstr ""
+msgstr "Усе закуплено"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_allocation__allocated_product_qty
 msgid "Allocated Quantity"
-msgstr ""
+msgstr "Розподілена кількість"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_form
 msgid "Allocations"
-msgstr ""
+msgstr "Розподіли"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__analytic_distribution
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 msgid "Analytic Distribution"
-msgstr ""
+msgstr "Аналітичний розподіл"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__analytic_precision
 msgid "Analytic Precision"
-msgstr ""
+msgstr "Точність аналітики"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_form
 msgid "Approve"
-msgstr ""
+msgstr "Погодити"
 
 #. module: purchase_request
 #: model:ir.model.fields.selection,name:purchase_request.selection__purchase_request__state__approved
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Approved"
-msgstr ""
+msgstr "Погоджено"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__assigned_to
 msgid "Approver"
-msgstr ""
+msgstr "Погоджує"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__assigned_to
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Assigned to"
-msgstr ""
+msgstr "Відповідальний"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Assigned to me"
-msgstr ""
+msgstr "Призначені мені"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 msgid "At least a Draft PO has been created"
-msgstr ""
+msgstr "Створено щонайменше одну чернетку замовлення"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 msgid "At least a PO has been completed"
-msgstr ""
+msgstr "Виконано щонайменше одне замовлення"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 msgid "At least a PO has been confirmed"
-msgstr ""
+msgstr "Затверджено щонайменше одне замовлення"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__message_attachment_count
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__message_attachment_count
 msgid "Attachment Count"
-msgstr ""
+msgstr "Кількість вкладень"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_line_make_purchase_order
 msgid "Cancel"
-msgstr ""
+msgstr "Скасувати"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__cancelled
 msgid "Cancelled"
-msgstr ""
+msgstr "Скасовано"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 msgid "Cancelled Quantity"
-msgstr ""
+msgstr "Скасована кількість"
 
 #. module: purchase_request
 #: model:ir.model.fields,help:purchase_request.field_product_product__purchase_request
@@ -264,36 +281,37 @@ msgid ""
 "Check this box to generate Purchase Request instead of generating Requests "
 "For Quotation from procurement."
 msgstr ""
+"Позначте, щоб поповнення запасів створювало запит на закупівлю замість "
+"запиту цін."
 
 #. module: purchase_request
 #: model_terms:ir.actions.act_window,help:purchase_request.purchase_request_form_action
 msgid "Click to start a new purchase request process."
-msgstr ""
+msgstr "Створіть новий запит на закупівлю."
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__company_id
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_allocation__company_id
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__company_id
 msgid "Company"
-msgstr ""
+msgstr "Компанія"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line_make_purchase_order_item__keep_description
 msgid "Copy descriptions to new PO"
-msgstr ""
+msgstr "Копіювати описи в нове замовлення"
 
 #. module: purchase_request
 #: model:ir.actions.act_window,name:purchase_request.action_purchase_request_line_make_purchase_order
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_form
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_line_make_purchase_order
-#, fuzzy
 msgid "Create RFQ"
-msgstr "Створив"
+msgstr "Створити запит цін"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_stock_move__created_purchase_request_line_id
 msgid "Created Purchase Request Line"
-msgstr ""
+msgstr "Створений рядок запиту"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__create_uid
@@ -317,32 +335,32 @@ msgstr "Створено"
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__date_start
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__date_start
 msgid "Creation date"
-msgstr ""
+msgstr "Дата створення"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__currency_id
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__currency_id
 msgid "Currency"
-msgstr ""
+msgstr "Валюта"
 
 #. module: purchase_request
 #: model:ir.model.fields,help:purchase_request.field_purchase_request__date_start
 #: model:ir.model.fields,help:purchase_request.field_purchase_request_line__date_start
 msgid "Date when the user initiated the request."
-msgstr ""
+msgstr "Дата, коли користувач створив запит."
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__description
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__name
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line_make_purchase_order_item__name
 msgid "Description"
-msgstr ""
+msgstr "Опис"
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/models/purchase_request_line.py:0
 msgid "Detailed Line"
-msgstr ""
+msgstr "Детальний рядок"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_product_template__display_name
@@ -358,99 +376,103 @@ msgstr ""
 #: model:ir.model.fields,field_description:purchase_request.field_stock_rule__display_name
 #: model:ir.model.fields,field_description:purchase_request.field_stock_warehouse_orderpoint__display_name
 msgid "Display Name"
-msgstr ""
+msgstr "Назва"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__distribution_analytic_account_ids
 msgid "Distribution Analytic Account"
-msgstr ""
+msgstr "Аналітичний рахунок розподілу"
 
 #. module: purchase_request
 #: model:ir.model.fields.selection,name:purchase_request.selection__purchase_request__state__done
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_form
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Done"
-msgstr ""
+msgstr "Виконано"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__move_dest_ids
 msgid "Downstream Moves"
-msgstr ""
+msgstr "Наступні рухи"
 
 #. module: purchase_request
 #: model:ir.model.fields.selection,name:purchase_request.selection__purchase_request__state__draft
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Draft"
-msgstr ""
+msgstr "Чернетка"
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/wizard/purchase_request_line_make_purchase_order.py:0
 msgid "Enter a positive quantity."
-msgstr ""
+msgstr "Вкажіть кількість більше нуля."
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/wizard/purchase_request_line_make_purchase_order.py:0
 msgid "Enter a supplier."
-msgstr ""
+msgstr "Вкажіть постачальника."
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__estimated_cost
 msgid "Estimated Cost"
-msgstr ""
+msgstr "Орієнтовна вартість"
 
 #. module: purchase_request
 #: model:ir.model.fields,help:purchase_request.field_purchase_request_line__estimated_cost
 msgid "Estimated cost of Purchase Request Line, not propagated to PO."
 msgstr ""
+"Орієнтовна вартість рядка запиту. У замовлення постачальнику не "
+"переноситься."
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_line_make_purchase_order
 msgid "Existing RFQ to update:"
-msgstr ""
+msgstr "Доповнити наявний запит цін:"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__message_follower_ids
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__message_follower_ids
 msgid "Followers"
-msgstr ""
+msgstr "Підписники"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__message_partner_ids
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__message_partner_ids
 msgid "Followers (Partners)"
-msgstr ""
+msgstr "Підписники (контрагенти)"
 
 #. module: purchase_request
 #: model:ir.model.fields,help:purchase_request.field_purchase_request__activity_type_icon
 #: model:ir.model.fields,help:purchase_request.field_purchase_request_line__activity_type_icon
 msgid "Font awesome icon e.g. fa-tasks"
-msgstr ""
+msgstr "Значок Font Awesome, наприклад fa-tasks"
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/models/purchase_request_allocation.py:0
 msgid ""
-"From last reception this quantity has been allocated to this purchase request"
+"From last reception this quantity has been allocated to this purchase "
+"request"
 msgstr ""
+"Кількість з останнього надходження, розподілена на цей запит на закупівлю"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Future Activities"
-msgstr ""
+msgstr "Майбутні дії"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__has_message
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__has_message
 msgid "Has Message"
-msgstr ""
+msgstr "Є повідомлення"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_order_line_search_sub
 msgid "Hide cancelled lines"
-msgstr ""
+msgstr "Сховати скасовані рядки"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_product_template__id
@@ -472,59 +494,59 @@ msgstr "ID"
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__activity_exception_icon
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__activity_exception_icon
 msgid "Icon"
-msgstr ""
+msgstr "Значок"
 
 #. module: purchase_request
 #: model:ir.model.fields,help:purchase_request.field_purchase_request__activity_exception_icon
 #: model:ir.model.fields,help:purchase_request.field_purchase_request_line__activity_exception_icon
 msgid "Icon to indicate an exception activity."
-msgstr ""
+msgstr "Значок, що позначає дію-виняток."
 
 #. module: purchase_request
 #: model:ir.model.fields,help:purchase_request.field_purchase_request__message_needaction
 #: model:ir.model.fields,help:purchase_request.field_purchase_request_line__message_needaction
 msgid "If checked, new messages require your attention."
-msgstr ""
+msgstr "Якщо позначено, нові повідомлення потребують уваги."
 
 #. module: purchase_request
 #: model:ir.model.fields,help:purchase_request.field_purchase_request__message_has_error
 #: model:ir.model.fields,help:purchase_request.field_purchase_request_line__message_has_error
 msgid "If checked, some messages have a delivery error."
-msgstr ""
+msgstr "Якщо позначено, деякі повідомлення не доставлено."
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_form
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "In Progress"
-msgstr ""
+msgstr "В роботі"
 
 #. module: purchase_request
 #: model:ir.model.fields.selection,name:purchase_request.selection__purchase_request__state__in_progress
 msgid "In progress"
-msgstr ""
+msgstr "В роботі"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__is_editable
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__is_editable
 msgid "Is Editable"
-msgstr ""
+msgstr "Можна редагувати"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__message_is_follower
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__message_is_follower
 msgid "Is Follower"
-msgstr ""
+msgstr "Підписник"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__is_name_editable
 msgid "Is Name Editable"
-msgstr ""
+msgstr "Можна редагувати назву"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line_make_purchase_order__item_ids
 msgid "Item"
-msgstr ""
+msgstr "Позиція"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__write_uid
@@ -533,7 +555,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line_make_purchase_order__write_uid
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line_make_purchase_order_item__write_uid
 msgid "Last Updated by"
-msgstr "Востаннє відредаговано"
+msgstr "Востаннє змінив"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__write_date
@@ -542,173 +564,173 @@ msgstr "Востаннє відредаговано"
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line_make_purchase_order__write_date
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line_make_purchase_order_item__write_date
 msgid "Last Updated on"
-msgstr "Дата останньої зміни"
+msgstr "Востаннє змінено"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Late Activities"
-msgstr ""
+msgstr "Прострочені дії"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_form
 msgid "Lines"
-msgstr ""
+msgstr "Рядки"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_order_line_form2_sub
 msgid "Manual Invoices"
-msgstr ""
+msgstr "Рахунки вручну"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line_make_purchase_order__sync_data_planned
 msgid "Match existing PO lines by Scheduled Date"
-msgstr ""
+msgstr "Шукати рядки наявного замовлення за плановою датою"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__message_has_error
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__message_has_error
 msgid "Message Delivery error"
-msgstr ""
+msgstr "Помилка доставки повідомлення"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__message_ids
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__message_ids
 msgid "Messages"
-msgstr ""
+msgstr "Повідомлення"
 
 #. module: purchase_request
 #: model:ir.model,name:purchase_request.model_stock_warehouse_orderpoint
 msgid "Minimum Inventory Rule"
-msgstr ""
+msgstr "Правило мінімального залишку"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__my_activity_date_deadline
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__my_activity_date_deadline
 msgid "My Activity Deadline"
-msgstr ""
+msgstr "Термін моєї дії"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "My requests"
-msgstr ""
+msgstr "Мої запити"
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/models/purchase_request.py:0
 msgid "New"
-msgstr ""
+msgstr "Новий"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_line_make_purchase_order
 msgid "New PO details:"
-msgstr ""
+msgstr "Нове замовлення:"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__activity_date_deadline
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__activity_date_deadline
 msgid "Next Activity Deadline"
-msgstr ""
+msgstr "Термін наступної дії"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__activity_summary
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__activity_summary
 msgid "Next Activity Summary"
-msgstr ""
+msgstr "Опис наступної дії"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__activity_type_id
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__activity_type_id
 msgid "Next Activity Type"
-msgstr ""
+msgstr "Тип наступної дії"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 msgid "No RFQ or Purchase has been created"
-msgstr ""
+msgstr "Запит цін і замовлення не створено"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__message_needaction_counter
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__message_needaction_counter
 msgid "Number of Actions"
-msgstr ""
+msgstr "Кількість дій"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__message_has_error_counter
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__message_has_error_counter
 msgid "Number of errors"
-msgstr ""
+msgstr "Кількість помилок"
 
 #. module: purchase_request
 #: model:ir.model.fields,help:purchase_request.field_purchase_request__message_needaction_counter
 #: model:ir.model.fields,help:purchase_request.field_purchase_request_line__message_needaction_counter
 msgid "Number of messages requiring action"
-msgstr ""
+msgstr "Кількість повідомлень, що потребують дії"
 
 #. module: purchase_request
 #: model:ir.model.fields,help:purchase_request.field_purchase_request__message_has_error_counter
 #: model:ir.model.fields,help:purchase_request.field_purchase_request_line__message_has_error_counter
 msgid "Number of messages with delivery error"
-msgstr ""
+msgstr "Кількість недоставлених повідомлень"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_allocation__open_product_qty
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 msgid "Open Quantity"
-msgstr ""
+msgstr "Залишок до розподілу"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_order_line_search_sub
 msgid "Order Reference"
-msgstr ""
+msgstr "Номер замовлення"
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/models/purchase_order.py:0
 msgid "Order confirmation %(po_name)s for your Request %(pr_name)s"
-msgstr ""
+msgstr "Замовлення %(po_name)s за запитом %(pr_name)s затверджено"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__orderpoint_id
 msgid "Orderpoint"
-msgstr ""
+msgstr "Правило поповнення"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__description
 msgid "PR Description"
-msgstr ""
+msgstr "Опис запиту"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__pending_qty_to_receive
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 msgid "Pending Qty to Receive"
-msgstr ""
+msgstr "Очікується до надходження"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_form
 msgid "Picking"
-msgstr ""
+msgstr "Переміщення"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__picking_type_id
 msgid "Picking Type"
-msgstr ""
+msgstr "Тип операції"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_form
 msgid "Pickings"
-msgstr ""
+msgstr "Переміщення"
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/wizard/purchase_request_line_make_purchase_order.py:0
 msgid "Please select a product for all lines"
-msgstr ""
+msgstr "Виберіть номенклатуру в усіх рядках"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__supplier_id
 msgid "Preferred supplier"
-msgstr ""
+msgstr "Основний постачальник"
 
 #. module: purchase_request
 #: model:ir.model,name:purchase_request.model_product_template
@@ -718,50 +740,50 @@ msgstr ""
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line_make_purchase_order_item__product_id
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 msgid "Product"
-msgstr ""
+msgstr "Номенклатура"
 
 #. module: purchase_request
 #: model:ir.model,name:purchase_request.model_stock_move_line
 msgid "Product Moves (Stock Move Line)"
-msgstr ""
+msgstr "Рух номенклатури (рядок руху запасів)"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.report_purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_form
 msgid "Products"
-msgstr ""
+msgstr "Номенклатура"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__line_ids
 msgid "Products to Purchase"
-msgstr ""
+msgstr "Номенклатура до закупівлі"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 msgid "Purchase Confirmed"
-msgstr ""
+msgstr "Закупівлю затверджено"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 msgid "Purchase Done"
-msgstr ""
+msgstr "Закупівлю виконано"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_allocation__purchase_line_id
 msgid "Purchase Line"
-msgstr ""
+msgstr "Рядок закупівлі"
 
 #. module: purchase_request
 #: model:ir.model,name:purchase_request.model_purchase_order
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line_make_purchase_order__purchase_order_id
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_form
 msgid "Purchase Order"
-msgstr ""
+msgstr "Замовлення постачальнику"
 
 #. module: purchase_request
 #: model:ir.model,name:purchase_request.model_purchase_order_line
 msgid "Purchase Order Line"
-msgstr ""
+msgstr "Рядок замовлення постачальнику"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__purchase_lines
@@ -769,22 +791,22 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_form
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_line_details
 msgid "Purchase Order Lines"
-msgstr ""
+msgstr "Рядки замовлень постачальникам"
 
 #. module: purchase_request
 #: model:mail.message.subtype,name:purchase_request.mt_request_po_confirmed
 msgid "Purchase Order confirmation"
-msgstr ""
+msgstr "Затвердження замовлення постачальнику"
 
 #. module: purchase_request
 #: model:mail.message.subtype,description:purchase_request.mt_request_po_confirmed
 msgid "Purchase Order is confirmed"
-msgstr ""
+msgstr "Замовлення постачальнику затверджено"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_form
 msgid "Purchase Orders"
-msgstr ""
+msgstr "Замовлення постачальникам"
 
 #. module: purchase_request
 #: model:ir.actions.report,name:purchase_request.action_report_purchase_requests
@@ -800,19 +822,19 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_form
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Purchase Request"
-msgstr ""
+msgstr "Запит на закупівлю"
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/models/purchase_order.py:0
 msgid "Purchase Request %(name)s has already been completed"
-msgstr ""
+msgstr "Запит на закупівлю %(name)s уже виконано"
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/wizard/purchase_request_line_make_purchase_order.py:0
 msgid "Purchase Request %(name)s is not approved or in progress"
-msgstr ""
+msgstr "Запит на закупівлю %(name)s не погоджено і не взято в роботу"
 
 #. module: purchase_request
 #: model:ir.model,name:purchase_request.model_purchase_request_allocation
@@ -820,12 +842,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__purchase_request_allocation_ids
 #: model:ir.model.fields,field_description:purchase_request.field_stock_move__purchase_request_allocation_ids
 msgid "Purchase Request Allocation"
-msgstr ""
+msgstr "Розподіл запиту на закупівлю"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_move_form
 msgid "Purchase Request Allocations"
-msgstr ""
+msgstr "Розподіли запитів на закупівлю"
 
 #. module: purchase_request
 #: model:ir.model,name:purchase_request.model_purchase_request_line
@@ -833,22 +855,22 @@ msgstr ""
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line_make_purchase_order_item__line_id
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_form
 msgid "Purchase Request Line"
-msgstr ""
+msgstr "Рядок запиту"
 
 #. module: purchase_request
 #: model:ir.model,name:purchase_request.model_purchase_request_line_make_purchase_order
 msgid "Purchase Request Line Make Purchase Order"
-msgstr ""
+msgstr "Створення замовлення з рядків запиту"
 
 #. module: purchase_request
 #: model:ir.model,name:purchase_request.model_purchase_request_line_make_purchase_order_item
 msgid "Purchase Request Line Make Purchase Order Item"
-msgstr ""
+msgstr "Позиція створення замовлення з рядків запиту"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__line_count
 msgid "Purchase Request Line count"
-msgstr ""
+msgstr "Кількість рядків запиту"
 
 #. module: purchase_request
 #. odoo-python
@@ -860,45 +882,45 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_order_line_form2
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_order_line_form2_sub
 msgid "Purchase Request Lines"
-msgstr ""
+msgstr "Рядки запитів"
 
 #. module: purchase_request
 #: model:res.groups,name:purchase_request.group_purchase_request_manager
 msgid "Purchase Request Manager"
-msgstr ""
+msgstr "Запити на закупівлю: керівник"
 
 #. module: purchase_request
 #: model:res.groups,name:purchase_request.group_purchase_request_user
 msgid "Purchase Request User"
-msgstr ""
+msgstr "Запити на закупівлю: користувач"
 
 #. module: purchase_request
 #: model:mail.message.subtype,description:purchase_request.mt_request_approved
 #: model:mail.message.subtype,name:purchase_request.mt_request_approved
 msgid "Purchase Request approved"
-msgstr ""
+msgstr "Запит на закупівлю погоджено"
 
 #. module: purchase_request
 #: model:mail.message.subtype,name:purchase_request.mt_request_done
 msgid "Purchase Request done"
-msgstr ""
+msgstr "Запит на закупівлю виконано"
 
 #. module: purchase_request
 #: model:mail.message.subtype,description:purchase_request.mt_request_done
 msgid "Purchase Request is done"
-msgstr ""
+msgstr "Запит на закупівлю виконано"
 
 #. module: purchase_request
 #: model:mail.message.subtype,description:purchase_request.mt_request_rejected
 #: model:mail.message.subtype,name:purchase_request.mt_request_rejected
 msgid "Purchase Request rejected"
-msgstr ""
+msgstr "Запит на закупівлю відхилено"
 
 #. module: purchase_request
 #: model:mail.message.subtype,description:purchase_request.mt_request_to_approve
 #: model:mail.message.subtype,name:purchase_request.mt_request_to_approve
 msgid "Purchase Request to be approved"
-msgstr ""
+msgstr "Запит на закупівлю на погодженні"
 
 #. module: purchase_request
 #: model:ir.actions.act_window,name:purchase_request.action_purchase_request_line_product_tree
@@ -908,63 +930,63 @@ msgstr ""
 #: model:ir.ui.menu,name:purchase_request.menu_purchase_request_pro_mgt
 #: model:ir.ui.menu,name:purchase_request.parent_menu_purchase_request
 msgid "Purchase Requests"
-msgstr ""
+msgstr "Запити на закупівлю"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__purchase_state
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 msgid "Purchase Status"
-msgstr ""
+msgstr "Стан закупівлі"
 
 #. module: purchase_request
 #: model:mail.message.subtype,name:purchase_request.mt_request_picking_done
 msgid "Purchase receipt confirmation"
-msgstr ""
+msgstr "Підтвердження надходження"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__purchase_count
 msgid "Purchases count"
-msgstr ""
+msgstr "Кількість замовлень"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 msgid "Purchasing not started"
-msgstr ""
+msgstr "Закупівлю не розпочато"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__qty_cancelled
 msgid "Qty Cancelled"
-msgstr ""
+msgstr "К-сть скасовано"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__qty_done
 msgid "Qty Done"
-msgstr ""
+msgstr "К-сть виконано"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__qty_in_progress
 msgid "Qty In Progress"
-msgstr ""
+msgstr "К-сть в роботі"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__product_qty
 msgid "Quantity"
-msgstr ""
+msgstr "Кількість"
 
 #. module: purchase_request
 #: model:ir.model.fields,help:purchase_request.field_purchase_request_line__qty_cancelled
 msgid "Quantity cancelled"
-msgstr ""
+msgstr "Скасована кількість"
 
 #. module: purchase_request
 #: model:ir.model.fields,help:purchase_request.field_purchase_request_line__qty_done
 msgid "Quantity completed"
-msgstr ""
+msgstr "Виконана кількість"
 
 #. module: purchase_request
 #: model:ir.model.fields,help:purchase_request.field_purchase_request_line__qty_in_progress
 msgid "Quantity in progress."
-msgstr ""
+msgstr "Кількість в роботі."
 
 #. module: purchase_request
 #: model:ir.model.fields,help:purchase_request.field_purchase_request_allocation__allocated_product_qty
@@ -972,184 +994,189 @@ msgid ""
 "Quantity of the purchase request line allocated to the stockmove, in the "
 "default UoM of the product"
 msgstr ""
+"Кількість із рядка запиту, розподілена на рух запасів, в основній одиниці "
+"виміру номенклатури"
 
 #. module: purchase_request
 #: model:ir.model.fields,help:purchase_request.field_purchase_request_allocation__requested_product_uom_qty
 msgid ""
-"Quantity of the purchase request line allocated to thestock move, in the UoM "
-"of the Purchase Request Line"
+"Quantity of the purchase request line allocated to thestock move, in the UoM"
+" of the Purchase Request Line"
 msgstr ""
+"Кількість із рядка запиту, розподілена на рух запасів, в одиниці виміру "
+"рядка запиту"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line_make_purchase_order_item__product_qty
 msgid "Quantity to purchase"
-msgstr ""
+msgstr "Кількість до закупівлі"
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/wizard/purchase_request_line_make_purchase_order.py:0
 msgid "RFQ"
-msgstr ""
+msgstr "Запит цін"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__purchased_qty
 msgid "RFQ/PO Qty"
-msgstr ""
+msgstr "К-сть у запитах цін і замовленнях"
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/models/stock_move_line.py:0
-msgid "Receipt confirmation %(picking_name)s for your Request %(request_name)s"
-msgstr ""
+msgid ""
+"Receipt confirmation %(picking_name)s for your Request %(request_name)s"
+msgstr "Надходження %(picking_name)s за запитом %(request_name)s проведено"
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/models/stock_move_line.py:0
 msgid "Receipt confirmation for Request %(name)s"
-msgstr ""
+msgstr "Надходження за запитом %(name)s проведено"
 
 #. module: purchase_request
 #: model:mail.message.subtype,description:purchase_request.mt_request_picking_done
 msgid "Receipt is done"
-msgstr ""
+msgstr "Надходження виконано"
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/models/purchase_order.py:0
 msgid "Received quantity"
-msgstr ""
+msgstr "Отримана кількість"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_form
 msgid "Reject"
-msgstr ""
+msgstr "Відхилити"
 
 #. module: purchase_request
 #: model:ir.model.fields.selection,name:purchase_request.selection__purchase_request__state__rejected
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Rejected"
-msgstr ""
+msgstr "Відхилено"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 msgid "Request"
-msgstr ""
+msgstr "Запит"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__date_required
 msgid "Request Date"
-msgstr ""
+msgstr "Потрібно на дату"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_order_form
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_order_line_tree
 msgid "Request Lines"
-msgstr ""
+msgstr "Рядки запиту"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__name
 msgid "Request Reference"
-msgstr ""
+msgstr "Номер запиту"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_form
 msgid "Request approval"
-msgstr ""
+msgstr "Надіслати на погодження"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Request is approved"
-msgstr ""
+msgstr "Запит погоджено"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Request is done"
-msgstr ""
+msgstr "Запит виконано"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Request is in progress"
-msgstr ""
+msgstr "Запит в роботі"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Request is rejected"
-msgstr ""
+msgstr "Запит відхилено"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Request is to be approved"
-msgstr ""
+msgstr "Запит на погодженні"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__request_state
 msgid "Request state"
-msgstr ""
+msgstr "Стан запиту"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 msgid "Request status"
-msgstr ""
+msgstr "Стан запиту"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__requested_by
 msgid "Requested By"
-msgstr ""
+msgstr "Замовив"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_allocation__requested_product_uom_qty
 msgid "Requested Quantity"
-msgstr ""
+msgstr "Замовлена кількість"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__requested_by
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Requested by"
-msgstr ""
+msgstr "Замовив"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 msgid "Requested for Quotation"
-msgstr ""
+msgstr "Запит цін надіслано"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_form
 msgid "Reset"
-msgstr ""
+msgstr "Повернути в чернетку"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__activity_user_id
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__activity_user_id
 msgid "Responsible User"
-msgstr ""
+msgstr "Відповідальний"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_order_line_search_sub
 msgid "Search Purchase Order Line"
-msgstr ""
+msgstr "Пошук рядків замовлень"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Search Purchase Request"
-msgstr ""
+msgstr "Пошук запитів на закупівлю"
 
 #. module: purchase_request
 #: model:ir.model.fields,help:purchase_request.field_purchase_request_allocation__purchase_line_id
 msgid "Service Purchase Order Line"
-msgstr ""
+msgstr "Рядок замовлення на послугу"
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/models/purchase_order.py:0
 msgid "Service confirmation for Request %(request_name)s"
-msgstr ""
+msgstr "Послуги за запитом %(request_name)s отримано"
 
 #. module: purchase_request
 #: model:ir.model.fields,help:purchase_request.field_purchase_request_line_make_purchase_order_item__keep_description
@@ -1157,40 +1184,41 @@ msgid ""
 "Set true if you want to keep the descriptions provided in the wizard in the "
 "new PO."
 msgstr ""
+"Позначте, щоб описи з цього вікна перейшли в нове замовлення постачальнику."
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_form
 msgid "Show Details"
-msgstr ""
+msgstr "Показати деталі"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Source"
-msgstr ""
+msgstr "Підстава"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__origin
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__origin
 msgid "Source Document"
-msgstr ""
+msgstr "Документ-підстава"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__specifications
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_form
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_line_details
 msgid "Specifications"
-msgstr ""
+msgstr "Специфікація"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Start Date"
-msgstr ""
+msgstr "Дата початку"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__state
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_allocation__purchase_state
 msgid "Status"
-msgstr ""
+msgstr "Стан"
 
 #. module: purchase_request
 #: model:ir.model.fields,help:purchase_request.field_purchase_request__activity_state
@@ -1201,32 +1229,36 @@ msgid ""
 "Today: Activity date is today\n"
 "Planned: Future activities."
 msgstr ""
+"Стан за діями\n"
+"Прострочено: термін уже минув\n"
+"Сьогодні: дія на сьогодні\n"
+"Заплановано: майбутні дії."
 
 #. module: purchase_request
 #: model:ir.model,name:purchase_request.model_stock_move
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_allocation__stock_move_id
 msgid "Stock Move"
-msgstr ""
+msgstr "Рух запасів"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__move_count
 msgid "Stock Move count"
-msgstr ""
+msgstr "Кількість рухів запасів"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_order_line_form2_sub
 msgid "Stock Moves"
-msgstr ""
+msgstr "Рухи запасів"
 
 #. module: purchase_request
 #: model:ir.model,name:purchase_request.model_stock_rule
 msgid "Stock Rule"
-msgstr ""
+msgstr "Правило запасів"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line_make_purchase_order__supplier_id
 msgid "Supplier"
-msgstr ""
+msgstr "Постачальник"
 
 #. module: purchase_request
 #. odoo-python
@@ -1234,6 +1266,7 @@ msgstr ""
 msgid ""
 "The company of the purchase request must match with that of the location."
 msgstr ""
+"Компанія запиту на закупівлю має збігатися з компанією місця зберігання."
 
 #. module: purchase_request
 #. odoo-python
@@ -1242,6 +1275,8 @@ msgid ""
 "The following requested items from Purchase Request %(pr_name)s have now "
 "been confirmed in Purchase Order %(po_name)s:"
 msgstr ""
+"Позиції запиту на закупівлю %(pr_name)s, затверджені в замовленні "
+"постачальнику %(po_name)s:"
 
 #. module: purchase_request
 #. odoo-python
@@ -1250,6 +1285,8 @@ msgid ""
 "The following requested items from Purchase Request %(request_name)s have "
 "now been received in %(location_name)s using Picking %(picking_name)s:"
 msgstr ""
+"Позиції запиту на закупівлю %(request_name)s, що надійшли на "
+"%(location_name)s за переміщенням %(picking_name)s:"
 
 #. module: purchase_request
 #. odoo-python
@@ -1258,6 +1295,8 @@ msgid ""
 "The following requested items from Purchase Request %(request_name)s "
 "requested by %(requestor)s have now been received in %(location_name)s:"
 msgstr ""
+"Позиції запиту на закупівлю %(request_name)s (замовив %(requestor)s), що "
+"надійшли на %(location_name)s:"
 
 #. module: purchase_request
 #. odoo-python
@@ -1266,118 +1305,122 @@ msgid ""
 "The following requested services from Purchase Request %(request_name)s "
 "requested by %(requestor)s have now been received:"
 msgstr ""
+"Послуги за запитом на закупівлю %(request_name)s (замовив %(requestor)s), "
+"які отримано:"
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/wizard/purchase_request_line_make_purchase_order.py:0
 msgid "The purchase has already been completed."
-msgstr ""
+msgstr "Закупівлю вже виконано."
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__qty_to_buy
 msgid "There is some pending qty to buy"
-msgstr ""
+msgstr "Частину ще не закуплено"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "To Approve"
-msgstr ""
+msgstr "На погодженні"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__to_approve_allowed
 msgid "To Approve Allowed"
-msgstr ""
+msgstr "Можна надіслати на погодження"
 
 #. module: purchase_request
 #: model:ir.model.fields.selection,name:purchase_request.selection__purchase_request__state__to_approve
 msgid "To be approved"
-msgstr ""
+msgstr "На погодженні"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Today Activities"
-msgstr ""
+msgstr "Дії на сьогодні"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__estimated_cost
 msgid "Total Estimated Cost"
-msgstr ""
+msgstr "Орієнтовна вартість разом"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_form
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_line_details
 msgid "Tracking"
-msgstr ""
+msgstr "Відстеження"
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/models/stock_move_line.py:0
 msgid "Transferred quantity"
-msgstr ""
+msgstr "Переміщена кількість"
 
 #. module: purchase_request
 #: model:ir.model.fields,help:purchase_request.field_purchase_request__activity_exception_decoration
 #: model:ir.model.fields,help:purchase_request.field_purchase_request_line__activity_exception_decoration
 msgid "Type of the exception activity on record."
-msgstr ""
+msgstr "Тип дії-винятку в записі."
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Unassigned"
-msgstr ""
+msgstr "Без відповідального"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Unassigned Request"
-msgstr ""
+msgstr "Запити без відповідального"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_request_line_search
 msgid "Uncancelled"
-msgstr ""
+msgstr "Не скасовані"
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.view_purchase_request_search
 msgid "Unread Messages"
-msgstr ""
+msgstr "Непрочитані повідомлення"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_allocation__product_uom_id
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__product_uom_id
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line_make_purchase_order_item__product_uom_id
 msgid "UoM"
-msgstr ""
+msgstr "Од. вим."
 
 #. module: purchase_request
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_order_line_search_sub
 #: model_terms:ir.ui.view,arch_db:purchase_request.purchase_order_line_tree_sub
 msgid "Vendor"
-msgstr ""
+msgstr "Постачальник"
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request__website_message_ids
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line__website_message_ids
 msgid "Website Messages"
-msgstr ""
+msgstr "Повідомлення з сайту"
 
 #. module: purchase_request
 #: model:ir.model.fields,help:purchase_request.field_purchase_request__website_message_ids
 #: model:ir.model.fields,help:purchase_request.field_purchase_request_line__website_message_ids
 msgid "Website communication history"
-msgstr ""
+msgstr "Історія листування на сайті"
 
 #. module: purchase_request
 #: model:ir.model.fields,help:purchase_request.field_purchase_request_line_make_purchase_order__sync_data_planned
 msgid ""
-"When checked, PO lines on the selected purchase order are only reused if the "
-"scheduled date matches as well."
+"When checked, PO lines on the selected purchase order are only reused if the"
+" scheduled date matches as well."
 msgstr ""
+"Якщо позначено, рядок вибраного замовлення доповнюється лише тоді, коли "
+"збігається і планова дата."
 
 #. module: purchase_request
 #: model:ir.model.fields,field_description:purchase_request.field_purchase_request_line_make_purchase_order_item__wiz_id
 msgid "Wizard"
-msgstr ""
+msgstr "Помічник"
 
 #. module: purchase_request
 #. odoo-python
@@ -1385,42 +1428,43 @@ msgstr ""
 msgid ""
 "You can only delete a purchase request line if the purchase request is in "
 "draft state."
-msgstr ""
+msgstr "Рядок можна видалити, лише поки запит на закупівлю в чернетці."
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/models/purchase_request.py:0
 msgid ""
-"You can't request an approval for a purchase request which is empty. (%"
-"(name)s)"
+"You can't request an approval for a purchase request which is empty. "
+"(%(name)s)"
 msgstr ""
+"Запит на закупівлю без рядків не можна надіслати на погодження. (%(name)s)"
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/models/purchase_request.py:0
 msgid "You cannot delete a purchase request which is not draft."
-msgstr ""
+msgstr "Видалити можна лише запит на закупівлю в чернетці."
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/models/purchase_request_line.py:0
 msgid "You cannot delete a record that refers to purchase lines!"
-msgstr ""
+msgstr "Запис не можна видалити: на нього посилаються рядки замовлень."
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/wizard/purchase_request_line_make_purchase_order.py:0
 msgid "You have to enter a Picking Type."
-msgstr ""
+msgstr "Вкажіть тип операції."
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/wizard/purchase_request_line_make_purchase_order.py:0
 msgid "You have to select lines from the same Picking Type."
-msgstr ""
+msgstr "Виберіть рядки з одним типом операції."
 
 #. module: purchase_request
 #. odoo-python
 #: code:addons/purchase_request/wizard/purchase_request_line_make_purchase_order.py:0
 msgid "You have to select lines from the same company."
-msgstr ""
+msgstr "Виберіть рядки однієї компанії."

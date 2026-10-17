@@ -8,6 +8,7 @@
     "depends": ["l10n_ua_payroll_reports"],
     "data": [
         "security/ir.model.access.csv",
+        "security/ua_military_security.xml",
         "report/ua_military_list_report.xml",
         "report/ua_military_notice_report.xml",
         "report/ua_military_reserved_report.xml",

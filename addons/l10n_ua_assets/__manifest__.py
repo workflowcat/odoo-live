@@ -21,6 +21,7 @@
     "depends": ["account_asset_management", "l10n_ua"],
     "data": [
         "security/ir.model.access.csv",
+        "security/ua_assets_security.xml",
         "report/ua_asset_reports.xml",
         "report/ua_depreciation_sheet_report.xml",
         "views/account_asset_profile_views.xml",

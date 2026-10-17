@@ -8,6 +8,7 @@
     "depends": ["l10n_ua_payroll_rules"],
     "data": [
         "security/ir.model.access.csv",
+        "security/ua_explain_security.xml",
     ],
     "installable": True,
 }

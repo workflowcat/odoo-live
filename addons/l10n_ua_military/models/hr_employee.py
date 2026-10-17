@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Дані військового обліку на картці працівника."""
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, ValidationError
 
 STATUS = [
     ("none", "Не підлягає обліку"),
@@ -79,6 +79,12 @@ class HrEmployee(models.Model):
 
         Правило одне на всю систему - і для картки працівника, і для списку персонального
         обліку. Екран лише каже, звідки звірка прийшла (note)."""
+        # Подія і дата пишуться через sudo(), тому право перевіряємо до них: звірку
+        # записує кадровик, і лише для карток, які він сам може редагувати.
+        if not self.env.su:
+            if not self.env.user.has_group("hr.group_hr_user"):
+                raise AccessError(_("Записати звірку з ТЦК може лише кадровик."))
+            self.check_access("write")
         today = fields.Date.context_today(self)
         Event = self.env["ua.military.event"].sudo()
         for emp in self:

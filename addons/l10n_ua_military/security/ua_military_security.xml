@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Правила компанії: записи однієї компанії не видно з іншої. Той самий домен,
+       що в нативних документах Odoo; рядок бере компанію в документа, на якому висить,
+       а довідник із порожньою компанією спільний для всіх. -->
+  <record id="rule_ua_military_event_company" model="ir.rule">
+    <field name="name">Подія військового обліку: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_military_event"/>
+    <field name="domain_force">['|', ('employee_id.company_id', '=', False), ('employee_id.company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_military_list_company" model="ir.rule">
+    <field name="name">Список персонального військового обліку: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_military_list"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_military_list_line_company" model="ir.rule">
+    <field name="name">Рядок списку персонального обліку: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_military_list_line"/>
+    <field name="domain_force">[('list_id.company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_military_notice_company" model="ir.rule">
+    <field name="name">Повідомлення про зміну облікових даних: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_military_notice"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_military_notice_line_company" model="ir.rule">
+    <field name="name">Рядок повідомлення про зміну облікових даних: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_military_notice_line"/>
+    <field name="domain_force">[('notice_id.company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_military_reserved_company" model="ir.rule">
+    <field name="name">Список заброньованих: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_military_reserved"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_military_reserved_line_company" model="ir.rule">
+    <field name="name">Рядок списку заброньованих: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_military_reserved_line"/>
+    <field name="domain_force">[('reserved_id.company_id', 'in', company_ids)]</field>
+  </record>
+</odoo>

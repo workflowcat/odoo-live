@@ -1,6 +1,6 @@
 """Заповнення картки контрагента з ЄДР.
 
-У мережу тут ніхто не ходить: підміняємо bp.bridge.call - єдине місце, через
+У мережу тут ніхто не ходить: підміняємо bp.bridge._call - єдине місце, через
 яке модуль спілкується із зовнішнім світом. Відповідь мосту зроблена такою ж
 за формою, як справжня.
 
@@ -12,7 +12,7 @@ from unittest.mock import patch
 from odoo.exceptions import UserError
 from odoo.tests import TransactionCase, tagged
 
-BRIDGE = "odoo.addons.bp_bridge.models.bridge.Bridge.call"
+BRIDGE = "odoo.addons.bp_bridge.models.bridge.Bridge._call"
 
 
 def registry_payload(**over):

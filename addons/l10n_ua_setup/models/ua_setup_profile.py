@@ -14,6 +14,16 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
 STATES = [("draft", "Чернетка"), ("ready", "Готово до перевірки"), ("active", "Затверджено")]
+# Поля компанії, які анкета має право переписати. Текст питання і його ціль (target)
+# редагуються, а запис у компанію йде через sudo(), тому ціль поза цим переліком
+# анкета не застосовує: реквізити платежів, дати блокування тощо - не її справа.
+# Нове питання-налаштування додають сюди разом із записом у data/.
+APPLY_FIELDS = frozenset({
+    "name", "company_registry", "ua_director_name", "ua_accountant_name",
+    "ua_military_officer", "ua_tax_system", "ua_vat_payer", "ua_settlement_currency",
+    "ua_engagement_forms", "ua_payroll_bank_mode", "ua_index_default_off",
+    "ua_below_min_wage", "ua_has_disabled", "ua_booking_planned", "ua_opening_balances",
+})
 ANSWER_STATES = [("missing", "Бракує"), ("supplied", "Надано"),
                  ("proposed", "Запропоновано"), ("confirmed", "Підтверджено")]
 
@@ -235,7 +245,7 @@ class UaSetupProfile(models.Model):
             if not target.startswith("company.") or answer.state not in ("confirmed", "supplied"):
                 continue
             field = target.split(".", 1)[1]
-            if field not in self.company_id._fields:
+            if field not in APPLY_FIELDS or field not in self.company_id._fields:
                 continue
             new = self._setting_value(field, answer.value)
             old = self.company_id[field]
@@ -264,6 +274,8 @@ class UaSetupProfile(models.Model):
                 raise UserError(_("Немає що застосовувати: підтверджені відповіді вже в налаштуваннях."))
             values = {}
             for row in rows:
+                if row["field"] not in APPLY_FIELDS:
+                    continue
                 values[row["field"]] = profile._setting_value(row["field"], next(
                     a.value for a in profile.answer_ids
                     if a.question_id.target == "company." + row["field"]))

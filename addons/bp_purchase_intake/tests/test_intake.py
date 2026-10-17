@@ -75,6 +75,13 @@ class TestIntake(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # податок закупівлі 20 % приходить з планом рахунків; на свіжій базі його немає
+        ukraine = cls.env.ref("base.ua")
+        if cls.env.company.country_id != ukraine:
+            cls.env.company.country_id = ukraine
+        if cls.env.company.chart_template != "ua_psbo":
+            cls.env["account.chart.template"].try_loading("ua_psbo", cls.env.company, install_demo=False)
+        cls.env.company.invalidate_recordset()
         cls.env.company.company_registry = "43715285"
         cls.Intake = cls.env["bp.purchase.intake"]
         # the stand may hold records from scripts/intake_check.py with the same codes; clear them inside the test transaction
@@ -102,7 +109,7 @@ class TestIntake(TransactionCase):
 
         with patch.object(type(self.env["bp.ai"]), "to_markdown", fake_md), \
                 patch.object(type(self.env["bp.ai"]), "extract_json", fake_json), \
-                patch.object(type(self.env["bp.bridge"]), "call", fake_call):
+                patch.object(type(self.env["bp.bridge"]), "_call", fake_call):
             thread_id = self.env["mail.thread"].message_process("bp.purchase.intake", make_email(subject, msgid, with_pdf, image))
         self.seen = seen
         return self.Intake.browse(thread_id), calls

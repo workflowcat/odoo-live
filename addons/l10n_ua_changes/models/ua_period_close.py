@@ -35,7 +35,7 @@ class UaPeriodClose(models.Model):
     year = fields.Integer("Рік", required=True, default=lambda s: fields.Date.context_today(s).year)
     month = fields.Integer("Місяць", required=True,
                            default=lambda s: fields.Date.context_today(s).month)
-    kind = fields.Selection(KINDS, "Період", default="month", required=True)
+    kind = fields.Selection(KINDS, "Вид періоду", default="month", required=True)
     state = fields.Selection(STATES, "Стан", default="open", required=True)
     hard = fields.Boolean("Остаточно", help="Дата блокування, яку не можна зняти")
     lock_date = fields.Date("Дата блокування", readonly=True)
@@ -104,14 +104,15 @@ class UaPeriodClose(models.Model):
           short - позначка кроку: «непереглянутих змін: 5»;
           plan  - речення діалогу плану, з поясненням, що робити;
           target- ціль, яка відкриває саме ті записи, що заважають.
-        Порядок сталий: зміни, проводки, листки, табель.
+        Порядок сталий: зміни, проводки, банк, листки, табель.
         """
         company = self._as_company(company)
         year, month = int(year), int(month)
         first, last = self._bounds(year, month)
         out = []
 
-        new_changes = self.env["ua.change.log"].count_new(company, year, month)
+        # Лише число: сторінку «Період» бачить і той, хто сам журнал не читає.
+        new_changes = self.env["ua.change.log"].sudo().count_new(company, year, month)
         if new_changes:
             out.append({
                 "key": "changes",
@@ -134,6 +135,22 @@ class UaPeriodClose(models.Model):
                 "short": _("чернеток проводок: %s") % len(drafts),
                 "plan": _("Чернеток проводок місяця: %s - їх треба провести або скасувати.") % len(drafts),
                 "target": {"model": "account.move", "domain": [("id", "in", drafts.ids)]},
+            })
+
+        # Ядро не дасть поставити дату блокування, поки в періоді є незведені рядки
+        # виписки. Без цієї перевірки сторінка казала «можна закривати», а закриття
+        # падало вже на самій даті блокування.
+        bank_lines = self.env["account.bank.statement.line"].search([
+            ("company_id", "=", company.id), ("date", "<=", last),
+            ("is_reconciled", "=", False), ("move_id.state", "in", ("draft", "posted")),
+        ])
+        if bank_lines:
+            out.append({
+                "key": "bank",
+                "text": _("незведених рядків виписки: %s") % len(bank_lines),
+                "short": _("незведених рядків виписки: %s") % len(bank_lines),
+                "plan": _("Незведених рядків банківської виписки: %s - зведіть їх з платежами.") % len(bank_lines),
+                "target": {"model": "account.bank.statement.line", "domain": [("id", "in", bank_lines.ids)]},
             })
 
         slips = self.env["hr.payslip"].search([
@@ -265,7 +282,7 @@ class UaPeriodClose(models.Model):
             rec.draft_move_count = self.env["account.move"].search_count([
                 ("company_id", "=", rec.company_id.id), ("date", ">=", first),
                 ("date", "<=", last), ("state", "=", "draft")])
-            rec.new_change_count = self.env["ua.change.log"].count_new(
+            rec.new_change_count = self.env["ua.change.log"].sudo().count_new(
                 rec.company_id, rec.year, rec.month)
 
     def _period_domain(self, model, date_field):
@@ -387,6 +404,42 @@ class UaPeriodClose(models.Model):
         self.invalidate_recordset()
         return True
 
+    def _reopen_day(self):
+        self.ensure_one()
+        return self.lock_date or self._bounds(self.year, self.month)[1]
+
+    def _reopen_later(self):
+        """Пізніші закриті періоди того самого виду. Їх відкривають першими: дата
+        блокування в компанії одна, і період «під» пізнішим закритим лише числився б відкритим."""
+        self.ensure_one()
+        return self.search([("company_id", "=", self.company_id.id), ("state", "=", "closed"),
+                            ("kind", "=", self.kind), ("id", "!=", self.id),
+                            ("lock_date", ">", self._reopen_day())], order="lock_date desc")
+
+    def _lock_after_reopen(self, field, kinds):
+        """Що зробити з датою `field` після відкриття: (змінювати, нова дата).
+
+        Чіпаємо дату, лише коли вона дорівнює найпізнішому з наших закритих періодів,
+        тобто поставлена закриттям. Пізнішу дату поставив хтось інший - відмовляємо і
+        називаємо її. Ранішу знизили вручну - не піднімаємо і не знімаємо."""
+        self.ensure_one()
+        company = self.company_id.sudo()
+        current = company[field]
+        day = self._reopen_day()
+        others = self.search([("company_id", "=", company.id), ("state", "=", "closed"),
+                              ("kind", "in", kinds), ("id", "!=", self.id)]).filtered("lock_date")
+        remaining = max(others.mapped("lock_date"), default=False)
+        ours = max(day, remaining) if remaining else day
+        if not current or current < ours:
+            return False, current
+        if current > ours:
+            raise UserError(_(
+                "Дата блокування «%(label)s» стоїть на %(date)s - пізніше за всі закриті "
+                "періоди. Її встановлено не закриттям періоду. Змініть її в налаштуваннях "
+                "бухобліку і відкрийте період знову."
+            ) % {"label": company._fields[field].string, "date": current.strftime("%d.%m.%Y")})
+        return remaining != current, remaining
+
     def action_reopen(self):
         self.ensure_one()
         if not self.env.user.has_group("account.group_account_manager"):
@@ -395,11 +448,25 @@ class UaPeriodClose(models.Model):
             raise UserError(_("Період закрито остаточно. Відкрити не можна."))
         if not (self.reopen_reason or "").strip():
             raise UserError(_("Напишіть причину відкриття періоду."))
-        previous = self.search([("company_id", "=", self.company_id.id), ("state", "=", "closed"),
-                                ("id", "!=", self.id), ("lock_date", "<", self.lock_date)],
-                               order="lock_date desc", limit=1)
         company = self.company_id.sudo()
-        company.write({"fiscalyear_lock_date": previous.lock_date or False})
+        day = self._reopen_day()
+        if company.hard_lock_date and company.hard_lock_date >= day:
+            raise UserError(_("Остаточна дата блокування компанії %s накриває цей період. "
+                              "Відкрити не можна.") % company.hard_lock_date.strftime("%d.%m.%Y"))
+        later = self._reopen_later()
+        if later:
+            raise UserError(_("Спершу відкрийте пізніші закриті періоди: %s.")
+                            % ", ".join(later.mapped("name")))
+        # Місяць керує датою блокування проводок, квартал і рік - податковою датою.
+        # Місяць під закритим кварталом відкривається: звіт кварталу вже подано,
+        # виправлення йде уточнюючим розрахунком, квартал лишається закритим.
+        if self.kind == "month":
+            field, kinds = "fiscalyear_lock_date", ["month"]
+        else:
+            field, kinds = "tax_lock_date", ["quarter", "year"]
+        change, value = self._lock_after_reopen(field, kinds)
+        if change:
+            company.write({field: value})
         self.write({"state": "open", "reopened_user_id": self.env.uid,
                     "reopened_date": fields.Datetime.now()})
         self.env["ua.change.log"].sudo().with_context(ua_no_log=True).create({

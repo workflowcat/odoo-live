@@ -5426,7 +5426,7 @@
               "label": "bp.purchase.intake",
               "module": "bp_purchase_intake",
               "file": "addons/bp_purchase_intake/models/res_partner.py",
-              "groups": ""
+              "groups": "purchase.group_purchase_user,account.group_account_invoice"
             },
             {
               "name": "bp_registry_address",
@@ -5764,24 +5764,6 @@
       "area": "Спільне",
       "models": [
         {
-          "model": "bp.bridge",
-          "ours": true,
-          "modules": [
-            "bp_bridge"
-          ],
-          "methods": [
-            {
-              "name": "call",
-              "signature": "call(method, path, payload=None, params=None, timeout=60)",
-              "doc": "",
-              "module": "bp_bridge",
-              "file": "addons/bp_bridge/models/bridge.py",
-              "decorators": []
-            }
-          ],
-          "fields": []
-        },
-        {
           "model": "ua.api",
           "ours": true,
           "modules": [
@@ -5894,6 +5876,26 @@
               "doc": "Картка наряду для кіоску цеху: що робити, чим, і що вже перевірено.",
               "module": "l10n_ua_api",
               "file": "addons/l10n_ua_api/models/ua_api.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.navigation",
+          "ours": true,
+          "modules": [
+            "l10n_ua_navigation"
+          ],
+          "methods": [
+            {
+              "name": "apply",
+              "signature": "apply()",
+              "doc": "",
+              "module": "l10n_ua_navigation",
+              "file": "addons/l10n_ua_navigation/models/ua_navigation.py",
               "decorators": [
                 "api.model"
               ]

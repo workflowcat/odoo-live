@@ -18,9 +18,21 @@ class UaExplain(models.AbstractModel):
     def explain(self, model, res_id, field=None, when="auto"):
         """when: "auto" - заморожений слід, якщо є, інакше живий перерахунок (preview);
         "now" - завжди живий перерахунок; "frozen" - лише заморожений, інакше state "none"."""
+        if not isinstance(model, str) or model not in self.env:
+            raise UserError(self.env._("Немає пояснення для цієї моделі."))
         Model = self.env[model]
         if not hasattr(Model, "_ua_explain"):
             raise UserError(self.env._("Немає пояснення для цієї моделі."))
+        # Слід містить нарахування людини, тому право тут - право на сам запис:
+        # хто не може прочитати листок, не побачить і його пояснення. Заморожений
+        # слід нижче читається через sudo(), тож ця перевірка - єдина брама.
+        # Запису вже немає - лишається тільки слід, а його напряму читає лише той,
+        # кому це дозволено в ir.model.access.csv.
+        record = Model.browse(res_id).exists()
+        if record:
+            record.check_access("read")
+        else:
+            self.env["ua.explain.trace"].check_access("read")
 
         trace = self.env["ua.explain.trace"]
         if when in ("auto", "frozen"):

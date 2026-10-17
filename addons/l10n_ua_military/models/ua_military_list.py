@@ -7,7 +7,7 @@
 from datetime import date as date_type, timedelta
 
 from odoo import api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 
 from .hr_employee import CATEGORY, DOC_TYPE, FITNESS, GROUP, LIABLE_STATUSES
 
@@ -201,6 +201,9 @@ class UaMilitaryList(models.Model):
     def action_create_all_tcc(self, company_id=None, doc_date=None, variant="all"):
         """Створити по одному чернетковому списку на кожен ТЦК, де є хоча б один військовозобов'язаний."""
         company_id = company_id or self.env.company.id
+        # Працівників нижче шукаємо через sudo(), тому чужу компанію відсікаємо тут.
+        if not self.env.su and company_id not in self.env.companies.ids:
+            raise AccessError("Список складають лише для своєї компанії.")
         doc_date = doc_date or fields.Date.today()
         employees = self.env["hr.employee"].sudo().search([
             ("company_id", "=", company_id), ("ua_mil_status", "in", list(LIABLE_STATUSES)), ("ua_mil_tcc", "!=", False),

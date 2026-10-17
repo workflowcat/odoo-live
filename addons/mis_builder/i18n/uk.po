@@ -1,0 +1,1921 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* mis_builder
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language: uk\n"
+"Language-Team: none\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_instance_annotation__annotation_context
+msgid ""
+"\n"
+"        Context used when adding annotation\n"
+"        "
+msgstr ""
+"\n"
+"        Контекст для додавання примітки\n"
+"        "
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report.py:0
+#: code:addons/mis_builder/models/mis_report_instance.py:0
+msgid "%s (copy)"
+msgstr "%s (копія)"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid ""
+"<code>\n"
+"                                            balp[('user_type_id', '=',\n"
+"                                            ref('account.\n"
+"                                            data_account_type_receivable').id)][]\n"
+"                                        </code>\n"
+"                                        : variation of the balance of all receivable accounts over\n"
+"                                        the period."
+msgstr ""
+"<code>\n"
+"                                            balp[('user_type_id', '=',\n"
+"                                            ref('account.\n"
+"                                            data_account_type_receivable').id)][]\n"
+"                                        </code>\n"
+"                                        : зміна сальдо всіх рахунків дебіторської заборгованості\n"
+"                                        за період."
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid ""
+"<code>\n"
+"                                            balp[][('tax_line_id.tag_ids', '=', ref('l10n_be.tax_tag_56').id)]\n"
+"                                        </code>\n"
+"                                        : balance of move lines related to tax grid 56."
+msgstr ""
+"<code>\n"
+"                                            balp[][('tax_line_id.tag_ids', '=', ref('l10n_be.tax_tag_56').id)]\n"
+"                                        </code>\n"
+"                                        : сальдо рядків проводок, що належать до податкової сітки 56."
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid ""
+"<code>\n"
+"                                            debp[55%][('journal_id.code', '=',\n"
+"                                            'BNK1')]\n"
+"                                        </code>\n"
+"                                        : sum of all debits on accounts 55 and journal BNK1 during\n"
+"                                        the period."
+msgstr ""
+"<code>\n"
+"                                            debp[55%][('journal_id.code', '=',\n"
+"                                            'BNK1')]\n"
+"                                        </code>\n"
+"                                        : сума всіх дебетових оборотів за рахунками 55 у журналі BNK1\n"
+"                                        за період."
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid ""
+"<code>AccountingNone</code> : a null value that behaves as 0 in\n"
+"                                        arithmetic operations."
+msgstr ""
+"<code>AccountingNone</code> : порожнє значення, яке в\n"
+"                                        арифметичних діях поводиться як 0."
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid ""
+"<code>bal</code>, <code>crd</code>, <code>deb</code>, <code>pbal</code>, <code>nbal</code>, <code>fld</code> : balance, debit, credit,\n"
+"                                        positive balance, negative balance,\n"
+"                                        other numerical field."
+msgstr ""
+"<code>bal</code>, <code>crd</code>, <code>deb</code>, <code>pbal</code>, <code>nbal</code>, <code>fld</code> : сальдо, кредит, дебет,\n"
+"                                        додатне сальдо, від'ємне сальдо,\n"
+"                                        інше числове поле."
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid ""
+"<code>bal[70]</code> : variation of the balance of account 70 over\n"
+"                                        the period (it is the same as <code>balp[70]</code>."
+msgstr ""
+"<code>bal[70]</code> : зміна сальдо рахунку 70 за\n"
+"                                        період (те саме, що <code>balp[70]</code>)."
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid ""
+"<code>bale[1%]</code> : balance of accounts starting with 1 at\n"
+"                                        end of period."
+msgstr ""
+"<code>bale[1%]</code> : сальдо рахунків, що починаються з 1, на\n"
+"                                        кінець періоду."
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid "<code>bali[70,60]</code> : initial balance of accounts 70 and 60."
+msgstr "<code>bali[70,60]</code> : початкове сальдо рахунків 70 і 60."
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid ""
+"<code>balu[]</code> : (<code>u</code> for unallocated) is a special expression\n"
+"                                        that shows the unallocated profit/loss of previous fiscal\n"
+"                                        years."
+msgstr ""
+"<code>balu[]</code> : (<code>u</code> - unallocated, нерозподілений) особлива формула,\n"
+"                                        яка показує нерозподілений прибуток або збиток попередніх фінансових\n"
+"                                        років."
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid ""
+"<code>crdp[40%]</code> : sum of all credits on accounts starting\n"
+"                                        with 40 during the period."
+msgstr ""
+"<code>crdp[40%]</code> : сума всіх кредитових оборотів за рахунками, що починаються\n"
+"                                        з 40, за період."
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid ""
+"<code>date_from</code>, <code>date_to</code> : beginning and end date of the\n"
+"                                        period."
+msgstr ""
+"<code>date_from</code>, <code>date_to</code> : дата початку і кінця\n"
+"                                        періоду."
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid ""
+"<code>datetime</code>, <code>datetime</code>, <code>dateutil</code> : the "
+"python modules."
+msgstr "<code>datetime</code>, <code>datetime</code>, <code>dateutil</code> : модулі python."
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid ""
+"<code>p</code>, <code>i</code>, <code>e</code> : respectively variation over the period,\n"
+"                                        initial balance, ending balance"
+msgstr ""
+"<code>p</code>, <code>i</code>, <code>e</code> : відповідно зміна за період,\n"
+"                                        початкове сальдо, кінцеве сальдо"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid ""
+"<code>pbale[55%]</code> : sum of all ending balances of accounts\n"
+"                                        starting with 55 whose ending balance is positive."
+msgstr ""
+"<code>pbale[55%]</code> : сума кінцевих сальдо рахунків, що\n"
+"                                        починаються з 55 і мають додатне кінцеве сальдо."
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid ""
+"<code>sum</code>, <code>min</code>,\n"
+"                                        <code>max</code>, <code>len</code>,\n"
+"                                        <code>avg</code> : behave as expected, very\n"
+"                                        similar to the python builtins."
+msgstr ""
+"<code>sum</code>, <code>min</code>,\n"
+"                                        <code>max</code>, <code>len</code>,\n"
+"                                        <code>avg</code> : працюють як звичайно, майже так само,\n"
+"                                        як вбудовані функції python."
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.report_mis_report_instance
+msgid "<span>-</span>"
+msgstr "<span>-</span>"
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_instance_period__source_aml_model_id
+msgid ""
+"A 'move line like' model, ie having at least debit, credit, date, account_id"
+" and company_id fields."
+msgstr "Модель, подібна до рядків проводок: має щонайменше поля debit, credit, date, account_id і company_id."
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report__move_lines_source
+#: model:ir.model.fields,help:mis_builder.field_mis_report_instance__source_aml_model_id
+msgid ""
+"A 'move line like' model, ie having at least debit, credit, date, account_id"
+" and company_id fields. This model is the data source for column Actuals."
+msgstr "Модель, подібна до рядків проводок: має щонайменше поля debit, credit, date, account_id і company_id. Ця модель - джерело даних для колонки «Факт»."
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report_instance.py:0
+msgid "A date filter is mandatory for this source in column %s."
+msgstr "Для цього джерела в колонці %s потрібен фільтр дат."
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_instance_period__analytic_domain
+msgid "A domain to additionally filter move lines considered in this column."
+msgstr "Домен для додаткового відбору рядків проводок у цій колонці."
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_instance__analytic_domain
+msgid ""
+"A domain to additionally filter move lines considered in this report. "
+"Caution: when using different move line sources in different columns, such "
+"as budgets by account, make sure to use only fields that are available in "
+"all move line sources."
+msgstr "Домен для додаткового відбору рядків проводок у цьому звіті. Увага: якщо в різних колонках різні джерела рядків проводок, наприклад бюджети за рахунками, використовуйте лише поля, які є в усіх джерелах."
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report__account_model
+msgid "Account Model"
+msgstr "Модель рахунків"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi__accumulation_method
+msgid "Accumulation Method"
+msgstr "Спосіб накопичення"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report_instance.py:0
+msgid ""
+"Actual (alternative) models used in columns must have the same account model"
+" in the Account field and must be the same defined in the report template: "
+"%s"
+msgstr "Моделі «Факт (інше джерело)» у колонках повинні мати в полі «Рахунок» ту саму модель рахунків, що вказана в шаблоні звіту: %s"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_instance_period__source__actuals
+msgid "Actuals"
+msgstr "Факт"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_instance_period__source__actuals_alt
+msgid "Actuals (alternative)"
+msgstr "Факт (інше джерело)"
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_instance_period__source
+msgid ""
+"Actuals: current data, from accounting and other queries.\n"
+"Actuals (alternative): current data from an alternative source (eg a database view providing look-alike account move lines).\n"
+"Sum columns: summation (+/-) of other columns.\n"
+"Compare to column: compare to other column.\n"
+msgstr ""
+"Факт: поточні дані з обліку та інших запитів.\n"
+"Факт (інше джерело): поточні дані з іншого джерела (наприклад, подання бази даних, схоже на рядки проводок).\n"
+"Сума колонок: додавання (+/-) інших колонок.\n"
+"Порівняння колонок: порівняння з іншою колонкою.\n"
+
+#. module: mis_builder
+#: model:ir.model,name:mis_builder.model_prorata_read_group_mixin
+msgid "Adapt model with date_from/date_to for pro-rata temporis read_group"
+msgstr "Адаптер моделі з date_from/date_to для пропорційного розподілу в read_group"
+
+#. module: mis_builder
+#: model:ir.actions.act_window,name:mis_builder.mis_report_instance_add_to_dashboard_action
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_add_to_dashboard_form_view
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_view_form
+msgid "Add to dashboard"
+msgstr "Додати на панель"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid ""
+"Additionally following variables are available\n"
+"                                    in the evaluation context:"
+msgstr ""
+"Крім того, у контексті обчислення доступні\n"
+"                                    такі змінні:"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_query__aggregate
+msgid "Aggregate"
+msgstr "Агрегування"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_instance__target_move__all
+msgid "All Entries"
+msgstr "Всі проводки"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report__all_kpi_ids
+msgid "All Kpi"
+msgstr "Усі показники"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_instance__target_move__posted
+msgid "All Posted Entries"
+msgstr "Всі проведені проводки"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__allowed_cmpcol_ids
+msgid "Allowed Cmpcol"
+msgstr "Дозволені колонки для порівняння"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__company_ids
+msgid "Allowed companies"
+msgstr "Дозволені компанії"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__company_id
+msgid "Allowed company"
+msgstr "Дозволена компанія"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_kpi_data__amount
+msgid "Amount"
+msgstr "Сума"
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_kpi__style_expression
+msgid ""
+"An expression that returns a style depending on the KPI value. Such style is"
+" applied on top of the row style."
+msgstr "Формула, яка повертає стиль залежно від значення показника. Цей стиль накладається поверх стилю рядка."
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__analytic_domain
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__analytic_domain
+msgid "Analytic Domain"
+msgstr "Аналітичний домен"
+
+#. module: mis_builder
+#. odoo-javascript
+#: code:addons/mis_builder/static/src/components/mis_report_widget.esm.js:0
+#: code:addons/mis_builder/static/src/components/mis_report_widget.xml:0
+msgid "Annotate"
+msgstr "Додати примітку"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_annotation__annotation_context
+msgid "Annotation Context"
+msgstr "Контекст примітки"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid "Auto expand"
+msgstr "Розгортати автоматично"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_kpi__accumulation_method__avg
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_query__aggregate__avg
+msgid "Average"
+msgstr "Середнє"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__background_color
+msgid "Background Color"
+msgstr "Колір фону"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__background_color_inherit
+msgid "Background Color Inherit"
+msgstr "Успадкувати колір фону"
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_style__background_color
+msgid "Background color in valid RGB code (from #000000 to #FFFFFF)"
+msgstr "Колір фону як код RGB (від #000000 до #FFFFFF)"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__date
+msgid "Base date"
+msgstr "Базова дата"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_style__font_weight__bold
+msgid "Bold"
+msgstr "Жирний"
+
+#. module: mis_builder
+#. odoo-javascript
+#: code:addons/mis_builder/static/src/annotation_dialog/annotation_dialog.xml:0
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_add_to_dashboard_form_view
+#: model_terms:ir.ui.view,arch_db:mis_builder.wizard_mis_report_instance_view_form
+msgid "Cancel"
+msgstr "Скасувати"
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_instance__multi_company
+msgid ""
+"Check if you wish to specify several companies to be searched for data."
+msgstr "Позначте, щоб вибрати кілька компаній, за якими шукати дані."
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_style_view_form
+msgid "Color"
+msgstr "Колір"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__color_inherit
+msgid "Color Inherit"
+msgstr "Успадкувати колір"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period_sum__period_to_sum_id
+msgid "Column"
+msgstr "Колонка"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report_instance.py:0
+msgid "Column %s cannot be compared to itrec."
+msgstr "Колонку %s не можна порівнювати з нею самою."
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report_instance.py:0
+msgid "Column %s with move lines source must have from/to dates."
+msgstr "Колонка %s з джерелом «рядки проводок» повинна мати дати початку і кінця."
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_view_form
+msgid "Columns"
+msgstr "Колонки"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/kpimatrix.py:0
+msgid "Columns %(descr)s and %(base_descr)s are not comparable"
+msgstr "Колонки %(descr)s і %(base_descr)s не можна порівняти"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report_instance.py:0
+msgid "Columns to compare must belong to the same report in %s"
+msgstr "Колонки для порівняння в %s мають належати до одного звіту"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__source_sumcol_ids
+msgid "Columns to sum"
+msgstr "Колонки для суми"
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_instance__query_company_ids
+msgid "Companies for which data will be searched."
+msgstr "Компанії, за якими шукати дані."
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_query__company_field_id
+msgid "Company Field"
+msgstr "Поле компанії"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__source_cmpcol_to_id
+msgid "Compare"
+msgstr "Порівняти"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_instance_period__source__cmpcol
+msgid "Compare columns"
+msgstr "Порівняння колонок"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi__compare_method
+msgid "Comparison Method"
+msgstr "Спосіб порівняння"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__comparison_mode
+msgid "Comparison Mode"
+msgstr "Режим порівняння"
+
+#. module: mis_builder
+#. odoo-javascript
+#: code:addons/mis_builder/static/src/annotation_dialog/annotation_dialog.xml:0
+msgid "Confirm"
+msgstr "Підтвердити"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_add_mis_report_instance_dashboard_wizard__create_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report__create_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__create_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_annotation__create_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__create_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period_sum__create_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi__create_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi_expression__create_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_query__create_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__create_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_subkpi__create_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_subreport__create_uid
+msgid "Created by"
+msgstr "Створив"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_add_mis_report_instance_dashboard_wizard__create_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report__create_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__create_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_annotation__create_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__create_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period_sum__create_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi__create_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi_expression__create_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_query__create_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__create_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_subkpi__create_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_subreport__create_date
+msgid "Created on"
+msgstr "Створено"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__currency_id
+msgid "Currency"
+msgstr "Валюта"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_add_mis_report_instance_dashboard_wizard__dashboard_id
+msgid "Dashboard"
+msgstr "Панель"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_prorata_read_group_mixin__date
+msgid "Date"
+msgstr "Дата"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_query__date_field
+msgid "Date Field"
+msgstr "Поле дати"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_prorata_read_group_mixin__date_from
+msgid "Date From"
+msgstr "Дата з"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__date_range_id
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__date_range_id
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_instance_period__type__date_range
+msgid "Date Range"
+msgstr "Діапазон дат"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__date_range_type_id
+msgid "Date Range Type"
+msgstr "Тип діапазону дат"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_prorata_read_group_mixin__date_to
+msgid "Date To"
+msgstr "Дата до"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_period_view_form
+msgid "Dates"
+msgstr "Дати"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_instance_period__type__d
+msgid "Day"
+msgstr "День"
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_style__description
+msgid "Describe specific values that are not inherited"
+msgstr "Опис значень, які не успадковуються"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report__description
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__description
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi__description
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__description
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_subkpi__description
+msgid "Description"
+msgstr "Опис"
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_kpi__accumulation_method
+msgid ""
+"Determines how values of this kpi spanning over a time period are transformed to match the reporting period. Sum: values of shorter period are added, values of longest or partially overlapping periods are adjusted pro-rata temporis.\n"
+"Average: values of included period are averaged with a pro-rata temporis weight."
+msgstr ""
+"Визначає, як значення цього показника за проміжок часу приводяться до звітного періоду. Сума: значення коротших періодів додаються, значення довших періодів або періодів, що перетинаються частково, перераховуються пропорційно до часу.\n"
+"Середнє: значення періодів, що входять у звітний, усереднюються з вагою пропорційно до часу."
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_kpi__compare_method__diff
+msgid "Difference"
+msgstr "Різниця"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__no_auto_expand_accounts
+msgid "Disable account details expansion"
+msgstr "Не розгортати за рахунками"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__display_columns_description
+msgid "Display Columns Description"
+msgstr "Показувати опис колонок"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_add_mis_report_instance_dashboard_wizard__display_name
+#: model:ir.model.fields,field_description:mis_builder.field_ir_actions_report__display_name
+#: model:ir.model.fields,field_description:mis_builder.field_mis_kpi_data__display_name
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report__display_name
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__display_name
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_annotation__display_name
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__display_name
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period_sum__display_name
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi__display_name
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi_expression__display_name
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_query__display_name
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__display_name
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_subkpi__display_name
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_subreport__display_name
+#: model:ir.model.fields,field_description:mis_builder.field_prorata_read_group_mixin__display_name
+#: model:ir.model.fields,field_description:mis_builder.field_report_mis_builder_mis_report_instance_xlsx__display_name
+msgid "Display Name"
+msgstr "Назва для відображення"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi__auto_expand_accounts
+msgid "Display details by account"
+msgstr "Показувати розшифровку за рахунками"
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_instance__display_columns_description
+msgid "Display the date range details in the column headers."
+msgstr "Показувати діапазон дат у заголовках колонок."
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__divider_inherit
+msgid "Divider Inherit"
+msgstr "Успадкувати множник"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_query__domain
+msgid "Domain"
+msgstr "Домен"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__dp_inherit
+msgid "Dp Inherit"
+msgstr "Успадкувати округлення"
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_prorata_read_group_mixin__date
+msgid ""
+"Dummy field that adapts searches on date to searches on date_from/date_to."
+msgstr "Службове поле, яке переводить пошук за date у пошук за date_from/date_to."
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__duration
+msgid "Duration"
+msgstr "Тривалість"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__query_company_ids
+msgid "Effective companies"
+msgstr "Застосовані компанії"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid "Enter expression here, for example balp[70%]. See also help tab."
+msgstr "Введіть формулу, наприклад balp[70%]. Див. також вкладку довідки."
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/aep.py:0
+msgid ""
+"Error while querying move line source \"%(model_name)s\". This is likely due to a filter or expression referencing a field that does not exist in the model.\n"
+"\n"
+"The technical error message is: %(exception)s. "
+msgstr ""
+"Помилка запиту до джерела рядків проводок \"%(model_name)s\". Імовірно, фільтр або формула посилається на поле, якого немає в моделі.\n"
+"\n"
+"Технічне повідомлення про помилку: %(exception)s. "
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid "Examples:"
+msgstr "Приклади:"
+
+#. module: mis_builder
+#. odoo-javascript
+#: code:addons/mis_builder/static/src/components/mis_report_widget.xml:0
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_view_form
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_view_list
+#: model_terms:ir.ui.view,arch_db:mis_builder.wizard_mis_report_instance_view_form
+msgid "Export"
+msgstr "Експорт"
+
+#. module: mis_builder
+#: model:ir.actions.server,name:mis_builder.mis_builder_print_xls_report
+msgid "Export XLS"
+msgstr "Експорт у XLS"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi__expression
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi_expression__name
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_subkpi__expression_ids
+msgid "Expression"
+msgstr "Формула"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi__expression_ids
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid "Expressions"
+msgstr "Формули"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid "Expressions can be any valid python expressions."
+msgstr "Формулою може бути будь-який коректний вираз python."
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid ""
+"Expressions can involve other KPI, sub KPI and\n"
+"                                    query results by name (eg <code>kpi1 + kpi2</code>,\n"
+"                                    <code>kpi2.subkpi1</code>, <code>query1.field1</code>)."
+msgstr ""
+"У формулах можна звертатися за назвою до інших показників, підпоказників і\n"
+"                                    результатів запитів (наприклад, <code>kpi1 + kpi2</code>,\n"
+"                                    <code>kpi2.subkpi1</code>, <code>query1.field1</code>)."
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__normalize_factor
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__divider
+msgid "Factor"
+msgstr "Множник"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_style_view_form
+msgid "Factor inherit"
+msgstr "Успадкувати множник"
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_instance_period__normalize_factor
+msgid "Factor to use to normalize the period (used in comparison"
+msgstr "Множник для нормалізації періоду (для порівняння)"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_query__field_names
+msgid "Fetched fields name"
+msgstr "Назви полів для вибірки"
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_query__company_field_id
+msgid ""
+"Field that defines company on related model.When set, it will be "
+"automatically be added in search domain of query."
+msgstr "Поле, яке визначає компанію в пов'язаній моделі. Якщо його вказано, воно автоматично додається до домену пошуку запиту."
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_query__field_ids
+msgid "Fields to fetch"
+msgstr "Поля для вибірки"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__widget_search_view_id
+msgid "Filter box search view"
+msgstr "Подання пошуку для панелі фільтрів"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_period_view_form
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_view_form
+msgid "Filters"
+msgstr "Фільтри"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_instance_period__mode__fix
+msgid "Fixed dates"
+msgstr "Фіксовані дати"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_style_view_form
+msgid "Font"
+msgstr "Шрифт"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__font_size
+msgid "Font Size"
+msgstr "Розмір шрифту"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__font_size_inherit
+msgid "Font Size Inherit"
+msgstr "Успадкувати розмір шрифту"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__font_style
+msgid "Font Style"
+msgstr "Накреслення шрифту"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__font_style_inherit
+msgid "Font Style Inherit"
+msgstr "Успадкувати накреслення шрифту"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__font_weight
+msgid "Font Weight"
+msgstr "Насиченість шрифту"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__font_weight_inherit
+msgid "Font Weight Inherit"
+msgstr "Успадкувати насиченість шрифту"
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_instance_period__is_ytd
+msgid "Forces the start date to Jan 1st of the relevant year"
+msgstr "Початок періоду завжди 1 січня відповідного року"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_kpi_data__date_from
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__date_from
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__manual_date_from
+msgid "From"
+msgstr "З"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__date_from
+msgid "From (computed)"
+msgstr "З (розраховано)"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/report/mis_report_instance_xlsx.py:0
+msgid "Generated on %(gen_date)s at %(gen_time)s"
+msgstr "Сформовано %(gen_date)s о %(gen_time)s"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid "Help (for KPI expressions)"
+msgstr "Довідка (формули показників)"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__hide_always
+msgid "Hide Always"
+msgstr "Сховати завжди"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__hide_always_inherit
+msgid "Hide Always Inherit"
+msgstr "Успадкувати «Сховати завжди»"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__hide_empty
+msgid "Hide Empty"
+msgstr "Сховати порожні"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__hide_empty_inherit
+msgid "Hide Empty Inherit"
+msgstr "Успадкувати «Сховати порожні»"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_add_mis_report_instance_dashboard_wizard__id
+#: model:ir.model.fields,field_description:mis_builder.field_ir_actions_report__id
+#: model:ir.model.fields,field_description:mis_builder.field_mis_kpi_data__id
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report__id
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__id
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_annotation__id
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__id
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period_sum__id
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi__id
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi_expression__id
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_query__id
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__id
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_subkpi__id
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_subreport__id
+#: model:ir.model.fields,field_description:mis_builder.field_prorata_read_group_mixin__id
+#: model:ir.model.fields,field_description:mis_builder.field_report_mis_builder_mis_report_instance_xlsx__id
+msgid "ID"
+msgstr "ID"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/aep.py:0
+msgid ""
+"If currency_id is not provided, all companies must have the same currency."
+msgstr "Якщо currency_id не вказано, усі компанії повинні мати однакову валюту."
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_style_view_form
+msgid "Indent"
+msgstr "Відступ"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__indent_level
+msgid "Indent Level"
+msgstr "Рівень відступу"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__indent_level_inherit
+msgid "Indent Level Inherit"
+msgstr "Успадкувати рівень відступу"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report_style.py:0
+msgid "Indent level must be greater than or equal to 0"
+msgstr "Рівень відступу має бути не менший за 0"
+
+#. module: mis_builder
+#. odoo-javascript
+#: code:addons/mis_builder/static/src/annotation_dialog/annotation_dialog.xml:0
+msgid "Insert note here"
+msgstr "Текст примітки"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_style__font_style__italic
+msgid "Italic"
+msgstr "Курсив"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_kpi_data__kpi_expression_id
+msgid "KPI"
+msgstr "Показник"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report.py:0
+msgid ""
+"KPI \"%(kpi)s\" has type %(type)s while a tuple was expected.\n"
+"\n"
+"This can be fixed by either:\n"
+"\t- Changing the KPI value to a tuple of length %(length)s\n"
+"or\n"
+"\t- Changing the KPI to `multi` mode and giving an explicit value for each sub-KPI."
+msgstr ""
+"Показник \"%(kpi)s\" має тип %(type)s, а очікується кортеж.\n"
+"\n"
+"Як виправити:\n"
+"\t- змінити значення показника на кортеж довжиною %(length)s\n"
+"або\n"
+"\t- перевести показник у режим `multi` і задати значення для кожного підпоказника."
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report.py:0
+msgid ""
+"KPI \"%(kpi)s\" is valued as a tuple of length %(length)s while a tuple of "
+"length%(expected_length)s is expected."
+msgstr "Показник \"%(kpi)s\" має значення-кортеж довжиною %(length)s, а очікується кортеж довжиною %(expected_length)s."
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_kpi_data__seq1
+msgid "KPI Sequence"
+msgstr "Послідовність показника"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report.py:0
+msgid "KPI name (%s) must be a valid python identifier"
+msgstr "Назва показника (%s) має бути коректним ідентифікатором python"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report__kpi_ids
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_form
+msgid "KPI's"
+msgstr "Показники"
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report__all_kpi_ids
+msgid "KPIs of this report and subreports."
+msgstr "Показники цього звіту і підзвітів."
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_annotation__kpi_id
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi_expression__kpi_id
+msgid "Kpi"
+msgstr "Показник"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__name
+msgid "Label"
+msgstr "Підпис"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__landscape_pdf
+msgid "Landscape PDF"
+msgstr "PDF альбомної орієнтації"
+
+#. module: mis_builder
+#: model:ir.actions.act_window,name:mis_builder.last_mis_report_instance_view_action
+#: model:ir.ui.menu,name:mis_builder.last_wizard_mis_report_instance_view_menu
+msgid "Last Reports Generated"
+msgstr "Останні звіти"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_add_mis_report_instance_dashboard_wizard__write_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report__write_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__write_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_annotation__write_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__write_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period_sum__write_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi__write_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi_expression__write_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_query__write_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__write_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_subkpi__write_uid
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_subreport__write_uid
+msgid "Last Updated by"
+msgstr "Востаннє оновив"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_add_mis_report_instance_dashboard_wizard__write_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report__write_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__write_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_annotation__write_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__write_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period_sum__write_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi__write_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi_expression__write_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_query__write_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__write_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_subkpi__write_date
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_subreport__write_date
+msgid "Last Updated on"
+msgstr "Останнє оновлення"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_view_form
+msgid "Layout"
+msgstr "Макет"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_style__divider__1e6
+msgid "M"
+msgstr "млн"
+
+#. module: mis_builder
+#: model:ir.model,name:mis_builder.model_report_mis_builder_mis_report_instance_xlsx
+msgid "MIS Builder XLSX report"
+msgstr "Звіт конструктора у XLSX"
+
+#. module: mis_builder
+#: model:ir.model,name:mis_builder.model_mis_kpi_data
+msgid "MIS Kpi Data Abtract class"
+msgstr "Дані показників (абстрактна модель)"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_form
+msgid "MIS Report"
+msgstr "Звіт"
+
+#. module: mis_builder
+#: model:ir.model,name:mis_builder.model_mis_report_subreport
+msgid "MIS Report - Sub Reports Relation"
+msgstr "Зв'язок звіту з підзвітами"
+
+#. module: mis_builder
+#: model:ir.model,name:mis_builder.model_add_mis_report_instance_dashboard_wizard
+msgid "MIS Report Add to Dashboard Wizard"
+msgstr "Додавання звіту на панель"
+
+#. module: mis_builder
+#: model:ir.model,name:mis_builder.model_mis_report_instance
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_view_form
+msgid "MIS Report Instance"
+msgstr "Звіт"
+
+#. module: mis_builder
+#: model:ir.model,name:mis_builder.model_mis_report_instance_period
+msgid "MIS Report Instance Period"
+msgstr "Колонка звіту"
+
+#. module: mis_builder
+#: model:ir.model,name:mis_builder.model_mis_report_instance_period_sum
+msgid "MIS Report Instance Period Sum"
+msgstr "Доданок колонки звіту"
+
+#. module: mis_builder
+#: model:ir.model,name:mis_builder.model_mis_report_kpi
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid "MIS Report KPI"
+msgstr "Показник звіту"
+
+#. module: mis_builder
+#: model:ir.model,name:mis_builder.model_mis_report_kpi_expression
+msgid "MIS Report KPI Expression"
+msgstr "Формула показника"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_result_view_form
+msgid "MIS Report Preview"
+msgstr "Перегляд звіту"
+
+#. module: mis_builder
+#: model:ir.model,name:mis_builder.model_mis_report_query
+msgid "MIS Report Query"
+msgstr "Запит звіту"
+
+#. module: mis_builder
+#: model:ir.model,name:mis_builder.model_mis_report_style
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_style_view_form
+msgid "MIS Report Style"
+msgstr "Стиль звіту"
+
+#. module: mis_builder
+#: model:ir.actions.act_window,name:mis_builder.mis_report_style_view_action
+#: model:ir.ui.menu,name:mis_builder.mis_report_style_view_menu
+msgid "MIS Report Styles"
+msgstr "Стилі звітів"
+
+#. module: mis_builder
+#: model:ir.model,name:mis_builder.model_mis_report_subkpi
+msgid "MIS Report Sub-KPI"
+msgstr "Підпоказник звіту"
+
+#. module: mis_builder
+#: model:ir.model,name:mis_builder.model_mis_report
+msgid "MIS Report Template"
+msgstr "Шаблон звіту"
+
+#. module: mis_builder
+#: model:ir.actions.act_window,name:mis_builder.mis_report_view_action
+#: model:ir.ui.menu,name:mis_builder.mis_report_view_menu
+msgid "MIS Report Templates"
+msgstr "Шаблони звітів"
+
+#. module: mis_builder
+#: model:res.groups,name:mis_builder.group_edit_annotation
+msgid "MIS Report: add annotations"
+msgstr "Звіти: додавати примітки"
+
+#. module: mis_builder
+#: model:res.groups,name:mis_builder.group_read_annotation
+msgid "MIS Report: view annotations"
+msgstr "Звіти: переглядати примітки"
+
+#. module: mis_builder
+#: model:ir.ui.menu,name:mis_builder.mis_report_conf_menu
+#: model:ir.ui.menu,name:mis_builder.mis_report_finance_menu
+msgid "MIS Reporting"
+msgstr "Конструктор звітів"
+
+#. module: mis_builder
+#: model:ir.actions.act_window,name:mis_builder.mis_report_instance_view_action
+#: model:ir.ui.menu,name:mis_builder.mis_report_instance_view_menu
+msgid "MIS Reports"
+msgstr "Звіти"
+
+#. module: mis_builder
+#: model:ir.actions.report,name:mis_builder.qweb_pdf_export
+msgid "MIS report instance QWEB PDF report"
+msgstr "Звіт у PDF"
+
+#. module: mis_builder
+#: model:ir.actions.report,name:mis_builder.xls_export
+msgid "MIS report instance XLS report"
+msgstr "Звіт у XLS"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_query__aggregate__max
+msgid "Max"
+msgstr "Максимум"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_query__aggregate__min
+msgid "Min"
+msgstr "Мінімум"
+
+#. module: mis_builder
+#: model:ir.model,name:mis_builder.model_mis_report_instance_annotation
+msgid "Mis Report Instance Annotation"
+msgstr "Примітка до звіту"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__mode
+msgid "Mode"
+msgstr "Режим"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__source_aml_model_name
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_query__model_id
+msgid "Model"
+msgstr "Модель"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_instance_period__type__m
+msgid "Month"
+msgstr "Місяць"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report__move_lines_source
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__source_aml_model_id
+msgid "Move Lines Source"
+msgstr "Джерело рядків проводок"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__source_aml_model_id
+msgid "Move lines source"
+msgstr "Джерело рядків проводок"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__source_aml_model_name
+msgid "Move lines source model name"
+msgstr "Назва моделі джерела рядків проводок"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi__multi
+msgid "Multi"
+msgstr "Окремо за підпоказниками"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__multi_company
+msgid "Multiple companies"
+msgstr "Кілька компаній"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_add_mis_report_instance_dashboard_wizard__name
+#: model:ir.model.fields,field_description:mis_builder.field_mis_kpi_data__name
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report__name
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__name
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi__name
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_query__name
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_subkpi__name
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_subreport__name
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_period_view_form
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_view_form
+msgid "Name"
+msgstr "Назва"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_instance_period__mode__none
+msgid "No date filter"
+msgstr "Без фільтра дат"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report_instance.py:0
+msgid "No date filter is allowed for this source in column %s."
+msgstr "Для цього джерела в колонці %s фільтр дат не допускається."
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_kpi__accumulation_method__none
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_kpi__compare_method__none
+msgid "None"
+msgstr "Немає"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_style__font_style__normal
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_style__font_weight__nornal
+msgid "Normal"
+msgstr "Звичайний"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_annotation__note
+msgid "Note"
+msgstr "Примітка"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_style_view_form
+msgid "Number"
+msgstr "Число"
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_instance_period__duration
+msgid "Number of periods"
+msgstr "Кількість періодів"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_kpi__type__num
+msgid "Numeric"
+msgstr "Числовий"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__offset
+msgid "Offset"
+msgstr "Зсув"
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_instance_period__offset
+msgid "Offset from current period"
+msgstr "Зсув від поточного періоду"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__wide_display_by_default
+msgid "Open report in wide mode by default"
+msgstr "Відкривати звіт на всю ширину"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period_sum__period_id
+msgid "Parent column"
+msgstr "Батьківська колонка"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_kpi__compare_method__pct
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_kpi__type__pct
+msgid "Percentage"
+msgstr "Відсоток"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_annotation__period_id
+msgid "Period"
+msgstr "Період"
+
+#. module: mis_builder
+#: model:ir.model.constraint,message:mis_builder.constraint_mis_report_instance_period_name_unique
+msgid "Period name should be unique by report"
+msgstr "Назва періоду має бути унікальною в межах звіту"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__type
+msgid "Period type"
+msgstr "Тип періоду"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__period_ids
+msgid "Periods"
+msgstr "Періоди"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__pivot_date
+msgid "Pivot Date"
+msgstr "Опорна дата"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report_instance.py:0
+msgid "Please provide both columns to compare in %s."
+msgstr "Вкажіть обидві колонки для порівняння в %s."
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report_instance.py:0
+msgid ""
+"Please select a report template and/or save the report before adding "
+"columns."
+msgstr "Виберіть шаблон звіту та/або збережіть звіт, перш ніж додавати колонки."
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__prefix
+msgid "Prefix"
+msgstr "Префікс"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__prefix_inherit
+msgid "Prefix Inherit"
+msgstr "Успадкувати префікс"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_view_form
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_view_list
+#: model_terms:ir.ui.view,arch_db:mis_builder.wizard_mis_report_instance_view_form
+msgid "Preview"
+msgstr "Перегляд"
+
+#. module: mis_builder
+#. odoo-javascript
+#: code:addons/mis_builder/static/src/components/mis_report_widget.xml:0
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_view_form
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_view_list
+#: model_terms:ir.ui.view,arch_db:mis_builder.wizard_mis_report_instance_view_form
+msgid "Print"
+msgstr "Друк"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report__query_ids
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_form
+msgid "Queries"
+msgstr "Запити"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report.py:0
+msgid "Query name (%s) must be valid python identifier"
+msgstr "Назва запиту (%s) має бути коректним ідентифікатором python"
+
+#. module: mis_builder
+#. odoo-javascript
+#: code:addons/mis_builder/static/src/components/mis_report_widget.xml:0
+msgid "Refresh"
+msgstr "Оновити"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_instance_period__mode__relative
+msgid "Relative to report base date"
+msgstr "Відносно базової дати звіту"
+
+#. module: mis_builder
+#. odoo-javascript
+#: code:addons/mis_builder/static/src/annotation_dialog/annotation_dialog.xml:0
+msgid "Remove"
+msgstr "Вилучити"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__report_id
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__report_id
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi__report_id
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_query__report_id
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_subkpi__report_id
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_subreport__report_id
+msgid "Report"
+msgstr "Звіт"
+
+#. module: mis_builder
+#: model:ir.model,name:mis_builder.model_ir_actions_report
+msgid "Report Action"
+msgstr "Дія звіту"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__report_instance_id
+msgid "Report Instance"
+msgstr "Звіт"
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_instance__date
+msgid "Report base date (leave empty to use current date)"
+msgstr "Базова дата звіту (порожньо - поточна дата)"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__dp
+msgid "Rounding"
+msgstr "Округлення"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_style_view_form
+msgid "Rounding inherit"
+msgstr "Успадкувати округлення"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_view_form
+#: model_terms:ir.ui.view,arch_db:mis_builder.wizard_mis_report_instance_view_form
+msgid "Save"
+msgstr "Зберегти"
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_instance__widget_search_view_id
+msgid "Search view to customize the filter box in the report widget."
+msgstr "Подання пошуку, яке налаштовує панель фільтрів у віджеті звіту."
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_instance__company_ids
+msgid "Select companies for which data will be searched."
+msgstr "Виберіть компанії, за якими шукати дані."
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_instance__currency_id
+msgid ""
+"Select target currency for the report. Required if companies have different "
+"currencies."
+msgstr "Виберіть валюту звіту. Обов'язково, якщо компанії мають різні валюти."
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__sequence
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__sequence
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi__sequence
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi_expression__sequence
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_subkpi__sequence
+msgid "Sequence"
+msgstr "Послідовність"
+
+#. module: mis_builder
+#. odoo-javascript
+#: code:addons/mis_builder/static/src/components/mis_report_widget.xml:0
+msgid "Settings"
+msgstr "Налаштування"
+
+#. module: mis_builder
+#: model:ir.model.constraint,message:mis_builder.constraint_mis_report_subreport_subreport_unique
+msgid ""
+"Should not include the same report more than once as sub report of a given "
+"report"
+msgstr "Той самий звіт не можна включати як підзвіт більше одного разу"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__widget_show_pivot_date
+msgid "Show Pivot Date"
+msgstr "Показувати опорну дату"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__widget_show_filters
+msgid "Show filters box"
+msgstr "Показувати панель фільтрів"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__widget_show_settings_button
+msgid "Show settings button"
+msgstr "Показувати кнопку налаштувань"
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_instance__widget_show_pivot_date
+msgid "Show the Pivot Date in the report widget filter bar."
+msgstr "Показувати опорну дату на панелі фільтрів віджета звіту."
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_instance__widget_show_filters
+msgid "Show the filter bar in the report widget."
+msgstr "Показувати панель фільтрів у віджеті звіту."
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_instance__widget_show_settings_button
+msgid "Show the settings button in the report widget."
+msgstr "Показувати кнопку налаштувань у віджеті звіту."
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period_sum__sign
+msgid "Sign"
+msgstr "Знак"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__source
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_period_view_form
+msgid "Source"
+msgstr "Джерело"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_kpi__type__str
+msgid "String"
+msgstr "Текст"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report__style_id
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi__style_id
+msgid "Style"
+msgstr "Стиль"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi__style_expression
+msgid "Style Expression"
+msgstr "Формула стилю"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi__auto_expand_accounts_style_id
+msgid "Style for account detail rows"
+msgstr "Стиль рядків розшифровки за рахунками"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__name
+msgid "Style name"
+msgstr "Назва стилю"
+
+#. module: mis_builder
+#: model:ir.model.constraint,message:mis_builder.constraint_mis_report_style_style_name_uniq
+msgid "Style name should be unique"
+msgstr "Назва стилю має бути унікальною"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report__subkpi_ids
+msgid "Sub KPI"
+msgstr "Підпоказник"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__subkpi_ids
+msgid "Sub KPI Filter"
+msgstr "Фільтр підпоказників"
+
+#. module: mis_builder
+#: model:ir.model.constraint,message:mis_builder.constraint_mis_report_kpi_expression_subkpi_kpi_unique
+msgid "Sub KPI must be used once and only once for each KPI"
+msgstr "Підпоказник має бути використаний для кожного показника рівно один раз"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_form
+msgid "Sub KPI's"
+msgstr "Підпоказники"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_form
+msgid "Sub Reports"
+msgstr "Підзвіти"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report__subreport_ids
+msgid "Sub reports"
+msgstr "Підзвіти"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_kpi_data__seq2
+msgid "Sub-KPI Sequence"
+msgstr "Послідовність підпоказника"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report.py:0
+msgid "Sub-KPI name (%s) must be a valid python identifier"
+msgstr "Назва підпоказника (%s) має бути коректним ідентифікатором python"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_annotation__subkpi_id
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi_expression__subkpi_id
+msgid "Subkpi"
+msgstr "Підпоказник"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_subreport__subreport_id
+msgid "Subreport"
+msgstr "Підзвіт"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report_subreport.py:0
+msgid "Subreport loop detected"
+msgstr "Підзвіти утворюють цикл"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report_subreport.py:0
+msgid "Subreport name (%s) must be a valid python identifier"
+msgstr "Назва підзвіту (%s) має бути коректним ідентифікатором python"
+
+#. module: mis_builder
+#: model:ir.model.constraint,message:mis_builder.constraint_mis_report_subreport_name_unique
+msgid "Subreport name should be unique by report"
+msgstr "Назва підзвіту має бути унікальною в межах звіту"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__suffix
+msgid "Suffix"
+msgstr "Суфікс"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__suffix_inherit
+msgid "Suffix Inherit"
+msgstr "Успадкувати суфікс"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_kpi__accumulation_method__sum
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_query__aggregate__sum
+msgid "Sum"
+msgstr "Сума"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__source_sumcol_accdet
+msgid "Sum account details"
+msgstr "Підсумовувати розшифровку за рахунками"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/kpimatrix.py:0
+msgid ""
+"Sum cannot be computed in column %s because the columns to sum have no "
+"common subkpis"
+msgstr "Суму в колонці %s не можна обчислити: колонки для суми не мають спільних підпоказників"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_instance_period__source__sumcol
+msgid "Sum columns"
+msgstr "Сума колонок"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__target_move
+msgid "Target Moves"
+msgstr "Цільові проводки"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_view_form
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_view_list
+msgid "Template"
+msgstr "Шаблон"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__temporary
+msgid "Temporary"
+msgstr "Тимчасовий"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_style__color
+msgid "Text color"
+msgstr "Колір тексту"
+
+#. module: mis_builder
+#: model:ir.model.fields,help:mis_builder.field_mis_report_style__color
+msgid "Text color in valid RGB code (from #000000 to #FFFFFF)"
+msgstr "Колір тексту як код RGB (від #000000 до #FFFFFF)"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid ""
+"The <b>account selector</b> is a like expression on the\n"
+"                                        account code (eg <code>70%</code>, etc), or a domain over accounts\n"
+"                                        (eg <code>[('code', 'like', '60%')]</code>)."
+msgstr ""
+"<b>Відбір рахунків</b> - це шаблон like для\n"
+"                                        коду рахунку (наприклад, <code>70%</code>) або домен за рахунками\n"
+"                                        (наприклад, <code>[('code', 'like', '60%')]</code>)."
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid ""
+"The <b>journal items domain</b> is an Odoo domain filter on\n"
+"                                        journal items."
+msgstr ""
+"<b>Домен рядків проводок</b> - це фільтр-домен Odoo для\n"
+"                                        рядків проводок."
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid ""
+"The following special elements are recognized in the expressions\n"
+"                                    to compute accounting data: <code>{bal|crd|deb|pbal|nbal|fld}{pieu}(.fieldname)[account\n"
+"                                    selector][journal items domain]</code>."
+msgstr ""
+"Для обчислення облікових даних у формулах розпізнаються такі особливі\n"
+"                                    елементи: <code>{bal|crd|deb|pbal|nbal|fld}{pieu}(.fieldname)[account\n"
+"                                    selector][journal items domain]</code>."
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_kpi_data__date_to
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__date_to
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__manual_date_to
+msgid "To"
+msgstr "До"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__date_to
+msgid "To (computed)"
+msgstr "До (розраховано)"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_kpi_data.py:0
+msgid "Unexpected accumulation method %(method)s for %(name)s."
+msgstr "Неочікуваний спосіб накопичення %(method)s для %(name)s."
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report.py:0
+msgid "Unexpected value %s for target_move."
+msgstr "Неочікуване значення %s для target_move."
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/prorata_read_group_mixin.py:0
+msgid "Unsupported operator %s for searching on date"
+msgstr "Оператор %s не підтримується для пошуку за датою"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__user_can_edit_annotation
+msgid "User Can Edit Annotation"
+msgstr "Користувач може редагувати примітки"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__user_can_read_annotation
+msgid "User Can Read Annotation"
+msgstr "Користувач може читати примітки"
+
+#. module: mis_builder
+#: model:ir.actions.server,name:mis_builder.ir_cron_vacuum_temp_reports_ir_actions_server
+msgid "Vacuum temporary reports"
+msgstr "Очищення тимчасових звітів"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__valid
+msgid "Valid"
+msgstr "Дійсний"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi__type
+msgid "Value type"
+msgstr "Тип значення"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_style_view_form
+msgid "Visibility"
+msgstr "Видимість"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_instance_period__type__w
+msgid "Week"
+msgstr "Тиждень"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_view_form
+msgid "Widget"
+msgstr "Віджет"
+
+#. module: mis_builder
+#: model:ir.model.constraint,message:mis_builder.constraint_mis_report_instance_period_duration
+msgid "Wrong duration, it must be positive!"
+msgstr "Тривалість має бути додатною"
+
+#. module: mis_builder
+#: model:ir.model.constraint,message:mis_builder.constraint_mis_report_instance_period_normalize_factor
+msgid "Wrong normalize factor, it must be positive!"
+msgstr "Множник нормалізації має бути додатним"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_instance_period__type__y
+msgid "Year"
+msgstr "Рік"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__is_ytd
+msgid "Year to date"
+msgstr "З початку року"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report_instance.py:0
+msgid "You cannot sum period %s with itself."
+msgstr "Період %s не можна додавати до нього самого."
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report_instance_annotation.py:0
+msgid "You do not have the rights to edit annotations"
+msgstr "Немає прав редагувати примітки"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/aep.py:0
+msgid "`%(field)s` cannot have a field name in expression %(expr)s"
+msgstr "`%(field)s` не може мати назву поля у формулі %(expr)s"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/aep.py:0
+msgid "`fld` can only be used with mode `p` (variation) in expression %s"
+msgstr "`fld` можна використовувати лише в режимі `p` (зміна) у формулі %s"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/aep.py:0
+msgid "`fld` must have a field name in exression %s"
+msgstr "`fld` повинен мати назву поля у формулі %s"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report_instance.py:0
+msgid "from %(date_from)s to %(date_to)s"
+msgstr "з %(date_from)s до %(date_to)s"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_style__divider__1e3
+msgid "k"
+msgstr "тис."
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_style__font_size__large
+msgid "large"
+msgstr "великий"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_style__divider__1e-3
+msgid "m"
+msgstr "мілі"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_style__font_size__medium
+msgid "medium"
+msgstr "середній"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_add_to_dashboard_form_view
+#: model_terms:ir.ui.view,arch_db:mis_builder.wizard_mis_report_instance_view_form
+msgid "or"
+msgstr "або"
+
+#. module: mis_builder
+#. odoo-python
+#: code:addons/mis_builder/models/mis_report_style.py:0
+msgid "pp"
+msgstr "в.п."
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_style__font_size__small
+msgid "small"
+msgstr "малий"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__source_cmpcol_from_id
+msgid "versus"
+msgstr "відносно"
+
+#. module: mis_builder
+#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
+msgid ""
+"when <code>fld</code> is used : a field name specifier\n"
+"                                        must be provided (e.g. <code>fldp.quantity</code>"
+msgstr ""
+"якщо використано <code>fld</code>: потрібно вказати\n"
+"                                        назву поля (наприклад, <code>fldp.quantity</code>)"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_style__font_size__x-large
+msgid "x-large"
+msgstr "дуже великий"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_style__font_size__x-small
+msgid "x-small"
+msgstr "дуже малий"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_style__font_size__xx-large
+msgid "xx-large"
+msgstr "найбільший"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_style__font_size__xx-small
+msgid "xx-small"
+msgstr "найменший"
+
+#. module: mis_builder
+#: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_style__divider__1e-6
+msgid "µ"
+msgstr "мікро"

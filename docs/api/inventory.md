@@ -1306,14 +1306,6 @@
 
 ## Спільне
 
-### `bp.bridge`
-
-наша модель · `bp_bridge`
-
-| Метод | Що робить | Модуль |
-| --- | --- | --- |
-| `call(method, path, payload=None, params=None, timeout=60)` | - | `bp_bridge` |
-
 ### `ua.api`
 
 наша модель · `l10n_ua_api`
@@ -1331,6 +1323,14 @@
 | `stock_glance(company_id, location_ids=None, category_ids=None, query=None, offset=0, limit=500)` | Залишки з першого погляду: скільки лежить, скільки треба, на скільки вистачить. | `l10n_ua_api` |
 | `warehouse_map(company_id)` | Карта складу: дерево локацій із місткістю, заповненням і вмістом. | `l10n_ua_api` |
 | `workorder_card(workorder_id)` | Картка наряду для кіоску цеху: що робити, чим, і що вже перевірено. | `l10n_ua_api` |
+
+### `ua.navigation`
+
+наша модель · `l10n_ua_navigation`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `apply()` | - | `l10n_ua_navigation` |
 
 ### `ua.screen`
 

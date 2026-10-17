@@ -2,7 +2,7 @@
     "name": "Україна: меню продукту",
     "summary": "Три власні розділи - Зарплата, Кадри, Звітність - над стандартними поданнями Odoo; "
                "єдиний власник меню і українських назв довідників",
-    "version": "19.0.2.1.0",
+    "version": "19.0.2.2.0",
     "category": "Human Resources/Payroll",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -42,6 +42,7 @@
         "views/hr_leave_views.xml",
         "views/hr_payslip_views.xml",
         "data/res_lang_data.xml",
+        "data/apply.xml",
     ],
     "post_init_hook": "post_init_hook",
     "installable": True,

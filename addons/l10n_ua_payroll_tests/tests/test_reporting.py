@@ -90,9 +90,26 @@ class TestUaReportRun(TransactionCase):
         self.assertIn("2026", run.period_key)
 
     # ------------------------------------------------------------------ 4. перевірки: _common_checks
+    def test_rnokpp_check_skips_cards_without_contract(self):
+        """Картка без договору (як картка адміністратора на свіжій базі) звіт не блокує."""
+        run = self.Run.create({"report_code": "j05", "company_id": self.company.id, "year": 2026, "month": 7})
+
+        def bad_count():
+            run.action_refresh()
+            return int(run.check_ids.filtered(lambda c: c.code == "rnokpp").value)
+
+        before = bad_count()
+        card = self._employee("Картка без договору і без РНОКПП")
+        self.assertFalse(card.version_id.contract_date_start)
+        self.assertEqual(bad_count(), before, "картка без договору не серед винних")
+        card.version_id.with_context(sync_contract_dates=True).write({"contract_date_start": "2026-01-01"})
+        self.assertEqual(bad_count(), before + 1, "та сама картка з договором - уже помилка")
+
     def test_common_checks_flag_missing_rnokpp_and_company_data(self):
         self.company.write({"company_registry": False, "ua_sti_code": False, "ua_director_name": False})
-        self._employee("Без РНОКПП")
+        employee = self._employee("Без РНОКПП")
+        # перевірка стосується карток з договором: саме вони йдуть у звіт
+        employee.version_id.with_context(sync_contract_dates=True).write({"contract_date_start": "2026-01-01"})
         run = self.Run.create({"report_code": "j05", "company_id": self.company.id, "year": 2026, "month": 8})
         run.action_refresh()
         self.assertEqual(run.state, "draft", "є помилки - прогін лишається чернеткою")

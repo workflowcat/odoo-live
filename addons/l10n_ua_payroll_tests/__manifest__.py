@@ -47,6 +47,8 @@
         "l10n_ua_api",
         # документи, що виросли з меню-діалогів (тег ua_documents): зведення ПДВ за період
         "l10n_ua_vat",
+        # права доступу (тег ua_security): статус постачальника і міст інтеграцій bp.bridge
+        "bp_purchase_intake",
     ],
     "data": [],
     "installable": True,

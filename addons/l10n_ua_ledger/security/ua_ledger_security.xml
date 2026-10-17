@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Правила компанії: записи однієї компанії не видно з іншої. Той самий домен,
+       що в нативних документах Odoo; рядок бере компанію в документа, на якому висить,
+       а довідник із порожньою компанією спільний для всіх. -->
+  <record id="rule_ua_osv_report_company" model="ir.rule">
+    <field name="name">Оборотно-сальдова відомість: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_osv_report"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_osv_line_company" model="ir.rule">
+    <field name="name">Рядок оборотно-сальдової відомості: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_osv_line"/>
+    <field name="domain_force">[('osv_id.company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_account_card_company" model="ir.rule">
+    <field name="name">Картка рахунку: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_account_card"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_account_card_line_company" model="ir.rule">
+    <field name="name">Рядок картки рахунку: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_account_card_line"/>
+    <field name="domain_force">[('card_id.company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_account_analysis_company" model="ir.rule">
+    <field name="name">Аналіз рахунку: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_account_analysis"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_account_analysis_line_company" model="ir.rule">
+    <field name="name">Рядок аналізу рахунку: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_account_analysis_line"/>
+    <field name="domain_force">[('analysis_id.company_id', 'in', company_ids)]</field>
+  </record>
+</odoo>

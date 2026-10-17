@@ -213,5 +213,7 @@ class UaFopIncome(models.Model):
 
     def action_sync(self):
         """Кнопка «Оновити з платежів»."""
+        # Наповнення йде через sudo(), тож право перевіряємо тут: книгу веде бухгалтер.
+        self.env["ua.fop.income"].check_access("write")
         self.env["ua.fop.income"]._ua_fop_sync()
         return True

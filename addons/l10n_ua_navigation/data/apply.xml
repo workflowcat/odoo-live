@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Останній файл модуля: після того, як меню і дії стали на місце, навішуємо назви,
+     слова з data/terms_uk.json і сторінки замість діалогів. noupdate="0" - на кожне
+     оновлення. -->
+<odoo noupdate="0">
+  <function model="ua.navigation" name="apply"/>
+</odoo>

@@ -252,3 +252,103 @@ class TestDocumentDateIsUserDate(TransactionCase):
         перевіряємо на новому документі «Перевірка документів»."""
         doc = self.env["ua.hr.doc.check"].create({"company_id": self.env.company.id})
         self.assertEqual(str(doc.date), "2026-09-22")
+
+
+@tagged("post_install", "-at_install", "ua_regress")
+class TestHistoryOfOneEmployee(TransactionCase):
+    """Регресії, знайдені на збірці історії компанії за 21 місяць (docs/base/demo-world.md).
+
+    Обидві проявляються лише в людини з минулим: кілька версій договору або звільнення
+    посеред місяця, за який табель складають уже після наказу.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.company = cls.env.company
+        cls.employee = cls.env["hr.employee"].create({
+            "name": "Регрес: людина з історією", "company_id": cls.company.id, "ua_contract_kind": "employment",
+            "sex": "male"})
+        cls.employee.version_id.with_context(sync_contract_dates=True).write({
+            "date_version": "2025-01-01", "contract_date_start": "2025-01-01", "wage": 20000.0,
+            "ua_pay_type": "hourly", "ua_hour_rate": 150.0,
+            "struct_id": cls.env.ref("l10n_ua_payroll_rules.struct_ua_salary").id,
+        })
+
+    def _order(self, order_type, **vals):
+        return self.env["ua.hr.order"].create(dict(
+            vals, order_type=order_type, employee_id=self.employee.id, company_id=self.company.id))
+
+    def test_dismissal_closes_every_version_of_the_contract(self):
+        """Після зміни окладу версій дві. Наказ про звільнення закривав лише поточну, і рідна
+        перевірка відмовляла: «already has a contract running during the selected period»."""
+        self._order("wage", date="2025-06-25", date_from="2025-07-01", wage=22000.0).action_post()
+        versions = self.employee.with_context(active_test=False).version_ids
+        self.assertEqual(len(versions), 2, "зміна окладу дала другу версію того самого договору")
+        newest = versions.sorted("date_version")[-1]
+        self.assertEqual(newest.wage, 22000.0)
+        # нова версія - копія попередньої: поля картки і умови оплати не губляться
+        self.assertEqual(newest.sex, "male", "стать живе у версії і має перейти в нову")
+        self.assertEqual(newest.ua_pay_type, "hourly", "погодинник лишається погодинником")
+        self.assertEqual(newest.ua_hour_rate, 150.0)
+        self.assertEqual(self.employee.sex, "male")
+        dismissal = self._order("dismissal", date="2025-09-26", date_to="2025-09-30",
+                                dismissal_basis="п. 1 ст. 36 КЗпП (угода сторін)")
+        dismissal.action_post()
+        versions.invalidate_recordset()
+        self.assertEqual({str(v.contract_date_end) for v in versions}, {"2025-09-30"},
+                         "дата закінчення стоїть на всіх версіях договору")
+        self.assertFalse(self.employee.active)
+        # скасування повертає договір безстроковим на всіх версіях
+        dismissal.action_cancel()
+        versions.invalidate_recordset()
+        self.assertFalse(any(v.contract_date_end for v in versions))
+        self.assertTrue(self.employee.active)
+
+    def test_timesheet_keeps_employee_dismissed_in_the_month(self):
+        """Наказ про звільнення архівує картку одразу, а табель за цей місяць складають після.
+        Звільнений посеред місяця має лишитися в табелі: дні до звільнення - робочі, далі «-»."""
+        self._order("dismissal", date="2025-03-11", date_to="2025-03-14",
+                    dismissal_basis="п. 1 ст. 36 КЗпП (угода сторін)").action_post()
+        self.assertFalse(self.employee.active)
+        sheet = self.env["ua.timesheet.sheet"].create({"company_id": self.company.id, "year": 2025, "month": 3})
+        sheet.action_refill()
+        line = sheet.line_ids.filtered(lambda l: l.employee_id == self.employee)
+        self.assertEqual(len(line), 1, "звільнений у березні є в березневому табелі")
+        self.assertEqual(line.d14, "Р", "останній день роботи - робочий")
+        self.assertEqual(line.d17, "-", "після звільнення днів немає")
+        later = self.env["ua.timesheet.sheet"].create({"company_id": self.company.id, "year": 2025, "month": 4})
+        later.action_refill()
+        self.assertNotIn(self.employee, later.line_ids.mapped("employee_id"), "у квітні його вже немає")
+
+
+@tagged("post_install", "-at_install", "ua_regress")
+class TestPayrollParams2025(TransactionCase):
+    """Параметри закону на 2025 рік: без них листок за 2025 рік падав на «Немає параметра»."""
+
+    def test_params_for_2025_and_2026(self):
+        Param = self.env["ua.payroll.param"]
+        self.assertEqual(Param.get("min_wage", "2025-06-30"), 8000.0)
+        self.assertEqual(Param.get("living_wage", "2025-06-30"), 3028.0)
+        self.assertEqual(Param.get("psp_base", "2025-06-30"), 1514.0)
+        self.assertEqual(Param.get("psp_threshold", "2025-06-30"), 4240.0)
+        self.assertEqual(Param.get("min_wage", "2026-01-31"), 8647.0)
+        # кожен ключ 2026 року має значення і на 2025 рік
+        for key in set(Param.search([]).mapped("key")):
+            self.assertTrue(Param.get(key, "2025-01-31") is not None, key)
+
+
+@tagged("post_install", "-at_install", "ua_regress")
+class TestHourlyPayHasEntry(TransactionCase):
+    """Погодинна оплата і надбавка за нічні мають рядок у карті проводок.
+
+    HOURLY і NIGHT карта не знала: листок погодинника рахувався і виплачувався, а нарахування
+    в книги не лягало - за 19 місяців історії на 661 зібралося 475 тис. грн дебетового залишку."""
+
+    def test_hourly_and_night_are_mapped(self):
+        Map = self.env["ua.payroll.account.map"]
+        for code in ("HOURLY", "NIGHT"):
+            row = Map.search([("rule_code", "=", code)], limit=1)
+            self.assertTrue(row, "правило %s без проводки" % code)
+            self.assertEqual(row.debit_side, "expense")
+            self.assertEqual(row.credit_code, "661")

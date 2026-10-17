@@ -22,6 +22,7 @@
     "depends": ["l10n_ua_finrep"],
     "data": [
         "security/ir.model.access.csv",
+        "security/ua_profit_tax_security.xml",
         "data/ua_profit_param_data.xml",
         "views/ua_profit_param_views.xml",
         "views/ua_profit_declaration_views.xml",

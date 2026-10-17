@@ -4,7 +4,7 @@ from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 
 from odoo import api, fields, models
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -524,8 +524,17 @@ class HrEmployee(models.Model):
                             "вони вже використані відпустками.", self.name, leave_type.name, left)
         return True
 
+    def _ua_check_allocation_rights(self):
+        """Генератор пише нарахування через sudo(), тому право перевіряє публічна
+        обгортка: перебудувати відпустки може кадровик (і крон, що йде від системи).
+        Внутрішні виклики (зміна картки, договору, компанії) сюди не заходять."""
+        if not (self.env.su or self.env.user.has_group("hr.group_hr_user")):
+            raise AccessError(self.env._("Перебудувати нарахування відпусток може лише кадровик."))
+        self.check_access("write")
+
     def ua_ensure_leave_allocations(self, on_date=None):
         """Публічна обгортка: Odoo не дає викликати методи з підкресленням через execute_kw."""
+        self._ua_check_allocation_rights()
         if isinstance(on_date, str):
             on_date = fields.Date.to_date(on_date)
         return self._ua_ensure_leave_allocations(on_date=on_date)
@@ -536,6 +545,7 @@ class HrEmployee(models.Model):
         return self._ua_ensure_leave_allocations(on_date=on_date)
 
     def ua_ensure_allocations(self, year=None):
+        self._ua_check_allocation_rights()
         return self._ua_ensure_allocations(year=year)
 
     # ===========================================================================================

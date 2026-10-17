@@ -36,8 +36,21 @@ COMPANY = call("res.company", "search", [["name", "ilike", "Ясен Меблі"
 COMPANY = COMPANY[0] if COMPANY else 1
 
 employees = call("hr.employee", "search_read", [
-    ["company_id", "=", COMPANY], ["name", "not ilike", "Еталон"], ["name", "!=", "Administrator"],
+    ["company_id", "=", COMPANY], ["name", "not ilike", "Еталон"], ["name", "not in", ["Administrator", "Адміністратор"]],
 ], fields=["id", "name", "sex", "birthday"], order="name")
+
+# Мобілізований працівник (scripts/demo_world/people.json, поле mobilised_from) у розподіл не йде:
+# він знятий з військового обліку на підприємстві, місце роботи за ним збережене. Якби він лишався
+# в переліку, скрипт роздав би йому бронювання чи відстрочку.
+_world = os.path.join(os.path.dirname(os.path.abspath(__file__)), "demo_world", "people.json")
+MOBILISED = {"%s %s %s" % (p["last_name"], p["first_name"], p["middle_name"]): p["mobilised_from"]
+             for p in json.load(open(_world, encoding="utf-8")) if p.get("mobilised_from")}
+for e in [e for e in employees if e["name"] in MOBILISED]:
+    call("hr.employee", "write", [e["id"]], {
+        "ua_mil_status": "removed", "ua_mil_category": "ranks", "ua_mil_rank": "солдат", "ua_mil_tcc": "Львівський районний ТЦК та СП",
+        "ua_mil_reserved": False, "ua_mil_deferment": "", "ua_mil_doc_type": "ticket", "ua_mil_doc_number": f"{100000 + e['id']}"})
+    print(f"{e['name']}: мобілізований з {MOBILISED[e['name']]}, знятий з обліку на підприємстві")
+employees = [e for e in employees if e["name"] not in MOBILISED]
 
 men = [e for e in employees if e["sex"] == "male" and e["birthday"] and 18 <= age(e["birthday"]) <= 60]
 women = [e for e in employees if e["sex"] != "male"]

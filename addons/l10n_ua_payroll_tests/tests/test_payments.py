@@ -338,3 +338,23 @@ class TestUaPayments(TransactionCase):
         self.assertEqual(order._checks(), [], "українських перевірок у чужого доручення немає")
         with self.assertRaises(UserError):
             order.action_fill()
+
+
+    def test_12_refund_nets_to_zero_by_account_and_partner(self):
+        """Оригінал і повернення разом обнуляють кожен рахунок і контрагента."""
+        from collections import defaultdict
+        employee = self._employee("Повернення Перевірка", "3000000012", "")
+        slip = self._payslip(employee)
+        self.assertEqual(slip.move_id.state, "posted")
+        original_move = slip.move_id
+        slip.refund_sheet()
+        refund = slip.refunded_id
+        self.assertTrue(refund.credit_note)
+        self.assertEqual(refund.state, "done")
+        self.assertEqual(refund.move_id.state, "posted")
+        self.assertNotEqual(refund.move_id, original_move)
+        totals = defaultdict(float)
+        for line in (original_move | refund.move_id).line_ids:
+            totals[(line.account_id.code, line.partner_id.id)] += line.balance
+        remaining = {key: round(value, 2) for key, value in totals.items() if abs(value) > 0.004}
+        self.assertFalse(remaining, "Оригінал і повернення не обнулили рахунки: %s" % remaining)

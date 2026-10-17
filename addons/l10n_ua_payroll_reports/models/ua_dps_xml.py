@@ -11,6 +11,17 @@ from odoo.exceptions import UserError
 SCHEMAS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "schemas")
 
 
+def safe_fromstring(data):
+    """Розібрати XML, який прийшов іззовні (поданий звіт, завантажений файл).
+
+    Парсер без підстановки сутностей, без DTD і без мережі: файл не може змусити
+    сервер прочитати локальний файл чи сходити за адресою. Версія lxml в образі
+    не закріплена, тому на її типові налаштування не покладаємося."""
+    parser = etree.XMLParser(resolve_entities=False, no_network=True, load_dtd=False,
+                             dtd_validation=False, huge_tree=False)
+    return etree.fromstring(data, parser)
+
+
 class UaDpsXml(models.AbstractModel):
     _name = "ua.dps.xml"
     _description = "XML за форматом ДПС"
@@ -73,12 +84,12 @@ class UaDpsXml(models.AbstractModel):
     @staticmethod
     def validate(data, schema_code):
         """Перевірка за XSD зі schemas/ (файли збережені в UTF-8). Повертає список помилок; порожній = валідний."""
-        path = os.path.join(SCHEMAS_DIR, f"{schema_code}.xsd")
+        path = os.path.join(SCHEMAS_DIR, f"{os.path.basename(str(schema_code))}.xsd")
         if not os.path.exists(path):
             return [f"Схеми {schema_code}.xsd немає в модулі; перевірку пропущено"]
         try:
             schema = etree.XMLSchema(etree.parse(path))
-            doc = etree.fromstring(data)
+            doc = safe_fromstring(data)
             schema.validate(doc)
             return [f"рядок {e.line}: {e.message}" for e in schema.error_log]
         except Exception as e:  # noqa: BLE001 - помилка схеми не має зупиняти формування файлу

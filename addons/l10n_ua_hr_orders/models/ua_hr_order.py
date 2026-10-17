@@ -287,7 +287,14 @@ class UaHrOrder(models.Model):
             created = False
         else:
             vals["employee_id"] = self.employee_id.id
-            version = HrVersion.create(vals)
+            previous = self.env["hr.version"].sudo().search(
+                [("employee_id", "=", self.employee_id.id)], order="date_version desc", limit=1)
+            if previous:
+                # повторне прийняття: поля картки беремо з попередньої версії, договір - новий
+                vals.update({"contract_date_end": False, "ua_end_order_ref": False, "ua_dismissal_basis": False})
+                version = self._ua_next_version(previous, vals)
+            else:
+                version = HrVersion.create(vals)
             created = True
         self.employee_id.sudo().write({
             "ua_main_job": self.main_job,
@@ -318,8 +325,16 @@ class UaHrOrder(models.Model):
             "ua_kp_code": current.ua_kp_code,
             "ua_prof_name": current.ua_prof_name,
         }
-        version = self.env["hr.version"].sudo().with_context(sync_contract_dates=True).create(vals)
+        version = self._ua_next_version(current, vals)
         self.write({"version_id": version.id, "cancel_write_date": version.write_date})
+
+    def _ua_next_version(self, current, vals):
+        """Нова версія договору - копія поточної зі зміненими полями наказу.
+
+        Версія Odoo 19 тримає не лише оклад і посаду, а й поля картки: стать, сімейний стан,
+        посаду з довідника, місце роботи, вид оплати, тижневу норму. Створена «з нуля» версія
+        їх губила: після наказу про оклад у картці зникала стать, а погодинник ставав окладником."""
+        return current.sudo().with_context(sync_contract_dates=True).copy(vals)
 
     def _post_transfer(self):
         self.ensure_one()
@@ -345,7 +360,7 @@ class UaHrOrder(models.Model):
             "ua_kp_code": self.kp_code or current.ua_kp_code,
             "ua_prof_name": self.prof_name or current.ua_prof_name,
         }
-        version = self.env["hr.version"].sudo().with_context(sync_contract_dates=True).create(vals)
+        version = self._ua_next_version(current, vals)
         self.write({"version_id": version.id, "cancel_write_date": version.write_date, "wage": effective_wage})
 
     def _post_leave(self):
@@ -370,13 +385,25 @@ class UaHrOrder(models.Model):
         leave.ua_order_id = self.id
         self.write({"leave_id": leave.id, "cancel_write_date": leave.write_date})
 
+    def _ua_contract_versions(self, version):
+        """Усі версії того самого договору: той самий працівник і той самий початок договору."""
+        return self.env["hr.version"].sudo().with_context(active_test=False).search([
+            ("employee_id", "=", version.employee_id.id),
+            ("contract_date_start", "=", version.contract_date_start),
+        ])
+
     def _post_dismissal(self):
         self.ensure_one()
         current = self.employee_id.sudo().version_id
         if not current:
             raise UserError(_("У працівника немає поточної версії контракту."))
+        # Дата закінчення - на всі версії цього договору, не лише на поточну. Після зміни окладу
+        # чи переведення версій кілька, і всі мають той самий початок договору: якщо закрити одну,
+        # решта лишаються безстроковими, і рідна перевірка відмовляє - «already has a contract
+        # running during the selected period». Звільнити людину з історією версій було неможливо.
+        self._ua_contract_versions(current).with_context(sync_contract_dates=True).write({
+            "contract_date_end": self.date_to})
         current.with_context(sync_contract_dates=True).write({
-            "contract_date_end": self.date_to,
             "ua_end_order_ref": self._order_ref_text(),
             "ua_dismissal_basis": self.dismissal_basis,
         })
@@ -467,8 +494,10 @@ class UaHrOrder(models.Model):
                 "Версію контракту, яку змінив наказ про звільнення № %s, редагували після проведення. "
                 "Поверніть contract_date_end/підставу звільнення вручну."
             ) % self.name)
+        self._ua_contract_versions(version).with_context(sync_contract_dates=True).write({
+            "contract_date_end": False})
         version.with_context(sync_contract_dates=True).write({
-            "contract_date_end": False, "ua_end_order_ref": False, "ua_dismissal_basis": False,
+            "ua_end_order_ref": False, "ua_dismissal_basis": False,
         })
         self.employee_id.sudo().write({"ua_dismissal_date": False, "active": True})
         if self.comp_days_input_id and self.comp_days_input_id.exists():

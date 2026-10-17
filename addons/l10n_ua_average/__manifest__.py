@@ -9,6 +9,7 @@
     "data": [
         "views/hr_leave_views.xml",
         "security/ir.model.access.csv",
+        "security/ua_average_security.xml",
         "data/leave_types.xml",
         "data/rules.xml",
         "data/leave_allocations_cron.xml",

@@ -89,7 +89,7 @@ Email Routing is not an option today.
 2. New outside system: add a route under `/api/<vendor>/` in `worker/src/index.js`, put its key in a Worker
    secret, keep the response shape flat and stable. If the vendor is another Worker in this account, call it
    through a service binding (a plain fetch to `*.workers.dev` from a Worker is refused, error 1042).
-3. Odoo calls the bridge through `env["bp.bridge"].call(method, path, payload)`. Reuse it: depend on
+3. Odoo calls the bridge through `env["bp.bridge"]._call(method, path, payload)` (private: not callable over RPC, the caller checks the user's rights; only `/api/...` paths on the configured host). Reuse it: depend on
    `bp_bridge`, not on `bp_kyc`.
 4. Test locally (`docker compose up -d`, port 8100), then update the live instance
    (`docker compose -f docker-compose.live.yml run --rm odoo-live odoo -d odoo -u <module> --stop-after-init`).

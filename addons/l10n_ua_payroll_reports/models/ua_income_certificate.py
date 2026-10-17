@@ -97,8 +97,11 @@ class UaIncomeCertificate(models.Model):
             date_to = date_type(year, month, calendar.monthrange(year, month)[1])
         if isinstance(employee, int):
             employee = self.env["hr.employee"].browse(employee)
+        if not self.env.su and company not in self.env.companies:
+            raise UserError("Довідку складають лише для своєї компанії.")
         if not employee:
-            slip = self.env["hr.payslip"].sudo().search([
+            # Листки читаємо правами того, хто складає довідку: у ній ті самі суми.
+            slip = self.env["hr.payslip"].search([
                 ("company_id", "=", company.id), ("state", "=", "done"),
                 ("date_from", ">=", date_from), ("date_to", "<=", date_to)], limit=1)
             employee = slip.employee_id
@@ -119,7 +122,9 @@ class UaIncomeCertificate(models.Model):
             if doc.date_to < doc.date_from:
                 raise UserError("Дата «Період по» раніша за дату «Період з».")
             doc.line_ids.unlink()
-            slips = self.env["hr.payslip"].sudo().search([
+            # Без sudo(): довідка показує нарахування, тож у неї потрапляють лише
+            # листки, які користувач і так може прочитати (право, відділ, компанія).
+            slips = self.env["hr.payslip"].search([
                 ("employee_id", "=", doc.employee_id.id), ("state", "=", "done"),
                 ("date_from", ">=", doc.date_from), ("date_to", "<=", doc.date_to),
             ], order="date_from")

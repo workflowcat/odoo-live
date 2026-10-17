@@ -12,6 +12,7 @@
     "external_dependencies": {"python": ["pypdf"]},
     "data": [
         "security/ir.model.access.csv",
+        "security/ua_hire_security.xml",
         # звіти першими - форма справи посилається на їхні action id кнопками друку
         "report/ua_hire_package_report.xml",
         "views/ua_hire_views.xml",

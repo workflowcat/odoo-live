@@ -89,7 +89,9 @@ class UaTimesheetSheet(models.Model):
             if doc.department_id:
                 dom.append(("department_id", "=", doc.department_id.id))
             vals_list = []
-            for emp in self.env["hr.employee"].sudo().search(dom, order="name"):
+            # Звільнені (архівні картки) теж ідуть у табель місяця, у якому ще працювали:
+            # наказ про звільнення архівує картку одразу, а табель за цей місяць складають після.
+            for emp in self.env["hr.employee"].sudo().with_context(active_test=False).search(dom, order="name"):
                 if (emp.ua_contract_kind or "employment") != "employment":
                     continue
                 periods = [(v.contract_date_start, v.contract_date_end or date.max) for v in emp.version_ids if v.contract_date_start]

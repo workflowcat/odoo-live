@@ -18,6 +18,7 @@
     ],
     "data": [
         "security/ir.model.access.csv",
+        "security/ua_bank_online_security.xml",
         "data/ua_statement_mappings.xml",
         "views/online_bank_statement_provider_views.xml",
         "views/ua_bank_connect_views.xml",

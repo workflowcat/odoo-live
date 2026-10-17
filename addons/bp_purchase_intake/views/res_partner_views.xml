@@ -9,7 +9,7 @@
                 <widget name="web_ribbon" title="Не перевірено" bg_color="text-bg-warning" invisible="bp_supplier_status != 'unverified'"/>
             </xpath>
             <xpath expr="//div[@name='button_box']" position="inside">
-                <button name="action_bp_open_intakes" type="object" class="oe_stat_button" icon="fa-inbox" invisible="not bp_intake_count">
+                <button name="action_bp_open_intakes" type="object" class="oe_stat_button" icon="fa-inbox" invisible="not bp_intake_count" groups="purchase.group_purchase_user,account.group_account_invoice">
                     <field name="bp_intake_count" widget="statinfo" string="Вхідні рахунки"/>
                 </button>
             </xpath>
@@ -24,7 +24,7 @@
                     </div>
                     <group>
                         <group string="Статус">
-                            <field name="bp_supplier_status"/>
+                            <field name="bp_supplier_status" readonly="1"/>
                             <field name="bp_verified_by" invisible="not bp_verified_by"/>
                             <field name="bp_verified_at" invisible="not bp_verified_at"/>
                             <field name="bp_intake_id" invisible="not bp_intake_id"/>

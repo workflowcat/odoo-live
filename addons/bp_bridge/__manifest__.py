@@ -3,7 +3,7 @@
     "summary": "Єдині двері назовні: абстрактна модель bp.bridge, один URL і один токен на всю систему",
     "description": "Odoo не тримає ключів постачальників даних - тільки адресу моста "
                    "(BP_BRIDGE_URL) і токен (BP_BRIDGE_TOKEN). Модуль дає одну абстрактну "
-                   "модель bp.bridge з методом call(method, path, payload, params): вона "
+                   "модель bp.bridge з приватним методом _call(method, path, payload, params): вона "
                    "підписує запит, ходить у Worker odoo-live і повертає пару (статус, дані). "
                    "Налаштування береться зі змінних середовища, а якщо їх немає - з "
                    "параметрів bp_bridge.url / bp_bridge.token (старі ключі "
