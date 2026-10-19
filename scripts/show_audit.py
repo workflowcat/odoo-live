@@ -35,7 +35,10 @@ OK = {"iban", "xml", "pdf", "crm", "url", "sms", "email", "e-mail", "id", "api",
       "microsoft", "outlook", "ldap", "oauth", "smtp", "imap", "pop", "ssl", "tls", "qr",
       "sepa", "isr", "ean", "upc", "sku", "hs", "kpi", "mrp", "erp", "bom", "plm", "pos",
       "uah", "usd", "eur", "telegram", "viber", "wms", "cpi", "mis", "ok", "wip", "eta",
-      "gmail", "png", "jpg", "zip", "txt", "doc", "docx", "xls", "ods", "ics", "ical", "geo"}
+      "gmail", "png", "jpg", "zip", "txt", "doc", "docx", "xls", "ods", "ics", "ical", "geo",
+      # назви продуктів і протоколів, які не перекладають
+      "bas", "stun", "turn", "unicode", "utf", "barcodelookup", "com", "gelato", "recaptcha",
+      "cloudflare", "turnstile", "oee", "qweb"}
 
 
 def english(text):

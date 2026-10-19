@@ -9,8 +9,10 @@
 Контакти, Бухоблік, Співробітники) за base.group_no_one. Продукт іде голим Odoo,
 рідні розділи лишаються на місці й видимими.
 """
+import html
 import json
 import os
+import re
 
 from odoo.addons.l10n_ua_payroll_rules.hooks import ensure_uk_lang
 
@@ -223,6 +225,40 @@ def _load_terms():
     return data.get("fill", {}), data.get("force", {}), data.get("replace", []), data.get("by_model", {})
 
 
+# Текст до, між і після тегів, а також підказки title і aria-label.
+MARKUP_TEXT = re.compile(r"(^|>)([^<>]+)(?=<|$)")
+MARKUP_ATTR = re.compile(r'((?:title|aria-label)=")([^"]+)(?=")')
+
+
+def _norm(words):
+    """Ключі словника без зайвих пробілів і переносів: так вони збігаються з текстом у розмітці."""
+    return {" ".join(k.split()): v for k, v in words.items()}
+
+
+def _lookup(text, dicts):
+    key = " ".join(html.unescape(text).split())
+    for words in dicts:
+        if key in words:
+            return words[key]
+    return None
+
+
+def _swap_markup(src, dicts):
+    """Міняє в терміні з розміткою лише людський текст, теги й атрибути лишаються як були."""
+    def text(match):
+        word = _lookup(match.group(2), dicts)
+        if word is None:
+            return match.group(0)
+        raw = match.group(2)
+        return match.group(1) + raw.replace(raw.strip(), html.escape(word, quote=False))
+
+    def attr(match):
+        word = _lookup(match.group(2), dicts)
+        return match.group(0) if word is None else match.group(1) + html.escape(word, quote=True)
+
+    return MARKUP_ATTR.sub(attr, MARKUP_TEXT.sub(text, src))
+
+
 def apply_terms(env):
     """Українські слова поверх ядра й OCA: data/terms_uk.json.
 
@@ -251,6 +287,7 @@ def apply_terms(env):
                     query += " AND COALESCE({c}->>'uk_UA', {c}->>'en_US') = {c}->>'en_US'".format(c=column)
                 cr.execute(query, (dst, src))
     # Подання: переклад живе по термінах усередині arch_db.
+    norm_force, norm_fill = _norm(force), _norm(fill)
     View = env["ir.ui.view"].with_context(active_test=False)
     arch_field = View._fields["arch_db"]
     cr.execute("SELECT id, arch_db->>'en_US', COALESCE(arch_db->>'uk_UA', arch_db->>'en_US'), model FROM ir_ui_view")
@@ -272,6 +309,22 @@ def apply_terms(env):
                 todo[src] = force[src]
             elif src in fill and src in uk_terms:
                 todo[src] = fill[src]
+            elif src in uk_terms and " ".join(src.split()) in norm_fill:
+                todo[src] = norm_fill[" ".join(src.split())]
+        # Термін з розміткою (<span>Forecasted</span>), де ядро лишило англійські шматки:
+        # у чинному українському варіанті міняємо лише текст між тегами і підказки,
+        # якщо шматок цілком є серед слів.
+        try:
+            pairs = arch_field.get_translation_dictionary(arch_en, {UK: arch_uk or arch_en})
+        except Exception:
+            pairs = {}
+        for src, tr in pairs.items():
+            current = tr.get(UK) or src
+            if src in todo or "<" not in src:
+                continue
+            new = _swap_markup(current, (_norm(own), norm_force, norm_fill))
+            if new != current:
+                todo[src] = new
         if todo:
             try:
                 with cr.savepoint():
