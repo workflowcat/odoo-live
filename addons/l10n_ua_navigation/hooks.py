@@ -215,6 +215,16 @@ TERM_TABLES = [
     ("ir_ui_view", "name"),
 ]
 
+# Модель запису для кожної таблиці: за нею шукаємо, чий це запис (ir_model_data).
+TABLE_MODELS = {
+    "ir_ui_menu": "ir.ui.menu", "ir_act_window": "ir.actions.act_window",
+    "ir_act_server": "ir.actions.server", "ir_act_client": "ir.actions.client",
+    "ir_act_report_xml": "ir.actions.report", "ir_model_fields": "ir.model.fields",
+    "ir_model_fields_selection": "ir.model.fields.selection", "ir_model": "ir.model",
+    "ir_ui_view": "ir.ui.view",
+}
+OWN_MODULES = "(d.module LIKE 'l10n\\_ua\\_%%' OR d.module LIKE 'bp\\_%%')"
+
 
 def _load_terms():
     path = os.path.join(os.path.dirname(__file__), "data", "terms_uk.json")
@@ -223,6 +233,14 @@ def _load_terms():
     with open(path, encoding="utf-8") as fh:
         data = json.load(fh)
     return data.get("fill", {}), data.get("force", {}), data.get("replace", []), data.get("by_model", {})
+
+
+def _load_terms_en():
+    path = os.path.join(os.path.dirname(__file__), "data", "terms_en.json")
+    if not os.path.exists(path):
+        return {}
+    with open(path, encoding="utf-8") as fh:
+        return json.load(fh)
 
 
 # Текст до, між і після тегів, а також підказки title і aria-label.
@@ -288,6 +306,9 @@ def apply_terms(env):
                 cr.execute(query, (dst, src))
     # Подання: переклад живе по термінах усередині arch_db.
     norm_force, norm_fill = _norm(force), _norm(fill)
+    # Англійські слова наших модулів (apply_terms_en): у таких термінах українське слово
+    # вже стоїть, і словник ядра його не чіпає.
+    en_words = set(_load_terms_en().values())
     View = env["ir.ui.view"].with_context(active_test=False)
     arch_field = View._fields["arch_db"]
     cr.execute("SELECT id, arch_db->>'en_US', COALESCE(arch_db->>'uk_UA', arch_db->>'en_US'), model FROM ir_ui_view")
@@ -300,9 +321,15 @@ def apply_terms(env):
         except Exception:
             continue
         uk_terms = arch_field.get_trans_terms(arch_uk) if arch_uk else []
+        try:
+            pairs = arch_field.get_translation_dictionary(arch_en, {UK: arch_uk or arch_en})
+        except Exception:
+            pairs = {}
         todo = {}
         own = by_model.get(view_model) or {}
         for src in view_terms:
+            if src in en_words and (pairs.get(src) or {}).get(UK, src) != src:
+                continue
             if src in own:
                 todo[src] = own[src]
             elif src in force:
@@ -314,10 +341,6 @@ def apply_terms(env):
         # Термін з розміткою (<span>Forecasted</span>), де ядро лишило англійські шматки:
         # у чинному українському варіанті міняємо лише текст між тегами і підказки,
         # якщо шматок цілком є серед слів.
-        try:
-            pairs = arch_field.get_translation_dictionary(arch_en, {UK: arch_uk or arch_en})
-        except Exception:
-            pairs = {}
         for src, tr in pairs.items():
             current = tr.get(UK) or src
             if src in todo or "<" not in src:
@@ -333,6 +356,8 @@ def apply_terms(env):
                 continue
     # replace - заміна слова в уже перекладеному українському тексті (регулярний вираз
     # Postgres): там, де ядро перекладає слово скрізь однаково не так, як кажуть в обліку.
+    # Записи наших модулів не чіпаємо: їхній український текст - це джерело, написане
+    # так, як треба (uk_UA в них з'являється лише від apply_terms_en).
     for table, column in TERM_TABLES + [("ir_ui_view", "arch_db")]:
         cr.execute("SELECT data_type FROM information_schema.columns WHERE table_name=%s AND column_name=%s",
                    (table, column))
@@ -343,8 +368,56 @@ def apply_terms(env):
             cr.execute(
                 ("UPDATE {t} SET {c} = jsonb_set({c}, '{{uk_UA}}', "
                  "to_jsonb(regexp_replace({c}->>'uk_UA', %s, %s, 'g'))) "
-                 "WHERE {c} ? 'uk_UA' AND {c}->>'uk_UA' ~ %s").format(t=table, c=column),
-                (pattern, replacement, pattern))
+                 "WHERE {c} ? 'uk_UA' AND {c}->>'uk_UA' ~ %s "
+                 "AND NOT EXISTS (SELECT 1 FROM ir_model_data d WHERE d.model = %s "
+                 "AND d.res_id = {t}.id AND {own})").format(t=table, c=column, own=OWN_MODULES),
+                (pattern, replacement, pattern, TABLE_MODELS[table]))
+    env.invalidate_all()
+    env.registry.clear_cache()
+
+
+def apply_terms_en(env):
+    """Англійська для наших модулів: data/terms_en.json.
+
+    Наші модулі писалися українською першою: український текст стоїть у джерелі (en_US),
+    і людина з англійською мовою бачила українські меню, дії й мітки полів. Тут джерело
+    стає англійським, а український текст переходить у uk_UA, якщо його там ще не було, -
+    тож українська лишається байт у байт такою, як була.
+
+    Ключ - український текст джерела, значення - англійський. Таблиці ті самі, що в
+    apply_terms; подання - по термінах усередині arch_db, друковані форми (qweb) лишаються
+    українськими. Оновлення модуля повертає в джерело український текст із коду; наступний
+    запуск цього кроку (кожне оновлення l10n_ua_navigation) знову ставить англійський."""
+    words = _load_terms_en()
+    if not words:
+        return
+    cr = env.cr
+    payload = json.dumps(words, ensure_ascii=False)
+    # назва аналітичного плану - це мітка поля аналітики (x_plan2_id) у проводках
+    for table, column in TERM_TABLES + [("account_analytic_plan", "name")]:
+        cr.execute("SELECT data_type FROM information_schema.columns WHERE table_name=%s AND column_name=%s",
+                   (table, column))
+        row = cr.fetchone()
+        if not row or row[0] != "jsonb":
+            continue
+        cr.execute(
+            ("UPDATE {t} SET {c} = {c} || jsonb_build_object("
+             "'uk_UA', COALESCE({t}.{c}->>'uk_UA', {t}.{c}->>'en_US'), 'en_US', w.value) "
+             "FROM jsonb_each_text(%s::jsonb) w WHERE {t}.{c}->>'en_US' = w.key").format(t=table, c=column),
+            (payload,))
+    arch_field = env["ir.ui.view"]._fields["arch_db"]
+    cr.execute("SELECT id, arch_db->>'en_US' FROM ir_ui_view "
+               "WHERE type != 'qweb' AND arch_db->>'en_US' ~ '[А-Яа-яІіЇїЄєҐґ]'")
+    for view_id, arch_en in cr.fetchall():
+        try:
+            new = arch_field.translate(words.get, arch_en)
+        except Exception:
+            continue
+        if new and new != arch_en:
+            cr.execute(
+                "UPDATE ir_ui_view SET arch_db = arch_db || jsonb_build_object("
+                "'uk_UA', COALESCE(arch_db->>'uk_UA', arch_db->>'en_US'), 'en_US', %s::text) WHERE id = %s",
+                (new, view_id))
     env.invalidate_all()
     env.registry.clear_cache()
 
@@ -422,6 +495,7 @@ def apply_navigation(env):
         _write_both(wet, {"name": "Відпрацьовані дні"})
 
     apply_terms(env)
+    apply_terms_en(env)
 
 
 def _default_action(env):

@@ -12,7 +12,14 @@
 Нічого не пише. Працює через `odoo shell` у контейнері стенду.
 Результат: demo-out/audit.json і короткий підсумок на екран.
 
+Англійський прохід (AUDIT_LANG=en_US): та сама прогулянка очима адміністратора з
+мовою en_US, але провалом є кирилиця - у назвах пунктів і дій, мітках полів, значеннях
+вибору і рядках подань. Плюс підсумок по всій базі: скільки пунктів меню і міток полів
+мають кирилицю в en_US. Результат: demo-out/audit_en.json.
+
 Запуск: DEMO_DB=show python3 scripts/show_audit.py
+        AUDIT_LANG=en_US DEMO_DB=show python3 scripts/show_audit.py
+        AUDIT_COMPOSE=~/dev/odoo-dev ... - запуск у вже піднятому контейнері odoo того стенду
 """
 import os
 import subprocess
@@ -20,7 +27,9 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB = os.environ.get("DEMO_DB", "demo").strip()
-OUT = os.path.join(ROOT, "demo-out", "audit.json")
+LANG = os.environ.get("AUDIT_LANG", "uk_UA").strip()
+COMPOSE = os.path.expanduser(os.environ.get("AUDIT_COMPOSE", "").strip())
+OUT = os.path.join(ROOT, "demo-out", "audit.json" if LANG == "uk_UA" else "audit_en.json")
 
 SCRIPT = r"""
 import json, re
@@ -41,17 +50,24 @@ OK = {"iban", "xml", "pdf", "crm", "url", "sms", "email", "e-mail", "id", "api",
       "cloudflare", "turnstile", "oee", "qweb"}
 
 
+EN = LANG == "en_US"
+WORD = "українською" if EN else "англійською"
+
+
+# Рядок не тією мовою: кирилиця для en_US, англійські слова для uk_UA.
 def english(text):
     if not text:
         return False
     text = str(text)
+    if EN:
+        return bool(CYR.search(text))
     if CYR.search(text):
         return False
     words = [w.lower() for w in LAT.findall(text)]
     return any(w not in OK for w in words)
 
 
-env = env(context=dict(env.context, lang="uk_UA"))
+env = env(context=dict(env.context, lang=LANG))
 Menu = env["ir.ui.menu"]
 rows = []
 seen_models = {}
@@ -65,7 +81,7 @@ for menu in Menu.search([("id", "in", list(visible))], order="parent_path"):
     row = {"id": menu.id, "path": path, "root": root, "xmlid": menu.get_external_id().get(menu.id) or "",
            "problems": [], "notes": []}
     if english(menu.name):
-        row["problems"].append("назва пункту англійською: %s" % menu.name)
+        row["problems"].append("назва пункту %s: %s" % (WORD, menu.name))
     act = menu.action
     if not act:
         if not (set(menu.child_id.ids) & set(visible)):
@@ -75,7 +91,7 @@ for menu in Menu.search([("id", "in", list(visible))], order="parent_path"):
     row["action_type"] = act._name
     row["action_name"] = act.name
     if english(act.name):
-        row["problems"].append("назва дії англійською: %s" % act.name)
+        row["problems"].append("назва дії %s: %s" % (WORD, act.name))
     if act._name == "ir.actions.act_window":
         row["model"] = act.res_model
         row["target"] = act.target
@@ -123,6 +139,11 @@ for menu in Menu.search([("id", "in", list(visible))], order="parent_path"):
                         label = node.get("string") or (fields.get(name) or {}).get("string")
                         if english(label):
                             eng.append("%s: поле %s = %s" % (mode, name, label))
+                        # назви мов Odoo пише рідною мовою («Ukrainian / українська») навмисно
+                        if EN and name != "lang":
+                            for key, val in (fields.get(name) or {}).get("selection") or []:
+                                if english(val):
+                                    eng.append("%s: вибір %s.%s = %s" % (mode, name, key, val))
                     elif node.tag in ("button", "page", "group", "separator", "filter", "label", "span", "div", "h1", "h2", "h3", "p", "a", "strong", "b"):
                         for attr in ("string", "title", "placeholder", "help", "confirm"):
                             val = node.get(attr)
@@ -140,14 +161,25 @@ for menu in Menu.search([("id", "in", list(visible))], order="parent_path"):
 raw = set()
 for items in seen_models.values():
     for item in items:
-        raw.add(re.sub(r"^\w+: (поле \S+ = |<\w+ \w+> |текст <\w+> )", "", item))
+        raw.add(re.sub(r"^\w+: (поле \S+ = |вибір \S+ = |<\w+ \w+> |текст <\w+> )", "", item))
 for row in rows:
     for key in ("action_name",):
         if english(row.get(key)):
             raw.add(row[key])
     if english(row["path"].split("/")[-1]):
         raw.add(row["path"].split("/")[-1])
-out = {"db": env.cr.dbname, "menus": rows, "raw_english": sorted(raw), "english_by_model": seen_models,
+# По всій базі, не лише видиме адміністраторові: джерело en_US з кирилицею.
+whole = {}
+if EN:
+    env.cr.execute("SELECT count(*) FROM ir_ui_menu WHERE active AND name->>'en_US' ~ '[А-Яа-яІіЇїЄєҐґ]'")
+    whole["menus"] = env.cr.fetchone()[0]
+    env.cr.execute("SELECT count(*) FROM ir_model_fields WHERE field_description->>'en_US' ~ '[А-Яа-яІіЇїЄєҐґ]'")
+    whole["fields"] = env.cr.fetchone()[0]
+    env.cr.execute("SELECT count(*) FROM ir_model_fields_selection WHERE name->>'en_US' ~ '[А-Яа-яІіЇїЄєҐґ]'")
+    whole["selection"] = env.cr.fetchone()[0]
+    env.cr.execute("SELECT count(*) FROM ir_act_window WHERE name->>'en_US' ~ '[А-Яа-яІіЇїЄєҐґ]'")
+    whole["actions"] = env.cr.fetchone()[0]
+out = {"db": env.cr.dbname, "lang": LANG, "whole": whole, "menus": rows, "raw_english": sorted(raw), "english_by_model": seen_models,
        "modules": env["ir.module.module"].search([("state", "=", "installed")]).mapped("name")}
 print("@@JSON@@" + json.dumps(out, ensure_ascii=False))
 """
@@ -157,7 +189,14 @@ def main():
     cmd = ["docker", "compose", "run", "--rm", "--no-deps", "-T", "odoo", "sh", "-c",
            "exec odoo shell --addons-path=/mnt/extra-addons --db_host=db --db_user=odoo "
            "--db_password=odoo --max-cron-threads=0 -d '%s' --db-filter='.*' --log-level=error" % DB]
-    res = subprocess.run(cmd, input=SCRIPT, capture_output=True, text=True, cwd=ROOT, timeout=1800)
+    if COMPOSE:
+        # стенд у ~/dev/odoo-dev: пароль бази в оточенні контейнера, http не потрібен
+        cmd = ["docker", "compose", "exec", "-T", "odoo", "sh", "-c",
+               "exec odoo shell --addons-path=/mnt/extra-addons,/mnt/ui-addons --db_host=db --db_user=odoo "
+               "--db_password=\"$PG_PASSWORD\" --max-cron-threads=0 --no-http -d '%s' --db-filter='.*' "
+               "--log-level=error" % DB]
+    res = subprocess.run(cmd, input="LANG = %r\n" % LANG + SCRIPT, capture_output=True, text=True,
+                         cwd=COMPOSE or ROOT, timeout=1800)
     marker = "@@JSON@@"
     line = next((l for l in res.stdout.splitlines() if marker in l), None)
     if not line:
@@ -173,8 +212,12 @@ def main():
     bad = [m for m in menus if m["problems"]]
     empty = [m for m in menus if m.get("count") == 0]
     eng = sum(len(v) for v in data["english_by_model"].values())
-    print("База %s: пунктів меню %d, з проблемами %d, порожніх списків %d, англійських рядків у поданнях %d"
-          % (data["db"], len(menus), len(bad), len(empty), eng))
+    word = "українських" if LANG == "en_US" else "англійських"
+    print("База %s (%s): пунктів меню %d, з проблемами %d, порожніх списків %d, %s рядків у поданнях %d"
+          % (data["db"], LANG, len(menus), len(bad), len(empty), word, eng))
+    if data.get("whole"):
+        print("Уся база, кирилиця в en_US: меню %(menus)d, дії %(actions)d, мітки полів %(fields)d, "
+              "значення вибору %(selection)d" % data["whole"])
     for m in bad:
         print("  ! %s - %s" % (m["path"], "; ".join(m["problems"])))
     sys.exit(0)

@@ -73,12 +73,12 @@ def say(msg):
     print(msg, flush=True)
 
 
-def upsert(model, domain, vals):
-    ids = call(model, "search", domain)
+def upsert(model, domain, vals, context=None):
+    ids = call(model, "search", domain, context=context)
     if ids:
-        call(model, "write", [ids[0]], vals)
+        call(model, "write", [ids[0]], vals, context=context)
         return ids[0]
-    return call(model, "create", vals)
+    return call(model, "create", vals, context=context)
 
 
 def first_id(value):
@@ -632,7 +632,10 @@ ANALYTIC = [("П-01", "Виробництво"), ("П-02", "Склад і лог
 
 
 def analytic_accounts():
-    plan = upsert("account.analytic.plan", [["name", "=", "Підрозділи"]], {"name": "Підрозділи"})
+    # назва плану - це мітка поля аналітики; англійська («Departments») ставиться в
+    # l10n_ua_navigation, тому шукаємо й пишемо українську
+    plan = upsert("account.analytic.plan", [["name", "=", "Підрозділи"]], {"name": "Підрозділи"},
+                  context={"lang": "uk_UA"})
     for code, name in ANALYTIC:
         upsert("account.analytic.account", [["code", "=", code], ["company_id", "=", CO_ID]],
                {"name": name, "code": code, "plan_id": plan, "company_id": CO_ID})

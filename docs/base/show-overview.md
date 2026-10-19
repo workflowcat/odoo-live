@@ -15,6 +15,7 @@ python3 scripts/demo_fill.py         # поля форм: ОЗ, контраге
 python3 scripts/demo_world_check.py  # контрольні рівності історії (лише читає)
 python3 scripts/show_fill.py         # які поля форм порожні в усіх записах
 python3 scripts/show_audit.py        # огляд усіх пунктів меню
+AUDIT_LANG=en_US python3 scripts/show_audit.py   # те саме англійською: кирилиці бути не має
 python3 scripts/show_e2e.py          # прохід меню і друку за логінами
 ```
 
@@ -67,7 +68,7 @@ python3 scripts/show_e2e.py          # прохід меню і друку за 
 
 | Скрипт | Що доводить |
 | --- | --- |
-| `show_audit.py` | кожен пункт меню має дію-сторінку, подання будуються, список не порожній, рядки українською |
+| `show_audit.py` | кожен пункт меню має дію-сторінку, подання будуються, список не порожній, рядки українською; з `AUDIT_LANG=en_US` - рядки англійською (слова з `l10n_ua_navigation/data/terms_en.json`) |
 | `show_e2e.py` | під кожним логіном кожен пункт меню відкривається з даними; кожен друкований звіт рендериться |
 | `layers_check.py`, `words_check.py`, `contract_check.py` | шари, норма слів, договір `docs/api` |
 

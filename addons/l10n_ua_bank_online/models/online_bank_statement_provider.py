@@ -123,8 +123,10 @@ class OnlineBankStatementProvider(models.Model):
 
     @api.model
     def _get_available_services(self):
+        # мітка вибору з коду, не з бази: англійська - для англійського інтерфейсу
+        privat = "ПриватБанк (Автоклієнт)" if (self.env.lang or "").startswith("uk") else "PrivatBank (Autoclient)"
         return super()._get_available_services() + [
-            ("ua_privat", "ПриватБанк (Автоклієнт)"),
+            ("ua_privat", privat),
             ("ua_mono", "Monobank"),
         ]
 

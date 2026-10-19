@@ -142,8 +142,11 @@ class TestUaBankOps(TransactionCase):
         pull = self._pull()
         months = dict(pull._selection_month())
         self.assertEqual(months.get("1"), "Січень")
-        services = dict(self.env["online.bank.statement.provider"]._get_available_services())
+        Provider = self.env["online.bank.statement.provider"]
+        services = dict(Provider.with_context(lang="uk_UA")._get_available_services())
         self.assertEqual(services.get("ua_privat"), "ПриватБанк (Автоклієнт)")
+        english = dict(Provider.with_context(lang="en_US")._get_available_services())
+        self.assertEqual(english.get("ua_privat"), "PrivatBank (Autoclient)")
         self.assertEqual(services.get("ua_mono"), "Monobank")
 
     # ------------------------------------------------------------------ 4. pull_month -> ua.bank.ops.action_pull_month
