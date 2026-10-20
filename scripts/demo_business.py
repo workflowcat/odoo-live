@@ -1424,6 +1424,39 @@ def lab_user():
     return uid
 
 
+# Гостьові входи для клієнтів, які дивляться демо: англійський і український інтерфейс.
+# Права як у бухгалтера (облік, зарплата, кадри, закупівлі, склад, продажі, виробництво),
+# без налаштувань системи. Пароль - DEMO_GUEST_PASSWORD у .env (копія в 1Password
+# DevKit > "Odoo Live - demo guests"); без нього гостей не заводимо.
+GUESTS = [("guest-en", "Guest (English)", "en_US"), ("guest-uk", "Гість (українська)", "uk_UA")]
+
+
+def guest_users():
+    pwd = (ENV.get("DEMO_GUEST_PASSWORD") or "").strip()
+    if not pwd:
+        say("УВАГА: немає DEMO_GUEST_PASSWORD у .env - гостьові входи пропущено.")
+        return []
+    groups = _group_ids(["base.group_user", "account.group_account_manager",
+                         "payroll.group_payroll_manager", "hr.group_hr_manager",
+                         "purchase.group_purchase_manager", "stock.group_stock_manager",
+                         "sales_team.group_sale_manager", "mrp.group_mrp_manager"])
+    uids = []
+    for login, name, lang in GUESTS:
+        ids = call("res.users", "search", [["login", "=", login]],
+                   context={"active_test": False})
+        vals = {"name": name, "login": login, "password": pwd,
+                "company_id": CO_ID, "company_ids": [(6, 0, [CO_ID])],
+                "lang": lang, "tz": "Europe/Kyiv", "active": True,
+                "group_ids": [(4, g) for g in groups]}
+        if ids:
+            call("res.users", "write", [ids[0]], vals)
+            uids.append(ids[0])
+        else:
+            uids.append(call("res.users", "create", vals))
+    say(f"Гостьові входи: {', '.join(g[0] for g in GUESTS)} (облік, зарплата, кадри; без налаштувань).")
+    return uids
+
+
 def admin_company():
     """Адміністратор відкриває сесію в «Ясен Меблях», а не в трьох компаніях одразу.
 
@@ -2741,6 +2774,7 @@ def main():
         # не переписують готових документів, а залишки лягають на місце один раз.
         extra["warehouse"] = warehouse(PR, P, tx)
         lab_user()
+        guest_users()
         crm(PR)
         co2, co2_partner, co1_partner = group_company(P, tx)
         # Odoo 19 додає нову компанію всім внутрішнім користувачам; складському lab
