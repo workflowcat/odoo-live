@@ -1444,6 +1444,10 @@ def guest_users():
     en = call("res.lang", "search", [["code", "=", "en_US"]], context={"active_test": False})
     if en:
         call("res.lang", "write", en, {"active": True})
+    # Гості відкривають «Зарплата > Місяці», а не дашборд бухобліку з демо-залишком банку.
+    home = call("ir.model.data", "search_read",
+                [["module", "=", "l10n_ua_changes"], ["name", "=", "action_ua_period_close"]],
+                fields=["res_id"])
     uids = []
     for login, name, lang in GUESTS:
         ids = call("res.users", "search", [["login", "=", login]],
@@ -1452,6 +1456,8 @@ def guest_users():
                 "company_id": CO_ID, "company_ids": [(6, 0, [CO_ID])],
                 "lang": lang, "tz": "Europe/Kyiv", "active": True,
                 "group_ids": [(4, g) for g in groups]}
+        if home:
+            vals["action_id"] = home[0]["res_id"]
         if ids:
             call("res.users", "write", [ids[0]], vals)
             uids.append(ids[0])
