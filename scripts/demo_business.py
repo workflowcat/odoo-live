@@ -1440,6 +1440,10 @@ def guest_users():
                          "payroll.group_payroll_manager", "hr.group_hr_manager",
                          "purchase.group_purchase_manager", "stock.group_stock_manager",
                          "sales_team.group_sale_manager", "mrp.group_mrp_manager"])
+    # Англійська в демобазі вимкнена після збірки (вантажимо лише uk_UA): без неї guest-en бачить українську.
+    en = call("res.lang", "search", [["code", "=", "en_US"]], context={"active_test": False})
+    if en:
+        call("res.lang", "write", en, {"active": True})
     uids = []
     for login, name, lang in GUESTS:
         ids = call("res.users", "search", [["login", "=", login]],
