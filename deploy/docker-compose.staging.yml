@@ -13,3 +13,6 @@ services:
       # у демо крутиться багато разових операцій, тому воркерів стільки ж, а пам'яті менше не треба
       ODOO_WORKERS: ${ODOO_WORKERS:-2}
       ENV_NAME: staging
+    ports:
+      # host nginx (odoo-demo.bnp.works) -> Odoo websocket worker
+      - "127.0.0.1:8141:8072"
