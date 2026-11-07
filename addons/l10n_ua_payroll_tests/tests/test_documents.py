@@ -167,7 +167,8 @@ class TestUaEmployeeDocuments(TransactionCase):
     # ------------------------------------------------------------------ 9. типи і друк
     def test_09_ukrainian_types_and_reprint_link_are_ours(self):
         """Український перелік типів і посилання на звіт для передруку лишаються нашими."""
-        types = dict(self.Document._fields["type"]._description_selection(self.env))
+        types = dict(self.Document._fields["type"]._description_selection(
+            self.Document.with_context(lang="uk_UA").env))
         for key in ("passport", "rnokpp", "labor_book", "military_id", "order", "consent",
                     "safety_briefing", "inventory"):
             self.assertIn(key, types, "тип %s має бути в переліку" % key)

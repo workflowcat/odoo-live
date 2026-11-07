@@ -44,7 +44,15 @@ class UaHireProposal(models.Model):
             options = dict(fld._description_selection(self.env))
             if text in options:
                 return text
-            by_label = {v.lower(): k for k, v in options.items()}
+            # Розпізнавання повертає назву українською, а мова користувача може бути іншою:
+            # шукаємо за назвою мовою користувача, українською і за назвою в коді.
+            by_label = {}
+            labelled = [options.items(), fld._description_selection(self.with_context(lang="uk_UA").env)]
+            if isinstance(fld.selection, (list, tuple)):
+                labelled.append(fld.selection)
+            for pairs in labelled:
+                for key, label in pairs:
+                    by_label.setdefault(str(label).lower(), key)
             return by_label.get(text.lower())
         if fld.type == "boolean":
             return "1" if text.lower() in ("1", "true", "так", "yes") else None

@@ -108,7 +108,7 @@ class TestUaApiWarehouse(NoWriteMixin, TransactionCase):
     # ------------------------------------------------------------------ 002: зони на плані
     def test_04_map_zone_purpose_and_plan(self):
         """Призначення зони і прямокутник на плані - з полів локації."""
-        data = self.Api.warehouse_map(self.company.id)
+        data = self.Api.with_context(lang="uk_UA").warehouse_map(self.company.id)
         rows = {row["id"]: row for row in data["locations"]}
         cabinet = rows[self.cabinet.id]
         self.assertEqual(cabinet["purpose"], "hazard")
