@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 67. Моделей: 145. Методів: 515. Збережених полів на чужих моделях: 354.
+Модулів: 68. Моделей: 148. Методів: 529. Збережених полів на чужих моделях: 358.
 
 ## Зарплата
 
@@ -152,17 +152,20 @@
 
 ### `hr.employee`
 
-доповнена модель · `l10n_ua_average`, `l10n_ua_gph`, `l10n_ua_hr_card`, `l10n_ua_hr_orders`, `l10n_ua_index`, `l10n_ua_military`, `l10n_ua_payments`, `l10n_ua_payroll_account`, `l10n_ua_payroll_reports`, `l10n_ua_payroll_rules`
+доповнена модель · `l10n_ua_average`, `l10n_ua_gph`, `l10n_ua_hr_card`, `l10n_ua_hr_orders`, `l10n_ua_index`, `l10n_ua_military`, `l10n_ua_payments`, `l10n_ua_payroll_account`, `l10n_ua_payroll_reports`, `l10n_ua_payroll_rules`, `l10n_ua_workwear`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
 | `action_ua_mil_register_check()` | Кнопка форми працівника: та сама звірка, що й для списку персонального обліку - | `l10n_ua_military` |
 | `action_ua_print_last_order()` | Друк останнього проведеного наказу працівника (будь-якого виду). Якщо наказу в реєстрі | `l10n_ua_hr_orders` |
+| `action_ua_print_workwear_card()` | - | `l10n_ua_workwear` |
+| `action_ua_workwear()` | - | `l10n_ua_workwear` |
 | `action_view_ua_documents()` | - | `l10n_ua_hr_card` |
 | `get_ua_doc_package()` | Пакет документів картки (docs/payroll/spec-intake.md) - той самий package_for, яким | `l10n_ua_hr_card` |
 | `ua_ensure_allocations(year=None)` | - | `l10n_ua_average` |
 | `ua_ensure_leave_allocations(on_date=None)` | Публічна обгортка: Odoo не дає викликати методи з підкресленням через execute_kw. | `l10n_ua_average` |
 | `ua_mil_register_check(note=None)` | Записати звірку з ТЦК: подія обліку плюс дата останньої звірки. | `l10n_ua_military` |
+| `ua_workwear_due(day=None)` | Чого бракує за нормами посади на дату: [{product, norm, in_use, due, months, reference}]. | `l10n_ua_workwear` |
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
@@ -246,6 +249,7 @@
 | `ua_vacation_opening_date` | Date | Дата впровадження обліку відпусток | `l10n_ua_payroll_rules` |
 | `ua_veteran` | Boolean | УБД / ветеран | `l10n_ua_hr_card` |
 | `ua_war_disability` | Boolean | Особа з інвалідністю внаслідок війни | `l10n_ua_average` |
+| `ua_workwear_line_ids` | One2many | ua.workwear.line | `l10n_ua_workwear` |
 
 ### `hr.leave`
 
@@ -1634,6 +1638,31 @@
 | `adjustments_text()` | «Зима 10%, Місто 5%» - коригування норми для друку. | `l10n_ua_fleet` |
 | `litres(value)` | 27,50 - літри для друку. | `l10n_ua_fleet` |
 
+### `ua.workwear.issue`
+
+наша модель · `l10n_ua_workwear`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | - | `l10n_ua_workwear` |
+| `action_done()` | - | `l10n_ua_workwear` |
+| `action_draft()` | - | `l10n_ua_workwear` |
+| `action_fill()` | Додати рядки з того, чого працівникам бракує за нормами посад. | `l10n_ua_workwear` |
+| `action_print()` | - | `l10n_ua_workwear` |
+
+### `ua.workwear.line`
+
+наша модель · `l10n_ua_workwear`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_print_write_off()` | - | `l10n_ua_workwear` |
+| `action_return(location=None)` | Повернути з експлуатації на склад відомості за ціною видачі. | `l10n_ua_workwear` |
+| `action_write_off(reason=None)` | Списати з експлуатації: вартість уже у витратах, лишається акт. | `l10n_ua_workwear` |
+| `money(value)` | 10 000,00 - гроші для друку. | `l10n_ua_workwear` |
+| `ua_date(value)` | - | `l10n_ua_workwear` |
+| `ua_period()` | «12 міс.» або «до зносу» - для друку. | `l10n_ua_workwear` |
+
 ### `account.journal`
 
 доповнена модель · `l10n_ua_bank_1c`, `l10n_ua_bank_online`, `l10n_ua_prro`
@@ -1750,6 +1779,14 @@
 | `ua_tank_location_id` | Many2one | stock.location | `l10n_ua_fleet` |
 | `ua_warehouse_id` | Many2one | stock.warehouse | `l10n_ua_fleet` |
 | `ua_waybill_ids` | One2many | ua.waybill | `l10n_ua_fleet` |
+
+### `hr.job`
+
+доповнена модель · `l10n_ua_workwear`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_workwear_norm_ids` | One2many | ua.workwear.norm | `l10n_ua_workwear` |
 
 ### `hr.payslip.input`
 
@@ -1924,12 +1961,13 @@
 
 ### `stock.location`
 
-доповнена модель · `l10n_ua_commission`, `l10n_ua_stock_docs`, `l10n_ua_tolling`
+доповнена модель · `l10n_ua_commission`, `l10n_ua_stock_docs`, `l10n_ua_tolling`, `l10n_ua_workwear`
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `ua_capacity` | Integer | Місць | `l10n_ua_stock_docs` |
 | `ua_commission_partner_id` | Many2one | res.partner | `l10n_ua_commission` |
+| `ua_in_use` | Boolean | Предмети в експлуатації | `l10n_ua_workwear` |
 | `ua_plan_h` | Integer | План: висота | `l10n_ua_stock_docs` |
 | `ua_plan_w` | Integer | План: ширина | `l10n_ua_stock_docs` |
 | `ua_plan_x` | Integer | План: X | `l10n_ua_stock_docs` |
@@ -1955,7 +1993,7 @@
 
 ### `stock.move`
 
-доповнена модель · `l10n_ua_fleet`, `l10n_ua_mrp_substitute`
+доповнена модель · `l10n_ua_fleet`, `l10n_ua_mrp_substitute`, `l10n_ua_workwear`
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
@@ -1963,6 +2001,7 @@
 | `ua_substitute_of_id` | Many2one | product.product | `l10n_ua_mrp_substitute` |
 | `ua_waybill_id` | Many2one | ua.waybill | `l10n_ua_fleet` |
 | `ua_waybill_reversed` | Boolean | Сторновано скасуванням листа | `l10n_ua_fleet` |
+| `ua_workwear_line_id` | Many2one | ua.workwear.line | `l10n_ua_workwear` |
 
 ### `stock.move.line`
 

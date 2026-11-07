@@ -70,6 +70,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Serial and lot tracking | done | native |
 | Quality control (ВТК), inspections | done | check items on routing operations, yes/no answers on work orders (`l10n_ua_mrp`); defense contracts block release and acceptance until every item is "yes" and print the results in the serial passport (`l10n_ua_defense`); incoming and outgoing protocols (`l10n_ua_stock_docs`) |
 | Tolling (давальницька сировина) | yes | `l10n_ua_tolling`: customer material in its own owner-tagged location (not valued, off-balance 023), production from it, return of products and leftovers, processing invoice, processor's report with norm vs actual |
+| Workwear and low-value items in use (спецодяг, МШП, передача в експлуатацію), personal card | yes | `l10n_ua_workwear`: free-issue norms per job (item, quantity, wear period; a setting), issue sheets that fill what employees lack and post the cost to the sheet's expense account, quantity tracking per employee with wear-until dates, return to stock at issue cost, write-off act, personal card print |
 | Engineering changes, BOM versions | done | `l10n_ua_eco`: change notices with was/now lines, approvals (technologist, quality, military representative), BOM revision N+1 on the effective date |
 | Component substitutes (аналоги, заміни) | done | `l10n_ua_mrp_substitute`: substitutes per BOM line with a factor and priority, usable only after the production manager approves them with a basis (change notice, customer representative's decision); any change drops the approval. "Замінити відсутні" on the MO covers shortages from free stock of approved substitutes and marks each line "instead of"; the consumption check counts the approved swap as consumption of the original |
 | Production planning (MPS/MRP) | done | OCA `mrp_multi_level` over all BOM levels; open defense delivery schedules are demand (`l10n_ua_mrp_plan`) |
@@ -147,7 +148,8 @@ change notices (`l10n_ua_eco`) and claims (`l10n_ua_claim`); electronic document
 (`l10n_ua_commission`); waybills and fuel (`l10n_ua_fleet`); multi-level production planning
 from defense delivery schedules (`l10n_ua_mrp_plan` on OCA `mrp_multi_level`); piece-rate pay
 from production output (`l10n_ua_piecework`); approved component substitutes (`l10n_ua_mrp_substitute`); advances and bank guarantees on
-contracts (`l10n_ua_guarantee`); measuring instruments and their verification (`l10n_ua_metrology`).
+contracts (`l10n_ua_guarantee`); measuring instruments and their verification (`l10n_ua_metrology`); workwear and items in use
+(`l10n_ua_workwear`).
 
 Next, in this order:
 

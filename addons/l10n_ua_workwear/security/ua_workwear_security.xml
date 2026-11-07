@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="rule_ua_workwear_norm_company" model="ir.rule">
+    <field name="name">Норма спецодягу: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_workwear_norm"/>
+    <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_ua_workwear_issue_company" model="ir.rule">
+    <field name="name">Відомість видачі: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_workwear_issue"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_ua_workwear_line_company" model="ir.rule">
+    <field name="name">Предмет в експлуатації: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_workwear_line"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+</odoo>

@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_workwear_norm_user,ua.workwear.norm user,model_ua_workwear_norm,stock.group_stock_user,1,0,0,0
+access_ua_workwear_norm_manager,ua.workwear.norm manager,model_ua_workwear_norm,stock.group_stock_manager,1,1,1,1
+access_ua_workwear_norm_hr,ua.workwear.norm hr,model_ua_workwear_norm,hr.group_hr_user,1,1,1,1
+access_ua_workwear_issue_user,ua.workwear.issue user,model_ua_workwear_issue,stock.group_stock_user,1,1,1,0
+access_ua_workwear_issue_manager,ua.workwear.issue manager,model_ua_workwear_issue,stock.group_stock_manager,1,1,1,1
+access_ua_workwear_issue_hr,ua.workwear.issue hr,model_ua_workwear_issue,hr.group_hr_user,1,0,0,0
+access_ua_workwear_line_user,ua.workwear.line user,model_ua_workwear_line,stock.group_stock_user,1,1,1,0
+access_ua_workwear_line_manager,ua.workwear.line manager,model_ua_workwear_line,stock.group_stock_manager,1,1,1,1
+access_ua_workwear_line_hr,ua.workwear.line hr,model_ua_workwear_line,hr.group_hr_user,1,0,0,0

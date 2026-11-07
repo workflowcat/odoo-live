@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_workwear_issue" model="ir.actions.report">
+    <field name="name">Відомість видачі в експлуатацію</field>
+    <field name="model">ua.workwear.issue</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_workwear.report_ua_workwear_issue</field>
+    <field name="report_file">l10n_ua_workwear.report_ua_workwear_issue</field>
+    <field name="binding_model_id" ref="model_ua_workwear_issue"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Відомість видачі %s' % (object.name or '')</field>
+  </record>
+
+  <record id="action_report_ua_workwear_card" model="ir.actions.report">
+    <field name="name">Особова картка обліку спецодягу</field>
+    <field name="model">hr.employee</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_workwear.report_ua_workwear_card</field>
+    <field name="report_file">l10n_ua_workwear.report_ua_workwear_card</field>
+    <field name="binding_model_id" ref="hr.model_hr_employee"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Картка спецодягу %s' % (object.name or '')</field>
+  </record>
+
+  <record id="action_report_ua_workwear_write_off" model="ir.actions.report">
+    <field name="name">Акт списання з експлуатації</field>
+    <field name="model">ua.workwear.line</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_workwear.report_ua_workwear_write_off</field>
+    <field name="report_file">l10n_ua_workwear.report_ua_workwear_write_off</field>
+    <field name="print_report_name">'Акт списання з експлуатації'</field>
+  </record>
+
+  <template id="ua_workwear_style">
+    <style>
+      .ua-doc { font-size: 10.5px; color: #000; }
+      .ua-doc h3 { font-size: 13px; text-align: center; margin: 4px 0; }
+      .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+      .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin: 6px 0; }
+      .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 4px; }
+      .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+      .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+      .ua-doc .ua-c { text-align: center; }
+      .ua-doc .ua-sign { width: 100%; margin-top: 18px; }
+      .ua-doc .ua-sign td { width: 50%; vertical-align: top; padding: 12px 12px 0 0; }
+    </style>
+  </template>
+
+  <!-- Відомість видачі -->
+  <template id="report_ua_workwear_issue">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_workwear.ua_workwear_style"/>
+          <t t-set="Line" t-value="doc.env['ua.workwear.line']"/>
+          <div class="ua-doc">
+            <div><t t-out="doc.company_id.name"/></div>
+            <h3>ВІДОМІСТЬ ВИДАЧІ СПЕЦОДЯГУ ТА ІНШИХ ПРЕДМЕТІВ В ЕКСПЛУАТАЦІЮ № <t t-out="doc.name"/></h3>
+            <div class="ua-sub">від <t t-out="Line.ua_date(doc.date)"/>; склад: <t t-out="doc.location_id.display_name"/>; рахунок витрат: <t t-out="doc.expense_account_id.code"/></div>
+            <table class="ua-grid">
+              <thead><tr>
+                <th style="width: 4%;">№</th><th>Працівник, посада</th><th>Предмет</th>
+                <th style="width: 7%;">Кількість</th><th style="width: 9%;">Строк носіння</th>
+                <th style="width: 9%;">Носити до</th><th style="width: 11%;">Вартість</th>
+                <th style="width: 14%;">Підпис працівника</th>
+              </tr></thead>
+              <tbody>
+                <tr t-foreach="doc.line_ids" t-as="line">
+                  <td class="ua-c"><t t-out="line_index + 1"/></td>
+                  <td><t t-out="line.employee_id.name"/><t t-if="line.job_id">, <t t-out="line.job_id.name"/></t></td>
+                  <td><t t-out="line.product_id.display_name"/></td>
+                  <td class="ua-num"><t t-out="'%g' % line.quantity"/> <t t-out="line.uom_id.name"/></td>
+                  <td class="ua-c"><t t-out="line.ua_period()"/></td>
+                  <td class="ua-c"><t t-out="Line.ua_date(line.date_until)"/></td>
+                  <td class="ua-num"><t t-out="Line.money(line.amount)"/></td>
+                  <td></td>
+                </tr>
+                <tr><td colspan="6">Разом</td><td class="ua-num"><t t-out="Line.money(doc.amount_total)"/></td><td></td></tr>
+              </tbody>
+            </table>
+            <table class="ua-sign"><tr>
+              <td>Видав (комірник)<br/><br/>______________ / ______________________</td>
+              <td>Відповідальний з охорони праці<br/><br/>______________ / ______________________</td>
+            </tr></table>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+
+  <!-- Особова картка -->
+  <template id="report_ua_workwear_card">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_workwear.ua_workwear_style"/>
+          <t t-set="Line" t-value="doc.env['ua.workwear.line']"/>
+          <div class="ua-doc">
+            <div><t t-out="doc.company_id.name"/></div>
+            <h3>ОСОБОВА КАРТКА ОБЛІКУ СПЕЦОДЯГУ, СПЕЦВЗУТТЯ ТА ЗАПОБІЖНИХ ПРИСТОСУВАНЬ</h3>
+            <table class="ua-grid">
+              <tr><td style="width: 30%;">Працівник</td><td><t t-out="doc.name"/></td></tr>
+              <tr><td>Табельний номер</td><td><t t-out="doc.sudo().registration_number or ''"/></td></tr>
+              <tr><td>Підрозділ</td><td><t t-out="doc.department_id.name or ''"/></td></tr>
+              <tr><td>Посада, професія</td><td><t t-out="doc.job_id.name or ''"/></td></tr>
+            </table>
+            <t t-set="norms" t-value="doc.ua_workwear_due()"/>
+            <t t-if="norms">
+              <div><b>Належить за нормами</b></div>
+              <table class="ua-grid">
+                <thead><tr><th>Предмет</th><th style="width: 10%;">Кількість</th><th style="width: 12%;">Строк носіння</th>
+                  <th style="width: 12%;">Чинних видано</th><th style="width: 12%;">Належить видати</th><th style="width: 18%;">Пункт норм</th></tr></thead>
+                <tbody>
+                  <tr t-foreach="norms" t-as="row">
+                    <td><t t-out="row['product'].display_name"/></td>
+                    <td class="ua-num"><t t-out="'%g' % row['norm']"/></td>
+                    <td class="ua-c"><t t-out="('%s міс.' % row['months']) if row['months'] else 'до зносу'"/></td>
+                    <td class="ua-num"><t t-out="'%g' % row['in_use']"/></td>
+                    <td class="ua-num"><t t-out="'%g' % row['due']"/></td>
+                    <td><t t-out="row['reference']"/></td>
+                  </tr>
+                </tbody>
+              </table>
+            </t>
+            <div><b>Видано</b></div>
+            <table class="ua-grid">
+              <thead><tr><th style="width: 10%;">Дата</th><th>Предмет</th><th style="width: 8%;">Кількість</th>
+                <th style="width: 10%;">Носити до</th><th style="width: 12%;">Відомість</th>
+                <th style="width: 18%;">Повернуто, списано</th><th style="width: 13%;">Підпис</th></tr></thead>
+              <tbody>
+                <tr t-foreach="doc.ua_workwear_line_ids.filtered(lambda l: l.state not in ('draft', 'cancel')).sorted(lambda l: (l.date, l.id))" t-as="line">
+                  <td class="ua-c"><t t-out="Line.ua_date(line.date)"/></td>
+                  <td><t t-out="line.product_id.display_name"/></td>
+                  <td class="ua-num"><t t-out="'%g' % line.quantity"/></td>
+                  <td class="ua-c"><t t-out="Line.ua_date(line.date_until) or 'до зносу'"/></td>
+                  <td><t t-out="line.issue_id.name"/></td>
+                  <td><t t-if="line.state == 'returned'">повернуто <t t-out="Line.ua_date(line.date_closed)"/></t>
+                      <t t-if="line.state == 'written_off'">списано <t t-out="Line.ua_date(line.date_closed)"/> (<t t-out="line.close_reason"/>)</t></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+
+  <!-- Акт списання -->
+  <template id="report_ua_workwear_write_off">
+    <t t-call="web.html_container">
+      <t t-call="web.basic_layout">
+        <t t-call="l10n_ua_workwear.ua_workwear_style"/>
+        <t t-set="Line" t-value="docs.env['ua.workwear.line']"/>
+        <div class="ua-doc">
+          <div><t t-out="docs[:1].company_id.name"/></div>
+          <h3>АКТ СПИСАННЯ ПРЕДМЕТІВ З ЕКСПЛУАТАЦІЇ</h3>
+          <div class="ua-sub">Комісія оглянула предмети і визнала їх непридатними до подальшого використання.</div>
+          <table class="ua-grid">
+            <thead><tr><th style="width: 4%;">№</th><th>Предмет</th><th>Працівник</th><th style="width: 8%;">Кількість</th>
+              <th style="width: 10%;">Видано</th><th style="width: 10%;">Строк носіння</th><th style="width: 10%;">Списано</th>
+              <th style="width: 16%;">Підстава</th></tr></thead>
+            <tbody>
+              <tr t-foreach="docs" t-as="line">
+                <td class="ua-c"><t t-out="line_index + 1"/></td>
+                <td><t t-out="line.product_id.display_name"/></td>
+                <td><t t-out="line.employee_id.name"/></td>
+                <td class="ua-num"><t t-out="'%g' % line.quantity"/></td>
+                <td class="ua-c"><t t-out="Line.ua_date(line.date)"/></td>
+                <td class="ua-c"><t t-out="line.ua_period()"/></td>
+                <td class="ua-c"><t t-out="Line.ua_date(line.date_closed)"/></td>
+                <td><t t-out="line.close_reason"/></td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="ua-sign"><tr>
+            <td>Голова комісії<br/><br/>______________ / ______________________</td>
+            <td>Члени комісії<br/><br/>______________ / ______________________<br/><br/>______________ / ______________________</td>
+          </tr></table>
+        </div>
+      </t>
+    </t>
+  </template>
+</odoo>

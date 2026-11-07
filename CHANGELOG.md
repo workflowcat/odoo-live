@@ -196,6 +196,11 @@ Notable changes for people who run or build on this code. Module-level API chang
   operations list the instruments for their quality checks: a "yes" answer is refused while any is overdue,
   failed or conserved, the answer keeps a snapshot of what was used, and the product passport prints it.
   Tests: `ua_metrology`.
+- `l10n_ua_workwear`: workwear and other items issued to staff (1C "передача в експлуатацію"). Norms per job
+  (item, quantity, wear period), an issue sheet that fills what selected employees lack, posts the cost from 22
+  to the sheet's expense account and keeps quantities per employee with wear-until dates. Return puts the item
+  back at the issue cost, write-off prints an act, and the personal card shows norms and everything issued.
+  Tests: `ua_workwear`.
 
 ### Changed
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number

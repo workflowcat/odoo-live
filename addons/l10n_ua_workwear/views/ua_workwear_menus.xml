@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_ua_workwear" name="Спецодяг" parent="stock.menu_stock_root" sequence="45"
+            groups="stock.group_stock_user"/>
+  <menuitem id="menu_ua_workwear_issue" name="Відомості видачі" parent="menu_ua_workwear"
+            action="action_ua_workwear_issue" sequence="10"/>
+  <menuitem id="menu_ua_workwear_line" name="В експлуатації" parent="menu_ua_workwear"
+            action="action_ua_workwear_line" sequence="20"/>
+</odoo>

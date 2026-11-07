@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 67,
-    "models": 145,
-    "methods": 515,
-    "fields": 354
+    "modules": 68,
+    "models": 148,
+    "methods": 529,
+    "fields": 358
   },
   "areas": [
     {
@@ -506,7 +506,8 @@
             "l10n_ua_payments",
             "l10n_ua_payroll_account",
             "l10n_ua_payroll_reports",
-            "l10n_ua_payroll_rules"
+            "l10n_ua_payroll_rules",
+            "l10n_ua_workwear"
           ],
           "methods": [
             {
@@ -523,6 +524,22 @@
               "doc": "Друк останнього проведеного наказу працівника (будь-якого виду). Якщо наказу в реєстрі",
               "module": "l10n_ua_hr_orders",
               "file": "addons/l10n_ua_hr_orders/models/hr_employee.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_print_workwear_card",
+              "signature": "action_ua_print_workwear_card()",
+              "doc": "",
+              "module": "l10n_ua_workwear",
+              "file": "addons/l10n_ua_workwear/models/workwear.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_workwear",
+              "signature": "action_ua_workwear()",
+              "doc": "",
+              "module": "l10n_ua_workwear",
+              "file": "addons/l10n_ua_workwear/models/workwear.py",
               "decorators": []
             },
             {
@@ -563,6 +580,14 @@
               "doc": "Записати звірку з ТЦК: подія обліку плюс дата останньої звірки.",
               "module": "l10n_ua_military",
               "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_workwear_due",
+              "signature": "ua_workwear_due(day=None)",
+              "doc": "Чого бракує за нормами посади на дату: [{product, norm, in_use, due, months, reference}].",
+              "module": "l10n_ua_workwear",
+              "file": "addons/l10n_ua_workwear/models/workwear.py",
               "decorators": []
             }
           ],
@@ -1206,6 +1231,14 @@
               "module": "l10n_ua_average",
               "file": "addons/l10n_ua_average/models/hr_employee.py",
               "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_workwear_line_ids",
+              "type": "One2many",
+              "label": "ua.workwear.line",
+              "module": "l10n_ua_workwear",
+              "file": "addons/l10n_ua_workwear/models/workwear.py",
+              "groups": ""
             }
           ]
         },
@@ -7346,6 +7379,118 @@
           "fields": []
         },
         {
+          "model": "ua.workwear.issue",
+          "ours": true,
+          "modules": [
+            "l10n_ua_workwear"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_workwear",
+              "file": "addons/l10n_ua_workwear/models/workwear.py",
+              "decorators": []
+            },
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_workwear",
+              "file": "addons/l10n_ua_workwear/models/workwear.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_workwear",
+              "file": "addons/l10n_ua_workwear/models/workwear.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill",
+              "signature": "action_fill()",
+              "doc": "Додати рядки з того, чого працівникам бракує за нормами посад.",
+              "module": "l10n_ua_workwear",
+              "file": "addons/l10n_ua_workwear/models/workwear.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_workwear",
+              "file": "addons/l10n_ua_workwear/models/workwear.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.workwear.line",
+          "ours": true,
+          "modules": [
+            "l10n_ua_workwear"
+          ],
+          "methods": [
+            {
+              "name": "action_print_write_off",
+              "signature": "action_print_write_off()",
+              "doc": "",
+              "module": "l10n_ua_workwear",
+              "file": "addons/l10n_ua_workwear/models/workwear.py",
+              "decorators": []
+            },
+            {
+              "name": "action_return",
+              "signature": "action_return(location=None)",
+              "doc": "Повернути з експлуатації на склад відомості за ціною видачі.",
+              "module": "l10n_ua_workwear",
+              "file": "addons/l10n_ua_workwear/models/workwear.py",
+              "decorators": []
+            },
+            {
+              "name": "action_write_off",
+              "signature": "action_write_off(reason=None)",
+              "doc": "Списати з експлуатації: вартість уже у витратах, лишається акт.",
+              "module": "l10n_ua_workwear",
+              "file": "addons/l10n_ua_workwear/models/workwear.py",
+              "decorators": []
+            },
+            {
+              "name": "money",
+              "signature": "money(value)",
+              "doc": "10 000,00 - гроші для друку.",
+              "module": "l10n_ua_workwear",
+              "file": "addons/l10n_ua_workwear/models/workwear.py",
+              "decorators": [
+                "staticmethod"
+              ]
+            },
+            {
+              "name": "ua_date",
+              "signature": "ua_date(value)",
+              "doc": "",
+              "module": "l10n_ua_workwear",
+              "file": "addons/l10n_ua_workwear/models/workwear.py",
+              "decorators": [
+                "staticmethod"
+              ]
+            },
+            {
+              "name": "ua_period",
+              "signature": "ua_period()",
+              "doc": "«12 міс.» або «до зносу» - для друку.",
+              "module": "l10n_ua_workwear",
+              "file": "addons/l10n_ua_workwear/models/workwear.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "account.journal",
           "ours": false,
           "modules": [
@@ -7881,6 +8026,24 @@
               "label": "ua.waybill",
               "module": "l10n_ua_fleet",
               "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "hr.job",
+          "ours": false,
+          "modules": [
+            "l10n_ua_workwear"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_workwear_norm_ids",
+              "type": "One2many",
+              "label": "ua.workwear.norm",
+              "module": "l10n_ua_workwear",
+              "file": "addons/l10n_ua_workwear/models/workwear.py",
               "groups": ""
             }
           ]
@@ -8545,7 +8708,8 @@
           "modules": [
             "l10n_ua_commission",
             "l10n_ua_stock_docs",
-            "l10n_ua_tolling"
+            "l10n_ua_tolling",
+            "l10n_ua_workwear"
           ],
           "methods": [],
           "fields": [
@@ -8563,6 +8727,14 @@
               "label": "res.partner",
               "module": "l10n_ua_commission",
               "file": "addons/l10n_ua_commission/models/ua_commission.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_in_use",
+              "type": "Boolean",
+              "label": "Предмети в експлуатації",
+              "module": "l10n_ua_workwear",
+              "file": "addons/l10n_ua_workwear/models/workwear.py",
               "groups": ""
             },
             {
@@ -8682,7 +8854,8 @@
           "ours": false,
           "modules": [
             "l10n_ua_fleet",
-            "l10n_ua_mrp_substitute"
+            "l10n_ua_mrp_substitute",
+            "l10n_ua_workwear"
           ],
           "methods": [],
           "fields": [
@@ -8716,6 +8889,14 @@
               "label": "Сторновано скасуванням листа",
               "module": "l10n_ua_fleet",
               "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_workwear_line_id",
+              "type": "Many2one",
+              "label": "ua.workwear.line",
+              "module": "l10n_ua_workwear",
+              "file": "addons/l10n_ua_workwear/models/workwear.py",
               "groups": ""
             }
           ]
