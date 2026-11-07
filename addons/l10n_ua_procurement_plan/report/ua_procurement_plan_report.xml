@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="paperformat_ua_plan_landscape" model="report.paperformat">
+    <field name="name">Україна: план закупівель, A4 альбомна</field>
+    <field name="format">A4</field>
+    <field name="orientation">Landscape</field>
+    <field name="margin_top">10</field>
+    <field name="margin_bottom">10</field>
+    <field name="margin_left">10</field>
+    <field name="margin_right">10</field>
+    <field name="header_line" eval="False"/>
+    <field name="header_spacing">0</field>
+    <field name="dpi">90</field>
+  </record>
+
+  <record id="action_report_ua_procurement_plan" model="ir.actions.report">
+    <field name="name">Річний план закупівель</field>
+    <field name="model">ua.procurement.plan</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_procurement_plan.report_ua_procurement_plan</field>
+    <field name="report_file">l10n_ua_procurement_plan.report_ua_procurement_plan</field>
+    <field name="binding_model_id" ref="model_ua_procurement_plan"/>
+    <field name="binding_type">report</field>
+    <field name="paperformat_id" ref="paperformat_ua_plan_landscape"/>
+    <field name="print_report_name">'План закупівель %s, ред. %s' % (object.year, object.revision)</field>
+  </record>
+
+  <template id="report_ua_procurement_plan">
+    <t t-call="web.html_container">
+      <t t-call="web.basic_layout">
+        <t t-foreach="docs" t-as="plan">
+          <div class="page ua-doc">
+            <style>
+              .ua-doc { font-size: 9px; color: #000; }
+              .ua-doc h3 { font-size: 12px; text-align: center; margin: 4px 0 2px; }
+              .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+              .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+              .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; vertical-align: top; }
+              .ua-doc .ua-grid th { text-align: center; font-weight: normal; }
+              .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+              .ua-doc .ua-subject td { font-weight: bold; background: #f2f2f2; }
+              .ua-doc .ua-sign { margin-top: 16px; }
+            </style>
+            <div>Замовник: <strong t-out="plan.company_id.name"/>,
+              код за ЄДРПОУ <t t-out="plan.company_id.company_registry or '-'"/></div>
+            <div t-if="plan.state == 'approved'">Затверджено: <t t-out="plan.approval_doc or ''"/>
+              <t t-if="plan.date_approved"> від <t t-out="plan.date_approved.strftime('%d.%m.%Y')"/></t></div>
+            <h3>РІЧНИЙ ПЛАН ЗАКУПІВЕЛЬ НА <t t-out="plan.year"/> РІК</h3>
+            <div class="ua-sub">редакція <t t-out="plan.revision"/>
+              <t t-if="plan.state == 'draft'"> (проєкт)</t>
+              <t t-if="plan.state == 'superseded'"> (замінена новою редакцією)</t></div>
+            <table class="ua-grid">
+              <thead>
+                <tr>
+                  <th>№</th>
+                  <th>Предмет закупівлі</th>
+                  <th>Код ДК 021:2015</th>
+                  <th>Очікувана вартість, грн з ПДВ</th>
+                  <th>Процедура</th>
+                  <th>Орієнтовний початок</th>
+                  <th>Джерело фінансування, КЕКВ</th>
+                  <th>Примітка</th>
+                </tr>
+              </thead>
+              <tbody>
+                <t t-set="number" t-value="0"/>
+                <t t-foreach="plan.subject_rows()" t-as="row">
+                  <tr class="ua-subject" t-if="len(row['lines']) &gt; 1">
+                    <td></td>
+                    <td colspan="2">Предмет <t t-out="row['dk021'].display_name"/></td>
+                    <td class="ua-num"><t t-out="plan._money(row['total'])"/></td>
+                    <td colspan="4"></td>
+                  </tr>
+                  <t t-foreach="row['lines']" t-as="line">
+                    <t t-set="number" t-value="number + 1"/>
+                    <tr>
+                      <td><t t-out="number"/></td>
+                      <td t-out="line.name"/>
+                      <td><t t-out="line.dk021_id.code"/> <t t-out="line.dk021_id.name"/></td>
+                      <td class="ua-num"><t t-out="plan._money(line.amount)"/></td>
+                      <td><t t-out="line._procedure_label()"/>
+                        <t t-if="line.exception_reason">: <t t-out="line.exception_reason"/></t></td>
+                      <td><t t-out="line._month_label()"/> <t t-out="plan.year"/></td>
+                      <td><t t-out="line._funding_label()"/><t t-if="line.kekv">, <t t-out="line.kekv"/></t></td>
+                      <td t-out="line.note or ''"/>
+                    </tr>
+                  </t>
+                </t>
+                <tr>
+                  <td></td>
+                  <td colspan="2"><strong>Разом</strong></td>
+                  <td class="ua-num"><strong t-out="plan._money(plan.amount_total)"/></td>
+                  <td colspan="4"></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="ua-sign">Уповноважена особа (голова тендерного комітету)
+              ____________________ <t t-out="plan.approved_by_id.name or ''"/></div>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

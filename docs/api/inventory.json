@@ -1,8 +1,8 @@
 {
   "totals": {
-    "modules": 57,
-    "models": 126,
-    "methods": 435,
+    "modules": 58,
+    "models": 127,
+    "methods": 442,
     "fields": 314
   },
   "areas": [
@@ -6429,6 +6429,72 @@
               "doc": "Рядки цінників по порядку, з копіями: [{name, code, price, unit, unit_price,",
               "module": "l10n_ua_price_label",
               "file": "addons/l10n_ua_price_label/models/price_label.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.procurement.plan",
+          "ours": true,
+          "modules": [
+            "l10n_ua_procurement_plan"
+          ],
+          "methods": [
+            {
+              "name": "action_amend",
+              "signature": "action_amend()",
+              "doc": "Зміни до затвердженого плану: нова редакція-чернетка з тими самими рядками.",
+              "module": "l10n_ua_procurement_plan",
+              "file": "addons/l10n_ua_procurement_plan/models/ua_procurement_plan.py",
+              "decorators": []
+            },
+            {
+              "name": "action_approve",
+              "signature": "action_approve()",
+              "doc": "",
+              "module": "l10n_ua_procurement_plan",
+              "file": "addons/l10n_ua_procurement_plan/models/ua_procurement_plan.py",
+              "decorators": []
+            },
+            {
+              "name": "action_export_json",
+              "signature": "action_export_json()",
+              "doc": "Файл для майданчика: предмети плану в структурі планів API Prozorro.",
+              "module": "l10n_ua_procurement_plan",
+              "file": "addons/l10n_ua_procurement_plan/models/ua_procurement_plan.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_procurement_plan",
+              "file": "addons/l10n_ua_procurement_plan/models/ua_procurement_plan.py",
+              "decorators": []
+            },
+            {
+              "name": "actual_rows",
+              "signature": "actual_rows()",
+              "doc": "План проти замовлень за класами ДК 021: [{code, name, planned, ordered, left, level}].",
+              "module": "l10n_ua_procurement_plan",
+              "file": "addons/l10n_ua_procurement_plan/models/ua_procurement_plan.py",
+              "decorators": []
+            },
+            {
+              "name": "prozorro_plans",
+              "signature": "prozorro_plans()",
+              "doc": "Предмети плану у вигляді планів API Prozorro (без процедури і звіту - не йдуть).",
+              "module": "l10n_ua_procurement_plan",
+              "file": "addons/l10n_ua_procurement_plan/models/ua_procurement_plan.py",
+              "decorators": []
+            },
+            {
+              "name": "subject_rows",
+              "signature": "subject_rows()",
+              "doc": "Предмети закупівлі: [{key, dk021, name, kind, total, threshold, lines}].",
+              "module": "l10n_ua_procurement_plan",
+              "file": "addons/l10n_ua_procurement_plan/models/ua_procurement_plan.py",
               "decorators": []
             }
           ],

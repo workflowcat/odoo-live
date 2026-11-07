@@ -57,7 +57,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Debt control by contract, credit limits | done | `l10n_ua_contract`: balance by contract, contract amount as a limit |
 | Commission trade, consignment | gap | later |
 | **Customs declarations (МД)** for imported goods: duty and VAT into cost | done | `l10n_ua_customs`: declaration from received goods, duty, excise and fees into each product's cost (native landed costs), VAT into credit; declaration XML exchange with the customs service is out of scope |
-| Public procurement (Prozorro), ДК 021 codes on goods | part | `l10n_ua_dk021`: full classifier, code on goods and purchase lines; `procurement` pack. Annual procurement plan report is open |
+| Public procurement (Prozorro), ДК 021 codes on goods | done | `l10n_ua_dk021`: full classifier, code on goods and purchase lines; `procurement` pack; `l10n_ua_procurement_plan`: annual plan with the subject by ДК 021 class, procedure checked against thresholds (split subjects show up), revisions instead of edits, plan against confirmed purchase orders, print and a Prozorro plan file. Tender documents and bids stay on the e-platform |
 
 ## 4. Production (КУП / ERP)
 

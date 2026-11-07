@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 57. Моделей: 126. Методів: 435. Збережених полів на чужих моделях: 314.
+Модулів: 58. Моделей: 127. Методів: 442. Збережених полів на чужих моделях: 314.
 
 ## Зарплата
 
@@ -1439,6 +1439,20 @@
 | --- | --- | --- |
 | `action_print()` | - | `l10n_ua_price_label` |
 | `label_rows()` | Рядки цінників по порядку, з копіями: [{name, code, price, unit, unit_price, | `l10n_ua_price_label` |
+
+### `ua.procurement.plan`
+
+наша модель · `l10n_ua_procurement_plan`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_amend()` | Зміни до затвердженого плану: нова редакція-чернетка з тими самими рядками. | `l10n_ua_procurement_plan` |
+| `action_approve()` | - | `l10n_ua_procurement_plan` |
+| `action_export_json()` | Файл для майданчика: предмети плану в структурі планів API Prozorro. | `l10n_ua_procurement_plan` |
+| `action_print()` | - | `l10n_ua_procurement_plan` |
+| `actual_rows()` | План проти замовлень за класами ДК 021: [{code, name, planned, ordered, left, level}]. | `l10n_ua_procurement_plan` |
+| `prozorro_plans()` | Предмети плану у вигляді планів API Prozorro (без процедури і звіту - не йдуть). | `l10n_ua_procurement_plan` |
+| `subject_rows()` | Предмети закупівлі: [{key, dk021, name, kind, total, threshold, lines}]. | `l10n_ua_procurement_plan` |
 
 ### `ua.prro.receipt`
 

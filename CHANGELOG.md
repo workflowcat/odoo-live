@@ -127,6 +127,13 @@ Notable changes for people who run or build on this code. Module-level API chang
   a reconciliation act becomes agreed or disputed with its document. Incoming documents are matched to
   vendor bills by number and signed or rejected from Odoo. Test mode works without the bridge. Contract:
   `docs/base/spec-edo.md`. Tests: `ua_edo`.
+- `l10n_ua_procurement_plan`: annual procurement plan (річний план закупівель). Lines carry the ДК 021 code,
+  expected value, procedure, start month and funding source. Goods and services lines of one ДК 021 class
+  form one subject and their values add up, so a subject split under a threshold is an error; works lines
+  stay separate. Thresholds are plan settings (defaults to be checked against Law 922-VIII and Resolution
+  1178) and carry over to the next plan. An approved plan is changed only by a new revision. Confirmed
+  purchase orders are compared with the plan by class. Print form and a JSON file in the Prozorro plan
+  structure. Tests: `ua_proc_plan`.
 
 ### Changed
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number

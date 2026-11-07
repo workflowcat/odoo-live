@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_procurement_plan_list" model="ir.ui.view">
+    <field name="name">ua.procurement.plan.list</field>
+    <field name="model">ua.procurement.plan</field>
+    <field name="arch" type="xml">
+      <list string="Річні плани закупівель" decoration-muted="state == 'superseded'">
+        <field name="year"/>
+        <field name="revision"/>
+        <field name="company_id" groups="base.group_multi_company"/>
+        <field name="amount_total" sum="Разом"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="date_approved"/>
+        <field name="approval_doc" optional="show"/>
+        <field name="state" widget="badge" decoration-success="state == 'approved'"
+               decoration-info="state == 'draft'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_procurement_plan_form" model="ir.ui.view">
+    <field name="name">ua.procurement.plan.form</field>
+    <field name="model">ua.procurement.plan</field>
+    <field name="arch" type="xml">
+      <form string="Річний план закупівель">
+        <header>
+          <button name="action_approve" type="object" string="Затвердити" class="oe_highlight"
+                  invisible="state != 'draft'" groups="purchase.group_purchase_manager"/>
+          <button name="action_amend" type="object" string="Внести зміни"
+                  invisible="state != 'approved'" groups="purchase.group_purchase_manager"
+                  confirm="Буде створено нову редакцію плану, ця залишиться в історії. Продовжити?"/>
+          <button name="action_print" type="object" string="Друк"/>
+          <button name="action_export_json" type="object" string="Файл для Prozorro"
+                  invisible="not line_ids"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,approved"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <div class="alert alert-danger" role="alert" invisible="not error_count">
+            Помилок у плані: <field name="error_count" class="oe_inline"/>. Рядки з помилкою
+            позначено червоним, причину видно в колонці «Що не так».
+          </div>
+          <div class="alert alert-warning" role="alert" invisible="error_count or not warn_count">
+            Попереджень: <field name="warn_count" class="oe_inline"/>.
+          </div>
+          <group>
+            <group>
+              <field name="year" readonly="state != 'draft'"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+              <field name="currency_id" invisible="1"/>
+              <field name="revision"/>
+              <field name="origin_id" invisible="not origin_id"/>
+              <field name="amount_total"/>
+            </group>
+            <group>
+              <field name="approval_doc" readonly="state == 'superseded'"
+                     placeholder="Протокол № 3 від 20.12.2026"/>
+              <field name="date_approved" invisible="not date_approved"/>
+              <field name="approved_by_id" invisible="not approved_by_id"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Рядки плану" name="lines">
+              <field name="line_ids" readonly="state != 'draft'">
+                <list editable="bottom" decoration-danger="check_level == 'error'"
+                      decoration-warning="check_level == 'warn'">
+                  <field name="sequence" widget="handle"/>
+                  <field name="dk021_id" options="{'no_create': True}"/>
+                  <field name="name"/>
+                  <field name="kind" optional="show"/>
+                  <field name="amount" sum="Разом"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="procedure"/>
+                  <field name="exception_reason" optional="show"
+                         required="procedure == 'exception'"/>
+                  <field name="month"/>
+                  <field name="funding"/>
+                  <field name="kekv" optional="hide"/>
+                  <field name="note" optional="hide"/>
+                  <field name="check_level" column_invisible="1"/>
+                  <field name="check_text"/>
+                </list>
+              </field>
+            </page>
+            <page string="План і замовлення" name="actual">
+              <field name="actual_html" nolabel="1"/>
+              <p class="text-muted">
+                Підтверджені замовлення постачальникам за рік за класами ДК 021. Клас, якого
+                немає в плані, і перевищення плану - підстава внести зміни до плану.
+              </p>
+            </page>
+            <page string="Пороги" name="thresholds">
+              <group>
+                <field name="open_goods" readonly="state != 'draft'"/>
+                <field name="open_works" readonly="state != 'draft'"/>
+                <field name="report_from" readonly="state != 'draft'"/>
+              </group>
+              <p class="text-muted">
+                Пороги - з Закону № 922-VIII і постанови КМУ № 1178 (особливості на час
+                воєнного стану). Їх змінюють: звірте з чинною редакцією перед затвердженням.
+                Новий план бере пороги з попереднього плану компанії.
+              </p>
+            </page>
+            <page string="Примітка" name="note">
+              <field name="note" nolabel="1"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_procurement_plan_search" model="ir.ui.view">
+    <field name="name">ua.procurement.plan.search</field>
+    <field name="model">ua.procurement.plan</field>
+    <field name="arch" type="xml">
+      <search string="Річні плани закупівель">
+        <field name="year"/>
+        <filter name="live" string="Чинні й чернетки" domain="[('state', '!=', 'superseded')]"/>
+        <filter name="approved" string="Затверджені" domain="[('state', '=', 'approved')]"/>
+        <group>
+          <filter name="by_year" string="Рік" context="{'group_by': 'year'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_procurement_plan" model="ir.actions.act_window">
+    <field name="name">Річні плани закупівель</field>
+    <field name="res_model">ua.procurement.plan</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_ua_procurement_plan_search"/>
+    <field name="context">{'search_default_live': 1}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Річного плану закупівель ще немає</p>
+      <p>План на рік - рядки з кодом ДК 021, вартістю, процедурою і місяцем початку.
+        Рядки одного класу ДК 021 - один предмет закупівлі: процедуру видно за їхньою сумою.</p>
+    </field>
+  </record>
+
+  <menuitem id="menu_ua_procurement_plan" name="Річний план закупівель"
+            parent="purchase.menu_procurement_management" action="action_ua_procurement_plan"
+            sequence="50"/>
+</odoo>
