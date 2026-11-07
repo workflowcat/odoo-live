@@ -27,8 +27,17 @@
       <field name="note">Доплата за кожну нічну годину: годинна ставка × ставка доплати (параметр «Доплата за нічні години», ст. 108 КЗпП). Для окладних - еквівалентна годинна ставка = оклад / норма годин місяця.</field>
     </record>
 
+    <record id="rule_piece" model="hr.salary.rule">
+      <field name="name">Відрядна оплата</field><field name="code">PIECE</field><field name="sequence">3</field>
+      <field name="category_id" ref="cat_basic"/><field name="condition_select">python</field>
+      <field name="condition_python">result = bool(inputs.PIECE and inputs.PIECE.amount)</field>
+      <field name="amount_select">code</field><field name="amount_python_compute">result = tools.r2(inputs.PIECE.amount, 2)</field>
+      <field name="note">Оплата за виробіток: кількість виконаних операцій × розцінка. Сума приходить у рядок введення «Відрядна оплата» з затвердженого документа «Виробіток» (l10n_ua_piecework) або вводиться вручну. Це основна зарплата: входить у базу ПДФО, військового збору, ЄСВ, доплати до мінімальної зарплати і середнього заробітку. Для працівника лише на відрядній оплаті оклад у версії договору нульовий.</field>
+    </record>
+    <record id="input_piece" model="hr.rule.input"><field name="name">Відрядна оплата</field><field name="code">PIECE</field><field name="input_id" ref="rule_piece"/></record>
+
     <record id="struct_ua_salary" model="hr.payroll.structure">
-      <field name="rule_ids" eval="[(4, ref('rule_hourly')), (4, ref('rule_night'))]"/>
+      <field name="rule_ids" eval="[(4, ref('rule_hourly')), (4, ref('rule_night')), (4, ref('rule_piece'))]"/>
     </record>
   </data>
 </odoo>

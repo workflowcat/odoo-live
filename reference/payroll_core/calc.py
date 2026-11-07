@@ -20,7 +20,7 @@ from .dsl import evaluate
 from .model import Line, Result
 
 EXTRA_FUNCS = ("esv_monthly",)   # названі алгоритми, дозволені у виразах правил
-INPUT_CODES = ("BONUS", "GPH", "COMP_DAYS", "DAILY", "FOP_PAY", "INDEX", "AID", "GIFT",
+INPUT_CODES = ("BONUS", "PIECE", "GPH", "COMP_DAYS", "DAILY", "FOP_PAY", "INDEX", "AID", "GIFT",
                "SEVERANCE", "COMP_TOOL", "ALIM_PCT", "UNION_PCT", "EXEC_AMT", "EXEC_PCT",
                "DAMAGE_AMT", "ADVANCE")
 LEAVE_FIELDS = ("vac_days", "sick_emp_days", "sick_pfu_days", "sick_care_days", "mat_days",

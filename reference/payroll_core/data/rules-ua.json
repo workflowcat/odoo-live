@@ -41,6 +41,14 @@
       "amount": "round(wage * fte * time_ratio, 2) if time_ratio >= 0 else round(wage * fte * max(min(worked, norm), 0.0) / norm, 2)"
     },
     {
+      "sequence": 3,
+      "code": "PIECE",
+      "name": "Відрядна оплата",
+      "category": "BASIC",
+      "when": "in_PIECE",
+      "amount": "round(in_PIECE, 2)"
+    },
+    {
       "sequence": 10,
       "code": "BONUS",
       "name": "Премія",
