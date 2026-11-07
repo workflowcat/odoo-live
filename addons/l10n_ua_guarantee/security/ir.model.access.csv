@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_guarantee_readonly,ua.guarantee readonly,model_ua_guarantee,account.group_account_readonly,1,0,0,0
+access_ua_guarantee_invoice,ua.guarantee invoicing,model_ua_guarantee,account.group_account_invoice,1,1,1,0
+access_ua_guarantee_accountant,ua.guarantee accountant,model_ua_guarantee,account.group_account_user,1,1,1,1
+access_ua_guarantee_sale,ua.guarantee salesman,model_ua_guarantee,sales_team.group_sale_salesman,1,0,0,0
+access_ua_guarantee_purchase,ua.guarantee purchase user,model_ua_guarantee,purchase.group_purchase_user,1,0,0,0

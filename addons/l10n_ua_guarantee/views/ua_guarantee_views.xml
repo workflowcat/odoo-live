@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_guarantee_list" model="ir.ui.view">
+    <field name="name">ua.guarantee.list</field>
+    <field name="model">ua.guarantee</field>
+    <field name="arch" type="xml">
+      <list string="Гарантії" decoration-muted="state in ('released', 'expired')"
+            decoration-danger="state == 'claimed'"
+            decoration-warning="state == 'active' and days_left &lt;= notify_days">
+        <field name="name"/>
+        <field name="off_balance_code" optional="show"/>
+        <field name="direction" optional="hide"/>
+        <field name="kind"/>
+        <field name="partner_id"/>
+        <field name="issuer_id" optional="show"/>
+        <field name="contract_id" optional="show"/>
+        <field name="date_issue" optional="hide"/>
+        <field name="date_expiry"/>
+        <field name="days_left" optional="hide"/>
+        <field name="amount" sum="Разом"/>
+        <field name="currency_id" optional="hide"/>
+        <field name="amount_company" optional="hide" sum="Разом, грн"/>
+        <field name="shorter_than_contract" optional="hide"/>
+        <field name="user_id" optional="hide" widget="many2one_avatar_user"/>
+        <field name="state" widget="badge" decoration-success="state == 'active'"
+               decoration-danger="state == 'claimed'"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+        <field name="notify_days" column_invisible="1"/>
+        <field name="activity_ids" widget="list_activity" optional="show"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_guarantee_form" model="ir.ui.view">
+    <field name="name">ua.guarantee.form</field>
+    <field name="model">ua.guarantee</field>
+    <field name="arch" type="xml">
+      <form string="Гарантія">
+        <header>
+          <button name="action_activate" type="object" string="Діє" class="btn-primary"
+                  invisible="state != 'draft'"/>
+          <button name="action_release" type="object" string="Повернуто"
+                  invisible="state not in ('active', 'expired')"/>
+          <button name="action_claim" type="object" string="Пред'явити вимогу"
+                  invisible="state not in ('active', 'expired')"/>
+          <button name="action_draft" type="object" string="У чернетку"
+                  invisible="state == 'draft'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,active,released"/>
+        </header>
+        <sheet>
+          <div class="oe_title">
+            <label for="name"/>
+            <h1><field name="name" placeholder="Номер гарантії в банку"/></h1>
+          </div>
+          <group>
+            <group>
+              <field name="direction" readonly="state != 'draft'"/>
+              <field name="kind" readonly="state != 'draft'"/>
+              <field name="form" readonly="state != 'draft'"/>
+              <field name="partner_id" readonly="state != 'draft'"/>
+              <field name="issuer_id" invisible="form == 'deposit'"/>
+              <field name="contract_id" readonly="state != 'draft'"/>
+              <field name="procurement_ref" invisible="kind != 'bid'"/>
+            </group>
+            <group>
+              <field name="amount" readonly="state != 'draft'"/>
+              <field name="currency_id" groups="base.group_multi_currency" readonly="state != 'draft'"/>
+              <field name="amount_company" invisible="currency_id == company_currency_id"/>
+              <field name="contract_percent" invisible="not contract_percent"/>
+              <field name="date_issue" readonly="state != 'draft'"/>
+              <field name="date_expiry"/>
+              <field name="shorter_than_contract" invisible="not shorter_than_contract"
+                     decoration-warning="shorter_than_contract"/>
+              <field name="notify_days"/>
+              <field name="user_id" widget="many2one_avatar_user"/>
+              <field name="off_balance_code"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+              <field name="company_currency_id" invisible="1"/>
+            </group>
+          </group>
+          <group string="Вимога за гарантією" invisible="state == 'draft'">
+            <group>
+              <field name="claim_amount" readonly="state not in ('active', 'expired')"/>
+              <field name="claim_date" readonly="state not in ('active', 'expired')"/>
+            </group>
+            <group>
+              <field name="release_date" invisible="not release_date"/>
+            </group>
+          </group>
+          <field name="note" placeholder="Умови гарантії, підстава для зменшення суми, де лежить оригінал"/>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_guarantee_search" model="ir.ui.view">
+    <field name="name">ua.guarantee.search</field>
+    <field name="model">ua.guarantee</field>
+    <field name="arch" type="xml">
+      <search string="Гарантії">
+        <field name="name"/>
+        <field name="partner_id" operator="child_of"/>
+        <field name="issuer_id"/>
+        <field name="contract_id"/>
+        <filter name="active_guarantees" string="Діють" domain="[('state', '=', 'active')]"/>
+        <filter name="expiring" string="Закінчуються за 30 днів"
+                domain="[('state', '=', 'active'), ('date_expiry', '&lt;=', (context_today() + relativedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+        <filter name="claimed" string="Пред'явлено вимогу" domain="[('state', '=', 'claimed')]"/>
+        <filter name="expired" string="Строк минув" domain="[('state', '=', 'expired')]"/>
+        <separator/>
+        <filter name="given" string="Надані (05)" domain="[('direction', '=', 'given')]"/>
+        <filter name="received" string="Отримані (06)" domain="[('direction', '=', 'received')]"/>
+        <separator/>
+        <filter name="kind_advance" string="Повернення авансу" domain="[('kind', '=', 'advance')]"/>
+        <filter name="kind_performance" string="Виконання договору" domain="[('kind', '=', 'performance')]"/>
+        <filter name="kind_bid" string="Тендерні" domain="[('kind', '=', 'bid')]"/>
+        <group>
+          <filter name="by_direction" string="Напрям" context="{'group_by': 'direction'}"/>
+          <filter name="by_kind" string="Вид" context="{'group_by': 'kind'}"/>
+          <filter name="by_partner" string="Контрагент" context="{'group_by': 'partner_id'}"/>
+          <filter name="by_issuer" string="Гарант" context="{'group_by': 'issuer_id'}"/>
+          <filter name="by_expiry" string="Місяць кінця строку" context="{'group_by': 'date_expiry:month'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="view_ua_guarantee_pivot" model="ir.ui.view">
+    <field name="name">ua.guarantee.pivot</field>
+    <field name="model">ua.guarantee</field>
+    <field name="arch" type="xml">
+      <pivot string="Гарантії" sample="1">
+        <field name="partner_id" type="row"/>
+        <field name="direction" type="col"/>
+        <field name="amount_company" type="measure"/>
+      </pivot>
+    </field>
+  </record>
+
+  <record id="action_ua_guarantee" model="ir.actions.act_window">
+    <field name="name">Гарантії і забезпечення</field>
+    <field name="res_model">ua.guarantee</field>
+    <field name="view_mode">list,form,pivot</field>
+    <field name="context">{'search_default_active_guarantees': 1}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Гарантій ще немає</p>
+      <p>Тендерні забезпечення, гарантії виконання договору і повернення авансу: строк, сума, гарант. Перед кінцем строку відповідальний отримає нагадування.</p>
+    </field>
+  </record>
+</odoo>

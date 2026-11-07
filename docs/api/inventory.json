@@ -1,8 +1,8 @@
 {
   "totals": {
-    "modules": 65,
-    "models": 143,
-    "methods": 503,
+    "modules": 66,
+    "models": 144,
+    "methods": 509,
     "fields": 342
   },
   "areas": [
@@ -5961,7 +5961,8 @@
             "l10n_ua_claim",
             "l10n_ua_contract",
             "l10n_ua_defense",
-            "l10n_ua_edo"
+            "l10n_ua_edo",
+            "l10n_ua_guarantee"
           ],
           "methods": [
             {
@@ -6002,6 +6003,14 @@
               "doc": "",
               "module": "l10n_ua_defense",
               "file": "addons/l10n_ua_defense/models/ua_defense_penalty.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_guarantees",
+              "signature": "action_ua_guarantees()",
+              "doc": "",
+              "module": "l10n_ua_guarantee",
+              "file": "addons/l10n_ua_guarantee/models/ua_contract.py",
               "decorators": []
             },
             {
@@ -6638,6 +6647,48 @@
               "decorators": [
                 "api.model"
               ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.guarantee",
+          "ours": true,
+          "modules": [
+            "l10n_ua_guarantee"
+          ],
+          "methods": [
+            {
+              "name": "action_activate",
+              "signature": "action_activate()",
+              "doc": "",
+              "module": "l10n_ua_guarantee",
+              "file": "addons/l10n_ua_guarantee/models/ua_guarantee.py",
+              "decorators": []
+            },
+            {
+              "name": "action_claim",
+              "signature": "action_claim()",
+              "doc": "",
+              "module": "l10n_ua_guarantee",
+              "file": "addons/l10n_ua_guarantee/models/ua_guarantee.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_guarantee",
+              "file": "addons/l10n_ua_guarantee/models/ua_guarantee.py",
+              "decorators": []
+            },
+            {
+              "name": "action_release",
+              "signature": "action_release()",
+              "doc": "",
+              "module": "l10n_ua_guarantee",
+              "file": "addons/l10n_ua_guarantee/models/ua_guarantee.py",
+              "decorators": []
             }
           ],
           "fields": []
@@ -7348,6 +7399,14 @@
               "name": "action_reset_draft",
               "signature": "action_reset_draft()",
               "doc": "",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "decorators": []
+            },
+            {
+              "name": "adjustments_text",
+              "signature": "adjustments_text()",
+              "doc": "«Зима 10%, Місто 5%» - коригування норми для друку.",
               "module": "l10n_ua_fleet",
               "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
               "decorators": []

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="cron_ua_guarantee_reminders" model="ir.cron">
+    <field name="name">Гарантії і аванси: нагадати про строки</field>
+    <field name="model_id" ref="model_ua_guarantee"/>
+    <field name="state">code</field>
+    <field name="code">model._cron_reminders()</field>
+    <field name="interval_number">1</field>
+    <field name="interval_type">days</field>
+    <field name="active">True</field>
+  </record>
+</odoo>

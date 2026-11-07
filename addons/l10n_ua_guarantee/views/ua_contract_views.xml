@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_contract_form_guarantee" model="ir.ui.view">
+    <field name="name">ua.contract.form.guarantee</field>
+    <field name="model">ua.contract</field>
+    <field name="inherit_id" ref="l10n_ua_contract.view_ua_contract_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//page[@name='separate']" position="before">
+        <page string="Аванси і гарантії" name="ua_guarantees" invisible="kind == 'other'">
+          <group>
+            <group>
+              <field name="ua_advance_due"/>
+              <field name="ua_advance_balance" invisible="not id"/>
+              <field name="ua_advance_cover" invisible="not id"/>
+              <field name="ua_advance_uncovered" invisible="not id"
+                     decoration-danger="ua_advance_unsecured"/>
+              <field name="ua_advance_unsecured" invisible="1"/>
+              <field name="ua_advance_overdue" invisible="not ua_advance_overdue"
+                     decoration-danger="ua_advance_overdue"/>
+            </group>
+            <group>
+              <div class="text-muted" colspan="2">
+                Аванс - сальдо розрахунків за договором: отримане від покупця понад поставлене або
+                сплачене постачальнику понад отримане. Покриття - діючі гарантії повернення авансу.
+              </div>
+            </group>
+          </group>
+          <field name="ua_guarantee_ids" context="{'default_partner_id': partner_id, 'default_currency_id': currency_id, 'default_direction': 'received' if kind == 'purchase' else 'given'}">
+            <list decoration-muted="state in ('released', 'expired')" decoration-danger="state == 'claimed'">
+              <field name="name"/>
+              <field name="kind"/>
+              <field name="direction"/>
+              <field name="issuer_id"/>
+              <field name="date_expiry"/>
+              <field name="amount" sum="Разом"/>
+              <field name="currency_id" column_invisible="1"/>
+              <field name="state" widget="badge" decoration-success="state == 'active'"/>
+            </list>
+          </field>
+        </page>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_ua_contract_list_guarantee" model="ir.ui.view">
+    <field name="name">ua.contract.list.guarantee</field>
+    <field name="model">ua.contract</field>
+    <field name="inherit_id" ref="l10n_ua_contract.view_ua_contract_list"/>
+    <field name="arch" type="xml">
+      <field name="date_end" position="after">
+        <field name="ua_advance_due" optional="hide"/>
+        <field name="ua_advance_balance" optional="hide"/>
+        <field name="ua_advance_uncovered" optional="hide"/>
+        <field name="company_currency_id" column_invisible="1"/>
+      </field>
+    </field>
+  </record>
+
+  <record id="view_ua_contract_search_guarantee" model="ir.ui.view">
+    <field name="name">ua.contract.search.guarantee</field>
+    <field name="model">ua.contract</field>
+    <field name="inherit_id" ref="l10n_ua_contract.view_ua_contract_search"/>
+    <field name="arch" type="xml">
+      <filter name="separate" position="after">
+        <separator/>
+        <filter name="advance_open" string="Є аванс" domain="[('ua_advance_open', '=', True)]"/>
+        <filter name="advance_unsecured" string="Аванс без забезпечення"
+                domain="[('ua_advance_unsecured', '=', True)]"/>
+        <filter name="advance_overdue" string="Аванс прострочено"
+                domain="[('ua_advance_overdue', '=', True)]"/>
+      </filter>
+    </field>
+  </record>
+</odoo>

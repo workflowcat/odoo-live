@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_ua_guarantee" name="Гарантії і забезпечення"
+            parent="l10n_ua_contract.menu_ua_contract_root" action="action_ua_guarantee" sequence="15"/>
+</odoo>

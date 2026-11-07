@@ -113,6 +113,7 @@ payload in our catalogues is a camera; nothing here covers munitions.
 | Need | Source | Plan |
 | --- | --- | --- |
 | State contract register: customer (МОУ, ДОТ, other), number, items, schedule, advances, penalties | Закон «Про оборонні закупівлі» № 808-IX; постанова КМУ № 363 (2021) | done: `l10n_ua_defense` on top of `l10n_ua_contract`; penalty and fine for late deliveries from the schedule and acceptance acts, rates as contract terms |
+| Advances and their security: bank guarantees (tender, performance, advance return, warranty), registers 05 and 06, advance per contract and how much a guarantee covers | Закон «Про публічні закупівлі» (забезпечення); contract terms for advance deadlines | done: `l10n_ua_guarantee`: guarantee register with expiry reminders and auto-expiry; advance received or paid per contract from settlement entries, covered and uncovered amounts, deadline with overdue reminder; a received advance-return guarantee cannot be released while the advance is still open and not covered by another one |
 | **Separate accounting of actual costs by contract** | постанова № 363: виконавець веде окремий облік фактичних витрат за контрактом | done: analytic account per contract, actual calculation from closed orders and bills, plan vs actual by item |
 | **Price calculation by the regulated cost items** (01 сировина ... 10 зворотні відходи, then overhead, admin, selling, financial, other, profit) | постанова КМУ № 309 (2021), пп. 11-13 | done: plan from BOM and routing with the contract's rates, printable with materials breakdown |
 | Acceptance by the customer's representative (військове приймання), quality records | contract terms | done: acceptance act per batch with serials; inspection checks on routing steps gate release and acceptance; results in the passport |
@@ -144,7 +145,8 @@ change notices (`l10n_ua_eco`) and claims (`l10n_ua_claim`); electronic document
 (`l10n_ua_unit_transfer`); mutual offset of debts (`l10n_ua_offset`); commission trade
 (`l10n_ua_commission`); waybills and fuel (`l10n_ua_fleet`); multi-level production planning
 from defense delivery schedules (`l10n_ua_mrp_plan` on OCA `mrp_multi_level`); piece-rate pay
-from production output (`l10n_ua_piecework`); approved component substitutes (`l10n_ua_mrp_substitute`).
+from production output (`l10n_ua_piecework`); approved component substitutes (`l10n_ua_mrp_substitute`); advances and bank guarantees on
+contracts (`l10n_ua_guarantee`).
 
 Next, in this order:
 

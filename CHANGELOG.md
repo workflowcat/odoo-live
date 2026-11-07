@@ -184,6 +184,12 @@ Notable changes for people who run or build on this code. Module-level API chang
   manufacturing order takes each component's shortage from free stock of approved substitutes, lowers the
   original demand, adds the substitute marked "instead of", and logs it in the chatter. Finishing the order
   counts the swap as consumption of the original, so no consumption warning. Tests: `ua_mrp_substitute`.
+- `l10n_ua_guarantee`: advances and guarantees on contracts. A register of bank guarantees and other security
+  (tender, performance, advance return, warranty), given (05) or received (06), with guarantor, amount, expiry
+  and claim; a daily job reminds the responsible person before expiry and marks lapsed ones. Each sale or
+  purchase contract shows its open advance from settlement entries, how much active advance-return guarantees
+  cover, the deadline to work it off, and filters for open, unsecured and overdue advances. A received
+  advance-return guarantee cannot be released while the advance stays open and uncovered. Tests: `ua_guarantee`.
 
 ### Changed
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number

@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 65. Моделей: 143. Методів: 503. Збережених полів на чужих моделях: 342.
+Модулів: 66. Моделей: 144. Методів: 509. Збережених полів на чужих моделях: 342.
 
 ## Зарплата
 
@@ -1325,7 +1325,7 @@
 
 ### `ua.contract`
 
-наша модель · `l10n_ua_claim`, `l10n_ua_contract`, `l10n_ua_defense`, `l10n_ua_edo`
+наша модель · `l10n_ua_claim`, `l10n_ua_contract`, `l10n_ua_defense`, `l10n_ua_edo`, `l10n_ua_guarantee`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1334,6 +1334,7 @@
 | `action_new_plan_calculation()` | Планова калькуляція на перший виріб графіка без калькуляції. | `l10n_ua_defense` |
 | `action_new_reconciliation_act()` | Акт звірки за договором з початку року по сьогодні. | `l10n_ua_contract` |
 | `action_print_penalty()` | - | `l10n_ua_defense` |
+| `action_ua_guarantees()` | - | `l10n_ua_guarantee` |
 | `action_view_moves()` | - | `l10n_ua_contract` |
 | `action_view_productions()` | - | `l10n_ua_defense` |
 | `ua_penalty_rows(date=None)` | Рядки розрахунку: одна частина рядка графіка, поставлена (чи ні) з простроченням. | `l10n_ua_defense` |
@@ -1475,6 +1476,17 @@
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
 | `for_date(date, company)` | - | `l10n_ua_fleet` |
+
+### `ua.guarantee`
+
+наша модель · `l10n_ua_guarantee`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_activate()` | - | `l10n_ua_guarantee` |
+| `action_claim()` | - | `l10n_ua_guarantee` |
+| `action_draft()` | - | `l10n_ua_guarantee` |
+| `action_release()` | - | `l10n_ua_guarantee` |
 
 ### `ua.navigation`
 
@@ -1643,6 +1655,7 @@
 | `action_open()` | Видати лист водію: фіксуємо спідометр і залишок у баку. | `l10n_ua_fleet` |
 | `action_print()` | - | `l10n_ua_fleet` |
 | `action_reset_draft()` | - | `l10n_ua_fleet` |
+| `adjustments_text()` | «Зима 10%, Місто 5%» - коригування норми для друку. | `l10n_ua_fleet` |
 | `litres(value)` | 27,50 - літри для друку. | `l10n_ua_fleet` |
 
 ### `account.journal`
