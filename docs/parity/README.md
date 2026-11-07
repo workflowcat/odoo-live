@@ -56,7 +56,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Purchase requests and approvals | done | OCA `purchase_request`, `l10n_ua_purchase` |
 | Supplier risk, invoices from email | done | `l10n_ua_purchase`, `bp_purchase_intake`, `bp_kyc` |
 | Debt control by contract, credit limits | done | `l10n_ua_contract`: balance by contract, contract amount as a limit |
-| Commission trade, consignment | gap | later |
+| Commission trade, consignment | done | `l10n_ua_commission`: both roles. As commissioner the consignor's goods sit in stock with the consignor as owner (not valued), sell through normal orders, and the report to the consignor fills itself from those deliveries and makes the consignor's bill, the commission invoice and the offset. As consignor own goods move to a "На комісії" location; the commissioner's report writes off what was sold and makes the invoice, the commission bill and the offset. Percent commission or consignor price; customer returns stay manual |
 | **Customs declarations (МД)** for imported goods: duty and VAT into cost | done | `l10n_ua_customs`: declaration from received goods, duty, excise and fees into each product's cost (native landed costs), VAT into credit; declaration XML exchange with the customs service is out of scope |
 | Public procurement (Prozorro), ДК 021 codes on goods | done | `l10n_ua_dk021`: full classifier, code on goods and purchase lines; `procurement` pack; `l10n_ua_procurement_plan`: annual plan with the subject by ДК 021 class, procedure checked against thresholds (split subjects show up), revisions instead of edits, plan against confirmed purchase orders, print and a Prozorro plan file. Tender documents and bids stay on the e-platform |
 

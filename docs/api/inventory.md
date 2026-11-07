@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 60. Моделей: 130. Методів: 463. Збережених полів на чужих моделях: 318.
+Модулів: 61. Моделей: 133. Методів: 480. Збережених полів на чужих моделях: 322.
 
 ## Зарплата
 
@@ -1070,23 +1070,9 @@
 | `ua_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
 | `ua_contract_number` | Char | Договір № | `l10n_ua_docs_sale` |
 
-### `stock.location`
-
-доповнена модель · `l10n_ua_stock_docs`, `l10n_ua_tolling`
-
-| Поле | Тип | Підпис | Модуль |
-| --- | --- | --- | --- |
-| `ua_capacity` | Integer | Місць | `l10n_ua_stock_docs` |
-| `ua_plan_h` | Integer | План: висота | `l10n_ua_stock_docs` |
-| `ua_plan_w` | Integer | План: ширина | `l10n_ua_stock_docs` |
-| `ua_plan_x` | Integer | План: X | `l10n_ua_stock_docs` |
-| `ua_plan_y` | Integer | План: Y | `l10n_ua_stock_docs` |
-| `ua_purpose` | Selection | Призначення зони | `l10n_ua_stock_docs` |
-| `ua_tolling_partner_id` | Many2one | res.partner | `l10n_ua_tolling` |
-
 ### `stock.picking`
 
-доповнена модель · `l10n_ua_docs_stock`, `l10n_ua_stock_docs`, `l10n_ua_tolling`, `l10n_ua_unit_transfer`
+доповнена модель · `l10n_ua_commission`, `l10n_ua_docs_stock`, `l10n_ua_stock_docs`, `l10n_ua_tolling`, `l10n_ua_unit_transfer`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1099,6 +1085,7 @@
 | `ua_act_handover` | Char | Передав (ПІБ, посада) | `l10n_ua_stock_docs` |
 | `ua_act_receiver` | Char | Прийняв (ПІБ, посада) | `l10n_ua_stock_docs` |
 | `ua_client_ref` | Char | Мітка операції | `l10n_ua_stock_docs` |
+| `ua_commission_id` | Many2one | ua.commission.agreement | `l10n_ua_commission` |
 | `ua_proxy_date` | Date | Дата довіреності | `l10n_ua_docs_stock` |
 | `ua_proxy_number` | Char | Довіреність № | `l10n_ua_docs_stock` |
 | `ua_proxy_person` | Char | Видана на (ПІБ) | `l10n_ua_docs_stock` |
@@ -1293,6 +1280,37 @@
 | `action_reopen()` | - | `l10n_ua_claim` |
 | `action_respond()` | Відповідь замовнику надіслано (рекламацію прийнято до розгляду). | `l10n_ua_claim` |
 | `action_start()` | - | `l10n_ua_claim` |
+
+### `ua.commission.agreement`
+
+наша модель · `l10n_ua_commission`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_close()` | - | `l10n_ua_commission` |
+| `action_new_report()` | - | `l10n_ua_commission` |
+| `action_open()` | - | `l10n_ua_commission` |
+| `action_open_pickings()` | - | `l10n_ua_commission` |
+| `action_open_reports()` | - | `l10n_ua_commission` |
+| `action_return()` | Повернути все непродане: комітенту (in) або від комісіонера на склад (out). | `l10n_ua_commission` |
+| `action_transfer()` | Прийняти товар від комітента (in) або передати комісіонеру (out): кількості з | `l10n_ua_commission` |
+| `balance_rows()` | Що зараз лежить за договором: [{product, quantity, price}]. | `l10n_ua_commission` |
+
+### `ua.commission.report`
+
+наша модель · `l10n_ua_commission`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | - | `l10n_ua_commission` |
+| `action_done()` | - | `l10n_ua_commission` |
+| `action_fill()` | - | `l10n_ua_commission` |
+| `action_open_invoices()` | - | `l10n_ua_commission` |
+| `action_print()` | - | `l10n_ua_commission` |
+| `action_reset_draft()` | - | `l10n_ua_commission` |
+| `amount_words(amount)` | - | `l10n_ua_commission` |
+| `money(amount)` | 1 240,50 - сума для друку. | `l10n_ua_commission` |
+| `parties()` | (комісіонер, комітент) для друку. | `l10n_ua_commission` |
 
 ### `ua.contract`
 
@@ -1588,7 +1606,7 @@
 
 ### `account.move`
 
-доповнена модель · `bp_purchase_intake`, `l10n_ua_close`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_edo`, `l10n_ua_prro`, `l10n_ua_tolling`, `l10n_ua_vat`
+доповнена модель · `bp_purchase_intake`, `l10n_ua_close`, `l10n_ua_commission`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_edo`, `l10n_ua_prro`, `l10n_ua_tolling`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1603,6 +1621,7 @@
 | `bp_intake_id` | Many2one | bp.purchase.intake | `bp_purchase_intake` |
 | `ua_close_id` | Many2one | ua.period.close | `l10n_ua_close` |
 | `ua_close_kind` | Selection | - | `l10n_ua_close` |
+| `ua_commission_report_id` | Many2one | ua.commission.report | `l10n_ua_commission` |
 | `ua_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
 | `ua_customs_decl_number` | Char | Номер митної декларації | `l10n_ua_vat` |
 | `ua_customs_entry` | Boolean | Позначка проводки митного ПДВ | `l10n_ua_vat` |
@@ -1751,6 +1770,21 @@
 | --- | --- | --- | --- |
 | `ua_customs_declaration_id` | Many2one | ua.customs.declaration | `l10n_ua_customs` |
 
+### `stock.location`
+
+доповнена модель · `l10n_ua_commission`, `l10n_ua_stock_docs`, `l10n_ua_tolling`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_capacity` | Integer | Місць | `l10n_ua_stock_docs` |
+| `ua_commission_partner_id` | Many2one | res.partner | `l10n_ua_commission` |
+| `ua_plan_h` | Integer | План: висота | `l10n_ua_stock_docs` |
+| `ua_plan_w` | Integer | План: ширина | `l10n_ua_stock_docs` |
+| `ua_plan_x` | Integer | План: X | `l10n_ua_stock_docs` |
+| `ua_plan_y` | Integer | План: Y | `l10n_ua_stock_docs` |
+| `ua_purpose` | Selection | Призначення зони | `l10n_ua_stock_docs` |
+| `ua_tolling_partner_id` | Many2one | res.partner | `l10n_ua_tolling` |
+
 ### `stock.lot`
 
 доповнена модель · `l10n_ua_claim`, `l10n_ua_defense`, `l10n_ua_eco`, `l10n_ua_unit_transfer`
@@ -1766,3 +1800,11 @@
 | `ua_contract_id` | Many2one | ua.contract | `l10n_ua_defense` |
 | `ua_passport_number` | Char | Номер паспорта | `l10n_ua_defense` |
 | `ua_unit_transfer_id` | Many2one | ua.unit.transfer | `l10n_ua_unit_transfer` |
+
+### `stock.move.line`
+
+доповнена модель · `l10n_ua_commission`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_commission_report_id` | Many2one | ua.commission.report | `l10n_ua_commission` |

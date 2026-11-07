@@ -1,0 +1,17 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_commission_agreement_user,ua.commission.agreement user,model_ua_commission_agreement,sales_team.group_sale_salesman,1,0,0,0
+access_ua_commission_agreement_manager,ua.commission.agreement manager,model_ua_commission_agreement,sales_team.group_sale_manager,1,1,1,1
+access_ua_commission_agreement_account,ua.commission.agreement account,model_ua_commission_agreement,account.group_account_invoice,1,1,1,0
+access_ua_commission_agreement_line_user,ua.commission.agreement.line user,model_ua_commission_agreement_line,sales_team.group_sale_salesman,1,0,0,0
+access_ua_commission_agreement_line_manager,ua.commission.agreement.line manager,model_ua_commission_agreement_line,sales_team.group_sale_manager,1,1,1,1
+access_ua_commission_agreement_line_account,ua.commission.agreement.line account,model_ua_commission_agreement_line,account.group_account_invoice,1,1,1,1
+access_ua_commission_report_user,ua.commission.report user,model_ua_commission_report,sales_team.group_sale_salesman,1,0,0,0
+access_ua_commission_report_manager,ua.commission.report manager,model_ua_commission_report,sales_team.group_sale_manager,1,1,1,1
+access_ua_commission_report_account,ua.commission.report account,model_ua_commission_report,account.group_account_invoice,1,1,1,0
+access_ua_commission_report_line_user,ua.commission.report.line user,model_ua_commission_report_line,sales_team.group_sale_salesman,1,0,0,0
+access_ua_commission_report_line_manager,ua.commission.report.line manager,model_ua_commission_report_line,sales_team.group_sale_manager,1,1,1,1
+access_ua_commission_report_line_account,ua.commission.report.line account,model_ua_commission_report_line,account.group_account_invoice,1,1,1,1
+access_ua_commission_agreement_stock,ua.commission.agreement stock,model_ua_commission_agreement,stock.group_stock_user,1,0,0,0
+access_ua_commission_agreement_line_stock,ua.commission.agreement.line stock,model_ua_commission_agreement_line,stock.group_stock_user,1,0,0,0
+access_ua_commission_report_stock,ua.commission.report stock,model_ua_commission_report,stock.group_stock_user,1,0,0,0
+access_ua_commission_report_line_stock,ua.commission.report.line stock,model_ua_commission_report_line,stock.group_stock_user,1,0,0,0

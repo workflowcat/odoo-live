@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 60,
-    "models": 130,
-    "methods": 463,
-    "fields": 318
+    "modules": 61,
+    "models": 133,
+    "methods": 480,
+    "fields": 322
   },
   "areas": [
     {
@@ -4669,76 +4669,10 @@
           ]
         },
         {
-          "model": "stock.location",
-          "ours": false,
-          "modules": [
-            "l10n_ua_stock_docs",
-            "l10n_ua_tolling"
-          ],
-          "methods": [],
-          "fields": [
-            {
-              "name": "ua_capacity",
-              "type": "Integer",
-              "label": "Місць",
-              "module": "l10n_ua_stock_docs",
-              "file": "addons/l10n_ua_stock_docs/models/stock_location.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_plan_h",
-              "type": "Integer",
-              "label": "План: висота",
-              "module": "l10n_ua_stock_docs",
-              "file": "addons/l10n_ua_stock_docs/models/stock_location.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_plan_w",
-              "type": "Integer",
-              "label": "План: ширина",
-              "module": "l10n_ua_stock_docs",
-              "file": "addons/l10n_ua_stock_docs/models/stock_location.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_plan_x",
-              "type": "Integer",
-              "label": "План: X",
-              "module": "l10n_ua_stock_docs",
-              "file": "addons/l10n_ua_stock_docs/models/stock_location.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_plan_y",
-              "type": "Integer",
-              "label": "План: Y",
-              "module": "l10n_ua_stock_docs",
-              "file": "addons/l10n_ua_stock_docs/models/stock_location.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_purpose",
-              "type": "Selection",
-              "label": "Призначення зони",
-              "module": "l10n_ua_stock_docs",
-              "file": "addons/l10n_ua_stock_docs/models/stock_location.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_tolling_partner_id",
-              "type": "Many2one",
-              "label": "res.partner",
-              "module": "l10n_ua_tolling",
-              "file": "addons/l10n_ua_tolling/models/stock.py",
-              "groups": ""
-            }
-          ]
-        },
-        {
           "model": "stock.picking",
           "ours": false,
           "modules": [
+            "l10n_ua_commission",
             "l10n_ua_docs_stock",
             "l10n_ua_stock_docs",
             "l10n_ua_tolling",
@@ -4795,6 +4729,14 @@
               "label": "Мітка операції",
               "module": "l10n_ua_stock_docs",
               "file": "addons/l10n_ua_stock_docs/models/stock_picking.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_commission_id",
+              "type": "Many2one",
+              "label": "ua.commission.agreement",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
               "groups": ""
             },
             {
@@ -5804,6 +5746,164 @@
               "doc": "",
               "module": "l10n_ua_claim",
               "file": "addons/l10n_ua_claim/models/ua_claim.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.commission.agreement",
+          "ours": true,
+          "modules": [
+            "l10n_ua_commission"
+          ],
+          "methods": [
+            {
+              "name": "action_close",
+              "signature": "action_close()",
+              "doc": "",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
+              "decorators": []
+            },
+            {
+              "name": "action_new_report",
+              "signature": "action_new_report()",
+              "doc": "",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open",
+              "signature": "action_open()",
+              "doc": "",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_pickings",
+              "signature": "action_open_pickings()",
+              "doc": "",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_reports",
+              "signature": "action_open_reports()",
+              "doc": "",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
+              "decorators": []
+            },
+            {
+              "name": "action_return",
+              "signature": "action_return()",
+              "doc": "Повернути все непродане: комітенту (in) або від комісіонера на склад (out).",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
+              "decorators": []
+            },
+            {
+              "name": "action_transfer",
+              "signature": "action_transfer()",
+              "doc": "Прийняти товар від комітента (in) або передати комісіонеру (out): кількості з",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
+              "decorators": []
+            },
+            {
+              "name": "balance_rows",
+              "signature": "balance_rows()",
+              "doc": "Що зараз лежить за договором: [{product, quantity, price}].",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.commission.report",
+          "ours": true,
+          "modules": [
+            "l10n_ua_commission"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
+              "decorators": []
+            },
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill",
+              "signature": "action_fill()",
+              "doc": "",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_invoices",
+              "signature": "action_open_invoices()",
+              "doc": "",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reset_draft",
+              "signature": "action_reset_draft()",
+              "doc": "",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
+              "decorators": []
+            },
+            {
+              "name": "amount_words",
+              "signature": "amount_words(amount)",
+              "doc": "",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
+              "decorators": []
+            },
+            {
+              "name": "money",
+              "signature": "money(amount)",
+              "doc": "1 240,50 - сума для друку.",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "parties",
+              "signature": "parties()",
+              "doc": "(комісіонер, комітент) для друку.",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
               "decorators": []
             }
           ],
@@ -7092,6 +7192,7 @@
           "modules": [
             "bp_purchase_intake",
             "l10n_ua_close",
+            "l10n_ua_commission",
             "l10n_ua_contract",
             "l10n_ua_docs",
             "l10n_ua_edo",
@@ -7164,6 +7265,14 @@
               "label": "",
               "module": "l10n_ua_close",
               "file": "addons/l10n_ua_close/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_commission_report_id",
+              "type": "Many2one",
+              "label": "ua.commission.report",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
               "groups": ""
             },
             {
@@ -7792,6 +7901,82 @@
           ]
         },
         {
+          "model": "stock.location",
+          "ours": false,
+          "modules": [
+            "l10n_ua_commission",
+            "l10n_ua_stock_docs",
+            "l10n_ua_tolling"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_capacity",
+              "type": "Integer",
+              "label": "Місць",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_location.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_commission_partner_id",
+              "type": "Many2one",
+              "label": "res.partner",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_plan_h",
+              "type": "Integer",
+              "label": "План: висота",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_location.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_plan_w",
+              "type": "Integer",
+              "label": "План: ширина",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_location.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_plan_x",
+              "type": "Integer",
+              "label": "План: X",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_location.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_plan_y",
+              "type": "Integer",
+              "label": "План: Y",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_location.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_purpose",
+              "type": "Selection",
+              "label": "Призначення зони",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_location.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_tolling_partner_id",
+              "type": "Many2one",
+              "label": "res.partner",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/stock.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
           "model": "stock.lot",
           "ours": false,
           "modules": [
@@ -7849,6 +8034,24 @@
               "label": "ua.unit.transfer",
               "module": "l10n_ua_unit_transfer",
               "file": "addons/l10n_ua_unit_transfer/models/ua_unit_transfer.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "stock.move.line",
+          "ours": false,
+          "modules": [
+            "l10n_ua_commission"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_commission_report_id",
+              "type": "Many2one",
+              "label": "ua.commission.report",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
               "groups": ""
             }
           ]

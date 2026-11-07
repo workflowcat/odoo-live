@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_commission" model="ir.actions.report">
+    <field name="name">Звіт комісіонера</field>
+    <field name="model">ua.commission.report</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_commission.report_ua_commission</field>
+    <field name="report_file">l10n_ua_commission.report_ua_commission</field>
+    <field name="binding_model_id" ref="model_ua_commission_report"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Звіт комісіонера %s' % (object.name or '')</field>
+  </record>
+
+  <template id="report_ua_commission_document">
+    <t t-set="agent" t-value="doc.parties()[0]"/>
+    <t t-set="principal" t-value="doc.parties()[1]"/>
+    <t t-set="agreement" t-value="doc.agreement_id"/>
+    <div class="page ua-doc">
+      <style>
+        .ua-doc { font-size: 10px; color: #000; }
+        .ua-doc h3 { font-size: 13px; text-align: center; margin: 4px 0; }
+        .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+        .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin: 6px 0; }
+        .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; }
+        .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+        .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+        .ua-doc .ua-bold td { font-weight: bold; }
+        .ua-doc .ua-sign { width: 100%; margin-top: 18px; }
+        .ua-doc .ua-sign td { width: 50%; vertical-align: top; padding-right: 12px; }
+      </style>
+      <h3>ЗВІТ КОМІСІОНЕРА № <t t-out="doc.partner_ref or doc.name"/></h3>
+      <div class="ua-sub">про продаж товарів за період з <t t-out="doc.date_from.strftime('%d.%m.%Y')"/>
+        по <t t-out="doc.date_to.strftime('%d.%m.%Y')"/>, складено
+        <t t-out="doc.date.strftime('%d.%m.%Y')"/></div>
+      <p>
+        Комісіонер <strong t-out="agent.name"/> (код <t t-out="agent.company_registry or agent.vat or '-'"/>)
+        звітує перед комітентом <strong t-out="principal.name"/>
+        (код <t t-out="principal.company_registry or principal.vat or '-'"/>) за договором комісії
+        <t t-out="agreement.contract_id.display_name or agreement.name"/> від
+        <t t-out="agreement.date.strftime('%d.%m.%Y')"/> про такі продані товари:
+      </p>
+      <table class="ua-grid">
+        <thead>
+          <tr>
+            <th style="width: 4%;">№</th>
+            <th>Товар</th>
+            <th style="width: 6%;">Од.</th>
+            <th style="width: 9%;">Кількість</th>
+            <th style="width: 12%;">Ціна без ПДВ</th>
+            <th style="width: 13%;">Сума без ПДВ</th>
+            <th style="width: 13%;" t-if="doc.pricing == 'percent'">Винагорода</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr t-foreach="doc.line_ids" t-as="line">
+            <td style="text-align: center;"><t t-out="line_index + 1"/></td>
+            <td><t t-out="line.product_id.display_name"/></td>
+            <td><t t-out="line.uom_id.name"/></td>
+            <td class="ua-num"><t t-out="'%g' % line.quantity"/></td>
+            <td class="ua-num"><t t-out="doc.money(line.price_unit)"/></td>
+            <td class="ua-num"><t t-out="doc.money(line.amount)"/></td>
+            <td class="ua-num" t-if="doc.pricing == 'percent'"><t t-out="doc.money(line.commission)"/></td>
+          </tr>
+          <tr class="ua-bold">
+            <td colspan="5">Разом</td>
+            <td class="ua-num"><t t-out="doc.money(doc.amount_total)"/></td>
+            <td class="ua-num" t-if="doc.pricing == 'percent'"><t t-out="doc.money(doc.commission_total)"/></td>
+          </tr>
+        </tbody>
+      </table>
+      <p>Продано товарів на суму <strong t-out="doc.money(doc.amount_total)"/> без ПДВ
+        (<t t-out="doc.amount_words(doc.amount_total)"/>).</p>
+      <p t-if="doc.pricing == 'percent'">Винагорода комісіонера - <t t-out="'%g' % agreement.commission_percent"/>%
+        від суми продажу: <strong t-out="doc.money(doc.commission_total)"/> без ПДВ
+        (<t t-out="doc.amount_words(doc.commission_total)"/>). Належить комітенту без винагороди:
+        <strong t-out="doc.money(doc.amount_due)"/> без ПДВ. Податки - за рахунками сторін.</p>
+      <p>Взаємні вимоги щодо кількості й цін проданого товару сторони не мають.</p>
+      <p t-if="doc.note"><t t-out="doc.note"/></p>
+      <table class="ua-sign">
+        <tr>
+          <td>Комісіонер<br/><t t-out="agent.name"/><br/><br/>______________ / ______________________</td>
+          <td>Комітент<br/><t t-out="principal.name"/><br/><br/>______________ / ______________________</td>
+        </tr>
+      </table>
+    </div>
+  </template>
+
+  <template id="report_ua_commission">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_commission.report_ua_commission_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

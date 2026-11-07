@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Договір комісії -->
+  <record id="view_ua_commission_agreement_list" model="ir.ui.view">
+    <field name="name">ua.commission.agreement.list</field>
+    <field name="model">ua.commission.agreement</field>
+    <field name="arch" type="xml">
+      <list string="Договори комісії" decoration-muted="state == 'closed'">
+        <field name="name"/>
+        <field name="date"/>
+        <field name="role"/>
+        <field name="partner_id"/>
+        <field name="pricing" optional="show"/>
+        <field name="commission_percent" optional="show"/>
+        <field name="contract_id" optional="hide"/>
+        <field name="state" widget="badge" decoration-success="state == 'open'"
+               decoration-info="state == 'draft'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_commission_agreement_form" model="ir.ui.view">
+    <field name="name">ua.commission.agreement.form</field>
+    <field name="model">ua.commission.agreement</field>
+    <field name="arch" type="xml">
+      <form string="Договір комісії">
+        <header>
+          <button name="action_open" type="object" string="Затвердити" class="oe_highlight"
+                  invisible="state != 'draft'"/>
+          <button name="action_transfer" type="object" string="Прийняти товар від комітента"
+                  class="oe_highlight" invisible="state != 'open' or role != 'in'"/>
+          <button name="action_transfer" type="object" string="Передати товар комісіонеру"
+                  class="oe_highlight" invisible="state != 'open' or role != 'out'"/>
+          <button name="action_new_report" type="object" string="Новий звіт" invisible="state != 'open'"/>
+          <button name="action_return" type="object" string="Повернути залишок" invisible="state != 'open'"/>
+          <button name="action_close" type="object" string="Закрити договір" invisible="state != 'open'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,open,closed"/>
+        </header>
+        <sheet>
+          <div class="oe_button_box" name="button_box">
+            <button name="action_open_pickings" type="object" class="oe_stat_button" icon="fa-truck"
+                    invisible="not picking_count">
+              <field name="picking_count" widget="statinfo" string="Переміщення"/>
+            </button>
+            <button name="action_open_reports" type="object" class="oe_stat_button" icon="fa-file-text-o"
+                    invisible="not report_count">
+              <field name="report_count" widget="statinfo" string="Звіти"/>
+            </button>
+          </div>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group string="Сторони">
+              <field name="role" readonly="state != 'draft'" widget="radio"/>
+              <field name="partner_id" readonly="state != 'draft'"/>
+              <field name="contract_id" readonly="state == 'closed'"/>
+              <field name="date" readonly="state != 'draft'"/>
+            </group>
+            <group string="Розрахунок">
+              <field name="pricing" readonly="state != 'draft'" widget="radio"/>
+              <field name="commission_percent" invisible="pricing != 'percent'"
+                     readonly="state == 'closed'"/>
+              <field name="warehouse_id" readonly="state != 'draft'"/>
+              <field name="location_id" invisible="role != 'out' or not location_id"/>
+              <field name="proceeds_account_id" invisible="role != 'in' or pricing != 'percent'"
+                     groups="account.group_account_user"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+          </group>
+          <field name="line_ids" readonly="state == 'closed'">
+            <list editable="bottom">
+              <field name="sequence" widget="handle"/>
+              <field name="product_id"/>
+              <field name="price_unit"/>
+              <field name="product_qty"/>
+              <field name="currency_id" column_invisible="1"/>
+            </list>
+          </field>
+          <field name="note" placeholder="Строки звітів, умови повернення, хто відповідає за збереження"/>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_commission_agreement_search" model="ir.ui.view">
+    <field name="name">ua.commission.agreement.search</field>
+    <field name="model">ua.commission.agreement</field>
+    <field name="arch" type="xml">
+      <search string="Договори комісії">
+        <field name="name"/>
+        <field name="partner_id"/>
+        <field name="line_ids" string="Товар" filter_domain="[('line_ids.product_id', 'ilike', self)]"/>
+        <filter name="open" string="Чинні" domain="[('state', '=', 'open')]"/>
+        <separator/>
+        <filter name="role_in" string="Чужий товар" domain="[('role', '=', 'in')]"/>
+        <filter name="role_out" string="Свій товар у комісіонерів" domain="[('role', '=', 'out')]"/>
+        <group>
+          <filter name="by_partner" string="Контрагент" context="{'group_by': 'partner_id'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_commission_agreement" model="ir.actions.act_window">
+    <field name="name">Договори комісії</field>
+    <field name="res_model">ua.commission.agreement</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_ua_commission_agreement_search"/>
+    <field name="context">{'search_default_open': 1}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Договорів комісії ще немає</p>
+      <p>Компанія комісіонер - товар комітента лежить на складі без оцінки, а звіт комітенту
+        складається з продажів сам. Компанія комітент - свій товар лежить на місці «На комісії»
+        і списується за звітом комісіонера.</p>
+    </field>
+  </record>
+
+  <!-- Звіт комісіонера -->
+  <record id="view_ua_commission_report_list" model="ir.ui.view">
+    <field name="name">ua.commission.report.list</field>
+    <field name="model">ua.commission.report</field>
+    <field name="arch" type="xml">
+      <list string="Звіти комісіонера" decoration-muted="state == 'cancel'">
+        <field name="name"/>
+        <field name="date"/>
+        <field name="agreement_id"/>
+        <field name="partner_id"/>
+        <field name="role" optional="hide"/>
+        <field name="date_from" optional="show"/>
+        <field name="date_to" optional="show"/>
+        <field name="amount_total" sum="Разом"/>
+        <field name="commission_total" sum="Разом"/>
+        <field name="amount_due" sum="Разом" optional="show"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="state" widget="badge" decoration-success="state == 'done'"
+               decoration-info="state == 'draft'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_commission_report_form" model="ir.ui.view">
+    <field name="name">ua.commission.report.form</field>
+    <field name="model">ua.commission.report</field>
+    <field name="arch" type="xml">
+      <form string="Звіт комісіонера">
+        <header>
+          <button name="action_fill" type="object" string="Заповнити"
+                  invisible="state != 'draft' or role != 'in'"/>
+          <button name="action_done" type="object" string="Провести" class="oe_highlight"
+                  invisible="state != 'draft'"/>
+          <button name="action_print" type="object" string="Друк" invisible="state == 'cancel'"/>
+          <button name="action_cancel" type="object" string="Скасувати звіт" invisible="state != 'done'"
+                  confirm="Рахунки і взаємозалік буде скасовано, продане знову чекатиме звіту. Скасувати?"/>
+          <button name="action_reset_draft" type="object" string="У чернетку" invisible="state != 'cancel'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
+        </header>
+        <sheet>
+          <div class="oe_button_box" name="button_box">
+            <button name="action_open_invoices" type="object" class="oe_stat_button" icon="fa-pencil-square-o"
+                    invisible="not invoice_ids" string="Рахунки"/>
+          </div>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="agreement_id" readonly="state != 'draft'"/>
+              <field name="partner_id"/>
+              <field name="role" invisible="1"/>
+              <field name="pricing" invisible="1"/>
+              <field name="partner_ref" invisible="role != 'out'" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="date" readonly="state != 'draft'"/>
+              <label for="date_from" string="Період"/>
+              <div class="o_row">
+                <field name="date_from" readonly="state != 'draft'"/> -
+                <field name="date_to" readonly="state != 'draft'"/>
+              </div>
+              <field name="offset_id" invisible="not offset_id"/>
+              <field name="picking_id" invisible="not picking_id"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+          </group>
+          <field name="line_ids" readonly="state != 'draft'">
+            <list editable="bottom">
+              <field name="sequence" widget="handle"/>
+              <field name="product_id"/>
+              <field name="quantity"/>
+              <field name="uom_id"/>
+              <field name="price_unit"/>
+              <field name="amount" sum="Разом"/>
+              <field name="commission" sum="Разом"/>
+              <field name="sale_amount" column_invisible="parent.role != 'in'" optional="show"/>
+              <field name="currency_id" column_invisible="1"/>
+            </list>
+          </field>
+          <group>
+            <group>
+              <field name="amount_total"/>
+              <field name="commission_total"/>
+              <field name="amount_due"/>
+              <field name="sale_total" invisible="role != 'in'"/>
+            </group>
+            <field name="note" placeholder="Що ще треба записати у звіт"/>
+          </group>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_commission_report_search" model="ir.ui.view">
+    <field name="name">ua.commission.report.search</field>
+    <field name="model">ua.commission.report</field>
+    <field name="arch" type="xml">
+      <search string="Звіти комісіонера">
+        <field name="name"/>
+        <field name="agreement_id"/>
+        <field name="partner_id"/>
+        <filter name="done" string="Проведені" domain="[('state', '=', 'done')]"/>
+        <filter name="draft" string="Чернетки" domain="[('state', '=', 'draft')]"/>
+        <filter name="date" string="Дата" date="date"/>
+        <group>
+          <filter name="by_agreement" string="Договір" context="{'group_by': 'agreement_id'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_commission_report" model="ir.actions.act_window">
+    <field name="name">Звіти комісіонера</field>
+    <field name="res_model">ua.commission.report</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_ua_commission_report_search"/>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Звітів ще немає</p>
+      <p>Звіт створюється з договору кнопкою «Новий звіт».</p>
+    </field>
+  </record>
+
+  <menuitem id="menu_ua_commission_root" name="Комісійна торгівля" parent="sale.sale_menu_root"
+            sequence="4" groups="sales_team.group_sale_salesman,account.group_account_invoice"/>
+  <menuitem id="menu_ua_commission_agreement" name="Договори комісії"
+            parent="menu_ua_commission_root" action="action_ua_commission_agreement" sequence="10"/>
+  <menuitem id="menu_ua_commission_report" name="Звіти комісіонера"
+            parent="menu_ua_commission_root" action="action_ua_commission_report" sequence="20"/>
+</odoo>

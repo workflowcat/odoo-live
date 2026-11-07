@@ -146,6 +146,15 @@ Notable changes for people who run or build on this code. Module-level API chang
   documents they close, so the usual debt reports drop; the act under article 601 of the Civil Code lists
   the documents of both sides with the amount in words. Cancel unreconciles and cancels the entry. UAH
   debts only. Tests: `ua_offset`.
+- `l10n_ua_commission`: commission trade and goods on consignment, both ways. Company as commissioner:
+  the consignor's goods are received with the consignor as owner, so Odoo does not value them; they sell
+  through ordinary sale orders; the report to the consignor fills itself from deliveries of their goods
+  and, when posted, makes the consignor's bill (on the product's income account, so revenue from their
+  goods nets to zero), the commission invoice and a debt offset between the two. Company as consignor:
+  own goods move to a "На комісії" location next to the warehouse; the commissioner's report delivers
+  what was sold from there, invoices the commissioner and books the commission bill with an offset.
+  Percent commission or a fixed consignor price; cancel undoes documents and stock; unsold goods return
+  in one step. Print form of the commissioner's report. Tests: `ua_commission`.
 
 ### Changed
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number
