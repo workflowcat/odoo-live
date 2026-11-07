@@ -22,7 +22,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Fixed assets, low-value items, intangibles, tax groups | done | `l10n_ua_assets` + OCA asset management |
 | Cash desk: ПКО/ВКО, cash book КО-4, limit | done | `l10n_ua_cash` |
 | Bank statements: file, PrivatBank, Monobank | done | `l10n_ua_bank`, `l10n_ua_bank_online` |
-| Bank exchange file `1CClientBankExchange` (most Ukrainian banks) | gap | import statements and export payment orders in this format |
+| Bank exchange file `1CClientBankExchange` (most Ukrainian banks) | done | `l10n_ua_bank_1c`: statements in through the usual import, payment orders out from payments or payment orders |
 | NBU rates, FX differences | done | `l10n_ua_nbu` + native |
 | **Counterparty contracts** (settlements by contract, currency, limits) | done | `l10n_ua_contract`: contract on invoices, payments and orders, limits that warn or block, analytic per contract |
 | **Reconciliation act** with a counterparty (акт звірки) | done | `l10n_ua_contract`: by partner or contract, two-sided print form, agreed or disputed |
@@ -128,14 +128,13 @@ Done on 2026-11-07: counterparty contracts and reconciliation acts (`l10n_ua_con
 with the Resolution 309 calculation, separate cost accounting, acceptance acts and passports
 (`l10n_ua_defense`); КСПОВО unit codes in tax invoices; the ДК 021 classifier (`l10n_ua_dk021`); industry
 packs and their loader (`l10n_ua_catalog`); `docs/customization.md` and `scripts/new_pack.py`; the import
-customs declaration (`l10n_ua_customs`).
+customs declaration (`l10n_ua_customs`); the 1C bank exchange file (`l10n_ua_bank_1c`).
 
 Next, in this order:
 
-1. Bank exchange file `1CClientBankExchange`: statements in, payment orders out.
-2. Quality inspections on work orders with results on the serial passport.
-3. Tolling: customer-owned material and the processing act.
-4. Correspondence register and payment approvals.
-5. Month-end closing checklist.
-6. PRRO fiscalisation through a bridge route; price labels for the shop pack.
-7. УКТ ЗЕД classifier from official open data, once a source with a clear licence is found.
+1. Quality inspections on work orders with results on the serial passport.
+2. Tolling: customer-owned material and the processing act.
+3. Correspondence register and payment approvals.
+4. Month-end closing checklist.
+5. PRRO fiscalisation through a bridge route; price labels for the shop pack.
+6. УКТ ЗЕД classifier from official open data, once a source with a clear licence is found.

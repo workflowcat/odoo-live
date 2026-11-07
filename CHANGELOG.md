@@ -37,6 +37,12 @@ Notable changes for people who run or build on this code. Module-level API chang
   native landed costs (Дт 20 / Кт 3771), takes the VAT into tax credit (Дт 6412 / Кт 3771), sends the
   share of goods already issued to expenses so 3771 always gets the full amount, and refuses when the
   same VAT was already taken from a vendor bill. Print form "Розрахунок митних платежів". Tests: `ua_customs`.
+- `l10n_ua_bank_1c`: the bank exchange file most Ukrainian banks offer for 1C (`1CClientBankExchange`).
+  Statements import through the usual statement import: several accounts in one file, balances merged
+  across days, direction from the account, counterparty by IBAN or by ЄДРПОУ/ДРФО code, Windows, DOS and
+  UTF-8 files, no duplicates on a second import. Payment orders go out as the same format: from a payment
+  order with the "Клієнт-банк (файл 1С)" method or from selected payments, with the bank code taken from
+  the IBAN and the VAT note added to the purpose. Tests: `ua_bank_1c`.
 - `docs/customization.md` and `scripts/new_pack.py`: how a team adapts the product in its own module
   (data, fields, print forms, rules) without forking the core, and a generator for such a module.
 - `docs/parity/README.md`: what 1C/BAS gives a Ukrainian company, what this repository covers, the gaps

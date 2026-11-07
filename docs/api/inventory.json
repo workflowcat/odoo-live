@@ -1,8 +1,8 @@
 {
   "totals": {
-    "modules": 47,
+    "modules": 48,
     "models": 111,
-    "methods": 348,
+    "methods": 349,
     "fields": 292
   },
   "areas": [
@@ -345,6 +345,7 @@
           "model": "account.payment.order",
           "ours": false,
           "modules": [
+            "l10n_ua_bank_1c",
             "l10n_ua_payments"
           ],
           "methods": [
@@ -4299,32 +4300,6 @@
           "fields": []
         },
         {
-          "model": "account.journal",
-          "ours": false,
-          "modules": [
-            "l10n_ua_bank_online"
-          ],
-          "methods": [
-            {
-              "name": "action_ua_bank_provider",
-              "signature": "action_ua_bank_provider()",
-              "doc": "«З'єднання з банком»: наявне відкриваємо, відсутнє - показуємо перелік.",
-              "module": "l10n_ua_bank_online",
-              "file": "addons/l10n_ua_bank_online/models/account_bank_statement.py",
-              "decorators": []
-            },
-            {
-              "name": "action_ua_bank_test",
-              "signature": "action_ua_bank_test()",
-              "doc": "«Перевірити з'єднання» на формі банківського журналу.",
-              "module": "l10n_ua_bank_online",
-              "file": "addons/l10n_ua_bank_online/models/account_bank_statement.py",
-              "decorators": []
-            }
-          ],
-          "fields": []
-        },
-        {
           "model": "account.move",
           "ours": false,
           "modules": [
@@ -4454,116 +4429,6 @@
               "label": "ua.vat.document",
               "module": "l10n_ua_vat",
               "file": "addons/l10n_ua_vat/models/account_move.py",
-              "groups": ""
-            }
-          ]
-        },
-        {
-          "model": "account.payment",
-          "ours": false,
-          "modules": [
-            "l10n_ua_cash",
-            "l10n_ua_contract",
-            "l10n_ua_fop",
-            "l10n_ua_vat"
-          ],
-          "methods": [
-            {
-              "name": "action_post",
-              "signature": "action_post()",
-              "doc": "",
-              "module": "l10n_ua_cash",
-              "file": "addons/l10n_ua_cash/models/account_payment.py",
-              "decorators": []
-            },
-            {
-              "name": "action_post",
-              "signature": "action_post()",
-              "doc": "Спершу стандартне проведення, потім спроба створити проводку першої",
-              "module": "l10n_ua_vat",
-              "file": "addons/l10n_ua_vat/models/account_payment.py",
-              "decorators": []
-            },
-            {
-              "name": "action_ua_print_cash_order",
-              "signature": "action_ua_print_cash_order()",
-              "doc": "Друк КО-1 (ПКО) або КО-2 (ВКО).",
-              "module": "l10n_ua_cash",
-              "file": "addons/l10n_ua_cash/models/account_payment.py",
-              "decorators": []
-            }
-          ],
-          "fields": [
-            {
-              "name": "ua_contract_id",
-              "type": "Many2one",
-              "label": "ua.contract",
-              "module": "l10n_ua_contract",
-              "file": "addons/l10n_ua_contract/models/account_payment.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_document",
-              "type": "Char",
-              "label": "Документ одержувача",
-              "module": "l10n_ua_cash",
-              "file": "addons/l10n_ua_cash/models/account_payment.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_fe_closed_amount",
-              "type": "Float",
-              "label": "Закрито ПДВ першої події",
-              "module": "l10n_ua_vat",
-              "file": "addons/l10n_ua_vat/models/account_payment.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_fe_move_id",
-              "type": "Many2one",
-              "label": "account.move",
-              "module": "l10n_ua_vat",
-              "file": "addons/l10n_ua_vat/models/account_payment.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_fe_reversed",
-              "type": "Boolean",
-              "label": "Першу подію закрито",
-              "module": "l10n_ua_vat",
-              "file": "addons/l10n_ua_vat/models/account_payment.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_fop_not_income",
-              "type": "Boolean",
-              "label": "Не дохід ФОП",
-              "module": "l10n_ua_fop",
-              "file": "addons/l10n_ua_fop/models/account_payment.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_order_kind",
-              "type": "Selection",
-              "label": "Вид касового ордера",
-              "module": "l10n_ua_cash",
-              "file": "addons/l10n_ua_cash/models/account_payment.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_order_number",
-              "type": "Char",
-              "label": "Номер ордера",
-              "module": "l10n_ua_cash",
-              "file": "addons/l10n_ua_cash/models/account_payment.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_person",
-              "type": "Char",
-              "label": "Прийнято від / Видати",
-              "module": "l10n_ua_cash",
-              "file": "addons/l10n_ua_cash/models/account_payment.py",
               "groups": ""
             }
           ]
@@ -6155,6 +6020,33 @@
           "fields": []
         },
         {
+          "model": "account.journal",
+          "ours": false,
+          "modules": [
+            "l10n_ua_bank_1c",
+            "l10n_ua_bank_online"
+          ],
+          "methods": [
+            {
+              "name": "action_ua_bank_provider",
+              "signature": "action_ua_bank_provider()",
+              "doc": "«З'єднання з банком»: наявне відкриваємо, відсутнє - показуємо перелік.",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/account_bank_statement.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_bank_test",
+              "signature": "action_ua_bank_test()",
+              "doc": "«Перевірити з'єднання» на формі банківського журналу.",
+              "module": "l10n_ua_bank_online",
+              "file": "addons/l10n_ua_bank_online/models/account_bank_statement.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "account.move.line",
           "ours": false,
           "modules": [
@@ -6169,6 +6061,125 @@
               "label": "ua.contract",
               "module": "l10n_ua_contract",
               "file": "addons/l10n_ua_contract/models/account_move.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "account.payment",
+          "ours": false,
+          "modules": [
+            "l10n_ua_bank_1c",
+            "l10n_ua_cash",
+            "l10n_ua_contract",
+            "l10n_ua_fop",
+            "l10n_ua_vat"
+          ],
+          "methods": [
+            {
+              "name": "action_post",
+              "signature": "action_post()",
+              "doc": "",
+              "module": "l10n_ua_cash",
+              "file": "addons/l10n_ua_cash/models/account_payment.py",
+              "decorators": []
+            },
+            {
+              "name": "action_post",
+              "signature": "action_post()",
+              "doc": "Спершу стандартне проведення, потім спроба створити проводку першої",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_payment.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_bank1c_export",
+              "signature": "action_ua_bank1c_export()",
+              "doc": "",
+              "module": "l10n_ua_bank_1c",
+              "file": "addons/l10n_ua_bank_1c/models/account_payment.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_print_cash_order",
+              "signature": "action_ua_print_cash_order()",
+              "doc": "Друк КО-1 (ПКО) або КО-2 (ВКО).",
+              "module": "l10n_ua_cash",
+              "file": "addons/l10n_ua_cash/models/account_payment.py",
+              "decorators": []
+            }
+          ],
+          "fields": [
+            {
+              "name": "ua_contract_id",
+              "type": "Many2one",
+              "label": "ua.contract",
+              "module": "l10n_ua_contract",
+              "file": "addons/l10n_ua_contract/models/account_payment.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_document",
+              "type": "Char",
+              "label": "Документ одержувача",
+              "module": "l10n_ua_cash",
+              "file": "addons/l10n_ua_cash/models/account_payment.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_fe_closed_amount",
+              "type": "Float",
+              "label": "Закрито ПДВ першої події",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_payment.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_fe_move_id",
+              "type": "Many2one",
+              "label": "account.move",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_payment.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_fe_reversed",
+              "type": "Boolean",
+              "label": "Першу подію закрито",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_payment.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_fop_not_income",
+              "type": "Boolean",
+              "label": "Не дохід ФОП",
+              "module": "l10n_ua_fop",
+              "file": "addons/l10n_ua_fop/models/account_payment.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_order_kind",
+              "type": "Selection",
+              "label": "Вид касового ордера",
+              "module": "l10n_ua_cash",
+              "file": "addons/l10n_ua_cash/models/account_payment.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_order_number",
+              "type": "Char",
+              "label": "Номер ордера",
+              "module": "l10n_ua_cash",
+              "file": "addons/l10n_ua_cash/models/account_payment.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_person",
+              "type": "Char",
+              "label": "Прийнято від / Видати",
+              "module": "l10n_ua_cash",
+              "file": "addons/l10n_ua_cash/models/account_payment.py",
               "groups": ""
             }
           ]

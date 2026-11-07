@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 47. Моделей: 111. Методів: 348. Збережених полів на чужих моделях: 292.
+Модулів: 48. Моделей: 111. Методів: 349. Збережених полів на чужих моделях: 292.
 
 ## Зарплата
 
@@ -119,7 +119,7 @@
 
 ### `account.payment.order`
 
-доповнена модель · `l10n_ua_payments`
+доповнена модель · `l10n_ua_bank_1c`, `l10n_ua_payments`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -956,15 +956,6 @@
 | `action_ua_pull()` | «Завантажити виписку»: діалог з трьох полів - рахунок, рік, місяць. | `l10n_ua_bank_online` |
 | `action_ua_pull_all()` | «Завантажити за всі рахунки»: поточний місяць, усі підключені рахунки. | `l10n_ua_bank_online` |
 
-### `account.journal`
-
-доповнена модель · `l10n_ua_bank_online`
-
-| Метод | Що робить | Модуль |
-| --- | --- | --- |
-| `action_ua_bank_provider()` | «З'єднання з банком»: наявне відкриваємо, відсутнє - показуємо перелік. | `l10n_ua_bank_online` |
-| `action_ua_bank_test()` | «Перевірити з'єднання» на формі банківського журналу. | `l10n_ua_bank_online` |
-
 ### `account.move`
 
 доповнена модель · `bp_purchase_intake`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_vat`
@@ -989,28 +980,6 @@
 | `ua_pn_deadline` | Date | Граничний строк реєстрації ПН | `l10n_ua_vat` |
 | `ua_vat_comp` | Boolean | Проводка компенсуючих ПЗ | `l10n_ua_vat` |
 | `ua_vat_document_ids` | One2many | ua.vat.document | `l10n_ua_vat` |
-
-### `account.payment`
-
-доповнена модель · `l10n_ua_cash`, `l10n_ua_contract`, `l10n_ua_fop`, `l10n_ua_vat`
-
-| Метод | Що робить | Модуль |
-| --- | --- | --- |
-| `action_post()` | - | `l10n_ua_cash` |
-| `action_post()` | Спершу стандартне проведення, потім спроба створити проводку першої | `l10n_ua_vat` |
-| `action_ua_print_cash_order()` | Друк КО-1 (ПКО) або КО-2 (ВКО). | `l10n_ua_cash` |
-
-| Поле | Тип | Підпис | Модуль |
-| --- | --- | --- | --- |
-| `ua_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
-| `ua_document` | Char | Документ одержувача | `l10n_ua_cash` |
-| `ua_fe_closed_amount` | Float | Закрито ПДВ першої події | `l10n_ua_vat` |
-| `ua_fe_move_id` | Many2one | account.move | `l10n_ua_vat` |
-| `ua_fe_reversed` | Boolean | Першу подію закрито | `l10n_ua_vat` |
-| `ua_fop_not_income` | Boolean | Не дохід ФОП | `l10n_ua_fop` |
-| `ua_order_kind` | Selection | Вид касового ордера | `l10n_ua_cash` |
-| `ua_order_number` | Char | Номер ордера | `l10n_ua_cash` |
-| `ua_person` | Char | Прийнято від / Видати | `l10n_ua_cash` |
 
 ### `account.tax.group`
 
@@ -1389,6 +1358,15 @@
 | --- | --- | --- |
 | `open_target(target)` | Відкрити ціль будь-якого блоку будь-якого екрана. | `l10n_ua_screen` |
 
+### `account.journal`
+
+доповнена модель · `l10n_ua_bank_1c`, `l10n_ua_bank_online`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_ua_bank_provider()` | «З'єднання з банком»: наявне відкриваємо, відсутнє - показуємо перелік. | `l10n_ua_bank_online` |
+| `action_ua_bank_test()` | «Перевірити з'єднання» на формі банківського журналу. | `l10n_ua_bank_online` |
+
 ### `account.move.line`
 
 доповнена модель · `l10n_ua_contract`, `l10n_ua_vat`
@@ -1396,6 +1374,29 @@
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `ua_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
+
+### `account.payment`
+
+доповнена модель · `l10n_ua_bank_1c`, `l10n_ua_cash`, `l10n_ua_contract`, `l10n_ua_fop`, `l10n_ua_vat`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_post()` | - | `l10n_ua_cash` |
+| `action_post()` | Спершу стандартне проведення, потім спроба створити проводку першої | `l10n_ua_vat` |
+| `action_ua_bank1c_export()` | - | `l10n_ua_bank_1c` |
+| `action_ua_print_cash_order()` | Друк КО-1 (ПКО) або КО-2 (ВКО). | `l10n_ua_cash` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
+| `ua_document` | Char | Документ одержувача | `l10n_ua_cash` |
+| `ua_fe_closed_amount` | Float | Закрито ПДВ першої події | `l10n_ua_vat` |
+| `ua_fe_move_id` | Many2one | account.move | `l10n_ua_vat` |
+| `ua_fe_reversed` | Boolean | Першу подію закрито | `l10n_ua_vat` |
+| `ua_fop_not_income` | Boolean | Не дохід ФОП | `l10n_ua_fop` |
+| `ua_order_kind` | Selection | Вид касового ордера | `l10n_ua_cash` |
+| `ua_order_number` | Char | Номер ордера | `l10n_ua_cash` |
+| `ua_person` | Char | Прийнято від / Видати | `l10n_ua_cash` |
 
 ### `account.payment.register`
 

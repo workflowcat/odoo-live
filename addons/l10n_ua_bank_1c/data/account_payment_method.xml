@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+  <record id="payment_method_ua_1c_exchange" model="account.payment.method">
+    <field name="name">Клієнт-банк (файл 1С)</field>
+    <field name="code">ua_1c_exchange</field>
+    <field name="payment_type">outbound</field>
+  </record>
+</odoo>
