@@ -10,7 +10,7 @@ cd "$(dirname "$0")/.."
 TAGS="ua_golden,ua_leaves,ua_payments,ua_regress,ua_changes,ua_period,ua_checks,ua_hire,ua_reporting"
 TAGS="$TAGS,ua_setup,ua_bank,ua_card,ua_documents,ua_api,ua_vat,ua_cash,ua_ledger,ua_finrep,ua_assets"
 TAGS="$TAGS,ua_nbu,ua_fop,ua_migrate,ua_edr,ua_docs,ua_security,ua_demo_costing,ua_group,ua_mrp"
-TAGS="$TAGS,ua_profit,ua_purchase,ua_stock_docs,bp_purchase_intake,ua_contract"
+TAGS="$TAGS,ua_profit,ua_purchase,ua_stock_docs,bp_purchase_intake,ua_contract,ua_defense"
 
 TEST_MODULES=l10n_ua_navigation,l10n_ua_payroll_tests TEST_TAGS="$TAGS" ./scripts/test.sh
 

@@ -1,0 +1,28 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_contract_stock_user,ua.contract stock user,l10n_ua_contract.model_ua_contract,stock.group_stock_user,1,0,0,0
+access_ua_contract_mrp_user,ua.contract mrp user,l10n_ua_contract.model_ua_contract,mrp.group_mrp_user,1,0,0,0
+access_ua_defense_schedule_readonly,ua.defense.schedule readonly,model_ua_defense_schedule,account.group_account_readonly,1,0,0,0
+access_ua_defense_schedule_stock,ua.defense.schedule stock user,model_ua_defense_schedule,stock.group_stock_user,1,0,0,0
+access_ua_defense_schedule_mrp,ua.defense.schedule mrp user,model_ua_defense_schedule,mrp.group_mrp_user,1,0,0,0
+access_ua_defense_schedule_sale,ua.defense.schedule salesman,model_ua_defense_schedule,sales_team.group_sale_salesman,1,0,0,0
+access_ua_defense_schedule_invoice,ua.defense.schedule invoicing,model_ua_defense_schedule,account.group_account_invoice,1,1,1,1
+access_ua_defense_schedule_sale_manager,ua.defense.schedule sales manager,model_ua_defense_schedule,sales_team.group_sale_manager,1,1,1,1
+access_ua_defense_calculation_readonly,ua.defense.calculation readonly,model_ua_defense_calculation,account.group_account_readonly,1,0,0,0
+access_ua_defense_calculation_mrp,ua.defense.calculation mrp user,model_ua_defense_calculation,mrp.group_mrp_user,1,0,0,0
+access_ua_defense_calculation_accountant,ua.defense.calculation accountant,model_ua_defense_calculation,account.group_account_user,1,1,1,1
+access_ua_defense_calculation_mrp_manager,ua.defense.calculation mrp manager,model_ua_defense_calculation,mrp.group_mrp_manager,1,1,1,1
+access_ua_defense_calculation_line_readonly,ua.defense.calculation.line readonly,model_ua_defense_calculation_line,account.group_account_readonly,1,0,0,0
+access_ua_defense_calculation_line_mrp,ua.defense.calculation.line mrp user,model_ua_defense_calculation_line,mrp.group_mrp_user,1,0,0,0
+access_ua_defense_calculation_line_accountant,ua.defense.calculation.line accountant,model_ua_defense_calculation_line,account.group_account_user,1,1,1,1
+access_ua_defense_calculation_line_mrp_manager,ua.defense.calculation.line mrp manager,model_ua_defense_calculation_line,mrp.group_mrp_manager,1,1,1,1
+access_ua_defense_calculation_component_readonly,ua.defense.calculation.component readonly,model_ua_defense_calculation_component,account.group_account_readonly,1,0,0,0
+access_ua_defense_calculation_component_mrp,ua.defense.calculation.component mrp user,model_ua_defense_calculation_component,mrp.group_mrp_user,1,0,0,0
+access_ua_defense_calculation_component_accountant,ua.defense.calculation.component accountant,model_ua_defense_calculation_component,account.group_account_user,1,1,1,1
+access_ua_defense_calculation_component_mrp_manager,ua.defense.calculation.component mrp manager,model_ua_defense_calculation_component,mrp.group_mrp_manager,1,1,1,1
+access_ua_defense_acceptance_readonly,ua.defense.acceptance readonly,model_ua_defense_acceptance,account.group_account_readonly,1,0,0,0
+access_ua_defense_acceptance_mrp,ua.defense.acceptance mrp user,model_ua_defense_acceptance,mrp.group_mrp_user,1,0,0,0
+access_ua_defense_acceptance_stock,ua.defense.acceptance stock user,model_ua_defense_acceptance,stock.group_stock_user,1,1,1,0
+access_ua_defense_acceptance_stock_manager,ua.defense.acceptance stock manager,model_ua_defense_acceptance,stock.group_stock_manager,1,1,1,1
+access_ua_defense_acceptance_line_readonly,ua.defense.acceptance.line readonly,model_ua_defense_acceptance_line,account.group_account_readonly,1,0,0,0
+access_ua_defense_acceptance_line_mrp,ua.defense.acceptance.line mrp user,model_ua_defense_acceptance_line,mrp.group_mrp_user,1,0,0,0
+access_ua_defense_acceptance_line_stock,ua.defense.acceptance.line stock user,model_ua_defense_acceptance_line,stock.group_stock_user,1,1,1,1

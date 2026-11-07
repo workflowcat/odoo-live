@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 42,
-    "models": 98,
-    "methods": 316,
-    "fields": 271
+    "modules": 44,
+    "models": 106,
+    "methods": 339,
+    "fields": 286
   },
   "areas": [
     {
@@ -4329,6 +4329,7 @@
           "ours": false,
           "modules": [
             "bp_purchase_intake",
+            "l10n_ua_contract",
             "l10n_ua_docs",
             "l10n_ua_vat"
           ],
@@ -4373,6 +4374,14 @@
               "label": "bp.purchase.intake",
               "module": "bp_purchase_intake",
               "file": "addons/bp_purchase_intake/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_contract_id",
+              "type": "Many2one",
+              "label": "ua.contract",
+              "module": "l10n_ua_contract",
+              "file": "addons/l10n_ua_contract/models/account_move.py",
               "groups": ""
             },
             {
@@ -4454,6 +4463,7 @@
           "ours": false,
           "modules": [
             "l10n_ua_cash",
+            "l10n_ua_contract",
             "l10n_ua_fop",
             "l10n_ua_vat"
           ],
@@ -4484,6 +4494,14 @@
             }
           ],
           "fields": [
+            {
+              "name": "ua_contract_id",
+              "type": "Many2one",
+              "label": "ua.contract",
+              "module": "l10n_ua_contract",
+              "file": "addons/l10n_ua_contract/models/account_payment.py",
+              "groups": ""
+            },
             {
               "name": "ua_document",
               "type": "Char",
@@ -4631,35 +4649,6 @@
           ]
         },
         {
-          "model": "mrp.production",
-          "ours": false,
-          "modules": [
-            "l10n_ua_mrp"
-          ],
-          "methods": [
-            {
-              "name": "ua_get_or_create",
-              "signature": "ua_get_or_create(client_ref, vals=None)",
-              "doc": "Замовлення за міткою клієнта: є - віддаємо, немає - створюємо.",
-              "module": "l10n_ua_mrp",
-              "file": "addons/l10n_ua_mrp/models/mrp_workorder.py",
-              "decorators": [
-                "api.model"
-              ]
-            }
-          ],
-          "fields": [
-            {
-              "name": "ua_client_ref",
-              "type": "Char",
-              "label": "Мітка операції",
-              "module": "l10n_ua_mrp",
-              "file": "addons/l10n_ua_mrp/models/mrp_workorder.py",
-              "groups": ""
-            }
-          ]
-        },
-        {
           "model": "mrp.routing.workcenter",
           "ours": false,
           "modules": [
@@ -4756,75 +4745,6 @@
           ]
         },
         {
-          "model": "product.template",
-          "ours": false,
-          "modules": [
-            "l10n_ua_mrp",
-            "l10n_ua_stock_docs",
-            "l10n_ua_vat"
-          ],
-          "methods": [
-            {
-              "name": "ua_assembly",
-              "signature": "ua_assembly()",
-              "doc": "Креслення і операції з позиціями - усе, що треба екрану збирання.",
-              "module": "l10n_ua_mrp",
-              "file": "addons/l10n_ua_mrp/models/product_template.py",
-              "decorators": []
-            }
-          ],
-          "fields": [
-            {
-              "name": "ua_drawing_name",
-              "type": "Char",
-              "label": "Файл креслення",
-              "module": "l10n_ua_mrp",
-              "file": "addons/l10n_ua_mrp/models/product_template.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_drawing_svg",
-              "type": "Binary",
-              "label": "Складальне креслення",
-              "module": "l10n_ua_mrp",
-              "file": "addons/l10n_ua_mrp/models/product_template.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_size",
-              "type": "Selection",
-              "label": "Габарит",
-              "module": "l10n_ua_stock_docs",
-              "file": "addons/l10n_ua_stock_docs/models/product_template.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_uktzed",
-              "type": "Char",
-              "label": "Код УКТ ЗЕД",
-              "module": "l10n_ua_vat",
-              "file": "addons/l10n_ua_vat/models/product_template.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_vat_relief_id",
-              "type": "Many2one",
-              "label": "ua.vat.relief",
-              "module": "l10n_ua_vat",
-              "file": "addons/l10n_ua_vat/models/product_template.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_vat_treatment",
-              "type": "Selection",
-              "label": "Режим ПДВ товару",
-              "module": "l10n_ua_vat",
-              "file": "addons/l10n_ua_vat/models/product_template.py",
-              "groups": ""
-            }
-          ]
-        },
-        {
           "model": "res.bank",
           "ours": false,
           "modules": [
@@ -4864,9 +4784,19 @@
           "model": "sale.order",
           "ours": false,
           "modules": [
+            "l10n_ua_contract",
             "l10n_ua_docs_sale"
           ],
-          "methods": [],
+          "methods": [
+            {
+              "name": "action_confirm",
+              "signature": "action_confirm()",
+              "doc": "",
+              "module": "l10n_ua_contract",
+              "file": "addons/l10n_ua_contract/models/orders.py",
+              "decorators": []
+            }
+          ],
           "fields": [
             {
               "name": "ua_contract_date",
@@ -4874,6 +4804,14 @@
               "label": "Дата договору",
               "module": "l10n_ua_docs_sale",
               "file": "addons/l10n_ua_docs_sale/models/sale_order.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_contract_id",
+              "type": "Many2one",
+              "label": "ua.contract",
+              "module": "l10n_ua_contract",
+              "file": "addons/l10n_ua_contract/models/orders.py",
               "groups": ""
             },
             {
@@ -5256,40 +5194,6 @@
             }
           ],
           "fields": []
-        },
-        {
-          "model": "purchase.order",
-          "ours": false,
-          "modules": [
-            "l10n_ua_purchase"
-          ],
-          "methods": [],
-          "fields": [
-            {
-              "name": "ua_department_id",
-              "type": "Many2one",
-              "label": "Підрозділ",
-              "module": "l10n_ua_purchase",
-              "file": "addons/l10n_ua_purchase/models/purchase_order.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_expense_account_id",
-              "type": "Many2one",
-              "label": "Рахунок витрат",
-              "module": "l10n_ua_purchase",
-              "file": "addons/l10n_ua_purchase/models/purchase_order.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_request_id",
-              "type": "Many2one",
-              "label": "Запит на закупівлю",
-              "module": "l10n_ua_purchase",
-              "file": "addons/l10n_ua_purchase/models/purchase_order.py",
-              "groups": ""
-            }
-          ]
         },
         {
           "model": "purchase.request",
@@ -5884,6 +5788,157 @@
           "fields": []
         },
         {
+          "model": "ua.contract",
+          "ours": true,
+          "modules": [
+            "l10n_ua_contract",
+            "l10n_ua_defense"
+          ],
+          "methods": [
+            {
+              "name": "action_activate",
+              "signature": "action_activate()",
+              "doc": "",
+              "module": "l10n_ua_contract",
+              "file": "addons/l10n_ua_contract/models/ua_contract.py",
+              "decorators": []
+            },
+            {
+              "name": "action_close",
+              "signature": "action_close()",
+              "doc": "",
+              "module": "l10n_ua_contract",
+              "file": "addons/l10n_ua_contract/models/ua_contract.py",
+              "decorators": []
+            },
+            {
+              "name": "action_new_plan_calculation",
+              "signature": "action_new_plan_calculation()",
+              "doc": "Планова калькуляція на перший виріб графіка без калькуляції.",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/ua_contract.py",
+              "decorators": []
+            },
+            {
+              "name": "action_new_reconciliation_act",
+              "signature": "action_new_reconciliation_act()",
+              "doc": "Акт звірки за договором з початку року по сьогодні.",
+              "module": "l10n_ua_contract",
+              "file": "addons/l10n_ua_contract/models/ua_contract.py",
+              "decorators": []
+            },
+            {
+              "name": "action_view_moves",
+              "signature": "action_view_moves()",
+              "doc": "",
+              "module": "l10n_ua_contract",
+              "file": "addons/l10n_ua_contract/models/ua_contract.py",
+              "decorators": []
+            },
+            {
+              "name": "action_view_productions",
+              "signature": "action_view_productions()",
+              "doc": "",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/ua_contract.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.defense.acceptance",
+          "ours": true,
+          "modules": [
+            "l10n_ua_defense"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/ua_defense_acceptance.py",
+              "decorators": []
+            },
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/ua_defense_acceptance.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill_from_picking",
+              "signature": "action_fill_from_picking()",
+              "doc": "Рядки з відвантаження: виріб, кількість і серійні номери.",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/ua_defense_acceptance.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/ua_defense_acceptance.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reset_draft",
+              "signature": "action_reset_draft()",
+              "doc": "",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/ua_defense_acceptance.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.defense.calculation",
+          "ours": true,
+          "modules": [
+            "l10n_ua_defense"
+          ],
+          "methods": [
+            {
+              "name": "action_approve",
+              "signature": "action_approve()",
+              "doc": "",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/ua_defense_calculation.py",
+              "decorators": []
+            },
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/ua_defense_calculation.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/ua_defense_calculation.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reset_draft",
+              "signature": "action_reset_draft()",
+              "doc": "",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/ua_defense_calculation.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.navigation",
           "ours": true,
           "modules": [
@@ -5899,6 +5954,64 @@
               "decorators": [
                 "api.model"
               ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.reconciliation.act",
+          "ours": true,
+          "modules": [
+            "l10n_ua_contract"
+          ],
+          "methods": [
+            {
+              "name": "action_fill",
+              "signature": "action_fill()",
+              "doc": "Заповнити акт проводками періоду; дані контрагента не чіпає.",
+              "module": "l10n_ua_contract",
+              "file": "addons/l10n_ua_contract/models/ua_reconciliation_act.py",
+              "decorators": []
+            },
+            {
+              "name": "action_mark_agreed",
+              "signature": "action_mark_agreed()",
+              "doc": "",
+              "module": "l10n_ua_contract",
+              "file": "addons/l10n_ua_contract/models/ua_reconciliation_act.py",
+              "decorators": []
+            },
+            {
+              "name": "action_mark_disputed",
+              "signature": "action_mark_disputed()",
+              "doc": "",
+              "module": "l10n_ua_contract",
+              "file": "addons/l10n_ua_contract/models/ua_reconciliation_act.py",
+              "decorators": []
+            },
+            {
+              "name": "action_mark_sent",
+              "signature": "action_mark_sent()",
+              "doc": "",
+              "module": "l10n_ua_contract",
+              "file": "addons/l10n_ua_contract/models/ua_reconciliation_act.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_contract",
+              "file": "addons/l10n_ua_contract/models/ua_reconciliation_act.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reset_draft",
+              "signature": "action_reset_draft()",
+              "doc": "",
+              "module": "l10n_ua_contract",
+              "file": "addons/l10n_ua_contract/models/ua_reconciliation_act.py",
+              "decorators": []
             }
           ],
           "fields": []
@@ -5922,6 +6035,287 @@
             }
           ],
           "fields": []
+        },
+        {
+          "model": "account.move.line",
+          "ours": false,
+          "modules": [
+            "l10n_ua_contract",
+            "l10n_ua_vat"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_contract_id",
+              "type": "Many2one",
+              "label": "ua.contract",
+              "module": "l10n_ua_contract",
+              "file": "addons/l10n_ua_contract/models/account_move.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "account.payment.register",
+          "ours": false,
+          "modules": [
+            "l10n_ua_contract"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_contract_id",
+              "type": "Many2one",
+              "label": "ua.contract",
+              "module": "l10n_ua_contract",
+              "file": "addons/l10n_ua_contract/models/account_payment.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "mrp.production",
+          "ours": false,
+          "modules": [
+            "l10n_ua_defense",
+            "l10n_ua_mrp"
+          ],
+          "methods": [
+            {
+              "name": "ua_get_or_create",
+              "signature": "ua_get_or_create(client_ref, vals=None)",
+              "doc": "Замовлення за міткою клієнта: є - віддаємо, немає - створюємо.",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/mrp_workorder.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": [
+            {
+              "name": "ua_client_ref",
+              "type": "Char",
+              "label": "Мітка операції",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/mrp_workorder.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_contract_id",
+              "type": "Many2one",
+              "label": "ua.contract",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/mrp_production.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "mrp.workcenter",
+          "ours": false,
+          "modules": [
+            "l10n_ua_defense"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_energy_hour",
+              "type": "Float",
+              "label": "Енергія за годину",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/product.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_wage_hour",
+              "type": "Float",
+              "label": "Основна зарплата за годину",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/product.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "product.template",
+          "ours": false,
+          "modules": [
+            "l10n_ua_defense",
+            "l10n_ua_mrp",
+            "l10n_ua_stock_docs",
+            "l10n_ua_vat"
+          ],
+          "methods": [
+            {
+              "name": "ua_assembly",
+              "signature": "ua_assembly()",
+              "doc": "Креслення і операції з позиціями - усе, що треба екрану збирання.",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/product_template.py",
+              "decorators": []
+            }
+          ],
+          "fields": [
+            {
+              "name": "ua_cost_item",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/product.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_drawing_name",
+              "type": "Char",
+              "label": "Файл креслення",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/product_template.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_drawing_svg",
+              "type": "Binary",
+              "label": "Складальне креслення",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/product_template.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_size",
+              "type": "Selection",
+              "label": "Габарит",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/product_template.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_uktzed",
+              "type": "Char",
+              "label": "Код УКТ ЗЕД",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/product_template.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_vat_relief_id",
+              "type": "Many2one",
+              "label": "ua.vat.relief",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/product_template.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_vat_treatment",
+              "type": "Selection",
+              "label": "Режим ПДВ товару",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/product_template.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_warranty_months",
+              "type": "Integer",
+              "label": "Гарантія, місяців",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/product.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "purchase.order",
+          "ours": false,
+          "modules": [
+            "l10n_ua_contract",
+            "l10n_ua_purchase"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_contract_id",
+              "type": "Many2one",
+              "label": "ua.contract",
+              "module": "l10n_ua_contract",
+              "file": "addons/l10n_ua_contract/models/orders.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_department_id",
+              "type": "Many2one",
+              "label": "Підрозділ",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/purchase_order.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_expense_account_id",
+              "type": "Many2one",
+              "label": "Рахунок витрат",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/purchase_order.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_request_id",
+              "type": "Many2one",
+              "label": "Запит на закупівлю",
+              "module": "l10n_ua_purchase",
+              "file": "addons/l10n_ua_purchase/models/purchase_order.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_sale_contract_id",
+              "type": "Many2one",
+              "label": "ua.contract",
+              "module": "l10n_ua_contract",
+              "file": "addons/l10n_ua_contract/models/orders.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "stock.lot",
+          "ours": false,
+          "modules": [
+            "l10n_ua_defense"
+          ],
+          "methods": [
+            {
+              "name": "action_print_passport",
+              "signature": "action_print_passport()",
+              "doc": "",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/stock_lot.py",
+              "decorators": []
+            }
+          ],
+          "fields": [
+            {
+              "name": "ua_acceptance_id",
+              "type": "Many2one",
+              "label": "ua.defense.acceptance",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/stock_lot.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_contract_id",
+              "type": "Many2one",
+              "label": "ua.contract",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/stock_lot.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_passport_number",
+              "type": "Char",
+              "label": "Номер паспорта",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/stock_lot.py",
+              "groups": ""
+            }
+          ]
         }
       ]
     }

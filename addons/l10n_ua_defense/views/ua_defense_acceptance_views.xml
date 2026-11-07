@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_defense_acceptance_list" model="ir.ui.view">
+    <field name="name">ua.defense.acceptance.list</field>
+    <field name="model">ua.defense.acceptance</field>
+    <field name="arch" type="xml">
+      <list string="Акти приймання">
+        <field name="name"/>
+        <field name="date"/>
+        <field name="contract_id"/>
+        <field name="partner_id" optional="show"/>
+        <field name="representative" optional="show"/>
+        <field name="state" widget="badge" decoration-success="state == 'done'" decoration-muted="state == 'cancel'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_defense_acceptance_form" model="ir.ui.view">
+    <field name="name">ua.defense.acceptance.form</field>
+    <field name="model">ua.defense.acceptance</field>
+    <field name="arch" type="xml">
+      <form string="Акт приймання">
+        <header>
+          <button name="action_fill_from_picking" type="object" string="Заповнити"
+                  invisible="state != 'draft' or not picking_id"/>
+          <button name="action_done" type="object" string="Затвердити" class="oe_highlight" invisible="state != 'draft'"/>
+          <button name="action_print" type="object" string="Друк"/>
+          <button name="action_reset_draft" type="object" string="У чернетку" invisible="state == 'draft'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="contract_id" readonly="state != 'draft'"/>
+              <field name="partner_id"/>
+              <field name="picking_id" readonly="state != 'draft'"/>
+              <field name="company_id" invisible="1"/>
+            </group>
+            <group>
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="representative" readonly="state != 'draft'"/>
+            </group>
+          </group>
+          <field name="line_ids" readonly="state != 'draft'">
+            <list editable="bottom">
+              <field name="product_id"/>
+              <field name="quantity"/>
+              <field name="result"/>
+              <field name="qty_accepted"/>
+              <field name="lot_ids" widget="many2many_tags"/>
+              <field name="note"/>
+            </list>
+          </field>
+          <field name="note" placeholder="Зауваження представника замовника"/>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_defense_acceptance" model="ir.actions.act_window">
+    <field name="name">Акти приймання</field>
+    <field name="res_model">ua.defense.acceptance</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Актів приймання ще немає</p>
+      <p>Затверджений акт закриває графік поставки і ставить себе на серійні номери виробів.</p>
+    </field>
+  </record>
+</odoo>

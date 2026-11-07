@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_contract_form_defense" model="ir.ui.view">
+    <field name="name">ua.contract.form.defense</field>
+    <field name="model">ua.contract</field>
+    <field name="inherit_id" ref="l10n_ua_contract.view_ua_contract_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//div[@name='button_box']" position="inside">
+        <button name="action_view_productions" type="object" class="oe_stat_button" icon="fa-industry"
+                invisible="not ua_defense or not id">
+          <field name="ua_production_count" widget="statinfo" string="Виробництво"/>
+        </button>
+      </xpath>
+      <field name="kind" position="before">
+        <field name="ua_defense"/>
+      </field>
+      <xpath expr="//notebook" position="before">
+        <div class="alert alert-warning" role="alert" invisible="not ua_schedule_late">
+          Є прострочені поставки за графіком.
+        </div>
+      </xpath>
+      <xpath expr="//notebook" position="inside">
+        <page string="Оборонний контракт" name="defense" invisible="not ua_defense">
+          <group>
+            <group string="Замовник і закупівля">
+              <field name="ua_customer_kind"/>
+              <field name="ua_procurement_ref"/>
+              <field name="ua_price_type"/>
+              <field name="ua_advance_percent"/>
+              <field name="ua_vat_rate"/>
+              <field name="ua_schedule_late" invisible="1"/>
+            </group>
+            <group string="Нормативи калькуляції, %">
+              <field name="ua_rate_additional_wage"/>
+              <field name="ua_rate_esv"/>
+              <field name="ua_rate_overhead"/>
+              <field name="ua_rate_other_production"/>
+              <field name="ua_indirect_base"/>
+              <field name="ua_rate_admin"/>
+              <field name="ua_rate_selling"/>
+              <field name="ua_rate_other_operating"/>
+              <field name="ua_rate_financial"/>
+              <field name="ua_rate_profit_purchased"/>
+              <field name="ua_rate_profit_own"/>
+            </group>
+          </group>
+          <separator string="Графік поставки"/>
+          <field name="ua_schedule_ids">
+            <list editable="bottom" decoration-danger="state == 'late'" decoration-success="state == 'done'">
+              <field name="product_id"/>
+              <field name="quantity"/>
+              <field name="date"/>
+              <field name="qty_accepted"/>
+              <field name="state" widget="badge" decoration-success="state == 'done'" decoration-danger="state == 'late'"/>
+            </list>
+          </field>
+          <separator string="Калькуляції ціни"/>
+          <button name="action_new_plan_calculation" type="object" string="Планова калькуляція"
+                  class="btn-secondary" invisible="not id"/>
+          <field name="ua_calculation_ids" readonly="1">
+            <list>
+              <field name="name"/>
+              <field name="kind"/>
+              <field name="product_id"/>
+              <field name="date"/>
+              <field name="price_unit"/>
+              <field name="price_unit_vat"/>
+              <field name="state" widget="badge" decoration-success="state == 'approved'"/>
+              <field name="currency_id" column_invisible="1"/>
+            </list>
+          </field>
+          <separator string="Акти приймання"/>
+          <field name="ua_acceptance_ids" readonly="1">
+            <list>
+              <field name="name"/>
+              <field name="date"/>
+              <field name="representative"/>
+              <field name="state" widget="badge" decoration-success="state == 'done'"/>
+            </list>
+          </field>
+        </page>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_ua_contract_search_defense" model="ir.ui.view">
+    <field name="name">ua.contract.search.defense</field>
+    <field name="model">ua.contract</field>
+    <field name="inherit_id" ref="l10n_ua_contract.view_ua_contract_search"/>
+    <field name="arch" type="xml">
+      <filter name="separate" position="before">
+        <filter name="defense" string="Оборонні" domain="[('ua_defense', '=', True)]"/>
+      </filter>
+      <field name="name" position="after">
+        <field name="ua_procurement_ref"/>
+      </field>
+    </field>
+  </record>
+
+  <record id="action_ua_defense_contract" model="ir.actions.act_window">
+    <field name="name">Оборонні контракти</field>
+    <field name="res_model">ua.contract</field>
+    <field name="view_mode">list,form</field>
+    <field name="domain">[('ua_defense', '=', True)]</field>
+    <field name="context">{'default_ua_defense': True, 'default_kind': 'sale', 'default_separate_accounting': True}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Оборонних контрактів ще немає</p>
+      <p>Контракт веде окремий облік витрат, графік поставки, калькуляції ціни й акти приймання.</p>
+    </field>
+  </record>
+
+  <record id="action_ua_defense_schedule" model="ir.actions.act_window">
+    <field name="name">Графік поставок</field>
+    <field name="res_model">ua.defense.schedule</field>
+    <field name="view_mode">list</field>
+  </record>
+
+  <record id="view_ua_defense_schedule_list" model="ir.ui.view">
+    <field name="name">ua.defense.schedule.list</field>
+    <field name="model">ua.defense.schedule</field>
+    <field name="arch" type="xml">
+      <list string="Графік поставок" create="0" decoration-danger="state == 'late'" default_order="date">
+        <field name="contract_id"/>
+        <field name="product_id"/>
+        <field name="quantity"/>
+        <field name="date"/>
+        <field name="qty_accepted"/>
+        <field name="state" widget="badge" decoration-success="state == 'done'" decoration-danger="state == 'late'"/>
+      </list>
+    </field>
+  </record>
+</odoo>

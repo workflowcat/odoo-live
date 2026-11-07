@@ -32,7 +32,7 @@
         "l10n_ua_docs", "l10n_ua_docs_sale", "l10n_ua_docs_stock", "l10n_ua_fop",
         "l10n_ua_migrate",
         # контрагенти і закупівлі
-        "l10n_ua_partner_edr", "l10n_ua_contract", "bp_kyc", "bp_purchase_intake",
+        "l10n_ua_partner_edr", "l10n_ua_contract", "l10n_ua_defense", "bp_kyc", "bp_purchase_intake",
         # OCA, чиї пункти меню перейменовуються і переставляються тут
         "account_usability", "account_financial_report", "account_reconcile_oca",
         "account_statement_import_online",

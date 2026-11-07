@@ -17,6 +17,12 @@ Notable changes for people who run or build on this code. Module-level API chang
   invoices; "separate accounting" gives the contract its own analytic account that lands on order and
   invoice lines. Reconciliation act (акт звірки) by partner or contract on settlement accounts 36, 37, 63,
   68, with the usual two-sided print form and an agreed/disputed status. Tests: `ua_contract`.
+- `l10n_ua_defense`: defense contracts on top of contracts (customer, procurement id, price type, advance,
+  VAT rate, calculation rates), delivery schedule with late marks, price calculation by the cost items of
+  Resolution 309 (01-10 plus admin, selling, other, financial, profit on purchased and on own costs, VAT),
+  planned from the BOM and routing with sub-assemblies exploded, actual from done manufacturing orders of
+  the contract with plan-vs-actual; acceptance acts with serial numbers that close the schedule; product
+  passport per serial with component serials. Print forms for all three. Tests: `ua_defense`.
 - `docs/parity/README.md`: what 1C/BAS gives a Ukrainian company, what this repository covers, the gaps
   and the order of work, with the defense-manufacturer needs first.
 - `ruff.toml` and a lint step in `scripts/check_static.sh`: undefined names, unused imports and variables,

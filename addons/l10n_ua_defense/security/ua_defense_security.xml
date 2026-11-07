@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Правила компанії: усе оборонне бачить лише своя компанія. Рядки беруть компанію
+       документа, на якому висять. -->
+  <record id="rule_ua_defense_schedule_company" model="ir.rule">
+    <field name="name">Графік поставки: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_defense_schedule"/>
+    <field name="domain_force">[('contract_id.company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_ua_defense_calculation_company" model="ir.rule">
+    <field name="name">Калькуляція ціни: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_defense_calculation"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_ua_defense_calculation_line_company" model="ir.rule">
+    <field name="name">Стаття калькуляції: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_defense_calculation_line"/>
+    <field name="domain_force">[('calculation_id.company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_ua_defense_calculation_component_company" model="ir.rule">
+    <field name="name">Розшифровка калькуляції: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_defense_calculation_component"/>
+    <field name="domain_force">[('calculation_id.company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_ua_defense_acceptance_company" model="ir.rule">
+    <field name="name">Акт приймання: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_defense_acceptance"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_ua_defense_acceptance_line_company" model="ir.rule">
+    <field name="name">Рядок акта приймання: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_defense_acceptance_line"/>
+    <field name="domain_force">[('acceptance_id.company_id', 'in', company_ids)]</field>
+  </record>
+</odoo>

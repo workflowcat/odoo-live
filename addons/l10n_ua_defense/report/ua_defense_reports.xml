@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_defense_calculation" model="ir.actions.report">
+    <field name="name">Калькуляція ціни</field>
+    <field name="model">ua.defense.calculation</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_defense.report_ua_defense_calculation</field>
+    <field name="report_file">l10n_ua_defense.report_ua_defense_calculation</field>
+    <field name="binding_model_id" ref="model_ua_defense_calculation"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Калькуляція %s' % (object.name or '')</field>
+  </record>
+
+  <record id="action_report_ua_defense_acceptance" model="ir.actions.report">
+    <field name="name">Акт приймання</field>
+    <field name="model">ua.defense.acceptance</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_defense.report_ua_defense_acceptance</field>
+    <field name="report_file">l10n_ua_defense.report_ua_defense_acceptance</field>
+    <field name="binding_model_id" ref="model_ua_defense_acceptance"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Акт приймання %s' % (object.name or '')</field>
+  </record>
+
+  <record id="action_report_ua_product_passport" model="ir.actions.report">
+    <field name="name">Паспорт виробу</field>
+    <field name="model">stock.lot</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_defense.report_ua_product_passport</field>
+    <field name="report_file">l10n_ua_defense.report_ua_product_passport</field>
+    <field name="binding_model_id" ref="stock.model_stock_lot"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Паспорт %s' % (object.name or '')</field>
+  </record>
+
+  <template id="ua_defense_style">
+    <style>
+      .ua-doc { font-size: 10.5px; color: #000; }
+      .ua-doc h3 { font-size: 13px; text-align: center; margin: 4px 0; }
+      .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+      .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin: 6px 0; }
+      .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 4px; }
+      .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+      .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+      .ua-doc .ua-bold td { font-weight: bold; }
+      .ua-doc .ua-sign { width: 100%; margin-top: 18px; }
+      .ua-doc .ua-sign td { width: 50%; vertical-align: top; padding: 12px 12px 0 0; }
+      .ua-doc .ua-right { text-align: right; }
+    </style>
+  </template>
+
+  <!-- ======================= Калькуляція ======================= -->
+  <template id="report_ua_defense_calculation_document">
+    <t t-set="contract" t-value="doc.contract_id"/>
+    <t t-set="actual" t-value="doc.kind == 'actual'"/>
+    <div class="page ua-doc">
+      <t t-call="l10n_ua_defense.ua_defense_style"/>
+      <div class="ua-right">
+        ЗАТВЕРДЖУЮ<br/>
+        Керівник <t t-out="doc.company_id.name"/><br/>
+        ______________ «___» ____________ <t t-out="doc.date.year"/> р.
+      </div>
+      <h3>
+        <t t-if="actual">ФАКТИЧНА</t><t t-else="">ПЛАНОВА</t> КАЛЬКУЛЯЦІЯ <t t-out="doc.name"/>
+      </h3>
+      <div class="ua-sub">
+        ціни на <t t-out="doc.product_id.display_name"/><br/>
+        <t t-out="contract._ua_print_name()"/>, замовник <t t-out="contract.partner_id.name"/>
+        <t t-if="contract.ua_procurement_ref">, закупівля <t t-out="contract.ua_procurement_ref"/></t><br/>
+        за статтями витрат постанови Кабінету Міністрів України від 17.03.2021 № 309
+        <t t-if="actual"><br/>випущено виробів: <t t-out="doc.quantity" t-options='{"widget": "float", "precision": 0}'/></t>
+      </div>
+      <table class="ua-grid">
+        <thead>
+          <tr>
+            <th style="width: 6%;">Код</th>
+            <th>Стаття витрат</th>
+            <th t-if="actual" style="width: 14%;">План на виріб, грн</th>
+            <th style="width: 14%;">На виріб, грн</th>
+            <th t-if="actual" style="width: 14%;">Відхилення, грн</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr t-foreach="doc.line_ids" t-as="line" t-att-class="'ua-bold' if line.is_total else ''">
+            <td style="text-align: center;"><t t-out="line.code"/></td>
+            <td><t t-out="line.name"/></td>
+            <td t-if="actual" class="ua-num"><t t-out="line.plan_amount" t-options='{"widget": "float", "precision": 2}'/></td>
+            <td class="ua-num"><t t-out="line.amount" t-options='{"widget": "float", "precision": 2}'/></td>
+            <td t-if="actual" class="ua-num"><t t-out="line.difference" t-options='{"widget": "float", "precision": 2}'/></td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        Нормативи: додаткова зарплата <t t-out="contract.ua_rate_additional_wage"/>% від 04;
+        ЄСВ <t t-out="contract.ua_rate_esv"/>%; загальновиробничі <t t-out="contract.ua_rate_overhead"/>% від 04;
+        інші виробничі <t t-out="contract.ua_rate_other_production"/>% від 04;
+        адміністративні <t t-out="contract.ua_rate_admin"/>%, збут <t t-out="contract.ua_rate_selling"/>%,
+        інші операційні <t t-out="contract.ua_rate_other_operating"/>%
+        від <t t-if="contract.ua_indirect_base == 'wage'">основної зарплати</t><t t-else="">виробничої собівартості</t>;
+        фінансові <t t-out="contract.ua_rate_financial"/>%; прибуток на покупні
+        <t t-out="contract.ua_rate_profit_purchased"/>%, на власні витрати <t t-out="contract.ua_rate_profit_own"/>%;
+        ПДВ <t t-out="contract.ua_vat_rate"/>%.
+        Трудомісткість: <t t-out="doc.hours" t-options='{"widget": "float", "precision": 2}'/> нормо-год на виріб.
+      </p>
+
+      <t t-if="doc.component_ids">
+        <h3>Розшифровка матеріальних витрат</h3>
+        <table class="ua-grid">
+          <thead>
+            <tr>
+              <th style="width: 6%;">Стаття</th>
+              <th>Матеріал, комплектуючий виріб</th>
+              <th style="width: 8%;">Од.</th>
+              <th style="width: 12%;">Норма на виріб</th>
+              <th style="width: 12%;">Ціна, грн</th>
+              <th style="width: 12%;">Сума, грн</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr t-foreach="doc.component_ids" t-as="row">
+              <td style="text-align: center;"><t t-out="row.item"/></td>
+              <td><t t-out="row.product_id.display_name"/></td>
+              <td><t t-out="row.uom_id.name"/></td>
+              <td class="ua-num"><t t-out="row.quantity" t-options='{"widget": "float", "precision": 4}'/></td>
+              <td class="ua-num"><t t-out="row.price" t-options='{"widget": "float", "precision": 2}'/></td>
+              <td class="ua-num"><t t-out="row.amount" t-options='{"widget": "float", "precision": 2}'/></td>
+            </tr>
+          </tbody>
+        </table>
+      </t>
+
+      <table class="ua-sign">
+        <tr>
+          <td>Головний бухгалтер ______________ / ______________</td>
+          <td>Начальник планово-економічного відділу ______________ / ______________</td>
+        </tr>
+      </table>
+    </div>
+  </template>
+
+  <template id="report_ua_defense_calculation">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_defense.report_ua_defense_calculation_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+
+  <!-- ======================= Акт приймання ======================= -->
+  <template id="report_ua_defense_acceptance_document">
+    <t t-set="contract" t-value="doc.contract_id"/>
+    <div class="page ua-doc">
+      <t t-call="l10n_ua_defense.ua_defense_style"/>
+      <h3>АКТ ПРИЙМАННЯ ПРОДУКЦІЇ <t t-out="doc.name"/></h3>
+      <div class="ua-sub">
+        від <t t-out="doc.date.strftime('%d.%m.%Y')"/><br/>
+        <t t-out="contract._ua_print_name()"/><t t-if="contract.ua_procurement_ref">, закупівля <t t-out="contract.ua_procurement_ref"/></t>
+      </div>
+      <p>
+        Постачальник: <strong t-out="doc.company_id.name"/>.
+        Замовник: <strong t-out="contract.partner_id.name"/>.
+        <t t-if="doc.picking_id">Накладна: <t t-out="doc.picking_id.name"/>.</t>
+      </p>
+      <p>Представник замовника <t t-out="doc.representative or '______________________________'"/>
+        провів приймання продукції і встановив:</p>
+      <table class="ua-grid">
+        <thead>
+          <tr>
+            <th style="width: 4%;">№</th>
+            <th>Виріб</th>
+            <th style="width: 10%;">Пред'явлено</th>
+            <th style="width: 10%;">Прийнято</th>
+            <th style="width: 30%;">Серійні номери</th>
+            <th style="width: 16%;">Зауваження</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr t-foreach="doc.line_ids" t-as="line">
+            <td style="text-align: center;"><t t-out="line_index + 1"/></td>
+            <td><t t-out="line.product_id.display_name"/></td>
+            <td class="ua-num"><t t-out="line.quantity" t-options='{"widget": "float", "precision": 0}'/></td>
+            <td class="ua-num"><t t-out="line.qty_accepted" t-options='{"widget": "float", "precision": 0}'/></td>
+            <td><t t-out="', '.join(line.lot_ids.mapped('name'))"/></td>
+            <td><t t-if="line.result == 'rework'">На доопрацювання. </t><t t-out="line.note or ''"/></td>
+          </tr>
+        </tbody>
+      </table>
+      <p t-if="doc.note">Зауваження: <t t-out="doc.note"/></p>
+      <table class="ua-sign">
+        <tr>
+          <td>Від постачальника<br/><br/>______________ / ______________________</td>
+          <td>Представник замовника<br/><br/>______________ / ______________________</td>
+        </tr>
+      </table>
+    </div>
+  </template>
+
+  <template id="report_ua_defense_acceptance">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_defense.report_ua_defense_acceptance_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+
+  <!-- ======================= Паспорт виробу ======================= -->
+  <template id="report_ua_product_passport_document">
+    <t t-set="contract" t-value="doc._ua_contract()"/>
+    <t t-set="production" t-value="doc.ua_production_id"/>
+    <t t-set="act" t-value="doc.ua_acceptance_id"/>
+    <div class="page ua-doc">
+      <t t-call="l10n_ua_defense.ua_defense_style"/>
+      <h3>ПАСПОРТ ВИРОБУ<t t-if="doc.ua_passport_number"> № <t t-out="doc.ua_passport_number"/></t></h3>
+      <table class="ua-grid">
+        <tbody>
+          <tr><td style="width: 35%;">Виріб</td><td><t t-out="doc.product_id.display_name"/></td></tr>
+          <tr><td>Серійний номер</td><td><strong t-out="doc.name"/></td></tr>
+          <tr><td>Виробник</td><td><t t-out="(doc.company_id or production.company_id or user.company_id).name"/></td></tr>
+          <tr t-if="production"><td>Дата виготовлення</td>
+            <td><t t-out="production.date_finished and production.date_finished.strftime('%d.%m.%Y') or ''"/>
+              (замовлення <t t-out="production.name"/>)</td></tr>
+          <tr t-if="contract"><td>Контракт</td><td><t t-out="contract._ua_print_name()"/>, <t t-out="contract.partner_id.name"/></td></tr>
+          <tr t-if="act"><td>Акт приймання</td><td><t t-out="act.name"/> від <t t-out="act.date.strftime('%d.%m.%Y')"/></td></tr>
+          <tr t-if="doc.product_id.ua_warranty_months"><td>Гарантійний строк</td>
+            <td><t t-out="doc.product_id.ua_warranty_months"/> міс.</td></tr>
+        </tbody>
+      </table>
+      <t t-if="doc.ua_component_lot_ids">
+        <h3>Складові з серійними номерами</h3>
+        <table class="ua-grid">
+          <thead><tr><th style="width: 4%;">№</th><th>Складова</th><th style="width: 35%;">Серійний номер</th></tr></thead>
+          <tbody>
+            <tr t-foreach="doc.ua_component_lot_ids" t-as="part">
+              <td style="text-align: center;"><t t-out="part_index + 1"/></td>
+              <td><t t-out="part.product_id.display_name"/></td>
+              <td><t t-out="part.name"/></td>
+            </tr>
+          </tbody>
+        </table>
+      </t>
+      <p>Виріб виготовлено і прийнято відповідно до конструкторської документації та умов контракту.</p>
+      <table class="ua-sign">
+        <tr>
+          <td>Контроль якості (ВТК)<br/><br/>______________ / ______________________</td>
+          <td>Представник замовника<br/><br/>______________ / ______________________</td>
+        </tr>
+      </table>
+    </div>
+  </template>
+
+  <template id="report_ua_product_passport">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_defense.report_ua_product_passport_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_production_lot_form_ua_defense" model="ir.ui.view">
+    <field name="name">stock.lot.form.ua.defense</field>
+    <field name="model">stock.lot</field>
+    <field name="inherit_id" ref="stock.view_production_lot_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//div[@name='button_box']" position="inside">
+        <button name="action_print_passport" type="object" class="oe_stat_button" icon="fa-print">
+          <div class="o_stat_info"><span class="o_stat_text">Паспорт</span></div>
+        </button>
+      </xpath>
+      <field name="ref" position="after">
+        <field name="ua_passport_number"/>
+        <field name="ua_contract_id" options="{'no_create': True}"/>
+        <field name="ua_acceptance_id"/>
+        <field name="ua_production_id"/>
+      </field>
+      <xpath expr="//group[@name='main_group']" position="after">
+        <group string="Складові" invisible="not ua_component_lot_ids">
+          <field name="ua_component_lot_ids" nolabel="1" colspan="2" readonly="1">
+            <list>
+              <field name="product_id"/>
+              <field name="name"/>
+            </list>
+          </field>
+        </group>
+      </xpath>
+    </field>
+  </record>
+</odoo>

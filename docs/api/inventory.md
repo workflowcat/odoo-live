@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 42. Моделей: 98. Методів: 316. Збережених полів на чужих моделях: 271.
+Модулів: 44. Моделей: 106. Методів: 339. Збережених полів на чужих моделях: 286.
 
 ## Зарплата
 
@@ -967,7 +967,7 @@
 
 ### `account.move`
 
-доповнена модель · `bp_purchase_intake`, `l10n_ua_docs`, `l10n_ua_vat`
+доповнена модель · `bp_purchase_intake`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -979,6 +979,7 @@
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `bp_intake_id` | Many2one | bp.purchase.intake | `bp_purchase_intake` |
+| `ua_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
 | `ua_customs_decl_number` | Char | Номер митної декларації | `l10n_ua_vat` |
 | `ua_customs_entry` | Boolean | Позначка проводки митного ПДВ | `l10n_ua_vat` |
 | `ua_customs_move_id` | Many2one | account.move | `l10n_ua_vat` |
@@ -991,7 +992,7 @@
 
 ### `account.payment`
 
-доповнена модель · `l10n_ua_cash`, `l10n_ua_fop`, `l10n_ua_vat`
+доповнена модель · `l10n_ua_cash`, `l10n_ua_contract`, `l10n_ua_fop`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1001,6 +1002,7 @@
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
+| `ua_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
 | `ua_document` | Char | Документ одержувача | `l10n_ua_cash` |
 | `ua_fe_closed_amount` | Float | Закрито ПДВ першої події | `l10n_ua_vat` |
 | `ua_fe_move_id` | Many2one | account.move | `l10n_ua_vat` |
@@ -1040,18 +1042,6 @@
 | `ua_finrep_form` | Selection | Українська форма | `l10n_ua_finrep` |
 | `ua_group_consolidation` | Boolean | Консолідація групи | `l10n_ua_group` |
 
-### `mrp.production`
-
-доповнена модель · `l10n_ua_mrp`
-
-| Метод | Що робить | Модуль |
-| --- | --- | --- |
-| `ua_get_or_create(client_ref, vals=None)` | Замовлення за міткою клієнта: є - віддаємо, немає - створюємо. | `l10n_ua_mrp` |
-
-| Поле | Тип | Підпис | Модуль |
-| --- | --- | --- | --- |
-| `ua_client_ref` | Char | Мітка операції | `l10n_ua_mrp` |
-
 ### `mrp.routing.workcenter`
 
 доповнена модель · `l10n_ua_mrp`
@@ -1087,23 +1077,6 @@
 | `ua_account` | Char | Рахунок у банку | `l10n_ua_bank_online` |
 | `ua_demo` | Boolean | Демо-дані замість банку | `l10n_ua_bank_online` |
 
-### `product.template`
-
-доповнена модель · `l10n_ua_mrp`, `l10n_ua_stock_docs`, `l10n_ua_vat`
-
-| Метод | Що робить | Модуль |
-| --- | --- | --- |
-| `ua_assembly()` | Креслення і операції з позиціями - усе, що треба екрану збирання. | `l10n_ua_mrp` |
-
-| Поле | Тип | Підпис | Модуль |
-| --- | --- | --- | --- |
-| `ua_drawing_name` | Char | Файл креслення | `l10n_ua_mrp` |
-| `ua_drawing_svg` | Binary | Складальне креслення | `l10n_ua_mrp` |
-| `ua_size` | Selection | Габарит | `l10n_ua_stock_docs` |
-| `ua_uktzed` | Char | Код УКТ ЗЕД | `l10n_ua_vat` |
-| `ua_vat_relief_id` | Many2one | ua.vat.relief | `l10n_ua_vat` |
-| `ua_vat_treatment` | Selection | Режим ПДВ товару | `l10n_ua_vat` |
-
 ### `res.bank`
 
 доповнена модель · `l10n_ua_docs`
@@ -1122,11 +1095,16 @@
 
 ### `sale.order`
 
-доповнена модель · `l10n_ua_docs_sale`
+доповнена модель · `l10n_ua_contract`, `l10n_ua_docs_sale`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_confirm()` | - | `l10n_ua_contract` |
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `ua_contract_date` | Date | Дата договору | `l10n_ua_docs_sale` |
+| `ua_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
 | `ua_contract_number` | Char | Договір № | `l10n_ua_docs_sale` |
 
 ### `stock.location`
@@ -1218,16 +1196,6 @@
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
 | `action_create_request()` | Зробити запит на закупівлю з розпізнаних рядків. | `l10n_ua_purchase` |
-
-### `purchase.order`
-
-доповнена модель · `l10n_ua_purchase`
-
-| Поле | Тип | Підпис | Модуль |
-| --- | --- | --- | --- |
-| `ua_department_id` | Many2one | Підрозділ | `l10n_ua_purchase` |
-| `ua_expense_account_id` | Many2one | Рахунок витрат | `l10n_ua_purchase` |
-| `ua_request_id` | Many2one | Запит на закупівлю | `l10n_ua_purchase` |
 
 ### `purchase.request`
 
@@ -1324,6 +1292,42 @@
 | `warehouse_map(company_id)` | Карта складу: дерево локацій із місткістю, заповненням і вмістом. | `l10n_ua_api` |
 | `workorder_card(workorder_id)` | Картка наряду для кіоску цеху: що робити, чим, і що вже перевірено. | `l10n_ua_api` |
 
+### `ua.contract`
+
+наша модель · `l10n_ua_contract`, `l10n_ua_defense`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_activate()` | - | `l10n_ua_contract` |
+| `action_close()` | - | `l10n_ua_contract` |
+| `action_new_plan_calculation()` | Планова калькуляція на перший виріб графіка без калькуляції. | `l10n_ua_defense` |
+| `action_new_reconciliation_act()` | Акт звірки за договором з початку року по сьогодні. | `l10n_ua_contract` |
+| `action_view_moves()` | - | `l10n_ua_contract` |
+| `action_view_productions()` | - | `l10n_ua_defense` |
+
+### `ua.defense.acceptance`
+
+наша модель · `l10n_ua_defense`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | - | `l10n_ua_defense` |
+| `action_done()` | - | `l10n_ua_defense` |
+| `action_fill_from_picking()` | Рядки з відвантаження: виріб, кількість і серійні номери. | `l10n_ua_defense` |
+| `action_print()` | - | `l10n_ua_defense` |
+| `action_reset_draft()` | - | `l10n_ua_defense` |
+
+### `ua.defense.calculation`
+
+наша модель · `l10n_ua_defense`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_approve()` | - | `l10n_ua_defense` |
+| `action_compute()` | - | `l10n_ua_defense` |
+| `action_print()` | - | `l10n_ua_defense` |
+| `action_reset_draft()` | - | `l10n_ua_defense` |
+
 ### `ua.navigation`
 
 наша модель · `l10n_ua_navigation`
@@ -1332,6 +1336,19 @@
 | --- | --- | --- |
 | `apply()` | - | `l10n_ua_navigation` |
 
+### `ua.reconciliation.act`
+
+наша модель · `l10n_ua_contract`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_fill()` | Заповнити акт проводками періоду; дані контрагента не чіпає. | `l10n_ua_contract` |
+| `action_mark_agreed()` | - | `l10n_ua_contract` |
+| `action_mark_disputed()` | - | `l10n_ua_contract` |
+| `action_mark_sent()` | - | `l10n_ua_contract` |
+| `action_print()` | - | `l10n_ua_contract` |
+| `action_reset_draft()` | - | `l10n_ua_contract` |
+
 ### `ua.screen`
 
 наша модель · `l10n_ua_screen`
@@ -1339,3 +1356,86 @@
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
 | `open_target(target)` | Відкрити ціль будь-якого блоку будь-якого екрана. | `l10n_ua_screen` |
+
+### `account.move.line`
+
+доповнена модель · `l10n_ua_contract`, `l10n_ua_vat`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
+
+### `account.payment.register`
+
+доповнена модель · `l10n_ua_contract`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
+
+### `mrp.production`
+
+доповнена модель · `l10n_ua_defense`, `l10n_ua_mrp`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `ua_get_or_create(client_ref, vals=None)` | Замовлення за міткою клієнта: є - віддаємо, немає - створюємо. | `l10n_ua_mrp` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_client_ref` | Char | Мітка операції | `l10n_ua_mrp` |
+| `ua_contract_id` | Many2one | ua.contract | `l10n_ua_defense` |
+
+### `mrp.workcenter`
+
+доповнена модель · `l10n_ua_defense`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_energy_hour` | Float | Енергія за годину | `l10n_ua_defense` |
+| `ua_wage_hour` | Float | Основна зарплата за годину | `l10n_ua_defense` |
+
+### `product.template`
+
+доповнена модель · `l10n_ua_defense`, `l10n_ua_mrp`, `l10n_ua_stock_docs`, `l10n_ua_vat`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `ua_assembly()` | Креслення і операції з позиціями - усе, що треба екрану збирання. | `l10n_ua_mrp` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_cost_item` | Selection | - | `l10n_ua_defense` |
+| `ua_drawing_name` | Char | Файл креслення | `l10n_ua_mrp` |
+| `ua_drawing_svg` | Binary | Складальне креслення | `l10n_ua_mrp` |
+| `ua_size` | Selection | Габарит | `l10n_ua_stock_docs` |
+| `ua_uktzed` | Char | Код УКТ ЗЕД | `l10n_ua_vat` |
+| `ua_vat_relief_id` | Many2one | ua.vat.relief | `l10n_ua_vat` |
+| `ua_vat_treatment` | Selection | Режим ПДВ товару | `l10n_ua_vat` |
+| `ua_warranty_months` | Integer | Гарантія, місяців | `l10n_ua_defense` |
+
+### `purchase.order`
+
+доповнена модель · `l10n_ua_contract`, `l10n_ua_purchase`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
+| `ua_department_id` | Many2one | Підрозділ | `l10n_ua_purchase` |
+| `ua_expense_account_id` | Many2one | Рахунок витрат | `l10n_ua_purchase` |
+| `ua_request_id` | Many2one | Запит на закупівлю | `l10n_ua_purchase` |
+| `ua_sale_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
+
+### `stock.lot`
+
+доповнена модель · `l10n_ua_defense`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_print_passport()` | - | `l10n_ua_defense` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_acceptance_id` | Many2one | ua.defense.acceptance | `l10n_ua_defense` |
+| `ua_contract_id` | Many2one | ua.contract | `l10n_ua_defense` |
+| `ua_passport_number` | Char | Номер паспорта | `l10n_ua_defense` |

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_ua_defense_root" name="Оборонне замовлення"
+            parent="mrp.menu_mrp_root" sequence="15"
+            groups="mrp.group_mrp_user,account.group_account_invoice,account.group_account_readonly"/>
+  <menuitem id="menu_ua_defense_contracts" name="Контракти"
+            parent="menu_ua_defense_root" action="action_ua_defense_contract" sequence="10"/>
+  <menuitem id="menu_ua_defense_schedule" name="Графік поставок"
+            parent="menu_ua_defense_root" action="action_ua_defense_schedule" sequence="20"/>
+  <menuitem id="menu_ua_defense_calculations" name="Калькуляції ціни"
+            parent="menu_ua_defense_root" action="action_ua_defense_calculation" sequence="30"/>
+  <menuitem id="menu_ua_defense_acceptance" name="Акти приймання"
+            parent="menu_ua_defense_root" action="action_ua_defense_acceptance" sequence="40"/>
+</odoo>
