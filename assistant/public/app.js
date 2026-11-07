@@ -52,6 +52,7 @@
     try {
       const res = await fetch(path, o);
       const data = await res.json().catch(() => ({}));
+      if (res.status === 401 && data.access) { S.me = null; renderLogin(data.error, true); throw new Error(data.error); }
       if (res.status === 401 && path !== "/api/login") { S.me = null; renderLogin(); throw new Error(data.error || "Потрібно увійти."); }
       if (!res.ok) throw new Error(data.error || "Помилка " + res.status);
       return data;
@@ -88,7 +89,7 @@
   }
 
   // ---------- login ----------
-  function renderLogin(err) {
+  function renderLogin(err, accessOnly) {
     app.replaceChildren();
     const pwd = h("input", { type: "password", id: "pw", autocomplete: "current-password", required: true });
     const error = h("p", { class: "error", role: "alert" }, err || "");
@@ -116,14 +117,15 @@
     }
     const title = h("h1", {}, "Помічник для працівників");
     const lead = h("p", { class: "lead" }, "Питання про відпустки, зарплату і довідки. Відповіді беруться з облікової системи компанії.");
+    if (accessOnly) form.hidden = true;   // вхід лише через Cloudflare Access: пароля тут немає
     app.append(h("div", { class: "login" }, h("div", { class: "brand" }, sp("catvader", true), title), lead, form, pick, error));
-    setTimeout(() => pwd.focus(), 30);
+    if (!accessOnly) setTimeout(() => pwd.focus(), 30);
   }
 
   // ---------- shell ----------
   async function boot() {
     try { S.me = await api("/api/me"); }
-    catch (e) { if (!S.me) return renderLogin(e.message === "Потрібно увійти." ? "" : e.message); }
+    catch (e) { if (!S.me) { if (document.querySelector(".login")) return; return renderLogin(e.message === "Потрібно увійти." ? "" : e.message); } }
     S.messages = store.get("chat:" + S.me.profile.id) || [];
     S.slips = S.leaves = S.requests = null;
     renderShell();

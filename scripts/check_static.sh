@@ -9,7 +9,7 @@
 # 4. manifest_check.py  manifests, licenses, pinned OCA sources, no defaults pointing at our servers
 # 5. Python syntax of every module and script (needs Python 3.10+, Odoo 19's minimum)
 # 6. ruff (ruff.toml)    undefined and unused names in our modules and scripts; skipped without ruff
-# 7. worker tests       bridge token scopes (node --test, no npm install); skipped without Node
+# 7. js tests           bridge token scopes, assistant sign-in (node --test, no npm install); skipped without Node
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
@@ -45,9 +45,9 @@ else
 fi
 
 if command -v node >/dev/null; then
-    run worker node --test worker/test/*.test.mjs
+    run js     node --test worker/test/*.test.mjs assistant/test/*.test.mjs
 else
-    echo "SKIP  worker  (Node 18+ needed)"
+    echo "SKIP  js      (Node 18+ needed)"
 fi
 
 exit $FAILED

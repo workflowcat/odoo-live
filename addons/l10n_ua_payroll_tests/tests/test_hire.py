@@ -10,6 +10,7 @@ l10n_ua_hire_ui.menu_ua_hire - усе це належало OWL-екрану, я
 """
 import base64
 import json
+import os
 from datetime import date, timedelta
 from unittest.mock import patch
 
@@ -204,6 +205,12 @@ class TestUaHireCase(TransactionCase):
         self.assertEqual(reqs.get("passport_rnokpp"), "missing")
         self.assertEqual(reqs.get("hire_order"), "later", "накази система друкує сама")
 
+    HELPER_ENV = {"UA_EXTRACT_URL": "http://helper.test", "UA_EXTRACT_TOKEN": "test-token-0123456789abcdef"}
+
+    def setUp(self):
+        super().setUp()
+        self.startPatcher(patch.dict(os.environ, self.HELPER_ENV))
+
     # ------------------------------------------------------------------ 6. файли і розпізнавання
     def test_06_extract_requires_consent(self):
         case = self._new_case()
@@ -226,6 +233,8 @@ class TestUaHireCase(TransactionCase):
             sent = json.loads(post.call_args.kwargs["data"])
 
         self.assertNotIn("wage", sent["fields"], "умови роботи не йдуть у документи кандидата")
+        self.assertEqual(post.call_args.args[0], "http://helper.test/extract")
+        self.assertEqual(post.call_args.kwargs["headers"]["Authorization"], "Bearer test-token-0123456789abcdef")
         self.assertIn("rnokpp", sent["fields"])
         self.assertEqual(len(sent["files"]), 5)
         self.assertEqual(res["created"], 6, "умови роботи і хибна стать відкинуті нормалізацією")
@@ -263,6 +272,22 @@ class TestUaHireCase(TransactionCase):
         with patch.object(hc.requests, "post", return_value=FakeExtractResp()):
             res2 = case.action_extract()
         self.assertLessEqual(res2["created"], 2)
+
+    def test_06e_extract_is_off_without_a_helper_address(self):
+        """Без UA_EXTRACT_URL розпізнавання вимкнено: кнопка пояснює, запитів назовні немає."""
+        case = self._new_case()
+        case.action_start_onboarding()
+        case.add_file("id-card.png", PNG, "passport")
+        case.write({"pd_consent": True})
+        with patch.dict(os.environ, {"UA_EXTRACT_URL": ""}), \
+                patch.object(hc.requests, "post") as post, patch.object(hc.requests, "get") as get:
+            with self.assertRaises(UserError):
+                case.action_extract()
+            status = self.env["ua.hire.case"].extract_status()
+        self.assertFalse(status["ok"])
+        self.assertEqual(status["reason"], "off")
+        post.assert_not_called()
+        get.assert_not_called()
 
     def test_06d_accepting_a_decided_proposal_raises(self):
         case = self._new_case()

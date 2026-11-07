@@ -2,6 +2,7 @@
 import { OdooDown, OdooError, call, reportPdf } from "./odoo.js";
 import { REQUESTS, LEAVE_KINDS, employeeByEmail, pickList, profile, payslips, leaves, openRequests, leaveTypes, contextText, kyivToday, fmtDate } from "./data.js";
 import { answer, cleanMessages } from "./chat.js";
+import { accessEmail } from "./access.js";
 
 const J = (data, status = 200, headers = {}) =>
   new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", ...headers } });
@@ -22,7 +23,19 @@ async function cookieFor(env, url, emp) {
   const secure = url.protocol === "https:" ? "; Secure" : "";
   return `sid=${payload}.${await sign(env, payload)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=43200${secure}`;
 }
+// Two ways in. Real employees: Cloudflare Access proves the work email on every request (access.js);
+// no password, no cookie. Test stand: DEMO_PICKER=1, one shared password, then pick anyone - only for
+// invented demo data, never for a database with real people.
+const demoMode = (env) => env.DEMO_PICKER === "1";
+const NO_ACCESS = "Вхід через Cloudflare Access: відкрийте помічника з робочою поштою, яку знає компанія.";
+
 async function who(env, req, url) {
+  if (!demoMode(env)) {
+    const email = await accessEmail(env, req);
+    if (email) { const e = await employeeByEmail(env, email); if (e) return { id: e.id, name: e.name }; }
+    if (env.DEV_AUTO_EMAIL && isLocal(url)) { const e = await employeeByEmail(env, env.DEV_AUTO_EMAIL); if (e) return { id: e.id, name: e.name }; }
+    return null;
+  }
   const m = (req.headers.get("Cookie") || "").match(/(?:^|;\s*)sid=([^;]+)/);
   if (m) {
     const [p, s] = m[1].split(".");
@@ -47,23 +60,22 @@ async function api(req, env, url) {
   const method = req.method;
 
   if (path === "/api/login" && method === "POST") {
-    const b = await body(req);
-    if (!env.APP_PASSWORD || !same(b.password || "", env.APP_PASSWORD)) { await sleep(700); return J({ error: "Пароль неправильний." }, 401); }
-    let emp = null;
-    if (env.DEMO_PICKER === "1") {
-      if (!b.employee_id) return J({ pick: await pickList(env) });
-      const r = await call(env, "hr.employee", "search_read", [[["id", "=", Number(b.employee_id)], ["work_email", "!=", false]]], { fields: ["name"], limit: 1 });
-      emp = r[0] || null;
-    } else {
-      emp = await employeeByEmail(env, b.email);
+    if (!demoMode(env)) {
+      const me = await who(env, req, url);
+      return me ? J({ ok: true }) : J({ error: NO_ACCESS, access: true }, 401);
     }
+    const b = await body(req);
+    if (!env.APP_PASSWORD || !env.SESSION_SECRET || !same(b.password || "", env.APP_PASSWORD)) { await sleep(700); return J({ error: "Пароль неправильний." }, 401); }
+    if (!b.employee_id) return J({ pick: await pickList(env) });
+    const r = await call(env, "hr.employee", "search_read", [[["id", "=", Number(b.employee_id)], ["work_email", "!=", false]]], { fields: ["name"], limit: 1 });
+    const emp = r[0] || null;
     if (!emp) return J({ error: "Працівника не знайдено." }, 404);
     return J({ ok: true }, 200, { "Set-Cookie": await cookieFor(env, url, emp) });
   }
   if (path === "/api/logout" && method === "POST") return J({ ok: true }, 200, { "Set-Cookie": "sid=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0" });
 
   const me = await who(env, req, url);
-  if (!me) return J({ error: "Потрібно увійти." }, 401);
+  if (!me) return demoMode(env) ? J({ error: "Потрібно увійти." }, 401) : J({ error: NO_ACCESS, access: true }, 401);
 
   if (path === "/api/me" && method === "GET") {
     const [p, slips, types] = await Promise.all([profile(env, me.id), payslips(env, me.id, 1), leaveTypes(env)]);

@@ -45,9 +45,15 @@ const EMP_FIELDS = ["name", "job_title", "department_id", "parent_id", "company_
   "ua_main_job", "ua_current_wage", "ua_vacation_balance", "ua_vacation_accrued", "ua_vacation_used", "ua_vacation_days_year",
   "ua_insurance_years", "ua_sick_percent", "ua_psp", "ua_psp_children", "ua_days_in_company"];
 
+// Exactly one employee with exactly this work email (case aside), or null. LIKE wildcards in the
+// address are escaped, so "%" or "_" never match someone else.
 export async function employeeByEmail(env, email) {
-  const r = await call(env, "hr.employee", "search_read", [[["work_email", "=ilike", String(email || "").trim()]]], { fields: ["name"], limit: 1 });
-  return r[0] || null;
+  const want = String(email || "").trim().toLowerCase();
+  if (!want.includes("@")) return null;
+  const pattern = want.replace(/[\\%_]/g, (c) => "\\" + c);
+  const r = await call(env, "hr.employee", "search_read", [[["work_email", "=ilike", pattern]]], { fields: ["name", "work_email"], limit: 2 });
+  const exact = r.filter((e) => String(e.work_email || "").trim().toLowerCase() === want);
+  return exact.length === 1 ? exact[0] : null;
 }
 
 export async function pickList(env) {

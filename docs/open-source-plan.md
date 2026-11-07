@@ -62,15 +62,17 @@ Status 2026-11-07 (24 findings):
   IBAN no longer lands on an existing supplier (`bp_purchase_intake`); automatic "trusted account" only on
   salary and tax orders (`l10n_ua_payments`); the OCA document flag no longer opens colleagues' scans
   (`l10n_ua_hr_card`, test_19).
-- [ ] Bridge Worker: one token for staging and production. Fix: accept a list of tokens, each scoped to
-  routes and an environment; constant-time compare. Needs a Worker deploy.
-- [ ] `deploy/restore.sh`: neutralise a production copy (passwords, API keys, bank tokens, mail servers,
-  all bridge parameters) before staging serves it.
-- [ ] `assistant/`: bind login to a proven identity (Cloudflare Access JWT or a one-time code to the work
-  email); picker mode only on demo data.
-- [ ] `scripts/claude_extract_helper.py`: a per-run token on the local endpoint and an isolated settings
-  file for the agent.
-- [ ] Sample deploy workflow: separate host user for staging (warning added to the file).
+- [x] Bridge Worker: one token per environment, stored by hash, each with its routes; constant-time
+  compare (`worker/src/auth.js`, node tests). Switching the live Worker: `MAINTAINERS.md`.
+- [x] `deploy/restore.sh` and the prod-copy rehearsal neutralise a copy before staging serves it
+  (`deploy/neutralize.sh`, `addons/*/data/neutralize.sql`, test_20); a copy that fails is dropped.
+- [x] `assistant/`: employees sign in through Cloudflare Access (JWT verified, exact work email, node
+  tests); the picker login is off by default and documented as demo-only.
+- [x] `scripts/claude_extract_helper.py`: token on every request, local Host only, JSON size limit;
+  Claude runs in dontAsk mode with Read limited to the temp folder and none of the operator's settings.
+  Odoo side: off unless `UA_EXTRACT_URL` is set (test_06e).
+- [x] Sample deploy workflow: staging and production in separate GitHub environments with their own
+  host, user and key; the sample says staging needs its own server.
 
 ## Phase 3 - easy to build on
 

@@ -24,10 +24,13 @@ and what an attacker gains. We answer within a week and credit you in the fix un
   do not give users of one company access to another company in the same database.
 - `deploy/` and `worker/` are examples of how we run it. Review them before you run them in production:
   set every password and token yourself, never reuse staging tokens in production.
-- `deploy/`: the bridge Worker accepts one token, so staging and production share it; a restore of a
-  production dump into staging does not reset user passwords, API keys or bank tokens. Treat staging
-  as production-sensitive when it holds a production copy.
-- `scripts/claude_extract_helper.py` is a local helper that runs your Claude Code login on candidate
-  documents. Run it only on a machine where that is acceptable.
-- `assistant/` has a demo login mode (`DEMO_PICKER=1`) that lets anyone with the shared password act as
-  any employee. Never use it with real employees.
+- Staging copies of production: `deploy/restore.sh` and `deploy/deploy.sh` run `odoo neutralize` plus our
+  rules (`deploy/neutralize.sh`, `addons/*/data/neutralize.sql`): crons, mail, bridge, bank tokens, API keys
+  off, every password reset. A copy that cannot be neutralised is dropped. Files in the filestore
+  (attachments, scans) stay: treat a staging server that holds a production copy as production-sensitive.
+- The bridge Worker takes one token per environment with its own routes (`worker/src/auth.js`); the old
+  single `BRIDGE_TOKEN` keeps working until `BRIDGE_TOKENS` is set (see `MAINTAINERS.md`).
+- `scripts/claude_extract_helper.py` runs your Claude Code login on candidate documents, limited to a
+  temporary folder, read-only, behind a token. Run it only on a machine where that is acceptable.
+- `assistant/`: employees sign in through Cloudflare Access (verified token, exact work email). The test
+  login (`DEMO_PICKER=1`) lets anyone with the shared password act as any employee: invented data only.

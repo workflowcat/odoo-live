@@ -24,6 +24,8 @@ services:
         condition: service_healthy
     ports:
       - "127.0.0.1:${ODOO_PORT:-8100}:8069"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # the hiring extract helper on Linux hosts
     environment:
       - HOST=db
       - USER=odoo
@@ -31,6 +33,8 @@ services:
       - BP_BRIDGE_URL=${BP_BRIDGE_URL:-}
       - BP_BRIDGE_TOKEN=${BP_BRIDGE_TOKEN:-}
       - UA_KP_URL=${UA_KP_URL:-}
+      - UA_EXTRACT_URL=${UA_EXTRACT_URL:-}
+      - UA_EXTRACT_TOKEN=${UA_EXTRACT_TOKEN:-}
       - ODOO_ADMIN_PASSWD=${ODOO_ADMIN_PASSWD:-}
     # master password comes from .env; the mounted conf stays free of secrets
     command: ["sh", "-c", "cp /etc/odoo/odoo.conf /tmp/odoo.conf && if [ -n \"$$ODOO_ADMIN_PASSWD\" ]; then printf 'admin_passwd = %s\\n' \"$$ODOO_ADMIN_PASSWD\" >> /tmp/odoo.conf; fi && ODOO_RC=/tmp/odoo.conf exec /entrypoint.sh odoo"]

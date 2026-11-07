@@ -1,19 +1,20 @@
-# УВАГА перед увімкненням: робота staging запускає код з main на тому ж хості і тим самим
-# користувачем, що й prod (аудит безпеки 2026-10). Дайте staging окремого користувача або хост.
-# Зразок для .github/workflows/deploy.yml. Тут лише зразок: теку .github веде інша сесія,
-# тому скопіювати його туди має людина (або та сесія), а не цей файл сам собою.
+# Зразок для .github/workflows/deploy.yml (сам по собі не діє). Скопіювати його туди - рішення людини.
 #
 # Дві роботи:
-#   deploy-staging - після зеленого `tests` на main, автоматично, без погодження;
+#   deploy-staging - після зеленого `tests` на main, через середовище staging;
 #   deploy-prod    - на тег v*, через середовище production з обов'язковим ручним підтвердженням.
 #
-# Секрети репозиторію (Settings > Secrets and variables > Actions):
-#   DEPLOY_HOST        IP або ім'я сервера Hetzner
-#   DEPLOY_USER        deploy
-#   DEPLOY_SSH_KEY     приватний ключ (ed25519), відкритий лежить у ~deploy/.ssh/authorized_keys
-#   DEPLOY_PORT        порт ssh, якщо не 22 (необов'язково)
-#   DEPLOY_KNOWN_HOSTS рядок з `ssh-keyscan <host>`, щоб не вимикати перевірку ключа
-# Середовище (Settings > Environments > production): Required reviewers - Andrii.
+# Staging і prod не ділять ані хоста, ані користувача, ані ключа (аудит безпеки 2026-10): код з main
+# потрапляє на staging без погодження, тож він не має дістати секретів, копій і контейнерів prod.
+# Користувач у групі docker на хості - фактично root, тому окремий користувач на тому самому хості
+# не захищає: staging - на окремому сервері (або rootless Docker для його користувача).
+#
+# Секрети середовища staging (Settings > Environments > staging):
+#   DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY, DEPLOY_PORT (необов'язково), DEPLOY_KNOWN_HOSTS
+# Секрети середовища production (Settings > Environments > production, Required reviewers):
+#   ті самі імена, інші значення: свій хост, свій користувач, свій ключ.
+# На рівні репозиторію секретів DEPLOY_* не тримайте: їх бачила б будь-яка робота.
+# Ключі в authorized_keys обмежте командою: command="cd ~/odoo-live && ./deploy/deploy.sh <env> $SSH_ORIGINAL_COMMAND",no-pty,no-port-forwarding
 #
 # Сервер сам тягне код (deploy.sh робить git fetch + checkout), тому артефакти
 # нікуди не передаються, а Actions лише смикає одну команду по ssh.
@@ -38,6 +39,7 @@ concurrency:
 jobs:
   deploy-staging:
     if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    environment: staging          # секрети staging живуть тут, prod їх не бачить і навпаки
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:

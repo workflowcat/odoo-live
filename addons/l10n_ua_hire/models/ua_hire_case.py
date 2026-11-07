@@ -67,8 +67,19 @@ PACKAGE = [
 # Кількість аркушів для документів, які система сама друкує (назва «Опис документів особової справи»
 # лишається робочою - уточнити з бухгалтерією/HR перед затвердженням форми).
 GENERATED_PAGES = {"statement": 1, "order": 1, "contract": 2, "nda": 2, "consent": 1, "ack": 1}
-EXTRACT_URL = os.environ.get("UA_EXTRACT_URL", "http://host.docker.internal:8765")
 HELPER_UNAVAILABLE = "Помічник розпізнавання недоступний"
+EXTRACT_OFF = "Розпізнавання документів вимкнено: задайте UA_EXTRACT_URL і UA_EXTRACT_TOKEN (scripts/claude_extract_helper.py)"
+
+
+def _extract_conf():
+    """Адреса і токен помічника розпізнавання з середовища Odoo. Без адреси розпізнавання вимкнено;
+    токен помічник вимагає на кожен запит (scripts/claude_extract_helper.py)."""
+    url = (os.environ.get("UA_EXTRACT_URL") or "").rstrip("/")
+    token = os.environ.get("UA_EXTRACT_TOKEN") or ""
+    headers = {"Content-Type": "application/json"}
+    if token:
+        headers["Authorization"] = "Bearer %s" % token
+    return url, headers
 
 
 def rnokpp_problems(code, birthday=None, sex=None):
@@ -554,8 +565,11 @@ class UaHireCase(models.Model):
     # ------------------------------------------------------------------ розпізнавання
     @api.model
     def extract_status(self):
+        url, headers = _extract_conf()
+        if not url:
+            return {"ok": False, "error": _(EXTRACT_OFF), "reason": "off"}
         try:
-            r = requests.get(EXTRACT_URL + "/health", timeout=1.5)
+            r = requests.get(url + "/health", timeout=1.5, headers=headers)
             if r.ok:
                 return r.json()
             return {"ok": False, "error": _(HELPER_UNAVAILABLE), "reason": "HTTP %s" % r.status_code}
@@ -567,6 +581,9 @@ class UaHireCase(models.Model):
         self.ensure_one()
         if not self.pd_consent:
             raise UserError(_("Спершу позначте згоду кандидата на обробку персональних даних."))
+        url, headers = _extract_conf()
+        if not url:
+            raise UserError(_(EXTRACT_OFF))
         files = self.file_ids.filtered(lambda f: f.file and f.extract_state != "done") or self.file_ids.filtered("file")
         if not files:
             raise UserError(_("Завантажте хоча б один файл."))
@@ -579,8 +596,7 @@ class UaHireCase(models.Model):
         }
         try:
             # limit_time_real = 240 с: відповідь має прийти раніше, інакше Odoo уб'є робочий процес разом із запитом
-            resp = requests.post(EXTRACT_URL + "/extract", data=json.dumps(payload), timeout=(5, 200),
-                                 headers={"Content-Type": "application/json"})
+            resp = requests.post(url + "/extract", data=json.dumps(payload), timeout=(5, 200), headers=headers)
             result = resp.json()
         except Exception as e:  # noqa: BLE001
             files.write({"extract_state": "failed", "extract_note": _(HELPER_UNAVAILABLE)})
