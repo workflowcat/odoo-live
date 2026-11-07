@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_claim_user,ua.claim user,model_ua_claim,group_ua_claim_user,1,1,1,0
+access_ua_claim_manager,ua.claim manager,model_ua_claim,group_ua_claim_manager,1,1,1,1
+access_ua_claim_mrp_user,ua.claim mrp user,model_ua_claim,mrp.group_mrp_user,1,0,0,0
+access_stock_lot_ua_claim,stock.lot claim user,stock.model_stock_lot,group_ua_claim_user,1,0,0,0
+access_ua_contract_ua_claim,ua.contract claim user,l10n_ua_contract.model_ua_contract,group_ua_claim_user,1,0,0,0

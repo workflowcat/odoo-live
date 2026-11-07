@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 55. Моделей: 121. Методів: 406. Збережених полів на чужих моделях: 312.
+Модулів: 56. Моделей: 122. Методів: 415. Збережених полів на чужих моделях: 312.
 
 ## Зарплата
 
@@ -1292,9 +1292,24 @@
 | --- | --- | --- |
 | `action_load()` | - | `l10n_ua_catalog` |
 
+### `ua.claim`
+
+наша модель · `l10n_ua_claim`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | - | `l10n_ua_claim` |
+| `action_close()` | - | `l10n_ua_claim` |
+| `action_create_eco()` | Конструкторська причина: чернетка повідомлення про зміну на виріб. | `l10n_ua_claim` |
+| `action_decide()` | - | `l10n_ua_claim` |
+| `action_print()` | - | `l10n_ua_claim` |
+| `action_reopen()` | - | `l10n_ua_claim` |
+| `action_respond()` | Відповідь замовнику надіслано (рекламацію прийнято до розгляду). | `l10n_ua_claim` |
+| `action_start()` | - | `l10n_ua_claim` |
+
 ### `ua.contract`
 
-наша модель · `l10n_ua_contract`, `l10n_ua_defense`
+наша модель · `l10n_ua_claim`, `l10n_ua_contract`, `l10n_ua_defense`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1629,11 +1644,12 @@
 
 ### `stock.lot`
 
-доповнена модель · `l10n_ua_defense`, `l10n_ua_eco`
+доповнена модель · `l10n_ua_claim`, `l10n_ua_defense`, `l10n_ua_eco`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
 | `action_print_passport()` | - | `l10n_ua_defense` |
+| `action_ua_claims()` | - | `l10n_ua_claim` |
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |

@@ -1,8 +1,8 @@
 {
   "totals": {
-    "modules": 55,
-    "models": 121,
-    "methods": 406,
+    "modules": 56,
+    "models": 122,
+    "methods": 415,
     "fields": 312
   },
   "areas": [
@@ -5820,9 +5820,84 @@
           "fields": []
         },
         {
+          "model": "ua.claim",
+          "ours": true,
+          "modules": [
+            "l10n_ua_claim"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_claim",
+              "file": "addons/l10n_ua_claim/models/ua_claim.py",
+              "decorators": []
+            },
+            {
+              "name": "action_close",
+              "signature": "action_close()",
+              "doc": "",
+              "module": "l10n_ua_claim",
+              "file": "addons/l10n_ua_claim/models/ua_claim.py",
+              "decorators": []
+            },
+            {
+              "name": "action_create_eco",
+              "signature": "action_create_eco()",
+              "doc": "Конструкторська причина: чернетка повідомлення про зміну на виріб.",
+              "module": "l10n_ua_claim",
+              "file": "addons/l10n_ua_claim/models/ua_claim.py",
+              "decorators": []
+            },
+            {
+              "name": "action_decide",
+              "signature": "action_decide()",
+              "doc": "",
+              "module": "l10n_ua_claim",
+              "file": "addons/l10n_ua_claim/models/ua_claim.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_claim",
+              "file": "addons/l10n_ua_claim/models/ua_claim.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reopen",
+              "signature": "action_reopen()",
+              "doc": "",
+              "module": "l10n_ua_claim",
+              "file": "addons/l10n_ua_claim/models/ua_claim.py",
+              "decorators": []
+            },
+            {
+              "name": "action_respond",
+              "signature": "action_respond()",
+              "doc": "Відповідь замовнику надіслано (рекламацію прийнято до розгляду).",
+              "module": "l10n_ua_claim",
+              "file": "addons/l10n_ua_claim/models/ua_claim.py",
+              "decorators": []
+            },
+            {
+              "name": "action_start",
+              "signature": "action_start()",
+              "doc": "",
+              "module": "l10n_ua_claim",
+              "file": "addons/l10n_ua_claim/models/ua_claim.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.contract",
           "ours": true,
           "modules": [
+            "l10n_ua_claim",
             "l10n_ua_contract",
             "l10n_ua_defense"
           ],
@@ -7202,6 +7277,7 @@
           "model": "stock.lot",
           "ours": false,
           "modules": [
+            "l10n_ua_claim",
             "l10n_ua_defense",
             "l10n_ua_eco"
           ],
@@ -7212,6 +7288,14 @@
               "doc": "",
               "module": "l10n_ua_defense",
               "file": "addons/l10n_ua_defense/models/stock_lot.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_claims",
+              "signature": "action_ua_claims()",
+              "doc": "",
+              "module": "l10n_ua_claim",
+              "file": "addons/l10n_ua_claim/models/stock_lot.py",
               "decorators": []
             }
           ],

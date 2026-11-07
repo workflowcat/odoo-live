@@ -2,7 +2,7 @@
     "name": "Україна: меню продукту",
     "summary": "Три власні розділи - Зарплата, Кадри, Звітність - над стандартними поданнями Odoo; "
                "єдиний власник меню і українських назв довідників",
-    "version": "19.0.2.3.1",
+    "version": "19.0.2.3.2",
     "category": "Human Resources/Payroll",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -36,7 +36,7 @@
         "l10n_ua_customs",
         "l10n_ua_bank_1c", "l10n_ua_close", "l10n_ua_tolling",
         "l10n_ua_payment_request", "l10n_ua_correspondence", "l10n_ua_prro", "l10n_ua_price_label",
-        "l10n_ua_eco", "bp_kyc", "bp_purchase_intake",
+        "l10n_ua_eco", "l10n_ua_claim", "bp_kyc", "bp_purchase_intake",
         # OCA, чиї пункти меню перейменовуються і переставляються тут
         "account_usability", "account_financial_report", "account_reconcile_oca",
         "account_statement_import_online",

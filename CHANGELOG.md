@@ -97,6 +97,14 @@ Notable changes for people who run or build on this code. Module-level API chang
   a new round. Applying it on its effective date (or by the hourly job) copies the BOM as revision N+1,
   activates it and archives the old one; a second notice made from the old revision is refused. Orders and
   serial passports show the revision; the notice prints with the was/now table and the approvals.
+- `l10n_ua_claim`: warranty claims (рекламації) on serial numbers. A claim takes the contract and customer
+  from the passport, the warranty from the acceptance act (or the production date) and the product's
+  warranty months, and the response and fix deadlines from the contract in calendar days; the responsible
+  person gets one reminder that moves from the response deadline to the fix deadline. The investigation
+  names the cause and the failed component; a manager decides (repair, replace a component or the
+  product, refund, reject): an own defect in warranty cannot be rejected, a rejection or an out-of-warranty
+  decision needs a reason. A design cause opens a change notice. Overdue and repeat failures show in the
+  list; the conclusion prints on its own and the passport prints the claim history.
 
 ### Changed
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number

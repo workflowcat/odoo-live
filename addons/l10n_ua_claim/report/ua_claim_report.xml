@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_claim" model="ir.actions.report">
+    <field name="name">Висновок за рекламацією</field>
+    <field name="model">ua.claim</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_claim.report_ua_claim</field>
+    <field name="report_file">l10n_ua_claim.report_ua_claim</field>
+    <field name="binding_model_id" ref="model_ua_claim"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Рекламація %s' % (object.name or '')</field>
+  </record>
+
+  <template id="report_ua_claim_document">
+    <t t-set="causes" t-value="dict(doc._fields['cause'].selection)"/>
+    <t t-set="decisions" t-value="dict(doc._fields['decision'].selection)"/>
+    <div class="page ua-doc">
+      <t t-call="l10n_ua_defense.ua_defense_style"/>
+      <div><strong t-out="doc.company_id.name"/></div>
+      <h3>ВИСНОВОК ЗА РЕКЛАМАЦІЄЮ № <t t-out="doc.name"/></h3>
+      <table class="ua-grid">
+        <tbody>
+          <tr><td style="width: 32%;">Замовник</td><td><t t-out="doc.partner_id.name"/></td></tr>
+          <tr t-if="doc.contract_id"><td>Контракт</td><td><t t-out="doc.contract_id._ua_print_name()"/></td></tr>
+          <tr><td>Рекламаційний акт замовника</td>
+            <td><t t-if="doc.partner_ref">№ <t t-out="doc.partner_ref"/></t>
+              <t t-if="doc.partner_date"> від <t t-out="doc.partner_date.strftime('%d.%m.%Y')"/></t>,
+              надійшов <t t-out="doc.date_received.strftime('%d.%m.%Y')"/></td></tr>
+          <tr><td>Виріб</td><td><t t-out="doc.product_id.display_name"/></td></tr>
+          <tr><td>Серійний номер</td><td><strong t-out="doc.lot_id.name"/></td></tr>
+          <tr><td>Дата відмови, наробіток</td>
+            <td><t t-out="doc.date_failure.strftime('%d.%m.%Y')"/><t t-if="doc.operating_hours">,
+              <t t-out="'%g' % doc.operating_hours"/> год</t></td></tr>
+          <tr><td>Гарантія</td>
+            <td><t t-if="doc.warranty_end">з <t t-out="doc.warranty_start.strftime('%d.%m.%Y')"/>
+              до <t t-out="doc.warranty_end.strftime('%d.%m.%Y')"/>:
+              <t t-out="doc.in_warranty and 'відмова в гарантійний строк' or 'відмова поза гарантійним строком'"/></t>
+              <t t-else="">строк не встановлено</t></td></tr>
+          <tr><td>Опис несправності</td><td><t t-out="doc.symptom"/></td></tr>
+          <tr t-if="doc.conditions"><td>Умови експлуатації</td><td><t t-out="doc.conditions"/></td></tr>
+        </tbody>
+      </table>
+      <h3>Розслідування</h3>
+      <table class="ua-grid">
+        <tbody>
+          <tr><td style="width: 32%;">Причина</td><td><t t-out="causes.get(doc.cause) or '-'"/></td></tr>
+          <tr t-if="doc.component_lot_id"><td>Складова, що відмовила</td>
+            <td><t t-out="doc.component_lot_id.product_id.display_name"/>, с/н <t t-out="doc.component_lot_id.name"/>
+              <t t-if="doc.supplier_id"> (постачальник <t t-out="doc.supplier_id.name"/>)</t></td></tr>
+          <tr t-if="doc.root_cause"><td>Висновок</td><td><t t-out="doc.root_cause"/></td></tr>
+          <tr><td>Рішення</td><td><strong t-out="decisions.get(doc.decision) or '-'"/></td></tr>
+          <tr t-if="doc.decision_note"><td>Обґрунтування</td><td><t t-out="doc.decision_note"/></td></tr>
+          <tr t-if="doc.replacement_lot_id"><td>Виріб на заміну</td><td>с/н <t t-out="doc.replacement_lot_id.name"/></td></tr>
+          <tr t-if="doc.eco_id"><td>Повідомлення про зміну</td><td><t t-out="doc.eco_id.name"/></td></tr>
+          <tr><td>Строки</td>
+            <td>відповідь до <t t-out="doc.date_response_due.strftime('%d.%m.%Y')"/>, усунення до
+              <t t-out="doc.date_due.strftime('%d.%m.%Y')"/><t t-if="doc.date_closed">; закрито
+              <t t-out="doc.date_closed.strftime('%d.%m.%Y')"/></t></td></tr>
+        </tbody>
+      </table>
+      <table class="ua-grid" style="margin-top: 24px;">
+        <tbody>
+          <tr><td style="width: 40%;">Відповідальний</td><td><t t-out="doc.user_id.name"/></td><td style="width: 25%;">Підпис</td></tr>
+          <tr><td>Керівник служби якості</td><td/><td>Підпис</td></tr>
+          <tr><td>Представник замовника</td><td/><td>Підпис</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </template>
+
+  <template id="report_ua_claim">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_claim.report_ua_claim_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+
+  <!-- Паспорт виробу: історія рекламацій перед записами контролю якості. -->
+  <template id="report_ua_product_passport_document_claims" inherit_id="l10n_ua_defense.report_ua_product_passport_document">
+    <xpath expr="//t[@t-set='checks']" position="before">
+      <t t-set="claims" t-value="doc._ua_claim_rows()"/>
+      <t t-if="claims">
+        <h3>Рекламації</h3>
+        <table class="ua-grid">
+          <thead><tr><th style="width: 16%;">Номер, дата</th><th>Несправність</th>
+            <th style="width: 20%;">Причина</th><th style="width: 18%;">Рішення</th>
+            <th style="width: 12%;">Стан</th></tr></thead>
+          <tbody>
+            <tr t-foreach="claims" t-as="claim">
+              <td><t t-out="claim['name']"/>, <t t-out="claim['date']"/></td>
+              <td><t t-out="claim['symptom']"/></td>
+              <td><t t-out="claim['cause'] or '-'"/></td>
+              <td><t t-out="claim['decision'] or '-'"/></td>
+              <td><t t-out="claim['state']"/></td>
+            </tr>
+          </tbody>
+        </table>
+      </t>
+    </xpath>
+  </template>
+</odoo>
