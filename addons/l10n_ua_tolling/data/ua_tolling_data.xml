@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+  <record id="seq_ua_tolling_order" model="ir.sequence">
+    <field name="name">Замовлення на переробку давальницької сировини</field>
+    <field name="code">ua.tolling.order</field>
+    <field name="prefix">ДС/%(year)s/</field>
+    <field name="padding">4</field>
+    <field name="company_id" eval="False"/>
+  </record>
+  <record id="product_tolling_service" model="product.product">
+    <field name="name">Послуги з переробки давальницької сировини</field>
+    <field name="type">service</field>
+    <field name="sale_ok" eval="True"/>
+    <field name="purchase_ok" eval="False"/>
+    <field name="list_price">0</field>
+  </record>
+</odoo>

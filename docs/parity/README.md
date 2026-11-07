@@ -68,7 +68,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | **Planned calculation (планова калькуляція)** of a product's price by cost item | done | `l10n_ua_defense`: plan and actual by the Resolution 309 items from BOM, routing and contract rates |
 | Serial and lot tracking | done | native |
 | Quality control (ВТК), inspections | done | check items on routing operations, yes/no answers on work orders (`l10n_ua_mrp`); defense contracts block release and acceptance until every item is "yes" and print the results in the serial passport (`l10n_ua_defense`); incoming and outgoing protocols (`l10n_ua_stock_docs`) |
-| Tolling (давальницька сировина) | gap | stock of customer-owned material, processing act |
+| Tolling (давальницька сировина) | yes | `l10n_ua_tolling`: customer material in its own owner-tagged location (not valued, off-balance 023), production from it, return of products and leftovers, processing invoice, processor's report with norm vs actual |
 | Engineering changes, BOM versions | gap | a simple revision register first |
 | Production planning (MPS/MRP) | part | native scheduler; OCA `mrp_multi_level` later |
 | Repairs and warranty returns | part | native `repair`; warranty months on goods and serial passports in `l10n_ua_defense`; warranty claims register missing |
@@ -130,11 +130,10 @@ with the Resolution 309 calculation, separate cost accounting, acceptance acts a
 packs and their loader (`l10n_ua_catalog`); `docs/customization.md` and `scripts/new_pack.py`; the import
 customs declaration (`l10n_ua_customs`); the 1C bank exchange file (`l10n_ua_bank_1c`);
 quality gate on defense production with results in the serial passport; month-end operations
-(`l10n_ua_close`) with Form 2 kept intact after closing.
+(`l10n_ua_close`) with Form 2 kept intact after closing; tolling (`l10n_ua_tolling`).
 
 Next, in this order:
 
-1. Tolling: customer-owned material and the processing act.
-2. Correspondence register and payment approvals.
-3. PRRO fiscalisation through a bridge route; price labels for the shop pack.
-4. УКТ ЗЕД classifier from official open data, once a source with a clear licence is found.
+1. Correspondence register and payment approvals.
+2. PRRO fiscalisation through a bridge route; price labels for the shop pack.
+3. УКТ ЗЕД classifier from official open data, once a source with a clear licence is found.

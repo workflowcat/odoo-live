@@ -49,6 +49,13 @@ Notable changes for people who run or build on this code. Module-level API chang
   allocation document when manufacturing is installed), close classes 7 and 9 to 79 and, in the last month
   of the fiscal year, 79 to retained earnings 441 or 442. One button runs what is pending, one undoes it;
   the closing plan warns while operations are pending. Tests: `ua_close`.
+- `l10n_ua_tolling`: processing customer-owned material (давальницька сировина). Each customer gets a
+  storage location beside the warehouse stock, receipts there carry the customer as owner, so the material
+  is not valued and other orders cannot take it. The tolling order fills materials from the BOM, receives
+  them, makes a manufacturing order that takes the customer's components from that location and our own
+  from stock, delivers the products, returns leftovers, invoices the processing service and prints the
+  processor's report (received, norm for the output, consumed, deviation, returned, balance); it cannot be
+  finished while customer material is still with us. Tests: `ua_tolling`.
 - `docs/customization.md` and `scripts/new_pack.py`: how a team adapts the product in its own module
   (data, fields, print forms, rules) without forking the core, and a generator for such a module.
 - `docs/parity/README.md`: what 1C/BAS gives a Ukrainian company, what this repository covers, the gaps

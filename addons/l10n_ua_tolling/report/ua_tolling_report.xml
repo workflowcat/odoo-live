@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_tolling" model="ir.actions.report">
+    <field name="name">Звіт про переробку давальницької сировини</field>
+    <field name="model">ua.tolling.order</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_tolling.report_ua_tolling</field>
+    <field name="report_file">l10n_ua_tolling.report_ua_tolling</field>
+    <field name="binding_model_id" ref="model_ua_tolling_order"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Звіт про переробку %s' % (object.name or '')</field>
+  </record>
+
+  <!-- Звіт переробника для давальця: скільки сировини отримано, скільки пішло на продукцію
+       за нормою і фактично, скільки повернено і що лишилось. Підписують обидві сторони. -->
+  <template id="report_ua_tolling_document">
+    <t t-set="company" t-value="doc.company_id"/>
+    <t t-set="rows" t-value="doc.material_rows()"/>
+    <div class="page ua-doc">
+      <style>
+        .ua-doc { font-size: 10px; color: #000; }
+        .ua-doc h3 { font-size: 13px; text-align: center; margin: 4px 0; }
+        .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+        .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin: 6px 0; }
+        .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; }
+        .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+        .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+        .ua-doc .ua-sign { width: 100%; margin-top: 18px; }
+        .ua-doc .ua-sign td { width: 50%; vertical-align: top; padding-right: 12px; }
+      </style>
+
+      <h3>ЗВІТ ПРО ПЕРЕРОБКУ ДАВАЛЬНИЦЬКОЇ СИРОВИНИ</h3>
+      <div class="ua-sub">
+        за замовленням № <t t-out="doc.name"/> від <t t-out="doc.date.strftime('%d.%m.%Y')"/>
+        <t t-if="doc.contract_id">, договір № <t t-out="doc.contract_id.name"/> від <t t-out="doc.contract_id.date.strftime('%d.%m.%Y')"/></t>
+      </div>
+      <div>Переробник: <strong t-out="company.name"/><t t-if="company.company_registry">, код ЄДРПОУ <t t-out="company.company_registry"/></t></div>
+      <div>Давалець: <strong t-out="doc.partner_id.name"/><t t-if="doc.partner_id.company_registry">, код ЄДРПОУ <t t-out="doc.partner_id.company_registry"/></t></div>
+      <div>Продукція: <t t-out="doc.product_id.display_name"/>; замовлено <t t-out="doc.product_qty" t-options='{"widget": "float", "precision": 3}'/>,
+        виготовлено <t t-out="doc.qty_produced" t-options='{"widget": "float", "precision": 3}'/>,
+        передано давальцю <t t-out="doc.qty_delivered" t-options='{"widget": "float", "precision": 3}'/> <t t-out="doc.product_uom_id.name"/></div>
+
+      <table class="ua-grid">
+        <thead>
+          <tr>
+            <th>№</th><th>Сировина, матеріал</th><th>Од.</th><th>Отримано</th>
+            <th>Норма на випуск</th><th>Витрачено</th><th>Відхилення від норми</th>
+            <th>Повернено</th><th>Залишок у переробника</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr t-foreach="rows" t-as="row">
+            <td class="ua-num"><t t-out="row_index + 1"/></td>
+            <td><t t-out="row['product'].display_name"/></td>
+            <td><t t-out="row['uom'].name"/></td>
+            <td class="ua-num"><t t-out="row['received']" t-options='{"widget": "float", "precision": 3}'/></td>
+            <td class="ua-num"><t t-out="row['norm']" t-options='{"widget": "float", "precision": 3}'/></td>
+            <td class="ua-num"><t t-out="row['consumed']" t-options='{"widget": "float", "precision": 3}'/></td>
+            <td class="ua-num"><t t-out="row['deviation']" t-options='{"widget": "float", "precision": 3}'/></td>
+            <td class="ua-num"><t t-out="row['returned']" t-options='{"widget": "float", "precision": 3}'/></td>
+            <td class="ua-num"><t t-out="row['balance']" t-options='{"widget": "float", "precision": 3}'/></td>
+          </tr>
+        </tbody>
+      </table>
+      <p>Сировина давальця не є власністю переробника і обліковується на позабалансовому рахунку 023
+        «Сировина й матеріали, прийняті для переробки». Відхилення зі знаком «+» - витрата понад норму.</p>
+
+      <table class="ua-sign">
+        <tr>
+          <td>Від переробника<br/><br/>______________ / ______________________</td>
+          <td>Від давальця<br/><br/>______________ / ______________________</td>
+        </tr>
+      </table>
+    </div>
+  </template>
+
+  <template id="report_ua_tolling">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_tolling.report_ua_tolling_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

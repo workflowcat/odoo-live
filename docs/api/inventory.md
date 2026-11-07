@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 49. Моделей: 111. Методів: 356. Збережених полів на чужих моделях: 294.
+Модулів: 50. Моделей: 112. Методів: 371. Збережених полів на чужих моделях: 299.
 
 ## Зарплата
 
@@ -964,7 +964,7 @@
 
 ### `account.move`
 
-доповнена модель · `bp_purchase_intake`, `l10n_ua_close`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_vat`
+доповнена модель · `bp_purchase_intake`, `l10n_ua_close`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_tolling`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -986,6 +986,7 @@
 | `ua_fe_kind` | Selection | Проводка першої події | `l10n_ua_vat` |
 | `ua_in_pn_registered` | Boolean | ПН постачальника зареєстрована | `l10n_ua_vat` |
 | `ua_pn_deadline` | Date | Граничний строк реєстрації ПН | `l10n_ua_vat` |
+| `ua_tolling_id` | Many2one | ua.tolling.order | `l10n_ua_tolling` |
 | `ua_vat_comp` | Boolean | Проводка компенсуючих ПЗ | `l10n_ua_vat` |
 | `ua_vat_document_ids` | One2many | ua.vat.document | `l10n_ua_vat` |
 
@@ -1086,7 +1087,7 @@
 
 ### `stock.location`
 
-доповнена модель · `l10n_ua_stock_docs`
+доповнена модель · `l10n_ua_stock_docs`, `l10n_ua_tolling`
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
@@ -1096,10 +1097,11 @@
 | `ua_plan_x` | Integer | План: X | `l10n_ua_stock_docs` |
 | `ua_plan_y` | Integer | План: Y | `l10n_ua_stock_docs` |
 | `ua_purpose` | Selection | Призначення зони | `l10n_ua_stock_docs` |
+| `ua_tolling_partner_id` | Many2one | res.partner | `l10n_ua_tolling` |
 
 ### `stock.picking`
 
-доповнена модель · `l10n_ua_docs_stock`, `l10n_ua_stock_docs`
+доповнена модель · `l10n_ua_docs_stock`, `l10n_ua_stock_docs`, `l10n_ua_tolling`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1114,6 +1116,7 @@
 | `ua_proxy_date` | Date | Дата довіреності | `l10n_ua_docs_stock` |
 | `ua_proxy_number` | Char | Довіреність № | `l10n_ua_docs_stock` |
 | `ua_proxy_person` | Char | Видана на (ПІБ) | `l10n_ua_docs_stock` |
+| `ua_tolling_id` | Many2one | ua.tolling.order | `l10n_ua_tolling` |
 
 ### `uom.uom`
 
@@ -1367,6 +1370,28 @@
 | --- | --- | --- |
 | `open_target(target)` | Відкрити ціль будь-якого блоку будь-якого екрана. | `l10n_ua_screen` |
 
+### `ua.tolling.order`
+
+наша модель · `l10n_ua_tolling`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | - | `l10n_ua_tolling` |
+| `action_confirm()` | - | `l10n_ua_tolling` |
+| `action_deliver()` | Відвантаження готової продукції давальцю. | `l10n_ua_tolling` |
+| `action_done()` | - | `l10n_ua_tolling` |
+| `action_draft()` | - | `l10n_ua_tolling` |
+| `action_fill_from_bom()` | Сировина давальця за специфікацією на всю кількість. Власні матеріали з переліку | `l10n_ua_tolling` |
+| `action_invoice()` | Рахунок за переробку на виготовлену, ще не виставлену кількість. | `l10n_ua_tolling` |
+| `action_open_invoices()` | - | `l10n_ua_tolling` |
+| `action_open_pickings()` | - | `l10n_ua_tolling` |
+| `action_open_productions()` | - | `l10n_ua_tolling` |
+| `action_print()` | - | `l10n_ua_tolling` |
+| `action_produce()` | Виробниче замовлення на ще не виготовлену кількість: давальницькі компоненти - з | `l10n_ua_tolling` |
+| `action_receive()` | Прийом сировини: на місце давальця, з давальцем як власником. | `l10n_ua_tolling` |
+| `action_return_materials()` | Повернення невикористаної сировини давальцю. | `l10n_ua_tolling` |
+| `material_rows()` | Рядки звіту переробника по кожному матеріалу давальця. | `l10n_ua_tolling` |
+
 ### `account.journal`
 
 доповнена модель · `l10n_ua_bank_1c`, `l10n_ua_bank_online`
@@ -1378,11 +1403,12 @@
 
 ### `account.move.line`
 
-доповнена модель · `l10n_ua_contract`, `l10n_ua_vat`
+доповнена модель · `l10n_ua_contract`, `l10n_ua_tolling`, `l10n_ua_vat`
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `ua_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
+| `ua_tolling_qty` | Boolean | Кількість переробки | `l10n_ua_tolling` |
 
 ### `account.payment`
 
@@ -1417,7 +1443,7 @@
 
 ### `mrp.production`
 
-доповнена модель · `l10n_ua_defense`, `l10n_ua_mrp`
+доповнена модель · `l10n_ua_defense`, `l10n_ua_mrp`, `l10n_ua_tolling`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1427,6 +1453,7 @@
 | --- | --- | --- | --- |
 | `ua_client_ref` | Char | Мітка операції | `l10n_ua_mrp` |
 | `ua_contract_id` | Many2one | ua.contract | `l10n_ua_defense` |
+| `ua_tolling_id` | Many2one | ua.tolling.order | `l10n_ua_tolling` |
 
 ### `mrp.workcenter`
 

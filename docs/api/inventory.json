@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 49,
-    "models": 111,
-    "methods": 356,
-    "fields": 294
+    "modules": 50,
+    "models": 112,
+    "methods": 371,
+    "fields": 299
   },
   "areas": [
     {
@@ -4360,6 +4360,7 @@
             "l10n_ua_close",
             "l10n_ua_contract",
             "l10n_ua_docs",
+            "l10n_ua_tolling",
             "l10n_ua_vat"
           ],
           "methods": [
@@ -4483,6 +4484,14 @@
               "label": "Граничний строк реєстрації ПН",
               "module": "l10n_ua_vat",
               "file": "addons/l10n_ua_vat/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_tolling_id",
+              "type": "Many2one",
+              "label": "ua.tolling.order",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/stock.py",
               "groups": ""
             },
             {
@@ -4763,7 +4772,8 @@
           "model": "stock.location",
           "ours": false,
           "modules": [
-            "l10n_ua_stock_docs"
+            "l10n_ua_stock_docs",
+            "l10n_ua_tolling"
           ],
           "methods": [],
           "fields": [
@@ -4814,6 +4824,14 @@
               "module": "l10n_ua_stock_docs",
               "file": "addons/l10n_ua_stock_docs/models/stock_location.py",
               "groups": ""
+            },
+            {
+              "name": "ua_tolling_partner_id",
+              "type": "Many2one",
+              "label": "res.partner",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/stock.py",
+              "groups": ""
             }
           ]
         },
@@ -4822,7 +4840,8 @@
           "ours": false,
           "modules": [
             "l10n_ua_docs_stock",
-            "l10n_ua_stock_docs"
+            "l10n_ua_stock_docs",
+            "l10n_ua_tolling"
           ],
           "methods": [
             {
@@ -4891,6 +4910,14 @@
               "label": "Видана на (ПІБ)",
               "module": "l10n_ua_docs_stock",
               "file": "addons/l10n_ua_docs_stock/models/stock_picking.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_tolling_id",
+              "type": "Many2one",
+              "label": "ua.tolling.order",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/stock.py",
               "groups": ""
             }
           ]
@@ -6098,6 +6125,136 @@
           "fields": []
         },
         {
+          "model": "ua.tolling.order",
+          "ours": true,
+          "modules": [
+            "l10n_ua_tolling"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/ua_tolling_order.py",
+              "decorators": []
+            },
+            {
+              "name": "action_confirm",
+              "signature": "action_confirm()",
+              "doc": "",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/ua_tolling_order.py",
+              "decorators": []
+            },
+            {
+              "name": "action_deliver",
+              "signature": "action_deliver()",
+              "doc": "Відвантаження готової продукції давальцю.",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/ua_tolling_order.py",
+              "decorators": []
+            },
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/ua_tolling_order.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/ua_tolling_order.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill_from_bom",
+              "signature": "action_fill_from_bom()",
+              "doc": "Сировина давальця за специфікацією на всю кількість. Власні матеріали з переліку",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/ua_tolling_order.py",
+              "decorators": []
+            },
+            {
+              "name": "action_invoice",
+              "signature": "action_invoice()",
+              "doc": "Рахунок за переробку на виготовлену, ще не виставлену кількість.",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/ua_tolling_order.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_invoices",
+              "signature": "action_open_invoices()",
+              "doc": "",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/ua_tolling_order.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_pickings",
+              "signature": "action_open_pickings()",
+              "doc": "",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/ua_tolling_order.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_productions",
+              "signature": "action_open_productions()",
+              "doc": "",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/ua_tolling_order.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/ua_tolling_order.py",
+              "decorators": []
+            },
+            {
+              "name": "action_produce",
+              "signature": "action_produce()",
+              "doc": "Виробниче замовлення на ще не виготовлену кількість: давальницькі компоненти - з",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/ua_tolling_order.py",
+              "decorators": []
+            },
+            {
+              "name": "action_receive",
+              "signature": "action_receive()",
+              "doc": "Прийом сировини: на місце давальця, з давальцем як власником.",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/ua_tolling_order.py",
+              "decorators": []
+            },
+            {
+              "name": "action_return_materials",
+              "signature": "action_return_materials()",
+              "doc": "Повернення невикористаної сировини давальцю.",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/ua_tolling_order.py",
+              "decorators": []
+            },
+            {
+              "name": "material_rows",
+              "signature": "material_rows()",
+              "doc": "Рядки звіту переробника по кожному матеріалу давальця.",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/ua_tolling_order.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "account.journal",
           "ours": false,
           "modules": [
@@ -6129,6 +6286,7 @@
           "ours": false,
           "modules": [
             "l10n_ua_contract",
+            "l10n_ua_tolling",
             "l10n_ua_vat"
           ],
           "methods": [],
@@ -6139,6 +6297,14 @@
               "label": "ua.contract",
               "module": "l10n_ua_contract",
               "file": "addons/l10n_ua_contract/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_tolling_qty",
+              "type": "Boolean",
+              "label": "Кількість переробки",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/ua_tolling_order.py",
               "groups": ""
             }
           ]
@@ -6285,7 +6451,8 @@
           "ours": false,
           "modules": [
             "l10n_ua_defense",
-            "l10n_ua_mrp"
+            "l10n_ua_mrp",
+            "l10n_ua_tolling"
           ],
           "methods": [
             {
@@ -6314,6 +6481,14 @@
               "label": "ua.contract",
               "module": "l10n_ua_defense",
               "file": "addons/l10n_ua_defense/models/mrp_production.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_tolling_id",
+              "type": "Many2one",
+              "label": "ua.tolling.order",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/stock.py",
               "groups": ""
             }
           ]

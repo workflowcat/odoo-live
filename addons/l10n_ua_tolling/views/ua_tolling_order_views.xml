@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_tolling_order_list" model="ir.ui.view">
+    <field name="name">ua.tolling.order.list</field>
+    <field name="model">ua.tolling.order</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="name"/>
+        <field name="date"/>
+        <field name="partner_id"/>
+        <field name="product_id"/>
+        <field name="product_qty"/>
+        <field name="qty_produced"/>
+        <field name="qty_delivered"/>
+        <field name="state" widget="badge" decoration-info="state == 'open'"
+               decoration-success="state == 'done'" decoration-muted="state == 'cancel'"/>
+        <field name="company_id" groups="base.group_multi_company"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_tolling_order_search" model="ir.ui.view">
+    <field name="name">ua.tolling.order.search</field>
+    <field name="model">ua.tolling.order</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="name"/>
+        <field name="partner_id"/>
+        <field name="product_id"/>
+        <filter name="open" string="У роботі" domain="[('state', '=', 'open')]"/>
+        <filter name="done" string="Завершені" domain="[('state', '=', 'done')]"/>
+        <group>
+          <filter name="by_partner" string="Давалець" context="{'group_by': 'partner_id'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="view_ua_tolling_order_form" model="ir.ui.view">
+    <field name="name">ua.tolling.order.form</field>
+    <field name="model">ua.tolling.order</field>
+    <field name="arch" type="xml">
+      <form string="Переробка давальницької сировини">
+        <header>
+          <button name="action_fill_from_bom" type="object" string="За специфікацією"
+                  invisible="state != 'draft'"/>
+          <button name="action_confirm" type="object" string="В роботу" class="btn-primary"
+                  invisible="state != 'draft'"/>
+          <button name="action_receive" type="object" string="Прийняти сировину" class="btn-primary"
+                  invisible="state != 'open'"/>
+          <button name="action_produce" type="object" string="Виробити" invisible="state != 'open'"/>
+          <button name="action_deliver" type="object" string="Передати продукцію"
+                  invisible="state != 'open'"/>
+          <button name="action_return_materials" type="object" string="Повернути залишок"
+                  invisible="state != 'open'"/>
+          <button name="action_invoice" type="object" string="Рахунок за переробку"
+                  invisible="state not in ('open', 'done')"/>
+          <button name="action_print" type="object" string="Звіт переробника"
+                  invisible="state == 'draft'"/>
+          <button name="action_done" type="object" string="Завершити" invisible="state != 'open'"/>
+          <button name="action_cancel" type="object" string="Скасувати"
+                  invisible="state not in ('draft', 'open')"/>
+          <button name="action_draft" type="object" string="У чернетку" invisible="state != 'cancel'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,open,done"/>
+        </header>
+        <sheet>
+          <div class="oe_button_box" name="button_box">
+            <button name="action_open_pickings" type="object" class="oe_stat_button" icon="fa-truck"
+                    invisible="picking_count == 0">
+              <field name="picking_count" widget="statinfo" string="Переміщення"/>
+            </button>
+            <button name="action_open_productions" type="object" class="oe_stat_button" icon="fa-wrench"
+                    invisible="production_count == 0">
+              <field name="production_count" widget="statinfo" string="Виробництво"/>
+            </button>
+            <button name="action_open_invoices" type="object" class="oe_stat_button" icon="fa-file-text-o"
+                    invisible="invoice_count == 0">
+              <field name="invoice_count" widget="statinfo" string="Рахунки"/>
+            </button>
+          </div>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="partner_id" readonly="state != 'draft'"/>
+              <field name="contract_id" readonly="state not in ('draft', 'open')"/>
+              <field name="date"/>
+              <field name="warehouse_id" readonly="state != 'draft'"/>
+              <field name="location_id" invisible="not location_id"/>
+            </group>
+            <group>
+              <field name="product_id" readonly="state != 'draft'"/>
+              <field name="product_tmpl_id" invisible="1"/>
+              <label for="product_qty"/>
+              <div class="o_row">
+                <field name="product_qty" readonly="state != 'draft'"/>
+                <field name="product_uom_id"/>
+              </div>
+              <field name="bom_id" readonly="state != 'draft'"/>
+              <field name="price_unit"/>
+              <field name="currency_id" invisible="1"/>
+              <field name="qty_produced"/>
+              <field name="qty_delivered"/>
+              <field name="qty_invoiced"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Сировина давальця" name="materials">
+              <field name="line_ids" readonly="state != 'draft'">
+                <list editable="bottom">
+                  <field name="product_id"/>
+                  <field name="product_qty"/>
+                  <field name="product_uom_id"/>
+                </list>
+              </field>
+            </page>
+            <page string="Примітка" name="note">
+              <field name="note" nolabel="1"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_tolling_order" model="ir.actions.act_window">
+    <field name="name">Переробка давальницької сировини</field>
+    <field name="res_model">ua.tolling.order</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_ua_tolling_order_search"/>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiley_face">Замовлень на переробку ще немає</p>
+      <p>Давалець передає сировину, ви виготовляєте продукцію і повертаєте її разом із залишком.
+        Сировина лишається власністю давальця й не потрапляє у ваші запаси.</p>
+    </field>
+  </record>
+
+  <menuitem id="menu_ua_tolling_order" name="Давальницька сировина"
+            parent="mrp.menu_mrp_manufacturing" action="action_ua_tolling_order" sequence="30"/>
+</odoo>
