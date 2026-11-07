@@ -178,6 +178,12 @@ Notable changes for people who run or build on this code. Module-level API chang
   form "Наряд на відрядну роботу" with totals per worker; pivot by worker and operation. Tests: `ua_piecework`.
 - Payroll: new rule PIECE (basic pay from an input) in the UA salary structure, mapped to expense / 661; golden
   scenario 31 and the reference calculator cover it.
+- `l10n_ua_mrp_substitute`: approved component substitutes (1C "аналоги"). Each BOM line can list substitutes
+  with a factor and priority; only rows approved by a production manager with a basis are used, and editing the
+  product or factor drops the approval (a copied BOM revision starts unapproved). "Замінити відсутні" on a
+  manufacturing order takes each component's shortage from free stock of approved substitutes, lowers the
+  original demand, adds the substitute marked "instead of", and logs it in the chatter. Finishing the order
+  counts the swap as consumption of the original, so no consumption warning. Tests: `ua_mrp_substitute`.
 
 ### Changed
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number

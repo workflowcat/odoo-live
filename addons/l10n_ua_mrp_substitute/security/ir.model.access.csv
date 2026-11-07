@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_bom_substitute_user,ua.bom.substitute user,model_ua_bom_substitute,mrp.group_mrp_user,1,1,1,1
+access_ua_bom_substitute_manager,ua.bom.substitute manager,model_ua_bom_substitute,mrp.group_mrp_manager,1,1,1,1

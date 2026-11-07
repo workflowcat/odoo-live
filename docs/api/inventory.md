@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 64. Моделей: 141. Методів: 499. Збережених полів на чужих моделях: 339.
+Модулів: 65. Моделей: 143. Методів: 503. Збережених полів на чужих моделях: 342.
 
 ## Зарплата
 
@@ -1260,6 +1260,15 @@
 | `warehouse_map(company_id)` | Карта складу: дерево локацій із місткістю, заповненням і вмістом. | `l10n_ua_api` |
 | `workorder_card(workorder_id)` | Картка наряду для кіоску цеху: що робити, чим, і що вже перевірено. | `l10n_ua_api` |
 
+### `ua.bom.substitute`
+
+наша модель · `l10n_ua_mrp_substitute`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_approve()` | - | `l10n_ua_mrp_substitute` |
+| `action_revoke()` | - | `l10n_ua_mrp_substitute` |
+
 ### `ua.catalog.load`
 
 наша модель · `l10n_ua_catalog`
@@ -1775,7 +1784,11 @@
 
 ### `mrp.bom`
 
-доповнена модель · `l10n_ua_eco`, `l10n_ua_mrp`
+доповнена модель · `l10n_ua_eco`, `l10n_ua_mrp`, `l10n_ua_mrp_substitute`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_ua_substitutes()` | - | `l10n_ua_mrp_substitute` |
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
@@ -1784,12 +1797,21 @@
 | `ua_revision` | Integer | Зміна № | `l10n_ua_eco` |
 | `ua_successor_eco_id` | Many2one | ua.eco | `l10n_ua_eco` |
 
+### `mrp.bom.line`
+
+доповнена модель · `l10n_ua_mrp_substitute`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_substitute_ids` | One2many | ua.bom.substitute | `l10n_ua_mrp_substitute` |
+
 ### `mrp.production`
 
-доповнена модель · `l10n_ua_defense`, `l10n_ua_eco`, `l10n_ua_mrp`, `l10n_ua_tolling`
+доповнена модель · `l10n_ua_defense`, `l10n_ua_eco`, `l10n_ua_mrp`, `l10n_ua_mrp_substitute`, `l10n_ua_tolling`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
+| `action_ua_substitute()` | Покрити нестачу компонентів вільним залишком погоджених аналогів. | `l10n_ua_mrp_substitute` |
 | `ua_get_or_create(client_ref, vals=None)` | Замовлення за міткою клієнта: є - віддаємо, немає - створюємо. | `l10n_ua_mrp` |
 
 | Поле | Тип | Підпис | Модуль |
@@ -1892,10 +1914,12 @@
 
 ### `stock.move`
 
-доповнена модель · `l10n_ua_fleet`
+доповнена модель · `l10n_ua_fleet`, `l10n_ua_mrp_substitute`
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
+| `ua_substitute_id` | Many2one | ua.bom.substitute | `l10n_ua_mrp_substitute` |
+| `ua_substitute_of_id` | Many2one | product.product | `l10n_ua_mrp_substitute` |
 | `ua_waybill_id` | Many2one | ua.waybill | `l10n_ua_fleet` |
 | `ua_waybill_reversed` | Boolean | Сторновано скасуванням листа | `l10n_ua_fleet` |
 

@@ -71,6 +71,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Quality control (ВТК), inspections | done | check items on routing operations, yes/no answers on work orders (`l10n_ua_mrp`); defense contracts block release and acceptance until every item is "yes" and print the results in the serial passport (`l10n_ua_defense`); incoming and outgoing protocols (`l10n_ua_stock_docs`) |
 | Tolling (давальницька сировина) | yes | `l10n_ua_tolling`: customer material in its own owner-tagged location (not valued, off-balance 023), production from it, return of products and leftovers, processing invoice, processor's report with norm vs actual |
 | Engineering changes, BOM versions | done | `l10n_ua_eco`: change notices with was/now lines, approvals (technologist, quality, military representative), BOM revision N+1 on the effective date |
+| Component substitutes (аналоги, заміни) | done | `l10n_ua_mrp_substitute`: substitutes per BOM line with a factor and priority, usable only after the production manager approves them with a basis (change notice, customer representative's decision); any change drops the approval. "Замінити відсутні" on the MO covers shortages from free stock of approved substitutes and marks each line "instead of"; the consumption check counts the approved swap as consumption of the original |
 | Production planning (MPS/MRP) | done | OCA `mrp_multi_level` over all BOM levels; open defense delivery schedules are demand (`l10n_ua_mrp_plan`) |
 | Piece-rate pay from production output (відрядна оплата, виробіток) | done | `l10n_ua_piecework`: rate per routing operation; the "Виробіток" document takes finished work orders of the period, splits the quantity between workers by their logged time, and sends quantity × rate to the payslip as PIECE (basic pay, all taxes); print form of the piece-work order; cancel blocked once the payslip is posted |
 | Repairs and warranty returns | done | native `repair`; `l10n_ua_claim`: claims on serial numbers, warranty from the acceptance act, contract deadlines, investigation, decision, history in the passport |
@@ -143,7 +144,7 @@ change notices (`l10n_ua_eco`) and claims (`l10n_ua_claim`); electronic document
 (`l10n_ua_unit_transfer`); mutual offset of debts (`l10n_ua_offset`); commission trade
 (`l10n_ua_commission`); waybills and fuel (`l10n_ua_fleet`); multi-level production planning
 from defense delivery schedules (`l10n_ua_mrp_plan` on OCA `mrp_multi_level`); piece-rate pay
-from production output (`l10n_ua_piecework`).
+from production output (`l10n_ua_piecework`); approved component substitutes (`l10n_ua_mrp_substitute`).
 
 Next, in this order:
 

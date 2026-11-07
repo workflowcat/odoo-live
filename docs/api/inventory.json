@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 64,
-    "models": 141,
-    "methods": 499,
-    "fields": 339
+    "modules": 65,
+    "models": 143,
+    "methods": 503,
+    "fields": 342
   },
   "areas": [
     {
@@ -5679,6 +5679,32 @@
           "fields": []
         },
         {
+          "model": "ua.bom.substitute",
+          "ours": true,
+          "modules": [
+            "l10n_ua_mrp_substitute"
+          ],
+          "methods": [
+            {
+              "name": "action_approve",
+              "signature": "action_approve()",
+              "doc": "",
+              "module": "l10n_ua_mrp_substitute",
+              "file": "addons/l10n_ua_mrp_substitute/models/mrp_substitute.py",
+              "decorators": []
+            },
+            {
+              "name": "action_revoke",
+              "signature": "action_revoke()",
+              "doc": "",
+              "module": "l10n_ua_mrp_substitute",
+              "file": "addons/l10n_ua_mrp_substitute/models/mrp_substitute.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.catalog.load",
           "ours": true,
           "modules": [
@@ -7931,9 +7957,19 @@
           "ours": false,
           "modules": [
             "l10n_ua_eco",
-            "l10n_ua_mrp"
+            "l10n_ua_mrp",
+            "l10n_ua_mrp_substitute"
           ],
-          "methods": [],
+          "methods": [
+            {
+              "name": "action_ua_substitutes",
+              "signature": "action_ua_substitutes()",
+              "doc": "",
+              "module": "l10n_ua_mrp_substitute",
+              "file": "addons/l10n_ua_mrp_substitute/models/mrp_substitute.py",
+              "decorators": []
+            }
+          ],
           "fields": [
             {
               "name": "ua_eco_id",
@@ -7970,15 +8006,42 @@
           ]
         },
         {
+          "model": "mrp.bom.line",
+          "ours": false,
+          "modules": [
+            "l10n_ua_mrp_substitute"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_substitute_ids",
+              "type": "One2many",
+              "label": "ua.bom.substitute",
+              "module": "l10n_ua_mrp_substitute",
+              "file": "addons/l10n_ua_mrp_substitute/models/mrp_substitute.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
           "model": "mrp.production",
           "ours": false,
           "modules": [
             "l10n_ua_defense",
             "l10n_ua_eco",
             "l10n_ua_mrp",
+            "l10n_ua_mrp_substitute",
             "l10n_ua_tolling"
           ],
           "methods": [
+            {
+              "name": "action_ua_substitute",
+              "signature": "action_ua_substitute()",
+              "doc": "Покрити нестачу компонентів вільним залишком погоджених аналогів.",
+              "module": "l10n_ua_mrp_substitute",
+              "file": "addons/l10n_ua_mrp_substitute/models/mrp_substitute.py",
+              "decorators": []
+            },
             {
               "name": "ua_get_or_create",
               "signature": "ua_get_or_create(client_ref, vals=None)",
@@ -8402,10 +8465,27 @@
           "model": "stock.move",
           "ours": false,
           "modules": [
-            "l10n_ua_fleet"
+            "l10n_ua_fleet",
+            "l10n_ua_mrp_substitute"
           ],
           "methods": [],
           "fields": [
+            {
+              "name": "ua_substitute_id",
+              "type": "Many2one",
+              "label": "ua.bom.substitute",
+              "module": "l10n_ua_mrp_substitute",
+              "file": "addons/l10n_ua_mrp_substitute/models/mrp_substitute.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_substitute_of_id",
+              "type": "Many2one",
+              "label": "product.product",
+              "module": "l10n_ua_mrp_substitute",
+              "file": "addons/l10n_ua_mrp_substitute/models/mrp_substitute.py",
+              "groups": ""
+            },
             {
               "name": "ua_waybill_id",
               "type": "Many2one",
