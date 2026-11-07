@@ -20,5 +20,11 @@ Notable changes for people who run or build on this code. Module-level API chang
 - `docker-compose.yml`: `BP_BRIDGE_URL` comes from `.env` and is empty by default.
 - `.env.example`: comments on their own lines (inline comments ended up inside values).
 
+### Security
+- `l10n_ua_mrp`: assembly drawings are returned without scripts, event handlers, embedded HTML or outside links.
+- `bp_purchase_intake`: an IBAN read from an email is not added to an existing supplier's card.
+- `l10n_ua_payments`: confirming a plain (non-salary) payment order no longer marks recipient accounts as trusted.
+- `l10n_ua_hr_card`: the OCA `search_attachments_from_hr_employee` flag no longer opens other employees' scans.
+
 ### Removed
 - `docker-compose.live.yml` and the Supabase setup it described (unused since 2026-09-22).

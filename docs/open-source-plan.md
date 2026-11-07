@@ -52,16 +52,25 @@ rest is ordered work with a "done when" line each.
 Done when every finding of the 2026-10 audit is either fixed with a regression test or written down in
 `SECURITY.md` as a known limit, and a fresh production install has no default password.
 
-- Fix the high finding first: frozen payslip traces readable by every internal user (`l10n_ua_explain`).
-- Access rules: company record rules on own accounting and HR models; registers (VAT periods, cash books,
-  change log) readable and writable only by the right groups.
-- Remove public `sudo` entry points (leave allocations, military check) or put a group check in front.
-- `bp_bridge.call`: group check, path allowlist, no host change through the path.
-- `l10n_ua_bank_online`: https only, host allowlist, no response echo.
-- `bp_purchase_intake`: supplier status writable only by managers; new IBAN on an existing supplier needs approval.
-- Deploy scripts: refuse to start production without a set admin password; staging never shares tokens with production.
-- Parse uploaded XML with a hardened parser; sanitise assembly SVG.
-- Add a `ua_security` test per fix.
+Status 2026-11-07 (24 findings):
+
+- [x] 15 fixed in October, with tests in `l10n_ua_payroll_tests/tests/test_security.py` (`ua_security`):
+  payslip traces (the one high), change log, registers, VAT and cash writes, company rules, bridge
+  transport, supplier status, leave allocations, military check, income certificate, P-2, bank API host,
+  DPS XML parser. Production deploy refuses an empty or sample admin password.
+- [x] 4 fixed on this branch with tests: assembly drawing SVG cleaned (`l10n_ua_mrp`, test_40); an emailed
+  IBAN no longer lands on an existing supplier (`bp_purchase_intake`); automatic "trusted account" only on
+  salary and tax orders (`l10n_ua_payments`); the OCA document flag no longer opens colleagues' scans
+  (`l10n_ua_hr_card`, test_19).
+- [ ] Bridge Worker: one token for staging and production. Fix: accept a list of tokens, each scoped to
+  routes and an environment; constant-time compare. Needs a Worker deploy.
+- [ ] `deploy/restore.sh`: neutralise a production copy (passwords, API keys, bank tokens, mail servers,
+  all bridge parameters) before staging serves it.
+- [ ] `assistant/`: bind login to a proven identity (Cloudflare Access JWT or a one-time code to the work
+  email); picker mode only on demo data.
+- [ ] `scripts/claude_extract_helper.py`: a per-run token on the local endpoint and an isolated settings
+  file for the agent.
+- [ ] Sample deploy workflow: separate host user for staging (warning added to the file).
 
 ## Phase 3 - easy to build on
 
