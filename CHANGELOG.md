@@ -206,6 +206,11 @@ Notable changes for people who run or build on this code. Module-level API chang
   with overspend per item. Receipts are credits to 484 from the grantor (a button tags untagged ones);
   income is recognised as funds are used, never above what was received (Dr 484 Cr 718). Usage report print.
   Tests: `ua_grant`.
+- `l10n_ua_export_control`: export control. A product is marked as military or dual-use with its control
+  list position. A permit for an international transfer holds the importer, end user, country, term and the
+  products with quantities. A delivery of such goods to a partner in another country is not validated without
+  a valid permit for that partner, country and product, or above what the permit has left; a single matching
+  permit is set on the delivery by itself. Expiry reminders and a usage report. Tests: `ua_export_control`.
 
 ### Changed
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number

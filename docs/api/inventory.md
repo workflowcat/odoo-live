@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 69. Моделей: 149. Методів: 539. Збережених полів на чужих моделях: 359.
+Модулів: 70. Моделей: 150. Методів: 547. Збережених полів на чужих моделях: 363.
 
 ## Зарплата
 
@@ -1054,7 +1054,7 @@
 
 ### `stock.picking`
 
-доповнена модель · `l10n_ua_commission`, `l10n_ua_docs_stock`, `l10n_ua_stock_docs`, `l10n_ua_tolling`, `l10n_ua_unit_transfer`
+доповнена модель · `l10n_ua_commission`, `l10n_ua_docs_stock`, `l10n_ua_export_control`, `l10n_ua_stock_docs`, `l10n_ua_tolling`, `l10n_ua_unit_transfer`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1068,6 +1068,7 @@
 | `ua_act_receiver` | Char | Прийняв (ПІБ, посада) | `l10n_ua_stock_docs` |
 | `ua_client_ref` | Char | Мітка операції | `l10n_ua_stock_docs` |
 | `ua_commission_id` | Many2one | ua.commission.agreement | `l10n_ua_commission` |
+| `ua_export_permit_id` | Many2one | ua.export.permit | `l10n_ua_export_control` |
 | `ua_proxy_date` | Date | Дата довіреності | `l10n_ua_docs_stock` |
 | `ua_proxy_number` | Char | Довіреність № | `l10n_ua_docs_stock` |
 | `ua_proxy_person` | Char | Видана на (ПІБ) | `l10n_ua_docs_stock` |
@@ -1448,6 +1449,21 @@
 | --- | --- | --- |
 | `action_ua_edo_documents()` | - | `l10n_ua_edo` |
 | `action_ua_edo_send()` | - | `l10n_ua_edo` |
+
+### `ua.export.permit`
+
+наша модель · `l10n_ua_export_control`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_activate()` | - | `l10n_ua_export_control` |
+| `action_close()` | - | `l10n_ua_export_control` |
+| `action_draft()` | - | `l10n_ua_export_control` |
+| `action_print()` | - | `l10n_ua_export_control` |
+| `ua_date(day)` | - | `l10n_ua_export_control` |
+| `ua_kind_label()` | - | `l10n_ua_export_control` |
+| `ua_shipments()` | Рядки звіту: проведені відвантаження з дозволом, за датою. | `l10n_ua_export_control` |
+| `ua_used()` | {виріб: відвантажено} - проведені вихідні переміщення з цим дозволом. | `l10n_ua_export_control` |
 
 ### `ua.fuel.norm.adjustment`
 
@@ -1928,7 +1944,7 @@
 
 ### `product.template`
 
-доповнена модель · `l10n_ua_customs`, `l10n_ua_defense`, `l10n_ua_dk021`, `l10n_ua_mrp`, `l10n_ua_price_label`, `l10n_ua_stock_docs`, `l10n_ua_vat`
+доповнена модель · `l10n_ua_customs`, `l10n_ua_defense`, `l10n_ua_dk021`, `l10n_ua_export_control`, `l10n_ua_mrp`, `l10n_ua_price_label`, `l10n_ua_stock_docs`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1936,11 +1952,14 @@
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
+| `ua_control_kind` | Selection | - | `l10n_ua_export_control` |
+| `ua_control_ref` | Char | Позиція контрольного списку | `l10n_ua_export_control` |
 | `ua_cost_item` | Selection | - | `l10n_ua_defense` |
 | `ua_customs_duty_rate` | Float | Ставка ввізного мита, % | `l10n_ua_customs` |
 | `ua_dk021_id` | Many2one | ua.dk021 | `l10n_ua_dk021` |
 | `ua_drawing_name` | Char | Файл креслення | `l10n_ua_mrp` |
 | `ua_drawing_svg` | Binary | Складальне креслення | `l10n_ua_mrp` |
+| `ua_export_controlled` | Boolean | Під експортним контролем | `l10n_ua_export_control` |
 | `ua_label_content` | Float | Вміст упаковки | `l10n_ua_price_label` |
 | `ua_label_unit` | Selection | - | `l10n_ua_price_label` |
 | `ua_size` | Selection | Габарит | `l10n_ua_stock_docs` |

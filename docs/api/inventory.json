@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 69,
-    "models": 149,
-    "methods": 539,
-    "fields": 359
+    "modules": 70,
+    "models": 150,
+    "methods": 547,
+    "fields": 363
   },
   "areas": [
     {
@@ -4647,6 +4647,7 @@
           "modules": [
             "l10n_ua_commission",
             "l10n_ua_docs_stock",
+            "l10n_ua_export_control",
             "l10n_ua_stock_docs",
             "l10n_ua_tolling",
             "l10n_ua_unit_transfer"
@@ -4710,6 +4711,14 @@
               "label": "ua.commission.agreement",
               "module": "l10n_ua_commission",
               "file": "addons/l10n_ua_commission/models/ua_commission.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_export_permit_id",
+              "type": "Many2one",
+              "label": "ua.export.permit",
+              "module": "l10n_ua_export_control",
+              "file": "addons/l10n_ua_export_control/models/export_control.py",
               "groups": ""
             },
             {
@@ -6580,6 +6589,80 @@
               "doc": "",
               "module": "l10n_ua_edo",
               "file": "addons/l10n_ua_edo/models/ua_edo.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.export.permit",
+          "ours": true,
+          "modules": [
+            "l10n_ua_export_control"
+          ],
+          "methods": [
+            {
+              "name": "action_activate",
+              "signature": "action_activate()",
+              "doc": "",
+              "module": "l10n_ua_export_control",
+              "file": "addons/l10n_ua_export_control/models/export_control.py",
+              "decorators": []
+            },
+            {
+              "name": "action_close",
+              "signature": "action_close()",
+              "doc": "",
+              "module": "l10n_ua_export_control",
+              "file": "addons/l10n_ua_export_control/models/export_control.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_export_control",
+              "file": "addons/l10n_ua_export_control/models/export_control.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_export_control",
+              "file": "addons/l10n_ua_export_control/models/export_control.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_date",
+              "signature": "ua_date(day)",
+              "doc": "",
+              "module": "l10n_ua_export_control",
+              "file": "addons/l10n_ua_export_control/models/export_control.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_kind_label",
+              "signature": "ua_kind_label()",
+              "doc": "",
+              "module": "l10n_ua_export_control",
+              "file": "addons/l10n_ua_export_control/models/export_control.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_shipments",
+              "signature": "ua_shipments()",
+              "doc": "Рядки звіту: проведені відвантаження з дозволом, за датою.",
+              "module": "l10n_ua_export_control",
+              "file": "addons/l10n_ua_export_control/models/export_control.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_used",
+              "signature": "ua_used()",
+              "doc": "{виріб: відвантажено} - проведені вихідні переміщення з цим дозволом.",
+              "module": "l10n_ua_export_control",
+              "file": "addons/l10n_ua_export_control/models/export_control.py",
               "decorators": []
             }
           ],
@@ -8601,6 +8684,7 @@
             "l10n_ua_customs",
             "l10n_ua_defense",
             "l10n_ua_dk021",
+            "l10n_ua_export_control",
             "l10n_ua_mrp",
             "l10n_ua_price_label",
             "l10n_ua_stock_docs",
@@ -8617,6 +8701,22 @@
             }
           ],
           "fields": [
+            {
+              "name": "ua_control_kind",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_export_control",
+              "file": "addons/l10n_ua_export_control/models/export_control.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_control_ref",
+              "type": "Char",
+              "label": "Позиція контрольного списку",
+              "module": "l10n_ua_export_control",
+              "file": "addons/l10n_ua_export_control/models/export_control.py",
+              "groups": ""
+            },
             {
               "name": "ua_cost_item",
               "type": "Selection",
@@ -8655,6 +8755,14 @@
               "label": "Складальне креслення",
               "module": "l10n_ua_mrp",
               "file": "addons/l10n_ua_mrp/models/product_template.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_export_controlled",
+              "type": "Boolean",
+              "label": "Під експортним контролем",
+              "module": "l10n_ua_export_control",
+              "file": "addons/l10n_ua_export_control/models/export_control.py",
               "groups": ""
             },
             {

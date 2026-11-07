@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="product_template_form_view_ua_export" model="ir.ui.view">
+    <field name="name">product.template.form.ua.export</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_form_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='categ_id']" position="after">
+        <field name="ua_export_controlled"/>
+        <field name="ua_control_kind" invisible="not ua_export_controlled" required="ua_export_controlled"/>
+        <field name="ua_control_ref" invisible="not ua_export_controlled"/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_picking_form_ua_export" model="ir.ui.view">
+    <field name="name">stock.picking.form.ua.export</field>
+    <field name="model">stock.picking</field>
+    <field name="inherit_id" ref="stock.view_picking_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='origin']" position="after">
+        <field name="ua_export_needed" invisible="1"/>
+        <field name="ua_export_permit_id" invisible="not ua_export_needed and not ua_export_permit_id"
+               readonly="state in ('done', 'cancel')" options="{'no_create': True}"/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_ua_export_permit_list" model="ir.ui.view">
+    <field name="name">ua.export.permit.list</field>
+    <field name="model">ua.export.permit</field>
+    <field name="arch" type="xml">
+      <list decoration-muted="state in ('closed', 'expired')" decoration-info="state == 'draft'">
+        <field name="name"/>
+        <field name="kind"/>
+        <field name="partner_id"/>
+        <field name="country_id"/>
+        <field name="end_user_id" optional="hide"/>
+        <field name="date_issue"/>
+        <field name="date_expiry"/>
+        <field name="user_id" optional="hide" widget="many2one_avatar_user"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+        <field name="state" widget="badge" decoration-success="state == 'active'"
+               decoration-warning="state == 'expired'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_export_permit_form" model="ir.ui.view">
+    <field name="name">ua.export.permit.form</field>
+    <field name="model">ua.export.permit</field>
+    <field name="arch" type="xml">
+      <form>
+        <header>
+          <button name="action_activate" string="Діє" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+          <button name="action_close" string="Закрити" type="object" invisible="state not in ('active', 'expired')"/>
+          <button name="action_draft" string="В чернетку" type="object" invisible="state == 'draft'"
+                  groups="stock.group_stock_manager"/>
+          <button name="action_print" string="Звіт про використання" type="object" invisible="state == 'draft'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,active,closed"/>
+        </header>
+        <sheet>
+          <div class="oe_title">
+            <label for="name"/>
+            <h1><field name="name" placeholder="Номер дозволу" readonly="state != 'draft'"/></h1>
+          </div>
+          <group>
+            <group>
+              <field name="kind" readonly="state != 'draft'"/>
+              <field name="partner_id" readonly="state != 'draft'"/>
+              <field name="country_id" readonly="state != 'draft'"/>
+              <field name="end_user_id" readonly="state != 'draft'"/>
+              <field name="end_use"/>
+            </group>
+            <group>
+              <field name="authority"/>
+              <field name="date_issue" readonly="state != 'draft'"/>
+              <field name="date_expiry"/>
+              <field name="notify_days"/>
+              <field name="user_id" widget="many2one_avatar_user"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Товари" name="lines">
+              <field name="line_ids" readonly="state != 'draft'">
+                <list editable="bottom">
+                  <field name="product_id" domain="[('ua_export_controlled', '=', True)]"/>
+                  <field name="control_ref"/>
+                  <field name="quantity"/>
+                  <field name="uom_id"/>
+                  <field name="used_qty"/>
+                  <field name="remaining_qty" decoration-danger="remaining_qty &lt; 0"/>
+                  <field name="currency_id" optional="hide"/>
+                  <field name="amount" optional="hide"/>
+                </list>
+              </field>
+            </page>
+            <page string="Відвантаження" name="pickings">
+              <field name="picking_ids" readonly="1">
+                <list>
+                  <field name="name"/>
+                  <field name="partner_id"/>
+                  <field name="scheduled_date"/>
+                  <field name="date_done"/>
+                  <field name="state" widget="badge"/>
+                </list>
+              </field>
+            </page>
+            <page string="Умови" name="note">
+              <field name="note" placeholder="Обмеження, умови, гарантії кінцевого використання"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_export_permit_search" model="ir.ui.view">
+    <field name="name">ua.export.permit.search</field>
+    <field name="model">ua.export.permit</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="name"/>
+        <field name="partner_id"/>
+        <field name="country_id"/>
+        <field name="line_ids" string="Товар" filter_domain="[('line_ids.product_id', 'ilike', self)]"/>
+        <filter name="active_permits" string="Діють" domain="[('state', '=', 'active')]"/>
+        <filter name="draft" string="Чернетки" domain="[('state', '=', 'draft')]"/>
+        <filter name="expired" string="Строк минув" domain="[('state', '=', 'expired')]"/>
+        <separator/>
+        <filter name="date_expiry" string="Діє до" date="date_expiry"/>
+        <group>
+          <filter name="by_partner" string="Імпортер" context="{'group_by': 'partner_id'}"/>
+          <filter name="by_country" string="Країна" context="{'group_by': 'country_id'}"/>
+          <filter name="by_state" string="Стан" context="{'group_by': 'state'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_export_permit" model="ir.actions.act_window">
+    <field name="name">Дозволи на міжнародні передачі</field>
+    <field name="res_model">ua.export.permit</field>
+    <field name="view_mode">list,form</field>
+    <field name="context">{'search_default_active_permits': 1}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Додайте дозвіл на міжнародну передачу</p>
+      <p>Відвантаження товарів під експортним контролем за кордон проводиться лише за чинним дозволом.</p>
+    </field>
+  </record>
+
+  <record id="action_ua_export_controlled_products" model="ir.actions.act_window">
+    <field name="name">Товари під експортним контролем</field>
+    <field name="res_model">product.template</field>
+    <field name="view_mode">list,form</field>
+    <field name="domain">[('ua_export_controlled', '=', True)]</field>
+    <field name="context">{'default_ua_export_controlled': True}</field>
+  </record>
+</odoo>

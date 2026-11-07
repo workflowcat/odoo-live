@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_ua_export_control" name="Експортний контроль" parent="stock.menu_stock_root" sequence="46"
+            groups="stock.group_stock_user"/>
+  <menuitem id="menu_ua_export_permit" name="Дозволи" parent="menu_ua_export_control"
+            action="action_ua_export_permit" sequence="10"/>
+  <menuitem id="menu_ua_export_products" name="Контрольовані товари" parent="menu_ua_export_control"
+            action="action_ua_export_controlled_products" sequence="20"/>
+</odoo>
