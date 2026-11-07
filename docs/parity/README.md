@@ -37,7 +37,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 
 | 1C/BAS feature | Here | Where / what is missing |
 | --- | --- | --- |
-| Payroll with Ukrainian rules, average earnings, indexation | done | `l10n_ua_payroll_rules`, `l10n_ua_average`, `l10n_ua_index`, 30 golden scenarios |
+| Payroll with Ukrainian rules, average earnings, indexation | done | `l10n_ua_payroll_rules`, `l10n_ua_average`, `l10n_ua_index`, 31 golden scenarios; piece-rate pay from production (`l10n_ua_piecework`) |
 | Sick leave (employer and PFU parts), vacations, business trips | done | `l10n_ua_average` |
 | Unified tax report (ПДФО/ВЗ/ЄСВ) with annexes, XML | done | `l10n_ua_payroll_reports` |
 | HR orders, staff list, timesheet П-5, personal card П-2 | done | `l10n_ua_hr_*` |
@@ -72,6 +72,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Tolling (давальницька сировина) | yes | `l10n_ua_tolling`: customer material in its own owner-tagged location (not valued, off-balance 023), production from it, return of products and leftovers, processing invoice, processor's report with norm vs actual |
 | Engineering changes, BOM versions | done | `l10n_ua_eco`: change notices with was/now lines, approvals (technologist, quality, military representative), BOM revision N+1 on the effective date |
 | Production planning (MPS/MRP) | done | OCA `mrp_multi_level` over all BOM levels; open defense delivery schedules are demand (`l10n_ua_mrp_plan`) |
+| Piece-rate pay from production output (відрядна оплата, виробіток) | done | `l10n_ua_piecework`: rate per routing operation; the "Виробіток" document takes finished work orders of the period, splits the quantity between workers by their logged time, and sends quantity × rate to the payslip as PIECE (basic pay, all taxes); print form of the piece-work order; cancel blocked once the payslip is posted |
 | Repairs and warranty returns | done | native `repair`; `l10n_ua_claim`: claims on serial numbers, warranty from the acceptance act, contract deadlines, investigation, decision, history in the passport |
 | Vehicles: waybills, fuel norms, fuel write-off (подорожні листи, ПММ) | done | `l10n_ua_fleet` on native `fleet`: each vehicle has its own "tank" location; the waybill takes odometer, tonne-km and engine hours, the norm with seasonal and city adjustments (company settings), refuels from stock or a fuel station, and writes off actual use - within the norm to the vehicle's expense account, over it to a separate account; cancel restores fuel and odometer |
 
@@ -141,7 +142,8 @@ change notices (`l10n_ua_eco`) and claims (`l10n_ua_claim`); electronic document
 (`l10n_ua_edo`); the annual procurement plan (`l10n_ua_procurement_plan`); deliveries to military units
 (`l10n_ua_unit_transfer`); mutual offset of debts (`l10n_ua_offset`); commission trade
 (`l10n_ua_commission`); waybills and fuel (`l10n_ua_fleet`); multi-level production planning
-from defense delivery schedules (`l10n_ua_mrp_plan` on OCA `mrp_multi_level`).
+from defense delivery schedules (`l10n_ua_mrp_plan` on OCA `mrp_multi_level`); piece-rate pay
+from production output (`l10n_ua_piecework`).
 
 Next, in this order:
 

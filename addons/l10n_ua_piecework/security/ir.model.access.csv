@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_piecework_mrp_user,ua.piecework mrp user,model_ua_piecework,mrp.group_mrp_user,1,1,1,0
+access_ua_piecework_mrp_manager,ua.piecework mrp manager,model_ua_piecework,mrp.group_mrp_manager,1,1,1,1
+access_ua_piecework_payroll,ua.piecework payroll,model_ua_piecework,payroll.group_payroll_user,1,0,0,0
+access_ua_piecework_line_mrp_user,ua.piecework.line mrp user,model_ua_piecework_line,mrp.group_mrp_user,1,1,1,1
+access_ua_piecework_line_payroll,ua.piecework.line payroll,model_ua_piecework_line,payroll.group_payroll_user,1,0,0,0

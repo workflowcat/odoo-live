@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_piecework" model="ir.actions.report">
+    <field name="name">Наряд на відрядну роботу</field>
+    <field name="model">ua.piecework</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_piecework.report_ua_piecework</field>
+    <field name="report_file">l10n_ua_piecework.report_ua_piecework</field>
+    <field name="binding_model_id" ref="model_ua_piecework"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Наряд %s' % (object.name or '')</field>
+  </record>
+
+  <template id="report_ua_piecework_document">
+    <t t-set="company" t-value="doc.company_id"/>
+    <div class="page ua-doc">
+      <style>
+        .ua-doc { font-size: 10px; color: #000; }
+        .ua-doc h3 { font-size: 13px; text-align: center; margin: 4px 0; }
+        .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+        .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin: 6px 0; }
+        .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; }
+        .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+        .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+        .ua-doc .ua-bold td { font-weight: bold; }
+        .ua-doc .ua-sign { width: 100%; margin-top: 18px; }
+        .ua-doc .ua-sign td { width: 33%; vertical-align: top; padding-right: 12px; }
+      </style>
+      <div><t t-out="company.name"/> (код за ЄДРПОУ <t t-out="company.company_registry or '-'"/>)</div>
+      <h3>НАРЯД НА ВІДРЯДНУ РОБОТУ № <t t-out="doc.name"/></h3>
+      <div class="ua-sub">за період з <t t-out="doc.date_from.strftime('%d.%m.%Y')"/>
+        по <t t-out="doc.date_to.strftime('%d.%m.%Y')"/></div>
+      <table class="ua-grid">
+        <thead>
+          <tr>
+            <th style="width: 4%;">№</th>
+            <th>Виробниче замовлення</th>
+            <th>Операція</th>
+            <th>Виріб</th>
+            <th style="width: 9%;">Кількість</th>
+            <th style="width: 10%;">Розцінка, грн</th>
+            <th style="width: 12%;">Сума, грн</th>
+          </tr>
+        </thead>
+        <tbody>
+          <t t-foreach="doc.by_employee()" t-as="group">
+            <tr class="ua-bold"><td colspan="7"><t t-out="group[0].name or 'Працівника не вказано'"/></td></tr>
+            <tr t-foreach="group[1]" t-as="line">
+              <td style="text-align: center;"><t t-out="line_index + 1"/></td>
+              <td><t t-out="line.production_id.name or '-'"/></td>
+              <td><t t-out="line.operation_id.name or '-'"/></td>
+              <td><t t-out="line.product_id.display_name or '-'"/></td>
+              <td class="ua-num"><t t-out="doc.qty(line.quantity)"/></td>
+              <td class="ua-num"><t t-out="doc.money(line.rate)"/></td>
+              <td class="ua-num"><t t-out="doc.money(line.amount)"/></td>
+            </tr>
+            <tr>
+              <td colspan="6">Разом за працівником</td>
+              <td class="ua-num"><t t-out="doc.money(group[2])"/></td>
+            </tr>
+          </t>
+          <tr class="ua-bold">
+            <td colspan="6">Разом за нарядом</td>
+            <td class="ua-num"><t t-out="doc.money(doc.amount_total)"/></td>
+          </tr>
+        </tbody>
+      </table>
+      <p t-if="doc.note"><t t-out="doc.note"/></p>
+      <table class="ua-sign">
+        <tr>
+          <td>Майстер<br/><br/>______________ / ______________</td>
+          <td>Начальник цеху<br/><br/>______________ / ______________</td>
+          <td>Нормувальник<br/><br/>______________ / ______________</td>
+        </tr>
+      </table>
+    </div>
+  </template>
+
+  <template id="report_ua_piecework">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_piecework.report_ua_piecework_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

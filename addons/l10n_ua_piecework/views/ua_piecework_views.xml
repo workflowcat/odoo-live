@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="mrp_routing_workcenter_form_view_ua_piece" model="ir.ui.view">
+    <field name="name">mrp.routing.workcenter.form.ua.piece</field>
+    <field name="model">mrp.routing.workcenter</field>
+    <field name="inherit_id" ref="mrp.mrp_routing_workcenter_form_view"/>
+    <field name="arch" type="xml">
+      <field name="workcenter_id" position="after">
+        <field name="ua_piece_rate"/>
+      </field>
+    </field>
+  </record>
+
+  <record id="mrp_routing_workcenter_tree_view_ua_piece" model="ir.ui.view">
+    <field name="name">mrp.routing.workcenter.list.ua.piece</field>
+    <field name="model">mrp.routing.workcenter</field>
+    <field name="inherit_id" ref="mrp.mrp_routing_workcenter_tree_view"/>
+    <field name="arch" type="xml">
+      <field name="workcenter_id" position="after">
+        <field name="ua_piece_rate" optional="show"/>
+      </field>
+    </field>
+  </record>
+
+  <record id="view_ua_piecework_form" model="ir.ui.view">
+    <field name="name">ua.piecework.form</field>
+    <field name="model">ua.piecework</field>
+    <field name="arch" type="xml">
+      <form string="Виробіток">
+        <header>
+          <button name="action_fill" type="object" string="Заповнити" class="btn-primary"
+                  invisible="state != 'draft' or line_ids"/>
+          <button name="action_fill" type="object" string="Перезаповнити" invisible="state != 'draft' or not line_ids"/>
+          <button name="action_confirm" type="object" string="Затвердити" class="btn-primary"
+                  invisible="state != 'draft' or not line_ids"/>
+          <button name="action_print" type="object" string="Друк наряду" invisible="not line_ids"/>
+          <button name="action_cancel" type="object" string="Скасувати" invisible="state != 'confirmed'"
+                  confirm="Відрядна оплата зникне з незакритих листків цього періоду. Скасувати?"/>
+          <button name="action_draft" type="object" string="У чернетку" invisible="state != 'cancel'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,confirmed"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <label for="date_from" string="Період"/>
+              <div class="o_row">
+                <field name="date_from" readonly="state != 'draft'"/> - <field name="date_to" readonly="state != 'draft'"/>
+              </div>
+              <field name="workcenter_ids" widget="many2many_tags" readonly="state != 'draft'"
+                     options="{'no_create': True}"/>
+            </group>
+            <group>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+              <field name="amount_total"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Рядки" name="lines">
+              <field name="line_ids" readonly="state != 'draft'">
+                <list editable="bottom">
+                  <field name="production_id" optional="show"/>
+                  <field name="workorder_id" optional="hide" readonly="1"/>
+                  <field name="operation_id"/>
+                  <field name="product_id"/>
+                  <field name="employee_id" options="{'no_create': True}"/>
+                  <field name="minutes" optional="show"/>
+                  <field name="quantity" sum="Разом"/>
+                  <field name="rate"/>
+                  <field name="amount" sum="Разом"/>
+                  <field name="currency_id" column_invisible="1"/>
+                </list>
+              </field>
+            </page>
+            <page string="Примітка" name="note">
+              <field name="note" placeholder="Наприклад: розцінки за наказом від ..."/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_piecework_list" model="ir.ui.view">
+    <field name="name">ua.piecework.list</field>
+    <field name="model">ua.piecework</field>
+    <field name="arch" type="xml">
+      <list string="Виробіток" decoration-muted="state == 'cancel'" decoration-info="state == 'draft'">
+        <field name="name"/>
+        <field name="date_from"/>
+        <field name="date_to"/>
+        <field name="workcenter_ids" widget="many2many_tags" optional="show"/>
+        <field name="amount_total" sum="Разом"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="company_id" groups="base.group_multi_company" optional="show"/>
+        <field name="state" widget="badge" decoration-success="state == 'confirmed'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_piecework_search" model="ir.ui.view">
+    <field name="name">ua.piecework.search</field>
+    <field name="model">ua.piecework</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="name"/>
+        <field name="line_ids" string="Працівник" filter_domain="[('line_ids.employee_id', 'ilike', self)]"/>
+        <filter name="draft" string="Чернетки" domain="[('state', '=', 'draft')]"/>
+        <filter name="confirmed" string="Затверджені" domain="[('state', '=', 'confirmed')]"/>
+        <group>
+          <filter name="by_month" string="Місяць" context="{'group_by': 'date_to:month'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="view_ua_piecework_line_pivot" model="ir.ui.view">
+    <field name="name">ua.piecework.line.pivot</field>
+    <field name="model">ua.piecework.line</field>
+    <field name="arch" type="xml">
+      <pivot string="Виробіток за працівниками">
+        <field name="employee_id" type="row"/>
+        <field name="operation_id" type="col"/>
+        <field name="quantity" type="measure"/>
+        <field name="amount" type="measure"/>
+      </pivot>
+    </field>
+  </record>
+
+  <record id="action_ua_piecework" model="ir.actions.act_window">
+    <field name="name">Виробіток</field>
+    <field name="res_model">ua.piecework</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Виробіток за місяць</p>
+      <p>Задайте розцінку на операціях технологічної карти. Документ збере завершені операції
+        за період, поділить кількість між працівниками за їхнім часом і передасть суму в
+        розрахункові листки як відрядну оплату.</p>
+    </field>
+  </record>
+
+  <record id="action_ua_piecework_line" model="ir.actions.act_window">
+    <field name="name">Аналіз виробітку</field>
+    <field name="res_model">ua.piecework.line</field>
+    <field name="view_mode">pivot</field>
+    <field name="domain">[('state', '=', 'confirmed')]</field>
+  </record>
+
+  <menuitem id="menu_ua_piecework" name="Виробіток" parent="mrp.menu_mrp_manufacturing"
+            action="action_ua_piecework" sequence="40"/>
+  <menuitem id="menu_ua_piecework_line" name="Аналіз виробітку" parent="mrp.menu_mrp_reporting"
+            action="action_ua_piecework_line" sequence="40"/>
+</odoo>

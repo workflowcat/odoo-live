@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 63,
-    "models": 139,
-    "methods": 491,
-    "fields": 336
+    "modules": 64,
+    "models": 141,
+    "methods": 499,
+    "fields": 339
   },
   "areas": [
     {
@@ -1314,7 +1314,8 @@
             "l10n_ua_hr_docs",
             "l10n_ua_index",
             "l10n_ua_payroll_account",
-            "l10n_ua_payroll_rules"
+            "l10n_ua_payroll_rules",
+            "l10n_ua_piecework"
           ],
           "methods": [
             {
@@ -4496,7 +4497,8 @@
           "model": "mrp.routing.workcenter",
           "ours": false,
           "modules": [
-            "l10n_ua_mrp"
+            "l10n_ua_mrp",
+            "l10n_ua_piecework"
           ],
           "methods": [],
           "fields": [
@@ -4506,6 +4508,14 @@
               "label": "Перевірка",
               "module": "l10n_ua_mrp",
               "file": "addons/l10n_ua_mrp/models/mrp_routing_workcenter.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_piece_rate",
+              "type": "Float",
+              "label": "Розцінка, грн за одиницю",
+              "module": "l10n_ua_piecework",
+              "file": "addons/l10n_ua_piecework/models/mrp_routing.py",
               "groups": ""
             },
             {
@@ -4522,7 +4532,8 @@
           "model": "mrp.workorder",
           "ours": false,
           "modules": [
-            "l10n_ua_mrp"
+            "l10n_ua_mrp",
+            "l10n_ua_piecework"
           ],
           "methods": [
             {
@@ -4549,6 +4560,14 @@
               "label": "ua.workorder.check",
               "module": "l10n_ua_mrp",
               "file": "addons/l10n_ua_mrp/models/mrp_workorder.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_piecework_line_ids",
+              "type": "One2many",
+              "label": "ua.piecework.line",
+              "module": "l10n_ua_piecework",
+              "file": "addons/l10n_ua_piecework/models/mrp_routing.py",
               "groups": ""
             }
           ]
@@ -6694,6 +6713,84 @@
           "fields": []
         },
         {
+          "model": "ua.piecework",
+          "ours": true,
+          "modules": [
+            "l10n_ua_piecework"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_piecework",
+              "file": "addons/l10n_ua_piecework/models/ua_piecework.py",
+              "decorators": []
+            },
+            {
+              "name": "action_confirm",
+              "signature": "action_confirm()",
+              "doc": "",
+              "module": "l10n_ua_piecework",
+              "file": "addons/l10n_ua_piecework/models/ua_piecework.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_piecework",
+              "file": "addons/l10n_ua_piecework/models/ua_piecework.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill",
+              "signature": "action_fill()",
+              "doc": "",
+              "module": "l10n_ua_piecework",
+              "file": "addons/l10n_ua_piecework/models/ua_piecework.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_piecework",
+              "file": "addons/l10n_ua_piecework/models/ua_piecework.py",
+              "decorators": []
+            },
+            {
+              "name": "by_employee",
+              "signature": "by_employee()",
+              "doc": "[(працівник, рядки, сума)] за абеткою.",
+              "module": "l10n_ua_piecework",
+              "file": "addons/l10n_ua_piecework/models/ua_piecework.py",
+              "decorators": []
+            },
+            {
+              "name": "money",
+              "signature": "money(amount)",
+              "doc": "1 240,50 - сума для друку.",
+              "module": "l10n_ua_piecework",
+              "file": "addons/l10n_ua_piecework/models/ua_piecework.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "qty",
+              "signature": "qty(amount)",
+              "doc": "",
+              "module": "l10n_ua_piecework",
+              "file": "addons/l10n_ua_piecework/models/ua_piecework.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.price.label.wizard",
           "ours": true,
           "modules": [
@@ -7778,6 +7875,24 @@
               "label": "ua.waybill",
               "module": "l10n_ua_fleet",
               "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "hr.payslip.input",
+          "ours": false,
+          "modules": [
+            "l10n_ua_piecework"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_piecework_auto",
+              "type": "Boolean",
+              "label": "З виробітку",
+              "module": "l10n_ua_piecework",
+              "file": "addons/l10n_ua_piecework/models/hr_payslip.py",
               "groups": ""
             }
           ]

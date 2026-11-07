@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 63. Моделей: 139. Методів: 491. Збережених полів на чужих моделях: 336.
+Модулів: 64. Моделей: 141. Методів: 499. Збережених полів на чужих моделях: 339.
 
 ## Зарплата
 
@@ -281,7 +281,7 @@
 
 ### `hr.payslip`
 
-доповнена модель · `l10n_ua_average`, `l10n_ua_explain`, `l10n_ua_hr_docs`, `l10n_ua_index`, `l10n_ua_payroll_account`, `l10n_ua_payroll_rules`
+доповнена модель · `l10n_ua_average`, `l10n_ua_explain`, `l10n_ua_hr_docs`, `l10n_ua_index`, `l10n_ua_payroll_account`, `l10n_ua_payroll_rules`, `l10n_ua_piecework`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1007,16 +1007,17 @@
 
 ### `mrp.routing.workcenter`
 
-доповнена модель · `l10n_ua_mrp`
+доповнена модель · `l10n_ua_mrp`, `l10n_ua_piecework`
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `ua_checks` | Text | Перевірка | `l10n_ua_mrp` |
+| `ua_piece_rate` | Float | Розцінка, грн за одиницю | `l10n_ua_piecework` |
 | `ua_steps` | Text | Кроки | `l10n_ua_mrp` |
 
 ### `mrp.workorder`
 
-доповнена модель · `l10n_ua_mrp`
+доповнена модель · `l10n_ua_mrp`, `l10n_ua_piecework`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1026,6 +1027,7 @@
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `ua_check_ids` | One2many | ua.workorder.check | `l10n_ua_mrp` |
+| `ua_piecework_line_ids` | One2many | ua.piecework.line | `l10n_ua_piecework` |
 
 ### `online.bank.statement.provider`
 
@@ -1488,6 +1490,21 @@
 | `action_submit()` | - | `l10n_ua_payment_request` |
 | `calendar_rows(date_from, date_to, company=None)` | Платіжний календар: заявки на погодженні й погоджені за датами оплати. | `l10n_ua_payment_request` |
 
+### `ua.piecework`
+
+наша модель · `l10n_ua_piecework`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | - | `l10n_ua_piecework` |
+| `action_confirm()` | - | `l10n_ua_piecework` |
+| `action_draft()` | - | `l10n_ua_piecework` |
+| `action_fill()` | - | `l10n_ua_piecework` |
+| `action_print()` | - | `l10n_ua_piecework` |
+| `by_employee()` | [(працівник, рядки, сума)] за абеткою. | `l10n_ua_piecework` |
+| `money(amount)` | 1 240,50 - сума для друку. | `l10n_ua_piecework` |
+| `qty(amount)` | - | `l10n_ua_piecework` |
+
 ### `ua.price.label.wizard`
 
 наша модель · `l10n_ua_price_label`
@@ -1735,6 +1752,14 @@
 | `ua_tank_location_id` | Many2one | stock.location | `l10n_ua_fleet` |
 | `ua_warehouse_id` | Many2one | stock.warehouse | `l10n_ua_fleet` |
 | `ua_waybill_ids` | One2many | ua.waybill | `l10n_ua_fleet` |
+
+### `hr.payslip.input`
+
+доповнена модель · `l10n_ua_piecework`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_piecework_auto` | Boolean | З виробітку | `l10n_ua_piecework` |
 
 ### `mrp.area`
 

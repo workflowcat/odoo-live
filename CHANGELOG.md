@@ -170,6 +170,14 @@ Notable changes for people who run or build on this code. Module-level API chang
   on the line's date, so planned manufacturing and purchase orders appear through every BOM level before
   the customer's orders exist. One MRP area per company takes this demand (flag on the area). Tests:
   `ua_mrp_plan`.
+- `l10n_ua_piecework`: piece-rate pay from production output (1C "Виробіток"). A rate per routing operation;
+  the document takes the period's finished work orders with a rate, splits each quantity between workers by
+  their minutes in the work order time log (no log: the worker is picked by hand), and on approval sends
+  quantity × rate into open payslips as the PIECE input. Cancelling takes it out again unless the payslip is
+  posted; a manual PIECE amount next to an approved document is refused, so nobody is paid twice. Print
+  form "Наряд на відрядну роботу" with totals per worker; pivot by worker and operation. Tests: `ua_piecework`.
+- Payroll: new rule PIECE (basic pay from an input) in the UA salary structure, mapped to expense / 661; golden
+  scenario 31 and the reference calculator cover it.
 
 ### Changed
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number
