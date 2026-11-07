@@ -220,6 +220,9 @@ class TestBank1C(AccountTestInvoicingCommon):
         self.assertEqual(parsed["header"]["Кодировка"], "DOS")
 
     def test_06_ambiguous_code_left_to_accountant(self):
+        # account_reconcile_oca після імпорту ще шукає контрагента за назвою; назви тут
+        # інші, щоб перевіряти лише наш пошук за кодом.
+        self.fop.name = "Коваль Олена (тест)"
         self.env["res.partner"].create({"name": "Двійник (тест)", "company_registry": "3012345678"})
         self._import()
         self.assertFalse(self._lines(self.bank)[1].partner_id)
