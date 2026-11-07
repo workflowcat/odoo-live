@@ -5,7 +5,7 @@ import io
 import zipfile
 from datetime import date, timedelta
 
-from odoo import api, fields, models
+from odoo import fields, models
 from odoo.exceptions import UserError
 
 VER = "11"
@@ -159,7 +159,6 @@ class UaPayrollReportWizard(models.TransientModel):
 
     # ---- builders --------------------------------------------------------
     def _company_head(self):
-        c = self.company_id
         return [("HZ", self.doc_type == "HZ"), ("HZN", self.doc_type == "HZN"), ("HZU", self.doc_type == "HZU"),
                 ("HZY", self.year), ("HZM", self.month)]
 

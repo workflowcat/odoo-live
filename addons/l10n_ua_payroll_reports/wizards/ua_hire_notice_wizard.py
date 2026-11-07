@@ -65,7 +65,7 @@ class UaHireNoticeWizard(models.TransientModel):
         fname = X.file_name(c.company_registry, c.ua_sti_code, "J30", "010", "05", 1, 0, self.number, 1, d.month, d.year, c.ua_sti_code)
         errs = X.validate(data, "J3001005")
         ok, msg = (not errs), ("валідний за J3001005.xsd" if not errs else "; ".join(errs)[:500])
-        att = self.env["ir.attachment"].create({"name": fname, "datas": base64.b64encode(data), "res_model": self._name, "res_id": self.id, "mimetype": "application/xml"})
+        self.env["ir.attachment"].create({"name": fname, "datas": base64.b64encode(data), "res_model": self._name, "res_id": self.id, "mimetype": "application/xml"})
         for emp in self.employee_ids:
             emp.message_post(body=f"Повідомлення про прийняття (J3001005) сформовано: {fname}. {msg}", attachment_ids=[self.env["ir.attachment"].create({"name": fname, "datas": base64.b64encode(data), "res_model": "hr.employee", "res_id": emp.id, "mimetype": "application/xml"}).id])
         self.log = f"{fname}: {'валідний за XSD' if ok else msg}\nПрацівників у повідомленні: {len(rows)}. Подати до ДПС до початку роботи (кабінет платника або через програму з КЕП)."

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Нотатки між агентами (core / docs / ui / map): створити, перелічити, закрити.
 Файли лежать у docs/agents/inbox (відкриті) і docs/agents/log (закриті). Див. docs/agents/README.md."""
-import argparse, datetime, os, re, shutil, sys
+import argparse, datetime, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INBOX = os.path.join(ROOT, "docs", "agents", "inbox")

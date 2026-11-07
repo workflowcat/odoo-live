@@ -1,0 +1,11 @@
+# Lint for mistakes only: syntax errors, undefined and unused names, mutable defaults.
+# Style and formatting are not enforced. scripts/check_static.sh runs it on our code
+# (vendored OCA modules are checked upstream).
+target-version = "py310"
+
+[lint]
+select = ["E9", "F63", "F7", "F82", "F401", "F841", "B006"]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]                      # Odoo loads submodules by importing them
+"scripts/purchase/setup_stand.py" = ["F821"]  # odoo shell script: `env` comes from the shell

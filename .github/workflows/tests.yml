@@ -18,6 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
+      - run: pipx install ruff==0.17.4
       - run: ./scripts/check_static.sh
   odoo:
     runs-on: ubuntu-latest

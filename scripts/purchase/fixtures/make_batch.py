@@ -311,7 +311,6 @@ def degrade():
         rnd = random.Random(doc["id"])
         sup = S[doc["sup"]]
         # stamp and signature near the bottom of the text block
-        dr = ImageDraw.Draw(img)
         sy = int(H0 * 0.62) if len(doc["lines"]) < 8 else int(H0 * 0.78)
         if sup.get("stamp"):
             st = stamp_layer(None, sup["stamp"], seed=len(doc["id"]))

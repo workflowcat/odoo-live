@@ -120,7 +120,6 @@ class HrPayslip(models.Model):
 
     def _ua_average_day(self):
         """Середня за календарний день на дату листка."""
-        holidays = self.env["ua.payroll.param"].get("holidays_per_year", self.date_to, self.company_id)
         total, days = self._ua_average_base()
         return total / days if days else 0.0
 

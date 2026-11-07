@@ -8,6 +8,7 @@
 # 3. words_check.py     UI words follow docs/payroll/words.md
 # 4. manifest_check.py  manifests, licenses, pinned OCA sources, no defaults pointing at our servers
 # 5. Python syntax of every module and script (needs Python 3.10+, Odoo 19's minimum)
+# 6. ruff (ruff.toml)    undefined and unused names in our modules and scripts; skipped without ruff
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
@@ -31,6 +32,15 @@ if python3 -c 'import sys; sys.exit(sys.version_info < (3, 10))'; then
     run syntax python3 -m compileall -q addons scripts reference
 else
     echo "SKIP  syntax  (Python 3.10+ needed, found $(python3 -V 2>&1))"
+fi
+
+LINT_PATHS=(addons/l10n_ua_* addons/bp_* scripts reference)
+if command -v ruff >/dev/null; then
+    run lint ruff check --quiet "${LINT_PATHS[@]}"
+elif command -v uvx >/dev/null; then
+    run lint uvx ruff check --quiet "${LINT_PATHS[@]}"
+else
+    echo "SKIP  lint    (install ruff: pip install ruff)"
 fi
 
 exit $FAILED

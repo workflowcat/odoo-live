@@ -15,7 +15,6 @@
 """
 import json
 import os
-import sys
 import urllib.request
 from xml.etree import ElementTree as ET
 

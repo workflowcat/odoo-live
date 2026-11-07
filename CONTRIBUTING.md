@@ -49,7 +49,7 @@ modules against a long-lived database; tests always use a fresh one.
 ## Before you open a pull request
 
 ```bash
-./scripts/check_static.sh   # under a minute, no Docker
+./scripts/check_static.sh   # under a minute, no Docker (lint needs ruff: pip install ruff)
 ./scripts/test.sh           # quick: payroll golden scenarios
 ./scripts/test_full.sh      # everything CI runs (about 10 minutes)
 ```

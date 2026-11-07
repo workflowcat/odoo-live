@@ -11,7 +11,7 @@
 Запуск: python3 scripts/demo_company.py"""
 import sys
 import json, os, urllib.request, random
-from datetime import date, timedelta
+from datetime import date
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import demo_history

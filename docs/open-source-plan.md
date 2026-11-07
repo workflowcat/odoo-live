@@ -82,7 +82,8 @@ Done when a new developer goes from clone to a running demo with one command, an
 - A `README.rst` per module in the OCA layout (`readme/DESCRIPTION.md`, `USAGE.md`, `CONFIGURE.md`).
 - Manifests: English `name`/`summary`, `website` and `maintainers`; Ukrainian texts move to `i18n/uk.po`
   so English users get English and the UI stays Ukrainian.
-- `pre-commit` with ruff and the OCA checks (pylint-odoo), introduced warning-only first, then blocking.
+- [x] ruff for mistakes (undefined and unused names, mutable defaults) in `scripts/check_static.sh`, blocking.
+- `pre-commit` with ruff formatting and the OCA checks (pylint-odoo), introduced warning-only first, then blocking.
 - Tests: a fast subset (`ua_smoke`) under 3 minutes for pull requests; the full run stays on `main`.
 - Releases: tag `19.0.YYYY.MM.DD` on `main`, notes from `CHANGELOG.md`; module versions follow OCA rules.
 - Architecture doc in English with the module map and the 9 business flows (from the map board).

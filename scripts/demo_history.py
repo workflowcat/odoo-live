@@ -634,10 +634,6 @@ class History:
         dps = self.call("res.partner", "search", [["name", "ilike", "ДПС"]], limit=1)
         for code, label in (("6411", "ПДФО"), ("6415", "Військовий збір"), ("651", "Єдиний внесок (ЄСВ)")):
             acc = self.account(code)
-            got = self.call("account.move.line", "read_group", [["account_id", "=", acc], ["parent_state", "=", "posted"],
-                                                                 ["company_id", "=", self.company], ["reconciled", "=", False],
-                                                                 ["date", ">=", str(d1)], ["date", "<=", str(d2)]], ["balance:sum"], [])
-            owed = -round((got[0].get("balance") or 0.0) if got else 0.0, 2)
             # нарахування листків місяця мінус те, що вже сплачено відомістю на податки
             paid = self.call("account.payment", "search_read", [["payment_order_id.ua_kind", "=", "tax"], ["payment_order_id.ua_year", "=", year],
                                                                 ["payment_order_id.ua_month", "=", month], ["destination_account_id", "=", acc]],

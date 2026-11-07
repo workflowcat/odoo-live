@@ -17,7 +17,7 @@ target - один із трьох варіантів:
 """
 from markupsafe import Markup, escape
 
-from odoo import api, fields, models
+from odoo import fields, models
 
 LEVEL_LABELS = {"ok": "OK", "warn": "УВАГА", "error": "ПОМИЛКА"}
 LEVEL_ORDER = {"error": 0, "warn": 1, "ok": 2}

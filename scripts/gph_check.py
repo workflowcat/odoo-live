@@ -76,7 +76,6 @@ def main():
     company_id = execute("res.company", "search", [], limit=1)[0]
     staff_id = execute("ua.staff.list", "create", {"company_id": company_id})
     execute("ua.staff.list", "action_refill", [staff_id])
-    lines = execute("ua.staff.list", "read", [staff_id], fields=["total_units"])
     version_jobs = execute("hr.version", "search_read",
                            [["employee_id", "in", contractor_ids]], fields=["job_title"])
     line_jobs = {l["job_title"] for l in execute("ua.staff.list.line", "search_read",
