@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_payment_request" model="ir.actions.report">
+    <field name="name">Заявка на оплату</field>
+    <field name="model">ua.payment.request</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_payment_request.report_ua_payment_request</field>
+    <field name="report_file">l10n_ua_payment_request.report_ua_payment_request</field>
+    <field name="binding_model_id" ref="model_ua_payment_request"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Заявка на оплату %s' % (object.name or '')</field>
+  </record>
+
+  <template id="report_ua_payment_request_document">
+    <t t-set="company" t-value="doc.company_id"/>
+    <div class="page ua-doc">
+      <style>
+        .ua-doc { font-size: 11px; color: #000; }
+        .ua-doc h3 { font-size: 14px; text-align: center; margin: 4px 0 10px; }
+        .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin: 6px 0; }
+        .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 3px 4px; vertical-align: top; }
+        .ua-doc .ua-grid th { font-weight: normal; text-align: left; width: 32%; }
+      </style>
+      <div><strong t-out="company.name"/></div>
+      <h3>ЗАЯВКА НА ОПЛАТУ № <t t-out="doc.name"/> від <t t-out="doc.date.strftime('%d.%m.%Y')"/></h3>
+      <table class="ua-grid">
+        <tr><th>Одержувач</th><td><t t-out="doc.partner_id.name"/><t t-if="doc.partner_id.company_registry">, код <t t-out="doc.partner_id.company_registry"/></t></td></tr>
+        <tr><th>Рахунок одержувача</th><td><t t-out="doc.partner_bank_id.acc_number or '-'"/></td></tr>
+        <tr><th>Сума</th><td><t t-out="doc.amount" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/></td></tr>
+        <tr><th>Оплатити до</th><td><t t-out="doc.date_due.strftime('%d.%m.%Y')"/><t t-if="doc.priority == '1'"> (терміново)</t></td></tr>
+        <tr><th>Призначення платежу</th><td><t t-out="doc.purpose"/></td></tr>
+        <tr t-if="doc.contract_id"><th>Договір</th><td>№ <t t-out="doc.contract_id.name"/> від <t t-out="doc.contract_id.date.strftime('%d.%m.%Y')"/></td></tr>
+        <t t-set="bills" t-value="doc.sudo().bill_ids"/>
+        <tr t-if="bills"><th>Рахунки</th><td><t t-out="', '.join(bills.mapped(lambda b: b.ref or b.name))"/></td></tr>
+        <tr><th>Ініціатор</th><td><t t-out="doc.user_id.name"/></td></tr>
+      </table>
+      <table class="ua-grid">
+        <tr><th>Крок</th><th>Рішення</th><th>Хто</th><th>Коли</th><th>Коментар</th></tr>
+        <tr t-foreach="doc.approval_ids.filtered(lambda a: a.submission == doc.approval_round)" t-as="approval">
+          <td><t t-out="dict(approval._fields['step'].selection).get(approval.step)"/></td>
+          <td><t t-out="dict(approval._fields['decision'].selection).get(approval.decision)"/></td>
+          <td><t t-out="approval.user_id.name"/></td>
+          <td><t t-out="approval.date.strftime('%d.%m.%Y %H:%M')"/></td>
+          <td><t t-out="approval.note or ''"/></td>
+        </tr>
+      </table>
+      <p>Потрібні кроки погодження: <t t-out="doc.steps_required"/>. Стан: <t t-out="dict(doc._fields['state'].selection).get(doc.state)"/>.</p>
+    </div>
+  </template>
+
+  <template id="report_ua_payment_request">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_payment_request.report_ua_payment_request_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

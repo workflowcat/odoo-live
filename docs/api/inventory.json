@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 50,
-    "models": 112,
-    "methods": 371,
-    "fields": 299
+    "modules": 51,
+    "models": 113,
+    "methods": 379,
+    "fields": 300
   },
   "areas": [
     {
@@ -1519,6 +1519,7 @@
             "l10n_ua_docs",
             "l10n_ua_fop",
             "l10n_ua_hr_orders",
+            "l10n_ua_payment_request",
             "l10n_ua_payments",
             "l10n_ua_payroll_account",
             "l10n_ua_payroll_reports",
@@ -1792,6 +1793,14 @@
               "label": "account.payment.mode",
               "module": "l10n_ua_payments",
               "file": "addons/l10n_ua_payments/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_payment_request_limit",
+              "type": "Monetary",
+              "label": "Ліміт заявки без директора",
+              "module": "l10n_ua_payment_request",
+              "file": "addons/l10n_ua_payment_request/models/res_company.py",
               "groups": ""
             },
             {
@@ -6039,6 +6048,82 @@
               "doc": "",
               "module": "l10n_ua_navigation",
               "file": "addons/l10n_ua_navigation/models/ua_navigation.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.payment.request",
+          "ours": true,
+          "modules": [
+            "l10n_ua_payment_request"
+          ],
+          "methods": [
+            {
+              "name": "action_approve",
+              "signature": "action_approve()",
+              "doc": "",
+              "module": "l10n_ua_payment_request",
+              "file": "addons/l10n_ua_payment_request/models/ua_payment_request.py",
+              "decorators": []
+            },
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_payment_request",
+              "file": "addons/l10n_ua_payment_request/models/ua_payment_request.py",
+              "decorators": []
+            },
+            {
+              "name": "action_create_payment",
+              "signature": "action_create_payment()",
+              "doc": "Платіж за погодженою заявкою: за рахунками - майстром оплати, інакше аванс.",
+              "module": "l10n_ua_payment_request",
+              "file": "addons/l10n_ua_payment_request/models/ua_payment_request.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_payment_request",
+              "file": "addons/l10n_ua_payment_request/models/ua_payment_request.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_payment_request",
+              "file": "addons/l10n_ua_payment_request/models/ua_payment_request.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reject",
+              "signature": "action_reject()",
+              "doc": "",
+              "module": "l10n_ua_payment_request",
+              "file": "addons/l10n_ua_payment_request/models/ua_payment_request.py",
+              "decorators": []
+            },
+            {
+              "name": "action_submit",
+              "signature": "action_submit()",
+              "doc": "",
+              "module": "l10n_ua_payment_request",
+              "file": "addons/l10n_ua_payment_request/models/ua_payment_request.py",
+              "decorators": []
+            },
+            {
+              "name": "calendar_rows",
+              "signature": "calendar_rows(date_from, date_to, company=None)",
+              "doc": "Платіжний календар: заявки на погодженні й погоджені за датами оплати.",
+              "module": "l10n_ua_payment_request",
+              "file": "addons/l10n_ua_payment_request/models/ua_payment_request.py",
               "decorators": [
                 "api.model"
               ]

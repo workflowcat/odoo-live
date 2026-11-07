@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+  <record id="seq_ua_payment_request" model="ir.sequence">
+    <field name="name">Заявка на оплату</field>
+    <field name="code">ua.payment.request</field>
+    <field name="prefix">ЗО/%(year)s/</field>
+    <field name="padding">4</field>
+    <field name="company_id" eval="False"/>
+  </record>
+</odoo>

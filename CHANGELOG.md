@@ -56,6 +56,14 @@ Notable changes for people who run or build on this code. Module-level API chang
   from stock, delivers the products, returns leftovers, invoices the processing service and prints the
   processor's report (received, norm for the output, consumed, deviation, returned, balance); it cannot be
   finished while customer material is still with us. Tests: `ua_tolling`.
+- `l10n_ua_payment_request`: payment requests with approval (заявка на витрачання коштів). The requester
+  says who, how much, by when and why, and may attach vendor bills and a contract. A finance approver
+  decides first; above the company limit (in hryvnia, foreign currency at the rate of the day) a director
+  approves too. The requester never approves their own request; a rejection needs a reason; a resubmission
+  starts a new round and earlier decisions stay in the history. The accountant makes the payment from an
+  approved request: with bills through the standard payment wizard, which closes them in full or in part;
+  without bills as an advance. Payment calendar (pivot and calendar by due date), print form. Tests:
+  `ua_payment_request`.
 - `docs/customization.md` and `scripts/new_pack.py`: how a team adapts the product in its own module
   (data, fields, print forms, rules) without forking the core, and a generator for such a module.
 - `docs/parity/README.md`: what 1C/BAS gives a Ukrainian company, what this repository covers, the gaps

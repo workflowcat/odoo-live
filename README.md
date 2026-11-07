@@ -59,7 +59,7 @@ GitHub Actions runs `check_static.sh` and `test_full.sh` on every push to `main`
 | HR | `l10n_ua_hr_card`, `l10n_ua_hr_orders`, `l10n_ua_hr_docs`, `l10n_ua_military`, `l10n_ua_kp`, `l10n_ua_onboarding`, `l10n_ua_hire` |
 | Tax reports | `l10n_ua_payroll_reports`, `l10n_ua_reporting`, `l10n_ua_profit_tax` |
 | Accounting | `l10n_ua_chart`, `l10n_ua_vat`, `l10n_ua_ledger`, `l10n_ua_finrep`, `l10n_ua_group`, `l10n_ua_assets`, `l10n_ua_nbu` |
-| Bank and cash | `l10n_ua_bank`, `l10n_ua_bank_online` (PrivatBank, Monobank), `l10n_ua_bank_1c` (1C exchange file with any bank), `l10n_ua_cash` |
+| Bank and cash | `l10n_ua_bank`, `l10n_ua_bank_online` (PrivatBank, Monobank), `l10n_ua_bank_1c` (1C exchange file with any bank), `l10n_ua_cash`, `l10n_ua_payment_request` (payment requests with approval, payment calendar) |
 | Documents | `l10n_ua_docs`, `l10n_ua_docs_sale`, `l10n_ua_docs_stock`, `l10n_ua_stock_docs`, `l10n_ua_mrp` |
 | Setup and migration | `l10n_ua_setup` (first-run questionnaire), `l10n_ua_migrate` (opening balances) |
 | Sole proprietors | `l10n_ua_fop` |

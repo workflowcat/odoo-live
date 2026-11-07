@@ -86,7 +86,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | 1C/BAS feature | Here | Where / what is missing |
 | --- | --- | --- |
 | Incoming and outgoing correspondence register | gap | small module; defense companies keep one by law |
-| Approvals of documents and payments | part | purchase request approvals; payment requests with approval are missing |
+| Approvals of documents and payments | done | purchase request approvals; `l10n_ua_payment_request`: finance and director steps by limit, payment from the request, payment calendar |
 
 ## 7. Platform and ecosystem
 
@@ -134,6 +134,6 @@ quality gate on defense production with results in the serial passport; month-en
 
 Next, in this order:
 
-1. Correspondence register and payment approvals.
+1. Correspondence register.
 2. PRRO fiscalisation through a bridge route; price labels for the shop pack.
 3. УКТ ЗЕД classifier from official open data, once a source with a clear licence is found.

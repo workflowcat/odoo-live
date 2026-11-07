@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_payment_request_list" model="ir.ui.view">
+    <field name="name">ua.payment.request.list</field>
+    <field name="model">ua.payment.request</field>
+    <field name="arch" type="xml">
+      <list decoration-danger="priority == '1' and state in ('submitted', 'approved')">
+        <field name="name"/>
+        <field name="date_due"/>
+        <field name="partner_id"/>
+        <field name="purpose"/>
+        <field name="amount" sum="Разом"/>
+        <field name="currency_id" optional="hide"/>
+        <field name="amount_company" sum="Разом, грн" optional="show"/>
+        <field name="priority" widget="priority"/>
+        <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+        <field name="state" widget="badge" decoration-info="state == 'submitted'"
+               decoration-success="state in ('approved', 'payment')" decoration-danger="state == 'rejected'"
+               decoration-muted="state == 'cancel'"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+        <field name="company_currency_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_payment_request_calendar" model="ir.ui.view">
+    <field name="name">ua.payment.request.calendar</field>
+    <field name="model">ua.payment.request</field>
+    <field name="arch" type="xml">
+      <calendar string="Платіжний календар" date_start="date_due" mode="month" color="state"
+                quick_create="0">
+        <field name="partner_id"/>
+        <field name="amount"/>
+        <field name="state"/>
+      </calendar>
+    </field>
+  </record>
+
+  <record id="view_ua_payment_request_pivot" model="ir.ui.view">
+    <field name="name">ua.payment.request.pivot</field>
+    <field name="model">ua.payment.request</field>
+    <field name="arch" type="xml">
+      <pivot string="Платіжний календар">
+        <field name="date_due" interval="day" type="row"/>
+        <field name="state" type="col"/>
+        <field name="amount_company" type="measure"/>
+      </pivot>
+    </field>
+  </record>
+
+  <record id="view_ua_payment_request_search" model="ir.ui.view">
+    <field name="name">ua.payment.request.search</field>
+    <field name="model">ua.payment.request</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="name"/>
+        <field name="partner_id"/>
+        <field name="purpose"/>
+        <field name="user_id"/>
+        <filter name="mine" string="Мої" domain="[('user_id', '=', uid)]"/>
+        <filter name="submitted" string="На погодженні" domain="[('state', '=', 'submitted')]"/>
+        <filter name="approved" string="Погоджені" domain="[('state', '=', 'approved')]"/>
+        <filter name="urgent" string="Термінові" domain="[('priority', '=', '1')]"/>
+        <group>
+          <filter name="by_date" string="Дата оплати" context="{'group_by': 'date_due:day'}"/>
+          <filter name="by_partner" string="Одержувач" context="{'group_by': 'partner_id'}"/>
+          <filter name="by_state" string="Стан" context="{'group_by': 'state'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="view_ua_payment_request_form" model="ir.ui.view">
+    <field name="name">ua.payment.request.form</field>
+    <field name="model">ua.payment.request</field>
+    <field name="arch" type="xml">
+      <form string="Заявка на оплату">
+        <header>
+          <field name="can_approve" invisible="1"/>
+          <button name="action_submit" type="object" string="На погодження" class="btn-primary"
+                  invisible="state not in ('draft', 'rejected')"/>
+          <button name="action_approve" type="object" string="Погодити" class="btn-primary"
+                  invisible="not can_approve"/>
+          <button name="action_reject" type="object" string="Відхилити" invisible="not can_approve"/>
+          <button name="action_create_payment" type="object" string="Створити платіж" class="btn-primary"
+                  invisible="state != 'approved'" groups="account.group_account_invoice"/>
+          <button name="action_print" type="object" string="Друк"/>
+          <button name="action_cancel" type="object" string="Скасувати"
+                  invisible="state in ('payment', 'cancel')"/>
+          <button name="action_draft" type="object" string="У чернетку"
+                  invisible="state not in ('rejected', 'cancel')"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,payment"/>
+        </header>
+        <sheet>
+          <div class="oe_title">
+            <h1><field name="name" readonly="1"/> <field name="priority" widget="priority"/></h1>
+          </div>
+          <group>
+            <group>
+              <field name="partner_id" readonly="state != 'draft'"/>
+              <field name="partner_bank_id" readonly="state not in ('draft', 'approved')"/>
+              <field name="contract_id" readonly="state != 'draft'"/>
+              <field name="bill_ids" widget="many2many_tags" readonly="state != 'draft'"
+                     groups="account.group_account_invoice,account.group_account_readonly"/>
+              <field name="purpose" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <label for="amount"/>
+              <div class="o_row">
+                <field name="amount" readonly="state != 'draft'"/>
+                <field name="currency_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+              </div>
+              <field name="amount_company" invisible="currency_id == company_currency_id"/>
+              <field name="company_currency_id" invisible="1"/>
+              <field name="date"/>
+              <field name="date_due" readonly="state not in ('draft', 'approved')"/>
+              <field name="journal_id" readonly="state not in ('draft', 'approved')"
+                     groups="account.group_account_invoice,account.group_account_readonly"/>
+              <field name="user_id"/>
+              <field name="steps_required"/>
+              <field name="next_step" invisible="not next_step"/>
+              <field name="is_paid" invisible="state != 'payment'" groups="account.group_account_invoice,account.group_account_readonly"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+            </group>
+          </group>
+          <group invisible="state != 'submitted' and not reject_reason">
+            <field name="reject_reason" readonly="state != 'submitted'"
+                   placeholder="Чому відхиляєте - обов'язково для кнопки «Відхилити»"/>
+          </group>
+          <notebook>
+            <page string="Погодження" name="approvals">
+              <field name="approval_ids">
+                <list>
+                  <field name="submission"/>
+                  <field name="step"/>
+                  <field name="decision" widget="badge" decoration-success="decision == 'approve'"
+                         decoration-danger="decision == 'reject'"/>
+                  <field name="user_id" widget="many2one_avatar_user"/>
+                  <field name="date"/>
+                  <field name="note"/>
+                </list>
+              </field>
+            </page>
+            <page string="Платежі" name="payments" invisible="not payment_ids"
+                  groups="account.group_account_invoice,account.group_account_readonly">
+              <field name="payment_ids"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_payment_request" model="ir.actions.act_window">
+    <field name="name">Заявки на оплату</field>
+    <field name="res_model">ua.payment.request</field>
+    <field name="view_mode">list,form,calendar,pivot</field>
+    <field name="search_view_id" ref="view_ua_payment_request_search"/>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiley_face">Заявок на оплату ще немає</p>
+      <p>Заявка: кому, скільки, до якого числа і за що. Фінансист погоджує, понад ліміт - ще й
+        директор, бухгалтер створює платіж.</p>
+    </field>
+  </record>
+
+  <record id="action_ua_payment_calendar" model="ir.actions.act_window">
+    <field name="name">Платіжний календар</field>
+    <field name="res_model">ua.payment.request</field>
+    <field name="view_mode">pivot,calendar,list,form</field>
+    <field name="domain">[('state', 'in', ('submitted', 'approved'))]</field>
+    <field name="search_view_id" ref="view_ua_payment_request_search"/>
+  </record>
+
+  <menuitem id="menu_ua_payment_request" name="Заявки на оплату"
+            parent="account.menu_finance_payables" action="action_ua_payment_request" sequence="25"/>
+  <menuitem id="menu_ua_payment_calendar" name="Платіжний календар"
+            parent="account.menu_finance_payables" action="action_ua_payment_calendar" sequence="26"/>
+</odoo>

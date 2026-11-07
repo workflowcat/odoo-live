@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_payment_request_user,ua.payment.request user,model_ua_payment_request,group_ua_payment_request_user,1,1,1,1
+access_ua_payment_request_approval_user,ua.payment.request.approval user,model_ua_payment_request_approval,group_ua_payment_request_user,1,0,1,0
+access_ua_payment_request_account,ua.payment.request accountant,model_ua_payment_request,account.group_account_invoice,1,1,1,0
+access_ua_payment_request_approval_account,ua.payment.request.approval accountant,model_ua_payment_request_approval,account.group_account_invoice,1,0,1,0
+access_ua_contract_payment_request,ua.contract payment request,l10n_ua_contract.model_ua_contract,group_ua_payment_request_user,1,0,0,0

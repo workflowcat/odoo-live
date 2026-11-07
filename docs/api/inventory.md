@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 50. Моделей: 112. Методів: 371. Збережених полів на чужих моделях: 299.
+Модулів: 51. Моделей: 113. Методів: 379. Збережених полів на чужих моделях: 300.
 
 ## Зарплата
 
@@ -320,7 +320,7 @@
 
 ### `res.company`
 
-доповнена модель · `l10n_ua_average`, `l10n_ua_cash`, `l10n_ua_chart`, `l10n_ua_docs`, `l10n_ua_fop`, `l10n_ua_hr_orders`, `l10n_ua_payments`, `l10n_ua_payroll_account`, `l10n_ua_payroll_reports`, `l10n_ua_payroll_rules`, `l10n_ua_purchase`, `l10n_ua_setup`, `l10n_ua_vat`
+доповнена модель · `l10n_ua_average`, `l10n_ua_cash`, `l10n_ua_chart`, `l10n_ua_docs`, `l10n_ua_fop`, `l10n_ua_hr_orders`, `l10n_ua_payment_request`, `l10n_ua_payments`, `l10n_ua_payroll_account`, `l10n_ua_payroll_reports`, `l10n_ua_payroll_rules`, `l10n_ua_purchase`, `l10n_ua_setup`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -360,6 +360,7 @@
 | `ua_pay_final_day` | Integer | Остаточний розрахунок до числа | `l10n_ua_hr_orders` |
 | `ua_payment_mode_salary_id` | Many2one | account.payment.mode | `l10n_ua_payments` |
 | `ua_payment_mode_tax_id` | Many2one | account.payment.mode | `l10n_ua_payments` |
+| `ua_payment_request_limit` | Monetary | Ліміт заявки без директора | `l10n_ua_payment_request` |
 | `ua_payroll_bank_mode` | Selection | - | `l10n_ua_setup` |
 | `ua_pfu_partner_id` | Many2one | res.partner | `l10n_ua_payroll_account` |
 | `ua_purchase_approval_limit` | Monetary | Ліміт погодження запиту | `l10n_ua_purchase` |
@@ -1348,6 +1349,21 @@
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
 | `apply()` | - | `l10n_ua_navigation` |
+
+### `ua.payment.request`
+
+наша модель · `l10n_ua_payment_request`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_approve()` | - | `l10n_ua_payment_request` |
+| `action_cancel()` | - | `l10n_ua_payment_request` |
+| `action_create_payment()` | Платіж за погодженою заявкою: за рахунками - майстром оплати, інакше аванс. | `l10n_ua_payment_request` |
+| `action_draft()` | - | `l10n_ua_payment_request` |
+| `action_print()` | - | `l10n_ua_payment_request` |
+| `action_reject()` | - | `l10n_ua_payment_request` |
+| `action_submit()` | - | `l10n_ua_payment_request` |
+| `calendar_rows(date_from, date_to, company=None)` | Платіжний календар: заявки на погодженні й погоджені за датами оплати. | `l10n_ua_payment_request` |
 
 ### `ua.reconciliation.act`
 
