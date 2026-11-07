@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_eco" model="ir.actions.report">
+    <field name="name">Повідомлення про зміну</field>
+    <field name="model">ua.eco</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_eco.report_ua_eco</field>
+    <field name="report_file">l10n_ua_eco.report_ua_eco</field>
+    <field name="binding_model_id" ref="model_ua_eco"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'ПЗ %s' % (object.name or '')</field>
+  </record>
+
+  <template id="report_ua_eco_document">
+    <div class="page ua-doc">
+      <t t-call="l10n_ua_defense.ua_defense_style"/>
+      <div><strong t-out="doc.company_id.name"/></div>
+      <h3>ПОВІДОМЛЕННЯ ПРО ЗМІНУ № <t t-out="doc.name"/> від <t t-out="doc.date.strftime('%d.%m.%Y')"/></h3>
+      <table class="ua-grid">
+        <tbody>
+          <tr><td style="width: 30%;">Виріб</td><td><t t-out="doc.product_tmpl_id.display_name"/></td></tr>
+          <tr><td>Специфікація</td>
+            <td><t t-out="doc.bom_id.code or doc.bom_id.product_tmpl_id.name"/>:
+              зм. <t t-out="doc.revision_from"/> → зм. <t t-out="doc.revision_from + 1"/></td></tr>
+          <tr><td>Причина</td><td><t t-out="dict(doc._fields['reason'].selection).get(doc.reason)"/></td></tr>
+          <tr><td>Суть зміни</td><td><t t-out="doc.description"/></td></tr>
+          <tr><td>Діє з</td><td><t t-out="doc.effective_date.strftime('%d.%m.%Y')"/></td></tr>
+          <tr><td>Заділ і запаси</td><td><t t-out="dict(doc._fields['stock_policy'].selection).get(doc.stock_policy)"/></td></tr>
+          <tr t-if="doc.retrofit"><td>Доробити вироби</td>
+            <td><t t-out="', '.join(doc.retrofit_lot_ids.mapped('name')) or 'усі випущені'"/></td></tr>
+        </tbody>
+      </table>
+      <h3>Було / стало</h3>
+      <table class="ua-grid">
+        <thead><tr><th style="width: 4%;">№</th><th style="width: 14%;">Що робимо</th><th>Було</th>
+          <th style="width: 8%;">К-сть</th><th>Стало</th><th style="width: 8%;">К-сть</th>
+          <th style="width: 7%;">Од.</th><th style="width: 16%;">Примітка</th></tr></thead>
+        <tbody>
+          <tr t-foreach="doc.diff_rows()" t-as="row">
+            <td style="text-align: center;"><t t-out="row_index + 1"/></td>
+            <td><t t-out="row['action_label']"/></td>
+            <td><t t-out="row['product'] or '-'"/></td>
+            <td style="text-align: right;"><t t-out="row['old_qty'] or '-'"/></td>
+            <td><t t-out="row['new_product'] or '-'"/></td>
+            <td style="text-align: right;"><t t-out="row['new_qty'] or '-'"/></td>
+            <td><t t-out="row['uom']"/></td>
+            <td><t t-out="row['note']"/></td>
+          </tr>
+        </tbody>
+      </table>
+      <h3>Погодження</h3>
+      <table class="ua-grid">
+        <thead><tr><th>Роль</th><th>ПІБ</th><th>Рішення</th><th>Дата</th><th>Підпис</th></tr></thead>
+        <tbody>
+          <tr><td>Автор (конструктор)</td><td><t t-out="doc.user_id.name"/></td><td>-</td>
+            <td><t t-out="doc.date.strftime('%d.%m.%Y')"/></td><td/></tr>
+          <tr t-foreach="doc.approval_ids.filtered(lambda a: a.submission == doc.approval_round)" t-as="approval">
+            <td><t t-out="dict(approval._fields['role'].selection).get(approval.role)"/></td>
+            <td><t t-out="approval.user_id.name"/></td>
+            <td><t t-out="dict(approval._fields['decision'].selection).get(approval.decision)"/></td>
+            <td><t t-out="approval.date.strftime('%d.%m.%Y')"/></td><td/>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </template>
+
+  <template id="report_ua_eco">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_eco.report_ua_eco_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+
+  <template id="report_ua_product_passport_document_eco" inherit_id="l10n_ua_defense.report_ua_product_passport_document">
+    <xpath expr="//tr[td[text()='Серійний номер']]" position="after">
+      <tr t-if="doc._ua_revision_text()"><td>Конструкторська зміна</td><td><t t-out="doc._ua_revision_text()"/></td></tr>
+    </xpath>
+  </template>
+</odoo>

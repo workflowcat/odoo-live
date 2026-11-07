@@ -69,7 +69,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Serial and lot tracking | done | native |
 | Quality control (ВТК), inspections | done | check items on routing operations, yes/no answers on work orders (`l10n_ua_mrp`); defense contracts block release and acceptance until every item is "yes" and print the results in the serial passport (`l10n_ua_defense`); incoming and outgoing protocols (`l10n_ua_stock_docs`) |
 | Tolling (давальницька сировина) | yes | `l10n_ua_tolling`: customer material in its own owner-tagged location (not valued, off-balance 023), production from it, return of products and leftovers, processing invoice, processor's report with norm vs actual |
-| Engineering changes, BOM versions | gap | a simple revision register first |
+| Engineering changes, BOM versions | done | `l10n_ua_eco`: change notices with was/now lines, approvals (technologist, quality, military representative), BOM revision N+1 on the effective date |
 | Production planning (MPS/MRP) | part | native scheduler; OCA `mrp_multi_level` later |
 | Repairs and warranty returns | part | native `repair`; warranty months on goods and serial passports in `l10n_ua_defense`; warranty claims register missing |
 
@@ -113,6 +113,7 @@ payload in our catalogues is a camera; nothing here covers munitions.
 | **Price calculation by the regulated cost items** (01 сировина ... 10 зворотні відходи, then overhead, admin, selling, financial, other, profit) | постанова КМУ № 309 (2021), пп. 11-13 | done: plan from BOM and routing with the contract's rates, printable with materials breakdown |
 | Acceptance by the customer's representative (військове приймання), quality records | contract terms | done: acceptance act per batch with serials; inspection checks on routing steps gate release and acceptance; results in the passport |
 | Product passport / log per serial, spare parts kits (ЗІП) | contract terms | done: passport per serial with components' serials; ЗІП as a kit BOM in the drone pack |
+| Design changes agreed with the customer's representative, revision on every serial | contract terms; ЄСКД change-notice practice | done: `l10n_ua_eco`; the military representative signs when the product was made under a defense contract; the passport shows the revision |
 | Imported components: customs declaration, duty and VAT in cost | Митний кодекс, ст. 49-58; ПКУ, ст. 190 | done: `l10n_ua_customs`; duty-free import under defense benefits goes as a 0 % duty rate or a VAT basis on the line |
 | Reservation of employees | постанова КМУ № 76 (2023) and its changes | quota and list (section 2) |
 | Donor-funded deliveries to units | civil and tax rules on charity | transfer act and the tax note, later |

@@ -90,8 +90,19 @@ Notable changes for people who run or build on this code. Module-level API chang
   and the order of work, with the defense-manufacturer needs first.
 - `ruff.toml` and a lint step in `scripts/check_static.sh`: undefined names, unused imports and variables,
   mutable defaults in our modules and scripts. Style is not enforced.
+- `l10n_ua_eco`: engineering change notices (повідомлення про зміну) for defense production. A notice lists
+  "was / now" lines against the current BOM (add, remove, replace, change quantity), is approved by the
+  technologist and quality control, and by the military representative when the product was made under a
+  defense contract; the author does not approve, a rejection needs a reason and the next submission starts
+  a new round. Applying it on its effective date (or by the hourly job) copies the BOM as revision N+1,
+  activates it and archives the old one; a second notice made from the old revision is refused. Orders and
+  serial passports show the revision; the notice prints with the was/now table and the approvals.
 
 ### Changed
+- `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number
+  (Вих/...), and a restricted flag passed the same way needs clearance like a typed one.
+- `l10n_ua_prro`: a sale right after the Z-report in the same transaction opens a new shift instead of
+  hitting the "one open shift" rule.
 - `l10n_ua_changes`: the month close card counts open payslips and the timesheet as the system, so an
   accountant without payroll rights can open the close plan (it raised an access error before).
 - `l10n_ua_finrep`: Form 2 and Form 2-m skip the closing journal (code CLS), so revenue and expenses

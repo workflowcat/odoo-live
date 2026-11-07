@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_eco_user,ua.eco user,model_ua_eco,group_ua_eco_user,1,1,1,1
+access_ua_eco_line_user,ua.eco.line user,model_ua_eco_line,group_ua_eco_user,1,1,1,1
+access_ua_eco_approval_user,ua.eco.approval user,model_ua_eco_approval,group_ua_eco_user,1,0,1,0
+access_ua_eco_mrp_user,ua.eco mrp user,model_ua_eco,mrp.group_mrp_user,1,0,0,0
+access_ua_eco_line_mrp_user,ua.eco.line mrp user,model_ua_eco_line,mrp.group_mrp_user,1,0,0,0
+access_ua_eco_approval_mrp_user,ua.eco.approval mrp user,model_ua_eco_approval,mrp.group_mrp_user,1,0,0,0
+access_mrp_bom_ua_eco,mrp.bom eco user,mrp.model_mrp_bom,group_ua_eco_user,1,0,0,0
+access_mrp_bom_line_ua_eco,mrp.bom.line eco user,mrp.model_mrp_bom_line,group_ua_eco_user,1,0,0,0

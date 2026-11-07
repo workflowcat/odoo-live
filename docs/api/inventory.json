@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 54,
-    "models": 119,
-    "methods": 398,
-    "fields": 307
+    "modules": 55,
+    "models": 121,
+    "methods": 406,
+    "fields": 312
   },
   "areas": [
     {
@@ -6121,6 +6121,80 @@
           "fields": []
         },
         {
+          "model": "ua.eco",
+          "ours": true,
+          "modules": [
+            "l10n_ua_eco"
+          ],
+          "methods": [
+            {
+              "name": "action_apply",
+              "signature": "action_apply()",
+              "doc": "",
+              "module": "l10n_ua_eco",
+              "file": "addons/l10n_ua_eco/models/ua_eco.py",
+              "decorators": []
+            },
+            {
+              "name": "action_approve",
+              "signature": "action_approve()",
+              "doc": "",
+              "module": "l10n_ua_eco",
+              "file": "addons/l10n_ua_eco/models/ua_eco.py",
+              "decorators": []
+            },
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_eco",
+              "file": "addons/l10n_ua_eco/models/ua_eco.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_eco",
+              "file": "addons/l10n_ua_eco/models/ua_eco.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_eco",
+              "file": "addons/l10n_ua_eco/models/ua_eco.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reject",
+              "signature": "action_reject()",
+              "doc": "",
+              "module": "l10n_ua_eco",
+              "file": "addons/l10n_ua_eco/models/ua_eco.py",
+              "decorators": []
+            },
+            {
+              "name": "action_submit",
+              "signature": "action_submit()",
+              "doc": "",
+              "module": "l10n_ua_eco",
+              "file": "addons/l10n_ua_eco/models/ua_eco.py",
+              "decorators": []
+            },
+            {
+              "name": "diff_rows",
+              "signature": "diff_rows()",
+              "doc": "[{action, product, new_product, old_qty, new_qty, uom, note}] по рядках ПЗ.",
+              "module": "l10n_ua_eco",
+              "file": "addons/l10n_ua_eco/models/ua_eco.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.navigation",
           "ours": true,
           "modules": [
@@ -6791,10 +6865,54 @@
           ]
         },
         {
+          "model": "mrp.bom",
+          "ours": false,
+          "modules": [
+            "l10n_ua_eco",
+            "l10n_ua_mrp"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_eco_id",
+              "type": "Many2one",
+              "label": "ua.eco",
+              "module": "l10n_ua_eco",
+              "file": "addons/l10n_ua_eco/models/mrp.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_previous_bom_id",
+              "type": "Many2one",
+              "label": "mrp.bom",
+              "module": "l10n_ua_eco",
+              "file": "addons/l10n_ua_eco/models/mrp.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_revision",
+              "type": "Integer",
+              "label": "Зміна №",
+              "module": "l10n_ua_eco",
+              "file": "addons/l10n_ua_eco/models/mrp.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_successor_eco_id",
+              "type": "Many2one",
+              "label": "ua.eco",
+              "module": "l10n_ua_eco",
+              "file": "addons/l10n_ua_eco/models/mrp.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
           "model": "mrp.production",
           "ours": false,
           "modules": [
             "l10n_ua_defense",
+            "l10n_ua_eco",
             "l10n_ua_mrp",
             "l10n_ua_tolling"
           ],
@@ -6811,6 +6929,14 @@
             }
           ],
           "fields": [
+            {
+              "name": "ua_bom_revision",
+              "type": "Integer",
+              "label": "Зміна специфікації",
+              "module": "l10n_ua_eco",
+              "file": "addons/l10n_ua_eco/models/mrp.py",
+              "groups": ""
+            },
             {
               "name": "ua_client_ref",
               "type": "Char",
@@ -7076,7 +7202,8 @@
           "model": "stock.lot",
           "ours": false,
           "modules": [
-            "l10n_ua_defense"
+            "l10n_ua_defense",
+            "l10n_ua_eco"
           ],
           "methods": [
             {

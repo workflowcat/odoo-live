@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_eco_list" model="ir.ui.view">
+    <field name="name">ua.eco.list</field>
+    <field name="model">ua.eco</field>
+    <field name="arch" type="xml">
+      <list decoration-info="state == 'review'" decoration-muted="state in ('applied', 'cancel')">
+        <field name="name"/>
+        <field name="date"/>
+        <field name="product_tmpl_id"/>
+        <field name="revision_from" string="Було"/>
+        <field name="reason"/>
+        <field name="effective_date"/>
+        <field name="roles_pending" optional="show"/>
+        <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+        <field name="state" widget="badge" decoration-info="state == 'review'"
+               decoration-success="state in ('approved', 'applied')" decoration-danger="state == 'rejected'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_eco_search" model="ir.ui.view">
+    <field name="name">ua.eco.search</field>
+    <field name="model">ua.eco</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="name"/>
+        <field name="product_tmpl_id"/>
+        <field name="description"/>
+        <filter name="review" string="На погодженні" domain="[('state', '=', 'review')]"/>
+        <filter name="approved" string="Чекають дати" domain="[('state', '=', 'approved')]"/>
+        <filter name="military" string="З військовим представництвом" domain="[('need_military', '=', True)]"/>
+        <group>
+          <filter name="by_product" string="Виріб" context="{'group_by': 'product_tmpl_id'}"/>
+          <filter name="by_reason" string="Причина" context="{'group_by': 'reason'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="view_ua_eco_form" model="ir.ui.view">
+    <field name="name">ua.eco.form</field>
+    <field name="model">ua.eco</field>
+    <field name="arch" type="xml">
+      <form string="Повідомлення про зміну">
+        <header>
+          <field name="can_approve" invisible="1"/>
+          <button name="action_submit" type="object" string="На погодження" class="btn-primary"
+                  invisible="state not in ('draft', 'rejected')"/>
+          <button name="action_approve" type="object" string="Погодити" class="btn-primary"
+                  invisible="not can_approve"/>
+          <button name="action_reject" type="object" string="Відхилити" invisible="not can_approve"/>
+          <button name="action_apply" type="object" string="Застосувати" class="btn-primary"
+                  invisible="state != 'approved'"/>
+          <button name="action_print" type="object" string="Друк"/>
+          <button name="action_draft" type="object" string="У чернетку"
+                  invisible="state not in ('rejected', 'cancel')"/>
+          <button name="action_cancel" type="object" string="Скасувати"
+                  invisible="state in ('applied', 'cancel')"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,review,approved,applied"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="product_tmpl_id" readonly="state != 'draft'"/>
+              <field name="bom_id" readonly="state != 'draft'"/>
+              <field name="revision_from"/>
+              <field name="new_bom_id" invisible="not new_bom_id"/>
+              <field name="reason" readonly="state not in ('draft', 'rejected')"/>
+              <field name="effective_date" readonly="state in ('applied', 'cancel')"/>
+              <field name="date_applied" invisible="not date_applied"/>
+            </group>
+            <group>
+              <field name="user_id"/>
+              <field name="date"/>
+              <field name="need_military" readonly="state not in ('draft', 'rejected')"/>
+              <field name="roles_required"/>
+              <field name="roles_pending" invisible="state != 'review'"/>
+              <field name="stock_policy" readonly="state not in ('draft', 'rejected')"/>
+              <field name="retrofit" readonly="state not in ('draft', 'rejected')"/>
+              <field name="retrofit_lot_ids" widget="many2many_tags" invisible="not retrofit"
+                     readonly="state not in ('draft', 'rejected')"/>
+              <field name="open_production_count" invisible="not open_production_count"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+            </group>
+          </group>
+          <group>
+            <field name="description" readonly="state not in ('draft', 'rejected')"
+                   placeholder="Що змінюється і навіщо: дефект, заміна постачальника, вимога замовника"/>
+          </group>
+          <group invisible="state != 'review' and not reject_reason">
+            <field name="reject_reason" readonly="state != 'review'"/>
+          </group>
+          <notebook>
+            <page string="Було / стало" name="lines">
+              <field name="line_ids" readonly="state not in ('draft', 'rejected')">
+                <list editable="bottom">
+                  <field name="sequence" widget="handle"/>
+                  <field name="action"/>
+                  <field name="product_id" required="action in ('remove', 'replace', 'qty')"
+                         invisible="action == 'add'"/>
+                  <field name="old_qty" invisible="action == 'add'"/>
+                  <field name="new_product_id" required="action in ('add', 'replace')"
+                         invisible="action in ('remove', 'qty')"/>
+                  <field name="new_qty" invisible="action == 'remove'"/>
+                  <field name="uom_id" optional="hide"/>
+                  <field name="note"/>
+                </list>
+              </field>
+            </page>
+            <page string="Погодження" name="approvals">
+              <field name="approval_ids">
+                <list>
+                  <field name="submission"/>
+                  <field name="role"/>
+                  <field name="decision" widget="badge" decoration-success="decision == 'approve'"
+                         decoration-danger="decision == 'reject'"/>
+                  <field name="user_id" widget="many2one_avatar_user"/>
+                  <field name="date"/>
+                  <field name="note"/>
+                </list>
+              </field>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_eco" model="ir.actions.act_window">
+    <field name="name">Повідомлення про зміну</field>
+    <field name="res_model">ua.eco</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_ua_eco_search"/>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiley_face">Конструкторських змін ще немає</p>
+      <p>Зміна виробу - через повідомлення: було / стало, погодження технолога, ВТК і за потреби
+        військового представництва, нова ревізія специфікації з дати.</p>
+    </field>
+  </record>
+
+  <menuitem id="menu_ua_eco" name="Конструкторські зміни" parent="mrp.menu_mrp_bom"
+            action="action_ua_eco" sequence="30"
+            groups="l10n_ua_eco.group_ua_eco_user,mrp.group_mrp_user"/>
+
+  <record id="mrp_bom_form_ua_eco" model="ir.ui.view">
+    <field name="name">mrp.bom.form.ua.eco</field>
+    <field name="model">mrp.bom</field>
+    <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+    <field name="arch" type="xml">
+      <field name="code" position="after">
+        <field name="ua_revision"/>
+        <field name="ua_eco_id" invisible="not ua_eco_id"/>
+        <field name="ua_previous_bom_id" invisible="not ua_previous_bom_id"/>
+        <field name="ua_successor_eco_id" invisible="not ua_successor_eco_id"/>
+      </field>
+    </field>
+  </record>
+
+  <record id="mrp_production_form_ua_eco" model="ir.ui.view">
+    <field name="name">mrp.production.form.ua.eco</field>
+    <field name="model">mrp.production</field>
+    <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+    <field name="arch" type="xml">
+      <field name="bom_id" position="after">
+        <field name="ua_bom_revision" invisible="not ua_bom_revision"/>
+      </field>
+    </field>
+  </record>
+</odoo>

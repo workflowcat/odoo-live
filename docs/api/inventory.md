@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 54. Моделей: 119. Методів: 398. Збережених полів на чужих моделях: 307.
+Модулів: 55. Моделей: 121. Методів: 406. Збережених полів на чужих моделях: 312.
 
 ## Зарплата
 
@@ -1358,6 +1358,21 @@
 | `action_print()` | - | `l10n_ua_defense` |
 | `action_reset_draft()` | - | `l10n_ua_defense` |
 
+### `ua.eco`
+
+наша модель · `l10n_ua_eco`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_apply()` | - | `l10n_ua_eco` |
+| `action_approve()` | - | `l10n_ua_eco` |
+| `action_cancel()` | - | `l10n_ua_eco` |
+| `action_draft()` | - | `l10n_ua_eco` |
+| `action_print()` | - | `l10n_ua_eco` |
+| `action_reject()` | - | `l10n_ua_eco` |
+| `action_submit()` | - | `l10n_ua_eco` |
+| `diff_rows()` | [{action, product, new_product, old_qty, new_qty, uom, note}] по рядках ПЗ. | `l10n_ua_eco` |
+
 ### `ua.navigation`
 
 наша модель · `l10n_ua_navigation`
@@ -1526,9 +1541,20 @@
 | --- | --- | --- | --- |
 | `ua_prro_letter` | Char | Літера в чеку ПРРО | `l10n_ua_prro` |
 
+### `mrp.bom`
+
+доповнена модель · `l10n_ua_eco`, `l10n_ua_mrp`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_eco_id` | Many2one | ua.eco | `l10n_ua_eco` |
+| `ua_previous_bom_id` | Many2one | mrp.bom | `l10n_ua_eco` |
+| `ua_revision` | Integer | Зміна № | `l10n_ua_eco` |
+| `ua_successor_eco_id` | Many2one | ua.eco | `l10n_ua_eco` |
+
 ### `mrp.production`
 
-доповнена модель · `l10n_ua_defense`, `l10n_ua_mrp`, `l10n_ua_tolling`
+доповнена модель · `l10n_ua_defense`, `l10n_ua_eco`, `l10n_ua_mrp`, `l10n_ua_tolling`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1536,6 +1562,7 @@
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
+| `ua_bom_revision` | Integer | Зміна специфікації | `l10n_ua_eco` |
 | `ua_client_ref` | Char | Мітка операції | `l10n_ua_mrp` |
 | `ua_contract_id` | Many2one | ua.contract | `l10n_ua_defense` |
 | `ua_tolling_id` | Many2one | ua.tolling.order | `l10n_ua_tolling` |
@@ -1602,7 +1629,7 @@
 
 ### `stock.lot`
 
-доповнена модель · `l10n_ua_defense`
+доповнена модель · `l10n_ua_defense`, `l10n_ua_eco`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |

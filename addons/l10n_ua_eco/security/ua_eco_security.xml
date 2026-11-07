@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="privilege_ua_eco" model="res.groups.privilege">
+    <field name="name">Конструкторські зміни</field>
+    <field name="sequence">60</field>
+  </record>
+  <record id="group_ua_eco_user" model="res.groups">
+    <field name="name">Конструктор</field>
+    <field name="privilege_id" ref="privilege_ua_eco"/>
+    <field name="sequence">10</field>
+    <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+  </record>
+  <record id="group_ua_eco_technology" model="res.groups">
+    <field name="name">Технолог (погоджує зміни)</field>
+    <field name="privilege_id" ref="privilege_ua_eco"/>
+    <field name="sequence">20</field>
+    <field name="implied_ids" eval="[(4, ref('group_ua_eco_user'))]"/>
+  </record>
+  <record id="group_ua_eco_quality" model="res.groups">
+    <field name="name">ВТК (погоджує зміни)</field>
+    <field name="privilege_id" ref="privilege_ua_eco"/>
+    <field name="sequence">30</field>
+    <field name="implied_ids" eval="[(4, ref('group_ua_eco_user'))]"/>
+  </record>
+  <record id="group_ua_eco_military" model="res.groups">
+    <field name="name">Військове представництво (погоджує зміни)</field>
+    <field name="privilege_id" ref="privilege_ua_eco"/>
+    <field name="sequence">40</field>
+    <field name="implied_ids" eval="[(4, ref('group_ua_eco_user'))]"/>
+  </record>
+  <record id="rule_ua_eco_company" model="ir.rule">
+    <field name="name">Повідомлення про зміну: своя компанія</field>
+    <field name="model_id" ref="model_ua_eco"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+</odoo>
