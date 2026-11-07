@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_defense_penalty" model="ir.actions.report">
+    <field name="name">Розрахунок пені і штрафу</field>
+    <field name="model">ua.contract</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_defense.report_ua_defense_penalty</field>
+    <field name="report_file">l10n_ua_defense.report_ua_defense_penalty</field>
+    <field name="print_report_name">'Санкції %s' % (object.name or '')</field>
+  </record>
+
+  <template id="report_ua_defense_penalty_document">
+    <t t-set="calc_date" t-value="doc._ua_penalty_date()"/>
+    <t t-set="totals" t-value="doc.ua_penalty_totals(calc_date)"/>
+    <div class="page ua-doc">
+      <t t-call="l10n_ua_defense.ua_defense_style"/>
+      <div><strong t-out="doc.company_id.name"/></div>
+      <h3>РОЗРАХУНОК ПЕНІ І ШТРАФУ ЗА ПРОСТРОЧЕННЯ ПОСТАВКИ</h3>
+      <div>Контракт <t t-out="doc._ua_print_name()"/>, замовник <t t-out="doc.partner_id.name"/>,
+        станом на <t t-out="calc_date.strftime('%d.%m.%Y')"/>.</div>
+      <div>Умови: пеня <t t-out="('%g' % doc.ua_penalty_rate).replace('.', ',')"/> % вартості простроченого
+        товару за кожен день; штраф <t t-out="('%g' % doc.ua_fine_rate).replace('.', ',')"/> % за
+        прострочення понад <t t-out="doc.ua_fine_days"/> днів.</div>
+      <table class="ua-grid" style="margin-top: 8px;">
+        <thead><tr><th>Виріб</th><th style="width: 9%;">Строк</th><th style="width: 7%;">К-сть</th>
+          <th style="width: 13%;">Вартість</th><th style="width: 12%;">Поставлено</th>
+          <th style="width: 6%;">Днів</th><th style="width: 12%;">Пеня</th><th style="width: 12%;">Штраф</th></tr></thead>
+        <tbody>
+          <tr t-foreach="totals['rows']" t-as="row">
+            <td><t t-out="row['product']"/><t t-if="row['no_price']"> (немає ціни)</t></td>
+            <td><t t-out="row['due'].strftime('%d.%m.%Y')"/></td>
+            <td style="text-align: right;"><t t-out="'%g' % row['qty']"/></td>
+            <td style="text-align: right;"><t t-out="doc._ua_money(row['value'])"/></td>
+            <td><t t-out="row['delivered'] and row['delivered'].strftime('%d.%m.%Y') or 'не поставлено'"/></td>
+            <td style="text-align: right;"><t t-out="row['days']"/></td>
+            <td style="text-align: right;"><t t-out="doc._ua_money(row['penalty'])"/></td>
+            <td style="text-align: right;"><t t-out="doc._ua_money(row['fine'])"/></td>
+          </tr>
+          <tr t-if="not totals['rows']"><td colspan="8">Прострочень немає.</td></tr>
+          <tr>
+            <td colspan="6"><strong>Разом</strong></td>
+            <td style="text-align: right;"><strong t-out="doc._ua_money(totals['penalty'])"/></td>
+            <td style="text-align: right;"><strong t-out="doc._ua_money(totals['fine'])"/></td>
+          </tr>
+        </tbody>
+      </table>
+      <p>Усього санкцій: <strong t-out="doc._ua_money(totals['penalty'] + totals['fine'])"/> <t t-out="doc.currency_id.name"/>.</p>
+      <p style="font-size: 9px;">Днів прострочення - від строку поставки до дати акта приймання (для
+        непоставленого - до дати розрахунку). Прийняте за актами розкладається на рядки графіка за
+        строком, спершу найраніший.</p>
+    </div>
+  </template>
+
+  <template id="report_ua_defense_penalty">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_defense.report_ua_defense_penalty_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

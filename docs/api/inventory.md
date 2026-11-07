@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 56. Моделей: 123. Методів: 418. Збережених полів на чужих моделях: 312.
+Модулів: 56. Моделей: 123. Методів: 421. Збережених полів на чужих моделях: 312.
 
 ## Зарплата
 
@@ -1327,8 +1327,11 @@
 | `action_close()` | - | `l10n_ua_contract` |
 | `action_new_plan_calculation()` | Планова калькуляція на перший виріб графіка без калькуляції. | `l10n_ua_defense` |
 | `action_new_reconciliation_act()` | Акт звірки за договором з початку року по сьогодні. | `l10n_ua_contract` |
+| `action_print_penalty()` | - | `l10n_ua_defense` |
 | `action_view_moves()` | - | `l10n_ua_contract` |
 | `action_view_productions()` | - | `l10n_ua_defense` |
+| `ua_penalty_rows(date=None)` | Рядки розрахунку: одна частина рядка графіка, поставлена (чи ні) з простроченням. | `l10n_ua_defense` |
+| `ua_penalty_totals(date=None)` | - | `l10n_ua_defense` |
 
 ### `ua.correspondence`
 

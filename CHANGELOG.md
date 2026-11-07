@@ -113,6 +113,12 @@ Notable changes for people who run or build on this code. Module-level API chang
   reservations longer than the status and salaries below the floor. A daily job reminds before the status
   or an employee's reservation ends; archiving a reserved employee records an event and sets a task to
   report the dismissal. The quota, floor and day counts are settings on the status, not rules in code.
+- `l10n_ua_defense`: penalty and fine for late deliveries. The contract holds the rates (a share per day,
+  a fine after N days; defaults follow the usual state-contract wording and are meant to be checked against
+  the contract), schedule lines hold the unit price. Quantities accepted by approved acts up to the
+  calculation date fill the schedule lines in due-date order; a part accepted late counts days to the act
+  date, a part not yet accepted counts days to the calculation date. The contract shows the amount as of
+  today and prints the calculation with every late part.
 
 ### Changed
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number

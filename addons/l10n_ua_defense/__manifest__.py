@@ -18,7 +18,7 @@
                    "модуль їх не вигадує.\n\n"
                    "Акт приймання фіксує прийняті серійні номери і закриває графік; паспорт виробу "
                    "друкує серійний номер, контракт, акт і серійні номери складових.",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.2.0",
     "category": "Manufacturing/Localizations",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -28,6 +28,7 @@
         "security/ua_defense_security.xml",
         "data/ir_sequence_data.xml",
         "report/ua_defense_reports.xml",
+        "report/ua_defense_penalty_report.xml",
         "views/ua_contract_views.xml",
         "views/ua_defense_calculation_views.xml",
         "views/ua_defense_acceptance_views.xml",

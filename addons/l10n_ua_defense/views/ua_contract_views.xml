@@ -44,6 +44,15 @@
               <field name="ua_rate_profit_purchased"/>
               <field name="ua_rate_profit_own"/>
             </group>
+            <group string="Санкції за прострочення поставки">
+              <field name="ua_penalty_rate"/>
+              <field name="ua_fine_rate"/>
+              <field name="ua_fine_days"/>
+              <field name="currency_id" invisible="1"/>
+              <field name="ua_penalty_amount" decoration-danger="ua_penalty_amount &gt; 0"/>
+              <button name="action_print_penalty" type="object" string="Розрахунок пені і штрафу"
+                      class="btn-secondary" colspan="2" invisible="not id"/>
+            </group>
           </group>
           <separator string="Графік поставки"/>
           <field name="ua_schedule_ids">
@@ -51,6 +60,8 @@
               <field name="product_id"/>
               <field name="quantity"/>
               <field name="date"/>
+              <field name="price_unit"/>
+              <field name="currency_id" column_invisible="1"/>
               <field name="qty_accepted"/>
               <field name="state" widget="badge" decoration-success="state == 'done'" decoration-danger="state == 'late'"/>
             </list>

@@ -2,7 +2,7 @@
   "totals": {
     "modules": 56,
     "models": 123,
-    "methods": 418,
+    "methods": 421,
     "fields": 312
   },
   "areas": [
@@ -5969,6 +5969,14 @@
               "decorators": []
             },
             {
+              "name": "action_print_penalty",
+              "signature": "action_print_penalty()",
+              "doc": "",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/ua_defense_penalty.py",
+              "decorators": []
+            },
+            {
               "name": "action_view_moves",
               "signature": "action_view_moves()",
               "doc": "",
@@ -5982,6 +5990,22 @@
               "doc": "",
               "module": "l10n_ua_defense",
               "file": "addons/l10n_ua_defense/models/ua_contract.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_penalty_rows",
+              "signature": "ua_penalty_rows(date=None)",
+              "doc": "Рядки розрахунку: одна частина рядка графіка, поставлена (чи ні) з простроченням.",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/ua_defense_penalty.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_penalty_totals",
+              "signature": "ua_penalty_totals(date=None)",
+              "doc": "",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/ua_defense_penalty.py",
               "decorators": []
             }
           ],
