@@ -28,6 +28,16 @@ MARITAL_UA = [
 class HrEmployee(models.Model):
     _inherit = "hr.employee"
 
+    def _check_access(self, operation):
+        """OCA hr_employee_document пропускає перевірку будь-якої картки, поки в контексті є
+        search_attachments_from_hr_employee: так працівник бачить свої документи. Контекст задає
+        той, хто викликає, тож поза власними картками прапорець не діє (аудит безпеки 2026-10):
+        скан паспорта колеги не читається через вкладення з цим прапорцем."""
+        if (self.env.context.get("search_attachments_from_hr_employee") and not self.env.su
+                and self - self.env.user.employee_ids):
+            return super(HrEmployee, self.with_context(search_attachments_from_hr_employee=False))._check_access(operation)
+        return super()._check_access(operation)
+
     # -- Документ, що посвідчує особу -----------------------------------------------
     # ядро Odoo пише «Одружений(заміжня)»; у картці це виглядає як помилка
     marital = fields.Selection(selection=MARITAL_UA)

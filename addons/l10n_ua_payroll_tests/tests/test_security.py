@@ -14,8 +14,10 @@
   нарахування відпусток, звірка з ТЦК  - кадровик;
   довідка про доходи, П-2              - зарплата і кадри відповідно;
   анкета компанії                      - пише лише дозволені поля компанії;
-  адреса банку, XML ДПС                - лише хости банків; сутності XML не розкриваються.
+  адреса банку, XML ДПС                - лише хости банків; сутності XML не розкриваються;
+  скани документів працівника          - кадровик і сам працівник, прапорець OCA не відкриває чужі.
 """
+import base64
 import os
 import tempfile
 from unittest.mock import MagicMock, patch
@@ -395,3 +397,22 @@ class TestUaSecurity(TransactionCase):
             os.unlink(path)
         plain = safe_fromstring(b'<d><T1RXXXXG02S ROWNUM="1">12</T1RXXXXG02S></d>')
         self.assertEqual(plain[0].text, "12")
+
+    # ------------------------------------------------------------------ 10. скани документів
+    def test_19_employee_scans_stay_with_hr_and_owner(self):
+        """Скан на картці працівника (res_model hr.employee): колега без прав кадровика не читає
+        його ні прямо, ні з прапорцем OCA search_attachments_from_hr_employee; власник і кадровик читають."""
+        scan = self.env["ir.attachment"].create({
+            "name": "passport.pdf", "res_model": "hr.employee", "res_id": self.employee.id,
+            "datas": base64.b64encode(b"UA-SECURITY-SCAN")})
+        for ctx in ({}, {"search_attachments_from_hr_employee": True}):
+            with self.assertRaises(AccessError, msg="контекст %s" % ctx):
+                scan.with_user(self.plain).with_context(**ctx).read(["datas"])
+        mine = self.env["hr.employee"].create({
+            "name": "Власна Оксана", "company_id": self.company.id, "user_id": self.plain.id})
+        own_scan = self.env["ir.attachment"].create({
+            "name": "own.pdf", "res_model": "hr.employee", "res_id": mine.id,
+            "datas": base64.b64encode(b"OWN")})
+        own = own_scan.with_user(self.plain).with_context(search_attachments_from_hr_employee=True)
+        self.assertTrue(own.read(["datas"])[0]["datas"])
+        self.assertTrue(scan.with_user(self.hr).read(["datas"])[0]["datas"])
