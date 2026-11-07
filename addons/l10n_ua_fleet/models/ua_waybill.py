@@ -168,6 +168,14 @@ class StockMove(models.Model):
                                     readonly=True, copy=False)
     ua_waybill_reversed = fields.Boolean("Сторновано скасуванням листа", readonly=True, copy=False)
 
+    @api.depends("ua_waybill_id.name")
+    def _compute_reference(self):
+        # рух без складського документа: Odoo 19 лишає посилання порожнім, а проведення його вимагає
+        super()._compute_reference()
+        for move in self:
+            if not move.reference and move.ua_waybill_id:
+                move.reference = move.ua_waybill_id.name
+
 
 class UaWaybill(models.Model):
     _name = "ua.waybill"
