@@ -178,6 +178,14 @@ class TestIntake(TransactionCase):
         self.assertFalse(intake.move_id)
         self.assertEqual(len(partner.bank_ids), 1)
 
+    def test_iban_from_email_is_not_added_to_existing_supplier(self):
+        partner = self.env["res.partner"].create({"name": "Нова Пошта", "is_company": True, "company_registry": "31316718",
+                                                  "bp_supplier_status": "verified"})
+        intake, _ = self.receive(NOVA, msgid="<t60@test>")
+        self.assertEqual(intake.partner_id, partner)
+        self.assertEqual(self.levels(intake)["iban_known"], "warn")
+        self.assertFalse(partner.bank_ids, "IBAN з листа не дописується в картку наявного постачальника")
+
     def test_invoice_for_another_company(self):
         doc = copy.deepcopy(NOVA)
         doc["buyer"] = {"name": "ТОВ «Інша»", "code": "14360570"}

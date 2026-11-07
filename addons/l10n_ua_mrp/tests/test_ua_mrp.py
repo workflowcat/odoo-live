@@ -626,6 +626,23 @@ class TestUaMrp(AccountTestInvoicingCommon):
         self.assertEqual(card["drawing_name"], "shershen-7.svg")
         self.assertIn('id="bom-1"', card["drawing_svg"])
 
+    # --- 40. Креслення без активного вмісту (аудит безпеки 2026-10) -------
+    def test_40_drawing_drops_active_content(self):
+        svg = ('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"'
+               ' onload="alert(1)"><script>alert(2)</script>'
+               '<g id="bom-1" onclick="steal()"><rect width="10" height="10"/></g>'
+               '<a xlink:href="javascript:alert(3)"><text>t</text></a><use href="#bom-1"/>'
+               '<foreignObject><div xmlns="http://www.w3.org/1999/xhtml">x</div></foreignObject></svg>')
+        template = self.table.product_tmpl_id
+        template.write({"ua_drawing_svg": base64.b64encode(svg.encode())})
+        drawing = template.ua_assembly()["drawing_svg"]
+        for needle in ("alert", "onload", "onclick", "script", "foreignObject", "javascript"):
+            self.assertNotIn(needle, drawing)
+        self.assertIn('id="bom-1"', drawing)
+        self.assertIn('href="#bom-1"', drawing)
+        template.write({"ua_drawing_svg": base64.b64encode(b"<svg><broken")})
+        self.assertIsNone(template.ua_assembly()["drawing_svg"])
+
     # --- 15. Період розподілу: витрати сусіднього місяця не беруться -------
     def test_15_zvv_period_bounds(self):
         start = fields.Date.context_today(self.env.user).replace(day=1)

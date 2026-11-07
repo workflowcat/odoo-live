@@ -298,9 +298,15 @@ class PurchaseIntake(models.Model):
             elif known:
                 self._add_check("iban_known", "IBAN у картці", "error",
                                 "у картці постачальника інший рахунок: підтвердьте новий IBAN дзвінком постачальнику")
-            else:
+            elif created:
                 self.env["res.partner.bank"].create({"partner_id": partner.id, "acc_number": iban})
                 self._add_check("iban_known", "IBAN у картці", "warn", "додано до картки, виплати на нього не дозволено до перевірки")
+            else:
+                # Наявний постачальник без рахунку: IBAN з листа не дописуємо - його міг надіслати
+                # хто завгодно, хто знає коди сторін (аудит безпеки 2026-10).
+                self._add_check("iban_known", "IBAN у картці", "warn",
+                                "у картці постачальника немає рахунку; IBAN з документа не додано - "
+                                "впишіть його в картку після дзвінка постачальнику")
 
     def _check_registry(self):
         partner = self.partner_id

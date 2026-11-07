@@ -24,5 +24,10 @@ and what an attacker gains. We answer within a week and credit you in the fix un
   do not give users of one company access to another company in the same database.
 - `deploy/` and `worker/` are examples of how we run it. Review them before you run them in production:
   set every password and token yourself, never reuse staging tokens in production.
+- `deploy/`: the bridge Worker accepts one token, so staging and production share it; a restore of a
+  production dump into staging does not reset user passwords, API keys or bank tokens. Treat staging
+  as production-sensitive when it holds a production copy.
+- `scripts/claude_extract_helper.py` is a local helper that runs your Claude Code login on candidate
+  documents. Run it only on a machine where that is acceptable.
 - `assistant/` has a demo login mode (`DEMO_PICKER=1`) that lets anyone with the shared password act as
   any employee. Never use it with real employees.

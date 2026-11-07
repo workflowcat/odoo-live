@@ -271,7 +271,10 @@ class AccountPaymentOrder(models.Model):
             if missing:
                 raise UserError(_("Без рахунку: %s. Впишіть IBAN у картці працівника або в рядку.",
                                   ", ".join(missing.mapped("ua_payee_name")[:10])))
-            order._ua_trust_banks()
+            # Лише відомості зарплати і податків: там рахунки з карток працівників і бюджету.
+            # Звичайні відомості OCA (постачальникам) лишають рішення про надійність людині.
+            if order.ua_kind:
+                order._ua_trust_banks()
             order.draft2open()
         return True
 

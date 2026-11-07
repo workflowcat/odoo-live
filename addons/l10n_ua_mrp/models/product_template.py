@@ -24,8 +24,48 @@
 компанії. Немає ні того, ні того - `None`: на складі товару просто нема.
 """
 import base64
+import re
+
+from lxml import etree
 
 from odoo import fields, models
+
+# Креслення показує чужий екран, і він може вставити його як розмітку. Тому з SVG
+# прибираємо все, що виконується: скрипти, вбудований HTML, обробники подій і
+# посилання не на свої елементи. Чисте креслення повертається тим самим текстом.
+_SVG_DROP = {"script", "foreignobject", "iframe", "embed", "object", "handler", "listener"}
+_SVG_HREF = {"href", "{http://www.w3.org/1999/xlink}href"}
+_SAFE_HREF = re.compile(r"^(#|data:image/(png|jpeg|gif|webp);)", re.I)
+
+
+def ua_clean_svg(text):
+    """SVG без активного вмісту. Нерозбірний текст - None: показувати нічого не треба."""
+    parser = etree.XMLParser(resolve_entities=False, no_network=True, huge_tree=False)
+    try:
+        root = etree.fromstring(text.encode("utf-8"), parser)
+    except (etree.XMLSyntaxError, ValueError):
+        return None
+    changed = bool(root.getroottree().docinfo.doctype)   # DOCTYPE з сутностями не потрібен
+    for element in list(root.iter()):
+        if not isinstance(element.tag, str):
+            continue
+        local = etree.QName(element).localname.lower()
+        target = (element.get("attributeName") or "").lower()
+        if local in _SVG_DROP or (local in ("set", "animate") and (target.startswith("on") or "href" in target)):
+            if element is root:
+                return None
+            element.getparent().remove(element)
+            changed = True
+            continue
+        for name in list(element.attrib):
+            local_attr = etree.QName(name).localname.lower()
+            value = re.sub(r"[\s\x00-\x1f]", "", element.attrib[name])
+            if local_attr.startswith("on") or (name in _SVG_HREF and not _SAFE_HREF.match(value)):
+                del element.attrib[name]
+                changed = True
+    if not changed:
+        return text
+    return etree.tostring(root, encoding="unicode")
 
 
 class ProductTemplate(models.Model):
@@ -98,7 +138,7 @@ class ProductTemplate(models.Model):
             raw = self.ua_drawing_svg
             if isinstance(raw, str):
                 raw = raw.encode()
-            drawing = base64.b64decode(raw).decode("utf-8", "replace")
+            drawing = ua_clean_svg(base64.b64decode(raw).decode("utf-8", "replace"))
 
         bom = self._ua_bom()
         if not bom:
