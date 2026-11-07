@@ -305,5 +305,6 @@ class TestUaCustoms(AccountTestInvoicingCommon):
         self.assertIn("РОЗРАХУНОК МИТНИХ ПЛАТЕЖІВ", text)
         self.assertIn("UA100010/2026/000109", text)
         self.assertIn("8501310000", text)
+        # Перший друк у компанії без налаштованого макета Odoo відкриває майстер макета.
         action = declaration.action_print()
-        self.assertEqual(action["type"], "ir.actions.report")
+        self.assertIn(action["type"], ("ir.actions.report", "ir.actions.act_window"))

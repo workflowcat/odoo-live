@@ -67,7 +67,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Monthly cost calculation by product and cost item | done | `l10n_ua_mrp` (materials, labour, overhead by normal capacity) |
 | **Planned calculation (планова калькуляція)** of a product's price by cost item | done | `l10n_ua_defense`: plan and actual by the Resolution 309 items from BOM, routing and contract rates |
 | Serial and lot tracking | done | native |
-| Quality control (ВТК), inspections | gap | OCA `quality_control_oca` or our own inspection on work orders |
+| Quality control (ВТК), inspections | done | check items on routing operations, yes/no answers on work orders (`l10n_ua_mrp`); defense contracts block release and acceptance until every item is "yes" and print the results in the serial passport (`l10n_ua_defense`); incoming and outgoing protocols (`l10n_ua_stock_docs`) |
 | Tolling (давальницька сировина) | gap | stock of customer-owned material, processing act |
 | Engineering changes, BOM versions | gap | a simple revision register first |
 | Production planning (MPS/MRP) | part | native scheduler; OCA `mrp_multi_level` later |
@@ -111,7 +111,7 @@ payload in our catalogues is a camera; nothing here covers munitions.
 | State contract register: customer (МОУ, ДОТ, other), number, items, schedule, advances, penalties | Закон «Про оборонні закупівлі» № 808-IX; постанова КМУ № 363 (2021) | done: `l10n_ua_defense` on top of `l10n_ua_contract`; penalties are open |
 | **Separate accounting of actual costs by contract** | постанова № 363: виконавець веде окремий облік фактичних витрат за контрактом | done: analytic account per contract, actual calculation from closed orders and bills, plan vs actual by item |
 | **Price calculation by the regulated cost items** (01 сировина ... 10 зворотні відходи, then overhead, admin, selling, financial, other, profit) | постанова КМУ № 309 (2021), пп. 11-13 | done: plan from BOM and routing with the contract's rates, printable with materials breakdown |
-| Acceptance by the customer's representative (військове приймання), quality records | contract terms | done: acceptance act per batch with serials; inspection checks on routing steps |
+| Acceptance by the customer's representative (військове приймання), quality records | contract terms | done: acceptance act per batch with serials; inspection checks on routing steps gate release and acceptance; results in the passport |
 | Product passport / log per serial, spare parts kits (ЗІП) | contract terms | done: passport per serial with components' serials; ЗІП as a kit BOM in the drone pack |
 | Imported components: customs declaration, duty and VAT in cost | Митний кодекс, ст. 49-58; ПКУ, ст. 190 | done: `l10n_ua_customs`; duty-free import under defense benefits goes as a 0 % duty rate or a VAT basis on the line |
 | Reservation of employees | постанова КМУ № 76 (2023) and its changes | quota and list (section 2) |
@@ -128,13 +128,13 @@ Done on 2026-11-07: counterparty contracts and reconciliation acts (`l10n_ua_con
 with the Resolution 309 calculation, separate cost accounting, acceptance acts and passports
 (`l10n_ua_defense`); КСПОВО unit codes in tax invoices; the ДК 021 classifier (`l10n_ua_dk021`); industry
 packs and their loader (`l10n_ua_catalog`); `docs/customization.md` and `scripts/new_pack.py`; the import
-customs declaration (`l10n_ua_customs`); the 1C bank exchange file (`l10n_ua_bank_1c`).
+customs declaration (`l10n_ua_customs`); the 1C bank exchange file (`l10n_ua_bank_1c`);
+quality gate on defense production with results in the serial passport.
 
 Next, in this order:
 
-1. Quality inspections on work orders with results on the serial passport.
-2. Tolling: customer-owned material and the processing act.
-3. Correspondence register and payment approvals.
-4. Month-end closing checklist.
-5. PRRO fiscalisation through a bridge route; price labels for the shop pack.
-6. УКТ ЗЕД classifier from official open data, once a source with a clear licence is found.
+1. Tolling: customer-owned material and the processing act.
+2. Correspondence register and payment approvals.
+3. Month-end closing checklist.
+4. PRRO fiscalisation through a bridge route; price labels for the shop pack.
+5. УКТ ЗЕД classifier from official open data, once a source with a clear licence is found.

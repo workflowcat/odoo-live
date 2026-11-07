@@ -51,6 +51,10 @@ Notable changes for people who run or build on this code. Module-level API chang
   mutable defaults in our modules and scripts. Style is not enforced.
 
 ### Changed
+- `l10n_ua_defense`: quality gate. A defense contract has "Випуск лише після ВТК" (on by default): its
+  manufacturing orders do not close while a check item of their operations has no answer or a "no", and
+  its acceptance acts refuse serials whose production did not pass. The serial passport prints every check
+  with result, note, inspector and time. Products without check items are not affected.
 - `l10n_ua_vat`: tax invoices and adjustment calculations take the unit's КСПОВО code and short name
   from the line's unit (кг 0301, год 0175, м2 0123 and the rest of Odoo's standard units) instead of
   always 2009 "штука". Units carry the code and short name; codes are filled on install only where empty.

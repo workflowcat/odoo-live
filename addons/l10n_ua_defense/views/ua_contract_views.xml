@@ -28,6 +28,7 @@
               <field name="ua_price_type"/>
               <field name="ua_advance_percent"/>
               <field name="ua_vat_rate"/>
+              <field name="ua_quality_gate"/>
               <field name="ua_schedule_late" invisible="1"/>
             </group>
             <group string="Нормативи калькуляції, %">

@@ -325,3 +325,89 @@ class TestUaDefense(AccountTestInvoicingCommon):
         calculation = self.env["ua.defense.calculation"].browse(action["res_id"])
         self.assertEqual(calculation.product_id, self.drone)
         self.assertAlmostEqual(calculation.price_unit, 15162.16, delta=CENT)
+
+    # ------------------------------------------------------------------
+    # ВТК: пункти перевірки операцій, випуск, приймання, паспорт
+    # ------------------------------------------------------------------
+    def _drone_production(self, contract=None):
+        self.drone_bom.operation_ids.ua_checks = "Підвіс камери без люфту\nКалібрування компаса"
+        for product, quantity in ((self.frame, 1), (self.camera, 1), (self.controller, 1),
+                                  (self.motor, 4)):
+            self._receive(product, quantity)
+        production = self.env["mrp.production"].create({
+            "product_id": self.drone.id, "bom_id": self.drone_bom.id, "product_qty": 1.0,
+            "company_id": self.company.id,
+            "ua_contract_id": contract.id if contract else False,
+        })
+        production.action_confirm()
+        production.action_generate_serial()
+        production.move_raw_ids.picked = True
+        return production
+
+    def test_30_quality_gate_blocks_release_until_all_checks_are_yes(self):
+        production = self._drone_production(self.contract)
+        workorder = production.workorder_ids
+        self.assertEqual(len(workorder), 1)
+        self.assertEqual(production.ua_quality_state, "pending")
+        with self.assertRaises(UserError):
+            production.button_mark_done()
+        workorder.ua_answer_check(1, "ok")
+        workorder.ua_answer_check(2, "fail", "відхилення 4 градуси")
+        production.invalidate_recordset(["ua_quality_state"])
+        self.assertEqual(production.ua_quality_state, "failed")
+        with self.assertRaises(UserError):
+            production.button_mark_done()
+        workorder.ua_answer_check(2, "ok", "після перекалібрування")
+        production.invalidate_recordset(["ua_quality_state"])
+        self.assertEqual(production.ua_quality_state, "passed")
+        production.button_mark_done()
+        self.assertEqual(production.state, "done")
+
+        lot = production.lot_producing_ids
+        self.assertEqual(lot.ua_production_id, production)
+        self.assertEqual(lot.ua_quality_state, "passed")
+        html, _kind = self.env["ir.actions.report"]._render_qweb_html(
+            "l10n_ua_defense.action_report_ua_product_passport", lot.ids)
+        html = html.decode() if isinstance(html, bytes) else html
+        for text in ("Контроль якості під час виготовлення", "Калібрування компаса",
+                     "після перекалібрування", "Загальне складання"):
+            self.assertIn(text, html)
+
+    def test_31_gate_off_lets_release_but_acceptance_still_checks(self):
+        """Замовлення без контракту закрили з «ні»; акт за контрактом із ВТК такий виріб не бере."""
+        production = self._drone_production()
+        workorder = production.workorder_ids
+        workorder.ua_answer_check(1, "ok")
+        workorder.ua_answer_check(2, "fail", "компас не калібрується")
+        production.button_mark_done()
+        self.assertEqual(production.state, "done")
+        lot = production.lot_producing_ids
+        self.assertEqual(lot.ua_quality_state, "failed")
+
+        act = self.env["ua.defense.acceptance"].create({
+            "contract_id": self.contract.id,
+            "line_ids": [(0, 0, {"product_id": self.drone.id, "quantity": 1.0,
+                                 "lot_ids": [(6, 0, lot.ids)]})],
+        })
+        with self.assertRaises(UserError):
+            act.action_done()
+        act.line_ids.result = "rework"
+        act.action_done()
+        self.assertEqual(act.state, "done")
+        self.assertFalse(lot.ua_acceptance_id)
+
+    def test_32_products_without_checks_are_not_stopped(self):
+        """Наземна станція не має операцій: ВТК нема чого перевіряти, випуск іде як раніше."""
+        self.assertTrue(self.contract.ua_quality_gate)
+        self._receive(self.tablet, 1)
+        self._receive(self.case, 2)
+        production = self.env["mrp.production"].create({
+            "product_id": self.station.id, "bom_id": self.station_bom.id, "product_qty": 1.0,
+            "company_id": self.company.id, "ua_contract_id": self.contract.id,
+        })
+        production.action_confirm()
+        self.assertEqual(production.ua_quality_state, "none")
+        production.qty_producing = 1.0
+        production.move_raw_ids.picked = True
+        production.button_mark_done()
+        self.assertEqual(production.state, "done")

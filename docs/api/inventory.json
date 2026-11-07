@@ -2,7 +2,7 @@
   "totals": {
     "modules": 48,
     "models": 111,
-    "methods": 349,
+    "methods": 350,
     "fields": 292
   },
   "areas": [
@@ -5842,6 +5842,14 @@
               "doc": "",
               "module": "l10n_ua_defense",
               "file": "addons/l10n_ua_defense/models/ua_defense_acceptance.py",
+              "decorators": []
+            },
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_defense",
+              "file": "addons/l10n_ua_defense/models/quality.py",
               "decorators": []
             },
             {

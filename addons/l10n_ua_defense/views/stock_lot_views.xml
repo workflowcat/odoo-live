@@ -15,6 +15,9 @@
         <field name="ua_contract_id" options="{'no_create': True}"/>
         <field name="ua_acceptance_id"/>
         <field name="ua_production_id"/>
+        <field name="ua_quality_state" widget="badge" invisible="ua_quality_state == 'none'"
+               decoration-success="ua_quality_state == 'passed'" decoration-danger="ua_quality_state == 'failed'"
+               decoration-warning="ua_quality_state == 'pending'"/>
       </field>
       <xpath expr="//group[@name='main_group']" position="after">
         <group string="Складові" invisible="not ua_component_lot_ids">

@@ -242,6 +242,24 @@
           </tbody>
         </table>
       </t>
+      <t t-set="checks" t-value="doc._ua_quality_rows()"/>
+      <t t-if="checks">
+        <h3>Контроль якості під час виготовлення</h3>
+        <table class="ua-grid">
+          <thead><tr><th style="width: 22%;">Операція</th><th>Пункт перевірки</th>
+            <th style="width: 9%;">Результат</th><th style="width: 18%;">Примітка</th>
+            <th style="width: 20%;">Перевіряв, коли</th></tr></thead>
+          <tbody>
+            <tr t-foreach="checks" t-as="check">
+              <td><t t-out="check['operation']"/></td>
+              <td><t t-out="check['index']"/>. <t t-out="check['text']"/></td>
+              <td style="text-align: center;"><t t-out="{'ok': 'так', 'fail': 'ні'}.get(check['result'], '-')"/></td>
+              <td><t t-out="check['note']"/></td>
+              <td><t t-if="check['user']" t-out="check['user'][1]"/><t t-if="check['date']">, <t t-out="'%s.%s.%s %s' % (check['date'][8:10], check['date'][5:7], check['date'][:4], check['date'][11:16])"/></t></td>
+            </tr>
+          </tbody>
+        </table>
+      </t>
       <p>Виріб виготовлено і прийнято відповідно до конструкторської документації та умов контракту.</p>
       <table class="ua-sign">
         <tr>

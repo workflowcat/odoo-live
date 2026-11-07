@@ -7,6 +7,9 @@
     <field name="arch" type="xml">
       <field name="user_id" position="after">
         <field name="ua_contract_id" readonly="state in ['cancel', 'done']" options="{'no_create': True}"/>
+        <field name="ua_quality_state" widget="badge" invisible="ua_quality_state == 'none'"
+               decoration-success="ua_quality_state == 'passed'" decoration-danger="ua_quality_state == 'failed'"
+               decoration-warning="ua_quality_state == 'pending'"/>
       </field>
     </field>
   </record>
