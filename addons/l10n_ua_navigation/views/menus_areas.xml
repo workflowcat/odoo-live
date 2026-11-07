@@ -148,6 +148,8 @@
             action="l10n_ua_military.action_ua_military_notice" sequence="40"/>
   <menuitem id="menu_ua_military_reserved" name="Списки заброньованих" parent="menu_ua_military"
             action="l10n_ua_military.action_ua_military_reserved" sequence="50"/>
+  <menuitem id="menu_ua_military_critical" name="Статус критично важливого" parent="menu_ua_military"
+            action="l10n_ua_military.action_ua_military_critical" sequence="60"/>
 
   <menuitem id="menu_ua_hr_refs" name="Довідники" parent="menu_ua_hr_root" sequence="80"/>
   <menuitem id="l10n_ua_hr_orders.menu_ua_hr_doc_requirement" name="Обов'язкові документи"

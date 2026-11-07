@@ -105,6 +105,14 @@ Notable changes for people who run or build on this code. Module-level API chang
   product, refund, reject): an own defect in warranty cannot be rejected, a rejection or an out-of-warranty
   decision needs a reason. A design cause opens a change notice. Overdue and repeat failures show in the
   list; the conclusion prints on its own and the passport prints the claim history.
+- `l10n_ua_military`: the critical-company status (статус критично важливого підприємства) as a record
+  with the decision, criterion, term, reservation quota, wage floor in minimum wages and reminder days.
+  The reserved list takes the status valid on its date and counts the quota: liable employees under an
+  employment contract, reserved ones with a valid term, the quota as the whole part of the share. Its
+  checks flag a list without a valid status, more reserved than the quota, a status about to end,
+  reservations longer than the status and salaries below the floor. A daily job reminds before the status
+  or an employee's reservation ends; archiving a reserved employee records an event and sets a task to
+  report the dismissal. The quota, floor and day counts are settings on the status, not rules in code.
 
 ### Changed
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number

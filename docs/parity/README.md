@@ -42,7 +42,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | HR orders, staff list, timesheet П-5, personal card П-2 | done | `l10n_ua_hr_*` |
 | Hiring case to filed notice | done | `l10n_ua_hire` |
 | Military registration, TCC notices | done | `l10n_ua_military` |
-| **Reservation of employees** (бронювання) of critically important companies | part | data on the employee card; the company's quota, list for the Дія request and deadlines tracking are missing |
+| **Reservation of employees** (бронювання) of critically important companies | part | `l10n_ua_military`: data on the employee card; the critical-company status with its term, quota and wage floor; quota and deadline checks on the reserved list; reminders before the status or a reservation ends; a task when a reserved employee leaves. A ready list for the Дія request is missing |
 | Civil contracts (ЦПХ) | done | `l10n_ua_gph` |
 | Labour statistics, vacancy reports | gap | low priority |
 
@@ -116,7 +116,7 @@ payload in our catalogues is a camera; nothing here covers munitions.
 | Design changes agreed with the customer's representative, revision on every serial | contract terms; ЄСКД change-notice practice | done: `l10n_ua_eco`; the military representative signs when the product was made under a defense contract; the passport shows the revision |
 | Claims (рекламації) from units: deadlines, warranty, root cause, replacement, repeat failures | contract terms | done: `l10n_ua_claim`; the passport prints the claim history; a design cause opens a change notice |
 | Imported components: customs declaration, duty and VAT in cost | Митний кодекс, ст. 49-58; ПКУ, ст. 190 | done: `l10n_ua_customs`; duty-free import under defense benefits goes as a 0 % duty rate or a VAT basis on the line |
-| Reservation of employees | постанова КМУ № 76 (2023) and its changes | quota and list (section 2) |
+| Reservation of employees | постанова КМУ № 76 (2023) and its changes | done except the Дія request list: status, quota, wage floor, deadlines; the numbers are settings on the status, checked against the current edition |
 | Donor-funded deliveries to units | civil and tax rules on charity | transfer act and the tax note, later |
 
 Sources checked on 2026-11-07: Resolution 309 cost items and price formula (paragraphs 11-13; profit

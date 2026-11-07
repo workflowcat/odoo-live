@@ -1,8 +1,8 @@
 {
   "totals": {
     "modules": 56,
-    "models": 122,
-    "methods": 415,
+    "models": 123,
+    "methods": 418,
     "fields": 312
   },
   "areas": [
@@ -2380,6 +2380,40 @@
               "doc": "Звірити офіційні назви зі службою. Недоступна - лишаємо як є.",
               "module": "l10n_ua_kp",
               "file": "addons/l10n_ua_kp/models/ua_kp_code.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.military.critical",
+          "ours": true,
+          "modules": [
+            "l10n_ua_military"
+          ],
+          "methods": [
+            {
+              "name": "action_reserved_list",
+              "signature": "action_reserved_list()",
+              "doc": "Список заброньованих на сьогодні з квотою цього статусу.",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/ua_military_critical.py",
+              "decorators": []
+            },
+            {
+              "name": "quota_counts",
+              "signature": "quota_counts(date=None)",
+              "doc": "{liable, reserved, quota, free} для компанії статусу на дату.",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/ua_military_critical.py",
+              "decorators": []
+            },
+            {
+              "name": "wage_floor",
+              "signature": "wage_floor(date=None)",
+              "doc": "Нижня межа окладу заброньованого на дату; 0 - межі немає або невідома МЗП.",
+              "module": "l10n_ua_military",
+              "file": "addons/l10n_ua_military/models/ua_military_critical.py",
               "decorators": []
             }
           ],

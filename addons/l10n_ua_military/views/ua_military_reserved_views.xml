@@ -19,6 +19,13 @@
               <field name="date" readonly="state != 'draft'"/>
               <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
             </group>
+            <group string="Квота">
+              <field name="critical_id"/>
+              <field name="liable_count"/>
+              <field name="quota"/>
+              <field name="reserved_count"/>
+              <field name="wage_floor" invisible="not wage_floor"/>
+            </group>
           </group>
           <notebook>
             <page string="Рядки" name="lines">
@@ -29,6 +36,7 @@
                   <field name="reserve_order"/>
                   <field name="reserve_until"/>
                   <field name="days_left"/>
+                  <field name="wage" optional="hide"/>
                 </list>
               </field>
             </page>

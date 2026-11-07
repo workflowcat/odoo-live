@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_military_critical_form" model="ir.ui.view">
+    <field name="name">ua.military.critical.form</field>
+    <field name="model">ua.military.critical</field>
+    <field name="arch" type="xml">
+      <form string="Статус критично важливого підприємства">
+        <header>
+          <button name="action_reserved_list" type="object" string="Список заброньованих"
+                  class="btn-primary" invisible="not is_current"/>
+        </header>
+        <sheet>
+          <widget name="web_ribbon" title="Не чинний" bg_color="text-bg-secondary" invisible="is_current"/>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group string="Рішення">
+              <field name="authority" placeholder="Міністерство або обласна військова адміністрація"/>
+              <field name="decision_number"/>
+              <field name="decision_date"/>
+              <field name="criterion"/>
+              <field name="date_from"/>
+              <field name="date_to"/>
+              <field name="is_current" invisible="1"/>
+            </group>
+            <group string="Бронювання">
+              <field name="quota_percent"/>
+              <field name="wage_multiplier"/>
+              <field name="notify_days"/>
+              <field name="dismissal_days"/>
+              <field name="user_id" widget="many2one_avatar_user"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+            </group>
+          </group>
+          <field name="note" placeholder="Підстави, листи, контакти в міністерстві"/>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_military_critical_list" model="ir.ui.view">
+    <field name="name">ua.military.critical.list</field>
+    <field name="model">ua.military.critical</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="date_from"/>
+        <field name="date_to"/>
+        <field name="authority"/>
+        <field name="decision_number"/>
+        <field name="criterion"/>
+        <field name="quota_percent"/>
+        <field name="company_id" groups="base.group_multi_company"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_military_critical" model="ir.actions.act_window">
+    <field name="name">Статус критично важливого підприємства</field>
+    <field name="res_model">ua.military.critical</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>

@@ -12,6 +12,8 @@
       <div class="page" style="font-family: DejaVu Sans, sans-serif; font-size: 10px;">
         <div style="font-size:11px; font-weight:bold;">Список заброньованих працівників</div>
         <div><t t-out="doc.company_id.name"/> станом на <t t-out="doc.date.strftime('%d.%m.%Y')"/></div>
+        <div t-if="doc.critical_id">Статус критично важливого: <t t-out="doc.critical_id.authority"/><t t-if="doc.critical_id.decision_number">, рішення № <t t-out="doc.critical_id.decision_number"/></t>, діє до <t t-out="doc.critical_id.date_to.strftime('%d.%m.%Y')"/>.
+          Військовозобов'язаних <t t-out="doc.liable_count"/>, квота <t t-out="doc.quota"/>, заброньовано <t t-out="doc.reserved_count"/>.</div>
         <table class="table table-sm" style="border-collapse:collapse; width:100%; margin-top:6px;">
           <thead><tr style="border-bottom:1px solid #999;">
             <th>№</th><th>ПІБ</th><th>Посада</th><th>Підстава</th><th>До дати</th><th class="text-end">Днів до закінчення</th>
