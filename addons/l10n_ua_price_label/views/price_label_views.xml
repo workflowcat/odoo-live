@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_price_label_wizard_form" model="ir.ui.view">
+    <field name="name">ua.price.label.wizard.form</field>
+    <field name="model">ua.price.label.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Друк цінників">
+        <group>
+          <field name="product_ids" widget="many2many_tags"/>
+          <field name="pricelist_id"/>
+          <field name="copies"/>
+          <field name="layout" widget="radio"/>
+        </group>
+        <footer>
+          <button name="action_print" type="object" string="Друкувати" class="btn-primary"/>
+          <button string="Скасувати" special="cancel"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_price_label_template" model="ir.actions.act_window">
+    <field name="name">Друк цінників</field>
+    <field name="res_model">ua.price.label.wizard</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+    <field name="binding_model_id" ref="product.model_product_template"/>
+    <field name="binding_view_types">list,form,kanban</field>
+  </record>
+  <record id="action_ua_price_label_product" model="ir.actions.act_window">
+    <field name="name">Друк цінників</field>
+    <field name="res_model">ua.price.label.wizard</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+    <field name="binding_model_id" ref="product.model_product_product"/>
+    <field name="binding_view_types">list,form,kanban</field>
+  </record>
+
+  <record id="product_template_form_ua_price_label" model="ir.ui.view">
+    <field name="name">product.template.form.ua.price.label</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_form_view"/>
+    <field name="arch" type="xml">
+      <field name="categ_id" position="after">
+        <label for="ua_label_content"/>
+        <div class="o_row">
+          <field name="ua_label_content"/>
+          <field name="ua_label_unit" invisible="not ua_label_content"/>
+        </div>
+      </field>
+    </field>
+  </record>
+</odoo>

@@ -67,6 +67,7 @@ GitHub Actions runs `check_static.sh` and `test_full.sh` on every push to `main`
 | Contracts | `l10n_ua_contract` (counterparty contracts, limits, reconciliation acts) |
 | Import | `l10n_ua_customs` (customs declaration: duty and fees into the cost of goods, customs VAT into credit) |
 | Defense manufacturing | `l10n_ua_defense` (state contracts, Resolution 309 price calculation, acceptance acts, serial passports, quality gate), `l10n_ua_tolling` (customer-supplied material) |
+| Shop | `l10n_ua_price_label` (price labels), `l10n_ua_prro` (fiscal receipts) |
 | Industry packs | `l10n_ua_catalog`: drones, ground robots, military apparel, machining, procurement, small shop; your own as JSON ([docs/customization.md](docs/customization.md)) |
 | Counterparties | `l10n_ua_partner_edr` (state register), `bp_kyc` |
 | Control | `l10n_ua_changes` (who changed what, month closing), `l10n_ua_close` (month-end operations: depreciation, FX revaluation, 79 closing), checks mixin, `auditlog` |

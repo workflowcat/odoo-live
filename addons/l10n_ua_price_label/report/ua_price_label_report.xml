@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="paperformat_ua_price_label_a4" model="report.paperformat">
+    <field name="name">Цінники A4</field>
+    <field name="format">A4</field>
+    <field name="orientation">Portrait</field>
+    <field name="margin_top">8</field>
+    <field name="margin_bottom">8</field>
+    <field name="margin_left">7</field>
+    <field name="margin_right">7</field>
+    <field name="header_spacing">0</field>
+    <field name="dpi">96</field>
+  </record>
+  <record id="paperformat_ua_price_label_roll" model="report.paperformat">
+    <field name="name">Етикетка 58x40</field>
+    <field name="format">custom</field>
+    <field name="page_width">58</field>
+    <field name="page_height">40</field>
+    <field name="orientation">Portrait</field>
+    <field name="margin_top">1</field>
+    <field name="margin_bottom">1</field>
+    <field name="margin_left">1</field>
+    <field name="margin_right">1</field>
+    <field name="header_spacing">0</field>
+    <field name="dpi">96</field>
+  </record>
+
+  <record id="action_report_ua_price_label" model="ir.actions.report">
+    <field name="name">Цінники A4</field>
+    <field name="model">ua.price.label.wizard</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_price_label.report_ua_price_label</field>
+    <field name="report_file">l10n_ua_price_label.report_ua_price_label</field>
+    <field name="paperformat_id" ref="paperformat_ua_price_label_a4"/>
+    <field name="print_report_name">'Цінники'</field>
+  </record>
+  <record id="action_report_ua_price_label_roll" model="ir.actions.report">
+    <field name="name">Цінники 58x40</field>
+    <field name="model">ua.price.label.wizard</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_price_label.report_ua_price_label_roll</field>
+    <field name="report_file">l10n_ua_price_label.report_ua_price_label_roll</field>
+    <field name="paperformat_id" ref="paperformat_ua_price_label_roll"/>
+    <field name="print_report_name">'Цінники'</field>
+  </record>
+
+  <template id="ua_price_label_style">
+    <style>
+      .ua-label { box-sizing: border-box; border: 1px solid #000; padding: 2mm; color: #000;
+                  font-family: sans-serif; overflow: hidden; page-break-inside: avoid; }
+      .ua-label .ua-seller, .ua-label .ua-foot { font-size: 7px; }
+      .ua-label .ua-name { font-size: 11px; font-weight: bold; line-height: 1.15; height: 8mm; overflow: hidden; }
+      .ua-label .ua-price { font-size: 26px; font-weight: bold; text-align: right; line-height: 1; margin-top: 1mm; }
+      .ua-label .ua-price small { font-size: 11px; font-weight: normal; }
+      .ua-label .ua-unit-price { font-size: 9px; text-align: right; }
+      .ua-label .ua-foot { display: flex; justify-content: space-between; }
+      .ua-sheet { width: 100%; border-collapse: separate; border-spacing: 2mm; table-layout: fixed; }
+      .ua-sheet td { width: 33.3%; height: 37mm; vertical-align: top; padding: 0; }
+      .ua-sheet .ua-label { height: 37mm; }
+      .ua-roll .ua-label { width: 56mm; height: 38mm; page-break-after: always; border: none; }
+    </style>
+  </template>
+
+  <template id="ua_price_label_card">
+    <div class="ua-label">
+      <div class="ua-seller" t-out="row['seller']"/>
+      <div class="ua-name" t-out="row['name']"/>
+      <div class="ua-price"><t t-out="row['price']"/> <small>грн / <t t-out="row['unit']"/></small></div>
+      <div class="ua-unit-price" t-if="row['unit_price']" t-out="row['unit_price']"/>
+      <div t-if="row['barcode']" t-out="row['barcode']"
+           t-options="{'widget': 'barcode', 'symbology': row['symbology'], 'width': 400, 'height': 80, 'img_style': 'width:100%;height:7mm;', 'humanreadable': 1}"/>
+      <div class="ua-foot"><span t-out="row['code']"/><span t-out="row['date']"/></div>
+    </div>
+  </template>
+
+  <template id="report_ua_price_label">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_price_label.ua_price_label_style"/>
+          <t t-set="rows" t-value="doc.label_rows()"/>
+          <div class="page">
+            <t t-foreach="range(0, len(rows), 21)" t-as="start">
+              <table class="ua-sheet" t-att-style="'page-break-after: always;' if start + 21 &lt; len(rows) else ''">
+                <tr t-foreach="range(start, min(start + 21, len(rows)), 3)" t-as="line">
+                  <td t-foreach="range(line, min(line + 3, len(rows)))" t-as="index">
+                    <t t-set="row" t-value="rows[index]"/>
+                    <t t-call="l10n_ua_price_label.ua_price_label_card"/>
+                  </td>
+                </tr>
+              </table>
+            </t>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+
+  <template id="report_ua_price_label_roll">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_price_label.ua_price_label_style"/>
+          <div class="page ua-roll">
+            <t t-foreach="doc.label_rows()" t-as="row">
+              <t t-call="l10n_ua_price_label.ua_price_label_card"/>
+            </t>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

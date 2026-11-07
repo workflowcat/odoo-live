@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 53,
-    "models": 118,
-    "methods": 396,
-    "fields": 305
+    "modules": 54,
+    "models": 119,
+    "methods": 398,
+    "fields": 307
   },
   "areas": [
     {
@@ -6217,6 +6217,32 @@
           "fields": []
         },
         {
+          "model": "ua.price.label.wizard",
+          "ours": true,
+          "modules": [
+            "l10n_ua_price_label"
+          ],
+          "methods": [
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_price_label",
+              "file": "addons/l10n_ua_price_label/models/price_label.py",
+              "decorators": []
+            },
+            {
+              "name": "label_rows",
+              "signature": "label_rows()",
+              "doc": "Рядки цінників по порядку, з копіями: [{name, code, price, unit, unit_price,",
+              "module": "l10n_ua_price_label",
+              "file": "addons/l10n_ua_price_label/models/price_label.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.prro.receipt",
           "ours": true,
           "modules": [
@@ -6845,6 +6871,7 @@
             "l10n_ua_defense",
             "l10n_ua_dk021",
             "l10n_ua_mrp",
+            "l10n_ua_price_label",
             "l10n_ua_stock_docs",
             "l10n_ua_vat"
           ],
@@ -6897,6 +6924,22 @@
               "label": "Складальне креслення",
               "module": "l10n_ua_mrp",
               "file": "addons/l10n_ua_mrp/models/product_template.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_label_content",
+              "type": "Float",
+              "label": "Вміст упаковки",
+              "module": "l10n_ua_price_label",
+              "file": "addons/l10n_ua_price_label/models/price_label.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_label_unit",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_price_label",
+              "file": "addons/l10n_ua_price_label/models/price_label.py",
               "groups": ""
             },
             {

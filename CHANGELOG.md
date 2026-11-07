@@ -77,6 +77,11 @@ Notable changes for people who run or build on this code. Module-level API chang
   refer to the fiscal number of the sale; service cash in and out; shifts with cash balance and a Z-report
   compared with the receipts in the books. Training mode works without the bridge. Bridge routes in
   `docs/base/spec-prro.md`. Tests: `ua_prro`.
+- `l10n_ua_price_label`: price labels from the product list or form (Action - Друк цінників). Price for
+  the buyer from a pricelist or the sales price, with the product's sales taxes; for packed goods with
+  the content filled in (0,5 kg, 0,9 l) also the price per 1 kg, l or m; EAN-13, EAN-8 or Code 128 barcode;
+  seller and date; copies; A4 sheet of 21 or 58x40 mm labels. Numbers written the Ukrainian way
+  (1 240,00). Tests: `ua_price_label`.
 - `l10n_ua_tolling`: finishing or cancelling an order no longer mixes pickings and manufacturing orders in
   one recordset (it raised a type error).
 - `docs/customization.md` and `scripts/new_pack.py`: how a team adapts the product in its own module

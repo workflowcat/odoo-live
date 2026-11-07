@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 53. Моделей: 118. Методів: 396. Збережених полів на чужих моделях: 305.
+Модулів: 54. Моделей: 119. Методів: 398. Збережених полів на чужих моделях: 307.
 
 ## Зарплата
 
@@ -1381,6 +1381,15 @@
 | `action_submit()` | - | `l10n_ua_payment_request` |
 | `calendar_rows(date_from, date_to, company=None)` | Платіжний календар: заявки на погодженні й погоджені за датами оплати. | `l10n_ua_payment_request` |
 
+### `ua.price.label.wizard`
+
+наша модель · `l10n_ua_price_label`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_print()` | - | `l10n_ua_price_label` |
+| `label_rows()` | Рядки цінників по порядку, з копіями: [{name, code, price, unit, unit_price, | `l10n_ua_price_label` |
+
 ### `ua.prro.receipt`
 
 наша модель · `l10n_ua_prro`
@@ -1542,7 +1551,7 @@
 
 ### `product.template`
 
-доповнена модель · `l10n_ua_customs`, `l10n_ua_defense`, `l10n_ua_dk021`, `l10n_ua_mrp`, `l10n_ua_stock_docs`, `l10n_ua_vat`
+доповнена модель · `l10n_ua_customs`, `l10n_ua_defense`, `l10n_ua_dk021`, `l10n_ua_mrp`, `l10n_ua_price_label`, `l10n_ua_stock_docs`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1555,6 +1564,8 @@
 | `ua_dk021_id` | Many2one | ua.dk021 | `l10n_ua_dk021` |
 | `ua_drawing_name` | Char | Файл креслення | `l10n_ua_mrp` |
 | `ua_drawing_svg` | Binary | Складальне креслення | `l10n_ua_mrp` |
+| `ua_label_content` | Float | Вміст упаковки | `l10n_ua_price_label` |
+| `ua_label_unit` | Selection | - | `l10n_ua_price_label` |
 | `ua_size` | Selection | Габарит | `l10n_ua_stock_docs` |
 | `ua_uktzed` | Char | Код УКТ ЗЕД | `l10n_ua_vat` |
 | `ua_vat_relief_id` | Many2one | ua.vat.relief | `l10n_ua_vat` |

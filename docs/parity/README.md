@@ -79,7 +79,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | --- | --- | --- |
 | Point of sale | part | native `point_of_sale` |
 | **Fiscalisation (ПРРО/РРО)** | done | `l10n_ua_prro`: a receipt for each customer payment in a cash or terminal journal, returns, service cash in and out, shifts with the Z-report checked against the books; the PRRO service sits behind the bridge (`docs/base/spec-prro.md`), a training mode works without it. Receipts from the native point of sale are next |
-| Shop catalogue, price labels, cash discipline | part | `small_shop` pack (goods, in-store barcodes, weighed goods); price labels missing |
+| Shop catalogue, price labels, cash discipline | done | `small_shop` pack (goods, in-store barcodes, weighed goods); `l10n_ua_price_label` (price with VAT from a pricelist, price per kg or litre for packed goods, barcode, A4 sheet or 58x40 labels); cash in and out through `l10n_ua_prro` |
 
 ## 6. Document flow (Документообіг)
 
@@ -132,9 +132,9 @@ customs declaration (`l10n_ua_customs`); the 1C bank exchange file (`l10n_ua_ban
 quality gate on defense production with results in the serial passport; month-end operations
 (`l10n_ua_close`) with Form 2 kept intact after closing; tolling (`l10n_ua_tolling`); payment requests with
 approval (`l10n_ua_payment_request`); the correspondence register with ДСК access (`l10n_ua_correspondence`);
-PRRO fiscal receipts through the bridge (`l10n_ua_prro`).
+PRRO fiscal receipts through the bridge (`l10n_ua_prro`); price labels (`l10n_ua_price_label`).
 
 Next, in this order:
 
-1. Price labels for the shop pack; PRRO receipts from the native point of sale.
+1. PRRO receipts from the native point of sale.
 2. УКТ ЗЕД classifier from official open data, once a source with a clear licence is found.
