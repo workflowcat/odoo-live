@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_mrp_routing_workcenter_form_ua_instruments" model="ir.ui.view">
+    <field name="name">mrp.routing.workcenter.form.ua.instruments</field>
+    <field name="model">mrp.routing.workcenter</field>
+    <field name="inherit_id" ref="l10n_ua_mrp.view_mrp_routing_workcenter_form_ua_steps"/>
+    <field name="arch" type="xml">
+      <field name="ua_checks" position="after">
+        <field name="ua_instrument_ids" widget="many2many_tags" colspan="2"
+               placeholder="Чим міряють пункти перевірки"/>
+      </field>
+    </field>
+  </record>
+</odoo>

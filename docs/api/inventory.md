@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 66. Моделей: 144. Методів: 509. Збережених полів на чужих моделях: 342.
+Модулів: 67. Моделей: 145. Методів: 515. Збережених полів на чужих моделях: 354.
 
 ## Зарплата
 
@@ -1005,30 +1005,6 @@
 | `ua_finrep_form` | Selection | Українська форма | `l10n_ua_finrep` |
 | `ua_group_consolidation` | Boolean | Консолідація групи | `l10n_ua_group` |
 
-### `mrp.routing.workcenter`
-
-доповнена модель · `l10n_ua_mrp`, `l10n_ua_piecework`
-
-| Поле | Тип | Підпис | Модуль |
-| --- | --- | --- | --- |
-| `ua_checks` | Text | Перевірка | `l10n_ua_mrp` |
-| `ua_piece_rate` | Float | Розцінка, грн за одиницю | `l10n_ua_piecework` |
-| `ua_steps` | Text | Кроки | `l10n_ua_mrp` |
-
-### `mrp.workorder`
-
-доповнена модель · `l10n_ua_mrp`, `l10n_ua_piecework`
-
-| Метод | Що робить | Модуль |
-| --- | --- | --- |
-| `ua_answer_check(index, result, note=None)` | Записати відповідь на пункт перевірки. Повторна відповідь оновлює першу. | `l10n_ua_mrp` |
-| `ua_check_rows()` | Пункти перевірки наряду з відповідями. | `l10n_ua_mrp` |
-
-| Поле | Тип | Підпис | Модуль |
-| --- | --- | --- | --- |
-| `ua_check_ids` | One2many | ua.workorder.check | `l10n_ua_mrp` |
-| `ua_piecework_line_ids` | One2many | ua.piecework.line | `l10n_ua_piecework` |
-
 ### `online.bank.statement.provider`
 
 доповнена модель · `l10n_ua_bank_online`
@@ -1783,6 +1759,31 @@
 | --- | --- | --- | --- |
 | `ua_piecework_auto` | Boolean | З виробітку | `l10n_ua_piecework` |
 
+### `maintenance.equipment`
+
+доповнена модель · `l10n_ua_metrology`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_ua_print_schedule()` | - | `l10n_ua_metrology` |
+| `action_ua_verifications()` | - | `l10n_ua_metrology` |
+| `ua_label()` | «Штангенциркуль ШЦ-I-150 № 1234, повірка до 10.01.2027» - для відповіді ВТК і паспорта. | `l10n_ua_metrology` |
+| `ua_unfit_reason(day=None)` | Чому засобом не можна міряти на дату; порожньо - можна. | `l10n_ua_metrology` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_accuracy` | Char | Клас точності, похибка | `l10n_ua_metrology` |
+| `ua_conserved` | Boolean | Законсервовано | `l10n_ua_metrology` |
+| `ua_interval_months` | Integer | Інтервал, міс. | `l10n_ua_metrology` |
+| `ua_last_date` | Date | Остання повірка | `l10n_ua_metrology` |
+| `ua_last_result` | Selection | - | `l10n_ua_metrology` |
+| `ua_measure_range` | Char | Діапазон вимірювань | `l10n_ua_metrology` |
+| `ua_measuring` | Boolean | Засіб вимірювальної техніки | `l10n_ua_metrology` |
+| `ua_notify_days` | Integer | Нагадати за, днів | `l10n_ua_metrology` |
+| `ua_regulated` | Boolean | Законодавчо регульований | `l10n_ua_metrology` |
+| `ua_valid_until` | Date | Придатний до | `l10n_ua_metrology` |
+| `ua_verification_ids` | One2many | ua.metrology.verification | `l10n_ua_metrology` |
+
 ### `mrp.area`
 
 доповнена модель · `l10n_ua_mrp_plan`
@@ -1834,6 +1835,17 @@
 | `ua_contract_id` | Many2one | ua.contract | `l10n_ua_defense` |
 | `ua_tolling_id` | Many2one | ua.tolling.order | `l10n_ua_tolling` |
 
+### `mrp.routing.workcenter`
+
+доповнена модель · `l10n_ua_metrology`, `l10n_ua_mrp`, `l10n_ua_piecework`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_checks` | Text | Перевірка | `l10n_ua_mrp` |
+| `ua_instrument_ids` | Many2many | maintenance.equipment | `l10n_ua_metrology` |
+| `ua_piece_rate` | Float | Розцінка, грн за одиницю | `l10n_ua_piecework` |
+| `ua_steps` | Text | Кроки | `l10n_ua_mrp` |
+
 ### `mrp.workcenter`
 
 доповнена модель · `l10n_ua_defense`
@@ -1842,6 +1854,22 @@
 | --- | --- | --- | --- |
 | `ua_energy_hour` | Float | Енергія за годину | `l10n_ua_defense` |
 | `ua_wage_hour` | Float | Основна зарплата за годину | `l10n_ua_defense` |
+
+### `mrp.workorder`
+
+доповнена модель · `l10n_ua_metrology`, `l10n_ua_mrp`, `l10n_ua_piecework`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `ua_answer_check(index, result, note=None)` | Як у l10n_ua_mrp, але «так» - лише придатними засобами вимірювання операції. | `l10n_ua_metrology` |
+| `ua_answer_check(index, result, note=None)` | Записати відповідь на пункт перевірки. Повторна відповідь оновлює першу. | `l10n_ua_mrp` |
+| `ua_check_rows()` | - | `l10n_ua_metrology` |
+| `ua_check_rows()` | Пункти перевірки наряду з відповідями. | `l10n_ua_mrp` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_check_ids` | One2many | ua.workorder.check | `l10n_ua_mrp` |
+| `ua_piecework_line_ids` | One2many | ua.piecework.line | `l10n_ua_piecework` |
 
 ### `product.template`
 

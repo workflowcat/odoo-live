@@ -190,6 +190,12 @@ Notable changes for people who run or build on this code. Module-level API chang
   purchase contract shows its open advance from settlement entries, how much active advance-return guarantees
   cover, the deadline to work it off, and filters for open, unsecured and overdue advances. A received
   advance-return guarantee cannot be released while the advance stays open and uncovered. Tests: `ua_guarantee`.
+- `l10n_ua_metrology`: measuring instruments on native maintenance equipment (range, accuracy, legally regulated
+  or not, interval as a setting). Verification and calibration records with result, certificate, lab, cost and
+  validity; reminders before expiry and a "do not use" reminder after; a yearly schedule print. Routing
+  operations list the instruments for their quality checks: a "yes" answer is refused while any is overdue,
+  failed or conserved, the answer keeps a snapshot of what was used, and the product passport prints it.
+  Tests: `ua_metrology`.
 
 ### Changed
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number

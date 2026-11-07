@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_ua_metrology" name="Метрологія" parent="maintenance.menu_maintenance_title" sequence="25"/>
+  <menuitem id="menu_ua_measuring" name="Засоби вимірювання" parent="menu_ua_metrology"
+            action="action_ua_measuring" sequence="10"/>
+  <menuitem id="menu_ua_metrology_verification" name="Повірки і калібрування" parent="menu_ua_metrology"
+            action="action_ua_metrology_verification" sequence="20"/>
+</odoo>

@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 66,
-    "models": 144,
-    "methods": 509,
-    "fields": 342
+    "modules": 67,
+    "models": 145,
+    "methods": 515,
+    "fields": 354
   },
   "areas": [
     {
@@ -4494,85 +4494,6 @@
           ]
         },
         {
-          "model": "mrp.routing.workcenter",
-          "ours": false,
-          "modules": [
-            "l10n_ua_mrp",
-            "l10n_ua_piecework"
-          ],
-          "methods": [],
-          "fields": [
-            {
-              "name": "ua_checks",
-              "type": "Text",
-              "label": "Перевірка",
-              "module": "l10n_ua_mrp",
-              "file": "addons/l10n_ua_mrp/models/mrp_routing_workcenter.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_piece_rate",
-              "type": "Float",
-              "label": "Розцінка, грн за одиницю",
-              "module": "l10n_ua_piecework",
-              "file": "addons/l10n_ua_piecework/models/mrp_routing.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_steps",
-              "type": "Text",
-              "label": "Кроки",
-              "module": "l10n_ua_mrp",
-              "file": "addons/l10n_ua_mrp/models/mrp_routing_workcenter.py",
-              "groups": ""
-            }
-          ]
-        },
-        {
-          "model": "mrp.workorder",
-          "ours": false,
-          "modules": [
-            "l10n_ua_mrp",
-            "l10n_ua_piecework"
-          ],
-          "methods": [
-            {
-              "name": "ua_answer_check",
-              "signature": "ua_answer_check(index, result, note=None)",
-              "doc": "Записати відповідь на пункт перевірки. Повторна відповідь оновлює першу.",
-              "module": "l10n_ua_mrp",
-              "file": "addons/l10n_ua_mrp/models/mrp_workorder.py",
-              "decorators": []
-            },
-            {
-              "name": "ua_check_rows",
-              "signature": "ua_check_rows()",
-              "doc": "Пункти перевірки наряду з відповідями.",
-              "module": "l10n_ua_mrp",
-              "file": "addons/l10n_ua_mrp/models/mrp_workorder.py",
-              "decorators": []
-            }
-          ],
-          "fields": [
-            {
-              "name": "ua_check_ids",
-              "type": "One2many",
-              "label": "ua.workorder.check",
-              "module": "l10n_ua_mrp",
-              "file": "addons/l10n_ua_mrp/models/mrp_workorder.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_piecework_line_ids",
-              "type": "One2many",
-              "label": "ua.piecework.line",
-              "module": "l10n_ua_piecework",
-              "file": "addons/l10n_ua_piecework/models/mrp_routing.py",
-              "groups": ""
-            }
-          ]
-        },
-        {
           "model": "online.bank.statement.provider",
           "ours": false,
           "modules": [
@@ -7983,6 +7904,137 @@
           ]
         },
         {
+          "model": "maintenance.equipment",
+          "ours": false,
+          "modules": [
+            "l10n_ua_metrology"
+          ],
+          "methods": [
+            {
+              "name": "action_ua_print_schedule",
+              "signature": "action_ua_print_schedule()",
+              "doc": "",
+              "module": "l10n_ua_metrology",
+              "file": "addons/l10n_ua_metrology/models/metrology.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_verifications",
+              "signature": "action_ua_verifications()",
+              "doc": "",
+              "module": "l10n_ua_metrology",
+              "file": "addons/l10n_ua_metrology/models/metrology.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_label",
+              "signature": "ua_label()",
+              "doc": "«Штангенциркуль ШЦ-I-150 № 1234, повірка до 10.01.2027» - для відповіді ВТК і паспорта.",
+              "module": "l10n_ua_metrology",
+              "file": "addons/l10n_ua_metrology/models/metrology.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_unfit_reason",
+              "signature": "ua_unfit_reason(day=None)",
+              "doc": "Чому засобом не можна міряти на дату; порожньо - можна.",
+              "module": "l10n_ua_metrology",
+              "file": "addons/l10n_ua_metrology/models/metrology.py",
+              "decorators": []
+            }
+          ],
+          "fields": [
+            {
+              "name": "ua_accuracy",
+              "type": "Char",
+              "label": "Клас точності, похибка",
+              "module": "l10n_ua_metrology",
+              "file": "addons/l10n_ua_metrology/models/metrology.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_conserved",
+              "type": "Boolean",
+              "label": "Законсервовано",
+              "module": "l10n_ua_metrology",
+              "file": "addons/l10n_ua_metrology/models/metrology.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_interval_months",
+              "type": "Integer",
+              "label": "Інтервал, міс.",
+              "module": "l10n_ua_metrology",
+              "file": "addons/l10n_ua_metrology/models/metrology.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_last_date",
+              "type": "Date",
+              "label": "Остання повірка",
+              "module": "l10n_ua_metrology",
+              "file": "addons/l10n_ua_metrology/models/metrology.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_last_result",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_metrology",
+              "file": "addons/l10n_ua_metrology/models/metrology.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_measure_range",
+              "type": "Char",
+              "label": "Діапазон вимірювань",
+              "module": "l10n_ua_metrology",
+              "file": "addons/l10n_ua_metrology/models/metrology.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_measuring",
+              "type": "Boolean",
+              "label": "Засіб вимірювальної техніки",
+              "module": "l10n_ua_metrology",
+              "file": "addons/l10n_ua_metrology/models/metrology.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_notify_days",
+              "type": "Integer",
+              "label": "Нагадати за, днів",
+              "module": "l10n_ua_metrology",
+              "file": "addons/l10n_ua_metrology/models/metrology.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_regulated",
+              "type": "Boolean",
+              "label": "Законодавчо регульований",
+              "module": "l10n_ua_metrology",
+              "file": "addons/l10n_ua_metrology/models/metrology.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_valid_until",
+              "type": "Date",
+              "label": "Придатний до",
+              "module": "l10n_ua_metrology",
+              "file": "addons/l10n_ua_metrology/models/metrology.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_verification_ids",
+              "type": "One2many",
+              "label": "ua.metrology.verification",
+              "module": "l10n_ua_metrology",
+              "file": "addons/l10n_ua_metrology/models/metrology.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
           "model": "mrp.area",
           "ours": false,
           "modules": [
@@ -8148,6 +8200,50 @@
           ]
         },
         {
+          "model": "mrp.routing.workcenter",
+          "ours": false,
+          "modules": [
+            "l10n_ua_metrology",
+            "l10n_ua_mrp",
+            "l10n_ua_piecework"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_checks",
+              "type": "Text",
+              "label": "Перевірка",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/mrp_routing_workcenter.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_instrument_ids",
+              "type": "Many2many",
+              "label": "maintenance.equipment",
+              "module": "l10n_ua_metrology",
+              "file": "addons/l10n_ua_metrology/models/mrp_quality.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_piece_rate",
+              "type": "Float",
+              "label": "Розцінка, грн за одиницю",
+              "module": "l10n_ua_piecework",
+              "file": "addons/l10n_ua_piecework/models/mrp_routing.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_steps",
+              "type": "Text",
+              "label": "Кроки",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/mrp_routing_workcenter.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
           "model": "mrp.workcenter",
           "ours": false,
           "modules": [
@@ -8169,6 +8265,67 @@
               "label": "Основна зарплата за годину",
               "module": "l10n_ua_defense",
               "file": "addons/l10n_ua_defense/models/product.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "mrp.workorder",
+          "ours": false,
+          "modules": [
+            "l10n_ua_metrology",
+            "l10n_ua_mrp",
+            "l10n_ua_piecework"
+          ],
+          "methods": [
+            {
+              "name": "ua_answer_check",
+              "signature": "ua_answer_check(index, result, note=None)",
+              "doc": "Як у l10n_ua_mrp, але «так» - лише придатними засобами вимірювання операції.",
+              "module": "l10n_ua_metrology",
+              "file": "addons/l10n_ua_metrology/models/mrp_quality.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_answer_check",
+              "signature": "ua_answer_check(index, result, note=None)",
+              "doc": "Записати відповідь на пункт перевірки. Повторна відповідь оновлює першу.",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/mrp_workorder.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_check_rows",
+              "signature": "ua_check_rows()",
+              "doc": "",
+              "module": "l10n_ua_metrology",
+              "file": "addons/l10n_ua_metrology/models/mrp_quality.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_check_rows",
+              "signature": "ua_check_rows()",
+              "doc": "Пункти перевірки наряду з відповідями.",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/mrp_workorder.py",
+              "decorators": []
+            }
+          ],
+          "fields": [
+            {
+              "name": "ua_check_ids",
+              "type": "One2many",
+              "label": "ua.workorder.check",
+              "module": "l10n_ua_mrp",
+              "file": "addons/l10n_ua_mrp/models/mrp_workorder.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_piecework_line_ids",
+              "type": "One2many",
+              "label": "ua.piecework.line",
+              "module": "l10n_ua_piecework",
+              "file": "addons/l10n_ua_piecework/models/mrp_routing.py",
               "groups": ""
             }
           ]

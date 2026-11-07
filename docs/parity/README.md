@@ -117,6 +117,7 @@ payload in our catalogues is a camera; nothing here covers munitions.
 | **Separate accounting of actual costs by contract** | постанова № 363: виконавець веде окремий облік фактичних витрат за контрактом | done: analytic account per contract, actual calculation from closed orders and bills, plan vs actual by item |
 | **Price calculation by the regulated cost items** (01 сировина ... 10 зворотні відходи, then overhead, admin, selling, financial, other, profit) | постанова КМУ № 309 (2021), пп. 11-13 | done: plan from BOM and routing with the contract's rates, printable with materials breakdown |
 | Acceptance by the customer's representative (військове приймання), quality records | contract terms | done: acceptance act per batch with serials; inspection checks on routing steps gate release and acceptance; results in the passport |
+| Measuring instruments: periodic verification (повірка) and calibration, certificates, schedule; quality checks only with fit instruments | Закон «Про метрологію та метрологічну діяльність»; intervals for legally regulated instruments set by the authority (a setting per instrument) | done: `l10n_ua_metrology` on native maintenance equipment: verification records with certificate and lab, validity, reminders, yearly schedule print; routing operations name their instruments, a "yes" answer is refused with an overdue, failed or conserved one, and the passport prints which instrument and verification were used |
 | Product passport / log per serial, spare parts kits (ЗІП) | contract terms | done: passport per serial with components' serials; ЗІП as a kit BOM in the drone pack |
 | Design changes agreed with the customer's representative, revision on every serial | contract terms; ЄСКД change-notice practice | done: `l10n_ua_eco`; the military representative signs when the product was made under a defense contract; the passport shows the revision |
 | Claims (рекламації) from units: deadlines, warranty, root cause, replacement, repeat failures | contract terms | done: `l10n_ua_claim`; the passport prints the claim history; a design cause opens a change notice |
@@ -146,7 +147,7 @@ change notices (`l10n_ua_eco`) and claims (`l10n_ua_claim`); electronic document
 (`l10n_ua_commission`); waybills and fuel (`l10n_ua_fleet`); multi-level production planning
 from defense delivery schedules (`l10n_ua_mrp_plan` on OCA `mrp_multi_level`); piece-rate pay
 from production output (`l10n_ua_piecework`); approved component substitutes (`l10n_ua_mrp_substitute`); advances and bank guarantees on
-contracts (`l10n_ua_guarantee`).
+contracts (`l10n_ua_guarantee`); measuring instruments and their verification (`l10n_ua_metrology`).
 
 Next, in this order:
 

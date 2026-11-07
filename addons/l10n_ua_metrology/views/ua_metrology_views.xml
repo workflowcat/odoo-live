@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Повірки і калібрування -->
+  <record id="view_ua_metrology_verification_list" model="ir.ui.view">
+    <field name="name">ua.metrology.verification.list</field>
+    <field name="model">ua.metrology.verification</field>
+    <field name="arch" type="xml">
+      <list string="Повірки і калібрування" decoration-danger="result == 'failed'">
+        <field name="date"/>
+        <field name="equipment_id"/>
+        <field name="kind"/>
+        <field name="result" widget="badge" decoration-success="result == 'passed'"
+               decoration-danger="result == 'failed'"/>
+        <field name="valid_until"/>
+        <field name="certificate"/>
+        <field name="provider_id" optional="show"/>
+        <field name="cost" optional="hide" sum="Разом"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_metrology_verification_form" model="ir.ui.view">
+    <field name="name">ua.metrology.verification.form</field>
+    <field name="model">ua.metrology.verification</field>
+    <field name="arch" type="xml">
+      <form string="Повірка або калібрування">
+        <sheet>
+          <group>
+            <group>
+              <field name="equipment_id"/>
+              <field name="kind"/>
+              <field name="date"/>
+              <field name="result"/>
+              <field name="valid_until" invisible="result != 'passed'" required="result == 'passed'"/>
+            </group>
+            <group>
+              <field name="certificate"/>
+              <field name="provider_id"/>
+              <field name="cost"/>
+              <field name="currency_id" groups="base.group_multi_currency"/>
+            </group>
+          </group>
+          <field name="note" placeholder="Умови, відхилення, що зроблено із засобом"/>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_metrology_verification_search" model="ir.ui.view">
+    <field name="name">ua.metrology.verification.search</field>
+    <field name="model">ua.metrology.verification</field>
+    <field name="arch" type="xml">
+      <search string="Повірки і калібрування">
+        <field name="equipment_id"/>
+        <field name="certificate"/>
+        <field name="provider_id"/>
+        <filter name="verification" string="Повірка" domain="[('kind', '=', 'verification')]"/>
+        <filter name="calibration" string="Калібрування" domain="[('kind', '=', 'calibration')]"/>
+        <separator/>
+        <filter name="failed" string="Непридатні" domain="[('result', '=', 'failed')]"/>
+        <filter name="this_year" string="Цього року" domain="[('date', '&gt;=', context_today().strftime('%Y-01-01'))]"/>
+        <group>
+          <filter name="by_equipment" string="Засіб" context="{'group_by': 'equipment_id'}"/>
+          <filter name="by_provider" string="Виконавець" context="{'group_by': 'provider_id'}"/>
+          <filter name="by_month" string="Місяць" context="{'group_by': 'date:month'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_metrology_verification" model="ir.actions.act_window">
+    <field name="name">Повірки і калібрування</field>
+    <field name="res_model">ua.metrology.verification</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Повірок ще немає</p>
+      <p>Запишіть повірку чи калібрування з номером свідоцтва: строк придатності засобу береться звідси.</p>
+    </field>
+  </record>
+
+  <!-- Засоби вимірювання на обладнанні -->
+  <record id="view_maintenance_equipment_form_ua_metrology" model="ir.ui.view">
+    <field name="name">maintenance.equipment.form.ua.metrology</field>
+    <field name="model">maintenance.equipment</field>
+    <field name="inherit_id" ref="maintenance.hr_equipment_view_form"/>
+    <field name="arch" type="xml">
+      <div name="button_box" position="inside">
+        <button name="action_ua_verifications" type="object" class="oe_stat_button" icon="fa-certificate"
+                invisible="not ua_measuring">
+          <div class="o_stat_info">
+            <span class="o_stat_text">Повірки</span>
+          </div>
+        </button>
+      </div>
+      <xpath expr="//group[@name='service_info_group']" position="after">
+        <group string="Метрологія" name="ua_metrology">
+          <group>
+            <field name="ua_measuring"/>
+            <field name="ua_regulated" invisible="not ua_measuring"/>
+            <field name="ua_measure_range" invisible="not ua_measuring"/>
+            <field name="ua_accuracy" invisible="not ua_measuring"/>
+            <field name="ua_interval_months" invisible="not ua_measuring"/>
+          </group>
+          <group invisible="not ua_measuring">
+            <field name="ua_metrology_state" widget="badge" decoration-success="ua_metrology_state == 'valid'"
+                   decoration-warning="ua_metrology_state in ('due_soon', 'none')"
+                   decoration-danger="ua_metrology_state in ('overdue', 'unfit')"/>
+            <field name="ua_last_date"/>
+            <field name="ua_valid_until"/>
+            <field name="ua_notify_days"/>
+            <field name="ua_conserved"/>
+          </group>
+        </group>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_ua_measuring_list" model="ir.ui.view">
+    <field name="name">maintenance.equipment.list.ua.measuring</field>
+    <field name="model">maintenance.equipment</field>
+    <field name="priority">30</field>
+    <field name="arch" type="xml">
+      <list string="Засоби вимірювання" decoration-danger="ua_metrology_state in ('overdue', 'unfit')"
+            decoration-warning="ua_metrology_state == 'due_soon'" decoration-muted="ua_metrology_state == 'conserved'">
+        <header>
+          <button name="action_ua_print_schedule" type="object" string="Графік повірки"/>
+        </header>
+        <field name="name"/>
+        <field name="model" optional="show"/>
+        <field name="serial_no"/>
+        <field name="ua_regulated" optional="show"/>
+        <field name="ua_measure_range" optional="hide"/>
+        <field name="ua_accuracy" optional="hide"/>
+        <field name="ua_interval_months" optional="show"/>
+        <field name="ua_last_date" optional="show"/>
+        <field name="ua_valid_until"/>
+        <field name="technician_user_id" optional="show" widget="many2one_avatar_user"/>
+        <field name="ua_metrology_state" widget="badge" decoration-success="ua_metrology_state == 'valid'"
+               decoration-warning="ua_metrology_state in ('due_soon', 'none')"
+               decoration-danger="ua_metrology_state in ('overdue', 'unfit')"/>
+        <field name="activity_ids" widget="list_activity" optional="show"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_measuring_search" model="ir.ui.view">
+    <field name="name">maintenance.equipment.search.ua.measuring</field>
+    <field name="model">maintenance.equipment</field>
+    <field name="inherit_id" ref="maintenance.hr_equipment_view_search"/>
+    <field name="arch" type="xml">
+      <xpath expr="//search" position="inside">
+        <separator/>
+        <filter name="ua_measuring" string="Засоби вимірювання" domain="[('ua_measuring', '=', True)]"/>
+        <filter name="ua_overdue" string="Строк повірки минув"
+                domain="[('ua_measuring', '=', True), ('ua_conserved', '=', False), '|', ('ua_valid_until', '=', False), ('ua_valid_until', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+        <filter name="ua_due_soon" string="Повірка за 30 днів"
+                domain="[('ua_measuring', '=', True), ('ua_valid_until', '&gt;=', context_today().strftime('%Y-%m-%d')), ('ua_valid_until', '&lt;=', (context_today() + relativedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+        <filter name="ua_by_valid_month" string="Місяць кінця строку" context="{'group_by': 'ua_valid_until:month'}"/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="action_ua_measuring" model="ir.actions.act_window">
+    <field name="name">Засоби вимірювання</field>
+    <field name="res_model">maintenance.equipment</field>
+    <field name="view_mode">list,form</field>
+    <field name="domain">[('ua_measuring', '=', True)]</field>
+    <field name="context">{'default_ua_measuring': True}</field>
+    <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'list', 'view_id': ref('view_ua_measuring_list')})]"/>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Засобів вимірювання ще немає</p>
+      <p>Штангенциркулі, мікрометри, мультиметри, динамометричні ключі: строк повірки, свідоцтво, нагадування.</p>
+    </field>
+  </record>
+</odoo>

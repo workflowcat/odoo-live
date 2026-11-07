@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_metrology_schedule" model="ir.actions.report">
+    <field name="name">Графік повірки і калібрування</field>
+    <field name="model">maintenance.equipment</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_metrology.report_ua_metrology_schedule</field>
+    <field name="report_file">l10n_ua_metrology.report_ua_metrology_schedule</field>
+    <field name="binding_model_id" ref="maintenance.model_maintenance_equipment"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Графік повірки ЗВТ'</field>
+  </record>
+
+  <template id="report_ua_metrology_schedule">
+    <t t-call="web.html_container">
+      <t t-call="web.basic_layout">
+        <t t-call="l10n_ua_defense.ua_defense_style"/>
+        <t t-set="rows" t-value="docs.filtered('ua_measuring').sorted(lambda e: (e.ua_valid_until or e.create_date.date(), e.name or ''))"/>
+        <div class="ua-doc">
+          <div class="ua-right">ЗАТВЕРДЖУЮ<br/>Керівник ______________ / ______________</div>
+          <h3>ГРАФІК ПОВІРКИ ТА КАЛІБРУВАННЯ ЗАСОБІВ ВИМІРЮВАЛЬНОЇ ТЕХНІКИ</h3>
+          <div class="ua-sub"><t t-out="(rows[:1].company_id or res_company).name"/></div>
+          <table class="ua-grid">
+            <thead>
+              <tr>
+                <th style="width: 4%;">№</th>
+                <th>Найменування, тип</th>
+                <th style="width: 10%;">Заводський номер</th>
+                <th style="width: 13%;">Діапазон, точність</th>
+                <th style="width: 10%;">Вид</th>
+                <th style="width: 7%;">Інтервал, міс.</th>
+                <th style="width: 9%;">Остання</th>
+                <th style="width: 9%;">Наступна</th>
+                <th style="width: 14%;">Відповідальний</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr t-foreach="rows" t-as="item">
+                <td style="text-align: center;"><t t-out="item_index + 1"/></td>
+                <td><t t-out="item.name"/><t t-if="item.model">, <t t-out="item.model"/></t></td>
+                <td><t t-out="item.serial_no or ''"/></td>
+                <td><t t-out="item.ua_measure_range or ''"/><t t-if="item.ua_accuracy">; <t t-out="item.ua_accuracy"/></t></td>
+                <td><t t-out="'повірка' if item.ua_regulated else 'калібрування'"/></td>
+                <td style="text-align: center;"><t t-out="item.ua_interval_months"/></td>
+                <td style="text-align: center;"><t t-out="item.ua_last_date and item.ua_last_date.strftime('%d.%m.%Y') or ''"/></td>
+                <td style="text-align: center;"><t t-out="item.ua_valid_until and item.ua_valid_until.strftime('%d.%m.%Y') or 'негайно'"/><t t-if="item.ua_conserved"> (законсервовано)</t></td>
+                <td><t t-out="(item.technician_user_id or item.owner_user_id).name or ''"/></td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="ua-sign">
+            <tr>
+              <td>Відповідальний за метрологічне забезпечення<br/><br/>______________ / ______________________</td>
+              <td></td>
+            </tr>
+          </table>
+        </div>
+      </t>
+    </t>
+  </template>
+
+  <!-- Паспорт виробу: чим міряли під час контролю -->
+  <template id="report_ua_product_passport_document_instruments"
+            inherit_id="l10n_ua_defense.report_ua_product_passport_document">
+    <xpath expr="//t[@t-out=&quot;check['note']&quot;]" position="after">
+      <t t-if="check.get('instruments')"><t t-if="check['note']"><br/></t>Чим міряли: <t t-out="check['instruments']"/></t>
+    </xpath>
+  </template>
+</odoo>
