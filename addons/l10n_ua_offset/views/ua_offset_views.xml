@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_debt_offset_list" model="ir.ui.view">
+    <field name="name">ua.debt.offset.list</field>
+    <field name="model">ua.debt.offset</field>
+    <field name="arch" type="xml">
+      <list string="Взаємозаліки" decoration-muted="state == 'cancel'">
+        <field name="name"/>
+        <field name="date"/>
+        <field name="partner_id"/>
+        <field name="receivable_contract_id" optional="hide"/>
+        <field name="payable_contract_id" optional="hide"/>
+        <field name="amount" sum="Разом"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="move_id" optional="show"/>
+        <field name="state" widget="badge" decoration-success="state == 'posted'"
+               decoration-info="state == 'draft'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_debt_offset_form" model="ir.ui.view">
+    <field name="name">ua.debt.offset.form</field>
+    <field name="model">ua.debt.offset</field>
+    <field name="arch" type="xml">
+      <form string="Взаємозалік">
+        <header>
+          <button name="action_fill" type="object" string="Заповнити" invisible="state != 'draft'"/>
+          <button name="action_post" type="object" string="Провести" class="oe_highlight"
+                  invisible="state != 'draft'"/>
+          <button name="action_print" type="object" string="Друк" invisible="state == 'cancel'"/>
+          <button name="action_cancel" type="object" string="Скасувати залік" invisible="state != 'posted'"
+                  confirm="Проведення буде скасовано, борги повернуться як були. Скасувати залік?"/>
+          <button name="action_reset_draft" type="object" string="У чернетку" invisible="state != 'cancel'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
+        </header>
+        <sheet>
+          <div class="oe_button_box" name="button_box">
+            <button name="action_open_move" type="object" class="oe_stat_button" icon="fa-book"
+                    invisible="not move_id" string="Проведення"/>
+          </div>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group string="Контрагент">
+              <field name="partner_id" readonly="state != 'draft'"/>
+              <field name="receivable_contract_id" readonly="state != 'draft'"/>
+              <field name="payable_contract_id" readonly="state != 'draft'"/>
+              <field name="amount_limit" readonly="state != 'draft'"/>
+            </group>
+            <group string="Документ">
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="journal_id" readonly="state != 'draft'"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+              <field name="currency_id" invisible="1"/>
+              <field name="move_id" invisible="not move_id"/>
+            </group>
+          </group>
+          <field name="line_ids" readonly="state != 'draft'">
+            <list editable="bottom">
+              <field name="side"/>
+              <field name="move_line_id" column_invisible="1"/>
+              <field name="document"/>
+              <field name="date"/>
+              <field name="contract_id" optional="show"/>
+              <field name="total"/>
+              <field name="amount" sum="Разом"/>
+              <field name="currency_id" column_invisible="1"/>
+            </list>
+          </field>
+          <group>
+            <group>
+              <field name="receivable_total"/>
+              <field name="payable_total"/>
+              <field name="amount"/>
+            </group>
+            <field name="note" placeholder="Що ще треба записати в акт"/>
+          </group>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_debt_offset_search" model="ir.ui.view">
+    <field name="name">ua.debt.offset.search</field>
+    <field name="model">ua.debt.offset</field>
+    <field name="arch" type="xml">
+      <search string="Взаємозаліки">
+        <field name="name"/>
+        <field name="partner_id"/>
+        <filter name="posted" string="Проведені" domain="[('state', '=', 'posted')]"/>
+        <filter name="draft" string="Чернетки" domain="[('state', '=', 'draft')]"/>
+        <filter name="date" string="Дата" date="date"/>
+        <group>
+          <filter name="by_partner" string="Контрагент" context="{'group_by': 'partner_id'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_debt_offset" model="ir.actions.act_window">
+    <field name="name">Взаємозаліки</field>
+    <field name="res_model">ua.debt.offset</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_ua_debt_offset_search"/>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Взаємозаліків ще немає</p>
+      <p>Оберіть контрагента, який і винен компанії, і має борг від неї, та натисніть
+        «Заповнити»: документи з обох боків і суми заліку підставляться самі.</p>
+    </field>
+  </record>
+
+  <menuitem id="menu_ua_debt_offset" name="Взаємозаліки" parent="l10n_ua_contract.menu_ua_contract_root"
+            action="action_ua_debt_offset" sequence="40"/>
+</odoo>

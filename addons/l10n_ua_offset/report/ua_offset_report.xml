@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_debt_offset" model="ir.actions.report">
+    <field name="name">Акт взаємозаліку</field>
+    <field name="model">ua.debt.offset</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_offset.report_ua_debt_offset</field>
+    <field name="report_file">l10n_ua_offset.report_ua_debt_offset</field>
+    <field name="binding_model_id" ref="model_ua_debt_offset"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Акт взаємозаліку %s' % (object.name or '')</field>
+  </record>
+
+  <template id="report_ua_debt_offset_side">
+    <table class="ua-grid">
+      <thead>
+        <tr>
+          <th style="width: 4%;">№</th>
+          <th>Документ</th>
+          <th style="width: 12%;">Дата</th>
+          <th style="width: 24%;">Договір</th>
+          <th style="width: 13%;">Сума документа</th>
+          <th style="width: 13%;">Зараховано</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr t-foreach="lines" t-as="line">
+          <td style="text-align: center;"><t t-out="line_index + 1"/></td>
+          <td><t t-out="line.document"/></td>
+          <td><t t-out="line.date and line.date.strftime('%d.%m.%Y')"/></td>
+          <td><t t-out="line.contract_id.display_name or '-'"/></td>
+          <td class="ua-num"><t t-out="doc.money(line.total)"/></td>
+          <td class="ua-num"><t t-out="doc.money(line.amount)"/></td>
+        </tr>
+        <tr class="ua-bold">
+          <td colspan="5">Разом</td>
+          <td class="ua-num"><t t-out="doc.money(sum(lines.mapped('amount')))"/></td>
+        </tr>
+      </tbody>
+    </table>
+  </template>
+
+  <template id="report_ua_debt_offset_document">
+    <t t-set="company" t-value="doc.company_id"/>
+    <t t-set="partner" t-value="doc.partner_id.commercial_partner_id"/>
+    <div class="page ua-doc">
+      <style>
+        .ua-doc { font-size: 10px; color: #000; }
+        .ua-doc h3 { font-size: 13px; text-align: center; margin: 4px 0; }
+        .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+        .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin: 6px 0; }
+        .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; }
+        .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+        .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+        .ua-doc .ua-bold td { font-weight: bold; }
+        .ua-doc .ua-sign { width: 100%; margin-top: 18px; }
+        .ua-doc .ua-sign td { width: 50%; vertical-align: top; padding-right: 12px; }
+      </style>
+      <h3>АКТ ВЗАЄМОЗАЛІКУ № <t t-out="doc.name"/></h3>
+      <div class="ua-sub">зарахування зустрічних однорідних вимог від
+        <t t-out="doc.date.strftime('%d.%m.%Y')"/></div>
+      <p>
+        <strong t-out="company.name"/> (код за ЄДРПОУ <t t-out="company.company_registry or '-'"/>),
+        далі - Сторона 1, і <strong t-out="partner.name"/> (код
+        <t t-out="partner.company_registry or partner.vat or '-'"/>), далі - Сторона 2, керуючись
+        статтею 601 Цивільного кодексу України, домовились зарахувати зустрічні однорідні вимоги,
+        строк виконання яких настав.
+      </p>
+      <p>1. Сторона 2 має перед Стороною 1 заборгованість за такими документами:</p>
+      <t t-set="lines" t-value="doc.side_lines('receivable')"/>
+      <t t-call="l10n_ua_offset.report_ua_debt_offset_side"/>
+      <p>2. Сторона 1 має перед Стороною 2 заборгованість за такими документами:</p>
+      <t t-set="lines" t-value="doc.side_lines('payable')"/>
+      <t t-call="l10n_ua_offset.report_ua_debt_offset_side"/>
+      <p>3. Сторони зараховують зустрічні вимоги на суму <strong t-out="doc.money(doc.amount)"/>
+        (<t t-out="doc.amount_words()"/>). Після заліку заборгованість кожної сторони за наведеними
+        документами зменшується на цю суму.</p>
+      <p>4. Акт складено у двох примірниках, по одному для кожної сторони. Він набирає чинності з
+        дня підписання.</p>
+      <p t-if="doc.note"><t t-out="doc.note"/></p>
+      <table class="ua-sign">
+        <tr>
+          <td>Сторона 1<br/><t t-out="company.name"/><br/><br/>______________ / ______________________</td>
+          <td>Сторона 2<br/><t t-out="partner.name"/><br/><br/>______________ / ______________________</td>
+        </tr>
+      </table>
+    </div>
+  </template>
+
+  <template id="report_ua_debt_offset">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_offset.report_ua_debt_offset_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

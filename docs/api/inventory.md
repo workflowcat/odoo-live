@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 59. Моделей: 129. Методів: 452. Збережених полів на чужих моделях: 318.
+Модулів: 60. Моделей: 130. Методів: 463. Збережених полів на чужих моделях: 318.
 
 ## Зарплата
 
@@ -1338,6 +1338,24 @@
 | `action_reset_draft()` | - | `l10n_ua_customs` |
 | `action_view_landed_cost()` | - | `l10n_ua_customs` |
 | `action_view_vat_move()` | - | `l10n_ua_customs` |
+
+### `ua.debt.offset`
+
+наша модель · `l10n_ua_offset`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | - | `l10n_ua_offset` |
+| `action_fill()` | Заповнити документ відкритими сумами обох сторін. | `l10n_ua_offset` |
+| `action_open_move()` | - | `l10n_ua_offset` |
+| `action_post()` | - | `l10n_ua_offset` |
+| `action_print()` | - | `l10n_ua_offset` |
+| `action_reset_draft()` | - | `l10n_ua_offset` |
+| `amount_words()` | - | `l10n_ua_offset` |
+| `document_label(move)` | - | `l10n_ua_offset` |
+| `money(amount)` | 1 240,50 - сума для друку. | `l10n_ua_offset` |
+| `open_amounts()` | Скільки зараз відкрито з кожного боку: (борг контрагента, борг компанії). | `l10n_ua_offset` |
+| `side_lines(side)` | - | `l10n_ua_offset` |
 
 ### `ua.defense.acceptance`
 

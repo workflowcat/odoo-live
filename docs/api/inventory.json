@@ -1,8 +1,8 @@
 {
   "totals": {
-    "modules": 59,
-    "models": 129,
-    "methods": 452,
+    "modules": 60,
+    "models": 130,
+    "methods": 463,
     "fields": 318
   },
   "areas": [
@@ -6031,6 +6031,108 @@
               "doc": "",
               "module": "l10n_ua_customs",
               "file": "addons/l10n_ua_customs/models/ua_customs_declaration.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.debt.offset",
+          "ours": true,
+          "modules": [
+            "l10n_ua_offset"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_offset",
+              "file": "addons/l10n_ua_offset/models/ua_debt_offset.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill",
+              "signature": "action_fill()",
+              "doc": "Заповнити документ відкритими сумами обох сторін.",
+              "module": "l10n_ua_offset",
+              "file": "addons/l10n_ua_offset/models/ua_debt_offset.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_move",
+              "signature": "action_open_move()",
+              "doc": "",
+              "module": "l10n_ua_offset",
+              "file": "addons/l10n_ua_offset/models/ua_debt_offset.py",
+              "decorators": []
+            },
+            {
+              "name": "action_post",
+              "signature": "action_post()",
+              "doc": "",
+              "module": "l10n_ua_offset",
+              "file": "addons/l10n_ua_offset/models/ua_debt_offset.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_offset",
+              "file": "addons/l10n_ua_offset/models/ua_debt_offset.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reset_draft",
+              "signature": "action_reset_draft()",
+              "doc": "",
+              "module": "l10n_ua_offset",
+              "file": "addons/l10n_ua_offset/models/ua_debt_offset.py",
+              "decorators": []
+            },
+            {
+              "name": "amount_words",
+              "signature": "amount_words()",
+              "doc": "",
+              "module": "l10n_ua_offset",
+              "file": "addons/l10n_ua_offset/models/ua_debt_offset.py",
+              "decorators": []
+            },
+            {
+              "name": "document_label",
+              "signature": "document_label(move)",
+              "doc": "",
+              "module": "l10n_ua_offset",
+              "file": "addons/l10n_ua_offset/models/ua_debt_offset.py",
+              "decorators": [
+                "staticmethod"
+              ]
+            },
+            {
+              "name": "money",
+              "signature": "money(amount)",
+              "doc": "1 240,50 - сума для друку.",
+              "module": "l10n_ua_offset",
+              "file": "addons/l10n_ua_offset/models/ua_debt_offset.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "open_amounts",
+              "signature": "open_amounts()",
+              "doc": "Скільки зараз відкрито з кожного боку: (борг контрагента, борг компанії).",
+              "module": "l10n_ua_offset",
+              "file": "addons/l10n_ua_offset/models/ua_debt_offset.py",
+              "decorators": []
+            },
+            {
+              "name": "side_lines",
+              "signature": "side_lines(side)",
+              "doc": "",
+              "module": "l10n_ua_offset",
+              "file": "addons/l10n_ua_offset/models/ua_debt_offset.py",
               "decorators": []
             }
           ],

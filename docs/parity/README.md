@@ -26,6 +26,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | NBU rates, FX differences | done | `l10n_ua_nbu` + native |
 | **Counterparty contracts** (settlements by contract, currency, limits) | done | `l10n_ua_contract`: contract on invoices, payments and orders, limits that warn or block, analytic per contract |
 | **Reconciliation act** with a counterparty (акт звірки) | done | `l10n_ua_contract`: by partner or contract, two-sided print form, agreed or disputed |
+| Mutual offset of debts (взаємозалік) | done | `l10n_ua_offset`: open customer and vendor debts of one counterparty (by contract if chosen), oldest first, one entry 63 to 36 reconciled with the documents it closes, two-sided act under article 601 of the Civil Code, cancel restores the debts; UAH only |
 | Month-end closing assistant (закриття місяця) | yes | `l10n_ua_close`: depreciation, FX revaluation with reversal, overhead 91, 7/9 to 79, 79 to 44 in order, with undo; period lock and change review in `l10n_ua_changes` |
 | Property and land tax, environmental tax | gap | low priority; returns as XML |
 | Statistical reports (Держстат) | gap | low priority |

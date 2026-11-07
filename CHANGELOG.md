@@ -140,6 +140,12 @@ Notable changes for people who run or build on this code. Module-level API chang
   prints for three parties with the amount in words, and marks the serials: the product passport shows the
   unit and the act, and a serial cannot be handed over twice. Partners get a military-unit flag and code.
   Tests: `ua_unit_transfer`.
+- `l10n_ua_offset`: mutual offset of debts (взаємозалік) with one counterparty. "Fill" takes the open
+  customer debts (36) and vendor debts (63) of the partner, by contract if chosen, oldest first, up to the
+  smaller side or a set limit. Posting makes one entry Дт 63 Кт 36 whose lines are reconciled with the
+  documents they close, so the usual debt reports drop; the act under article 601 of the Civil Code lists
+  the documents of both sides with the amount in words. Cancel unreconciles and cancels the entry. UAH
+  debts only. Tests: `ua_offset`.
 
 ### Changed
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number
