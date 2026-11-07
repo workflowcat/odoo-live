@@ -55,6 +55,7 @@ services:
       ODOO_ADMIN_PASSWD: ${ODOO_ADMIN_PASSWD:-}
       BP_BRIDGE_URL: ${BP_BRIDGE_URL:-https://odoo-live.botpartners.workers.dev}
       BP_BRIDGE_TOKEN: ${BP_BRIDGE_TOKEN:-}
+      UA_KP_URL: ${UA_KP_URL:-https://profkod.botpartners.workers.dev}
     ports:
       # лише петля: назовні пускає тільки Cloudflare Tunnel
       - "127.0.0.1:${ODOO_HTTP_PORT:?ODOO_HTTP_PORT не заданий}:8069"

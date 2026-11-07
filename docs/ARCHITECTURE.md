@@ -1,113 +1,90 @@
-# How odoo-live is built, how it works, how to build on it
+# Architecture
 
-> Стан на 2026-09-22: Supabase і Cloudflare Containers більше не використовуються. База живе в Postgres
-> поруч з Odoo (локально на Mac; далі staging і prod на одному сервері Hetzner, Cloudflare Tunnel + Access як
-> вхідні двері). З Cloudflare лишається лише міст `odoo-live`. Розділи нижче про Supabase - історія.
+How odoo-live is put together and where to add things. Domain specs (payroll, accounting, documents)
+are in `docs/payroll/` and `docs/base/`, in Ukrainian.
 
 ## The shape
 
-Three layers. Each one can be replaced without touching the others.
-
 ```
-   people ──▶ Odoo 19 (compute, stateless)  ──▶ Postgres on Supabase (the live data)
-                    │
-                    │ one token, one URL
-                    ▼
-            Cloudflare Worker "odoo-live" (the bridge)
-              ├── /api/odb/*   OpenDataBot  (ЄДР, courts)         key: OPENDATABOT_API_KEY
-              ├── /api/kyc/*   kyc-service  (group KYC register)   key: KYC_API_KEY, service binding
-              └── /health      + call log and a 24h cache in D1
+ people ──▶ Odoo 19 CE web client (standard views, Ukrainian words)
+                │
+                ▼
+     ┌──────────────────────────────────────────────────────────────┐
+     │ our layer   l10n_ua_* (Ukrainian rules)   bp_* (integrations) │
+     │ OCA 19.0    payroll, mis_builder, bank-statement-import, ...  │  addons/ (one addons path)
+     │ Odoo 19 CE  account, hr, hr_holidays, stock, mrp, purchase... │
+     └──────────────────────────────────────────────────────────────┘
+                │                                 │ optional, one token
+                ▼                                 ▼
+          PostgreSQL 17                  bridge Worker (worker/): state register,
+          (data and attachments)         KYC register; any other outside service
 ```
 
-**Odoo is compute, not storage.** The live database is on Supabase. Attachments are stored inside Postgres
-(`ir_attachment.location = db`), so an Odoo container has nothing of value on its disk and can be killed,
-moved, or started on another host. Today the container runs on a Mac (`docker-compose.live.yml`).
-The same image (`odoo/Dockerfile`, `odoo/entrypoint.sh`) is ready for Cloudflare Containers
-(`worker/wrangler.containers.jsonc`); that needs the Workers Paid plan.
+Outside clients (a separate UI, scripts, the employee assistant) talk to Odoo over its JSON-RPC API.
+The supported surface for them is the model `ua.api` (`l10n_ua_api`), described in `docs/api/` and
+checked against the code by `scripts/contract_check.py`.
 
-**The bridge is the only door to the outside.** Odoo never holds a vendor key. It holds one URL and one
-token (`BP_BRIDGE_URL`, `BP_BRIDGE_TOKEN`; the fallback config parameters are `bp_bridge.url` and
-`bp_bridge.token`, with the older `bp_kyc.bridge_url` / `bp_kyc.bridge_token` still read). The Odoo side is
-one module, `addons/bp_bridge`: the abstract model `bp.bridge`, no screens, `base` its only dependency.
-Every module that needs an outside call depends on it - `bp_kyc`, `l10n_ua_partner_edr`,
-`bp_purchase_intake`. The Worker holds the OpenDataBot key and the kyc-service key,
-normalizes vendor answers into one shape, caches paid lookups for 24 hours, and logs every call
-(route, status, milliseconds) in D1. Any future product on Odoo, or any non-Odoo tool, reuses the same
-bridge routes. A new vendor is a new route in `worker/src/index.js`, not a change in Odoo.
+## Rules that keep it maintainable
 
-**kyc-service stays the source of truth for KYC subjects.** Odoo runs the process; the decision is written
-into the register through the bridge (`POST /subjects`, `PATCH /subjects/:id`, `POST /subjects/:id/risks`).
-The register keeps its append-only log; Odoo keeps the case file.
+1. **Native first.** Our modules extend Odoo and OCA models; they do not copy them. Payroll runs on the
+   OCA `payroll` engine (structures, rules, payslips); Ukrainian rules are salary rules as data plus
+   dated parameters (`ua.payroll.param`: minimum wage, subsistence minimum, rates).
+2. **OCA unchanged.** Vendored at a pinned commit (`addons/OCA_*.commit`); only Ukrainian translations
+   are ours (`addons/OCA_translations.md`).
+3. **Logic apart from interface.** Logic modules have no JavaScript and no menus. `l10n_ua_navigation`
+   depends on everything, owns the three Ukrainian menu sections and the Ukrainian words of standard
+   screens (`data/terms_uk.json`, applied by `hooks.py`). Installing it installs the product.
+4. **Every number is tested.** `l10n_ua_payroll_tests` holds the golden scenarios
+   (`golden/scenarios.json`) and cross-module tests; each logic module also tests itself under its own
+   `ua_<area>` tag. `reference/payroll_core` recomputes payroll independently of Odoo to cross-check.
+5. **Changes are explained.** `l10n_ua_changes` records who changed what in payroll, HR and money
+   fields; `l10n_ua_explain` stores how each payslip line was computed.
 
-## The KYC process (addons/bp_kyc)
+## Areas
 
-Models: `kyc.case` (the file), `kyc.screening` (one finding per row), `res.partner` extension
-(ЄДРПОУ, latest decision and risk, smart button).
+| Area | What it adds on top of Odoo and OCA |
+| --- | --- |
+| Payroll | Ukrainian salary rules (PDFO, military levy, ESV), average earnings (Resolution 100), indexation, civil contracts (GPH), postings, salary payment orders, payslip explanation |
+| HR | personal card P-2, HR orders that post HR events, hiring case from candidate to filed notice, military registration, profession codes (KP), onboarding import |
+| Tax reports | unified payroll tax report with annexes and DPS XML, VAT periods and tax invoices, profit tax return, income certificates |
+| Accounting | Ukrainian chart names and short codes, trial balance and account cards, balance sheet and P&L (mis_builder), group consolidation, fixed asset tax groups, NBU exchange rates |
+| Money | bank statement import (CSV, PrivatBank, Monobank APIs), cash orders and cash book |
+| Documents | invoice for payment, service act, delivery note, waybill, inventory lists, production costing |
+| Small business | FOP income book, migration of counterparties and opening balances, first-run questionnaire |
+| Purchasing | supplier risk, supplier invoices from email (`bp_purchase_intake`: PDF text, optional AI reading, a draft bill held until the supplier is verified) |
+| Counterparties | fill a partner from the state register by EDRPOU (`l10n_ua_partner_edr`), KYC cases (`bp_kyc`) |
 
-Stages: Нова → Збір даних → Скринінг → Оцінка → Рішення. Buttons on the case:
+## Outside services
 
-1. **Скринінг ЄДР** — `GET /api/odb/screen/{code}`. Fills the ЄДР tab (name, status, date, КВЕД, head,
-   address, capital, ПДВ, beneficiaries) and creates one screening row per marker: tax debt, sanctions,
-   bankruptcy, status, undisclosed beneficiaries, foreign beneficiaries, registration under one year.
-   Severity: info / warn / high. Suggests a risk level if none is set.
-2. **Судові рішення** — `GET /api/odb/court?text=` (billable, on demand). One row with the count and the
-   first ten decisions; high when ten or more.
-3. **Запит документів** — sends the Ukrainian document-request template to the partner email, queues it
-   in the Odoo mail queue, moves the case to Збір даних.
-4. **Погодити / Погодити з умовами / Відхилити** — needs a risk level. Sets the decision, stamps who and
-   when, and syncs the register: creates or updates subject `edrpou-<code>` with recommendation, risk,
-   group, role, who introduced the partner, and the summary; pushes every high marker as a named risk.
-   Sends the decision template unless rejected.
-5. **Чек-лист** — five booleans the analyst confirms (ЄДР, ownership, sanctions, courts, documents).
+Odoo never holds a vendor key. Modules that need the outside world call `env["bp.bridge"]._call()`
+(`bp_bridge`): one URL and one token from `BP_BRIDGE_URL` / `BP_BRIDGE_TOKEN` (or the system
+parameters `bp_bridge.url` / `bp_bridge.token`). The call is private (not reachable over RPC), allows only
+`/api/...` paths on the configured host, and the caller checks the user's rights. The reference bridge
+is the Cloudflare Worker in `worker/`; any HTTP service with the same routes works.
 
-Groups: Аналітик (read, write, create) and Менеджер (delete too). Sequence `KYC/2026/0001`.
+Other optional services, each read from the environment and off when unset: profession codes
+(`UA_KP_URL`), document photo reading during hiring (`UA_EXTRACT_URL`), AI reading of invoices
+(`CF_ACCOUNT_ID`, `CF_API_TOKEN`, `BP_AI_MODEL`). Public sources are called directly: NBU rates, bank APIs
+with the token stored on the statement provider.
 
-## Mail
+## Running it
 
-Outgoing: an `ir.mail_server` record for `smtp.gmail.com:587` (STARTTLS, `au@bot-partners.com`) exists but is
-inactive until a Gmail app password is pasted in. Incoming: a `fetchmail.server` record for
-`imap.gmail.com:993` exists, inactive, same credential. Activate both and the two KYC templates go out and
-replies thread into the case. Alternative: Odoo's Google OAuth module (`google_gmail`) with an OAuth client;
-it needs a consent click by the mailbox owner. `bot-partners.com` DNS is not on Cloudflare, so Cloudflare
-Email Routing is not an option today.
+- **Development:** `docker-compose.yml` - Postgres 17 and the official `odoo:19` image with `addons/`
+  mounted. Tests create and drop their own database (`scripts/test.sh`).
+- **Demo:** `scripts/demo_server.sh` builds a `demo` database with every module; `scripts/demo_*.py`
+  fill it with invented companies over JSON-RPC (idempotent: run again to top up).
+- **Server:** `deploy/` - one way to run staging and production on a single Linux host with Docker
+  Compose: an image with our addons baked in, `deploy.sh <staging|prod> [ref]`, backups, restore.
 
-## Where things live
+## Adding a module
 
-| What | Where |
-|---|---|
-| Odoo admin login and master password, Supabase DB password, bridge token | `.env` on the Mac (gitignored) |
-| Worker secrets | Cloudflare (`wrangler secret put`) |
-| Bridge call log, OpenDataBot cache | D1 `odoo-demo-link`, tables `calls`, `odb_cache` |
-| Live database | Supabase `odoo-live`, database `odoo`, role `odoo` through the session pooler (port 5432, SSL) |
-| Backups | `pg_dump` through the pooler; Supabase keeps daily backups on paid plans only |
+1. `addons/l10n_ua_<area>/` with `"version": "19.0.1.0.0"`, `"license": "LGPL-3"` (AGPL-3 if you build on
+   an AGPL module and prefer to match it), `"author": "Bot&Partners"` plus yourself.
+2. Depend on the smallest set of Odoo/OCA modules; add the module to `l10n_ua_navigation`'s `depends`.
+3. Menus and Ukrainian words go to `l10n_ua_navigation`, not your module.
+4. Tests in `addons/<module>/tests/`, tagged `ua_<area>`; add the tag to `scripts/test_full.sh`.
+5. If outside clients need it, expose it through `ua.api` and document it in `docs/api/`.
 
-## How to build the next product on it
-
-1. New Odoo module in `addons/<name>/` with `"version": "19.0.x.y.z"`. Odoo 19 rules that bit us:
-   groups need a `res.groups.privilege` (`privilege_id`, not `category_id`); search-view `<group>` takes no
-   `expand`/`string`; kanban cards use `<t t-name="card">`; a search filter needs a stored field.
-2. New outside system: add a route under `/api/<vendor>/` in `worker/src/index.js`, put its key in a Worker
-   secret, keep the response shape flat and stable. If the vendor is another Worker in this account, call it
-   through a service binding (a plain fetch to `*.workers.dev` from a Worker is refused, error 1042).
-3. Odoo calls the bridge through `env["bp.bridge"]._call(method, path, payload)` (private: not callable over RPC, the caller checks the user's rights; only `/api/...` paths on the configured host). Reuse it: depend on
-   `bp_bridge`, not on `bp_kyc`.
-4. Test locally (`docker compose up -d`, port 8100), then update the live instance
-   (`docker compose -f docker-compose.live.yml run --rm odoo-live odoo -d odoo -u <module> --stop-after-init`).
-5. Deploy order: Worker first (`wrangler deploy`), then the module, so Odoo never calls a route that does
-   not exist yet.
-
-## Moving compute off the Mac
-
-Cloudflare Containers: upgrade to Workers Paid, then `cd worker && wrangler deploy -c wrangler.containers.jsonc`.
-Set the container secrets `PGHOST`, `PGUSER`, `PGPASSWORD`, `ODOO_ADMIN_PASSWD` (same values as `.env`).
-The Worker then routes everything that is not `/api/*` to the container; the bridge routes stay as they are.
-Any VPS works the same way: `docker compose -f docker-compose.live.yml up -d` with the `.env` values.
-
-## Known limits
-
-- Free-tier ceilings hit while building: Cloudflare KV daily writes, the D1 database count, Containers and
-  R2 locked behind Workers Paid. The bridge therefore shares the D1 of the old demo link.
-- The session pooler adds one round trip per query between the Mac and Frankfurt; a Container in Western
-  Europe cuts that to a few milliseconds.
-- Supabase free projects pause after a week without traffic; the Odoo cron keeps it awake while the
-  compute runs.
+Odoo 19 details that bit us: groups need a `res.groups.privilege` (`privilege_id`, not `category_id`);
+a search view `<group>` takes no `expand`/`string`; kanban cards use `<t t-name="card">`; a search filter
+needs a stored field; model constraints are `models.Constraint(...)` class attributes.

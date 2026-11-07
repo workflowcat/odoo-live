@@ -1,0 +1,40 @@
+name: Wrong number
+description: A tax, payroll or report figure does not match Ukrainian rules
+labels: [numbers]
+body:
+  - type: markdown
+    attributes:
+      value: Numbers change only when an accountant confirms them, so please give the rule behind yours.
+  - type: input
+    id: where
+    attributes:
+      label: Where
+      placeholder: payslip line ESV, golden scenario 12, VAT declaration annex 1...
+    validations:
+      required: true
+  - type: textarea
+    id: case
+    attributes:
+      label: The case
+      description: Salary, dates, days, employee status - everything that goes into the number.
+    validations:
+      required: true
+  - type: input
+    id: got
+    attributes:
+      label: Number in odoo-live
+    validations:
+      required: true
+  - type: input
+    id: expected
+    attributes:
+      label: Correct number
+    validations:
+      required: true
+  - type: textarea
+    id: rule
+    attributes:
+      label: Rule
+      description: Law and article, tax service letter or consultation (a link helps).
+    validations:
+      required: true

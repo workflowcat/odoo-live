@@ -19,7 +19,8 @@ import urllib.request
 
 from odoo import api, fields, models
 
-SERVICE_URL = os.environ.get("UA_KP_URL", "https://profkod.botpartners.workers.dev")
+# Адреса служби класифікатора; без UA_KP_URL підказки вимкнені, довідник працює сам.
+SERVICE_URL = os.environ.get("UA_KP_URL", "")
 SERVICE_TIMEOUT = 6
 UNAVAILABLE = "Служба кодів професій недоступна"
 
@@ -54,6 +55,8 @@ class UaKpCode(models.Model):
     def _service_get(self, path, params=None):
         """Запит до служби. Недоступна - повертаємо None, а не падаємо: прийняття
         на роботу не має спинятися через те, що зовнішня служба мовчить."""
+        if not SERVICE_URL:
+            return None
         url = "%s%s" % (SERVICE_URL.rstrip("/"), path)
         if params:
             url = "%s?%s" % (url, urllib.parse.urlencode(params))

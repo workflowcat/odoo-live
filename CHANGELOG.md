@@ -1,0 +1,24 @@
+# Changelog
+
+Notable changes for people who run or build on this code. Module-level API changes are in
+`docs/api/CHANGELOG.md`. Dates are YYYY-MM-DD.
+
+## Unreleased
+
+### Added
+- Open-source groundwork: LICENSE and license texts, README in English and Ukrainian, CONTRIBUTING,
+  SECURITY, CODE_OF_CONDUCT, MAINTAINERS, issue and pull request templates, `docs/open-source-plan.md`.
+- `scripts/check_static.sh` (all checks without Docker) and `scripts/test_full.sh` (what CI runs).
+- `scripts/manifest_check.py`: manifests, licenses, pinned OCA sources, no defaults pointing at our servers.
+- `addons/OCA_payroll.commit`: the vendored OCA payroll engine is now pinned (OCA/payroll 19.0 at 0d1b4b7).
+
+### Changed
+- The newest work from `show/ua-polish` (Ukrainian words, guest access, show database, deploy fixes)
+  is now on `main`.
+- `l10n_ua_kp`: profession code suggestions are off unless `UA_KP_URL` is set (it pointed at our
+  service by default).
+- `docker-compose.yml`: `BP_BRIDGE_URL` comes from `.env` and is empty by default.
+- `.env.example`: comments on their own lines (inline comments ended up inside values).
+
+### Removed
+- `docker-compose.live.yml` and the Supabase setup it described (unused since 2026-09-22).

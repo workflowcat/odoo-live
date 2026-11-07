@@ -78,7 +78,7 @@ one2many / many2many, `related`, `compute`), `ir.model.data` (xml id → мод�
 ## Перші кроки для агента
 
 1. Прочитати `README.md`, `CLAUDE.md`, `docs/api/README.md`, `docs/base/demo-space-plan.md`,
-   `docs/base/review-2026-09-21.md`.
+   `docs/archive/review-base-2026-09-21.md`.
 2. Підняти власну демо-базу (команда вище), переконатися, що `call_kw` під `admin` працює.
 3. Екстрактор: модулі + моделі + поля + залежності → перший `snapshot.json`; звірити кількості
    з `inventory.json` (36 модулів наших, 87 моделей, 251 метод, 233 поля станом на 2026-09-22).

@@ -1,61 +1,123 @@
 # odoo-live
 
-Український бек-офіс на Odoo 19 Community для Bot&Partners: зарплата і кадри, бухоблік з ПДВ,
-банк і каса, основні засоби, фінзвітність, первинні документи, ФОП, закупівлі з розбором рахунків,
-KYC і ЄДР. Одна гілка `main`, одна система.
+A Ukrainian back office on plain Odoo 19 Community: payroll and HR, accounting with VAT, bank and
+cash, fixed assets, financial statements, primary documents, sole-proprietor (FOP) books, purchasing
+with invoice intake, and counterparty checks. Free software: fork it, run it, build on it.
 
-Правила: спершу нативний Odoo, потім OCA 19.0 без змін, наше українське - тонко зверху.
-Інтерфейс - голий Odoo: стандартні списки, форми, кнопки і чарівники, меню в одному
-модулі (`scripts/layers_check.py` стежить). Кожен модуль ставиться на
-порожню базу і має справжні Odoo-тести. Гроші звіряються з одним файлом чисел, який підтверджує
-бухгалтер.
+*Українською - нижче.*
 
-## Швидкий старт
+**Status:** active development, used for demos and pilots. The tax and payroll numbers follow Ukrainian
+rules as of 2026 and are tested against golden scenarios an accountant confirmed
+([docs/payroll/golden-scenarios.md](docs/payroll/golden-scenarios.md)). Nothing here is tax or legal
+advice: have your accountant check the numbers before you rely on them.
+
+## How it is built
+
+1. **Native Odoo first.** Standard lists, forms, buttons and wizards. No custom web client.
+2. **OCA 19.0 next, unchanged.** 24 OCA modules are vendored at pinned commits (`addons/OCA_*.commit`).
+3. **Our Ukrainian layer, thin on top.** 42 `l10n_ua_*` modules and 3 `bp_*` integration modules.
+   Logic modules carry no custom JavaScript; menus live in one module, `l10n_ua_navigation`.
+4. **Every module installs on an empty database and has Odoo tests.** Money is checked against one file
+   of numbers ([golden/scenarios.json](addons/l10n_ua_payroll_tests/golden/scenarios.json)).
+
+More: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## Quick start
+
+You need Docker with Compose v2 and Python 3.9+ (the helper scripts use the standard library).
 
 ```bash
-cp .env.example .env                 # заповнити; .env не в репозиторії
-./scripts/demo_server.sh reset       # база demo з усіма модулями, сервер на http://127.0.0.1:8131
-python3 scripts/demo_business.py     # ТОВ «Ясен Меблі»: зарплата, продажі, склад, виробництво, ПДВ, банк, каса, ОЗ
-./scripts/test.sh                    # еталонні тести зарплати на свіжій базі (~25 с)
-TEST_TAGS=ua_golden,ua_leaves,ua_payments,ua_regress,ua_changes,ua_period,ua_checks,ua_hire,ua_reporting,ua_setup,ua_bank,ua_card,ua_documents,ua_security ./scripts/test.sh
-./scripts/check_all.sh               # перевірки стенду (docker compose up -d, порт ODOO_PORT з .env)
+git clone https://github.com/workflowcat/odoo-live.git
+cd odoo-live
+cp .env.example .env          # set ODOO_ADMIN_USER_PASSWORD and ODOO_ADMIN_PASSWD (any values locally)
+./scripts/demo_server.sh reset # database "demo" with every module, on http://127.0.0.1:8131
+python3 scripts/demo_business.py   # a made-up furniture company: payroll, sales, stock, VAT, bank, cash, assets
 ```
 
-Повне встановлення продукту на порожню базу: `-i l10n_ua_navigation` (тягне все).
+Log in as `admin` with `ODOO_ADMIN_USER_PASSWORD`. The interface is Ukrainian; the demo company,
+people and documents are invented.
 
-## Що де
+To install the product on your own database: `-i l10n_ua_navigation` pulls in every module.
 
-| Шар | Модулі |
+## Tests and checks
+
+```bash
+./scripts/check_static.sh   # no Docker: layers, API contract, UI words, manifests and licenses
+./scripts/test.sh           # payroll golden scenarios on a fresh database
+./scripts/test_full.sh      # everything CI runs: all modules, all test tags, fresh database
+```
+
+GitHub Actions runs `check_static.sh` and `test_full.sh` on every push to `main` and on pull requests.
+
+## What is where
+
+| Area | Modules |
 | --- | --- |
-| Міст назовні | `bp_bridge` (клієнт), Worker `worker/` (OpenDataBot, kyc-service) |
-| Контрагенти | `l10n_ua_partner_edr`, `bp_kyc` |
-| Зарплата | `l10n_ua_payroll_rules`, `l10n_ua_average`, `l10n_ua_index`, `l10n_ua_gph`, `l10n_ua_payroll_account`, `l10n_ua_payments` (на OCA `account_payment_order`) |
-| Кадри | `l10n_ua_hr_card`, `l10n_ua_hr_orders`, `l10n_ua_hr_docs`, `l10n_ua_military`, `l10n_ua_kp`, `l10n_ua_onboarding`, `l10n_ua_hire` |
-| Звітність ДПС | `l10n_ua_payroll_reports`, `l10n_ua_reporting` |
-| Контроль | `l10n_ua_changes`, `l10n_ua_explain`, перевірки `ua.checks.mixin` |
-| Бухоблік | `l10n_ua_chart`, `l10n_ua_vat`, `l10n_ua_ledger`, `l10n_ua_finrep` (mis_builder), `l10n_ua_assets` (account_asset_management), `l10n_ua_nbu` (currency_rate_update), `l10n_ua_cash`, `l10n_ua_bank`, `l10n_ua_bank_online`, `l10n_ua_docs` (+ `_sale`, `_stock`), `l10n_ua_fop`, `l10n_ua_migrate` |
-| Закупівлі | `bp_purchase_intake` |
-| Інтерфейс | стандартні подання Odoo; `l10n_ua_navigation` - три розділи меню (Зарплата, Кадри, Звітність) і українські назви довідників; `l10n_ua_screen` - спільні хелпери моделей (без екранів). Ітерації інтерфейсу - окремий репозиторій `odoo-ui` (workflowcat/odoo-ui), читає ядро через `docs/api/`; старі екрани OWL там у `reference/`, тег ядра `ui-owl-2026-09-22` |
-| OCA без змін | див. `docs/base/oca-vendored.md` (коміти в `addons/OCA_*.commit`) |
-| Поза Odoo | `assistant/` (вебасистент працівника, Worker), `reference/payroll_core` (незалежний перерахунок зарплати) |
+| Payroll | `l10n_ua_payroll_rules`, `l10n_ua_average`, `l10n_ua_index`, `l10n_ua_gph`, `l10n_ua_payroll_account`, `l10n_ua_payments`, `l10n_ua_explain` |
+| HR | `l10n_ua_hr_card`, `l10n_ua_hr_orders`, `l10n_ua_hr_docs`, `l10n_ua_military`, `l10n_ua_kp`, `l10n_ua_onboarding`, `l10n_ua_hire` |
+| Tax reports | `l10n_ua_payroll_reports`, `l10n_ua_reporting`, `l10n_ua_profit_tax` |
+| Accounting | `l10n_ua_chart`, `l10n_ua_vat`, `l10n_ua_ledger`, `l10n_ua_finrep`, `l10n_ua_group`, `l10n_ua_assets`, `l10n_ua_nbu` |
+| Bank and cash | `l10n_ua_bank`, `l10n_ua_bank_online` (PrivatBank, Monobank), `l10n_ua_cash` |
+| Documents | `l10n_ua_docs`, `l10n_ua_docs_sale`, `l10n_ua_docs_stock`, `l10n_ua_stock_docs`, `l10n_ua_mrp` |
+| Setup and migration | `l10n_ua_setup` (first-run questionnaire), `l10n_ua_migrate` (opening balances) |
+| Sole proprietors | `l10n_ua_fop` |
+| Purchasing | `l10n_ua_purchase`, `bp_purchase_intake` (supplier invoices from email) |
+| Counterparties | `l10n_ua_partner_edr` (state register), `bp_kyc` |
+| Control | `l10n_ua_changes` (who changed what), checks mixin, `auditlog` |
+| Interface | `l10n_ua_navigation` (menus and Ukrainian words), `l10n_ua_screen` (shared helpers), `l10n_ua_api` (one model for outside clients, contract in [docs/api/](docs/api/)) |
+| Integrations | `bp_bridge` (one door to outside services) |
+| Tests | `l10n_ua_payroll_tests` (golden scenarios and cross-module tests) |
 
-## Документи
+| Folder | What it is |
+| --- | --- |
+| `addons/` | Odoo modules: ours (`l10n_ua_*`, `bp_*`) and vendored OCA |
+| `scripts/` | test runner, demo builders, checks |
+| `docs/` | architecture, payroll and accounting specs (mostly Ukrainian), API contract |
+| `deploy/` | one way to run staging and production on a single server (Docker Compose) |
+| `worker/` | optional Cloudflare Worker: the bridge to registries and the KYC register |
+| `assistant/` | optional employee web assistant (Cloudflare Worker) on top of Odoo |
+| `reference/payroll_core/` | an independent payroll calculator used to cross-check Odoo |
 
-- `docs/ARCHITECTURE.md` - три шари: Odoo, база, міст.
-- `docs/base/demo-space-plan.md` - задум демо-простору і хвилі робіт.
-- `docs/base/review-2026-09-21.md`, `native-fit-2026-09-21.md` - огляд і карта «нативне / OCA / наше».
-- `docs/base/spec-*.md` - опис кожного облікового модуля.
-- `docs/base/questions-for-accountant.md` - усі питання до бухгалтера одним списком.
-- `docs/payroll/` - зарплата: README, еталонні сценарії, аркуш для бухгалтера, специфікації.
-- `docs/purchase/README.md` - розбір вхідних рахунків.
-- `docs/base/demo-data.md` - як зібрати демо і що в ньому є.
-- `docs/api/` - контракт для інтерфейсу; `docs/agents/` - нотатки між агентами (core / docs / ui), `CLAUDE.md` - правила.
+## Optional services
 
-## Стенди
+Each is off until you set its variable in `.env`; the rest of the product works without it.
 
-- Розробка: `docker compose up -d`, порт `ODOO_PORT` з `.env`, база `payroll` (копія продукту).
-- Демо: `scripts/demo_server.sh start|stop|reset`, порт 8131, база `demo`.
-- Живий сервер: буде на Hetzner (Odoo + Postgres на одній машині, Worker як вхідні двері);
-  `docker-compose.live.yml` і `odoo/Dockerfile` для цього.
+| Variable | Feature |
+| --- | --- |
+| `BP_BRIDGE_URL`, `BP_BRIDGE_TOKEN` | state register lookups and the KYC register through your own bridge Worker (`worker/`) |
+| `UA_KP_URL` | profession code suggestions when hiring |
+| `UA_EXTRACT_URL` | reading document photos during hiring (a helper on the host, `scripts/claude_extract_helper.py`) |
+| `CF_ACCOUNT_ID`, `CF_API_TOKEN`, `BP_AI_MODEL` | reading supplier invoices with an AI model (Cloudflare Workers AI) |
 
-Секрети: `.env` на Mac і секрети Worker. Ніколи в репозиторії, ніколи в Odoo.
+Bank API tokens (PrivatBank, Monobank) are set on the bank statement provider in Odoo, not in `.env`.
+
+## Contributing
+
+Issues and pull requests are welcome, in English or Ukrainian. Start with [CONTRIBUTING.md](CONTRIBUTING.md);
+the roadmap is [docs/open-source-plan.md](docs/open-source-plan.md). Security problems: [SECURITY.md](SECURITY.md).
+
+## License
+
+Each module's `__manifest__.py` says its license. Our modules are LGPL-3 unless the manifest says AGPL-3;
+vendored OCA modules keep their own (AGPL-3 or LGPL-3). The default for everything else is LGPL-3
+([LICENSE](LICENSE)); all texts are in [LICENSES/](LICENSES/). A full install includes AGPL-3 modules, so
+running it as a service for others carries AGPL-3 duties. Fonts in `assistant/public/fonts/` are under the
+SIL Open Font License. Odoo is a trademark of Odoo S.A.; this project is not affiliated with it.
+
+---
+
+## Українською
+
+Український бек-офіс на голому Odoo 19 Community: зарплата і кадри, бухоблік з ПДВ, банк і каса,
+основні засоби, фінзвітність, первинні документи, ФОП, закупівлі з розбором рахунків, перевірка
+контрагентів. Код відкритий: беріть, запускайте, будуйте зверху.
+
+Правила: спершу нативний Odoo, потім OCA 19.0 без змін, наше українське - тонко зверху. Інтерфейс -
+стандартні списки, форми і кнопки Odoo; меню в одному модулі `l10n_ua_navigation`. Кожен модуль
+ставиться на порожню базу і має тести; гроші звіряються з одним файлом чисел, який підтвердив бухгалтер.
+
+Швидкий старт - вище (розділ Quick start). Специфікації зарплати й обліку - у `docs/payroll/` і
+`docs/base/`, українською. Питання і зміни приймаємо українською або англійською:
+[CONTRIBUTING.md](CONTRIBUTING.md).
+
+Це не податкова чи юридична консультація: перед роботою на справжніх даних числа має перевірити ваш бухгалтер.

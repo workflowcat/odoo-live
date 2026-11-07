@@ -11,7 +11,7 @@
 | `docker-compose.staging.yml` | накладка staging (проєкт `odoo-stage`, порт 8140) |
 | `docker-compose.prod.yml` | накладка prod (проєкт `odoo-prod`, порт 8150) |
 | `docker-compose.tunnel.yml` | один cloudflared на весь сервер, окремий проєкт `odoo-tunnel` |
-| `env.*.example` | імена змінних; значення - на сервері і в 1Password > ToolKit > odoo-live |
+| `env.*.example` | імена змінних; значення - на сервері і в менеджері паролів |
 | `server-setup.sh` | підняти чисту Ubuntu 24.04: docker, ufw, unattended-upgrades, користувач, клон, cron |
 | `deploy.sh` | `deploy.sh <staging\|prod> [git-ref]` - код, образ, база, модулі, перезапуск, перевірка |
 | `backup.sh` | `backup.sh daily\|weekly` - pg_dump, прибирання старих, за бажанням rclone |

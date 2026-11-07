@@ -10,7 +10,7 @@
 
 | Репозиторій | Модуль | Комміт | Для чого | Чи розширюємо |
 | --- | --- | --- | --- | --- |
-| OCA/payroll | `payroll` | не записано (файл `.commit` відсутній) | рушій розрахунку зарплати: структури, правила, листки | так: `l10n_ua_payroll_rules`, `l10n_ua_changes`, `l10n_ua_home`, `l10n_ua_papers` |
+| OCA/payroll | `payroll` | 0d1b4b7aeae5981c3919c0bdf059814f183ba185 (відновлено 2026-11-07: код збігається з OCA 19.0, крім i18n) | рушій розрахунку зарплати: структури, правила, листки | так: `l10n_ua_payroll_rules`, `l10n_ua_changes`, `l10n_ua_home`, `l10n_ua_papers` |
 | OCA/account-financial-reporting | `account_financial_report` | 6a7c307a529d47534a68335e39f2730eeff63ab0 | оборотно-сальдова відомість і головна книга | так: `l10n_ua_payroll_ui` |
 | OCA/account-financial-tools | `account_usability` | f553f7642ab8ab8b73917bcb5a7361f8a560e0e6 | зручніші меню і фільтри бухгалтерії | так: `l10n_ua_payroll_ui` |
 | OCA/account-financial-tools | `account_asset_management` | f553f7642ab8ab8b73917bcb5a7361f8a560e0e6 | основні засоби: картка, амортизація, вибуття | ні |

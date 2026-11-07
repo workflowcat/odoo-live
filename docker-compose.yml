@@ -1,5 +1,5 @@
-# Local dev stack: Odoo 19 CE + Postgres 17 on this machine. Port ODOO_PORT (default 8100; the payroll worktree uses 8110).
-# The LIVE database lives on Supabase; see docker-compose.live.yml and docs/ARCHITECTURE.md.
+# Local dev stack: Odoo 19 CE + Postgres 17. Odoo on http://127.0.0.1:${ODOO_PORT} (see .env).
+# Optional services stay off unless their variables are set in .env (see README, "Optional services").
 services:
   db:
     restart: unless-stopped
@@ -27,8 +27,9 @@ services:
       - HOST=db
       - USER=odoo
       - PASSWORD=odoo
-      - BP_BRIDGE_URL=https://odoo-live.botpartners.workers.dev
+      - BP_BRIDGE_URL=${BP_BRIDGE_URL:-}
       - BP_BRIDGE_TOKEN=${BP_BRIDGE_TOKEN:-}
+      - UA_KP_URL=${UA_KP_URL:-}
       - ODOO_ADMIN_PASSWD=${ODOO_ADMIN_PASSWD:-}
     # master password comes from .env; the mounted conf stays free of secrets
     command: ["sh", "-c", "cp /etc/odoo/odoo.conf /tmp/odoo.conf && if [ -n \"$$ODOO_ADMIN_PASSWD\" ]; then printf 'admin_passwd = %s\\n' \"$$ODOO_ADMIN_PASSWD\" >> /tmp/odoo.conf; fi && ODOO_RC=/tmp/odoo.conf exec /entrypoint.sh odoo"]

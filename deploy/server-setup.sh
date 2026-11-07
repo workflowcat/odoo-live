@@ -148,7 +148,7 @@ say "готово"
 cat <<TXT
 Лишилося:
   1. Додати ключ вище в GitHub Deploy keys і, якщо клон не пройшов, повторити цей скрипт.
-  2. Покласти $REPO_DIR/deploy/env.staging, env.prod, env.tunnel (зразки поруч, значення з 1Password).
+  2. Покласти $REPO_DIR/deploy/env.staging, env.prod, env.tunnel (зразки поруч, значення з менеджера паролів).
   3. sudo -u $DEPLOY_USER $REPO_DIR/deploy/deploy.sh staging --no-pull
      sudo -u $DEPLOY_USER $REPO_DIR/deploy/deploy.sh prod --no-pull
   4. У Cloudflare Zero Trust дописати маршрути тунелю і політику Access.

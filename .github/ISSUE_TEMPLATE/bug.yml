@@ -1,0 +1,27 @@
+name: Bug
+description: Something breaks or behaves differently than expected
+labels: [bug]
+body:
+  - type: input
+    id: module
+    attributes:
+      label: Module
+      placeholder: l10n_ua_payroll_rules
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: On a fresh demo database if you can (scripts/demo_server.sh reset).
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected and what happened
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Odoo log lines
+      render: text

@@ -34,7 +34,7 @@
     python3 scripts/api_key.py --db payroll --days 90  # ключ зі строком
 
 Надрукований ключ показується ОДИН раз - Odoo зберігає лише його хеш. Покласти
-його треба в 1Password (ToolKit > odoo-live), а не у файл поруч із кодом.
+його треба в менеджер паролів, а не у файл поруч із кодом.
 """
 import argparse
 import os
@@ -128,7 +128,7 @@ def main():
         return proc.returncode or 1
     print()
     print("Ключ показано один раз: Odoo зберігає лише хеш. "
-          "Покладіть його в 1Password (ToolKit > odoo-live).")
+          "Покладіть його в менеджер паролів.")
     return 0
 
 

@@ -55,7 +55,7 @@ python3 scripts/show_e2e.py          # прохід меню і друку за 
 - OCA: `addons/<модуль>/i18n/uk.po`, перелік у `addons/OCA_translations.md`.
 
 Норма слів - `docs/payroll/words.md` і словник «Лад»; огляд ERP Kit і ephemeral -
-`reference/erpkit-ephemeral-survey-2026-10-08.md`.
+`docs/archive/erpkit-ephemeral-survey-2026-10-08.md`.
 
 ## Сторінка замість діалогу
 

@@ -1,7 +1,7 @@
 # Слова в інтерфейсі
 
 Коротка норма для всіх екранів. Крок 7 плану спрощення
-(`docs/payroll/ui-simplification-2026-09.md`). Звіряти зі словником «Лад»:
+(`docs/archive/ui-simplification-2026-09.md`). Звіряти зі словником «Лад»:
 https://lad-oblik.botpartners.workers.dev/
 
 ## Сім правил

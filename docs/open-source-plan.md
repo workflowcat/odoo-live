@@ -40,9 +40,12 @@ rest is ordered work with a "done when" line each.
 - [x] README for a stranger: what it is, a 10-minute start, module map, how to test, disclaimer on tax numbers.
 - [x] `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `CHANGELOG.md`, issue and pull request templates.
 - [x] `AGENTS.md` rewritten for any contributor's coding agent; our own workflow moved to `MAINTAINERS.md`.
-- [x] No defaults pointing at our infrastructure; no 1Password paths; Supabase leftovers removed.
-- [x] Internal notes moved to `docs/archive/` (kept for history, out of the way).
+- [x] No defaults pointing at our infrastructure in modules or setup files; Supabase leftovers removed.
+- [x] Stale reviews and setup notes moved to `docs/archive/`; the agent notes channel (`docs/agents/`) stays, it is how roles coordinate.
 - [x] `scripts/check_static.sh`: every static check in one command, including a manifest and license check; CI calls it.
+- [x] The vendored OCA payroll engine pinned (`addons/OCA_payroll.commit`, matched to OCA 19.0 by content).
+- [ ] Left for later: `scripts/demo_business.py` still reads one optional demo password through 1Password
+      (skips that user when `op` is missing); `docs/base/` notes describe our own servers.
 
 ## Phase 2 - safe to deploy
 
