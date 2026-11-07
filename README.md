@@ -20,7 +20,9 @@ advice: have your accountant check the numbers before you rely on them.
 4. **Every module installs on an empty database and has Odoo tests.** Money is checked against one file
    of numbers ([golden/scenarios.json](addons/l10n_ua_payroll_tests/golden/scenarios.json)).
 
-More: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+More: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), how a team adapts it without forking:
+[docs/customization.md](docs/customization.md), what 1C/BAS has that this does not yet:
+[docs/parity/README.md](docs/parity/README.md).
 
 ## Quick start
 
@@ -61,7 +63,11 @@ GitHub Actions runs `check_static.sh` and `test_full.sh` on every push to `main`
 | Documents | `l10n_ua_docs`, `l10n_ua_docs_sale`, `l10n_ua_docs_stock`, `l10n_ua_stock_docs`, `l10n_ua_mrp` |
 | Setup and migration | `l10n_ua_setup` (first-run questionnaire), `l10n_ua_migrate` (opening balances) |
 | Sole proprietors | `l10n_ua_fop` |
-| Purchasing | `l10n_ua_purchase`, `bp_purchase_intake` (supplier invoices from email) |
+| Purchasing | `l10n_ua_purchase`, `bp_purchase_intake` (supplier invoices from email), `l10n_ua_dk021` (ДК 021 procurement codes) |
+| Contracts | `l10n_ua_contract` (counterparty contracts, limits, reconciliation acts) |
+| Import | `l10n_ua_customs` (customs declaration: duty and fees into the cost of goods, customs VAT into credit) |
+| Defense manufacturing | `l10n_ua_defense` (state contracts, Resolution 309 price calculation, acceptance acts, serial passports) |
+| Industry packs | `l10n_ua_catalog`: drones, ground robots, military apparel, machining, procurement, small shop; your own as JSON ([docs/customization.md](docs/customization.md)) |
 | Counterparties | `l10n_ua_partner_edr` (state register), `bp_kyc` |
 | Control | `l10n_ua_changes` (who changed what), checks mixin, `auditlog` |
 | Interface | `l10n_ua_navigation` (menus and Ukrainian words), `l10n_ua_screen` (shared helpers), `l10n_ua_api` (one model for outside clients, contract in [docs/api/](docs/api/)) |

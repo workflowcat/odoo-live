@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 46. Моделей: 109. Методів: 340. Збережених полів на чужих моделях: 290.
+Модулів: 47. Моделей: 111. Методів: 348. Збережених полів на чужих моделях: 292.
 
 ## Зарплата
 
@@ -1322,6 +1322,21 @@
 | `action_view_moves()` | - | `l10n_ua_contract` |
 | `action_view_productions()` | - | `l10n_ua_defense` |
 
+### `ua.customs.declaration`
+
+наша модель · `l10n_ua_customs`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | - | `l10n_ua_customs` |
+| `action_compute()` | Перераховує митну вартість, мито, базу і суму ПДВ, розносить збори. | `l10n_ua_customs` |
+| `action_fill_from_pickings()` | Рядки з отриманих надходжень: кількість, фактурна вартість із замовлення. | `l10n_ua_customs` |
+| `action_post()` | - | `l10n_ua_customs` |
+| `action_print()` | - | `l10n_ua_customs` |
+| `action_reset_draft()` | - | `l10n_ua_customs` |
+| `action_view_landed_cost()` | - | `l10n_ua_customs` |
+| `action_view_vat_move()` | - | `l10n_ua_customs` |
+
 ### `ua.defense.acceptance`
 
 наша модель · `l10n_ua_defense`
@@ -1414,7 +1429,7 @@
 
 ### `product.template`
 
-доповнена модель · `l10n_ua_defense`, `l10n_ua_dk021`, `l10n_ua_mrp`, `l10n_ua_stock_docs`, `l10n_ua_vat`
+доповнена модель · `l10n_ua_customs`, `l10n_ua_defense`, `l10n_ua_dk021`, `l10n_ua_mrp`, `l10n_ua_stock_docs`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1423,6 +1438,7 @@
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `ua_cost_item` | Selection | - | `l10n_ua_defense` |
+| `ua_customs_duty_rate` | Float | Ставка ввізного мита, % | `l10n_ua_customs` |
 | `ua_dk021_id` | Many2one | ua.dk021 | `l10n_ua_dk021` |
 | `ua_drawing_name` | Char | Файл креслення | `l10n_ua_mrp` |
 | `ua_drawing_svg` | Binary | Складальне креслення | `l10n_ua_mrp` |
@@ -1451,6 +1467,14 @@
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `ua_dk021_id` | Many2one | ua.dk021 | `l10n_ua_dk021` |
+
+### `stock.landed.cost`
+
+доповнена модель · `l10n_ua_customs`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_customs_declaration_id` | Many2one | ua.customs.declaration | `l10n_ua_customs` |
 
 ### `stock.lot`
 

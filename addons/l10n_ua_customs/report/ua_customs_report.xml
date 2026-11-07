@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_customs_declaration" model="ir.actions.report">
+    <field name="name">Розрахунок митних платежів</field>
+    <field name="model">ua.customs.declaration</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_customs.report_ua_customs_declaration</field>
+    <field name="report_file">l10n_ua_customs.report_ua_customs_declaration</field>
+    <field name="binding_model_id" ref="model_ua_customs_declaration"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Митні платежі %s' % (object.name or '')</field>
+  </record>
+
+  <!-- Внутрішній розрахунок для бухгалтерії: що з декларації пішло в собівартість, що в ПДВ,
+       скільки сплатити митниці. Сама декларація - документ митниці, її не друкують з обліку. -->
+  <template id="report_ua_customs_declaration_document">
+    <t t-set="company" t-value="doc.company_id"/>
+    <div class="page ua-doc">
+      <style>
+        .ua-doc { font-size: 10px; color: #000; }
+        .ua-doc h3 { font-size: 13px; text-align: center; margin: 4px 0; }
+        .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+        .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin: 6px 0; }
+        .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; }
+        .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+        .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+        .ua-doc .ua-bold td { font-weight: bold; }
+        .ua-doc .ua-sum { width: 55%; margin-left: auto; border-collapse: collapse; }
+        .ua-doc .ua-sum td { padding: 2px 3px; }
+      </style>
+
+      <div><strong t-out="company.name"/><t t-if="company.company_registry">, код ЄДРПОУ <t t-out="company.company_registry"/></t></div>
+      <h3>РОЗРАХУНОК МИТНИХ ПЛАТЕЖІВ</h3>
+      <div class="ua-sub">
+        за митною декларацією № <t t-out="doc.name"/> від <t t-out="doc.date.strftime('%d.%m.%Y')"/><br/>
+        <t t-if="doc.partner_id">постачальник <t t-out="doc.partner_id.name"/>; </t>
+        валюта <t t-out="doc.currency_id.name"/>, курс НБУ <t t-out="doc.rate" t-options='{"widget": "float", "precision": 6}'/>
+      </div>
+
+      <table class="ua-grid">
+        <thead>
+          <tr>
+            <th style="width: 3%;">№</th>
+            <th>Товар</th>
+            <th style="width: 9%;">УКТ ЗЕД</th>
+            <th style="width: 6%;">К-сть</th>
+            <th style="width: 9%;">Фактурна вартість</th>
+            <th style="width: 9%;">Митна вартість, грн</th>
+            <th style="width: 5%;">Мито, %</th>
+            <th style="width: 8%;">Мито</th>
+            <th style="width: 7%;">Акциз</th>
+            <th style="width: 9%;">База ПДВ</th>
+            <th style="width: 8%;">ПДВ</th>
+            <th style="width: 7%;">Збори</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr t-foreach="doc.line_ids" t-as="line">
+            <td class="ua-num"><t t-out="line_index + 1"/></td>
+            <td><t t-out="line.product_id.display_name"/>
+              <t t-if="line.vat_exempt_basis"><br/><small>звільнено від ПДВ: <t t-out="line.vat_exempt_basis"/></small></t></td>
+            <td><t t-out="line.uktzed or ''"/></td>
+            <td class="ua-num"><t t-out="line.quantity" t-options='{"widget": "float", "precision": 3}'/> <t t-out="line.uom_id.name"/></td>
+            <td class="ua-num"><t t-out="line.invoice_value" t-options='{"widget": "float", "precision": 2}'/></td>
+            <td class="ua-num"><t t-out="line.customs_value" t-options='{"widget": "float", "precision": 2}'/></td>
+            <td class="ua-num"><t t-out="line.duty_rate" t-options='{"widget": "float", "precision": 2}'/></td>
+            <td class="ua-num"><t t-out="line.duty" t-options='{"widget": "float", "precision": 2}'/></td>
+            <td class="ua-num"><t t-out="line.excise" t-options='{"widget": "float", "precision": 2}'/></td>
+            <td class="ua-num"><t t-out="line.vat_base" t-options='{"widget": "float", "precision": 2}'/></td>
+            <td class="ua-num"><t t-out="line.vat" t-options='{"widget": "float", "precision": 2}'/></td>
+            <td class="ua-num"><t t-out="line.fee_share" t-options='{"widget": "float", "precision": 2}'/></td>
+          </tr>
+          <tr class="ua-bold">
+            <td colspan="5">Разом</td>
+            <td class="ua-num"><t t-out="doc.customs_value_total" t-options='{"widget": "float", "precision": 2}'/></td>
+            <td/>
+            <td class="ua-num"><t t-out="doc.duty_total" t-options='{"widget": "float", "precision": 2}'/></td>
+            <td class="ua-num"><t t-out="doc.excise_total" t-options='{"widget": "float", "precision": 2}'/></td>
+            <td/>
+            <td class="ua-num"><t t-out="doc.vat_total" t-options='{"widget": "float", "precision": 2}'/></td>
+            <td class="ua-num"><t t-out="doc.fee_amount" t-options='{"widget": "float", "precision": 2}'/></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="ua-sum">
+        <tr><td>Мито, акциз і митні збори - у собівартість товарів (Дт 20 / Кт 3771)</td>
+          <td class="ua-num"><t t-out="doc.landed_total" t-options='{"widget": "float", "precision": 2}'/></td></tr>
+        <tr><td>ПДВ на ввезення - податковий кредит (Дт 6412 / Кт 3771)</td>
+          <td class="ua-num"><t t-out="doc.vat_total" t-options='{"widget": "float", "precision": 2}'/></td></tr>
+        <tr class="ua-bold"><td>Разом до сплати митниці<t t-if="doc.customs_partner_id"> (<t t-out="doc.customs_partner_id.name"/>)</t></td>
+          <td class="ua-num"><t t-out="doc.payable_total" t-options='{"widget": "float", "precision": 2}'/></td></tr>
+      </table>
+
+      <p t-if="doc.state != 'posted'"><em>Чернетка: суми ще не проведені.</em></p>
+      <p style="margin-top: 18px;">Розрахунок склав ______________ / ______________________</p>
+    </div>
+  </template>
+
+  <template id="report_ua_customs_declaration">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_customs.report_ua_customs_declaration_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

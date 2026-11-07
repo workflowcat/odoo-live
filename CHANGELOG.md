@@ -23,12 +23,31 @@ Notable changes for people who run or build on this code. Module-level API chang
   planned from the BOM and routing with sub-assemblies exploded, actual from done manufacturing orders of
   the contract with plan-vs-actual; acceptance acts with serial numbers that close the schedule; product
   passport per serial with component serials. Print forms for all three. Tests: `ua_defense`.
+- `l10n_ua_catalog`: industry packs loaded into a company in one step (Settings - Галузеві каталоги).
+  A pack is JSON in any module's `catalog/` folder; loading is idempotent, picks up existing goods and
+  work centres, keeps companies apart, and has an update mode. Packs: reconnaissance drones, ground
+  robotic platforms, military apparel, machining subcontractor, procurement, small shop.
+  `scripts/catalog_check.py` validates packs without a database (in `check_static.sh`). Tests: `ua_catalog`,
+  including the drone pack priced to the kopiyka by the Resolution 309 calculation.
+- `l10n_ua_dk021`: the full ДК 021:2015 classifier (9458 codes from ProzorroUKR/standards, Apache-2.0)
+  with its hierarchy, search by code prefix, the code on goods and purchase lines. Tests: `ua_dk021`.
+- `l10n_ua_customs`: import customs declaration (МД). Lines filled from received goods; customs value at
+  the NBU rate, duty from the product's rate, excise, VAT base and VAT (Tax Code art. 190); customs fees
+  spread by customs value. Posting puts each product's own duty, excise and fees into its cost through
+  native landed costs (Дт 20 / Кт 3771), takes the VAT into tax credit (Дт 6412 / Кт 3771), sends the
+  share of goods already issued to expenses so 3771 always gets the full amount, and refuses when the
+  same VAT was already taken from a vendor bill. Print form "Розрахунок митних платежів". Tests: `ua_customs`.
+- `docs/customization.md` and `scripts/new_pack.py`: how a team adapts the product in its own module
+  (data, fields, print forms, rules) without forking the core, and a generator for such a module.
 - `docs/parity/README.md`: what 1C/BAS gives a Ukrainian company, what this repository covers, the gaps
   and the order of work, with the defense-manufacturer needs first.
 - `ruff.toml` and a lint step in `scripts/check_static.sh`: undefined names, unused imports and variables,
   mutable defaults in our modules and scripts. Style is not enforced.
 
 ### Changed
+- `l10n_ua_vat`: tax invoices and adjustment calculations take the unit's КСПОВО code and short name
+  from the line's unit (кг 0301, год 0175, м2 0123 and the rest of Odoo's standard units) instead of
+  always 2009 "штука". Units carry the code and short name; codes are filled on install only where empty.
 - The newest work from `show/ua-polish` (Ukrainian words, guest access, show database, deploy fixes)
   is now on `main`.
 - `l10n_ua_kp`: profession code suggestions are off unless `UA_KP_URL` is set (it pointed at our

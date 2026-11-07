@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_customs_declaration_user,ua.customs.declaration.user,model_ua_customs_declaration,stock.group_stock_user,1,0,0,0
+access_ua_customs_declaration_account,ua.customs.declaration.account,model_ua_customs_declaration,account.group_account_invoice,1,1,1,0
+access_ua_customs_declaration_manager,ua.customs.declaration.manager,model_ua_customs_declaration,account.group_account_manager,1,1,1,1
+access_ua_customs_declaration_line_user,ua.customs.declaration.line.user,model_ua_customs_declaration_line,stock.group_stock_user,1,0,0,0
+access_ua_customs_declaration_line_account,ua.customs.declaration.line.account,model_ua_customs_declaration_line,account.group_account_invoice,1,1,1,1
+access_ua_customs_declaration_purchase,ua.customs.declaration.purchase,model_ua_customs_declaration,purchase.group_purchase_user,1,0,0,0
+access_ua_customs_declaration_line_purchase,ua.customs.declaration.line.purchase,model_ua_customs_declaration_line,purchase.group_purchase_user,1,0,0,0

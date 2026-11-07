@@ -24,8 +24,8 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Bank statements: file, PrivatBank, Monobank | done | `l10n_ua_bank`, `l10n_ua_bank_online` |
 | Bank exchange file `1CClientBankExchange` (most Ukrainian banks) | gap | import statements and export payment orders in this format |
 | NBU rates, FX differences | done | `l10n_ua_nbu` + native |
-| **Counterparty contracts** (settlements by contract, currency, limits) | gap | Odoo settles by invoice, not by contract. New `l10n_ua_contract` |
-| **Reconciliation act** with a counterparty (акт звірки) | gap | by partner and by contract, printable, both sides' figures |
+| **Counterparty contracts** (settlements by contract, currency, limits) | done | `l10n_ua_contract`: contract on invoices, payments and orders, limits that warn or block, analytic per contract |
+| **Reconciliation act** with a counterparty (акт звірки) | done | `l10n_ua_contract`: by partner or contract, two-sided print form, agreed or disputed |
 | Month-end closing assistant (закриття місяця) | part | period lock and change review in `l10n_ua_changes`; one checklist that runs depreciation, cost, FX, 79 closing in order is missing |
 | Property and land tax, environmental tax | gap | low priority; returns as XML |
 | Statistical reports (Держстат) | gap | low priority |
@@ -54,10 +54,10 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Price types, discounts | part | native pricelists; named price types (опт, роздріб, закупівельна) as presets in the packs |
 | Purchase requests and approvals | done | OCA `purchase_request`, `l10n_ua_purchase` |
 | Supplier risk, invoices from email | done | `l10n_ua_purchase`, `bp_purchase_intake`, `bp_kyc` |
-| Debt control by contract, credit limits | gap | comes with `l10n_ua_contract` |
+| Debt control by contract, credit limits | done | `l10n_ua_contract`: balance by contract, contract amount as a limit |
 | Commission trade, consignment | gap | later |
-| **Customs declarations (МД)** for imported goods: duty and VAT into cost | part | customs VAT entry exists; a declaration document that spreads duty and fees over the goods (native landed costs) is missing |
-| Public procurement (Prozorro), ДК 021 codes on goods | gap | catalogue of ДК 021 and a tender reference on orders; `l10n_ua_pack_procurement` |
+| **Customs declarations (МД)** for imported goods: duty and VAT into cost | done | `l10n_ua_customs`: declaration from received goods, duty, excise and fees into each product's cost (native landed costs), VAT into credit; declaration XML exchange with the customs service is out of scope |
+| Public procurement (Prozorro), ДК 021 codes on goods | part | `l10n_ua_dk021`: full classifier, code on goods and purchase lines; `procurement` pack. Annual procurement plan report is open |
 
 ## 4. Production (КУП / ERP)
 
@@ -65,13 +65,13 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | --- | --- | --- |
 | Bills of materials, routings, work orders | done | native `mrp` |
 | Monthly cost calculation by product and cost item | done | `l10n_ua_mrp` (materials, labour, overhead by normal capacity) |
-| **Planned calculation (планова калькуляція)** of a product's price by cost item | gap | from BOM and routing, with overhead, admin, selling and profit rates; needed for defense pricing |
+| **Planned calculation (планова калькуляція)** of a product's price by cost item | done | `l10n_ua_defense`: plan and actual by the Resolution 309 items from BOM, routing and contract rates |
 | Serial and lot tracking | done | native |
 | Quality control (ВТК), inspections | gap | OCA `quality_control_oca` or our own inspection on work orders |
 | Tolling (давальницька сировина) | gap | stock of customer-owned material, processing act |
 | Engineering changes, BOM versions | gap | a simple revision register first |
 | Production planning (MPS/MRP) | part | native scheduler; OCA `mrp_multi_level` later |
-| Repairs and warranty returns | part | native `repair`; warranty register by serial missing |
+| Repairs and warranty returns | part | native `repair`; warranty months on goods and serial passports in `l10n_ua_defense`; warranty claims register missing |
 
 ## 5. Retail (Роздріб)
 
@@ -79,7 +79,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | --- | --- | --- |
 | Point of sale | part | native `point_of_sale` |
 | **Fiscalisation (ПРРО/РРО)** | gap | bridge route to a PRRO service (Checkbox, Вчасно.Каса) or the DPS fiscal server; Z-reports into accounting |
-| Shop catalogue, price labels, cash discipline | gap | `l10n_ua_pack_shop` |
+| Shop catalogue, price labels, cash discipline | part | `small_shop` pack (goods, in-store barcodes, weighed goods); price labels missing |
 
 ## 6. Document flow (Документообіг)
 
@@ -98,7 +98,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Data exchange (EnterpriseData, Конвертація даних) | `l10n_ua_migrate` imports counterparties, goods and balances from 1C files; continuous two-way exchange during a move is a gap |
 | Row-level security (RLS) | record rules |
 | Edit lock date (дата заборони редагування) | OCA lock dates + `l10n_ua_changes` |
-| Typical configurations for an industry | **packs**: `l10n_ua_pack_defense`, `l10n_ua_pack_procurement`, `l10n_ua_pack_shop` (catalogues, presets, demo company) |
+| Typical configurations for an industry | **packs** in `l10n_ua_catalog`: four defense packs, `procurement`, `small_shop`; a team adds its own as JSON (`docs/customization.md`) |
 | Updates of regulated forms (ІТС) | dated parameters (`ua.payroll.param`), versioned XML formats, golden scenarios; a public changelog |
 
 ## 8. Defense manufacturers (first vertical)
@@ -108,12 +108,12 @@ payload in our catalogues is a camera; nothing here covers munitions.
 
 | Need | Source | Plan |
 | --- | --- | --- |
-| State contract register: customer (МОУ, ДОТ, other), number, items, schedule, advances, penalties | Закон «Про оборонні закупівлі» № 808-IX; постанова КМУ № 363 (2021) | `l10n_ua_defense`: contract on top of `l10n_ua_contract` |
-| **Separate accounting of actual costs by contract** | постанова № 363: виконавець веде окремий облік фактичних витрат за контрактом | analytic account per contract on production, purchases, labour; plan-vs-actual report |
-| **Price calculation by the regulated cost items** (01 сировина ... 10 зворотні відходи, then overhead, admin, selling, financial, other, profit) | постанова КМУ № 309 (2021), пп. 11-13 | planned calculation from BOM and routing with the contract's rates; export of the calculation and its supporting tables |
-| Acceptance by the customer's representative (військове приймання), quality records | contract terms | acceptance act per batch with serials; inspection results |
-| Product passport / log per serial, spare parts kits (ЗІП) | contract terms | serial record with components' serials; kit as a BOM |
-| Imported components: customs declaration, duty and VAT in cost | Митний кодекс; tax benefits | customs declaration document (section 3) |
+| State contract register: customer (МОУ, ДОТ, other), number, items, schedule, advances, penalties | Закон «Про оборонні закупівлі» № 808-IX; постанова КМУ № 363 (2021) | done: `l10n_ua_defense` on top of `l10n_ua_contract`; penalties are open |
+| **Separate accounting of actual costs by contract** | постанова № 363: виконавець веде окремий облік фактичних витрат за контрактом | done: analytic account per contract, actual calculation from closed orders and bills, plan vs actual by item |
+| **Price calculation by the regulated cost items** (01 сировина ... 10 зворотні відходи, then overhead, admin, selling, financial, other, profit) | постанова КМУ № 309 (2021), пп. 11-13 | done: plan from BOM and routing with the contract's rates, printable with materials breakdown |
+| Acceptance by the customer's representative (військове приймання), quality records | contract terms | done: acceptance act per batch with serials; inspection checks on routing steps |
+| Product passport / log per serial, spare parts kits (ЗІП) | contract terms | done: passport per serial with components' serials; ЗІП as a kit BOM in the drone pack |
+| Imported components: customs declaration, duty and VAT in cost | Митний кодекс, ст. 49-58; ПКУ, ст. 190 | done: `l10n_ua_customs`; duty-free import under defense benefits goes as a 0 % duty rate or a VAT basis on the line |
 | Reservation of employees | постанова КМУ № 76 (2023) and its changes | quota and list (section 2) |
 | Donor-funded deliveries to units | civil and tax rules on charity | transfer act and the tax note, later |
 
@@ -124,12 +124,18 @@ procedure (for example № 335 of 2022, № 1275 of 2022).
 
 ## Order of work
 
-1. `l10n_ua_contract`: counterparty contracts and the reconciliation act. Every company needs them, and the
-   defense contract builds on them.
-2. `l10n_ua_defense`: state contracts, planned calculation by the regulated items, separate actual-cost
-   accounting, acceptance acts, serial passports.
-3. `l10n_ua_pack_defense`: catalogue and demo maker (product categories, typical drone and ground-station
-   structures with camera payloads, work centres, routings, inspection points).
-4. `docs/customization.md` and `scripts/new_pack.py`: how a team adapts the product without forking it.
-5. Classifier catalogues from official open data: ДК 021 (procurement), units (КСПОВО), УКТ ЗЕД.
-6. Customs declarations, bank exchange files, tolling, quality inspections, PRRO, shop and procurement packs.
+Done on 2026-11-07: counterparty contracts and reconciliation acts (`l10n_ua_contract`); defense contracts
+with the Resolution 309 calculation, separate cost accounting, acceptance acts and passports
+(`l10n_ua_defense`); КСПОВО unit codes in tax invoices; the ДК 021 classifier (`l10n_ua_dk021`); industry
+packs and their loader (`l10n_ua_catalog`); `docs/customization.md` and `scripts/new_pack.py`; the import
+customs declaration (`l10n_ua_customs`).
+
+Next, in this order:
+
+1. Bank exchange file `1CClientBankExchange`: statements in, payment orders out.
+2. Quality inspections on work orders with results on the serial passport.
+3. Tolling: customer-owned material and the processing act.
+4. Correspondence register and payment approvals.
+5. Month-end closing checklist.
+6. PRRO fiscalisation through a bridge route; price labels for the shop pack.
+7. УКТ ЗЕД classifier from official open data, once a source with a clear licence is found.

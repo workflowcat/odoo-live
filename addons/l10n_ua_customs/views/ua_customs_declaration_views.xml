@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_customs_declaration_list" model="ir.ui.view">
+    <field name="name">ua.customs.declaration.list</field>
+    <field name="model">ua.customs.declaration</field>
+    <field name="arch" type="xml">
+      <list string="Митні декларації" decoration-muted="state == 'cancel'">
+        <field name="name"/>
+        <field name="date"/>
+        <field name="partner_id"/>
+        <field name="currency_id" optional="show"/>
+        <field name="customs_value_total" sum="Разом" optional="show"/>
+        <field name="landed_total" sum="Разом"/>
+        <field name="vat_total" sum="Разом"/>
+        <field name="payable_total" sum="Разом" optional="show"/>
+        <field name="state" widget="badge" decoration-success="state == 'posted'"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+        <field name="company_currency_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_customs_declaration_form" model="ir.ui.view">
+    <field name="name">ua.customs.declaration.form</field>
+    <field name="model">ua.customs.declaration</field>
+    <field name="arch" type="xml">
+      <form string="Митна декларація">
+        <header>
+          <button name="action_fill_from_pickings" type="object" string="Заповнити з надходжень"
+                  invisible="state != 'draft'"/>
+          <button name="action_compute" type="object" string="Розрахувати"
+                  invisible="state != 'draft'"/>
+          <button name="action_post" type="object" string="Провести" class="btn-primary"
+                  invisible="state != 'draft'" groups="account.group_account_user"
+                  confirm="Мито і збори підуть у собівартість отриманих товарів, ПДВ - у податковий кредит. Провести?"/>
+          <button name="action_print" type="object" string="Друк розрахунку"/>
+          <button name="action_cancel" type="object" string="Скасувати" invisible="state != 'draft'"/>
+          <button name="action_reset_draft" type="object" string="У чернетку" invisible="state != 'cancel'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
+        </header>
+        <sheet>
+          <div class="oe_button_box" name="button_box">
+            <button name="action_view_landed_cost" type="object" class="oe_stat_button"
+                    icon="fa-cubes" string="Собівартість" invisible="not landed_cost_id"/>
+            <button name="action_view_vat_move" type="object" class="oe_stat_button"
+                    icon="fa-file-text-o" string="Проводка ПДВ" invisible="not vat_move_id"/>
+          </div>
+          <div class="oe_title">
+            <label for="name"/>
+            <h1><field name="name" placeholder="UA100010/2026/000001" readonly="state != 'draft'"/></h1>
+          </div>
+          <group>
+            <group>
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="partner_id" readonly="state != 'draft'"/>
+              <field name="customs_partner_id" readonly="state != 'draft'"/>
+              <field name="picking_ids" widget="many2many_tags" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="currency_id" readonly="state != 'draft'"/>
+              <field name="rate" readonly="state != 'draft'"/>
+              <field name="fee_amount" readonly="state != 'draft'"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+              <field name="landed_cost_id" invisible="1"/>
+              <field name="vat_move_id" invisible="1"/>
+              <field name="rest_move_id" invisible="not rest_move_id"/>
+              <field name="company_currency_id" invisible="1"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Товари" name="lines">
+              <field name="line_ids" readonly="state != 'draft'">
+                <list editable="bottom">
+                  <field name="sequence" widget="handle"/>
+                  <field name="product_id"/>
+                  <field name="uktzed" optional="show"/>
+                  <field name="quantity"/>
+                  <field name="uom_id" optional="hide"/>
+                  <field name="invoice_value"/>
+                  <field name="customs_value"/>
+                  <field name="duty_rate"/>
+                  <field name="duty"/>
+                  <field name="excise" optional="show"/>
+                  <field name="vat_rate"/>
+                  <field name="vat_exempt_basis" optional="hide"/>
+                  <field name="vat_base" optional="hide"/>
+                  <field name="vat"/>
+                  <field name="fee_share" optional="show"/>
+                  <field name="landed_cost" optional="show"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="company_currency_id" column_invisible="1"/>
+                </list>
+              </field>
+              <group class="oe_subtotal_footer">
+                <field name="customs_value_total"/>
+                <field name="duty_total"/>
+                <field name="excise_total"/>
+                <field name="landed_total"/>
+                <field name="vat_total"/>
+                <field name="payable_total" class="oe_subtotal_footer_separator"/>
+              </group>
+            </page>
+            <page string="Примітка" name="note">
+              <field name="note" placeholder="Брокер, доставка від кордону, особливості оформлення"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_customs_declaration_search" model="ir.ui.view">
+    <field name="name">ua.customs.declaration.search</field>
+    <field name="model">ua.customs.declaration</field>
+    <field name="arch" type="xml">
+      <search string="Митні декларації">
+        <field name="name"/>
+        <field name="partner_id"/>
+        <field name="line_ids" string="Товар" filter_domain="[('line_ids.product_id', 'ilike', self)]"/>
+        <filter name="draft" string="Чернетки" domain="[('state', '=', 'draft')]"/>
+        <filter name="posted" string="Проведені" domain="[('state', '=', 'posted')]"/>
+        <separator/>
+        <filter name="date" string="Дата" date="date"/>
+        <group>
+          <filter name="by_partner" string="Постачальник" context="{'group_by': 'partner_id'}"/>
+          <filter name="by_month" string="Місяць" context="{'group_by': 'date:month'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_customs_declaration" model="ir.actions.act_window">
+    <field name="name">Митні декларації</field>
+    <field name="res_model">ua.customs.declaration</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_ua_customs_declaration_search"/>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Імпорт: мито і ПДВ за митною декларацією</p>
+      <p>Виберіть отримані надходження, заповніть товари з них, перевірте митну вартість і ставки,
+         проведіть. Мито і збори підуть у собівартість товарів, ПДВ - у податковий кредит.</p>
+    </field>
+  </record>
+
+  <record id="view_product_template_form_customs" model="ir.ui.view">
+    <field name="name">product.template.form.ua.customs</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="l10n_ua_vat.product_template_form_view_ua_vat"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='ua_uktzed']" position="after">
+        <field name="ua_customs_duty_rate"/>
+      </xpath>
+    </field>
+  </record>
+
+  <menuitem id="menu_ua_customs_declaration" name="Митні декларації"
+            parent="purchase.menu_procurement_management" action="action_ua_customs_declaration"
+            sequence="40" groups="purchase.group_purchase_user,account.group_account_user"/>
+</odoo>
