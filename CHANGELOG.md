@@ -163,6 +163,13 @@ Notable changes for people who run or build on this code. Module-level API chang
   norm to the vehicle's expense account (23/91/92/93), the excess to its own account (949 or 375).
   Opening checks the odometer and that the vehicle is not already out; cancel reverses fuel moves and the
   odometer entry. Print form, pivot by vehicle and month. Tests: `ua_fleet`.
+- `l10n_ua_mrp_plan`: multi-level production planning from defense contracts. Vendors OCA `mrp_multi_level`
+  with `mrp_warehouse_calendar` (OCA/manufacture) and `stock_warehouse_calendar`
+  (OCA/stock-logistics-warehouse), pinned in `addons/OCA_*.commit`. The open part of each defense delivery
+  schedule (minus accepted or shipped, minus open deliveries of the contract's orders) becomes MRP demand
+  on the line's date, so planned manufacturing and purchase orders appear through every BOM level before
+  the customer's orders exist. One MRP area per company takes this demand (flag on the area). Tests:
+  `ua_mrp_plan`.
 
 ### Changed
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number

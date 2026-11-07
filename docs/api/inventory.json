@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 62,
-    "models": 137,
-    "methods": 489,
-    "fields": 335
+    "modules": 63,
+    "models": 139,
+    "methods": 491,
+    "fields": 336
   },
   "areas": [
     {
@@ -6339,6 +6339,27 @@
           "fields": []
         },
         {
+          "model": "ua.defense.schedule",
+          "ours": true,
+          "modules": [
+            "l10n_ua_defense",
+            "l10n_ua_mrp_plan"
+          ],
+          "methods": [
+            {
+              "name": "ua_open_demand",
+              "signature": "ua_open_demand(product, company)",
+              "doc": "Непокрита частина графіків: [(дата, кількість, контракт)], від найранішого.",
+              "module": "l10n_ua_mrp_plan",
+              "file": "addons/l10n_ua_mrp_plan/models/mrp_plan.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.eco",
           "ours": true,
           "modules": [
@@ -7757,6 +7778,35 @@
               "label": "ua.waybill",
               "module": "l10n_ua_fleet",
               "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "mrp.area",
+          "ours": false,
+          "modules": [
+            "l10n_ua_mrp_plan"
+          ],
+          "methods": [
+            {
+              "name": "ua_defense_area",
+              "signature": "ua_defense_area(company)",
+              "doc": "",
+              "module": "l10n_ua_mrp_plan",
+              "file": "addons/l10n_ua_mrp_plan/models/mrp_plan.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": [
+            {
+              "name": "ua_defense_demand",
+              "type": "Boolean",
+              "label": "Попит з оборонних контрактів",
+              "module": "l10n_ua_mrp_plan",
+              "file": "addons/l10n_ua_mrp_plan/models/mrp_plan.py",
               "groups": ""
             }
           ]

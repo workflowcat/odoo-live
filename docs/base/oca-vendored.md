@@ -33,6 +33,9 @@
 | OCA/reporting-engine | `report_xlsx` | b730d603317691d9608a8a3c5710286d9dbc81f1 | друк звітів у XLSX | ні |
 | OCA/reporting-engine | `report_xlsx_helper` | b730d603317691d9608a8a3c5710286d9dbc81f1 | допоміжний шар XLSX; потрібен для `account_asset_management` | ні |
 | OCA/purchase-workflow | `purchase_request` | fa109e9e58f1bcca94384db8662c1a2f899c4baa | внутрішній запит на закупівлю: стани і погодження, права користувача і керівника запитів, чарівник «запит -> замовлення» | так: `l10n_ua_purchase` (підрозділ, рахунок витрат, ліміт погодження) |
+| OCA/manufacture | `mrp_multi_level` | ca0a97252048a47206a27c3807d77620e2595418 | багаторівневе MRP: попит, заплановані замовлення на виробництво і закупівлю через усі рівні специфікацій | так: `l10n_ua_mrp_plan` (попит з графіків оборонних контрактів) |
+| OCA/manufacture | `mrp_warehouse_calendar` | ca0a97252048a47206a27c3807d77620e2595418 | календар складу в датах виробництва; потрібен для `mrp_multi_level` | ні |
+| OCA/stock-logistics-warehouse | `stock_warehouse_calendar` | e53710de6053e9fd13b13dc855be944b085f6c8c | робочий календар складу; потрібен для `mrp_warehouse_calendar` | ні |
 | OCA/multi-company | `account_invoice_inter_company` | 3b39c33f0c62c9ef208d30414a638adc08b54695 | дзеркала рахунків між компаніями однієї бази: продаж у А створює чернетку вхідного рахунку в Б і навпаки | ні: `l10n_ua_group` лише залежить від нього і перевіряє тестами |
 
 ## Що свідомо не беремо

@@ -71,7 +71,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Quality control (ВТК), inspections | done | check items on routing operations, yes/no answers on work orders (`l10n_ua_mrp`); defense contracts block release and acceptance until every item is "yes" and print the results in the serial passport (`l10n_ua_defense`); incoming and outgoing protocols (`l10n_ua_stock_docs`) |
 | Tolling (давальницька сировина) | yes | `l10n_ua_tolling`: customer material in its own owner-tagged location (not valued, off-balance 023), production from it, return of products and leftovers, processing invoice, processor's report with norm vs actual |
 | Engineering changes, BOM versions | done | `l10n_ua_eco`: change notices with was/now lines, approvals (technologist, quality, military representative), BOM revision N+1 on the effective date |
-| Production planning (MPS/MRP) | part | native scheduler; OCA `mrp_multi_level` later |
+| Production planning (MPS/MRP) | done | OCA `mrp_multi_level` over all BOM levels; open defense delivery schedules are demand (`l10n_ua_mrp_plan`) |
 | Repairs and warranty returns | done | native `repair`; `l10n_ua_claim`: claims on serial numbers, warranty from the acceptance act, contract deadlines, investigation, decision, history in the passport |
 | Vehicles: waybills, fuel norms, fuel write-off (подорожні листи, ПММ) | done | `l10n_ua_fleet` on native `fleet`: each vehicle has its own "tank" location; the waybill takes odometer, tonne-km and engine hours, the norm with seasonal and city adjustments (company settings), refuels from stock or a fuel station, and writes off actual use - within the norm to the vehicle's expense account, over it to a separate account; cancel restores fuel and odometer |
 
@@ -136,9 +136,16 @@ customs declaration (`l10n_ua_customs`); the 1C bank exchange file (`l10n_ua_ban
 quality gate on defense production with results in the serial passport; month-end operations
 (`l10n_ua_close`) with Form 2 kept intact after closing; tolling (`l10n_ua_tolling`); payment requests with
 approval (`l10n_ua_payment_request`); the correspondence register with ДСК access (`l10n_ua_correspondence`);
-PRRO fiscal receipts through the bridge (`l10n_ua_prro`); price labels (`l10n_ua_price_label`).
+PRRO fiscal receipts through the bridge (`l10n_ua_prro`); price labels (`l10n_ua_price_label`);
+change notices (`l10n_ua_eco`) and claims (`l10n_ua_claim`); electronic document exchange
+(`l10n_ua_edo`); the annual procurement plan (`l10n_ua_procurement_plan`); deliveries to military units
+(`l10n_ua_unit_transfer`); mutual offset of debts (`l10n_ua_offset`); commission trade
+(`l10n_ua_commission`); waybills and fuel (`l10n_ua_fleet`); multi-level production planning
+from defense delivery schedules (`l10n_ua_mrp_plan` on OCA `mrp_multi_level`).
 
 Next, in this order:
 
-1. PRRO receipts from the native point of sale.
-2. УКТ ЗЕД classifier from official open data, once a source with a clear licence is found.
+1. PRRO receipts from the native point of sale (needs a screen; lives in the UI repository).
+2. Reservation: the list for the Дія request, once the current field set is confirmed.
+3. Continuous exchange with a running 1C during a move (beyond the one-off import in `l10n_ua_migrate`).
+4. УКТ ЗЕД classifier from official open data, once a source with a clear licence is found.

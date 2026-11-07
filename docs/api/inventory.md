@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 62. Моделей: 137. Методів: 489. Збережених полів на чужих моделях: 335.
+Модулів: 63. Моделей: 139. Методів: 491. Збережених полів на чужих моделях: 336.
 
 ## Зарплата
 
@@ -1399,6 +1399,14 @@
 | `action_print()` | - | `l10n_ua_defense` |
 | `action_reset_draft()` | - | `l10n_ua_defense` |
 
+### `ua.defense.schedule`
+
+наша модель · `l10n_ua_defense`, `l10n_ua_mrp_plan`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `ua_open_demand(product, company)` | Непокрита частина графіків: [(дата, кількість, контракт)], від найранішого. | `l10n_ua_mrp_plan` |
+
 ### `ua.eco`
 
 наша модель · `l10n_ua_eco`
@@ -1727,6 +1735,18 @@
 | `ua_tank_location_id` | Many2one | stock.location | `l10n_ua_fleet` |
 | `ua_warehouse_id` | Many2one | stock.warehouse | `l10n_ua_fleet` |
 | `ua_waybill_ids` | One2many | ua.waybill | `l10n_ua_fleet` |
+
+### `mrp.area`
+
+доповнена модель · `l10n_ua_mrp_plan`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `ua_defense_area(company)` | - | `l10n_ua_mrp_plan` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_defense_demand` | Boolean | Попит з оборонних контрактів | `l10n_ua_mrp_plan` |
 
 ### `mrp.bom`
 

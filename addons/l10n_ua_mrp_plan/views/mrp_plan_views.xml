@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_mrp_area_form_ua_defense" model="ir.ui.view">
+    <field name="name">mrp.area.form.ua.defense</field>
+    <field name="model">mrp.area</field>
+    <field name="inherit_id" ref="mrp_multi_level.mrp_area_form"/>
+    <field name="arch" type="xml">
+      <field name="location_id" position="after">
+        <field name="ua_defense_demand"/>
+      </field>
+    </field>
+  </record>
+</odoo>
