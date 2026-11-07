@@ -367,11 +367,13 @@ class UaTollingOrder(models.Model):
     def action_done(self):
         for order in self:
             order._check_open()
-            open_docs = (order.picking_ids | order.production_ids).filtered(
-                lambda r: r.state not in ("done", "cancel"))
-            if open_docs:
-                raise UserError(_("Спершу завершіть або скасуйте: %s.")
-                                % ", ".join(open_docs.mapped("name")))
+            def still_open(records):
+                return records.filtered(lambda r: r.state not in ("done", "cancel"))
+
+            names = still_open(order.picking_ids).mapped("name") \
+                + still_open(order.production_ids).mapped("name")
+            if names:
+                raise UserError(_("Спершу завершіть або скасуйте: %s.") % ", ".join(names))
             left = [row for row in order.material_rows()
                     if row["product"].uom_id.compare(row["balance"], 0.0) > 0]
             if left:
@@ -387,8 +389,8 @@ class UaTollingOrder(models.Model):
             if order._done_moves():
                 raise UserError(_("За замовленням %s уже є проведені переміщення - скасувати "
                                   "можна лише чернетку або замовлення без руху.") % order.name)
-            (order.picking_ids | order.production_ids).filtered(
-                lambda r: r.state not in ("done", "cancel")).action_cancel()
+            for records in (order.production_ids, order.picking_ids):
+                records.filtered(lambda r: r.state not in ("done", "cancel")).action_cancel()
             order.state = "cancel"
         return True
 

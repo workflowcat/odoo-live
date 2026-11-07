@@ -215,6 +215,7 @@ class TestUaPaymentRequest(AccountTestInvoicingCommon):
         request = self._request(3000.0, purpose="Аванс за датчики (тест)")
         request.with_user(self.initiator).action_submit()
         self._approve(request, self.finance)
+        request = request.with_user(self.env.user)  # далі працює бухгалтер
         request.journal_id = self.bank  # рахунок оплати обирає бухгалтер
         request.action_create_payment()
         payment = request.payment_ids
