@@ -30,7 +30,7 @@ class UaEdoSendWizard(models.TransientModel):
     report_id = fields.Many2one("ir.actions.report", "Друкована форма",
                                 domain="[('model', '=', res_model)]")
     kind = fields.Selection(KINDS, "Вид документа", compute="_compute_kind", store=True,
-                            readonly=False, required=True)
+                            readonly=False, required=True, precompute=True)
     file = fields.Binary("Свій файл", help="Замість друкованої форми - готовий файл "
                                            "(лише для одного запису).")
     file_name = fields.Char("Назва файла")
