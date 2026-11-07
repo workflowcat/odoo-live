@@ -386,6 +386,11 @@ class UaWaybill(models.Model):
     def action_print(self):
         return self.env.ref("l10n_ua_fleet.action_report_ua_waybill").report_action(self)
 
+    def adjustments_text(self):
+        """«Зима 10%, Місто 5%» - коригування норми для друку."""
+        self.ensure_one()
+        return ", ".join("%s %g%%" % (adj.name, adj.percent) for adj in self.adjustment_ids)
+
     @staticmethod
     def litres(value):
         """27,50 - літри для друку."""

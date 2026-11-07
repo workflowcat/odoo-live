@@ -60,7 +60,7 @@
         <t t-out="doc.litres(vehicle.ua_norm_base)"/> л/100 км<t t-if="vehicle.ua_norm_cargo">, на
         транспортну роботу <t t-out="doc.litres(vehicle.ua_norm_cargo)"/> л/100 т·км</t><t
         t-if="vehicle.ua_norm_hour">, на місці <t t-out="doc.litres(vehicle.ua_norm_hour)"/> л/год</t>.
-        <t t-if="doc.adjustment_ids">Коригування: <t t-out="', '.join('%s %g%%' % (a.name, a.percent) for a in doc.adjustment_ids)"/>.</t>
+        <t t-if="doc.adjustment_ids">Коригування: <t t-out="doc.adjustments_text()"/>.</t>
       </p>
       <table class="ua-grid">
         <thead>
