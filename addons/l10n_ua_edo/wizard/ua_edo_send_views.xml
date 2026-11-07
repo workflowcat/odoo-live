@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_edo_send_wizard_form" model="ir.ui.view">
+    <field name="name">ua.edo.send.wizard.form</field>
+    <field name="model">ua.edo.send.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Надіслати в ЕДО">
+        <field name="res_model" invisible="1"/>
+        <field name="res_ids" invisible="1"/>
+        <div class="alert alert-warning" role="alert" invisible="not already_count or not skip_sent">
+          Уже передано: <field name="already_count" class="oe_inline"/>. Ці записи буде пропущено.
+        </div>
+        <group>
+          <group>
+            <field name="record_count"/>
+            <field name="report_id" invisible="file" options="{'no_create': True, 'no_open': True}"/>
+            <field name="kind"/>
+          </group>
+          <group>
+            <field name="send_now"/>
+            <field name="skip_sent"/>
+            <field name="file" filename="file_name" invisible="record_count != 1"/>
+            <field name="file_name" invisible="1"/>
+          </group>
+        </group>
+        <field name="note" placeholder="Коментар для контрагента (необов'язково)"/>
+        <footer>
+          <button name="action_send" type="object" string="Надіслати" class="btn-primary"
+                  invisible="not send_now"/>
+          <button name="action_send" type="object" string="Підготувати чернетки" class="btn-primary"
+                  invisible="send_now"/>
+          <button special="cancel" string="Скасувати"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+</odoo>

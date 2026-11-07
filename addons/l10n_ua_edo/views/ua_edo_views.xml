@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Документ ЕДО -->
+  <record id="view_ua_edo_document_list" model="ir.ui.view">
+    <field name="name">ua.edo.document.list</field>
+    <field name="model">ua.edo.document</field>
+    <field name="arch" type="xml">
+      <list string="Документи ЕДО" decoration-danger="state in ('error', 'rejected')"
+            decoration-muted="state == 'cancel'" decoration-info="state == 'received'">
+        <field name="name"/>
+        <field name="direction"/>
+        <field name="kind"/>
+        <field name="partner_id"/>
+        <field name="partner_name" optional="hide"/>
+        <field name="doc_number"/>
+        <field name="date"/>
+        <field name="amount" sum="Разом"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="source_name" optional="show"/>
+        <field name="date_sent" optional="hide"/>
+        <field name="date_signed" optional="show"/>
+        <field name="state" widget="badge" decoration-success="state == 'signed'"
+               decoration-info="state in ('sent', 'delivered', 'received')"
+               decoration-danger="state in ('error', 'rejected')"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_edo_document_form" model="ir.ui.view">
+    <field name="name">ua.edo.document.form</field>
+    <field name="model">ua.edo.document</field>
+    <field name="arch" type="xml">
+      <form string="Документ ЕДО">
+        <header>
+          <button name="action_send" type="object" string="Надіслати" class="oe_highlight"
+                  invisible="direction != 'out' or state not in ('draft', 'error')"/>
+          <button name="action_refresh" type="object" string="Перевірити стан"
+                  invisible="not provider_id or state not in ('sent', 'delivered')"/>
+          <button name="action_sign" type="object" string="Підписати" class="oe_highlight"
+                  invisible="direction != 'in' or state != 'received'"
+                  confirm="Сервіс поставить підпис відповідальної особи. Підписати документ?"/>
+          <button name="action_reject" type="object" string="Відхилити"
+                  invisible="direction != 'in' or state != 'received'"/>
+          <button name="action_match_bill" type="object" string="Знайти рахунок постачальника"
+                  invisible="direction != 'in' or res_id"/>
+          <button name="action_mark_signed" type="object" string="Підписано на папері"
+                  invisible="direction != 'out' or state not in ('draft', 'error', 'sent', 'delivered')"/>
+          <button name="action_revoke" type="object" string="Відкликати"
+                  invisible="direction != 'out' or state not in ('sent', 'delivered')"
+                  confirm="Контрагент більше не зможе підписати цей документ. Відкликати?"/>
+          <button name="action_cancel" type="object" string="Скасувати"
+                  invisible="provider_id or state not in ('draft', 'error')"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,sent,delivered,signed"/>
+        </header>
+        <sheet>
+          <div class="oe_button_box" name="button_box">
+            <button name="action_open_source" type="object" class="oe_stat_button"
+                    icon="fa-file-text-o" invisible="not res_id">
+              <div class="o_stat_info">
+                <span class="o_stat_text">Документ в Odoo</span>
+                <span class="o_stat_value"><field name="source_name"/></span>
+              </div>
+            </button>
+            <button name="action_open_url" type="object" class="oe_stat_button"
+                    icon="fa-external-link" invisible="not provider_url" string="Відкрити в сервісі"/>
+          </div>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <div class="alert alert-danger" role="alert" invisible="not error">
+            <field name="error"/>
+          </div>
+          <group>
+            <group string="Документ">
+              <field name="direction" readonly="id"/>
+              <field name="kind" readonly="state not in ('draft', 'error', 'received')"/>
+              <field name="doc_number" readonly="state not in ('draft', 'error')"/>
+              <field name="date" readonly="state not in ('draft', 'error')"/>
+              <field name="amount" readonly="state not in ('draft', 'error')"/>
+              <field name="currency_id" readonly="state not in ('draft', 'error')"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="id"/>
+            </group>
+            <group string="Контрагент">
+              <field name="partner_id" required="direction == 'out'"
+                     readonly="state not in ('draft', 'error', 'received')"/>
+              <field name="partner_code" readonly="state not in ('draft', 'error')"/>
+              <field name="partner_name" invisible="direction != 'in'"/>
+            </group>
+          </group>
+          <group>
+            <group string="Файли">
+              <field name="attachment_id" readonly="state not in ('draft', 'error')"
+                     context="{'default_res_model': 'ua.edo.document', 'default_res_id': id}"/>
+              <field name="signed_attachment_id"
+                     context="{'default_res_model': 'ua.edo.document', 'default_res_id': id}"/>
+              <field name="report_id" invisible="not report_id"/>
+            </group>
+            <group string="Сервіс">
+              <field name="provider" invisible="not provider"/>
+              <field name="provider_id" invisible="not provider_id"/>
+              <field name="provider_status" invisible="not provider_status"/>
+              <field name="date_sent" invisible="not date_sent"/>
+              <field name="date_signed" invisible="not date_signed"/>
+              <field name="signed_how" invisible="not signed_how"/>
+              <field name="date_refreshed" invisible="not date_refreshed"/>
+              <field name="attempts" invisible="not attempts"/>
+              <field name="res_model" invisible="1"/>
+              <field name="res_id" invisible="1"/>
+              <field name="provider_url" invisible="1"/>
+            </group>
+          </group>
+          <group>
+            <field name="note" placeholder="Що побачить контрагент разом із документом"
+                   readonly="state not in ('draft', 'error')"/>
+            <field name="reject_reason" invisible="state not in ('received', 'rejected')"
+                   readonly="state != 'received'"
+                   placeholder="Чому документ не підписано: причину побачить контрагент"/>
+          </group>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_edo_document_search" model="ir.ui.view">
+    <field name="name">ua.edo.document.search</field>
+    <field name="model">ua.edo.document</field>
+    <field name="arch" type="xml">
+      <search string="Документи ЕДО">
+        <field name="name"/>
+        <field name="doc_number"/>
+        <field name="partner_id"/>
+        <field name="partner_code"/>
+        <filter name="outgoing" string="Вихідні" domain="[('direction', '=', 'out')]"/>
+        <filter name="incoming" string="Вхідні" domain="[('direction', '=', 'in')]"/>
+        <separator/>
+        <filter name="waiting" string="Чекають підпису контрагента"
+                domain="[('state', 'in', ('sent', 'delivered'))]"/>
+        <filter name="to_decide" string="Чекають рішення" domain="[('state', '=', 'received')]"/>
+        <filter name="problems" string="Не надіслано або відхилено"
+                domain="[('state', 'in', ('error', 'rejected'))]"/>
+        <filter name="signed" string="Підписано" domain="[('state', '=', 'signed')]"/>
+        <separator/>
+        <filter name="date" string="Дата документа" date="date"/>
+        <group>
+          <filter name="by_partner" string="Контрагент" context="{'group_by': 'partner_id'}"/>
+          <filter name="by_state" string="Стан" context="{'group_by': 'state'}"/>
+          <filter name="by_kind" string="Вид" context="{'group_by': 'kind'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_edo_document" model="ir.actions.act_window">
+    <field name="name">Документи ЕДО</field>
+    <field name="res_model">ua.edo.document</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_ua_edo_document_search"/>
+    <field name="context">{'create': False}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Документів ЕДО ще немає</p>
+      <p>Проведений рахунок, акт звірки чи договір надсилається контрагенту кнопкою
+        «Надіслати в ЕДО» або дією в списку - для багатьох записів одразу.</p>
+    </field>
+  </record>
+
+  <record id="action_ua_edo_document_out" model="ir.actions.act_window">
+    <field name="name">Вихідні документи ЕДО</field>
+    <field name="res_model">ua.edo.document</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_ua_edo_document_search"/>
+    <field name="domain">[('direction', '=', 'out')]</field>
+    <field name="context">{'create': False, 'default_direction': 'out'}</field>
+  </record>
+
+  <record id="action_ua_edo_document_in" model="ir.actions.act_window">
+    <field name="name">Вхідні документи ЕДО</field>
+    <field name="res_model">ua.edo.document</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_ua_edo_document_search"/>
+    <field name="domain">[('direction', '=', 'in')]</field>
+    <field name="context">{'create': False, 'search_default_to_decide': 1}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Вхідних документів немає</p>
+      <p>Документи контрагентів приходять зі скриньки ЕДО компанії за розкладом, коли
+        режим ЕДО компанії - через міст.</p>
+    </field>
+  </record>
+
+  <menuitem id="menu_ua_edo_out" name="Документи ЕДО" parent="account.menu_finance_receivables"
+            action="action_ua_edo_document_out" sequence="90"/>
+  <menuitem id="menu_ua_edo_in" name="Документи ЕДО" parent="account.menu_finance_payables"
+            action="action_ua_edo_document_in" sequence="90"/>
+
+  <!-- Дія в списку: надіслати багато записів одразу -->
+  <record id="server_action_ua_edo_send_move" model="ir.actions.server">
+    <field name="name">Надіслати в ЕДО</field>
+    <field name="model_id" ref="account.model_account_move"/>
+    <field name="binding_model_id" ref="account.model_account_move"/>
+    <field name="binding_view_types">list,form</field>
+    <field name="group_ids" eval="[(4, ref('account.group_account_invoice'))]"/>
+    <field name="state">code</field>
+    <field name="code">action = env["ua.edo.send.wizard"].action_open(records)</field>
+  </record>
+  <record id="server_action_ua_edo_send_act" model="ir.actions.server">
+    <field name="name">Надіслати в ЕДО</field>
+    <field name="model_id" ref="l10n_ua_contract.model_ua_reconciliation_act"/>
+    <field name="binding_model_id" ref="l10n_ua_contract.model_ua_reconciliation_act"/>
+    <field name="binding_view_types">list,form</field>
+    <field name="group_ids" eval="[(4, ref('account.group_account_invoice'))]"/>
+    <field name="state">code</field>
+    <field name="code">action = env["ua.edo.send.wizard"].action_open(records)</field>
+  </record>
+  <record id="server_action_ua_edo_send_contract" model="ir.actions.server">
+    <field name="name">Надіслати в ЕДО</field>
+    <field name="model_id" ref="l10n_ua_contract.model_ua_contract"/>
+    <field name="binding_model_id" ref="l10n_ua_contract.model_ua_contract"/>
+    <field name="binding_view_types">list,form</field>
+    <field name="group_ids" eval="[(4, ref('account.group_account_invoice'))]"/>
+    <field name="state">code</field>
+    <field name="code">action = env["ua.edo.send.wizard"].action_open(records)</field>
+  </record>
+
+  <!-- Лічильник на джерелах -->
+  <record id="view_move_form_ua_edo" model="ir.ui.view">
+    <field name="name">account.move.form.ua.edo</field>
+    <field name="model">account.move</field>
+    <field name="inherit_id" ref="account.view_move_form"/>
+    <field name="arch" type="xml">
+      <div name="button_box" position="inside">
+        <button name="action_ua_edo_documents" type="object" class="oe_stat_button"
+                icon="fa-exchange" invisible="not ua_edo_count">
+          <div class="o_stat_info">
+            <span class="o_stat_value"><field name="ua_edo_count"/></span>
+            <span class="o_stat_text"><field name="ua_edo_state"/></span>
+          </div>
+        </button>
+      </div>
+    </field>
+  </record>
+
+  <record id="view_ua_contract_form_ua_edo" model="ir.ui.view">
+    <field name="name">ua.contract.form.ua.edo</field>
+    <field name="model">ua.contract</field>
+    <field name="inherit_id" ref="l10n_ua_contract.view_ua_contract_form"/>
+    <field name="arch" type="xml">
+      <div name="button_box" position="inside">
+        <button name="action_ua_edo_documents" type="object" class="oe_stat_button"
+                icon="fa-exchange" invisible="not ua_edo_count">
+          <field name="ua_edo_count" widget="statinfo" string="Документи ЕДО"/>
+        </button>
+      </div>
+    </field>
+  </record>
+
+  <record id="view_ua_reconciliation_act_form_ua_edo" model="ir.ui.view">
+    <field name="name">ua.reconciliation.act.form.ua.edo</field>
+    <field name="model">ua.reconciliation.act</field>
+    <field name="inherit_id" ref="l10n_ua_contract.view_ua_reconciliation_act_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//header/button[@name='action_print']" position="after">
+        <button name="action_ua_edo_send" type="object" string="Надіслати в ЕДО"
+                invisible="state != 'draft' or not line_ids"
+                groups="account.group_account_invoice"/>
+      </xpath>
+      <xpath expr="//sheet/div[hasclass('oe_title')]" position="before">
+        <div class="oe_button_box" name="button_box" invisible="not ua_edo_count">
+          <button name="action_ua_edo_documents" type="object" class="oe_stat_button"
+                  icon="fa-exchange">
+            <field name="ua_edo_count" widget="statinfo" string="Документи ЕДО"/>
+          </button>
+        </div>
+      </xpath>
+    </field>
+  </record>
+
+  <!-- Налаштування компанії -->
+  <record id="view_company_form_ua_edo" model="ir.ui.view">
+    <field name="name">res.company.form.ua.edo</field>
+    <field name="model">res.company</field>
+    <field name="inherit_id" ref="l10n_ua_docs.view_company_form_ua_docs"/>
+    <field name="arch" type="xml">
+      <xpath expr="//page[@name='ua_docs']" position="inside">
+        <group string="Електронний документообіг" name="ua_edo">
+          <field name="ua_edo_mode"/>
+          <field name="ua_edo_provider" invisible="ua_edo_mode != 'bridge'"/>
+        </group>
+        <p class="text-muted" invisible="ua_edo_mode != 'bridge'">
+          Ключі сервісу ЕДО тримає міст інтеграцій, не Odoo. Документ підписує КЕП
+          відповідальна особа в сервісі; Odoo передає файл і стежить за станом.
+        </p>
+      </xpath>
+    </field>
+  </record>
+</odoo>

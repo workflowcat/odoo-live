@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 56. Моделей: 123. Методів: 421. Збережених полів на чужих моделях: 312.
+Модулів: 57. Моделей: 126. Методів: 435. Збережених полів на чужих моделях: 314.
 
 ## Зарплата
 
@@ -320,7 +320,7 @@
 
 ### `res.company`
 
-доповнена модель · `l10n_ua_average`, `l10n_ua_cash`, `l10n_ua_chart`, `l10n_ua_docs`, `l10n_ua_fop`, `l10n_ua_hr_orders`, `l10n_ua_payment_request`, `l10n_ua_payments`, `l10n_ua_payroll_account`, `l10n_ua_payroll_reports`, `l10n_ua_payroll_rules`, `l10n_ua_purchase`, `l10n_ua_setup`, `l10n_ua_vat`
+доповнена модель · `l10n_ua_average`, `l10n_ua_cash`, `l10n_ua_chart`, `l10n_ua_docs`, `l10n_ua_edo`, `l10n_ua_fop`, `l10n_ua_hr_orders`, `l10n_ua_payment_request`, `l10n_ua_payments`, `l10n_ua_payroll_account`, `l10n_ua_payroll_reports`, `l10n_ua_payroll_rules`, `l10n_ua_purchase`, `l10n_ua_setup`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -342,6 +342,8 @@
 | `ua_dps_raj` | Char | Код району ДПІ | `l10n_ua_vat` |
 | `ua_dps_reg` | Char | Код області ДПІ | `l10n_ua_vat` |
 | `ua_dps_sti` | Char | Код ДПІ отримувача | `l10n_ua_vat` |
+| `ua_edo_mode` | Selection | - | `l10n_ua_edo` |
+| `ua_edo_provider` | Char | Сервіс ЕДО | `l10n_ua_edo` |
 | `ua_engagement_forms` | Char | Форми залучення людей | `l10n_ua_setup` |
 | `ua_fop` | Boolean | ФОП на єдиному податку | `l10n_ua_fop` |
 | `ua_fop_group` | Selection | - | `l10n_ua_fop` |
@@ -973,36 +975,6 @@
 | `action_ua_pull()` | «Завантажити виписку»: діалог з трьох полів - рахунок, рік, місяць. | `l10n_ua_bank_online` |
 | `action_ua_pull_all()` | «Завантажити за всі рахунки»: поточний місяць, усі підключені рахунки. | `l10n_ua_bank_online` |
 
-### `account.move`
-
-доповнена модель · `bp_purchase_intake`, `l10n_ua_close`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_prro`, `l10n_ua_tolling`, `l10n_ua_vat`
-
-| Метод | Що робить | Модуль |
-| --- | --- | --- |
-| `action_post()` | - | `bp_purchase_intake` |
-| `action_ua_close_first_events()` | Кнопка «Закрити першу подію» - страховка, коли автоматика не | `l10n_ua_vat` |
-| `action_ua_create_tax_invoice()` | Кнопка «Скласти податкову накладну». | `l10n_ua_vat` |
-| `action_ua_post_customs_vat()` | «Взяти в кредит»: проводка Дт 6412 / Кт 3771 на суму ПДВ із митної | `l10n_ua_vat` |
-| `action_ua_prro_receipts()` | - | `l10n_ua_prro` |
-
-| Поле | Тип | Підпис | Модуль |
-| --- | --- | --- | --- |
-| `bp_intake_id` | Many2one | bp.purchase.intake | `bp_purchase_intake` |
-| `ua_close_id` | Many2one | ua.period.close | `l10n_ua_close` |
-| `ua_close_kind` | Selection | - | `l10n_ua_close` |
-| `ua_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
-| `ua_customs_decl_number` | Char | Номер митної декларації | `l10n_ua_vat` |
-| `ua_customs_entry` | Boolean | Позначка проводки митного ПДВ | `l10n_ua_vat` |
-| `ua_customs_move_id` | Many2one | account.move | `l10n_ua_vat` |
-| `ua_customs_vat` | Monetary | Митний ПДВ | `l10n_ua_vat` |
-| `ua_fe_kind` | Selection | Проводка першої події | `l10n_ua_vat` |
-| `ua_in_pn_registered` | Boolean | ПН постачальника зареєстрована | `l10n_ua_vat` |
-| `ua_pn_deadline` | Date | Граничний строк реєстрації ПН | `l10n_ua_vat` |
-| `ua_prro_receipt_ids` | Many2many | ua.prro.receipt | `l10n_ua_prro` |
-| `ua_tolling_id` | Many2one | ua.tolling.order | `l10n_ua_tolling` |
-| `ua_vat_comp` | Boolean | Проводка компенсуючих ПЗ | `l10n_ua_vat` |
-| `ua_vat_document_ids` | One2many | ua.vat.document | `l10n_ua_vat` |
-
 ### `account.tax.group`
 
 доповнена модель · `l10n_ua_vat`
@@ -1319,7 +1291,7 @@
 
 ### `ua.contract`
 
-наша модель · `l10n_ua_claim`, `l10n_ua_contract`, `l10n_ua_defense`
+наша модель · `l10n_ua_claim`, `l10n_ua_contract`, `l10n_ua_defense`, `l10n_ua_edo`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1401,6 +1373,41 @@
 | `action_submit()` | - | `l10n_ua_eco` |
 | `diff_rows()` | [{action, product, new_product, old_qty, new_qty, uom, note}] по рядках ПЗ. | `l10n_ua_eco` |
 
+### `ua.edo.document`
+
+наша модель · `l10n_ua_edo`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | - | `l10n_ua_edo` |
+| `action_mark_signed()` | Підписано поза ЕДО: контрагент підписав папір, скан прикладено. | `l10n_ua_edo` |
+| `action_match_bill()` | - | `l10n_ua_edo` |
+| `action_open_source()` | - | `l10n_ua_edo` |
+| `action_open_url()` | - | `l10n_ua_edo` |
+| `action_refresh()` | - | `l10n_ua_edo` |
+| `action_reject()` | - | `l10n_ua_edo` |
+| `action_revoke()` | Відкликати вихідний документ, поки контрагент його не підписав. | `l10n_ua_edo` |
+| `action_send()` | - | `l10n_ua_edo` |
+| `action_sign()` | Погодити вхідний документ: сервіс ставить підпис відповідальної особи. | `l10n_ua_edo` |
+
+### `ua.edo.send.wizard`
+
+наша модель · `l10n_ua_edo`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_open(records)` | - | `l10n_ua_edo` |
+| `action_send()` | - | `l10n_ua_edo` |
+
+### `ua.edo.source.mixin`
+
+наша модель · `l10n_ua_edo`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_ua_edo_documents()` | - | `l10n_ua_edo` |
+| `action_ua_edo_send()` | - | `l10n_ua_edo` |
+
 ### `ua.navigation`
 
 наша модель · `l10n_ua_navigation`
@@ -1465,7 +1472,7 @@
 
 ### `ua.reconciliation.act`
 
-наша модель · `l10n_ua_contract`
+наша модель · `l10n_ua_contract`, `l10n_ua_edo`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1519,6 +1526,36 @@
 | --- | --- | --- | --- |
 | `ua_prro_payment_type` | Selection | - | `l10n_ua_prro` |
 | `ua_prro_register_id` | Many2one | ua.prro.register | `l10n_ua_prro` |
+
+### `account.move`
+
+доповнена модель · `bp_purchase_intake`, `l10n_ua_close`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_edo`, `l10n_ua_prro`, `l10n_ua_tolling`, `l10n_ua_vat`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_post()` | - | `bp_purchase_intake` |
+| `action_ua_close_first_events()` | Кнопка «Закрити першу подію» - страховка, коли автоматика не | `l10n_ua_vat` |
+| `action_ua_create_tax_invoice()` | Кнопка «Скласти податкову накладну». | `l10n_ua_vat` |
+| `action_ua_post_customs_vat()` | «Взяти в кредит»: проводка Дт 6412 / Кт 3771 на суму ПДВ із митної | `l10n_ua_vat` |
+| `action_ua_prro_receipts()` | - | `l10n_ua_prro` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `bp_intake_id` | Many2one | bp.purchase.intake | `bp_purchase_intake` |
+| `ua_close_id` | Many2one | ua.period.close | `l10n_ua_close` |
+| `ua_close_kind` | Selection | - | `l10n_ua_close` |
+| `ua_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
+| `ua_customs_decl_number` | Char | Номер митної декларації | `l10n_ua_vat` |
+| `ua_customs_entry` | Boolean | Позначка проводки митного ПДВ | `l10n_ua_vat` |
+| `ua_customs_move_id` | Many2one | account.move | `l10n_ua_vat` |
+| `ua_customs_vat` | Monetary | Митний ПДВ | `l10n_ua_vat` |
+| `ua_fe_kind` | Selection | Проводка першої події | `l10n_ua_vat` |
+| `ua_in_pn_registered` | Boolean | ПН постачальника зареєстрована | `l10n_ua_vat` |
+| `ua_pn_deadline` | Date | Граничний строк реєстрації ПН | `l10n_ua_vat` |
+| `ua_prro_receipt_ids` | Many2many | ua.prro.receipt | `l10n_ua_prro` |
+| `ua_tolling_id` | Many2one | ua.tolling.order | `l10n_ua_tolling` |
+| `ua_vat_comp` | Boolean | Проводка компенсуючих ПЗ | `l10n_ua_vat` |
+| `ua_vat_document_ids` | One2many | ua.vat.document | `l10n_ua_vat` |
 
 ### `account.move.line`
 

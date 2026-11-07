@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 56,
-    "models": 123,
-    "methods": 421,
-    "fields": 312
+    "modules": 57,
+    "models": 126,
+    "methods": 435,
+    "fields": 314
   },
   "areas": [
     {
@@ -1517,6 +1517,7 @@
             "l10n_ua_cash",
             "l10n_ua_chart",
             "l10n_ua_docs",
+            "l10n_ua_edo",
             "l10n_ua_fop",
             "l10n_ua_hr_orders",
             "l10n_ua_payment_request",
@@ -1649,6 +1650,22 @@
               "label": "Код ДПІ отримувача",
               "module": "l10n_ua_vat",
               "file": "addons/l10n_ua_vat/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_edo_mode",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_edo",
+              "file": "addons/l10n_ua_edo/models/ua_edo.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_edo_provider",
+              "type": "Char",
+              "label": "Сервіс ЕДО",
+              "module": "l10n_ua_edo",
+              "file": "addons/l10n_ua_edo/models/ua_edo.py",
               "groups": ""
             },
             {
@@ -4396,183 +4413,6 @@
           "fields": []
         },
         {
-          "model": "account.move",
-          "ours": false,
-          "modules": [
-            "bp_purchase_intake",
-            "l10n_ua_close",
-            "l10n_ua_contract",
-            "l10n_ua_docs",
-            "l10n_ua_prro",
-            "l10n_ua_tolling",
-            "l10n_ua_vat"
-          ],
-          "methods": [
-            {
-              "name": "action_post",
-              "signature": "action_post()",
-              "doc": "",
-              "module": "bp_purchase_intake",
-              "file": "addons/bp_purchase_intake/models/account_move.py",
-              "decorators": []
-            },
-            {
-              "name": "action_ua_close_first_events",
-              "signature": "action_ua_close_first_events()",
-              "doc": "Кнопка «Закрити першу подію» - страховка, коли автоматика не",
-              "module": "l10n_ua_vat",
-              "file": "addons/l10n_ua_vat/models/account_move.py",
-              "decorators": []
-            },
-            {
-              "name": "action_ua_create_tax_invoice",
-              "signature": "action_ua_create_tax_invoice()",
-              "doc": "Кнопка «Скласти податкову накладну».",
-              "module": "l10n_ua_vat",
-              "file": "addons/l10n_ua_vat/models/account_move.py",
-              "decorators": []
-            },
-            {
-              "name": "action_ua_post_customs_vat",
-              "signature": "action_ua_post_customs_vat()",
-              "doc": "«Взяти в кредит»: проводка Дт 6412 / Кт 3771 на суму ПДВ із митної",
-              "module": "l10n_ua_vat",
-              "file": "addons/l10n_ua_vat/models/account_move.py",
-              "decorators": []
-            },
-            {
-              "name": "action_ua_prro_receipts",
-              "signature": "action_ua_prro_receipts()",
-              "doc": "",
-              "module": "l10n_ua_prro",
-              "file": "addons/l10n_ua_prro/models/account.py",
-              "decorators": []
-            }
-          ],
-          "fields": [
-            {
-              "name": "bp_intake_id",
-              "type": "Many2one",
-              "label": "bp.purchase.intake",
-              "module": "bp_purchase_intake",
-              "file": "addons/bp_purchase_intake/models/account_move.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_close_id",
-              "type": "Many2one",
-              "label": "ua.period.close",
-              "module": "l10n_ua_close",
-              "file": "addons/l10n_ua_close/models/account_move.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_close_kind",
-              "type": "Selection",
-              "label": "",
-              "module": "l10n_ua_close",
-              "file": "addons/l10n_ua_close/models/account_move.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_contract_id",
-              "type": "Many2one",
-              "label": "ua.contract",
-              "module": "l10n_ua_contract",
-              "file": "addons/l10n_ua_contract/models/account_move.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_customs_decl_number",
-              "type": "Char",
-              "label": "Номер митної декларації",
-              "module": "l10n_ua_vat",
-              "file": "addons/l10n_ua_vat/models/account_move.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_customs_entry",
-              "type": "Boolean",
-              "label": "Позначка проводки митного ПДВ",
-              "module": "l10n_ua_vat",
-              "file": "addons/l10n_ua_vat/models/account_move.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_customs_move_id",
-              "type": "Many2one",
-              "label": "account.move",
-              "module": "l10n_ua_vat",
-              "file": "addons/l10n_ua_vat/models/account_move.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_customs_vat",
-              "type": "Monetary",
-              "label": "Митний ПДВ",
-              "module": "l10n_ua_vat",
-              "file": "addons/l10n_ua_vat/models/account_move.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_fe_kind",
-              "type": "Selection",
-              "label": "Проводка першої події",
-              "module": "l10n_ua_vat",
-              "file": "addons/l10n_ua_vat/models/account_move.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_in_pn_registered",
-              "type": "Boolean",
-              "label": "ПН постачальника зареєстрована",
-              "module": "l10n_ua_vat",
-              "file": "addons/l10n_ua_vat/models/account_move.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_pn_deadline",
-              "type": "Date",
-              "label": "Граничний строк реєстрації ПН",
-              "module": "l10n_ua_vat",
-              "file": "addons/l10n_ua_vat/models/account_move.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_prro_receipt_ids",
-              "type": "Many2many",
-              "label": "ua.prro.receipt",
-              "module": "l10n_ua_prro",
-              "file": "addons/l10n_ua_prro/models/account.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_tolling_id",
-              "type": "Many2one",
-              "label": "ua.tolling.order",
-              "module": "l10n_ua_tolling",
-              "file": "addons/l10n_ua_tolling/models/stock.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_vat_comp",
-              "type": "Boolean",
-              "label": "Проводка компенсуючих ПЗ",
-              "module": "l10n_ua_vat",
-              "file": "addons/l10n_ua_vat/models/account_move.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_vat_document_ids",
-              "type": "One2many",
-              "label": "ua.vat.document",
-              "module": "l10n_ua_vat",
-              "file": "addons/l10n_ua_vat/models/account_move.py",
-              "groups": ""
-            }
-          ]
-        },
-        {
           "model": "account.tax.group",
           "ours": false,
           "modules": [
@@ -5933,7 +5773,8 @@
           "modules": [
             "l10n_ua_claim",
             "l10n_ua_contract",
-            "l10n_ua_defense"
+            "l10n_ua_defense",
+            "l10n_ua_edo"
           ],
           "methods": [
             {
@@ -6328,6 +6169,150 @@
           "fields": []
         },
         {
+          "model": "ua.edo.document",
+          "ours": true,
+          "modules": [
+            "l10n_ua_edo"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_edo",
+              "file": "addons/l10n_ua_edo/models/ua_edo.py",
+              "decorators": []
+            },
+            {
+              "name": "action_mark_signed",
+              "signature": "action_mark_signed()",
+              "doc": "Підписано поза ЕДО: контрагент підписав папір, скан прикладено.",
+              "module": "l10n_ua_edo",
+              "file": "addons/l10n_ua_edo/models/ua_edo.py",
+              "decorators": []
+            },
+            {
+              "name": "action_match_bill",
+              "signature": "action_match_bill()",
+              "doc": "",
+              "module": "l10n_ua_edo",
+              "file": "addons/l10n_ua_edo/models/ua_edo.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_source",
+              "signature": "action_open_source()",
+              "doc": "",
+              "module": "l10n_ua_edo",
+              "file": "addons/l10n_ua_edo/models/ua_edo.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_url",
+              "signature": "action_open_url()",
+              "doc": "",
+              "module": "l10n_ua_edo",
+              "file": "addons/l10n_ua_edo/models/ua_edo.py",
+              "decorators": []
+            },
+            {
+              "name": "action_refresh",
+              "signature": "action_refresh()",
+              "doc": "",
+              "module": "l10n_ua_edo",
+              "file": "addons/l10n_ua_edo/models/ua_edo.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reject",
+              "signature": "action_reject()",
+              "doc": "",
+              "module": "l10n_ua_edo",
+              "file": "addons/l10n_ua_edo/models/ua_edo.py",
+              "decorators": []
+            },
+            {
+              "name": "action_revoke",
+              "signature": "action_revoke()",
+              "doc": "Відкликати вихідний документ, поки контрагент його не підписав.",
+              "module": "l10n_ua_edo",
+              "file": "addons/l10n_ua_edo/models/ua_edo.py",
+              "decorators": []
+            },
+            {
+              "name": "action_send",
+              "signature": "action_send()",
+              "doc": "",
+              "module": "l10n_ua_edo",
+              "file": "addons/l10n_ua_edo/models/ua_edo.py",
+              "decorators": []
+            },
+            {
+              "name": "action_sign",
+              "signature": "action_sign()",
+              "doc": "Погодити вхідний документ: сервіс ставить підпис відповідальної особи.",
+              "module": "l10n_ua_edo",
+              "file": "addons/l10n_ua_edo/models/ua_edo.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.edo.send.wizard",
+          "ours": true,
+          "modules": [
+            "l10n_ua_edo"
+          ],
+          "methods": [
+            {
+              "name": "action_open",
+              "signature": "action_open(records)",
+              "doc": "",
+              "module": "l10n_ua_edo",
+              "file": "addons/l10n_ua_edo/wizard/ua_edo_send.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "action_send",
+              "signature": "action_send()",
+              "doc": "",
+              "module": "l10n_ua_edo",
+              "file": "addons/l10n_ua_edo/wizard/ua_edo_send.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.edo.source.mixin",
+          "ours": true,
+          "modules": [
+            "l10n_ua_edo"
+          ],
+          "methods": [
+            {
+              "name": "action_ua_edo_documents",
+              "signature": "action_ua_edo_documents()",
+              "doc": "",
+              "module": "l10n_ua_edo",
+              "file": "addons/l10n_ua_edo/models/ua_edo.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_edo_send",
+              "signature": "action_ua_edo_send()",
+              "doc": "",
+              "module": "l10n_ua_edo",
+              "file": "addons/l10n_ua_edo/models/ua_edo.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.navigation",
           "ours": true,
           "modules": [
@@ -6555,7 +6540,8 @@
           "model": "ua.reconciliation.act",
           "ours": true,
           "modules": [
-            "l10n_ua_contract"
+            "l10n_ua_contract",
+            "l10n_ua_edo"
           ],
           "methods": [
             {
@@ -6800,6 +6786,184 @@
               "label": "ua.prro.register",
               "module": "l10n_ua_prro",
               "file": "addons/l10n_ua_prro/models/account.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "account.move",
+          "ours": false,
+          "modules": [
+            "bp_purchase_intake",
+            "l10n_ua_close",
+            "l10n_ua_contract",
+            "l10n_ua_docs",
+            "l10n_ua_edo",
+            "l10n_ua_prro",
+            "l10n_ua_tolling",
+            "l10n_ua_vat"
+          ],
+          "methods": [
+            {
+              "name": "action_post",
+              "signature": "action_post()",
+              "doc": "",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/account_move.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_close_first_events",
+              "signature": "action_ua_close_first_events()",
+              "doc": "Кнопка «Закрити першу подію» - страховка, коли автоматика не",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_create_tax_invoice",
+              "signature": "action_ua_create_tax_invoice()",
+              "doc": "Кнопка «Скласти податкову накладну».",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_post_customs_vat",
+              "signature": "action_ua_post_customs_vat()",
+              "doc": "«Взяти в кредит»: проводка Дт 6412 / Кт 3771 на суму ПДВ із митної",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_prro_receipts",
+              "signature": "action_ua_prro_receipts()",
+              "doc": "",
+              "module": "l10n_ua_prro",
+              "file": "addons/l10n_ua_prro/models/account.py",
+              "decorators": []
+            }
+          ],
+          "fields": [
+            {
+              "name": "bp_intake_id",
+              "type": "Many2one",
+              "label": "bp.purchase.intake",
+              "module": "bp_purchase_intake",
+              "file": "addons/bp_purchase_intake/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_close_id",
+              "type": "Many2one",
+              "label": "ua.period.close",
+              "module": "l10n_ua_close",
+              "file": "addons/l10n_ua_close/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_close_kind",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_close",
+              "file": "addons/l10n_ua_close/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_contract_id",
+              "type": "Many2one",
+              "label": "ua.contract",
+              "module": "l10n_ua_contract",
+              "file": "addons/l10n_ua_contract/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_customs_decl_number",
+              "type": "Char",
+              "label": "Номер митної декларації",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_customs_entry",
+              "type": "Boolean",
+              "label": "Позначка проводки митного ПДВ",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_customs_move_id",
+              "type": "Many2one",
+              "label": "account.move",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_customs_vat",
+              "type": "Monetary",
+              "label": "Митний ПДВ",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_fe_kind",
+              "type": "Selection",
+              "label": "Проводка першої події",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_in_pn_registered",
+              "type": "Boolean",
+              "label": "ПН постачальника зареєстрована",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_pn_deadline",
+              "type": "Date",
+              "label": "Граничний строк реєстрації ПН",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_prro_receipt_ids",
+              "type": "Many2many",
+              "label": "ua.prro.receipt",
+              "module": "l10n_ua_prro",
+              "file": "addons/l10n_ua_prro/models/account.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_tolling_id",
+              "type": "Many2one",
+              "label": "ua.tolling.order",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/stock.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_vat_comp",
+              "type": "Boolean",
+              "label": "Проводка компенсуючих ПЗ",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_vat_document_ids",
+              "type": "One2many",
+              "label": "ua.vat.document",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/account_move.py",
               "groups": ""
             }
           ]

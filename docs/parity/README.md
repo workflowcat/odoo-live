@@ -30,7 +30,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Property and land tax, environmental tax | gap | low priority; returns as XML |
 | Statistical reports (Держстат) | gap | low priority |
 | E-signature (КЕП) and sending reports, ЄРПН registration | gap | XML files are produced; signing and sending stay in M.E.Doc/Вчасно or a bridge route |
-| Electronic document exchange with counterparties | gap | bridge route to an EDO service (Вчасно, M.E.Doc, Paperless) |
+| Electronic document exchange with counterparties | done | `l10n_ua_edo`: invoices, acts, waybills, contracts and reconciliation acts out as PDF through the bridge (one or many at once, no double sends), status and the counterparty's signature back, rejection with a task, paper signature; incoming documents matched to vendor bills, signed or rejected from Odoo. Service adapters in the bridge are separate work |
 
 ## 2. Payroll and HR (ЗУП)
 

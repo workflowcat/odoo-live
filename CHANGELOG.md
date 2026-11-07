@@ -119,6 +119,14 @@ Notable changes for people who run or build on this code. Module-level API chang
   calculation date fill the schedule lines in due-date order; a part accepted late counts days to the act
   date, a part not yet accepted counts days to the calculation date. The contract shows the amount as of
   today and prints the calculation with every late part.
+- `l10n_ua_edo`: electronic document exchange with counterparties through the bridge (Вчасно, M.E.Doc,
+  Paperless adapters live in the bridge). A posted invoice, reconciliation act or contract goes out as a PDF
+  of its print form, one or many at once; a record that already has a sent document of the same kind is
+  skipped; a missing ЄДРПОУ/РНОКПП leaves that one document "not sent" with the reason. Status, the
+  counterparty's signature file and rejection reasons come back on a schedule; a retry reuses the same key;
+  a reconciliation act becomes agreed or disputed with its document. Incoming documents are matched to
+  vendor bills by number and signed or rejected from Odoo. Test mode works without the bridge. Contract:
+  `docs/base/spec-edo.md`. Tests: `ua_edo`.
 
 ### Changed
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number

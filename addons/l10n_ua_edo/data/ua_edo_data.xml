@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+    <record id="seq_ua_edo_document" model="ir.sequence">
+      <field name="name">Документ ЕДО</field>
+      <field name="code">ua.edo.document</field>
+      <field name="prefix">ЕД/%(range_year)s/</field>
+      <field name="padding">5</field>
+      <field name="use_date_range">True</field>
+      <field name="company_id" eval="False"/>
+    </record>
+  </data>
+  <record id="cron_ua_edo_refresh" model="ir.cron">
+    <field name="name">ЕДО: оновити стан надісланих документів</field>
+    <field name="model_id" ref="model_ua_edo_document"/>
+    <field name="state">code</field>
+    <field name="code">model._cron_refresh()</field>
+    <field name="interval_number">30</field>
+    <field name="interval_type">minutes</field>
+    <field name="active">True</field>
+  </record>
+</odoo>
