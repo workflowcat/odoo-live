@@ -86,7 +86,8 @@ class TestUaReservation(TransactionCase):
         self.assertIn("Статус критично важливого закінчується", self._rows(doc, "warn"))
         self._reserve(self.liable[5], 300)
         doc = self._list()
-        self.assertEqual(self._rows(doc, "warn")["Бронювання довше за статус критично важливого"], 1)
+        self.assertEqual(self._rows(doc, "warn")["Бронювання довше за статус критично важливого"],
+                         "1")
 
     def test_03_wage_floor(self):
         self.env["ua.payroll.param"].create({

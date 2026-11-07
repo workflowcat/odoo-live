@@ -17,6 +17,7 @@
 """
 import datetime
 
+from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests import tagged
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
@@ -93,6 +94,16 @@ class TestUaClose(AccountTestInvoicingCommon):
     def _month(self, year=2026, month=10):
         return self.Close.ensure_for(self.company, year, month)
 
+    def _run(self, record):
+        """run_operations; якщо проводка не зійшлась - показати рядки переоцінки."""
+        try:
+            record.run_operations()
+        except UserError as error:
+            items = record._ua_fx_items(self.company, OCT_LAST)
+            self.fail("%s; переоцінка: %s; сьогодні: %s" % (error, [
+                (i["account"].code, i["partner"].name, i["currency"].name, i["diff"])
+                for i in items], fields.Date.context_today(record)))
+
     def _kind(self, record, kind):
         return record.ua_close_move_ids.filtered(lambda m: m.ua_close_kind == kind)
 
@@ -117,7 +128,7 @@ class TestUaClose(AccountTestInvoicingCommon):
         rows = {row["key"]: row for row in record.operation_rows(self.company, 2026, 10)}
         self.assertEqual(rows["fx"]["state"], "todo")
         self.assertAlmostEqual(rows["fx"]["amount"], 3400.0, delta=CENT)
-        record.run_operations()
+        self._run(record)
 
         fx = self._kind(record, "fx")
         self.assertEqual(len(fx), 1)
@@ -234,7 +245,7 @@ class TestUaClose(AccountTestInvoicingCommon):
         self._uah_month()
         self._usd_month()
         record = self._month()
-        record.run_operations()
+        self._run(record)
         self.assertTrue(record.ua_close_move_ids)
         record.undo_operations()
         record.invalidate_recordset()
