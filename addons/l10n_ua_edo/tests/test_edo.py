@@ -113,7 +113,7 @@ class TestUaEdo(TransactionCase):
         self.assertEqual((doc.partner_id, doc.partner_code, doc.amount, doc.doc_number),
                          (self.customer, "12345678", 1500.0, invoice.name))
         self.assertTrue(doc.attachment_id.raw)
-        self.assertIn("Акт", doc.attachment_id.name)
+        self.assertIn(invoice.name.replace("/", "-"), doc.attachment_id.name)  # назва з друку звіту
         invoice.invalidate_recordset()
         self.assertEqual((invoice.ua_edo_count, invoice.ua_edo_state), (1, "sent"))
         self.assertEqual(doc.source_name, invoice.display_name)
