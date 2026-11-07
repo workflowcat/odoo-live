@@ -1,17 +1,18 @@
 // odoo-live bridge. All external systems are reached through here; Odoo holds one token and no vendor keys.
+// Tokens and their routes: src/auth.js (one token per environment, stored by hash).
 //   GET  /health
 //   GET  /api/odb/screen/:code        registry + risk markers, normalized (OpenDataBot v2, cached 24h in D1)
 //   GET  /api/odb/court?text=&offset= court decisions search, passthrough (billable, on demand)
 //   ANY  /api/kyc/*                   forward to Squibkit with its key (POST /subjects, PATCH /subjects/:id, ...)
 //   *                                 Odoo container when attached (see container.js); otherwise the status page
 import { OdooContainer, routeToOdoo } from "./container.js";
+import { authorize } from "./auth.js";
 export { OdooContainer };
 
 const ODB = "https://opendatabot.ua/api/v2";
 const KYC = "https://kyc.bnp.works";
 
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "content-type": "application/json; charset=utf-8" } });
-const authed = (req, env) => (req.headers.get("Authorization") || "") === `Bearer ${env.BRIDGE_TOKEN}`;
 const first = (x) => (Array.isArray(x) ? x[0] : x);
 
 async function odbGet(env, path, params = {}) {
@@ -99,7 +100,7 @@ function statusPage(env) {
 <style>body{font:15px/1.5 ui-monospace,Menlo,monospace;background:#f6f1e7;color:#1d1b18;max-width:640px;margin:8vh auto;padding:0 20px}h1{font:600 24px Georgia,serif}code{background:#eee6d6;padding:1px 6px}p{margin:8px 0}</style>
 <h1>odoo-live</h1>
 <p>Міст інтеграцій працює: <code>/api/odb/*</code> (OpenDataBot), <code>/api/kyc/*</code> (Squibkit).</p>
-<p>Odoo на цьому домені ще не підключено: контейнер чекає на план Workers Paid. База даних живе на Supabase.</p>
+<p>Odoo на цьому домені не підключено.</p>
 <p><code>GET /health</code></p></html>`, { headers: { "content-type": "text/html; charset=utf-8" } });
 }
 
@@ -110,7 +111,9 @@ export default {
       .bind(new Date().toISOString(), p.replace(/\/\d{8,10}(\/|$)/, "/:code$1"), status, Date.now() - t0).run().catch(() => {}));
     if (p === "/health") return json({ ok: true, odoo_attached: !!env.ODOO, ts: new Date().toISOString() });
     if (p.startsWith("/api/")) {
-      if (!authed(req, env)) return json({ error: "forbidden" }, 403);
+      let who;
+      try { who = await authorize(req, env, p); } catch (e) { log(500); return json({ error: "bridge tokens misconfigured" }, 500); }
+      if (who.error) { log(who.status); return json({ error: who.error }, who.status); }
       try {
         let res;
         if (p.startsWith("/api/odb/screen/")) { const code = p.split("/")[4].replace(/\D/g, ""); res = json(await screen(env, code)); }

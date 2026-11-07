@@ -10,6 +10,10 @@
 #   --yes       не питати підтвердження (для prod питає завжди, поки не заданий)
 #   --upgrade   після відновлення прогнати `odoo -u <наші модулі> --stop-after-init`
 #   --latest    замість файлу взяти найсвіжішу копію того оточення, з якого відновлюємо
+#   --no-neutralize  не знешкоджувати (лише для копії самого staging)
+#
+# На staging копію завжди знешкоджено (deploy/neutralize.sh): копія prod не несе паролів,
+# токенів банку і моста, ключів API, пошти. Не вдалося - базу видалено, Odoo не піднято.
 #
 # Odoo на час відновлення зупиняється і піднімається назад у кінці.
 set -euo pipefail
@@ -31,6 +35,7 @@ TARGET_DB=""
 ASSUME_YES=0
 DO_UPGRADE=0
 USE_LATEST=0
+NEUTRALIZE=1
 while [ $# -gt 0 ]; do
     case "$1" in
         --db)
@@ -40,6 +45,7 @@ while [ $# -gt 0 ]; do
         --yes) ASSUME_YES=1 ;;
         --upgrade) DO_UPGRADE=1 ;;
         --latest) USE_LATEST=1 ;;
+        --no-neutralize) NEUTRALIZE=0 ;;
         -*)
             echo "Невідомий прапорець: $1" >&2
             exit 2
@@ -90,6 +96,17 @@ dc() {
         -f "$ROOT/deploy/docker-compose.server.yml" \
         -f "$ROOT/deploy/docker-compose.$ENV_NAME.yml" "$@"
 }
+# shellcheck source=deploy/neutralize.sh
+. "$ROOT/deploy/neutralize.sh"
+
+neutralize_or_drop() {
+    [ "$ENV_NAME" = "staging" ] && [ "$NEUTRALIZE" = "1" ] || return 0
+    if ! neutralize_copy "$TARGET_DB"; then
+        echo "Знешкодити копію не вдалося: базу $TARGET_DB видалено, Odoo не піднято" >&2
+        dc exec -T db dropdb -U "$PG_USER" --force --if-exists "$TARGET_DB" || true
+        exit 1
+    fi
+}
 
 echo "Відновлення: $DUMP -> $ENV_NAME/$TARGET_DB (проєкт $PROJECT)"
 echo "База $TARGET_DB буде видалена і створена заново."
@@ -125,6 +142,7 @@ echo "таблиць у public: $TABLES"
     echo "Схоже, відновлення не вдалося (таблиць $TABLES)" >&2
     exit 1
 }
+neutralize_or_drop
 
 if [ "$DO_UPGRADE" = "1" ]; then
     echo "== оновлення модулів =="
@@ -141,6 +159,7 @@ print(",".join(names) if names else "all")
     echo "оновлюємо: $MODULES"
     dc run --rm --no-deps -T odoo -d "$TARGET_DB" -u "$MODULES" \
         --stop-after-init --max-cron-threads=0 --log-level=warn
+    neutralize_or_drop   # оновлення модулів могло знову ввімкнути крони з даних модуля
 fi
 
 if [ "$TARGET_DB" = "${ODOO_DB:-}" ]; then

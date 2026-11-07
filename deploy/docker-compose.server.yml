@@ -53,7 +53,7 @@ services:
       DB_FILTER: ${ODOO_DB_FILTER:-^${ODOO_DB}$$}
       ODOO_WORKERS: ${ODOO_WORKERS:-2}
       ODOO_ADMIN_PASSWD: ${ODOO_ADMIN_PASSWD:-}
-      BP_BRIDGE_URL: ${BP_BRIDGE_URL:-https://odoo-live.botpartners.workers.dev}
+      BP_BRIDGE_URL: ${BP_BRIDGE_URL:-}
       BP_BRIDGE_TOKEN: ${BP_BRIDGE_TOKEN:-}
       UA_KP_URL: ${UA_KP_URL:-https://profkod.botpartners.workers.dev}
     ports:

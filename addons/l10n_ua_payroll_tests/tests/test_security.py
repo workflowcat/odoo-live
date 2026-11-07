@@ -15,7 +15,8 @@
   довідка про доходи, П-2              - зарплата і кадри відповідно;
   анкета компанії                      - пише лише дозволені поля компанії;
   адреса банку, XML ДПС                - лише хости банків; сутності XML не розкриваються;
-  скани документів працівника          - кадровик і сам працівник, прапорець OCA не відкриває чужі.
+  скани документів працівника          - кадровик і сам працівник, прапорець OCA не відкриває чужі;
+  знешкоджена копія бази               - без параметрів моста, токенів банку, паролів пошти, ключів API.
 """
 import base64
 import os
@@ -416,3 +417,53 @@ class TestUaSecurity(TransactionCase):
         own = own_scan.with_user(self.plain).with_context(search_attachments_from_hr_employee=True)
         self.assertTrue(own.read(["datas"])[0]["datas"])
         self.assertTrue(scan.with_user(self.hr).read(["datas"])[0]["datas"])
+
+    # ------------------------------------------------------------------ 11. знешкоджена копія
+    def test_20_neutralized_copy_keeps_no_secrets(self):
+        """`odoo neutralize` (deploy/restore.sh на staging) прибирає з копії все, чим можна
+        дістатися назовні від імені джерела: параметри моста, токени банку, паролі вхідної
+        пошти, ключі API. На знешкодженій базі міст відмовляє, навіть якщо токен є в середовищі."""
+        from odoo.modules.neutralize import get_installed_modules, get_neutralization_queries
+
+        icp = self.env["ir.config_parameter"].sudo()
+        for key in ("bp_bridge.url", "bp_bridge.token", "bp_kyc.bridge_url", "bp_kyc.bridge_token"):
+            icp.set_param(key, "secret-%s" % key)
+        journal = self.env["account.journal"].search(
+            [("type", "=", "bank"), ("company_id", "=", self.company.id)], limit=1) \
+            or self.env["account.journal"].create({"name": "Банк (тест копії)", "type": "bank",
+                                                   "code": "UASNB", "company_id": self.company.id})
+        provider = journal.online_bank_statement_provider_id or self.env["online.bank.statement.provider"].create({
+            "journal_id": journal.id, "service": "ua_privat",
+            "statement_creation_mode": "monthly", "interval_type": "hours", "interval_number": 12})
+        provider.write({"username": "client-id", "password": "bank-token", "certificate_private_key": "KEY"})
+        mailbox = self.env["fetchmail.server"].create({
+            "name": "Вхідні рахунки (тест)", "server_type": "imap", "server": "imap.example.com",
+            "user": "bills@example.com", "password": "mail-secret"})
+        self.env["res.users.apikeys"].with_user(self.plain).sudo()._generate(None, "тест копії", None)
+
+        installed = get_installed_modules(self.env.cr)
+        ours = [m for m in installed if m.startswith(("l10n_ua_", "bp_"))]
+        self.assertTrue({"bp_bridge", "l10n_ua_bank_online", "bp_purchase_intake", "l10n_ua_api"} <= set(ours))
+        self.env.flush_all()
+        for query in get_neutralization_queries(ours):
+            self.env.cr.execute(query)
+        icp.set_param("database.is_neutralized", True)   # те, що ставить base/data/neutralize.sql
+        self.env.invalidate_all()
+        self.env.registry.clear_all_caches()             # get_param кешований
+
+        for key in ("bp_bridge.url", "bp_bridge.token", "bp_kyc.bridge_url", "bp_kyc.bridge_token"):
+            self.assertFalse(icp.get_param(key), key)
+        provider = provider.with_context(active_test=False)
+        self.assertFalse(provider.active)
+        self.assertFalse(provider.password or provider.username or provider.certificate_private_key)
+        self.assertFalse(mailbox.password)
+        self.env.cr.execute("SELECT count(*) FROM res_users_apikeys")
+        self.assertEqual(self.env.cr.fetchone()[0], 0)
+
+        live = {"BP_BRIDGE_URL": "https://bridge.example.com", "BP_BRIDGE_TOKEN": "env-token"}
+        with patch.dict(os.environ, live, clear=False):
+            os.environ.pop("BP_BRIDGE_ON_NEUTRALIZED", None)
+            with self.assertRaises(UserError):
+                self.env["bp.bridge"]._settings()
+        with patch.dict(os.environ, dict(live, BP_BRIDGE_ON_NEUTRALIZED="1"), clear=False):
+            self.assertEqual(self.env["bp.bridge"]._settings(), ("https://bridge.example.com", "env-token"))

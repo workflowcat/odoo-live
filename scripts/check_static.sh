@@ -9,6 +9,7 @@
 # 4. manifest_check.py  manifests, licenses, pinned OCA sources, no defaults pointing at our servers
 # 5. Python syntax of every module and script (needs Python 3.10+, Odoo 19's minimum)
 # 6. ruff (ruff.toml)    undefined and unused names in our modules and scripts; skipped without ruff
+# 7. worker tests       bridge token scopes (node --test, no npm install); skipped without Node
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
@@ -41,6 +42,12 @@ elif command -v uvx >/dev/null; then
     run lint uvx ruff check --quiet "${LINT_PATHS[@]}"
 else
     echo "SKIP  lint    (install ruff: pip install ruff)"
+fi
+
+if command -v node >/dev/null; then
+    run worker node --test worker/test/*.test.mjs
+else
+    echo "SKIP  worker  (Node 18+ needed)"
 fi
 
 exit $FAILED

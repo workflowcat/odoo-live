@@ -282,15 +282,8 @@ print("ПІДГОТОВКА:", company.chart_template, company.country_id.code)
 PY
 }
 
-neutralize_db() { # копія prod на staging: без крону, без пошти, без токена моста
-    odoo_run shell -d "$1" --no-http --log-level=warn <<'PY'
-env["ir.cron"].sudo().search([]).write({"active": False})
-env["ir.mail_server"].sudo().search([]).unlink()
-env["ir.config_parameter"].sudo().set_param("bp_bridge.token", "")
-env.cr.commit()
-print("КОПІЮ ЗНЕШКОДЖЕНО: крони вимкнено, поштові сервери прибрано")
-PY
-}
+# shellcheck source=deploy/neutralize.sh
+. "$ROOT/deploy/neutralize.sh"   # neutralize_copy: копія prod на staging без паролів, токенів і пошти
 
 sync_root_env() { # scripts/demo_*.py читають ODOO_ADMIN_USER_PASSWORD з .env у корені
     local have
@@ -456,14 +449,24 @@ if [ "$ENV_NAME" = "staging" ] && [ "$WITH_PROD_COPY" = "1" ]; then
         drop_db "$PRODCOPY_DB"
         create_db "$PRODCOPY_DB"
         dc exec -T db pg_restore -U "$PG_USER" -d "$PRODCOPY_DB" --no-owner --no-acl <"$LATEST" || true
-        COPY_MODULES="$(our_modules "$PRODCOPY_DB")"
-        echo "оновлюємо на копії: $COPY_MODULES"
-        if odoo_run -d "$PRODCOPY_DB" -u "$COPY_MODULES" --i18n-overwrite \
-            --stop-after-init --max-cron-threads=0 --log-level=warn; then
-            neutralize_db "$PRODCOPY_DB" || true
-            PRODCOPY_LINE="репетиція міграції на копії prod: пройшла ($(basename "$LATEST"))"
+        # спершу знешкодити, потім оновлювати: копія не має жити з паролями і токенами prod ані хвилини
+        if ! neutralize_copy "$PRODCOPY_DB"; then
+            drop_db "$PRODCOPY_DB"
+            fail "знешкодити копію prod не вдалося - копію видалено"
         else
-            fail "оновлення на копії prod впало - на живу базу не викочувати"
+            COPY_MODULES="$(our_modules "$PRODCOPY_DB")"
+            echo "оновлюємо на копії: $COPY_MODULES"
+            if odoo_run -d "$PRODCOPY_DB" -u "$COPY_MODULES" --i18n-overwrite \
+                --stop-after-init --max-cron-threads=0 --log-level=warn; then
+                if neutralize_copy "$PRODCOPY_DB"; then
+                    PRODCOPY_LINE="репетиція міграції на копії prod: пройшла ($(basename "$LATEST"))"
+                else
+                    drop_db "$PRODCOPY_DB"
+                    fail "після оновлення копію не вдалося знешкодити - копію видалено"
+                fi
+            else
+                fail "оновлення на копії prod впало - на живу базу не викочувати"
+            fi
         fi
     fi
     done_step

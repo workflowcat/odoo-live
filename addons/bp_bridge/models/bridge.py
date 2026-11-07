@@ -9,6 +9,7 @@ import requests
 
 from odoo import models
 from odoo.exceptions import UserError
+from odoo.tools import str2bool
 
 _logger = logging.getLogger(__name__)
 
@@ -24,6 +25,11 @@ class Bridge(models.AbstractModel):
     def _settings(self):
         # Спершу змінні середовища, далі нові ключі bp_bridge.*, далі старі bp_kyc.* - на стендах вони вже є.
         icp = self.env["ir.config_parameter"].sudo()
+        # Знешкоджена копія (odoo neutralize) у міст не ходить: токен у середовищі стенда міг лишитися.
+        if str2bool(icp.get_param("database.is_neutralized") or "0", False) \
+                and os.environ.get("BP_BRIDGE_ON_NEUTRALIZED") != "1":
+            raise UserError("Міст інтеграцій вимкнено: це знешкоджена копія бази. "
+                            "Щоб увімкнути, задайте BP_BRIDGE_ON_NEUTRALIZED=1.")
         url = (os.environ.get("BP_BRIDGE_URL") or icp.get_param("bp_bridge.url")
                or icp.get_param("bp_kyc.bridge_url") or "")
         token = (os.environ.get("BP_BRIDGE_TOKEN") or icp.get_param("bp_bridge.token")
