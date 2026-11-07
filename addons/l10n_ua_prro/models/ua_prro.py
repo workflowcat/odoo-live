@@ -81,6 +81,9 @@ class UaPrroRegister(models.Model):
         self.ensure_one()
         shift = self.current_shift_id
         if not shift:
+            # Закриття попередньої зміни могло ще не дійти до бази: інакше індекс
+            # «одна відкрита зміна» відкине нову.
+            self.env["ua.prro.shift"].flush_model(["state"])
             shift = self.env["ua.prro.shift"].create({"register_id": self.id})
             self.invalidate_recordset(["current_shift_id"])
         return shift

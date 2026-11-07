@@ -126,6 +126,10 @@ class UaCorrespondence(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            # Значення з контексту (кнопка «Відповісти») важать для номера і допуску так само.
+            for key in ("direction", "restricted", "reply_to_id", "date"):
+                if key not in vals and "default_%s" % key in self.env.context:
+                    vals[key] = self.env.context["default_%s" % key]
             if vals.get("restricted") and not self._may_restrict():
                 raise AccessError(_("Реєструвати документи ДСК можуть лише працівники з "
                                     "допуском."))
