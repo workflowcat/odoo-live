@@ -64,6 +64,8 @@ Notable changes for people who run or build on this code. Module-level API chang
   mutable defaults in our modules and scripts. Style is not enforced.
 
 ### Changed
+- `l10n_ua_changes`: the month close card counts open payslips and the timesheet as the system, so an
+  accountant without payroll rights can open the close plan (it raised an access error before).
 - `l10n_ua_finrep`: Form 2 and Form 2-m skip the closing journal (code CLS), so revenue and expenses
   stay in the report after the month is closed to 79.
 - `l10n_ua_defense`: quality gate. A defense contract has "Випуск лише після ВТК" (on by default): its

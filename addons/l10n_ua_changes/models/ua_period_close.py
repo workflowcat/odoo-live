@@ -153,7 +153,9 @@ class UaPeriodClose(models.Model):
                 "target": {"model": "account.bank.statement.line", "domain": [("id", "in", bank_lines.ids)]},
             })
 
-        slips = self.env["hr.payslip"].search([
+        # Закриває місяць бухгалтер, у якого може не бути прав на зарплату. Перешкода - лише
+        # кількість, вміст листків і табеля не показується, тому читаємо від імені системи.
+        slips = self.env["hr.payslip"].sudo().search([
             ("company_id", "=", company.id), ("date_from", ">=", first), ("date_from", "<=", last),
             ("state", "not in", ("done", "cancel")),
         ])
@@ -166,7 +168,7 @@ class UaPeriodClose(models.Model):
                 "target": {"model": "hr.payslip", "domain": [("id", "in", slips.ids)]},
             })
 
-        sheet = self.env["ua.timesheet.sheet"].search([
+        sheet = self.env["ua.timesheet.sheet"].sudo().search([
             ("company_id", "=", company.id), ("year", "=", year), ("month", "=", month),
         ], limit=1)
         if sheet and sheet.state != "confirmed":
