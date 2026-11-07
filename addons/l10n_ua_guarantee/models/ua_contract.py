@@ -8,6 +8,8 @@
 Покриття - діючі гарантії повернення авансу за договором: для договору з покупцем - надані
 підприємством, для договору з постачальником - отримані від постачальника.
 """
+from collections.abc import Iterable
+
 from odoo import _, api, fields, models
 
 from odoo.addons.l10n_ua_contract.models.tools import settlement_accounts
@@ -91,7 +93,8 @@ class UaContract(models.Model):
     # ------------------------------------------------------------------
     def _ua_search_by(self, operator, value, field):
         if operator in ("in", "not in"):
-            values = value if isinstance(value, (list, tuple, set, frozenset)) else [value]
+            # Odoo 19 передає значення як OrderedSet: будь-яка колекція, крім рядка
+            values = list(value) if isinstance(value, Iterable) and not isinstance(value, str) else [value]
             want = (True in values) == (operator == "in")
         elif operator in ("=", "!="):
             want = bool(value) == (operator == "=")
