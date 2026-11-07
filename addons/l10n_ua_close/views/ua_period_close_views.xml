@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_period_close_form_operations" model="ir.ui.view">
+    <field name="name">ua.period.close.form.operations</field>
+    <field name="model">ua.period.close</field>
+    <field name="inherit_id" ref="l10n_ua_changes.view_ua_period_close_form"/>
+    <field name="arch" type="xml">
+      <button name="action_close" position="before">
+        <field name="ua_operations_pending" invisible="1"/>
+        <button name="action_ua_run_operations" type="object" string="Регламентні операції"
+                invisible="kind != 'month' or state == 'closed' or not ua_operations_pending"/>
+        <button name="action_ua_undo_operations" type="object" string="Скасувати операції"
+                invisible="kind != 'month' or state == 'closed' or not ua_close_move_ids"
+                confirm="Проводки регламентних операцій місяця буде видалено, амортизація знову чекатиме проведення. Продовжити?"/>
+      </button>
+      <page name="plan" position="before">
+        <page string="Регламентні операції" name="ua_operations" invisible="kind != 'month'">
+          <field name="ua_operations_html" readonly="1" nolabel="1"/>
+          <field name="ua_close_move_ids" readonly="1" nolabel="1">
+            <list>
+              <field name="date"/>
+              <field name="name"/>
+              <field name="ref"/>
+              <field name="ua_close_kind"/>
+              <field name="journal_id"/>
+              <field name="amount_total" sum="Разом"/>
+            </list>
+          </field>
+        </page>
+      </page>
+    </field>
+  </record>
+</odoo>

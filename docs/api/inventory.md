@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 48. Моделей: 111. Методів: 350. Збережених полів на чужих моделях: 292.
+Модулів: 49. Моделей: 111. Методів: 356. Збережених полів на чужих моделях: 294.
 
 ## Зарплата
 
@@ -593,7 +593,7 @@
 
 ### `ua.period.close`
 
-наша модель · `l10n_ua_changes`
+наша модель · `l10n_ua_changes`, `l10n_ua_close`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -606,15 +606,21 @@
 | `action_open_payslips()` | - | `l10n_ua_changes` |
 | `action_prepare_month()` | Підготувати місяць: табель, пакет листків, розрахунок. | `l10n_ua_changes` |
 | `action_reopen()` | - | `l10n_ua_changes` |
+| `action_ua_run_operations()` | - | `l10n_ua_close` |
+| `action_ua_undo_operations()` | - | `l10n_ua_close` |
 | `blocker_rows(company, year, month)` | Кожна перешкода закриття місяця - одним записом, з усіма трьома її словами. | `l10n_ua_changes` |
 | `blockers(company, year, month)` | Список причин, чому місяць закрити не можна. Порожній список = можна. | `l10n_ua_changes` |
 | `close_period(year, month, hard=False)` | - | `l10n_ua_changes` |
 | `close_quarter(year, quarter)` | Закрити квартал: дата податкового блокування на кінець кварталу. | `l10n_ua_changes` |
 | `close_year(year)` | Закрити рік остаточно: жорстка дата блокування, яку не знімає ніхто. | `l10n_ua_changes` |
 | `ensure_for(company, year, month)` | Картка закриття місяця: наявна або нова чернетка. | `l10n_ua_changes` |
+| `operation_rows(company, year, month)` | Регламентні операції місяця по порядку: що проведено і що ще треба провести. | `l10n_ua_close` |
 | `plan(company, year, month)` | План перед закриттям місяця: що станеться, що заважає, що лишиться потім. | `l10n_ua_changes` |
+| `plan(company, year, month)` | План закриття ще й нагадує про непроведені регламентні операції: після дати | `l10n_ua_close` |
 | `quarter_blockers(company, year, quarter)` | Чому не можна закрити квартал: незакриті місяці або неподана звітність. | `l10n_ua_changes` |
+| `run_operations()` | Провести регламентні операції місяця, які ще не проведені, по порядку. | `l10n_ua_close` |
 | `state_of(company, year, month)` | - | `l10n_ua_changes` |
+| `undo_operations()` | Скасувати регламентні операції місяця: проводки видаляються, рядки амортизації | `l10n_ua_close` |
 | `year_blockers(company, year)` | Чому не можна закрити рік: незакриті квартали. | `l10n_ua_changes` |
 
 ### `ua.report.run`
@@ -958,7 +964,7 @@
 
 ### `account.move`
 
-доповнена модель · `bp_purchase_intake`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_vat`
+доповнена модель · `bp_purchase_intake`, `l10n_ua_close`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -970,6 +976,8 @@
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `bp_intake_id` | Many2one | bp.purchase.intake | `bp_purchase_intake` |
+| `ua_close_id` | Many2one | ua.period.close | `l10n_ua_close` |
+| `ua_close_kind` | Selection | - | `l10n_ua_close` |
 | `ua_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
 | `ua_customs_decl_number` | Char | Номер митної декларації | `l10n_ua_vat` |
 | `ua_customs_entry` | Boolean | Позначка проводки митного ПДВ | `l10n_ua_vat` |

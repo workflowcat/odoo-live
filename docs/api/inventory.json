@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 48,
+    "modules": 49,
     "models": 111,
-    "methods": 350,
-    "fields": 292
+    "methods": 356,
+    "fields": 294
   },
   "areas": [
     {
@@ -2881,7 +2881,8 @@
           "model": "ua.period.close",
           "ours": true,
           "modules": [
-            "l10n_ua_changes"
+            "l10n_ua_changes",
+            "l10n_ua_close"
           ],
           "methods": [
             {
@@ -2957,6 +2958,22 @@
               "decorators": []
             },
             {
+              "name": "action_ua_run_operations",
+              "signature": "action_ua_run_operations()",
+              "doc": "",
+              "module": "l10n_ua_close",
+              "file": "addons/l10n_ua_close/models/ua_period_close.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_undo_operations",
+              "signature": "action_ua_undo_operations()",
+              "doc": "",
+              "module": "l10n_ua_close",
+              "file": "addons/l10n_ua_close/models/ua_period_close.py",
+              "decorators": []
+            },
+            {
               "name": "blocker_rows",
               "signature": "blocker_rows(company, year, month)",
               "doc": "Кожна перешкода закриття місяця - одним записом, з усіма трьома її словами.",
@@ -3017,11 +3034,31 @@
               ]
             },
             {
+              "name": "operation_rows",
+              "signature": "operation_rows(company, year, month)",
+              "doc": "Регламентні операції місяця по порядку: що проведено і що ще треба провести.",
+              "module": "l10n_ua_close",
+              "file": "addons/l10n_ua_close/models/ua_period_close.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
               "name": "plan",
               "signature": "plan(company, year, month)",
               "doc": "План перед закриттям місяця: що станеться, що заважає, що лишиться потім.",
               "module": "l10n_ua_changes",
               "file": "addons/l10n_ua_changes/models/ua_period_close.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "plan",
+              "signature": "plan(company, year, month)",
+              "doc": "План закриття ще й нагадує про непроведені регламентні операції: після дати",
+              "module": "l10n_ua_close",
+              "file": "addons/l10n_ua_close/models/ua_period_close.py",
               "decorators": [
                 "api.model"
               ]
@@ -3037,6 +3074,14 @@
               ]
             },
             {
+              "name": "run_operations",
+              "signature": "run_operations()",
+              "doc": "Провести регламентні операції місяця, які ще не проведені, по порядку.",
+              "module": "l10n_ua_close",
+              "file": "addons/l10n_ua_close/models/ua_period_close.py",
+              "decorators": []
+            },
+            {
               "name": "state_of",
               "signature": "state_of(company, year, month)",
               "doc": "",
@@ -3045,6 +3090,14 @@
               "decorators": [
                 "api.model"
               ]
+            },
+            {
+              "name": "undo_operations",
+              "signature": "undo_operations()",
+              "doc": "Скасувати регламентні операції місяця: проводки видаляються, рядки амортизації",
+              "module": "l10n_ua_close",
+              "file": "addons/l10n_ua_close/models/ua_period_close.py",
+              "decorators": []
             },
             {
               "name": "year_blockers",
@@ -4304,6 +4357,7 @@
           "ours": false,
           "modules": [
             "bp_purchase_intake",
+            "l10n_ua_close",
             "l10n_ua_contract",
             "l10n_ua_docs",
             "l10n_ua_vat"
@@ -4349,6 +4403,22 @@
               "label": "bp.purchase.intake",
               "module": "bp_purchase_intake",
               "file": "addons/bp_purchase_intake/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_close_id",
+              "type": "Many2one",
+              "label": "ua.period.close",
+              "module": "l10n_ua_close",
+              "file": "addons/l10n_ua_close/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_close_kind",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_close",
+              "file": "addons/l10n_ua_close/models/account_move.py",
               "groups": ""
             },
             {

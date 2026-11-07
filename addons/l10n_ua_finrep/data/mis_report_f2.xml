@@ -11,6 +11,10 @@
          Клас 8 додано і до рядка 2180: у підприємства, що веде лише клас 8,
          клас 9 порожній, а сальдо класу 8 не нульове - тоді витрати
          потрапляють в «інші операційні». При схемі «8 і 9» цей доданок = 0.
+
+         Кожен оборот пропускає журнал CLS - проводки закриття класів 7 і 9 на 79
+         і 79 на 44 (l10n_ua_close). Інакше після закриття місяця доходи й витрати
+         у звіті обнулились би.
     -->
     <record id="report_f2" model="mis.report">
         <field name="name">Ф2. Звіт про фінансові результати (НП(С)БО 1)</field>
@@ -25,14 +29,14 @@
         <field name="sequence">10</field>
         <field name="name">r2000</field>
         <field name="description">2000 Чистий дохід від реалізації продукції (товарів, робіт, послуг)</field>
-        <field name="expression">-balp[70%]</field>
+        <field name="expression">-balp[70%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2_2050" model="mis.report.kpi">
         <field name="report_id" ref="report_f2" />
         <field name="sequence">20</field>
         <field name="name">r2050</field>
         <field name="description">2050 Собівартість реалізованої продукції (товарів, робіт, послуг)</field>
-        <field name="expression">balp[90%]</field>
+        <field name="expression">balp[90%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2_2090" model="mis.report.kpi">
         <field name="report_id" ref="report_f2" />
@@ -47,28 +51,28 @@
         <field name="sequence">40</field>
         <field name="name">r2120</field>
         <field name="description">2120 Інші операційні доходи</field>
-        <field name="expression">-balp[71%,999001,999997]</field>
+        <field name="expression">-balp[71%,999001,999997][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2_2130" model="mis.report.kpi">
         <field name="report_id" ref="report_f2" />
         <field name="sequence">50</field>
         <field name="name">r2130</field>
         <field name="description">2130 Адміністративні витрати</field>
-        <field name="expression">balp[92%]</field>
+        <field name="expression">balp[92%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2_2150" model="mis.report.kpi">
         <field name="report_id" ref="report_f2" />
         <field name="sequence">60</field>
         <field name="name">r2150</field>
         <field name="description">2150 Витрати на збут</field>
-        <field name="expression">balp[93%]</field>
+        <field name="expression">balp[93%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2_2180" model="mis.report.kpi">
         <field name="report_id" ref="report_f2" />
         <field name="sequence">70</field>
         <field name="name">r2180</field>
         <field name="description">2180 Інші операційні витрати</field>
-        <field name="expression">balp[91%,94%,999002,999998] + balp[80%,81%,82%,83%,84%]</field>
+        <field name="expression">balp[91%,94%,999002,999998][('journal_id.code', '!=', 'CLS')] + balp[80%,81%,82%,83%,84%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2_2190" model="mis.report.kpi">
         <field name="report_id" ref="report_f2" />
@@ -83,42 +87,42 @@
         <field name="sequence">90</field>
         <field name="name">r2200</field>
         <field name="description">2200 Дохід від участі в капіталі</field>
-        <field name="expression">-balp[72%]</field>
+        <field name="expression">-balp[72%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2_2220" model="mis.report.kpi">
         <field name="report_id" ref="report_f2" />
         <field name="sequence">100</field>
         <field name="name">r2220</field>
         <field name="description">2220 Інші фінансові доходи</field>
-        <field name="expression">-balp[73%]</field>
+        <field name="expression">-balp[73%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2_2240" model="mis.report.kpi">
         <field name="report_id" ref="report_f2" />
         <field name="sequence">110</field>
         <field name="name">r2240</field>
         <field name="description">2240 Інші доходи</field>
-        <field name="expression">-balp[74%,75%,76%]</field>
+        <field name="expression">-balp[74%,75%,76%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2_2250" model="mis.report.kpi">
         <field name="report_id" ref="report_f2" />
         <field name="sequence">120</field>
         <field name="name">r2250</field>
         <field name="description">2250 Фінансові витрати</field>
-        <field name="expression">balp[95%]</field>
+        <field name="expression">balp[95%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2_2255" model="mis.report.kpi">
         <field name="report_id" ref="report_f2" />
         <field name="sequence">130</field>
         <field name="name">r2255</field>
         <field name="description">2255 Втрати від участі в капіталі</field>
-        <field name="expression">balp[96%]</field>
+        <field name="expression">balp[96%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2_2270" model="mis.report.kpi">
         <field name="report_id" ref="report_f2" />
         <field name="sequence">140</field>
         <field name="name">r2270</field>
         <field name="description">2270 Інші витрати</field>
-        <field name="expression">balp[97%,85%]</field>
+        <field name="expression">balp[97%,85%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2_2290" model="mis.report.kpi">
         <field name="report_id" ref="report_f2" />
@@ -133,7 +137,7 @@
         <field name="sequence">160</field>
         <field name="name">r2300</field>
         <field name="description">2300 Витрати (дохід) з податку на прибуток</field>
-        <field name="expression">balp[98%]</field>
+        <field name="expression">balp[98%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2_2350" model="mis.report.kpi">
         <field name="report_id" ref="report_f2" />
@@ -150,7 +154,7 @@
         <field name="sequence">200</field>
         <field name="name">r2400</field>
         <field name="description">2400 Дооцінка (уцінка) необоротних активів</field>
-        <field name="expression">-balp[41%]</field>
+        <field name="expression">-balp[41%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2_2450" model="mis.report.kpi">
         <field name="report_id" ref="report_f2" />
@@ -181,35 +185,35 @@
         <field name="sequence">300</field>
         <field name="name">r2500</field>
         <field name="description">2500 Матеріальні затрати</field>
-        <field name="expression">debp[80%]</field>
+        <field name="expression">debp[80%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2_2505" model="mis.report.kpi">
         <field name="report_id" ref="report_f2" />
         <field name="sequence">310</field>
         <field name="name">r2505</field>
         <field name="description">2505 Витрати на оплату праці</field>
-        <field name="expression">debp[81%]</field>
+        <field name="expression">debp[81%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2_2510" model="mis.report.kpi">
         <field name="report_id" ref="report_f2" />
         <field name="sequence">320</field>
         <field name="name">r2510</field>
         <field name="description">2510 Відрахування на соціальні заходи</field>
-        <field name="expression">debp[82%]</field>
+        <field name="expression">debp[82%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2_2515" model="mis.report.kpi">
         <field name="report_id" ref="report_f2" />
         <field name="sequence">330</field>
         <field name="name">r2515</field>
         <field name="description">2515 Амортизація</field>
-        <field name="expression">debp[83%]</field>
+        <field name="expression">debp[83%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2_2520" model="mis.report.kpi">
         <field name="report_id" ref="report_f2" />
         <field name="sequence">340</field>
         <field name="name">r2520</field>
         <field name="description">2520 Інші операційні витрати</field>
-        <field name="expression">debp[84%]</field>
+        <field name="expression">debp[84%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2_2550" model="mis.report.kpi">
         <field name="report_id" ref="report_f2" />
@@ -228,7 +232,7 @@
         <field name="description">Контроль: 2350 мінус зміна рядка 1420 (0, якщо не було дивідендів і закриття через 79)</field>
         <field
             name="expression"
-        >r2350 + balp[44%,999999] + balp[7%,8%,90%,91%,92%,93%,94%,95%,96%,97%,98%,999001,999002,999997,999998]</field>
+        >r2350 + balp[44%,999999][('journal_id.code', '!=', 'CLS')] + balp[7%,8%,90%,91%,92%,93%,94%,95%,96%,97%,98%,999001,999002,999997,999998][('journal_id.code', '!=', 'CLS')]</field>
         <field name="style_id" ref="style_control" />
     </record>
 </odoo>

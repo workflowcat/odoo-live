@@ -23,14 +23,14 @@
         <field name="sequence">10</field>
         <field name="name">n2000</field>
         <field name="description">2000 Чистий дохід від реалізації продукції (товарів, робіт, послуг)</field>
-        <field name="expression">-balp[70%]</field>
+        <field name="expression">-balp[70%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2m_2160" model="mis.report.kpi">
         <field name="report_id" ref="report_f2m" />
         <field name="sequence">20</field>
         <field name="name">n2160</field>
         <field name="description">2160 Інші доходи</field>
-        <field name="expression">-balp[71%,72%,73%,74%,75%,76%,999001,999997]</field>
+        <field name="expression">-balp[71%,72%,73%,74%,75%,76%,999001,999997][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2m_2280" model="mis.report.kpi">
         <field name="report_id" ref="report_f2m" />
@@ -45,7 +45,7 @@
         <field name="sequence">40</field>
         <field name="name">n2050</field>
         <field name="description">2050 Собівартість реалізованої продукції (товарів, робіт, послуг)</field>
-        <field name="expression">balp[90%]</field>
+        <field name="expression">balp[90%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2m_2165" model="mis.report.kpi">
         <field name="report_id" ref="report_f2m" />
@@ -54,7 +54,7 @@
         <field name="description">2165 Інші витрати</field>
         <field
             name="expression"
-        >balp[85%,91%,92%,93%,94%,95%,96%,97%,999002,999998] + balp[80%,81%,82%,83%,84%]</field>
+        >balp[85%,91%,92%,93%,94%,95%,96%,97%,999002,999998][('journal_id.code', '!=', 'CLS')] + balp[80%,81%,82%,83%,84%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2m_2285" model="mis.report.kpi">
         <field name="report_id" ref="report_f2m" />
@@ -77,7 +77,7 @@
         <field name="sequence">80</field>
         <field name="name">n2300</field>
         <field name="description">2300 Податок на прибуток</field>
-        <field name="expression">balp[98%]</field>
+        <field name="expression">balp[98%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2m_2350" model="mis.report.kpi">
         <field name="report_id" ref="report_f2m" />
@@ -96,7 +96,7 @@
         <field name="description">Контроль: 2350 мінус зміна рядка 1420 (0, якщо не було дивідендів і закриття через 79)</field>
         <field
             name="expression"
-        >n2350 + balp[44%,999999] + balp[7%,8%,90%,91%,92%,93%,94%,95%,96%,97%,98%,999001,999002,999997,999998]</field>
+        >n2350 + balp[44%,999999][('journal_id.code', '!=', 'CLS')] + balp[7%,8%,90%,91%,92%,93%,94%,95%,96%,97%,98%,999001,999002,999997,999998][('journal_id.code', '!=', 'CLS')]</field>
         <field name="style_id" ref="style_control" />
     </record>
 </odoo>

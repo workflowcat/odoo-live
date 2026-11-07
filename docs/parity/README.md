@@ -26,7 +26,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | NBU rates, FX differences | done | `l10n_ua_nbu` + native |
 | **Counterparty contracts** (settlements by contract, currency, limits) | done | `l10n_ua_contract`: contract on invoices, payments and orders, limits that warn or block, analytic per contract |
 | **Reconciliation act** with a counterparty (акт звірки) | done | `l10n_ua_contract`: by partner or contract, two-sided print form, agreed or disputed |
-| Month-end closing assistant (закриття місяця) | part | period lock and change review in `l10n_ua_changes`; one checklist that runs depreciation, cost, FX, 79 closing in order is missing |
+| Month-end closing assistant (закриття місяця) | yes | `l10n_ua_close`: depreciation, FX revaluation with reversal, overhead 91, 7/9 to 79, 79 to 44 in order, with undo; period lock and change review in `l10n_ua_changes` |
 | Property and land tax, environmental tax | gap | low priority; returns as XML |
 | Statistical reports (Держстат) | gap | low priority |
 | E-signature (КЕП) and sending reports, ЄРПН registration | gap | XML files are produced; signing and sending stay in M.E.Doc/Вчасно or a bridge route |
@@ -129,12 +129,12 @@ with the Resolution 309 calculation, separate cost accounting, acceptance acts a
 (`l10n_ua_defense`); КСПОВО unit codes in tax invoices; the ДК 021 classifier (`l10n_ua_dk021`); industry
 packs and their loader (`l10n_ua_catalog`); `docs/customization.md` and `scripts/new_pack.py`; the import
 customs declaration (`l10n_ua_customs`); the 1C bank exchange file (`l10n_ua_bank_1c`);
-quality gate on defense production with results in the serial passport.
+quality gate on defense production with results in the serial passport; month-end operations
+(`l10n_ua_close`) with Form 2 kept intact after closing.
 
 Next, in this order:
 
 1. Tolling: customer-owned material and the processing act.
 2. Correspondence register and payment approvals.
-3. Month-end closing checklist.
-4. PRRO fiscalisation through a bridge route; price labels for the shop pack.
-5. УКТ ЗЕД classifier from official open data, once a source with a clear licence is found.
+3. PRRO fiscalisation through a bridge route; price labels for the shop pack.
+4. УКТ ЗЕД classifier from official open data, once a source with a clear licence is found.

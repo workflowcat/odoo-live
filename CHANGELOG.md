@@ -43,6 +43,12 @@ Notable changes for people who run or build on this code. Module-level API chang
   UTF-8 files, no duplicates on a second import. Payment orders go out as the same format: from a payment
   order with the "Клієнт-банк (файл 1С)" method or from selected payments, with the bank code taken from
   the IBAN and the VAT note added to the purpose. Tests: `ua_bank_1c`.
+- `l10n_ua_close`: month-end operations on the month closing card, as 1C's "Закриття місяця": post
+  depreciation, revalue foreign-currency bank balances and open customer and vendor debts at the month-end
+  rate (advances excluded, reversed on the 1st), move overhead 91 to cost of sales (through the overhead
+  allocation document when manufacturing is installed), close classes 7 and 9 to 79 and, in the last month
+  of the fiscal year, 79 to retained earnings 441 or 442. One button runs what is pending, one undoes it;
+  the closing plan warns while operations are pending. Tests: `ua_close`.
 - `docs/customization.md` and `scripts/new_pack.py`: how a team adapts the product in its own module
   (data, fields, print forms, rules) without forking the core, and a generator for such a module.
 - `docs/parity/README.md`: what 1C/BAS gives a Ukrainian company, what this repository covers, the gaps
@@ -51,6 +57,8 @@ Notable changes for people who run or build on this code. Module-level API chang
   mutable defaults in our modules and scripts. Style is not enforced.
 
 ### Changed
+- `l10n_ua_finrep`: Form 2 and Form 2-m skip the closing journal (code CLS), so revenue and expenses
+  stay in the report after the month is closed to 79.
 - `l10n_ua_defense`: quality gate. A defense contract has "Випуск лише після ВТК" (on by default): its
   manufacturing orders do not close while a check item of their operations has no answer or a "no", and
   its acceptance acts refuse serials whose production did not pass. The serial passport prints every check
