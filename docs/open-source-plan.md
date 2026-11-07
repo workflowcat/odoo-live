@@ -78,7 +78,7 @@ Done when a new developer goes from clone to a running demo with one command, an
 
 - One command for a demo database: `scripts/demo_server.sh reset` works on a clean clone (no hard-coded ports,
   waits for the server, prints the login).
-- A dev image with `pypdf` baked in instead of `pip install` on every run; pin the Odoo image by date tag.
+- A dev image with `pypdf` baked in instead of `pip install` on every run. (The Odoo image is pinned by date tag since 2026-11-07.)
 - A `README.rst` per module in the OCA layout (`readme/DESCRIPTION.md`, `USAGE.md`, `CONFIGURE.md`).
 - Manifests: English `name`/`summary`, `website` and `maintainers`; Ukrainian texts move to `i18n/uk.po`
   so English users get English and the UI stays Ukrainian.

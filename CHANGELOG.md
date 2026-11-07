@@ -18,6 +18,7 @@ Notable changes for people who run or build on this code. Module-level API chang
 - `l10n_ua_kp`: profession code suggestions are off unless `UA_KP_URL` is set (it pointed at our
   service by default).
 - `docker-compose.yml`: `BP_BRIDGE_URL` comes from `.env` and is empty by default.
+- `docker-compose.yml`: the Odoo image is pinned to `19.0-20261102` (override with `ODOO_IMAGE_TAG`).
 - `.env.example`: comments on their own lines (inline comments ended up inside values).
 
 ### Security

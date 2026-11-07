@@ -17,7 +17,8 @@ services:
       timeout: 5s
       retries: 10
   odoo:
-    image: odoo:19
+    # Pinned so every clone and CI run tests the same Odoo build; bump the date tag on purpose.
+    image: odoo:${ODOO_IMAGE_TAG:-19.0-20261102}
     depends_on:
       db:
         condition: service_healthy
