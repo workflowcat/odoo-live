@@ -33,9 +33,13 @@ class HrEmployee(models.Model):
         search_attachments_from_hr_employee: так працівник бачить свої документи. Контекст задає
         той, хто викликає, тож поза власними картками прапорець не діє (аудит безпеки 2026-10):
         скан паспорта колеги не читається через вкладення з цим прапорцем."""
-        if (self.env.context.get("search_attachments_from_hr_employee") and not self.env.su
-                and self - self.env.user.employee_ids):
-            return super(HrEmployee, self.with_context(search_attachments_from_hr_employee=False))._check_access(operation)
+        flag = "search_attachments_from_hr_employee"
+        if self and self.env.context.get(flag) and not self.env.su:
+            # власні картки шукаємо від імені системи і без прапорця: інакше пошук знову прийде сюди
+            own = self.env["hr.employee"].sudo().with_context(**{flag: False}).search(
+                [("user_id", "=", self.env.uid)])
+            if self - own:
+                return super(HrEmployee, self.with_context(**{flag: False}))._check_access(operation)
         return super()._check_access(operation)
 
     # -- Документ, що посвідчує особу -----------------------------------------------
