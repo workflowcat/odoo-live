@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "pack": "small_shop",
+  "name": "Магазин біля дому",
+  "summary": "Продуктовий магазин: бакалія, молочна продукція, хліб, напої, овочі і фрукти на вагу, побутова хімія. Закупівельні і роздрібні ціни, штрихкоди для внутрішнього обігу, вагові товари з кодом для ваг. З касою (point_of_sale) товари одразу доступні на касі.",
+  "industry": "retail",
+  "requires": ["stock"],
+  "sources": [
+    {"title": "GS1: штрихкоди 20-29 для внутрішнього обігу", "url": "https://www.gs1.org/standards/barcodes/ean-upc"}
+  ],
+  "notes": [
+    "Штрихкоди 200... - внутрішні, вони не перетинаються з кодами виробників. Заводські штрихкоди додайте скануванням.",
+    "Вагові товари мають артикул для ваг (PLU) замість штрихкоду.",
+    "Ціни - орієнтир на 2026 рік, замініть своїми."
+  ],
+  "groups": ["uom.group_uom"],
+  "categories": [
+    {"key": "c_root", "name": "Магазин"},
+    {"key": "c_grocery", "name": "Бакалія", "parent": "@c_root"},
+    {"key": "c_dairy", "name": "Молочна продукція і яйця", "parent": "@c_root"},
+    {"key": "c_bread", "name": "Хліб і випічка", "parent": "@c_root"},
+    {"key": "c_drinks", "name": "Напої", "parent": "@c_root"},
+    {"key": "c_veg", "name": "Овочі і фрукти", "parent": "@c_root"},
+    {"key": "c_house", "name": "Побутова хімія і гігієна", "parent": "@c_root"}
+  ],
+  "products": [
+    {"key": "sugar", "code": "SH-001", "name": "Цукор білий, 1 кг", "category": "@c_grocery", "cost": 28, "price": 36, "barcode": "2000000010014", "fields": {"available_in_pos": true}},
+    {"key": "flour", "code": "SH-002", "name": "Борошно пшеничне вищого ґатунку, 2 кг", "category": "@c_grocery", "cost": 42, "price": 55, "barcode": "2000000010021", "fields": {"available_in_pos": true}},
+    {"key": "buckwheat", "code": "SH-003", "name": "Крупа гречана, 1 кг", "category": "@c_grocery", "cost": 48, "price": 62, "barcode": "2000000010038", "fields": {"available_in_pos": true}},
+    {"key": "pasta", "code": "SH-004", "name": "Макаронні вироби, 400 г", "category": "@c_grocery", "cost": 24, "price": 33, "barcode": "2000000010045", "fields": {"available_in_pos": true}},
+    {"key": "oil", "code": "SH-005", "name": "Олія соняшникова рафінована, 0,85 л", "category": "@c_grocery", "cost": 52, "price": 68, "barcode": "2000000010052", "fields": {"available_in_pos": true}},
+    {"key": "tea", "code": "SH-006", "name": "Чай чорний, 25 пакетиків", "category": "@c_grocery", "cost": 38, "price": 55, "barcode": "2000000010069", "fields": {"available_in_pos": true}},
+    {"key": "coffee", "code": "SH-007", "name": "Кава мелена, 250 г", "category": "@c_grocery", "cost": 120, "price": 169, "barcode": "2000000010076", "fields": {"available_in_pos": true}},
+    {"key": "milk", "code": "SH-010", "name": "Молоко 2,5 %, 0,9 л", "category": "@c_dairy", "cost": 31, "price": 41, "barcode": "2000000010083", "fields": {"available_in_pos": true}},
+    {"key": "kefir", "code": "SH-011", "name": "Кефір 2,5 %, 0,9 л", "category": "@c_dairy", "cost": 33, "price": 44, "barcode": "2000000010090", "fields": {"available_in_pos": true}},
+    {"key": "eggs", "code": "SH-012", "name": "Яйця курячі, 10 шт.", "category": "@c_dairy", "cost": 48, "price": 62, "barcode": "2000000010106", "fields": {"available_in_pos": true}},
+    {"key": "cheese", "code": "PLU-101", "name": "Сир твердий, ваговий", "category": "@c_dairy", "uom": "кг", "cost": 280, "price": 379, "fields": {"available_in_pos": true, "to_weight": true}},
+    {"key": "bread", "code": "SH-020", "name": "Хліб пшеничний, 500 г", "category": "@c_bread", "cost": 19, "price": 26, "barcode": "2000000010113", "fields": {"available_in_pos": true}},
+    {"key": "baton", "code": "SH-021", "name": "Батон нарізний, 400 г", "category": "@c_bread", "cost": 18, "price": 24, "barcode": "2000000010120", "fields": {"available_in_pos": true}},
+    {"key": "water", "code": "SH-030", "name": "Вода мінеральна негазована, 1,5 л", "category": "@c_drinks", "cost": 14, "price": 21, "barcode": "2000000010137", "fields": {"available_in_pos": true}},
+    {"key": "juice", "code": "SH-031", "name": "Сік яблучний, 1 л", "category": "@c_drinks", "cost": 38, "price": 52, "barcode": "2000000010144", "fields": {"available_in_pos": true}},
+    {"key": "potato", "code": "PLU-201", "name": "Картопля", "category": "@c_veg", "uom": "кг", "cost": 9, "price": 15, "fields": {"available_in_pos": true, "to_weight": true}},
+    {"key": "apples", "code": "PLU-202", "name": "Яблука", "category": "@c_veg", "uom": "кг", "cost": 22, "price": 34, "fields": {"available_in_pos": true, "to_weight": true}},
+    {"key": "bananas", "code": "PLU-203", "name": "Банани", "category": "@c_veg", "uom": "кг", "cost": 46, "price": 64, "fields": {"available_in_pos": true, "to_weight": true}},
+    {"key": "dish", "code": "SH-040", "name": "Засіб для миття посуду, 500 мл", "category": "@c_house", "cost": 35, "price": 49, "barcode": "2000000010151", "fields": {"available_in_pos": true}},
+    {"key": "toilet", "code": "SH-041", "name": "Папір туалетний, 4 рулони", "category": "@c_house", "cost": 42, "price": 59, "barcode": "2000000010168", "fields": {"available_in_pos": true}},
+    {"key": "soap", "code": "SH-042", "name": "Мило туалетне, 90 г", "category": "@c_house", "cost": 14, "price": 21, "barcode": "2000000010175", "fields": {"available_in_pos": true}}
+  ]
+}

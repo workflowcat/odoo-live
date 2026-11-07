@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="ua_catalog_load_view_form" model="ir.ui.view">
+    <field name="name">ua.catalog.load.form</field>
+    <field name="model">ua.catalog.load</field>
+    <field name="arch" type="xml">
+      <form string="Галузевий каталог">
+        <field name="state" invisible="1"/>
+        <group invisible="state == 'done'">
+          <field name="pack"/>
+          <field name="company_id" groups="base.group_multi_company"/>
+          <field name="mode" widget="radio"/>
+        </group>
+        <field name="info" invisible="state == 'done' or not pack" readonly="1"
+               class="text-muted"/>
+        <group invisible="state != 'done'">
+          <field name="result" nolabel="1" colspan="2"/>
+        </group>
+        <footer>
+          <button name="action_load" type="object" string="Завантажити" class="btn-primary"
+                  invisible="state == 'done'"/>
+          <button string="Закрити" special="cancel"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+
+  <record id="ua_catalog_load_action" model="ir.actions.act_window">
+    <field name="name">Галузеві каталоги</field>
+    <field name="res_model">ua.catalog.load</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+  </record>
+
+  <menuitem id="ua_catalog_load_menu" name="Галузеві каталоги" action="ua_catalog_load_action"
+            parent="base.menu_administration" sequence="3" groups="base.group_system"/>
+</odoo>

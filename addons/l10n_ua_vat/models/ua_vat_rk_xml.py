@@ -108,7 +108,7 @@ class UaVatDocumentRkXml(models.Model):
                 "reason": reason,
                 "name": _first_line(base.name, base.product_id.display_name),
                 "product": base.product_id,
-                "uom": base.product_uom_id.name or "шт.",
+                "uom": base.product_uom_id._ua_pn_unit(UA_KSPOVO_SHT),
                 "line": base,
             }
             rows.append(dict(common, qty=-qty_old, price=price_old,
@@ -187,8 +187,8 @@ class UaVatDocumentRkXml(models.Model):
             if product and product.type != "service":
                 row_el("RXXXXG4", num,
                        (product.ua_uktzed or "").replace(" ", ""))
-                row_el("RXXXXG4S", num, row["uom"])
-                row_el("RXXXXG105_2S", num, UA_KSPOVO_SHT)
+                row_el("RXXXXG4S", num, row["uom"][0])
+                row_el("RXXXXG105_2S", num, row["uom"][1])
             row_el("RXXXXG5", num, "%g" % row["qty"])
             row_el("RXXXXG6", num, "%.6g" % row["price"])
             row_el("RXXXXG008", num, code)

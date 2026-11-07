@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "pack": "defense_machining",
+  "name": "Оборонка: механообробка деталей",
+  "summary": "Підрядник з механообробки для оборонних виробників: метал партіями з сертифікатами, токарні і фрезерні центри з ЧПК, слюсарна дільниця, вимірювальна лабораторія. Чотири типові деталі з маршрутами, стружка як зворотні відходи, анодування як покупна послуга.",
+  "industry": "defense",
+  "requires": ["mrp", "stock"],
+  "sources": [
+    {"title": "ДК 021:2015, ProzorroUKR/standards (Apache-2.0)", "url": "https://github.com/ProzorroUKR/standards"}
+  ],
+  "notes": [
+    "Деталі - приклади з креслень замовника, назви і норми замініть своїми.",
+    "Партія металу несе номер плавки з сертифіката: його видно в паспорті партії деталей.",
+    "Анодування - покупна послуга: рахунок підрядника з аналітикою договору потрапляє у фактичну калькуляцію.",
+    "Переробка давальницької сировини окремим документом - у планах (docs/parity)."
+  ],
+  "groups": [
+    "stock.group_production_lot",
+    "mrp.group_mrp_routings",
+    "mrp.group_mrp_byproducts",
+    "uom.group_uom"
+  ],
+  "categories": [
+    {"key": "c_root", "name": "Механообробка"},
+    {"key": "c_metal", "name": "Метал і прокат", "parent": "@c_root"},
+    {"key": "c_aux", "name": "Допоміжні матеріали", "parent": "@c_root"},
+    {"key": "c_parts", "name": "Деталі власного виробництва", "parent": "@c_root"},
+    {"key": "c_waste", "name": "Зворотні відходи", "parent": "@c_root"},
+    {"key": "c_svc", "name": "Роботи і послуги", "parent": "@c_root"}
+  ],
+  "workcenters": [
+    {"key": "wc_saw", "name": "Заготівельна дільниця, стрічкова пила", "code": "ЗАГ", "costs_hour": 60, "fields": {"ua_wage_hour": 220, "ua_energy_hour": 12}},
+    {"key": "wc_lathe", "name": "Токарний центр з ЧПК", "code": "ТОК", "costs_hour": 380, "fields": {"ua_wage_hour": 300, "ua_energy_hour": 45}},
+    {"key": "wc_mill3", "name": "Фрезерний центр з ЧПК, 3 осі", "code": "ФР3", "costs_hour": 450, "fields": {"ua_wage_hour": 320, "ua_energy_hour": 55}},
+    {"key": "wc_mill5", "name": "Фрезерний центр з ЧПК, 5 осей", "code": "ФР5", "costs_hour": 900, "fields": {"ua_wage_hour": 380, "ua_energy_hour": 70}},
+    {"key": "wc_bench", "name": "Слюсарна дільниця", "code": "СЛС", "costs_hour": 40, "fields": {"ua_wage_hour": 220, "ua_energy_hour": 3}},
+    {"key": "wc_lab", "name": "Вимірювальна лабораторія", "code": "КВЛ", "costs_hour": 120, "fields": {"ua_wage_hour": 300, "ua_energy_hour": 5}}
+  ],
+  "products": [
+    {"key": "r_al_bar", "code": "MET-001", "name": "Пруток алюмінієвий Д16Т, діаметр 40 мм", "category": "@c_metal", "uom": "кг", "cost": 310, "sale_ok": false, "tracking": "lot", "dk021": "14721000-1", "fields": {"ua_cost_item": "01"}},
+    {"key": "r_al_plate", "code": "MET-002", "name": "Плита алюмінієва АМг6, 20 мм", "category": "@c_metal", "uom": "кг", "cost": 330, "sale_ok": false, "tracking": "lot", "dk021": "14721000-1", "fields": {"ua_cost_item": "01"}},
+    {"key": "r_steel_bar", "code": "MET-003", "name": "Пруток сталевий 40Х, діаметр 30 мм", "category": "@c_metal", "uom": "кг", "cost": 62, "sale_ok": false, "tracking": "lot", "dk021": "14622000-7", "fields": {"ua_cost_item": "01"}},
+    {"key": "r_steel_sheet", "code": "MET-004", "name": "Лист сталевий 09Г2С, 4 мм", "category": "@c_metal", "uom": "кг", "cost": 48, "sale_ok": false, "tracking": "lot", "dk021": "14622000-7", "fields": {"ua_cost_item": "01"}},
+    {"key": "r_coolant", "code": "AUX-001", "name": "Мастильно-охолоджувальна рідина", "category": "@c_aux", "uom": "л", "cost": 95, "sale_ok": false, "fields": {"ua_cost_item": "01"}},
+    {"key": "s_anod", "code": "SUB-001", "name": "Анодування деталей, підряд", "category": "@c_svc", "type": "service", "cost": 35, "sale_ok": false, "fields": {"ua_cost_item": "02"}},
+
+    {"key": "w_al_chips", "code": "WST-301", "name": "Стружка алюмінієва", "category": "@c_waste", "uom": "кг", "cost": 45, "price": 45, "purchase_ok": false},
+    {"key": "w_st_chips", "code": "WST-302", "name": "Стружка сталева", "category": "@c_waste", "uom": "кг", "cost": 6, "price": 6, "purchase_ok": false},
+
+    {"key": "p_housing", "code": "MCH-101", "name": "Корпус редуктора", "category": "@c_parts", "price": 4800, "purchase_ok": false, "tracking": "lot"},
+    {"key": "p_bracket", "code": "MCH-102", "name": "Кронштейн кріплення антени", "category": "@c_parts", "price": 650, "purchase_ok": false, "tracking": "lot"},
+    {"key": "p_bushing", "code": "MCH-103", "name": "Втулка, сталь 40Х", "category": "@c_parts", "price": 320, "purchase_ok": false, "tracking": "lot"},
+    {"key": "p_flange", "code": "MCH-104", "name": "Фланець кріплення двигуна", "category": "@c_parts", "price": 1150, "purchase_ok": false, "tracking": "lot"},
+
+    {"key": "sv_5axis", "code": "SRV-301", "name": "Обробка на 5-осьовому центрі", "category": "@c_svc", "type": "service", "uom": "год", "price": 2200, "purchase_ok": false},
+    {"key": "sv_measure", "code": "SRV-302", "name": "Вимірювання деталей з протоколом", "category": "@c_svc", "type": "service", "uom": "год", "price": 900, "purchase_ok": false}
+  ],
+  "boms": [
+    {"key": "b_housing", "product": "@p_housing", "qty": 1,
+     "lines": [{"product": "@r_al_plate", "qty": 3.2}, {"product": "@r_coolant", "qty": 0.2}],
+     "operations": [
+       {"name": "Різання заготовки", "workcenter": "@wc_saw", "minutes": 10},
+       {"name": "Фрезерування з п'яти сторін", "workcenter": "@wc_mill5", "minutes": 55,
+        "ua_checks": "Посадкові отвори H7, контроль калібром-пробкою. Співвісність 0,02 мм."},
+       {"name": "Зняття задирок, промивання", "workcenter": "@wc_bench", "minutes": 15},
+       {"name": "Вимірювання і протокол", "workcenter": "@wc_lab", "minutes": 15}
+     ],
+     "byproducts": [{"product": "@w_al_chips", "qty": 2.4}]},
+
+    {"key": "b_bracket", "product": "@p_bracket", "qty": 1,
+     "lines": [{"product": "@r_steel_sheet", "qty": 0.6}],
+     "operations": [
+       {"name": "Різання заготовки", "workcenter": "@wc_saw", "minutes": 4},
+       {"name": "Фрезерування контуру і отворів", "workcenter": "@wc_mill3", "minutes": 12},
+       {"name": "Гнуття і зняття задирок", "workcenter": "@wc_bench", "minutes": 8},
+       {"name": "Вибірковий контроль", "workcenter": "@wc_lab", "minutes": 3}
+     ],
+     "byproducts": [{"product": "@w_st_chips", "qty": 0.2}]},
+
+    {"key": "b_bushing", "product": "@p_bushing", "qty": 1,
+     "lines": [{"product": "@r_steel_bar", "qty": 0.35}],
+     "operations": [
+       {"name": "Різання прутка", "workcenter": "@wc_saw", "minutes": 2},
+       {"name": "Точіння за програмою", "workcenter": "@wc_lathe", "minutes": 9, "ua_checks": "Внутрішній діаметр H7, шорсткість Ra 1,6."},
+       {"name": "Вибірковий контроль", "workcenter": "@wc_lab", "minutes": 2}
+     ],
+     "byproducts": [{"product": "@w_st_chips", "qty": 0.15}]},
+
+    {"key": "b_flange", "product": "@p_flange", "qty": 1,
+     "lines": [{"product": "@r_al_bar", "qty": 0.9}],
+     "operations": [
+       {"name": "Різання прутка", "workcenter": "@wc_saw", "minutes": 3},
+       {"name": "Точіння", "workcenter": "@wc_lathe", "minutes": 14},
+       {"name": "Фрезерування отворів кріплення", "workcenter": "@wc_mill3", "minutes": 10},
+       {"name": "Зняття задирок", "workcenter": "@wc_bench", "minutes": 5},
+       {"name": "Вимірювання і протокол", "workcenter": "@wc_lab", "minutes": 4}
+     ],
+     "byproducts": [{"product": "@w_al_chips", "qty": 0.55}]}
+  ]
+}

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Коди КСПОВО стандартним одиницям; заповнене вручну не перезаписується. -->
+  <function model="uom.uom" name="_ua_kspovo_seed"/>
+</odoo>

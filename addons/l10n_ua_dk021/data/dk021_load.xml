@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Повний словник ДК 021 з data/dk021_uk.json; повторний запуск лише оновлює. -->
+  <function model="ua.dk021" name="_ua_load"/>
+</odoo>

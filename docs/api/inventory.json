@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 44,
-    "models": 106,
-    "methods": 339,
-    "fields": 286
+    "modules": 46,
+    "models": 109,
+    "methods": 340,
+    "fields": 290
   },
   "areas": [
     {
@@ -4959,6 +4959,32 @@
               "groups": ""
             }
           ]
+        },
+        {
+          "model": "uom.uom",
+          "ours": false,
+          "modules": [
+            "l10n_ua_vat"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_kspovo_code",
+              "type": "Char",
+              "label": "Код КСПОВО",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/uom_uom.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_kspovo_short",
+              "type": "Char",
+              "label": "Позначення КСПОВО",
+              "module": "l10n_ua_vat",
+              "file": "addons/l10n_ua_vat/models/uom_uom.py",
+              "groups": ""
+            }
+          ]
         }
       ]
     },
@@ -5788,6 +5814,24 @@
           "fields": []
         },
         {
+          "model": "ua.catalog.load",
+          "ours": true,
+          "modules": [
+            "l10n_ua_catalog"
+          ],
+          "methods": [
+            {
+              "name": "action_load",
+              "signature": "action_load()",
+              "doc": "",
+              "module": "l10n_ua_catalog",
+              "file": "addons/l10n_ua_catalog/wizard/ua_catalog_load.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.contract",
           "ours": true,
           "modules": [
@@ -6142,6 +6186,7 @@
           "ours": false,
           "modules": [
             "l10n_ua_defense",
+            "l10n_ua_dk021",
             "l10n_ua_mrp",
             "l10n_ua_stock_docs",
             "l10n_ua_vat"
@@ -6163,6 +6208,14 @@
               "label": "",
               "module": "l10n_ua_defense",
               "file": "addons/l10n_ua_defense/models/product.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_dk021_id",
+              "type": "Many2one",
+              "label": "ua.dk021",
+              "module": "l10n_ua_dk021",
+              "file": "addons/l10n_ua_dk021/models/product.py",
               "groups": ""
             },
             {
@@ -6270,6 +6323,25 @@
               "label": "ua.contract",
               "module": "l10n_ua_contract",
               "file": "addons/l10n_ua_contract/models/orders.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "purchase.order.line",
+          "ours": false,
+          "modules": [
+            "l10n_ua_dk021",
+            "l10n_ua_purchase"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_dk021_id",
+              "type": "Many2one",
+              "label": "ua.dk021",
+              "module": "l10n_ua_dk021",
+              "file": "addons/l10n_ua_dk021/models/product.py",
               "groups": ""
             }
           ]

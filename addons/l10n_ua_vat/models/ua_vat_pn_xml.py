@@ -17,8 +17,8 @@
 продавцем).
 
 Спрощення, які перенесено з пісочниці свідомо:
-* код одиниці виміру за КСПОВО завжди 2009 («штука») - у каталозі демо-бази
-  штучні позиції;
+* код одиниці виміру за КСПОВО береться з одиниці рядка (uom_uom.py), а
+  одиниця без коду дає 2009 («штука»);
 * у зведених ПН графи УКТ ЗЕД і одиниці виміру не заповнюються;
 * вузол ПДВ 14 % (R03G141 / R01G141) - реконструкція за аналогією: форма
   старша за ставку 14 % і в описі цих вузлів немає.
@@ -258,8 +258,9 @@ class UaVatDocumentPnXml(models.Model):
                 if product and product.type != "service":
                     row_el("RXXXXG4", num,
                            (product.ua_uktzed or "").replace(" ", ""))
-                    row_el("RXXXXG4S", num, line.product_uom_id.name or "шт.")
-                    row_el("RXXXXG105_2S", num, UA_KSPOVO_SHT)
+                    short, kspovo = line.product_uom_id._ua_pn_unit(UA_KSPOVO_SHT)
+                    row_el("RXXXXG4S", num, short)
+                    row_el("RXXXXG105_2S", num, kspovo)
                 row_el("RXXXXG5", num, "%g" % line.quantity)
                 row_el("RXXXXG6", num, "%.6g" % line.price_unit)
                 row_el("RXXXXG008", num, code)

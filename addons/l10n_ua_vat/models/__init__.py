@@ -4,6 +4,7 @@ from . import res_company
 from . import res_partner
 from . import ua_vat_relief
 from . import product_template
+from . import uom_uom
 from . import ua_vat_document
 from . import ua_vat_pn_xml
 from . import ua_vat_rk_xml

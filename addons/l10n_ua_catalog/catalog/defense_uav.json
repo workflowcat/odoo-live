@@ -1,0 +1,152 @@
+{
+  "schema": 1,
+  "pack": "defense_uav",
+  "name": "Оборонка: розвідувальні БпЛА",
+  "summary": "Виробник розвідувальних безпілотників: квадрокоптер з тепловізором, літак-розвідник, наземна станція керування, комплект ЗІП. Рама власного виробництва з карбону, покупні комплектуючі, шість робочих центрів з маршрутами, ставками зарплати і енергії для калькуляції за постановою № 309.",
+  "industry": "defense",
+  "requires": ["mrp", "stock"],
+  "sources": [
+    {"title": "ДК 021:2015, ProzorroUKR/standards (Apache-2.0)", "url": "https://github.com/ProzorroUKR/standards"},
+    {"title": "Коди одиниць ДК 011-96 (КСПОВО)", "url": "https://zakon.rada.gov.ua/rada/show/v0008217-97"}
+  ],
+  "notes": [
+    "Пакет без озброєння: корисне навантаження - камери спостереження.",
+    "Ціни, собівартість і норми часу - орієнтир на 2026 рік, замініть своїми.",
+    "Коди УКТ ЗЕД готових виробів - орієнтир за позицією 8806 за злітною масою, звірте з митним брокером."
+  ],
+  "groups": [
+    "stock.group_production_lot",
+    "mrp.group_mrp_routings",
+    "mrp.group_mrp_byproducts",
+    "uom.group_uom"
+  ],
+  "uoms": [
+    {"key": "u_kit", "name": "Комплект", "short": "компл", "kspovo": "2938"}
+  ],
+  "categories": [
+    {"key": "c_root", "name": "Оборонне виробництво"},
+    {"key": "c_fg", "name": "Готові вироби", "parent": "@c_root"},
+    {"key": "c_semi", "name": "Напівфабрикати власного виробництва", "parent": "@c_root"},
+    {"key": "c_comp", "name": "Покупні комплектуючі", "parent": "@c_root"},
+    {"key": "c_mat", "name": "Сировина і матеріали", "parent": "@c_root"},
+    {"key": "c_waste", "name": "Зворотні відходи", "parent": "@c_root"},
+    {"key": "c_svc", "name": "Роботи і послуги", "parent": "@c_root"}
+  ],
+  "workcenters": [
+    {"key": "wc_cnc", "name": "Розкрій карбону на ЧПК", "code": "ЧПК", "costs_hour": 220, "fields": {"ua_wage_hour": 260, "ua_energy_hour": 45}},
+    {"key": "wc_smt", "name": "Монтаж і пайка електроніки", "code": "МОН", "costs_hour": 180, "fields": {"ua_wage_hour": 260, "ua_energy_hour": 20}},
+    {"key": "wc_asm", "name": "Складання", "code": "СКЛ", "costs_hour": 120, "fields": {"ua_wage_hour": 240, "ua_energy_hour": 8}},
+    {"key": "wc_fw", "name": "Прошивка і налаштування", "code": "НАЛ", "costs_hour": 60, "fields": {"ua_wage_hour": 300, "ua_energy_hour": 4}},
+    {"key": "wc_qc", "name": "Вихідний контроль", "code": "ВТК", "costs_hour": 50, "fields": {"ua_wage_hour": 280, "ua_energy_hour": 3}},
+    {"key": "wc_fly", "name": "Льотні випробування", "code": "ЛВ", "costs_hour": 150, "fields": {"ua_wage_hour": 300, "ua_energy_hour": 25}}
+  ],
+  "products": [
+    {"key": "m_carbon", "code": "MAT-001", "name": "Лист вуглепластиковий 3 мм", "category": "@c_mat", "uom": "м2", "cost": 6500, "sale_ok": false, "tracking": "lot", "fields": {"ua_cost_item": "01"}},
+    {"key": "m_wire", "code": "MAT-002", "name": "Провід силіконовий 12 AWG", "category": "@c_mat", "uom": "м", "cost": 45, "sale_ok": false, "dk021": "31300000-9", "fields": {"ua_cost_item": "01"}},
+    {"key": "m_shrink", "code": "MAT-003", "name": "Трубка термоусадна 6 мм", "category": "@c_mat", "uom": "м", "cost": 12, "sale_ok": false, "fields": {"ua_cost_item": "01"}},
+    {"key": "m_solder", "code": "MAT-004", "name": "Припій олов'яно-свинцевий", "category": "@c_mat", "uom": "кг", "cost": 1800, "sale_ok": false, "fields": {"ua_cost_item": "01"}},
+    {"key": "m_fast", "code": "MAT-005", "name": "Кріплення і метизи, набір", "category": "@c_comp", "uom": "@u_kit", "cost": 180, "sale_ok": false, "dk021": "44530000-4", "fields": {"ua_cost_item": "02"}},
+
+    {"key": "c_motor", "code": "CMP-001", "name": "Двигун безколекторний 2807 1300KV", "category": "@c_comp", "cost": 1150, "price": 1600, "dk021": "31110000-0", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_esc", "code": "CMP-002", "name": "Регулятор обертів 4 в 1, 55 А", "category": "@c_comp", "cost": 2100, "sale_ok": false, "fields": {"ua_cost_item": "02"}},
+    {"key": "c_fc", "code": "CMP-003", "name": "Польотний контролер F7", "category": "@c_comp", "cost": 2400, "sale_ok": false, "tracking": "serial", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_vtx", "code": "CMP-004", "name": "Відеопередавач 5,8 ГГц, 1,6 Вт", "category": "@c_comp", "cost": 1900, "sale_ok": false, "dk021": "32200000-5", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_camday", "code": "CMP-005", "name": "Курсова камера денна", "category": "@c_comp", "cost": 1100, "sale_ok": false, "fields": {"ua_cost_item": "02"}},
+    {"key": "c_thermal", "code": "CMP-006", "name": "Тепловізійний модуль 384x288", "category": "@c_comp", "cost": 38000, "sale_ok": false, "tracking": "serial", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_rx", "code": "CMP-007", "name": "Приймач керування 900 МГц", "category": "@c_comp", "cost": 650, "sale_ok": false, "dk021": "32310000-9", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_gnss", "code": "CMP-008", "name": "Модуль GNSS з компасом", "category": "@c_comp", "cost": 900, "sale_ok": false, "dk021": "34933000-6", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_prop", "code": "CMP-009", "name": "Пропелер 7 дюймів", "category": "@c_comp", "cost": 90, "price": 140, "fields": {"ua_cost_item": "02"}},
+    {"key": "c_ant", "code": "CMP-010", "name": "Антена 5,8 ГГц", "category": "@c_comp", "cost": 250, "price": 380, "dk021": "32352000-5", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_batt", "code": "CMP-011", "name": "Акумуляторна батарея Li-ion 6S2P, 8000 мА·год", "category": "@c_comp", "cost": 4800, "price": 6500, "tracking": "serial", "dk021": "31434000-7", "fields": {"ua_cost_item": "02", "ua_warranty_months": 6}},
+    {"key": "c_laptop", "code": "CMP-012", "name": "Ноутбук захищений", "category": "@c_comp", "cost": 52000, "sale_ok": false, "tracking": "serial", "dk021": "30213100-6", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_rc", "code": "CMP-013", "name": "Пульт керування 900 МГц", "category": "@c_comp", "cost": 6500, "sale_ok": false, "tracking": "serial", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_antblock", "code": "CMP-014", "name": "Антенний блок з підсилювачем", "category": "@c_comp", "cost": 9000, "sale_ok": false, "dk021": "32352000-5", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_case", "code": "CMP-015", "name": "Кейс захисний для станції", "category": "@c_comp", "cost": 3500, "sale_ok": false, "dk021": "44421722-4", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_charger", "code": "CMP-016", "name": "Зарядний пристрій для батарей 6S", "category": "@c_comp", "cost": 3200, "price": 4300, "dk021": "31158100-9", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_airframe", "code": "CMP-020", "name": "Планер крилатої схеми, розмах 2,2 м", "category": "@c_comp", "cost": 28000, "sale_ok": false, "tracking": "serial", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_motor_w", "code": "CMP-021", "name": "Двигун безколекторний 4120 500KV", "category": "@c_comp", "cost": 2600, "sale_ok": false, "dk021": "31110000-0", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_esc_w", "code": "CMP-022", "name": "Регулятор обертів 80 А", "category": "@c_comp", "cost": 1800, "sale_ok": false, "fields": {"ua_cost_item": "02"}},
+    {"key": "c_servo", "code": "CMP-023", "name": "Сервопривід цифровий", "category": "@c_comp", "cost": 700, "sale_ok": false, "fields": {"ua_cost_item": "02"}},
+    {"key": "c_autopilot", "code": "CMP-024", "name": "Автопілот з GNSS", "category": "@c_comp", "cost": 14000, "sale_ok": false, "tracking": "serial", "dk021": "34933000-6", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_gimbal", "code": "CMP-025", "name": "Гіростабілізована камера з оптичним зумом 30x", "category": "@c_comp", "cost": 95000, "sale_ok": false, "tracking": "serial", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_datalink", "code": "CMP-026", "name": "Модем каналу даних і відео", "category": "@c_comp", "cost": 42000, "sale_ok": false, "tracking": "serial", "dk021": "32552410-4", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_batt_w", "code": "CMP-027", "name": "Акумуляторна батарея Li-ion 6S4P, 16000 мА·год", "category": "@c_comp", "cost": 8200, "price": 10500, "tracking": "serial", "dk021": "31434000-7", "fields": {"ua_cost_item": "02", "ua_warranty_months": 6}},
+    {"key": "c_prop_w", "code": "CMP-028", "name": "Пропелер складаний 13x8", "category": "@c_comp", "cost": 350, "price": 520, "fields": {"ua_cost_item": "02"}},
+    {"key": "c_chute", "code": "CMP-029", "name": "Парашутна система посадки", "category": "@c_comp", "cost": 4500, "sale_ok": false, "dk021": "39523000-4", "fields": {"ua_cost_item": "02"}},
+
+    {"key": "s_frame", "code": "SF-001", "name": "Рама 7 дюймів карбонова", "category": "@c_semi", "sale_ok": false, "purchase_ok": false},
+    {"key": "w_carbon", "code": "WST-001", "name": "Обрізки вуглепластику", "category": "@c_waste", "uom": "кг", "cost": 150, "price": 150, "purchase_ok": false},
+
+    {"key": "f_quad", "code": "UAV-Q7T", "name": "Квадрокоптер розвідувальний 7 дюймів з тепловізором", "category": "@c_fg", "price": 98000, "purchase_ok": false, "tracking": "serial", "uktzed": "8806220000", "dk021": "35613000-4", "description": "Розвідка і спостереження вдень і вночі. Радіус до 10 км, політ до 25 хвилин.", "fields": {"ua_warranty_months": 12}},
+    {"key": "f_wing", "code": "UAV-W22", "name": "Безпілотний літак-розвідник, розмах 2,2 м", "category": "@c_fg", "price": 420000, "purchase_ok": false, "tracking": "serial", "uktzed": "8806230000", "dk021": "35613000-4", "description": "Повітряна розвідка до 60 км, політ до 3 годин, посадка на парашуті.", "fields": {"ua_warranty_months": 12}},
+    {"key": "f_gcs", "code": "GCS-01", "name": "Наземна станція керування", "category": "@c_fg", "price": 115000, "purchase_ok": false, "tracking": "serial", "fields": {"ua_warranty_months": 12}},
+    {"key": "f_zip", "code": "ZIP-Q7", "name": "Комплект ЗІП до квадрокоптера", "category": "@c_fg", "uom": "@u_kit", "price": 9500, "purchase_ok": false, "storable": false},
+
+    {"key": "sv_train", "code": "SRV-001", "name": "Навчання операторів БпЛА", "category": "@c_svc", "type": "service", "uom": "доб", "price": 6000, "purchase_ok": false, "dk021": "80511000-9"},
+    {"key": "sv_repair", "code": "SRV-002", "name": "Ремонт і обслуговування БпЛА", "category": "@c_svc", "type": "service", "uom": "год", "price": 900, "purchase_ok": false, "dk021": "50600000-1"}
+  ],
+  "boms": [
+    {"key": "b_frame", "product": "@s_frame", "qty": 1,
+     "lines": [{"product": "@m_carbon", "qty": 0.08}],
+     "operations": [
+       {"name": "Розкрій пластин рами", "workcenter": "@wc_cnc", "minutes": 25,
+        "ua_steps": "Закріпити лист на столі. Запустити програму рами 7 дюймів. Зняти пластини, зачистити кромки.",
+        "ua_checks": "Товщина 3 мм. Кромки без розшарування. Отвори під двигуни за шаблоном."}
+     ],
+     "byproducts": [{"product": "@w_carbon", "qty": 0.05}]},
+
+    {"key": "b_quad", "product": "@f_quad", "qty": 1,
+     "lines": [
+       {"product": "@s_frame", "qty": 1}, {"product": "@c_motor", "qty": 4}, {"product": "@c_esc", "qty": 1},
+       {"product": "@c_fc", "qty": 1}, {"product": "@c_vtx", "qty": 1}, {"product": "@c_camday", "qty": 1},
+       {"product": "@c_thermal", "qty": 1}, {"product": "@c_rx", "qty": 1}, {"product": "@c_gnss", "qty": 1},
+       {"product": "@c_prop", "qty": 4}, {"product": "@c_ant", "qty": 1}, {"product": "@m_fast", "qty": 1},
+       {"product": "@m_wire", "qty": 0.6}, {"product": "@m_shrink", "qty": 0.3}, {"product": "@m_solder", "qty": 0.02}
+     ],
+     "operations": [
+       {"name": "Монтаж силової частини і електроніки", "workcenter": "@wc_smt", "minutes": 50,
+        "ua_checks": "Пайка без холодних з'єднань. Ізоляція термоусадкою. Опір між плюсом і мінусом понад 1 кОм."},
+       {"name": "Складання і укладання проводки", "workcenter": "@wc_asm", "minutes": 40},
+       {"name": "Прошивка контролера, прив'язка приймача, калібрування", "workcenter": "@wc_fw", "minutes": 30,
+        "ua_checks": "Версія прошивки за картою виробу. Компас і акселерометр відкалібровано. Відмова зв'язку - повернення додому."},
+       {"name": "Вихідний контроль", "workcenter": "@wc_qc", "minutes": 20,
+        "ua_checks": "Зовнішній огляд. Струм спокою. Відео з обох камер. Серійні номери складових записано."},
+       {"name": "Контрольний політ", "workcenter": "@wc_fly", "minutes": 25,
+        "ua_checks": "Зависання 2 хвилини, політ за маршрутом 5 хвилин, посадка. Вібрації в межах норми."}
+     ]},
+
+    {"key": "b_wing", "product": "@f_wing", "qty": 1,
+     "lines": [
+       {"product": "@c_airframe", "qty": 1}, {"product": "@c_motor_w", "qty": 1}, {"product": "@c_esc_w", "qty": 1},
+       {"product": "@c_servo", "qty": 4}, {"product": "@c_autopilot", "qty": 1}, {"product": "@c_gimbal", "qty": 1},
+       {"product": "@c_datalink", "qty": 1}, {"product": "@c_prop_w", "qty": 1}, {"product": "@c_chute", "qty": 1},
+       {"product": "@m_fast", "qty": 2}, {"product": "@m_wire", "qty": 2.5}, {"product": "@m_shrink", "qty": 1},
+       {"product": "@m_solder", "qty": 0.05}
+     ],
+     "operations": [
+       {"name": "Монтаж силової частини і електроніки", "workcenter": "@wc_smt", "minutes": 60},
+       {"name": "Складання планера і встановлення обладнання", "workcenter": "@wc_asm", "minutes": 120},
+       {"name": "Налаштування автопілота і каналу даних", "workcenter": "@wc_fw", "minutes": 60},
+       {"name": "Вихідний контроль", "workcenter": "@wc_qc", "minutes": 40},
+       {"name": "Контрольний політ за маршрутом", "workcenter": "@wc_fly", "minutes": 60,
+        "ua_checks": "Зліт, маршрут 20 км, повернення, посадка на парашуті. Телеметрія записана."}
+     ]},
+
+    {"key": "b_gcs", "product": "@f_gcs", "qty": 1,
+     "lines": [
+       {"product": "@c_laptop", "qty": 1}, {"product": "@c_rc", "qty": 1}, {"product": "@c_antblock", "qty": 1},
+       {"product": "@c_case", "qty": 1}, {"product": "@c_charger", "qty": 1}, {"product": "@m_wire", "qty": 3}
+     ],
+     "operations": [
+       {"name": "Складання станції в кейсі", "workcenter": "@wc_asm", "minutes": 60},
+       {"name": "Встановлення програм і прив'язка пульта", "workcenter": "@wc_fw", "minutes": 45},
+       {"name": "Вихідний контроль", "workcenter": "@wc_qc", "minutes": 20}
+     ]},
+
+    {"key": "b_zip", "product": "@f_zip", "qty": 1, "type": "phantom",
+     "lines": [
+       {"product": "@c_prop", "qty": 8}, {"product": "@c_motor", "qty": 1},
+       {"product": "@c_ant", "qty": 1}, {"product": "@m_fast", "qty": 1}
+     ]}
+  ]
+}

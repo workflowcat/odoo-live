@@ -1,0 +1,125 @@
+{
+  "schema": 1,
+  "pack": "defense_apparel",
+  "name": "Оборонка: речове майно",
+  "summary": "Швейне виробництво для сил оборони: польова форма, куртка софтшел, чохол для бронепластин, підсумок. Тканини з партіями, фурнітура, норми витрати на виріб, маршрут розкрій - пошиття - ВТК - пакування, обрізки як зворотні відходи.",
+  "industry": "defense",
+  "requires": ["mrp", "stock"],
+  "sources": [
+    {"title": "ДК 021:2015, ProzorroUKR/standards (Apache-2.0)", "url": "https://github.com/ProzorroUKR/standards"}
+  ],
+  "notes": [
+    "Розмірний ряд - варіанти товару: після завантаження додайте атрибут «Розмір» і ростовки.",
+    "Норми витрати тканини - на середній розмір, уточніть за своїми лекалами.",
+    "Тканини ведуться партіями: номер партії з сертифіката відповідності потрапляє в паспорт партії виробів."
+  ],
+  "groups": [
+    "stock.group_production_lot",
+    "mrp.group_mrp_routings",
+    "mrp.group_mrp_byproducts",
+    "uom.group_uom"
+  ],
+  "categories": [
+    {"key": "c_root", "name": "Речове майно"},
+    {"key": "c_fg", "name": "Готові вироби", "parent": "@c_root"},
+    {"key": "c_fabric", "name": "Тканини", "parent": "@c_root"},
+    {"key": "c_acc", "name": "Фурнітура і нитки", "parent": "@c_root"},
+    {"key": "c_pack", "name": "Пакування і маркування", "parent": "@c_root"},
+    {"key": "c_waste", "name": "Зворотні відходи", "parent": "@c_root"}
+  ],
+  "workcenters": [
+    {"key": "wc_cut", "name": "Розкрійний цех", "code": "РОЗ", "costs_hour": 90, "fields": {"ua_wage_hour": 220, "ua_energy_hour": 15}},
+    {"key": "wc_sew", "name": "Швейна дільниця", "code": "ШВ", "costs_hour": 60, "fields": {"ua_wage_hour": 200, "ua_energy_hour": 6}},
+    {"key": "wc_qc", "name": "ВТК швейного виробництва", "code": "ВТКШ", "costs_hour": 30, "fields": {"ua_wage_hour": 220, "ua_energy_hour": 2}},
+    {"key": "wc_pack", "name": "Пакування і маркування", "code": "ПАК", "costs_hour": 20, "fields": {"ua_wage_hour": 180, "ua_energy_hour": 1}}
+  ],
+  "products": [
+    {"key": "f_ripstop", "code": "TKN-001", "name": "Тканина ріп-стоп камуфльована, 220 г/м2, ширина 150 см", "category": "@c_fabric", "uom": "м", "cost": 240, "sale_ok": false, "tracking": "lot", "dk021": "19211100-9", "fields": {"ua_cost_item": "01"}},
+    {"key": "f_softshell", "code": "TKN-002", "name": "Тканина софтшел тришарова, ширина 150 см", "category": "@c_fabric", "uom": "м", "cost": 420, "sale_ok": false, "tracking": "lot", "dk021": "19211000-8", "fields": {"ua_cost_item": "01"}},
+    {"key": "f_cordura", "code": "TKN-003", "name": "Тканина Cordura 500D, ширина 150 см", "category": "@c_fabric", "uom": "м", "cost": 360, "sale_ok": false, "tracking": "lot", "dk021": "19211000-8", "fields": {"ua_cost_item": "01"}},
+    {"key": "f_mesh", "code": "TKN-004", "name": "Сітка підкладкова, ширина 150 см", "category": "@c_fabric", "uom": "м", "cost": 85, "sale_ok": false, "fields": {"ua_cost_item": "01"}},
+    {"key": "a_thread", "code": "FUR-001", "name": "Нитки армовані 40 ЛЛ, котушка 2500 м", "category": "@c_acc", "cost": 95, "sale_ok": false, "dk021": "19440000-2", "fields": {"ua_cost_item": "01"}},
+    {"key": "a_zip_long", "code": "FUR-002", "name": "Застібка-блискавка роз'ємна 70 см", "category": "@c_acc", "cost": 65, "sale_ok": false, "dk021": "18453000-9", "fields": {"ua_cost_item": "02"}},
+    {"key": "a_zip_short", "code": "FUR-003", "name": "Застібка-блискавка нероз'ємна 18 см", "category": "@c_acc", "cost": 22, "sale_ok": false, "dk021": "18453000-9", "fields": {"ua_cost_item": "02"}},
+    {"key": "a_button", "code": "FUR-004", "name": "Ґудзик пластиковий 15 мм", "category": "@c_acc", "cost": 3, "sale_ok": false, "dk021": "18450000-8", "fields": {"ua_cost_item": "02"}},
+    {"key": "a_velcro", "code": "FUR-005", "name": "Стрічка контактна 50 мм", "category": "@c_acc", "uom": "м", "cost": 38, "sale_ok": false, "fields": {"ua_cost_item": "01"}},
+    {"key": "a_webbing", "code": "FUR-006", "name": "Стропа нейлонова 25 мм", "category": "@c_acc", "uom": "м", "cost": 14, "sale_ok": false, "fields": {"ua_cost_item": "01"}},
+    {"key": "a_buckle", "code": "FUR-007", "name": "Пряжка-фастекс 25 мм", "category": "@c_acc", "cost": 18, "sale_ok": false, "dk021": "18450000-8", "fields": {"ua_cost_item": "02"}},
+    {"key": "p_label", "code": "PAK-001", "name": "Етикетка з розміром і доглядом", "category": "@c_pack", "cost": 2.5, "sale_ok": false, "fields": {"ua_cost_item": "01"}},
+    {"key": "p_bag", "code": "PAK-002", "name": "Пакет поліетиленовий з клапаном", "category": "@c_pack", "cost": 4, "sale_ok": false, "dk021": "18937100-7", "fields": {"ua_cost_item": "01"}},
+    {"key": "w_scrap", "code": "WST-201", "name": "Обрізки тканини", "category": "@c_waste", "uom": "кг", "cost": 10, "price": 10, "purchase_ok": false},
+
+    {"key": "g_shirt", "code": "RM-101", "name": "Кітель польовий, ріп-стоп", "category": "@c_fg", "price": 1650, "purchase_ok": false, "tracking": "lot", "dk021": "18110000-3", "fields": {"ua_warranty_months": 6}},
+    {"key": "g_pants", "code": "RM-102", "name": "Штани польові, ріп-стоп", "category": "@c_fg", "price": 1550, "purchase_ok": false, "tracking": "lot", "dk021": "18110000-3", "fields": {"ua_warranty_months": 6}},
+    {"key": "g_jacket", "code": "RM-103", "name": "Куртка софтшел камуфльована", "category": "@c_fg", "price": 3200, "purchase_ok": false, "tracking": "lot", "dk021": "35812100-0", "fields": {"ua_warranty_months": 6}},
+    {"key": "g_carrier", "code": "RM-104", "name": "Чохол для бронепластин, без плит", "category": "@c_fg", "price": 2900, "purchase_ok": false, "tracking": "lot", "dk021": "18143000-3", "fields": {"ua_warranty_months": 12}},
+    {"key": "g_pouch", "code": "RM-105", "name": "Підсумок універсальний", "category": "@c_fg", "price": 450, "purchase_ok": false, "tracking": "lot", "dk021": "18143000-3", "fields": {"ua_warranty_months": 12}}
+  ],
+  "boms": [
+    {"key": "b_shirt", "product": "@g_shirt", "qty": 1,
+     "lines": [
+       {"product": "@f_ripstop", "qty": 1.6}, {"product": "@a_thread", "qty": 0.06}, {"product": "@a_button", "qty": 12},
+       {"product": "@a_velcro", "qty": 0.3}, {"product": "@p_label", "qty": 1}, {"product": "@p_bag", "qty": 1}
+     ],
+     "operations": [
+       {"name": "Розкрій за лекалами", "workcenter": "@wc_cut", "minutes": 6, "ua_steps": "Настил до 60 шарів, розкрій ножем, комплектування пачок за розмірами."},
+       {"name": "Пошиття", "workcenter": "@wc_sew", "minutes": 75},
+       {"name": "Контроль якості", "workcenter": "@wc_qc", "minutes": 5, "ua_checks": "Розміри за табелем мір. Рядки без пропусків. Закріпки на кишенях."},
+       {"name": "Пакування і маркування", "workcenter": "@wc_pack", "minutes": 3}
+     ],
+     "byproducts": [{"product": "@w_scrap", "qty": 0.08}]},
+
+    {"key": "b_pants", "product": "@g_pants", "qty": 1,
+     "lines": [
+       {"product": "@f_ripstop", "qty": 1.5}, {"product": "@a_thread", "qty": 0.05}, {"product": "@a_button", "qty": 6},
+       {"product": "@a_zip_short", "qty": 1}, {"product": "@a_velcro", "qty": 0.2}, {"product": "@p_label", "qty": 1},
+       {"product": "@p_bag", "qty": 1}
+     ],
+     "operations": [
+       {"name": "Розкрій за лекалами", "workcenter": "@wc_cut", "minutes": 5},
+       {"name": "Пошиття", "workcenter": "@wc_sew", "minutes": 65},
+       {"name": "Контроль якості", "workcenter": "@wc_qc", "minutes": 5},
+       {"name": "Пакування і маркування", "workcenter": "@wc_pack", "minutes": 3}
+     ],
+     "byproducts": [{"product": "@w_scrap", "qty": 0.07}]},
+
+    {"key": "b_jacket", "product": "@g_jacket", "qty": 1,
+     "lines": [
+       {"product": "@f_softshell", "qty": 2.1}, {"product": "@f_mesh", "qty": 0.4}, {"product": "@a_thread", "qty": 0.08},
+       {"product": "@a_zip_long", "qty": 1}, {"product": "@a_zip_short", "qty": 3}, {"product": "@a_velcro", "qty": 0.25},
+       {"product": "@p_label", "qty": 1}, {"product": "@p_bag", "qty": 1}
+     ],
+     "operations": [
+       {"name": "Розкрій за лекалами", "workcenter": "@wc_cut", "minutes": 8},
+       {"name": "Пошиття", "workcenter": "@wc_sew", "minutes": 110},
+       {"name": "Контроль якості", "workcenter": "@wc_qc", "minutes": 8},
+       {"name": "Пакування і маркування", "workcenter": "@wc_pack", "minutes": 3}
+     ],
+     "byproducts": [{"product": "@w_scrap", "qty": 0.12}]},
+
+    {"key": "b_carrier", "product": "@g_carrier", "qty": 1,
+     "lines": [
+       {"product": "@f_cordura", "qty": 1.2}, {"product": "@a_webbing", "qty": 6}, {"product": "@a_buckle", "qty": 4},
+       {"product": "@a_velcro", "qty": 0.6}, {"product": "@a_thread", "qty": 0.05}, {"product": "@p_label", "qty": 1},
+       {"product": "@p_bag", "qty": 1}
+     ],
+     "operations": [
+       {"name": "Розкрій за лекалами", "workcenter": "@wc_cut", "minutes": 10},
+       {"name": "Пошиття і закріпки", "workcenter": "@wc_sew", "minutes": 140, "ua_checks": "Закріпки на всіх стропах. Навантаження ручки евакуації 150 кг."},
+       {"name": "Контроль якості", "workcenter": "@wc_qc", "minutes": 10},
+       {"name": "Пакування і маркування", "workcenter": "@wc_pack", "minutes": 3}
+     ],
+     "byproducts": [{"product": "@w_scrap", "qty": 0.1}]},
+
+    {"key": "b_pouch", "product": "@g_pouch", "qty": 1,
+     "lines": [
+       {"product": "@f_cordura", "qty": 0.25}, {"product": "@a_webbing", "qty": 1}, {"product": "@a_velcro", "qty": 0.15},
+       {"product": "@a_thread", "qty": 0.01}, {"product": "@p_label", "qty": 1}
+     ],
+     "operations": [
+       {"name": "Розкрій за лекалами", "workcenter": "@wc_cut", "minutes": 3},
+       {"name": "Пошиття", "workcenter": "@wc_sew", "minutes": 25},
+       {"name": "Контроль якості", "workcenter": "@wc_qc", "minutes": 2}
+     ]}
+  ]
+}

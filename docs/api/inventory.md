@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 44. Моделей: 106. Методів: 339. Збережених полів на чужих моделях: 286.
+Модулів: 46. Моделей: 109. Методів: 340. Збережених полів на чужих моделях: 290.
 
 ## Зарплата
 
@@ -1138,6 +1138,15 @@
 | `ua_proxy_number` | Char | Довіреність № | `l10n_ua_docs_stock` |
 | `ua_proxy_person` | Char | Видана на (ПІБ) | `l10n_ua_docs_stock` |
 
+### `uom.uom`
+
+доповнена модель · `l10n_ua_vat`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_kspovo_code` | Char | Код КСПОВО | `l10n_ua_vat` |
+| `ua_kspovo_short` | Char | Позначення КСПОВО | `l10n_ua_vat` |
+
 ## Контрагенти і закупівлі
 
 ### `bp.ai`
@@ -1292,6 +1301,14 @@
 | `warehouse_map(company_id)` | Карта складу: дерево локацій із місткістю, заповненням і вмістом. | `l10n_ua_api` |
 | `workorder_card(workorder_id)` | Картка наряду для кіоску цеху: що робити, чим, і що вже перевірено. | `l10n_ua_api` |
 
+### `ua.catalog.load`
+
+наша модель · `l10n_ua_catalog`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_load()` | - | `l10n_ua_catalog` |
+
 ### `ua.contract`
 
 наша модель · `l10n_ua_contract`, `l10n_ua_defense`
@@ -1397,7 +1414,7 @@
 
 ### `product.template`
 
-доповнена модель · `l10n_ua_defense`, `l10n_ua_mrp`, `l10n_ua_stock_docs`, `l10n_ua_vat`
+доповнена модель · `l10n_ua_defense`, `l10n_ua_dk021`, `l10n_ua_mrp`, `l10n_ua_stock_docs`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1406,6 +1423,7 @@
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `ua_cost_item` | Selection | - | `l10n_ua_defense` |
+| `ua_dk021_id` | Many2one | ua.dk021 | `l10n_ua_dk021` |
 | `ua_drawing_name` | Char | Файл креслення | `l10n_ua_mrp` |
 | `ua_drawing_svg` | Binary | Складальне креслення | `l10n_ua_mrp` |
 | `ua_size` | Selection | Габарит | `l10n_ua_stock_docs` |
@@ -1425,6 +1443,14 @@
 | `ua_expense_account_id` | Many2one | Рахунок витрат | `l10n_ua_purchase` |
 | `ua_request_id` | Many2one | Запит на закупівлю | `l10n_ua_purchase` |
 | `ua_sale_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
+
+### `purchase.order.line`
+
+доповнена модель · `l10n_ua_dk021`, `l10n_ua_purchase`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_dk021_id` | Many2one | ua.dk021 | `l10n_ua_dk021` |
 
 ### `stock.lot`
 

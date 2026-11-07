@@ -1,0 +1,116 @@
+{
+  "schema": 1,
+  "pack": "defense_ugv",
+  "name": "Оборонка: наземні роботизовані комплекси",
+  "summary": "Виробник наземних роботизованих платформ для логістики і евакуації: зварна рама власного виробництва, гусеничний рушій, електропривод, радіоканал, пульт. Маршрути від зварювання до полігонних випробувань, металобрухт як зворотні відходи.",
+  "industry": "defense",
+  "requires": ["mrp", "stock"],
+  "sources": [
+    {"title": "ДК 021:2015, ProzorroUKR/standards (Apache-2.0)", "url": "https://github.com/ProzorroUKR/standards"}
+  ],
+  "notes": [
+    "Пакет без озброєння: платформи для підвезення вантажів і евакуації поранених.",
+    "Ціни, собівартість і норми часу - орієнтир на 2026 рік, замініть своїми.",
+    "Код УКТ ЗЕД платформ не заповнено: визначте його з митним брокером за конструкцією."
+  ],
+  "groups": [
+    "stock.group_production_lot",
+    "mrp.group_mrp_routings",
+    "mrp.group_mrp_byproducts",
+    "uom.group_uom"
+  ],
+  "uoms": [
+    {"key": "u_kit", "name": "Комплект", "short": "компл", "kspovo": "2938"}
+  ],
+  "categories": [
+    {"key": "c_root", "name": "Оборонне виробництво"},
+    {"key": "c_fg", "name": "Готові вироби", "parent": "@c_root"},
+    {"key": "c_semi", "name": "Напівфабрикати власного виробництва", "parent": "@c_root"},
+    {"key": "c_comp", "name": "Покупні комплектуючі", "parent": "@c_root"},
+    {"key": "c_mat", "name": "Сировина і матеріали", "parent": "@c_root"},
+    {"key": "c_waste", "name": "Зворотні відходи", "parent": "@c_root"},
+    {"key": "c_svc", "name": "Роботи і послуги", "parent": "@c_root"}
+  ],
+  "workcenters": [
+    {"key": "wc_weld", "name": "Зварювання металоконструкцій", "code": "ЗВР", "costs_hour": 160, "fields": {"ua_wage_hour": 250, "ua_energy_hour": 60}},
+    {"key": "wc_mill", "name": "Механообробка", "code": "МЕХ", "costs_hour": 240, "fields": {"ua_wage_hour": 270, "ua_energy_hour": 50}},
+    {"key": "wc_paint", "name": "Фарбування", "code": "ФРБ", "costs_hour": 90, "fields": {"ua_wage_hour": 200, "ua_energy_hour": 30}},
+    {"key": "wc_asm", "name": "Складання", "code": "СКЛ", "costs_hour": 120, "fields": {"ua_wage_hour": 240, "ua_energy_hour": 8}},
+    {"key": "wc_elec", "name": "Електромонтаж", "code": "ЕЛМ", "costs_hour": 150, "fields": {"ua_wage_hour": 260, "ua_energy_hour": 15}},
+    {"key": "wc_fw", "name": "Прошивка і налаштування", "code": "НАЛ", "costs_hour": 60, "fields": {"ua_wage_hour": 300, "ua_energy_hour": 4}},
+    {"key": "wc_test", "name": "Полігонні випробування", "code": "ПВ", "costs_hour": 200, "fields": {"ua_wage_hour": 300, "ua_energy_hour": 30}},
+    {"key": "wc_qc", "name": "Вихідний контроль", "code": "ВТК", "costs_hour": 50, "fields": {"ua_wage_hour": 280, "ua_energy_hour": 3}}
+  ],
+  "products": [
+    {"key": "m_profile", "code": "MAT-101", "name": "Профіль сталевий квадратний 40x40x3", "category": "@c_mat", "uom": "м", "cost": 210, "sale_ok": false, "tracking": "lot", "fields": {"ua_cost_item": "01"}},
+    {"key": "m_sheet", "code": "MAT-102", "name": "Лист сталевий 3 мм", "category": "@c_mat", "uom": "кг", "cost": 48, "sale_ok": false, "tracking": "lot", "dk021": "14622000-7", "fields": {"ua_cost_item": "01"}},
+    {"key": "m_paint", "code": "MAT-103", "name": "Фарба захисна матова", "category": "@c_mat", "uom": "л", "cost": 420, "sale_ok": false, "fields": {"ua_cost_item": "01"}},
+    {"key": "m_wire", "code": "MAT-002", "name": "Провід силіконовий 12 AWG", "category": "@c_mat", "uom": "м", "cost": 45, "sale_ok": false, "dk021": "31300000-9", "fields": {"ua_cost_item": "01"}},
+    {"key": "m_fast", "code": "MAT-005", "name": "Кріплення і метизи, набір", "category": "@c_comp", "uom": "@u_kit", "cost": 180, "sale_ok": false, "dk021": "44530000-4", "fields": {"ua_cost_item": "02"}},
+
+    {"key": "c_track", "code": "CMP-101", "name": "Гусеничний рушій у зборі, пара", "category": "@c_comp", "uom": "@u_kit", "cost": 68000, "sale_ok": false, "dk021": "44464000-0", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_motor", "code": "CMP-102", "name": "Мотор-редуктор 3 кВт, 48 В", "category": "@c_comp", "cost": 24000, "sale_ok": false, "tracking": "serial", "dk021": "31110000-0", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_mctrl", "code": "CMP-103", "name": "Контролер двигуна 48 В, 150 А", "category": "@c_comp", "cost": 7800, "sale_ok": false, "fields": {"ua_cost_item": "02"}},
+    {"key": "c_pack", "code": "CMP-104", "name": "Батарея LiFePO4 48 В, 100 А·год", "category": "@c_comp", "cost": 52000, "price": 64000, "tracking": "serial", "dk021": "31434000-7", "fields": {"ua_cost_item": "02", "ua_warranty_months": 12}},
+    {"key": "c_mesh", "code": "CMP-105", "name": "Радіомодем mesh 1,4 ГГц", "category": "@c_comp", "cost": 38000, "sale_ok": false, "tracking": "serial", "dk021": "32552410-4", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_cam", "code": "CMP-106", "name": "Камера оглядова з ІЧ-підсвічуванням", "category": "@c_comp", "cost": 3400, "sale_ok": false, "fields": {"ua_cost_item": "02"}},
+    {"key": "c_ctrl", "code": "CMP-107", "name": "Бортовий комп'ютер керування", "category": "@c_comp", "cost": 18000, "sale_ok": false, "tracking": "serial", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_light", "code": "CMP-108", "name": "Фара світлодіодна", "category": "@c_comp", "cost": 1200, "sale_ok": false, "fields": {"ua_cost_item": "02"}},
+    {"key": "c_stretcher", "code": "CMP-109", "name": "Ноші евакуаційні з кріпленням", "category": "@c_comp", "cost": 6500, "sale_ok": false, "fields": {"ua_cost_item": "02"}},
+
+    {"key": "s_hull", "code": "SF-101", "name": "Корпус-рама зварна", "category": "@c_semi", "sale_ok": false, "purchase_ok": false, "tracking": "serial"},
+    {"key": "w_scrap", "code": "WST-101", "name": "Металобрухт сталевий", "category": "@c_waste", "uom": "кг", "cost": 6, "price": 6, "purchase_ok": false},
+
+    {"key": "f_log", "code": "UGV-L300", "name": "Наземна роботизована платформа логістична, 300 кг", "category": "@c_fg", "price": 1150000, "purchase_ok": false, "tracking": "serial", "dk021": "35400000-8", "description": "Підвезення води, провізії і майна. Вантаж до 300 кг, хід до 20 км.", "fields": {"ua_warranty_months": 12}},
+    {"key": "f_evac", "code": "UGV-E01", "name": "Наземна роботизована платформа евакуаційна", "category": "@c_fg", "price": 1240000, "purchase_ok": false, "tracking": "serial", "dk021": "35400000-8", "description": "Евакуація пораненого на ношах з позиції, хід до 20 км.", "fields": {"ua_warranty_months": 12}},
+    {"key": "f_rc", "code": "UGV-RC1", "name": "Пульт керування НРК з планшетом", "category": "@c_fg", "cost": 32000, "price": 45000, "tracking": "serial", "dk021": "30213200-7", "fields": {"ua_cost_item": "02", "ua_warranty_months": 12}},
+
+    {"key": "sv_train", "code": "SRV-101", "name": "Навчання операторів НРК", "category": "@c_svc", "type": "service", "uom": "доб", "price": 7000, "purchase_ok": false, "dk021": "80511000-9"},
+    {"key": "sv_service", "code": "SRV-102", "name": "Сервісне обслуговування НРК", "category": "@c_svc", "type": "service", "uom": "год", "price": 1100, "purchase_ok": false, "dk021": "50600000-1"}
+  ],
+  "boms": [
+    {"key": "b_hull", "product": "@s_hull", "qty": 1,
+     "lines": [
+       {"product": "@m_profile", "qty": 14}, {"product": "@m_sheet", "qty": 38}, {"product": "@m_paint", "qty": 1.5}
+     ],
+     "operations": [
+       {"name": "Різання і зварювання рами в кондукторі", "workcenter": "@wc_weld", "minutes": 240,
+        "ua_checks": "Діагоналі рами в допуску 3 мм. Шви без пропалів і непроварів."},
+       {"name": "Свердління і розточування посадкових місць", "workcenter": "@wc_mill", "minutes": 90},
+       {"name": "Ґрунтування і фарбування", "workcenter": "@wc_paint", "minutes": 60}
+     ],
+     "byproducts": [{"product": "@w_scrap", "qty": 3}]},
+
+    {"key": "b_log", "product": "@f_log", "qty": 1,
+     "lines": [
+       {"product": "@s_hull", "qty": 1}, {"product": "@c_track", "qty": 1}, {"product": "@c_motor", "qty": 2},
+       {"product": "@c_mctrl", "qty": 2}, {"product": "@c_pack", "qty": 1}, {"product": "@c_mesh", "qty": 1},
+       {"product": "@c_cam", "qty": 4}, {"product": "@c_ctrl", "qty": 1}, {"product": "@c_light", "qty": 2},
+       {"product": "@m_fast", "qty": 4}, {"product": "@m_wire", "qty": 12}
+     ],
+     "operations": [
+       {"name": "Встановлення рушія і силової частини", "workcenter": "@wc_asm", "minutes": 240},
+       {"name": "Електромонтаж і укладання кабелів", "workcenter": "@wc_elec", "minutes": 300},
+       {"name": "Налаштування бортового комп'ютера і радіоканалу", "workcenter": "@wc_fw", "minutes": 120},
+       {"name": "Хід, вантаж 300 кг, радіус зв'язку", "workcenter": "@wc_test", "minutes": 180,
+        "ua_checks": "Хід 5 км з вантажем. Підйом 20 градусів. Зв'язок на 3 км без втрати відео."},
+       {"name": "Вихідний контроль", "workcenter": "@wc_qc", "minutes": 60}
+     ]},
+
+    {"key": "b_evac", "product": "@f_evac", "qty": 1,
+     "lines": [
+       {"product": "@s_hull", "qty": 1}, {"product": "@c_track", "qty": 1}, {"product": "@c_motor", "qty": 2},
+       {"product": "@c_mctrl", "qty": 2}, {"product": "@c_pack", "qty": 1}, {"product": "@c_mesh", "qty": 1},
+       {"product": "@c_cam", "qty": 4}, {"product": "@c_ctrl", "qty": 1}, {"product": "@c_light", "qty": 2},
+       {"product": "@c_stretcher", "qty": 1}, {"product": "@m_fast", "qty": 5}, {"product": "@m_wire", "qty": 12}
+     ],
+     "operations": [
+       {"name": "Встановлення рушія і силової частини", "workcenter": "@wc_asm", "minutes": 240},
+       {"name": "Монтаж евакуаційного модуля", "workcenter": "@wc_asm", "minutes": 60},
+       {"name": "Електромонтаж і укладання кабелів", "workcenter": "@wc_elec", "minutes": 300},
+       {"name": "Налаштування бортового комп'ютера і радіоканалу", "workcenter": "@wc_fw", "minutes": 120},
+       {"name": "Хід з манекеном на ношах, радіус зв'язку", "workcenter": "@wc_test", "minutes": 180},
+       {"name": "Вихідний контроль", "workcenter": "@wc_qc", "minutes": 60}
+     ]}
+  ]
+}

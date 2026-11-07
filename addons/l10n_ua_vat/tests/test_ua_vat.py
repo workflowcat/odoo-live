@@ -741,3 +741,34 @@ class TestUaVat(AccountTestInvoicingCommon):
         post_init_hook(self.env)
         self.assertEqual(self.tax_sale_exempt.tax_group_id.ua_vat_zero_kind,
                          "exempt")
+
+    def test_22_pn_unit_codes_from_uom(self):
+        """Графи 4 і 5 ПН беруться з одиниці рядка, а не завжди «штука».
+
+        Рядок 1: дріт у кілограмах - «кг», код 0301. Рядок 2: штучний товар -
+        «шт», 2009. Повторний засів кодів не перезаписує ручну правку.
+        """
+        kgm = self.env.ref("uom.product_uom_kgm")
+        self.assertEqual(kgm.ua_kspovo_code, "0301")
+        self.assertEqual(
+            self.env.ref("uom.product_uom_hour").ua_kspovo_code, "0175")
+        wire = self.env["product.product"].create({
+            "name": "Дріт мідний",
+            "type": "consu",
+            "uom_id": kgm.id,
+            "ua_uktzed": "7408110000",
+        })
+        invoice = self._invoice(
+            self.payer, datetime.date(2026, 7, 12),
+            [(wire, 3, 400.0, self.tax_sale_20),
+             (self.goods, 1, 500.0, self.tax_sale_20)])
+        self.assertEqual(invoice.invoice_line_ids[0].product_uom_id, kgm)
+        doc = invoice._ua_vat_materialize("tax_invoice")
+        body = ET.fromstring(doc._ua_build_pn_xml()[0]).find("DECLARBODY")
+        self.assertEqual([e.text for e in body.findall("RXXXXG105_2S")],
+                         ["0301", "2009"])
+        self.assertEqual([e.text for e in body.findall("RXXXXG4S")],
+                         ["кг", "шт"])
+        kgm.ua_kspovo_short = "кілограм"
+        self.env["uom.uom"]._ua_kspovo_seed()
+        self.assertEqual(kgm.ua_kspovo_short, "кілограм")

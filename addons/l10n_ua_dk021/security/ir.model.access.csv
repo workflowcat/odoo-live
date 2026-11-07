@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_dk021_user,ua.dk021.user,model_ua_dk021,base.group_user,1,0,0,0
+access_ua_dk021_manager,ua.dk021.manager,model_ua_dk021,purchase.group_purchase_manager,1,1,1,0

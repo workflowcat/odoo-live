@@ -10,14 +10,15 @@
                    "зобов'язання за п.198.5 і ст.199 ПКУ, строки реєстрації та оцінку штрафу. "
                    "Модуль логічний: жодного OWL, жодної залежності від модулів інтерфейсу. "
                    "Опис у docs/base/spec-vat.md.",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.2.0",
     "category": "Accounting/Localizations",
     "author": "Bot&Partners",
     "license": "LGPL-3",
-    "depends": ["account", "l10n_ua"],
+    "depends": ["account", "l10n_ua", "uom"],
     "data": [
         "security/ir.model.access.csv",
         "security/ua_vat_security.xml",
+        "data/uom_data.xml",
         "views/ua_vat_relief_views.xml",
         "views/ua_vat_document_views.xml",
         "views/ua_vat_compensation_views.xml",
@@ -26,6 +27,7 @@
         "views/account_payment_views.xml",
         "views/res_partner_views.xml",
         "views/product_views.xml",
+        "views/uom_views.xml",
         "views/menus.xml",
     ],
     "post_init_hook": "post_init_hook",

@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "pack": "procurement",
+  "name": "Закупівлі: типові позиції за ДК 021",
+  "summary": "Довідник відділу закупівель: канцтовари, техніка, паливо, господарські товари, комунальні послуги, зв'язок, охорона, прибирання, навчання. Кожна позиція з кодом ДК 021 для річного плану закупівель і звіту про договори.",
+  "industry": "procurement",
+  "requires": ["purchase", "stock"],
+  "sources": [
+    {"title": "ДК 021:2015, ProzorroUKR/standards (Apache-2.0)", "url": "https://github.com/ProzorroUKR/standards"},
+    {"title": "Коди одиниць ДК 011-96 (КСПОВО)", "url": "https://zakon.rada.gov.ua/rada/show/v0008217-97"}
+  ],
+  "notes": [
+    "Код ДК 021 стає полем товару, коли встановлено модуль l10n_ua_dk021, і переходить на рядки замовлень постачальникам.",
+    "Ціни - орієнтир на 2026 рік; для закупівель за публічні кошти ціна береться з договору."
+  ],
+  "uoms": [
+    {"key": "u_month", "name": "Місяць", "short": "міс", "kspovo": "0171"}
+  ],
+  "categories": [
+    {"key": "c_root", "name": "Закупівлі"},
+    {"key": "c_office", "name": "Канцтовари і папір", "parent": "@c_root"},
+    {"key": "c_it", "name": "Комп'ютерна техніка", "parent": "@c_root"},
+    {"key": "c_fuel", "name": "Паливо", "parent": "@c_root"},
+    {"key": "c_auto", "name": "Запчастини до транспорту", "parent": "@c_root"},
+    {"key": "c_house", "name": "Господарські товари", "parent": "@c_root"},
+    {"key": "c_util", "name": "Комунальні послуги", "parent": "@c_root"},
+    {"key": "c_svc", "name": "Послуги", "parent": "@c_root"}
+  ],
+  "products": [
+    {"key": "paper", "code": "ZK-001", "name": "Папір для друку А4, 80 г/м2, пачка 500 аркушів", "category": "@c_office", "cost": 230, "sale_ok": false, "dk021": "30197630-1"},
+    {"key": "toner", "code": "ZK-002", "name": "Картридж з тонером для лазерного принтера", "category": "@c_office", "cost": 1900, "sale_ok": false, "dk021": "30125100-2"},
+    {"key": "laptop", "code": "ZK-010", "name": "Ноутбук для офісу", "category": "@c_it", "cost": 32000, "sale_ok": false, "tracking": "serial", "dk021": "30213100-6"},
+    {"key": "tablet", "code": "ZK-011", "name": "Планшет", "category": "@c_it", "cost": 14000, "sale_ok": false, "tracking": "serial", "dk021": "30213200-7"},
+    {"key": "ups", "code": "ZK-012", "name": "Джерело безперебійного живлення 1,5 кВА", "category": "@c_it", "cost": 9800, "sale_ok": false, "tracking": "serial", "dk021": "31154000-0"},
+    {"key": "a95", "code": "ZK-020", "name": "Бензин А-95", "category": "@c_fuel", "uom": "л", "cost": 58, "sale_ok": false, "dk021": "09132000-3"},
+    {"key": "diesel", "code": "ZK-021", "name": "Дизельне паливо", "category": "@c_fuel", "uom": "л", "cost": 55, "sale_ok": false, "dk021": "09134200-9"},
+    {"key": "filter", "code": "ZK-030", "name": "Фільтр масляний", "category": "@c_auto", "cost": 380, "sale_ok": false, "dk021": "34330000-9"},
+    {"key": "toilet", "code": "ZK-040", "name": "Папір туалетний", "category": "@c_house", "cost": 18, "sale_ok": false, "dk021": "33761000-2"},
+    {"key": "soap", "code": "ZK-041", "name": "Мило рідке, 5 л", "category": "@c_house", "cost": 260, "sale_ok": false, "dk021": "33711900-6"},
+    {"key": "detergent", "code": "ZK-042", "name": "Засіб мийний універсальний, 1 л", "category": "@c_house", "cost": 85, "sale_ok": false, "dk021": "39831200-8"},
+    {"key": "water", "code": "ZK-043", "name": "Вода питна, бутель 18,9 л", "category": "@c_house", "cost": 120, "sale_ok": false, "dk021": "41110000-3"},
+    {"key": "power", "code": "ZK-050", "name": "Електрична енергія", "category": "@c_util", "type": "service", "uom": "кВт·год", "cost": 7.5, "sale_ok": false, "dk021": "09310000-5"},
+    {"key": "mobile", "code": "ZK-060", "name": "Послуги мобільного зв'язку", "category": "@c_svc", "type": "service", "uom": "@u_month", "cost": 450, "sale_ok": false, "dk021": "64212000-5"},
+    {"key": "guard", "code": "ZK-061", "name": "Охоронні послуги", "category": "@c_svc", "type": "service", "uom": "@u_month", "cost": 18000, "sale_ok": false, "dk021": "79710000-4"},
+    {"key": "cleaning", "code": "ZK-062", "name": "Послуги з прибирання приміщень", "category": "@c_svc", "type": "service", "uom": "@u_month", "cost": 12000, "sale_ok": false, "dk021": "90910000-9"},
+    {"key": "training", "code": "ZK-063", "name": "Навчання персоналу", "category": "@c_svc", "type": "service", "uom": "доб", "cost": 4500, "sale_ok": false, "dk021": "80511000-9"}
+  ]
+}

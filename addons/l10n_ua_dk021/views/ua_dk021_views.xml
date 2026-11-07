@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="ua_dk021_view_list" model="ir.ui.view">
+    <field name="name">ua.dk021.list</field>
+    <field name="model">ua.dk021</field>
+    <field name="arch" type="xml">
+      <list string="ДК 021">
+        <field name="code"/>
+        <field name="name"/>
+        <field name="level" optional="show"/>
+        <field name="parent_id" optional="hide"/>
+        <field name="is_service" optional="hide"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="ua_dk021_view_form" model="ir.ui.view">
+    <field name="name">ua.dk021.form</field>
+    <field name="model">ua.dk021</field>
+    <field name="arch" type="xml">
+      <form string="Код ДК 021">
+        <sheet>
+          <group>
+            <group>
+              <field name="code"/>
+              <field name="name"/>
+              <field name="parent_id"/>
+            </group>
+            <group>
+              <field name="level"/>
+              <field name="is_service"/>
+              <field name="active"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Нижчі рівні" name="children">
+              <field name="child_ids" readonly="1">
+                <list>
+                  <field name="code"/>
+                  <field name="name"/>
+                </list>
+              </field>
+            </page>
+          </notebook>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="ua_dk021_view_search" model="ir.ui.view">
+    <field name="name">ua.dk021.search</field>
+    <field name="model">ua.dk021</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="code" filter_domain="[('code', '=like', raw_value + '%')]"/>
+        <field name="name"/>
+        <filter name="goods" string="Товари" domain="[('is_service', '=', False)]"/>
+        <filter name="services" string="Роботи і послуги" domain="[('is_service', '=', True)]"/>
+        <separator/>
+        <filter name="divisions" string="Розділи" domain="[('level', '=', 1)]"/>
+        <filter name="classes" string="До класу" domain="[('level', '&lt;=', 3)]"/>
+        <group>
+          <filter name="by_level" string="Рівень" context="{'group_by': 'level'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="ua_dk021_action" model="ir.actions.act_window">
+    <field name="name">Класифікатор ДК 021</field>
+    <field name="res_model">ua.dk021</field>
+    <field name="view_mode">list,form</field>
+    <field name="context">{'search_default_divisions': 1}</field>
+  </record>
+
+  <menuitem id="ua_dk021_menu" name="Класифікатор ДК 021" action="ua_dk021_action"
+            parent="purchase.menu_purchase_config" sequence="40"/>
+
+  <record id="product_template_form_view_ua_dk021" model="ir.ui.view">
+    <field name="name">product.template.form.ua.dk021</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_form_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='categ_id']" position="after">
+        <field name="ua_dk021_id" options="{'no_create': True}"/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="purchase_order_line_list_ua_dk021" model="ir.ui.view">
+    <field name="name">purchase.order.line.list.ua.dk021</field>
+    <field name="model">purchase.order.line</field>
+    <field name="inherit_id" ref="purchase.purchase_order_line_tree"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='product_id']" position="after">
+        <field name="ua_dk021_id" optional="show"/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="purchase_order_line_search_ua_dk021" model="ir.ui.view">
+    <field name="name">purchase.order.line.search.ua.dk021</field>
+    <field name="model">purchase.order.line</field>
+    <field name="inherit_id" ref="purchase.purchase_order_line_search"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='product_id']" position="after">
+        <field name="ua_dk021_id"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>

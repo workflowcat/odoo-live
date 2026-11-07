@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="uom_form_view_ua_vat" model="ir.ui.view">
+    <field name="name">uom.uom.form.ua.vat</field>
+    <field name="model">uom.uom</field>
+    <field name="inherit_id" ref="uom.product_uom_form_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='name']" position="after">
+        <field name="ua_kspovo_code" placeholder="2009"/>
+        <field name="ua_kspovo_short" placeholder="шт"/>
+      </xpath>
+    </field>
+  </record>
+  <record id="uom_list_view_ua_vat" model="ir.ui.view">
+    <field name="name">uom.uom.list.ua.vat</field>
+    <field name="model">uom.uom</field>
+    <field name="inherit_id" ref="uom.product_uom_tree_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='name']" position="after">
+        <field name="ua_kspovo_code" optional="show"/>
+        <field name="ua_kspovo_short" optional="hide"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>
