@@ -141,14 +141,14 @@ class FleetVehicle(models.Model):
             values["ua_tank_location_id"] = Location.create({
                 "name": _("Бак: %s") % plate, "usage": "internal", "company_id": company.id,
                 "location_id": self.ua_warehouse_id.view_location_id.id}).id
-        virtual = self.env.ref("stock.stock_location_locations_virtual")
         for field, account, label in (
                 ("ua_expense_location_id", self.ua_expense_account_id, _("Списання ПММ: %s")),
                 ("ua_overnorm_location_id", self.ua_overnorm_account_id, _("ПММ понад норму: %s"))):
             if not self[field]:
                 values[field] = Location.create({
+                    # Odoo 19: місця обліку втрат без батьківського «Virtual Locations», як рідні
                     "name": label % plate, "usage": "inventory", "company_id": company.id,
-                    "location_id": virtual.id, "valuation_account_id": account.id}).id
+                    "valuation_account_id": account.id}).id
         if values:
             super(FleetVehicle, self.sudo()).write(values)
         return self.ua_tank_location_id, self.ua_expense_location_id, self.ua_overnorm_location_id
