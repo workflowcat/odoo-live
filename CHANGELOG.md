@@ -64,6 +64,12 @@ Notable changes for people who run or build on this code. Module-level API chang
   approved request: with bills through the standard payment wizard, which closes them in full or in part;
   without bills as an advance. Payment calendar (pivot and calendar by due date), print form. Tests:
   `ua_payment_request`.
+- `l10n_ua_correspondence`: incoming and outgoing correspondence register (menu Канцелярія). Numbers by
+  direction from the start of each year without gaps (Вх/2026/0001, Вих/2026/0001); correspondent with their
+  number and date; executor and deadline become a task for the executor; overdue search; an outgoing reply
+  closes the incoming that needs one; register print. Documents marked ДСК (for official use) get their own
+  numbering with a -ДСК mark, only staff with clearance can register or see them, and a reply to one is ДСК
+  too. Tests: `ua_correspondence`.
 - `docs/customization.md` and `scripts/new_pack.py`: how a team adapts the product in its own module
   (data, fields, print forms, rules) without forking the core, and a generator for such a module.
 - `docs/parity/README.md`: what 1C/BAS gives a Ukrainian company, what this repository covers, the gaps

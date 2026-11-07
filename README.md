@@ -60,7 +60,7 @@ GitHub Actions runs `check_static.sh` and `test_full.sh` on every push to `main`
 | Tax reports | `l10n_ua_payroll_reports`, `l10n_ua_reporting`, `l10n_ua_profit_tax` |
 | Accounting | `l10n_ua_chart`, `l10n_ua_vat`, `l10n_ua_ledger`, `l10n_ua_finrep`, `l10n_ua_group`, `l10n_ua_assets`, `l10n_ua_nbu` |
 | Bank and cash | `l10n_ua_bank`, `l10n_ua_bank_online` (PrivatBank, Monobank), `l10n_ua_bank_1c` (1C exchange file with any bank), `l10n_ua_cash`, `l10n_ua_payment_request` (payment requests with approval, payment calendar) |
-| Documents | `l10n_ua_docs`, `l10n_ua_docs_sale`, `l10n_ua_docs_stock`, `l10n_ua_stock_docs`, `l10n_ua_mrp` |
+| Documents | `l10n_ua_docs`, `l10n_ua_docs_sale`, `l10n_ua_docs_stock`, `l10n_ua_stock_docs`, `l10n_ua_mrp`, `l10n_ua_correspondence` (incoming and outgoing register, ДСК) |
 | Setup and migration | `l10n_ua_setup` (first-run questionnaire), `l10n_ua_migrate` (opening balances) |
 | Sole proprietors | `l10n_ua_fop` |
 | Purchasing | `l10n_ua_purchase`, `bp_purchase_intake` (supplier invoices from email), `l10n_ua_dk021` (ДК 021 procurement codes) |

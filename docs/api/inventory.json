@@ -1,8 +1,8 @@
 {
   "totals": {
-    "modules": 51,
-    "models": 113,
-    "methods": 379,
+    "modules": 52,
+    "models": 114,
+    "methods": 386,
     "fields": 300
   },
   "areas": [
@@ -5857,6 +5857,74 @@
               "module": "l10n_ua_defense",
               "file": "addons/l10n_ua_defense/models/ua_contract.py",
               "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.correspondence",
+          "ours": true,
+          "modules": [
+            "l10n_ua_correspondence"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_correspondence",
+              "file": "addons/l10n_ua_correspondence/models/ua_correspondence.py",
+              "decorators": []
+            },
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_correspondence",
+              "file": "addons/l10n_ua_correspondence/models/ua_correspondence.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print_register",
+              "signature": "action_print_register()",
+              "doc": "",
+              "module": "l10n_ua_correspondence",
+              "file": "addons/l10n_ua_correspondence/models/ua_correspondence.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reopen",
+              "signature": "action_reopen()",
+              "doc": "",
+              "module": "l10n_ua_correspondence",
+              "file": "addons/l10n_ua_correspondence/models/ua_correspondence.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reply",
+              "signature": "action_reply()",
+              "doc": "Форма нового вихідного у відповідь на цей документ.",
+              "module": "l10n_ua_correspondence",
+              "file": "addons/l10n_ua_correspondence/models/ua_correspondence.py",
+              "decorators": []
+            },
+            {
+              "name": "action_start",
+              "signature": "action_start()",
+              "doc": "",
+              "module": "l10n_ua_correspondence",
+              "file": "addons/l10n_ua_correspondence/models/ua_correspondence.py",
+              "decorators": []
+            },
+            {
+              "name": "register_rows",
+              "signature": "register_rows(direction, date_from, date_to, restricted=False, company=None)",
+              "doc": "Журнал реєстрації за період: рядки по порядку номерів.",
+              "module": "l10n_ua_correspondence",
+              "file": "addons/l10n_ua_correspondence/models/ua_correspondence.py",
+              "decorators": [
+                "api.model"
+              ]
             }
           ],
           "fields": []

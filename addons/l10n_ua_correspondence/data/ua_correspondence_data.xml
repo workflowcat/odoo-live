@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+  <!-- Нумерація з початку кожного року, без пропусків (no_gap): журнал не має дірок. Документи ДСК мають власну нумерацію з позначкою
+       в номері (Типова інструкція, постанова КМУ від 2016-10-19 № 736). -->
+  <record id="seq_ua_correspondence_in" model="ir.sequence">
+    <field name="name">Вхідна кореспонденція</field>
+    <field name="code">ua.correspondence.in</field>
+    <field name="prefix">Вх/%(range_year)s/</field>
+    <field name="padding">4</field>
+    <field name="use_date_range">True</field>
+    <field name="implementation">no_gap</field>
+    <field name="company_id" eval="False"/>
+  </record>
+  <record id="seq_ua_correspondence_out" model="ir.sequence">
+    <field name="name">Вихідна кореспонденція</field>
+    <field name="code">ua.correspondence.out</field>
+    <field name="prefix">Вих/%(range_year)s/</field>
+    <field name="padding">4</field>
+    <field name="use_date_range">True</field>
+    <field name="implementation">no_gap</field>
+    <field name="company_id" eval="False"/>
+  </record>
+  <record id="seq_ua_correspondence_in_dsk" model="ir.sequence">
+    <field name="name">Вхідна кореспонденція ДСК</field>
+    <field name="code">ua.correspondence.in.dsk</field>
+    <field name="prefix">Вх/%(range_year)s/</field>
+    <field name="suffix">-ДСК</field>
+    <field name="padding">4</field>
+    <field name="use_date_range">True</field>
+    <field name="implementation">no_gap</field>
+    <field name="company_id" eval="False"/>
+  </record>
+  <record id="seq_ua_correspondence_out_dsk" model="ir.sequence">
+    <field name="name">Вихідна кореспонденція ДСК</field>
+    <field name="code">ua.correspondence.out.dsk</field>
+    <field name="prefix">Вих/%(range_year)s/</field>
+    <field name="suffix">-ДСК</field>
+    <field name="padding">4</field>
+    <field name="use_date_range">True</field>
+    <field name="implementation">no_gap</field>
+    <field name="company_id" eval="False"/>
+  </record>
+</odoo>

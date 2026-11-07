@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_correspondence_list" model="ir.ui.view">
+    <field name="name">ua.correspondence.list</field>
+    <field name="model">ua.correspondence</field>
+    <field name="arch" type="xml">
+      <list decoration-danger="is_overdue" decoration-muted="state == 'cancel'">
+        <field name="name"/>
+        <field name="date"/>
+        <field name="direction" optional="hide"/>
+        <field name="partner_id"/>
+        <field name="partner_ref" optional="show"/>
+        <field name="subject"/>
+        <field name="responsible_id" widget="many2one_avatar_user" optional="show"/>
+        <field name="date_due" optional="show"/>
+        <field name="restricted" optional="show"/>
+        <field name="is_overdue" column_invisible="1"/>
+        <field name="activity_ids" widget="list_activity" optional="hide"/>
+        <field name="state" widget="badge" decoration-info="state == 'in_work'"
+               decoration-success="state == 'done'"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_correspondence_search" model="ir.ui.view">
+    <field name="name">ua.correspondence.search</field>
+    <field name="model">ua.correspondence</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="name"/>
+        <field name="subject"/>
+        <field name="partner_id"/>
+        <field name="partner_ref"/>
+        <field name="responsible_id"/>
+        <filter name="incoming" string="Вхідні" domain="[('direction', '=', 'in')]"/>
+        <filter name="outgoing" string="Вихідні" domain="[('direction', '=', 'out')]"/>
+        <separator/>
+        <filter name="open" string="На контролі" domain="[('state', 'in', ('registered', 'in_work'))]"/>
+        <filter name="overdue" string="Прострочені" domain="[('is_overdue', '=', True)]"/>
+        <filter name="mine" string="Мені на виконання" domain="[('responsible_id', '=', uid)]"/>
+        <filter name="needs_reply" string="Чекають відповіді"
+                domain="[('needs_reply', '=', True), ('state', 'in', ('registered', 'in_work'))]"/>
+        <separator/>
+        <filter name="restricted" string="ДСК" domain="[('restricted', '=', True)]"/>
+        <filter name="date" string="Дата реєстрації" date="date"/>
+        <group>
+          <filter name="by_partner" string="Кореспондент" context="{'group_by': 'partner_id'}"/>
+          <filter name="by_responsible" string="Виконавець" context="{'group_by': 'responsible_id'}"/>
+          <filter name="by_month" string="Місяць" context="{'group_by': 'date:month'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="view_ua_correspondence_form" model="ir.ui.view">
+    <field name="name">ua.correspondence.form</field>
+    <field name="model">ua.correspondence</field>
+    <field name="arch" type="xml">
+      <form string="Кореспонденція">
+        <header>
+          <button name="action_start" type="object" string="На виконання" class="btn-primary"
+                  invisible="state != 'registered' or direction != 'in'"/>
+          <button name="action_reply" type="object" string="Відповісти"
+                  invisible="direction != 'in' or state == 'cancel'"/>
+          <button name="action_done" type="object" string="Виконано"
+                  invisible="state not in ('registered', 'in_work')"/>
+          <button name="action_print_register" type="object" string="Друк у журнал"/>
+          <button name="action_cancel" type="object" string="Скасувати"
+                  invisible="state in ('done', 'cancel')"/>
+          <button name="action_reopen" type="object" string="Відновити"
+                  invisible="state not in ('done', 'cancel')"/>
+          <field name="state" widget="statusbar" statusbar_visible="registered,in_work,done"/>
+        </header>
+        <sheet>
+          <widget name="web_ribbon" title="ДСК" bg_color="text-bg-danger" invisible="not restricted"/>
+          <widget name="web_ribbon" title="Прострочено" bg_color="text-bg-warning"
+                  invisible="not is_overdue or restricted"/>
+          <field name="is_overdue" invisible="1"/>
+          <field name="restricted" invisible="1"/>
+          <div class="oe_title">
+            <h1><field name="name" readonly="1"/></h1>
+            <field name="direction" widget="radio" options="{'horizontal': true}" readonly="id"/>
+          </div>
+          <group>
+            <group>
+              <field name="date"/>
+              <field name="partner_id"/>
+              <label for="partner_ref" string="Їхній номер і дата"/>
+              <div class="o_row">
+                <field name="partner_ref"/>
+                <span>від</span>
+                <field name="partner_date"/>
+              </div>
+              <field name="kind"/>
+              <field name="channel"/>
+              <field name="pages"/>
+              <field name="restricted" readonly="id" groups="l10n_ua_correspondence.group_ua_correspondence_restricted"/>
+            </group>
+            <group>
+              <field name="responsible_id" invisible="direction != 'in'"/>
+              <field name="date_due" invisible="direction != 'in'"/>
+              <field name="needs_reply" invisible="direction != 'in'"/>
+              <field name="signer_id" invisible="direction != 'out'"/>
+              <field name="reply_to_id" invisible="direction != 'out'"/>
+              <field name="date_done" invisible="not date_done"/>
+              <field name="user_id"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+            </group>
+          </group>
+          <group>
+            <field name="subject"/>
+            <field name="resolution" invisible="direction != 'in'"
+                   placeholder="Кому, що зробити і до якого числа"/>
+          </group>
+          <notebook invisible="not reply_ids">
+            <page string="Відповіді" name="replies">
+              <field name="reply_ids">
+                <list>
+                  <field name="name"/>
+                  <field name="date"/>
+                  <field name="subject"/>
+                  <field name="state"/>
+                </list>
+              </field>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_correspondence_in" model="ir.actions.act_window">
+    <field name="name">Вхідні документи</field>
+    <field name="res_model">ua.correspondence</field>
+    <field name="view_mode">list,form</field>
+    <field name="domain">[('direction', '=', 'in')]</field>
+    <field name="context">{'default_direction': 'in'}</field>
+    <field name="search_view_id" ref="view_ua_correspondence_search"/>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiley_face">Вхідних документів ще немає</p>
+      <p>Зареєструйте лист: номер дасть журнал, виконавець отримає завдання зі строком.</p>
+    </field>
+  </record>
+  <record id="action_ua_correspondence_out" model="ir.actions.act_window">
+    <field name="name">Вихідні документи</field>
+    <field name="res_model">ua.correspondence</field>
+    <field name="view_mode">list,form</field>
+    <field name="domain">[('direction', '=', 'out')]</field>
+    <field name="context">{'default_direction': 'out'}</field>
+    <field name="search_view_id" ref="view_ua_correspondence_search"/>
+  </record>
+  <record id="action_ua_correspondence_control" model="ir.actions.act_window">
+    <field name="name">На контролі</field>
+    <field name="res_model">ua.correspondence</field>
+    <field name="view_mode">list,form</field>
+    <field name="domain">[('direction', '=', 'in')]</field>
+    <field name="context">{'default_direction': 'in', 'search_default_open': 1,
+                           'search_default_by_responsible': 1}</field>
+    <field name="search_view_id" ref="view_ua_correspondence_search"/>
+  </record>
+
+  <menuitem id="menu_ua_correspondence_root" name="Канцелярія" sequence="45"
+            groups="l10n_ua_correspondence.group_ua_correspondence_user"/>
+  <menuitem id="menu_ua_correspondence_in" name="Вхідні" parent="menu_ua_correspondence_root"
+            action="action_ua_correspondence_in" sequence="10"/>
+  <menuitem id="menu_ua_correspondence_out" name="Вихідні" parent="menu_ua_correspondence_root"
+            action="action_ua_correspondence_out" sequence="20"/>
+  <menuitem id="menu_ua_correspondence_control" name="На контролі"
+            parent="menu_ua_correspondence_root" action="action_ua_correspondence_control"
+            sequence="30"/>
+</odoo>

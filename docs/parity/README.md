@@ -85,7 +85,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 
 | 1C/BAS feature | Here | Where / what is missing |
 | --- | --- | --- |
-| Incoming and outgoing correspondence register | gap | small module; defense companies keep one by law |
+| Incoming and outgoing correspondence register | done | `l10n_ua_correspondence`: yearly numbering without gaps, executor and deadline with a task, reply closes the incoming, register print, ДСК numbered apart and visible only with clearance |
 | Approvals of documents and payments | done | purchase request approvals; `l10n_ua_payment_request`: finance and director steps by limit, payment from the request, payment calendar |
 
 ## 7. Platform and ecosystem
@@ -130,10 +130,10 @@ with the Resolution 309 calculation, separate cost accounting, acceptance acts a
 packs and their loader (`l10n_ua_catalog`); `docs/customization.md` and `scripts/new_pack.py`; the import
 customs declaration (`l10n_ua_customs`); the 1C bank exchange file (`l10n_ua_bank_1c`);
 quality gate on defense production with results in the serial passport; month-end operations
-(`l10n_ua_close`) with Form 2 kept intact after closing; tolling (`l10n_ua_tolling`).
+(`l10n_ua_close`) with Form 2 kept intact after closing; tolling (`l10n_ua_tolling`); payment requests with
+approval (`l10n_ua_payment_request`); the correspondence register with ДСК access (`l10n_ua_correspondence`).
 
 Next, in this order:
 
-1. Correspondence register.
-2. PRRO fiscalisation through a bridge route; price labels for the shop pack.
-3. УКТ ЗЕД classifier from official open data, once a source with a clear licence is found.
+1. PRRO fiscalisation through a bridge route; price labels for the shop pack.
+2. УКТ ЗЕД classifier from official open data, once a source with a clear licence is found.

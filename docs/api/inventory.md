@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 51. Моделей: 113. Методів: 379. Збережених полів на чужих моделях: 300.
+Модулів: 52. Моделей: 114. Методів: 386. Збережених полів на чужих моделях: 300.
 
 ## Зарплата
 
@@ -1302,6 +1302,20 @@
 | `action_new_reconciliation_act()` | Акт звірки за договором з початку року по сьогодні. | `l10n_ua_contract` |
 | `action_view_moves()` | - | `l10n_ua_contract` |
 | `action_view_productions()` | - | `l10n_ua_defense` |
+
+### `ua.correspondence`
+
+наша модель · `l10n_ua_correspondence`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | - | `l10n_ua_correspondence` |
+| `action_done()` | - | `l10n_ua_correspondence` |
+| `action_print_register()` | - | `l10n_ua_correspondence` |
+| `action_reopen()` | - | `l10n_ua_correspondence` |
+| `action_reply()` | Форма нового вихідного у відповідь на цей документ. | `l10n_ua_correspondence` |
+| `action_start()` | - | `l10n_ua_correspondence` |
+| `register_rows(direction, date_from, date_to, restricted=False, company=None)` | Журнал реєстрації за період: рядки по порядку номерів. | `l10n_ua_correspondence` |
 
 ### `ua.customs.declaration`
 

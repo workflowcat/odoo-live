@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_correspondence_register" model="ir.actions.report">
+    <field name="name">Журнал реєстрації</field>
+    <field name="model">ua.correspondence</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_correspondence.report_ua_correspondence_register</field>
+    <field name="report_file">l10n_ua_correspondence.report_ua_correspondence_register</field>
+    <field name="binding_model_id" ref="model_ua_correspondence"/>
+    <field name="binding_type">report</field>
+    <field name="paperformat_id" ref="base.paperformat_euro"/>
+    <field name="print_report_name">'Журнал реєстрації'</field>
+  </record>
+
+  <template id="report_ua_correspondence_register">
+    <t t-call="web.html_container">
+      <t t-call="web.basic_layout">
+        <div class="page ua-doc">
+          <style>
+            .ua-doc { font-size: 9px; color: #000; }
+            .ua-doc h3 { font-size: 12px; text-align: center; margin: 4px 0 8px; }
+            .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+            .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; vertical-align: top; }
+            .ua-doc .ua-grid th { text-align: center; font-weight: normal; }
+            .ua-doc .ua-mark { text-align: right; font-weight: bold; }
+          </style>
+          <t t-foreach="[('in', 'ВХІДНИХ'), ('out', 'ВИХІДНИХ')]" t-as="part">
+            <t t-foreach="[False, True]" t-as="dsk">
+              <t t-set="rows" t-value="docs.filtered(lambda d: d.direction == part[0] and d.restricted == dsk)"/>
+              <t t-if="rows">
+                <div t-if="dsk" class="ua-mark">Для службового користування</div>
+                <div><strong t-out="rows[0].company_id.name"/></div>
+                <h3>ЖУРНАЛ РЕЄСТРАЦІЇ <t t-out="part[1]"/> ДОКУМЕНТІВ<t t-if="dsk"> (ДСК)</t></h3>
+                <table class="ua-grid">
+                  <thead>
+                    <tr>
+                      <th>Реєстраційний номер</th>
+                      <th>Дата реєстрації</th>
+                      <th t-if="part[0] == 'in'">Кореспондент, їхній номер і дата</th>
+                      <th t-else="">Кому надіслано</th>
+                      <th>Короткий зміст</th>
+                      <th t-if="part[0] == 'in'">Виконавець</th>
+                      <th t-if="part[0] == 'in'">Строк</th>
+                      <th t-if="part[0] == 'in'">Відмітка про виконання</th>
+                      <th t-else="">У відповідь на</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr t-foreach="rows" t-as="doc">
+                      <td t-out="doc.name"/>
+                      <td t-out="doc.date.strftime('%d.%m.%Y')"/>
+                      <td>
+                        <t t-out="doc.partner_id.display_name"/>
+                        <t t-if="doc.partner_ref">, № <t t-out="doc.partner_ref"/></t>
+                        <t t-if="doc.partner_date"> від <t t-out="doc.partner_date.strftime('%d.%m.%Y')"/></t>
+                      </td>
+                      <td t-out="doc.subject"/>
+                      <t t-if="part[0] == 'in'">
+                        <td t-out="doc.responsible_id.name or ''"/>
+                        <td><t t-if="doc.date_due" t-out="doc.date_due.strftime('%d.%m.%Y')"/></td>
+                        <td>
+                          <t t-if="doc.date_done">виконано <t t-out="doc.date_done.strftime('%d.%m.%Y')"/></t>
+                          <t t-if="doc.reply_ids">, відповідь <t t-out="', '.join(doc.reply_ids.mapped('name'))"/></t>
+                          <t t-if="doc.state == 'cancel'">скасовано</t>
+                        </td>
+                      </t>
+                      <td t-else="" t-out="doc.reply_to_id.name or ''"/>
+                    </tr>
+                  </tbody>
+                </table>
+              </t>
+            </t>
+          </t>
+        </div>
+      </t>
+    </t>
+  </template>
+</odoo>
