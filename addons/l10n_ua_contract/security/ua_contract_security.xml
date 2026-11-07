@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Правила компанії: договори й акти однієї компанії не видно з іншої. Рядок акта
+       бере компанію в акта. -->
+  <record id="rule_ua_contract_company" model="ir.rule">
+    <field name="name">Договір: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_contract"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_ua_reconciliation_act_company" model="ir.rule">
+    <field name="name">Акт звірки: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_reconciliation_act"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_ua_reconciliation_act_line_company" model="ir.rule">
+    <field name="name">Рядок акта звірки: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_reconciliation_act_line"/>
+    <field name="domain_force">[('act_id.company_id', 'in', company_ids)]</field>
+  </record>
+</odoo>

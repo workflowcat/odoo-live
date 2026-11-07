@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_contract_list" model="ir.ui.view">
+    <field name="name">ua.contract.list</field>
+    <field name="model">ua.contract</field>
+    <field name="arch" type="xml">
+      <list string="Договори" decoration-muted="state == 'closed'">
+        <field name="name"/>
+        <field name="date"/>
+        <field name="partner_id"/>
+        <field name="kind"/>
+        <field name="is_main" optional="show"/>
+        <field name="amount" optional="show"/>
+        <field name="date_end" optional="show"/>
+        <field name="separate_accounting" optional="hide"/>
+        <field name="state" widget="badge" decoration-success="state == 'active'"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+        <field name="currency_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_contract_form" model="ir.ui.view">
+    <field name="name">ua.contract.form</field>
+    <field name="model">ua.contract</field>
+    <field name="arch" type="xml">
+      <form string="Договір">
+        <header>
+          <button name="action_new_reconciliation_act" type="object" string="Акт звірки"
+                  invisible="not id" groups="account.group_account_user"/>
+          <button name="action_close" type="object" string="Закрити договір"
+                  invisible="state == 'closed'" confirm="За закритим договором рахунки не проводяться. Закрити договір?"/>
+          <button name="action_activate" type="object" string="Відкрити знову" invisible="state != 'closed'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,active,closed" options="{'clickable': '1'}"/>
+        </header>
+        <sheet>
+          <div class="oe_button_box" name="button_box">
+            <button name="action_view_moves" type="object" class="oe_stat_button" icon="fa-file-text-o"
+                    invisible="not id">
+              <field name="move_count" widget="statinfo" string="Документи"/>
+            </button>
+          </div>
+          <div class="oe_title">
+            <label for="name"/>
+            <h1><field name="name" placeholder="15/2026"/></h1>
+          </div>
+          <group>
+            <group>
+              <field name="partner_id"/>
+              <field name="kind"/>
+              <field name="date"/>
+              <field name="date_end"/>
+              <field name="is_main"/>
+            </group>
+            <group>
+              <field name="currency_id" groups="base.group_multi_currency"/>
+              <field name="amount"/>
+              <field name="limit_mode" invisible="not amount"/>
+              <field name="payment_term_id"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+            </group>
+          </group>
+          <group string="Розрахунки" invisible="not id">
+            <group>
+              <field name="invoiced_amount"/>
+              <field name="remaining_amount" invisible="not amount"/>
+            </group>
+            <group>
+              <field name="balance"/>
+              <field name="company_currency_id" invisible="1"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Предмет і примітки" name="subject">
+              <field name="subject" placeholder="Поставка, роботи або послуги за договором"/>
+              <field name="note"/>
+            </page>
+            <page string="Окремий облік" name="separate">
+              <group>
+                <field name="separate_accounting"/>
+                <field name="analytic_account_id" invisible="not separate_accounting" readonly="1"/>
+              </group>
+              <div class="text-muted">
+                Аналітичний рахунок договору лягає на рядки замовлень і рахунків без аналітики.
+                Закупівлю для цього договору позначте полем «Для договору з покупцем» у замовленні постачальнику.
+              </div>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_contract_search" model="ir.ui.view">
+    <field name="name">ua.contract.search</field>
+    <field name="model">ua.contract</field>
+    <field name="arch" type="xml">
+      <search string="Договори">
+        <field name="name"/>
+        <field name="partner_id" operator="child_of"/>
+        <filter name="active_contracts" string="Чинні" domain="[('state', '=', 'active')]"/>
+        <filter name="closed_contracts" string="Закриті" domain="[('state', '=', 'closed')]"/>
+        <separator/>
+        <filter name="kind_sale" string="З покупцями" domain="[('kind', '=', 'sale')]"/>
+        <filter name="kind_purchase" string="З постачальниками" domain="[('kind', '=', 'purchase')]"/>
+        <filter name="separate" string="Окремий облік" domain="[('separate_accounting', '=', True)]"/>
+        <group>
+          <filter name="by_partner" string="Контрагент" context="{'group_by': 'partner_id'}"/>
+          <filter name="by_kind" string="Вид" context="{'group_by': 'kind'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_contract" model="ir.actions.act_window">
+    <field name="name">Договори</field>
+    <field name="res_model">ua.contract</field>
+    <field name="view_mode">list,form</field>
+    <field name="context">{'search_default_active_contracts': 1}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Договорів ще немає</p>
+      <p>Договір підставляється в замовлення, рахунки й оплати контрагента, і розрахунки видно за договором.</p>
+    </field>
+  </record>
+</odoo>

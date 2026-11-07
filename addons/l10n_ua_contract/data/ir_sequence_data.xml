@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+    <!-- Акти звірки: власний реєстр, нумерація з початку кожного року (АЗВ-2026-0001). -->
+    <record id="seq_ua_reconciliation_act" model="ir.sequence">
+      <field name="name">Акт звірки взаєморозрахунків</field>
+      <field name="code">l10n_ua_contract.reconciliation.act</field>
+      <field name="prefix">АЗВ-%(range_year)s-</field>
+      <field name="padding">4</field>
+      <field name="use_date_range" eval="True"/>
+      <field name="company_id" eval="False"/>
+    </record>
+  </data>
+</odoo>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_reconciliation_act" model="ir.actions.report">
+    <field name="name">Акт звірки взаєморозрахунків</field>
+    <field name="model">ua.reconciliation.act</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_contract.report_ua_reconciliation_act</field>
+    <field name="report_file">l10n_ua_contract.report_ua_reconciliation_act</field>
+    <field name="binding_model_id" ref="model_ua_reconciliation_act"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Акт звірки %s' % (object.name or '')</field>
+  </record>
+
+  <!-- Звична форма: ліворуч дані компанії, праворуч порожні графи для контрагента.
+       Контрагент заповнює свою половину, підписує і повертає. -->
+  <template id="report_ua_reconciliation_act_document">
+    <t t-set="company" t-value="doc.company_id"/>
+    <t t-set="partner" t-value="doc.partner_id"/>
+    <t t-set="cur" t-value="doc.currency_id"/>
+    <t t-set="opening" t-value="doc._ua_side(doc.opening_balance)"/>
+    <t t-set="closing" t-value="doc._ua_side(doc.closing_balance)"/>
+    <div class="page ua-doc">
+      <style>
+        .ua-doc { font-size: 10px; color: #000; }
+        .ua-doc h3 { font-size: 13px; text-align: center; margin: 4px 0; }
+        .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+        .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin: 6px 0; }
+        .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; }
+        .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+        .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+        .ua-doc .ua-bold td { font-weight: bold; }
+        .ua-doc .ua-sign { width: 100%; margin-top: 18px; }
+        .ua-doc .ua-sign td { width: 50%; vertical-align: top; padding-right: 12px; }
+      </style>
+
+      <h3>АКТ ЗВІРКИ <t t-out="doc.name"/></h3>
+      <div class="ua-sub">
+        взаємних розрахунків за період з <t t-out="doc.date_from.strftime('%d.%m.%Y')"/>
+        по <t t-out="doc.date_to.strftime('%d.%m.%Y')"/><br/>
+        між <strong t-out="company.name"/> і <strong t-out="partner.name"/>
+        <t t-if="doc.contract_id"><br/>за договором № <t t-out="doc.contract_id.name"/>
+          від <t t-out="doc.contract_id.date.strftime('%d.%m.%Y')"/></t>
+      </div>
+      <p>
+        Ми, що нижче підписалися, представник <t t-out="company.name"/>, з одного боку, і представник
+        <t t-out="partner.name"/>, з другого боку, склали цей акт про те, що стан взаємних розрахунків
+        за даними обліку такий:
+      </p>
+
+      <table class="ua-grid">
+        <thead>
+          <tr>
+            <th colspan="4">За даними <t t-out="company.name"/>, <t t-out="cur.name"/></th>
+            <th colspan="4">За даними <t t-out="partner.name"/>, <t t-out="cur.name"/></th>
+          </tr>
+          <tr>
+            <th style="width: 9%;">Дата</th>
+            <th style="width: 23%;">Документ</th>
+            <th style="width: 9%;">Дебет</th>
+            <th style="width: 9%;">Кредит</th>
+            <th style="width: 9%;">Дата</th>
+            <th style="width: 23%;">Документ</th>
+            <th style="width: 9%;">Дебет</th>
+            <th style="width: 9%;">Кредит</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="ua-bold">
+            <td colspan="2">Сальдо на <t t-out="doc.date_from.strftime('%d.%m.%Y')"/></td>
+            <td class="ua-num"><t t-if="opening[0]" t-out="opening[0]" t-options='{"widget": "float", "precision": 2}'/></td>
+            <td class="ua-num"><t t-if="opening[1]" t-out="opening[1]" t-options='{"widget": "float", "precision": 2}'/></td>
+            <td colspan="2"/><td/><td/>
+          </tr>
+          <tr t-foreach="doc.line_ids" t-as="line">
+            <td><t t-out="line.date.strftime('%d.%m.%Y')"/></td>
+            <td><t t-out="line.document"/></td>
+            <td class="ua-num"><t t-if="line.debit" t-out="line.debit" t-options='{"widget": "float", "precision": 2}'/></td>
+            <td class="ua-num"><t t-if="line.credit" t-out="line.credit" t-options='{"widget": "float", "precision": 2}'/></td>
+            <td/><td/><td/><td/>
+          </tr>
+          <tr class="ua-bold">
+            <td colspan="2">Обороти за період</td>
+            <td class="ua-num"><t t-out="doc.debit_total" t-options='{"widget": "float", "precision": 2}'/></td>
+            <td class="ua-num"><t t-out="doc.credit_total" t-options='{"widget": "float", "precision": 2}'/></td>
+            <td colspan="2"/><td/><td/>
+          </tr>
+          <tr class="ua-bold">
+            <td colspan="2">Сальдо на <t t-out="doc.date_to.strftime('%d.%m.%Y')"/></td>
+            <td class="ua-num"><t t-if="closing[0]" t-out="closing[0]" t-options='{"widget": "float", "precision": 2}'/></td>
+            <td class="ua-num"><t t-if="closing[1]" t-out="closing[1]" t-options='{"widget": "float", "precision": 2}'/></td>
+            <td colspan="2"/><td/><td/>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>За даними <t t-out="company.name"/>: <t t-out="doc._ua_conclusion()"/></p>
+      <p>За даними <t t-out="partner.name"/>: ______________________________________________________________</p>
+
+      <table class="ua-sign">
+        <tr>
+          <td>
+            Від <t t-out="company.name"/><br/><br/>
+            ______________ / ______________________<br/>
+            (підпис)                    (ПІБ, посада)
+          </td>
+          <td>
+            Від <t t-out="partner.name"/><br/><br/>
+            ______________ / ______________________<br/>
+            (підпис)                    (ПІБ, посада)
+          </td>
+        </tr>
+      </table>
+    </div>
+  </template>
+
+  <template id="report_ua_reconciliation_act">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_contract.report_ua_reconciliation_act_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

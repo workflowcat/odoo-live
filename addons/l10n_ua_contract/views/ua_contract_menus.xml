@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_ua_contract_root" name="Договори"
+            parent="account.menu_finance" sequence="24"
+            groups="account.group_account_invoice,account.group_account_readonly"/>
+  <menuitem id="menu_ua_contract" name="Договори з контрагентами"
+            parent="menu_ua_contract_root" action="action_ua_contract" sequence="10"/>
+  <menuitem id="menu_ua_reconciliation_act" name="Акти звірки"
+            parent="menu_ua_contract_root" action="action_ua_reconciliation_act" sequence="20"
+            groups="account.group_account_user,account.group_account_readonly"/>
+</odoo>

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_reconciliation_act_list" model="ir.ui.view">
+    <field name="name">ua.reconciliation.act.list</field>
+    <field name="model">ua.reconciliation.act</field>
+    <field name="arch" type="xml">
+      <list string="Акти звірки">
+        <field name="name"/>
+        <field name="partner_id"/>
+        <field name="contract_id" optional="show"/>
+        <field name="date_from"/>
+        <field name="date_to"/>
+        <field name="closing_balance"/>
+        <field name="difference" optional="show" decoration-danger="difference != 0"/>
+        <field name="state" widget="badge" decoration-success="state == 'agreed'"
+               decoration-danger="state == 'disputed'" decoration-info="state == 'sent'"/>
+        <field name="currency_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_reconciliation_act_form" model="ir.ui.view">
+    <field name="name">ua.reconciliation.act.form</field>
+    <field name="model">ua.reconciliation.act</field>
+    <field name="arch" type="xml">
+      <form string="Акт звірки">
+        <header>
+          <button name="action_fill" type="object" string="Заповнити" class="oe_highlight"
+                  invisible="state == 'agreed'"/>
+          <button name="action_print" type="object" string="Друк"/>
+          <button name="action_mark_sent" type="object" string="Надіслано контрагенту" invisible="state != 'draft'"/>
+          <button name="action_mark_agreed" type="object" string="Узгоджено"
+                  invisible="state not in ('sent', 'disputed')"/>
+          <button name="action_mark_disputed" type="object" string="Є розбіжності"
+                  invisible="state not in ('sent', 'agreed')"/>
+          <button name="action_reset_draft" type="object" string="У чернетку" invisible="state == 'draft'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,sent,agreed"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="partner_id" readonly="state == 'agreed'"/>
+              <field name="contract_id" readonly="state == 'agreed'"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state == 'agreed'"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+            <group>
+              <label for="date_from" string="Період"/>
+              <div class="o_row">
+                <field name="date_from" readonly="state == 'agreed'"/>
+                <span>по</span>
+                <field name="date_to" nolabel="1" readonly="state == 'agreed'"/>
+              </div>
+            </group>
+          </group>
+          <group>
+            <group string="За даними компанії">
+              <field name="opening_balance"/>
+              <field name="debit_total"/>
+              <field name="credit_total"/>
+              <field name="closing_balance"/>
+            </group>
+            <group string="За даними контрагента">
+              <field name="their_filled" readonly="state == 'agreed'"/>
+              <field name="their_closing_balance" invisible="not their_filled" readonly="state == 'agreed'"/>
+              <field name="difference" invisible="not their_filled" decoration-danger="difference != 0"/>
+            </group>
+          </group>
+          <div class="text-muted">
+            Сальдо з плюсом - контрагент винен компанії, з мінусом - компанія винна контрагенту.
+          </div>
+          <notebook>
+            <page string="Документи" name="lines">
+              <field name="line_ids" readonly="1">
+                <list string="Документи">
+                  <field name="date"/>
+                  <field name="document"/>
+                  <field name="contract_id" optional="show"/>
+                  <field name="move_id" optional="hide"/>
+                  <field name="debit" sum="Дебет"/>
+                  <field name="credit" sum="Кредит"/>
+                  <field name="currency_id" column_invisible="1"/>
+                </list>
+              </field>
+            </page>
+            <page string="Примітки" name="note">
+              <field name="note"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_reconciliation_act_search" model="ir.ui.view">
+    <field name="name">ua.reconciliation.act.search</field>
+    <field name="model">ua.reconciliation.act</field>
+    <field name="arch" type="xml">
+      <search string="Акти звірки">
+        <field name="name"/>
+        <field name="partner_id" operator="child_of"/>
+        <field name="contract_id"/>
+        <filter name="not_agreed" string="Не узгоджені" domain="[('state', '!=', 'agreed')]"/>
+        <filter name="disputed" string="Є розбіжності" domain="[('state', '=', 'disputed')]"/>
+        <group>
+          <filter name="by_partner" string="Контрагент" context="{'group_by': 'partner_id'}"/>
+          <filter name="by_state" string="Стан" context="{'group_by': 'state'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_reconciliation_act" model="ir.actions.act_window">
+    <field name="name">Акти звірки</field>
+    <field name="res_model">ua.reconciliation.act</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Актів звірки ще немає</p>
+      <p>Акт бере проводки на рахунках розрахунків 36, 37, 63, 68 за контрагентом або одним договором.</p>
+    </field>
+  </record>
+</odoo>

@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_contract_readonly,ua.contract readonly,model_ua_contract,account.group_account_readonly,1,0,0,0
+access_ua_contract_invoice,ua.contract invoicing,model_ua_contract,account.group_account_invoice,1,1,1,0
+access_ua_contract_sale,ua.contract salesman,model_ua_contract,sales_team.group_sale_salesman,1,0,0,0
+access_ua_contract_purchase,ua.contract purchase user,model_ua_contract,purchase.group_purchase_user,1,0,0,0
+access_ua_contract_accountant,ua.contract accountant,model_ua_contract,account.group_account_user,1,1,1,1
+access_ua_contract_sale_manager,ua.contract sales manager,model_ua_contract,sales_team.group_sale_manager,1,1,1,0
+access_ua_contract_purchase_manager,ua.contract purchase manager,model_ua_contract,purchase.group_purchase_manager,1,1,1,0
+access_ua_reconciliation_act_readonly,ua.reconciliation.act readonly,model_ua_reconciliation_act,account.group_account_readonly,1,0,0,0
+access_ua_reconciliation_act_line_readonly,ua.reconciliation.act.line readonly,model_ua_reconciliation_act_line,account.group_account_readonly,1,0,0,0
+access_ua_reconciliation_act_accountant,ua.reconciliation.act accountant,model_ua_reconciliation_act,account.group_account_user,1,1,1,1
+access_ua_reconciliation_act_line_accountant,ua.reconciliation.act.line accountant,model_ua_reconciliation_act_line,account.group_account_user,1,1,1,1

@@ -11,6 +11,14 @@ Notable changes for people who run or build on this code. Module-level API chang
 - `scripts/check_static.sh` (all checks without Docker) and `scripts/test_full.sh` (what CI runs).
 - `scripts/manifest_check.py`: manifests, licenses, pinned OCA sources, no defaults pointing at our servers.
 - `addons/OCA_payroll.commit`: the vendored OCA payroll engine is now pinned (OCA/payroll 19.0 at 0d1b4b7).
+- `l10n_ua_contract`: counterparty contracts as in 1C/BAS (number, date, kind, currency, amount, term,
+  payment terms). The contract travels from orders to invoices, payments and every journal item, so debts
+  show per contract; posting over the contract amount warns or is refused; a closed contract takes no
+  invoices; "separate accounting" gives the contract its own analytic account that lands on order and
+  invoice lines. Reconciliation act (акт звірки) by partner or contract on settlement accounts 36, 37, 63,
+  68, with the usual two-sided print form and an agreed/disputed status. Tests: `ua_contract`.
+- `docs/parity/README.md`: what 1C/BAS gives a Ukrainian company, what this repository covers, the gaps
+  and the order of work, with the defense-manufacturer needs first.
 - `ruff.toml` and a lint step in `scripts/check_static.sh`: undefined names, unused imports and variables,
   mutable defaults in our modules and scripts. Style is not enforced.
 

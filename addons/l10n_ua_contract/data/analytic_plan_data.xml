@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+    <!-- План аналітики для окремого обліку за договорами: кожен такий договір має тут
+         свій рахунок. Аналітику на рядки ставить сам договір. -->
+    <record id="analytic_plan_contracts" model="account.analytic.plan">
+      <field name="name">Договори</field>
+    </record>
+  </data>
+</odoo>
