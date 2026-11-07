@@ -117,7 +117,7 @@ payload in our catalogues is a camera; nothing here covers munitions.
 | Claims (рекламації) from units: deadlines, warranty, root cause, replacement, repeat failures | contract terms | done: `l10n_ua_claim`; the passport prints the claim history; a design cause opens a change notice |
 | Imported components: customs declaration, duty and VAT in cost | Митний кодекс, ст. 49-58; ПКУ, ст. 190 | done: `l10n_ua_customs`; duty-free import under defense benefits goes as a 0 % duty rate or a VAT basis on the line |
 | Reservation of employees | постанова КМУ № 76 (2023) and its changes | done except the Дія request list: status, quota, wage floor, deadlines; the numbers are settings on the status, checked against the current edition |
-| Donor-funded deliveries to units | civil and tax rules on charity | transfer act and the tax note, later |
+| Donor-funded deliveries to units | civil and tax rules on charity | done: `l10n_ua_unit_transfer`: a three-party act (maker, donor, unit) or a free transfer from the company, built from the delivery with serials and the order price or book value; the passport shows the unit; a serial cannot be handed over twice. Tax effects of a free transfer stay with the accountant |
 
 Sources checked on 2026-11-07: Resolution 309 cost items and price formula (paragraphs 11-13; profit
 formulas are images in the published text, so rates stay contract settings), Resolution 363 separate cost

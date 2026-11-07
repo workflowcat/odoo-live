@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 58,
-    "models": 127,
-    "methods": 442,
-    "fields": 314
+    "modules": 59,
+    "models": 129,
+    "methods": 452,
+    "fields": 318
   },
   "areas": [
     {
@@ -4741,9 +4741,18 @@
           "modules": [
             "l10n_ua_docs_stock",
             "l10n_ua_stock_docs",
-            "l10n_ua_tolling"
+            "l10n_ua_tolling",
+            "l10n_ua_unit_transfer"
           ],
           "methods": [
+            {
+              "name": "action_ua_unit_transfer",
+              "signature": "action_ua_unit_transfer()",
+              "doc": "Акт передачі з цього відвантаження: існуючий або новий, заповнений.",
+              "module": "l10n_ua_unit_transfer",
+              "file": "addons/l10n_ua_unit_transfer/models/ua_unit_transfer.py",
+              "decorators": []
+            },
             {
               "name": "ua_get_or_create",
               "signature": "ua_get_or_create(client_ref, vals=None)",
@@ -4818,6 +4827,14 @@
               "label": "ua.tolling.order",
               "module": "l10n_ua_tolling",
               "file": "addons/l10n_ua_tolling/models/stock.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_unit_transfer_ids",
+              "type": "One2many",
+              "label": "ua.unit.transfer",
+              "module": "l10n_ua_unit_transfer",
+              "file": "addons/l10n_ua_unit_transfer/models/ua_unit_transfer.py",
               "groups": ""
             }
           ]
@@ -5127,6 +5144,7 @@
             "l10n_ua_docs",
             "l10n_ua_partner_edr",
             "l10n_ua_purchase",
+            "l10n_ua_unit_transfer",
             "l10n_ua_vat"
           ],
           "methods": [
@@ -5208,6 +5226,14 @@
               "doc": "«Оновити сигнали»: перечитати ЄДР, ПДВ і KYC та перерахувати ризик.",
               "module": "l10n_ua_purchase",
               "file": "addons/l10n_ua_purchase/models/res_partner.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_unit_transfers",
+              "signature": "action_ua_unit_transfers()",
+              "doc": "",
+              "module": "l10n_ua_unit_transfer",
+              "file": "addons/l10n_ua_unit_transfer/models/ua_unit_transfer.py",
               "decorators": []
             }
           ],
@@ -5530,6 +5556,22 @@
               "label": "Неплатник ПДВ",
               "module": "l10n_ua_purchase",
               "file": "addons/l10n_ua_purchase/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_unit",
+              "type": "Boolean",
+              "label": "Військова частина",
+              "module": "l10n_ua_unit_transfer",
+              "file": "addons/l10n_ua_unit_transfer/models/ua_unit_transfer.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_unit_number",
+              "type": "Char",
+              "label": "Умовне найменування частини",
+              "module": "l10n_ua_unit_transfer",
+              "file": "addons/l10n_ua_unit_transfer/models/ua_unit_transfer.py",
               "groups": ""
             },
             {
@@ -6812,6 +6854,92 @@
           "fields": []
         },
         {
+          "model": "ua.unit.transfer",
+          "ours": true,
+          "modules": [
+            "l10n_ua_unit_transfer"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_unit_transfer",
+              "file": "addons/l10n_ua_unit_transfer/models/ua_unit_transfer.py",
+              "decorators": []
+            },
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_unit_transfer",
+              "file": "addons/l10n_ua_unit_transfer/models/ua_unit_transfer.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill_from_picking",
+              "signature": "action_fill_from_picking()",
+              "doc": "Рядки з відвантаження: виріб, кількість, серійні номери, ціна.",
+              "module": "l10n_ua_unit_transfer",
+              "file": "addons/l10n_ua_unit_transfer/models/ua_unit_transfer.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_unit_transfer",
+              "file": "addons/l10n_ua_unit_transfer/models/ua_unit_transfer.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reset_draft",
+              "signature": "action_reset_draft()",
+              "doc": "",
+              "module": "l10n_ua_unit_transfer",
+              "file": "addons/l10n_ua_unit_transfer/models/ua_unit_transfer.py",
+              "decorators": []
+            },
+            {
+              "name": "amount_words",
+              "signature": "amount_words()",
+              "doc": "",
+              "module": "l10n_ua_unit_transfer",
+              "file": "addons/l10n_ua_unit_transfer/models/ua_unit_transfer.py",
+              "decorators": []
+            },
+            {
+              "name": "money",
+              "signature": "money(amount)",
+              "doc": "1 240,50 - сума для друку.",
+              "module": "l10n_ua_unit_transfer",
+              "file": "addons/l10n_ua_unit_transfer/models/ua_unit_transfer.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.unit.transfer.line",
+          "ours": true,
+          "modules": [
+            "l10n_ua_unit_transfer"
+          ],
+          "methods": [
+            {
+              "name": "lot_names",
+              "signature": "lot_names()",
+              "doc": "",
+              "module": "l10n_ua_unit_transfer",
+              "file": "addons/l10n_ua_unit_transfer/models/ua_unit_transfer.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "account.journal",
           "ours": false,
           "modules": [
@@ -7567,7 +7695,8 @@
           "modules": [
             "l10n_ua_claim",
             "l10n_ua_defense",
-            "l10n_ua_eco"
+            "l10n_ua_eco",
+            "l10n_ua_unit_transfer"
           ],
           "methods": [
             {
@@ -7610,6 +7739,14 @@
               "label": "Номер паспорта",
               "module": "l10n_ua_defense",
               "file": "addons/l10n_ua_defense/models/stock_lot.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_unit_transfer_id",
+              "type": "Many2one",
+              "label": "ua.unit.transfer",
+              "module": "l10n_ua_unit_transfer",
+              "file": "addons/l10n_ua_unit_transfer/models/ua_unit_transfer.py",
               "groups": ""
             }
           ]

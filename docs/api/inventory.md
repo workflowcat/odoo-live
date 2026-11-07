@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 58. Моделей: 127. Методів: 442. Збережених полів на чужих моделях: 314.
+Модулів: 59. Моделей: 129. Методів: 452. Збережених полів на чужих моделях: 318.
 
 ## Зарплата
 
@@ -1086,10 +1086,11 @@
 
 ### `stock.picking`
 
-доповнена модель · `l10n_ua_docs_stock`, `l10n_ua_stock_docs`, `l10n_ua_tolling`
+доповнена модель · `l10n_ua_docs_stock`, `l10n_ua_stock_docs`, `l10n_ua_tolling`, `l10n_ua_unit_transfer`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
+| `action_ua_unit_transfer()` | Акт передачі з цього відвантаження: існуючий або новий, заповнений. | `l10n_ua_unit_transfer` |
 | `ua_get_or_create(client_ref, vals=None)` | Доставка за міткою клієнта: є - віддаємо, немає - створюємо. | `l10n_ua_stock_docs` |
 
 | Поле | Тип | Підпис | Модуль |
@@ -1102,6 +1103,7 @@
 | `ua_proxy_number` | Char | Довіреність № | `l10n_ua_docs_stock` |
 | `ua_proxy_person` | Char | Видана на (ПІБ) | `l10n_ua_docs_stock` |
 | `ua_tolling_id` | Many2one | ua.tolling.order | `l10n_ua_tolling` |
+| `ua_unit_transfer_ids` | One2many | ua.unit.transfer | `l10n_ua_unit_transfer` |
 
 ### `uom.uom`
 
@@ -1186,7 +1188,7 @@
 
 ### `res.partner`
 
-доповнена модель · `bp_kyc`, `bp_purchase_intake`, `l10n_ua_docs`, `l10n_ua_partner_edr`, `l10n_ua_purchase`, `l10n_ua_vat`
+доповнена модель · `bp_kyc`, `bp_purchase_intake`, `l10n_ua_docs`, `l10n_ua_partner_edr`, `l10n_ua_purchase`, `l10n_ua_unit_transfer`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1200,6 +1202,7 @@
 | `action_ua_new_from_edr()` | Кнопка «Контрагент з ЄДР» у шапці списку: разовий діалог на одне поле - код. | `l10n_ua_partner_edr` |
 | `action_ua_supplier_bills()` | Кнопка-лічильник: вхідні рахунки цього контрагента. | `l10n_ua_purchase` |
 | `action_ua_supplier_sync()` | «Оновити сигнали»: перечитати ЄДР, ПДВ і KYC та перерахувати ризик. | `l10n_ua_purchase` |
+| `action_ua_unit_transfers()` | - | `l10n_ua_unit_transfer` |
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
@@ -1243,6 +1246,8 @@
 | `ua_supplier_risk_score` | Integer | Бали ризику | `l10n_ua_purchase` |
 | `ua_supplier_signals_date` | Datetime | Сигнали оновлено | `l10n_ua_purchase` |
 | `ua_supplier_vat_non_payer` | Boolean | Неплатник ПДВ | `l10n_ua_purchase` |
+| `ua_unit` | Boolean | Військова частина | `l10n_ua_unit_transfer` |
+| `ua_unit_number` | Char | Умовне найменування частини | `l10n_ua_unit_transfer` |
 | `ua_vat_payer_status` | Selection | Статус ПДВ | `l10n_ua_vat` |
 | `ua_vat_status` | Char | ПДВ | `l10n_ua_partner_edr` |
 
@@ -1527,6 +1532,28 @@
 | `action_return_materials()` | Повернення невикористаної сировини давальцю. | `l10n_ua_tolling` |
 | `material_rows()` | Рядки звіту переробника по кожному матеріалу давальця. | `l10n_ua_tolling` |
 
+### `ua.unit.transfer`
+
+наша модель · `l10n_ua_unit_transfer`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | - | `l10n_ua_unit_transfer` |
+| `action_done()` | - | `l10n_ua_unit_transfer` |
+| `action_fill_from_picking()` | Рядки з відвантаження: виріб, кількість, серійні номери, ціна. | `l10n_ua_unit_transfer` |
+| `action_print()` | - | `l10n_ua_unit_transfer` |
+| `action_reset_draft()` | - | `l10n_ua_unit_transfer` |
+| `amount_words()` | - | `l10n_ua_unit_transfer` |
+| `money(amount)` | 1 240,50 - сума для друку. | `l10n_ua_unit_transfer` |
+
+### `ua.unit.transfer.line`
+
+наша модель · `l10n_ua_unit_transfer`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `lot_names()` | - | `l10n_ua_unit_transfer` |
+
 ### `account.journal`
 
 доповнена модель · `l10n_ua_bank_1c`, `l10n_ua_bank_online`, `l10n_ua_prro`
@@ -1708,7 +1735,7 @@
 
 ### `stock.lot`
 
-доповнена модель · `l10n_ua_claim`, `l10n_ua_defense`, `l10n_ua_eco`
+доповнена модель · `l10n_ua_claim`, `l10n_ua_defense`, `l10n_ua_eco`, `l10n_ua_unit_transfer`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1720,3 +1747,4 @@
 | `ua_acceptance_id` | Many2one | ua.defense.acceptance | `l10n_ua_defense` |
 | `ua_contract_id` | Many2one | ua.contract | `l10n_ua_defense` |
 | `ua_passport_number` | Char | Номер паспорта | `l10n_ua_defense` |
+| `ua_unit_transfer_id` | Many2one | ua.unit.transfer | `l10n_ua_unit_transfer` |

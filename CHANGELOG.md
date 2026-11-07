@@ -134,6 +134,12 @@ Notable changes for people who run or build on this code. Module-level API chang
   1178) and carry over to the next plan. An approved plan is changed only by a new revision. Confirmed
   purchase orders are compared with the plan by class. Print form and a JSON file in the Prozorro plan
   structure. Tests: `ua_proc_plan`.
+- `l10n_ua_unit_transfer`: hand-over of products to a military unit outside a state contract. A donor (fund,
+  community, company) buys and the unit receives, or the company gives its own products free. The act is
+  built from the done delivery with serial numbers and the sale price (book value for a free transfer),
+  prints for three parties with the amount in words, and marks the serials: the product passport shows the
+  unit and the act, and a serial cannot be handed over twice. Partners get a military-unit flag and code.
+  Tests: `ua_unit_transfer`.
 
 ### Changed
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number

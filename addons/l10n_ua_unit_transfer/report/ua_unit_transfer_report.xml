@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_unit_transfer" model="ir.actions.report">
+    <field name="name">Акт приймання-передачі військовій частині</field>
+    <field name="model">ua.unit.transfer</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_unit_transfer.report_ua_unit_transfer</field>
+    <field name="report_file">l10n_ua_unit_transfer.report_ua_unit_transfer</field>
+    <field name="binding_model_id" ref="model_ua_unit_transfer"/>
+    <field name="binding_type">report</field>
+    <field name="paperformat_id" ref="base.paperformat_euro"/>
+    <field name="print_report_name">'Акт передачі %s' % (object.name or '')</field>
+  </record>
+
+  <template id="report_ua_unit_transfer">
+    <t t-call="web.html_container">
+      <t t-call="web.basic_layout">
+        <t t-foreach="docs" t-as="doc">
+          <div class="page ua-doc">
+            <t t-call="l10n_ua_defense.ua_defense_style"/>
+            <h3>АКТ ПРИЙМАННЯ-ПЕРЕДАЧІ № <t t-out="doc.name"/></h3>
+            <div class="ua-sub">від <t t-out="doc.date.strftime('%d.%m.%Y')"/></div>
+            <p>
+              <strong t-out="doc.company_id.name"/> (код за ЄДРПОУ
+              <t t-out="doc.company_id.company_registry or '-'"/>), далі - Постачальник,
+              <t t-if="doc.kind == 'fund'">
+                за договором з <strong t-out="doc.donor_id.name"/> (код
+                <t t-out="doc.donor_id.company_registry or '-'"/>), далі - Благодійник,
+                <t t-if="doc.sale_id">замовлення <t t-out="doc.sale_id.name"/>,</t>
+                передає, а
+              </t>
+              <t t-else="">безоплатно передає, а</t>
+              військова частина <strong t-out="doc.unit_number or doc.unit_id.name"/><t
+                t-if="doc.receiver"> в особі <t t-out="doc.receiver"/></t><t
+                t-if="doc.receiver_basis">, що діє на підставі <t t-out="doc.receiver_basis"/></t>,
+              далі - Отримувач, приймає такі вироби:
+            </p>
+            <table class="ua-grid">
+              <thead>
+                <tr>
+                  <th style="width: 4%;">№</th>
+                  <th>Найменування</th>
+                  <th style="width: 6%;">Од.</th>
+                  <th style="width: 8%;">Кількість</th>
+                  <th style="width: 26%;">Серійні номери</th>
+                  <th style="width: 11%;">
+                    <t t-if="doc.kind == 'fund'">Ціна з ПДВ</t><t t-else="">Балансова вартість</t>
+                  </th>
+                  <th style="width: 12%;">Сума</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr t-foreach="doc.line_ids" t-as="line">
+                  <td style="text-align: center;"><t t-out="line_index + 1"/></td>
+                  <td><t t-out="line.product_id.display_name"/></td>
+                  <td><t t-out="line.uom_id.name"/></td>
+                  <td class="ua-num"><t t-out="'%g' % line.quantity"/></td>
+                  <td><t t-out="line.lot_names()"/></td>
+                  <td class="ua-num"><t t-out="doc.money(line.price_unit)"/></td>
+                  <td class="ua-num"><t t-out="doc.money(line.amount)"/></td>
+                </tr>
+                <tr class="ua-bold">
+                  <td colspan="6">Разом</td>
+                  <td class="ua-num"><t t-out="doc.money(doc.amount_total)"/></td>
+                </tr>
+              </tbody>
+            </table>
+            <p>Загальна вартість: <t t-out="doc.amount_words()"/>.</p>
+            <p t-if="doc.purpose">Призначення: <t t-out="doc.purpose"/>.</p>
+            <p>Вироби передано в справному стані, з паспортами. Претензій щодо кількості і
+              комплектності Отримувач не має.</p>
+            <p t-if="doc.note"><t t-out="doc.note"/></p>
+            <table class="ua-sign">
+              <tr>
+                <td>Передав (Постачальник)<br/><br/>______________ / ______________________</td>
+                <td>Прийняв (Отримувач)<br/><br/>______________ / <t t-out="doc.receiver or '______________________'"/></td>
+              </tr>
+              <tr t-if="doc.kind == 'fund'">
+                <td>Благодійник<br/><br/>______________ / ______________________</td>
+                <td></td>
+              </tr>
+            </table>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+
+  <template id="report_ua_product_passport_document_unit" inherit_id="l10n_ua_defense.report_ua_product_passport_document">
+    <xpath expr="//tr[@t-if='act']" position="after">
+      <tr t-if="doc.ua_unit_transfer_id"><td>Передано військовій частині</td>
+        <td><t t-out="doc.ua_unit_transfer_id.unit_number or doc.ua_unit_transfer_id.unit_id.name"/>,
+          акт <t t-out="doc.ua_unit_transfer_id.name"/> від
+          <t t-out="doc.ua_unit_transfer_id.date.strftime('%d.%m.%Y')"/></td></tr>
+    </xpath>
+  </template>
+</odoo>

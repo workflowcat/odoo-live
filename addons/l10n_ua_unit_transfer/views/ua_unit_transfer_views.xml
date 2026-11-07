@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_unit_transfer_list" model="ir.ui.view">
+    <field name="name">ua.unit.transfer.list</field>
+    <field name="model">ua.unit.transfer</field>
+    <field name="arch" type="xml">
+      <list string="Передачі військовим частинам" decoration-muted="state == 'cancel'">
+        <field name="name"/>
+        <field name="date"/>
+        <field name="unit_id"/>
+        <field name="unit_number" optional="show"/>
+        <field name="kind" optional="show"/>
+        <field name="donor_id" optional="show"/>
+        <field name="picking_id" optional="hide"/>
+        <field name="amount_total" sum="Разом"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="state" widget="badge" decoration-success="state == 'done'"
+               decoration-info="state == 'draft'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_unit_transfer_form" model="ir.ui.view">
+    <field name="name">ua.unit.transfer.form</field>
+    <field name="model">ua.unit.transfer</field>
+    <field name="arch" type="xml">
+      <form string="Акт передачі військовій частині">
+        <header>
+          <button name="action_fill_from_picking" type="object" string="Заповнити"
+                  invisible="state != 'draft' or not picking_id"/>
+          <button name="action_done" type="object" string="Затвердити" class="oe_highlight"
+                  invisible="state != 'draft'"/>
+          <button name="action_print" type="object" string="Друк" invisible="state == 'cancel'"/>
+          <button name="action_cancel" type="object" string="Скасувати акт" invisible="state == 'cancel'"
+                  confirm="Серійні номери знову можна буде передати. Скасувати акт?"/>
+          <button name="action_reset_draft" type="object" string="У чернетку" invisible="state != 'cancel'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group string="Сторони">
+              <field name="kind" readonly="state != 'draft'"/>
+              <field name="unit_id" readonly="state != 'draft'" options="{'no_create': True}"
+                     context="{'default_ua_unit': True, 'default_is_company': True}"/>
+              <field name="unit_number"/>
+              <field name="receiver" readonly="state != 'draft'"/>
+              <field name="receiver_basis" readonly="state != 'draft'"/>
+              <field name="donor_id" invisible="kind != 'fund'" required="kind == 'fund'"
+                     readonly="state != 'draft'"/>
+            </group>
+            <group string="Документ">
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="picking_id" readonly="state != 'draft'"/>
+              <field name="sale_id" invisible="not sale_id"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+              <field name="currency_id" invisible="1"/>
+              <field name="purpose" readonly="state != 'draft'"/>
+            </group>
+          </group>
+          <field name="line_ids" readonly="state != 'draft'">
+            <list editable="bottom">
+              <field name="sequence" widget="handle"/>
+              <field name="product_id"/>
+              <field name="quantity"/>
+              <field name="uom_id"/>
+              <field name="lot_ids" widget="many2many_tags" options="{'no_create': True}"/>
+              <field name="price_unit"/>
+              <field name="amount" sum="Разом"/>
+              <field name="currency_id" column_invisible="1"/>
+            </list>
+          </field>
+          <group>
+            <field name="amount_total"/>
+            <field name="note" placeholder="Що ще треба записати в акт"/>
+          </group>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_unit_transfer_search" model="ir.ui.view">
+    <field name="name">ua.unit.transfer.search</field>
+    <field name="model">ua.unit.transfer</field>
+    <field name="arch" type="xml">
+      <search string="Передачі військовим частинам">
+        <field name="name"/>
+        <field name="unit_id"/>
+        <field name="donor_id"/>
+        <field name="line_ids" string="Серійний номер" filter_domain="[('line_ids.lot_ids.name', 'ilike', self)]"/>
+        <filter name="done" string="Затверджені" domain="[('state', '=', 'done')]"/>
+        <filter name="draft" string="Чернетки" domain="[('state', '=', 'draft')]"/>
+        <separator/>
+        <filter name="fund" string="Оплатив благодійник" domain="[('kind', '=', 'fund')]"/>
+        <filter name="donation" string="Безоплатно" domain="[('kind', '=', 'donation')]"/>
+        <filter name="date" string="Дата" date="date"/>
+        <group>
+          <filter name="by_unit" string="Частина" context="{'group_by': 'unit_id'}"/>
+          <filter name="by_donor" string="Благодійник" context="{'group_by': 'donor_id'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_unit_transfer" model="ir.actions.act_window">
+    <field name="name">Передачі військовим частинам</field>
+    <field name="res_model">ua.unit.transfer</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_ua_unit_transfer_search"/>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Передач ще немає</p>
+      <p>Акт складається з проведеного відвантаження кнопкою «Акт передачі військовій
+        частині»: вироби, серійні номери і ціна заповнюються самі.</p>
+    </field>
+  </record>
+
+  <menuitem id="menu_ua_unit_transfer" name="Передачі військовим частинам"
+            parent="l10n_ua_defense.menu_ua_defense_root" action="action_ua_unit_transfer"
+            sequence="60"/>
+
+  <record id="view_picking_form_ua_unit_transfer" model="ir.ui.view">
+    <field name="name">stock.picking.form.ua.unit.transfer</field>
+    <field name="model">stock.picking</field>
+    <field name="inherit_id" ref="stock.view_picking_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//header" position="inside">
+        <button name="action_ua_unit_transfer" type="object" string="Акт передачі військовій частині"
+                invisible="state != 'done' or picking_type_code != 'outgoing'"
+                groups="stock.group_stock_user"/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_production_lot_form_ua_unit_transfer" model="ir.ui.view">
+    <field name="name">stock.lot.form.ua.unit.transfer</field>
+    <field name="model">stock.lot</field>
+    <field name="inherit_id" ref="l10n_ua_defense.view_production_lot_form_ua_defense"/>
+    <field name="arch" type="xml">
+      <field name="ua_acceptance_id" position="after">
+        <field name="ua_unit_transfer_id" invisible="not ua_unit_transfer_id"/>
+        <field name="ua_unit_id" invisible="not ua_unit_transfer_id"/>
+      </field>
+    </field>
+  </record>
+
+  <record id="view_partner_form_ua_unit" model="ir.ui.view">
+    <field name="name">res.partner.form.ua.unit</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_partner_form"/>
+    <field name="arch" type="xml">
+      <div name="button_box" position="inside">
+        <button name="action_ua_unit_transfers" type="object" class="oe_stat_button"
+                icon="fa-truck" invisible="not ua_unit">
+          <field name="ua_unit_transfer_count" widget="statinfo" string="Передачі"/>
+        </button>
+      </div>
+      <xpath expr="//field[@name='category_id']" position="after">
+        <field name="ua_unit" invisible="not is_company"/>
+        <field name="ua_unit_number" invisible="not ua_unit"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>

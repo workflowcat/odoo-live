@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_unit_transfer_stock,ua.unit.transfer stock,model_ua_unit_transfer,stock.group_stock_user,1,1,1,0
+access_ua_unit_transfer_manager,ua.unit.transfer manager,model_ua_unit_transfer,stock.group_stock_manager,1,1,1,1
+access_ua_unit_transfer_sale,ua.unit.transfer sale,model_ua_unit_transfer,sales_team.group_sale_salesman,1,0,0,0
+access_ua_unit_transfer_line_stock,ua.unit.transfer.line stock,model_ua_unit_transfer_line,stock.group_stock_user,1,1,1,1
+access_ua_unit_transfer_line_sale,ua.unit.transfer.line sale,model_ua_unit_transfer_line,sales_team.group_sale_salesman,1,0,0,0
