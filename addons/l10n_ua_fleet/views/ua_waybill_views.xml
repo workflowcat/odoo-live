@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_waybill_list" model="ir.ui.view">
+    <field name="name">ua.waybill.list</field>
+    <field name="model">ua.waybill</field>
+    <field name="arch" type="xml">
+      <list string="Подорожні листи" decoration-muted="state == 'cancel'" decoration-danger="fuel_over &gt; 0">
+        <field name="name"/>
+        <field name="date"/>
+        <field name="vehicle_id"/>
+        <field name="driver_id" optional="show"/>
+        <field name="route" optional="hide"/>
+        <field name="distance" sum="Разом"/>
+        <field name="fuel_norm" sum="Разом"/>
+        <field name="fuel_actual" sum="Разом"/>
+        <field name="fuel_over" sum="Разом" optional="show"/>
+        <field name="fuel_saved" sum="Разом" optional="hide"/>
+        <field name="state" widget="badge" decoration-success="state == 'done'"
+               decoration-info="state == 'open'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_waybill_pivot" model="ir.ui.view">
+    <field name="name">ua.waybill.pivot</field>
+    <field name="model">ua.waybill</field>
+    <field name="arch" type="xml">
+      <pivot string="Витрата ПММ">
+        <field name="vehicle_id" type="row"/>
+        <field name="date" interval="month" type="col"/>
+        <field name="distance" type="measure"/>
+        <field name="fuel_norm" type="measure"/>
+        <field name="fuel_actual" type="measure"/>
+        <field name="fuel_over" type="measure"/>
+      </pivot>
+    </field>
+  </record>
+
+  <record id="view_ua_waybill_form" model="ir.ui.view">
+    <field name="name">ua.waybill.form</field>
+    <field name="model">ua.waybill</field>
+    <field name="arch" type="xml">
+      <form string="Подорожній лист">
+        <header>
+          <button name="action_open" type="object" string="Видати водію" class="oe_highlight"
+                  invisible="state != 'draft'"/>
+          <button name="action_done" type="object" string="Закрити лист" class="oe_highlight"
+                  invisible="state != 'open'"/>
+          <button name="action_print" type="object" string="Друк" invisible="state == 'cancel'"/>
+          <button name="action_cancel" type="object" string="Скасувати" invisible="state == 'cancel'"
+                  confirm="Списане паливо повернеться в бак, запис спідометра зникне. Скасувати лист?"/>
+          <button name="action_reset_draft" type="object" string="У чернетку" invisible="state != 'cancel'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,open,done"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group string="Рейс">
+              <field name="vehicle_id" readonly="state != 'draft'"/>
+              <field name="license_plate"/>
+              <field name="driver_id" readonly="state not in ('draft', 'open')"/>
+              <field name="route" readonly="state == 'done'"/>
+              <field name="purpose" readonly="state == 'done'"/>
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="date_end" readonly="state == 'done'"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+            </group>
+            <group string="Робота">
+              <field name="odometer_start" readonly="state != 'draft'"/>
+              <field name="odometer_end" readonly="state != 'open'"/>
+              <field name="distance"/>
+              <field name="cargo_tkm" readonly="state == 'done'"/>
+              <field name="engine_hours" readonly="state == 'done'"/>
+              <field name="adjustment_ids" widget="many2many_tags" readonly="state == 'done'"/>
+              <field name="adjustment_pct"/>
+            </group>
+          </group>
+          <group string="Паливо">
+            <group>
+              <field name="fuel_product_id"/>
+              <field name="fuel_start"/>
+              <field name="fuel_issued"/>
+              <field name="fuel_end" readonly="state != 'open'"/>
+            </group>
+            <group>
+              <field name="fuel_norm"/>
+              <field name="fuel_actual"/>
+              <field name="fuel_over" decoration-danger="fuel_over &gt; 0"/>
+              <field name="fuel_saved"/>
+            </group>
+          </group>
+          <field name="refuel_ids" readonly="state not in ('draft', 'open')">
+            <list editable="bottom">
+              <field name="date"/>
+              <field name="source"/>
+              <field name="partner_id" optional="show"/>
+              <field name="quantity" sum="Разом"/>
+              <field name="price_unit" invisible="source != 'vendor'"/>
+              <field name="reference" optional="show"/>
+            </list>
+          </field>
+          <field name="note" placeholder="Особливі відмітки, простої, причина перевитрати"/>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_waybill_search" model="ir.ui.view">
+    <field name="name">ua.waybill.search</field>
+    <field name="model">ua.waybill</field>
+    <field name="arch" type="xml">
+      <search string="Подорожні листи">
+        <field name="name"/>
+        <field name="vehicle_id"/>
+        <field name="driver_id"/>
+        <filter name="open" string="У рейсі" domain="[('state', '=', 'open')]"/>
+        <filter name="done" string="Закриті" domain="[('state', '=', 'done')]"/>
+        <filter name="over" string="З перевитратою" domain="[('fuel_over', '&gt;', 0)]"/>
+        <filter name="date" string="Дата" date="date"/>
+        <group>
+          <filter name="by_vehicle" string="Авто" context="{'group_by': 'vehicle_id'}"/>
+          <filter name="by_driver" string="Водій" context="{'group_by': 'driver_id'}"/>
+          <filter name="by_month" string="Місяць" context="{'group_by': 'date:month'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_waybill" model="ir.actions.act_window">
+    <field name="name">Подорожні листи</field>
+    <field name="res_model">ua.waybill</field>
+    <field name="view_mode">list,form,pivot</field>
+    <field name="search_view_id" ref="view_ua_waybill_search"/>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Подорожніх листів ще немає</p>
+      <p>Спершу на картці авто, вкладка «ПММ», вкажіть паливо, норми і рахунки списання.</p>
+    </field>
+  </record>
+
+  <record id="view_ua_fuel_norm_adjustment_list" model="ir.ui.view">
+    <field name="name">ua.fuel.norm.adjustment.list</field>
+    <field name="model">ua.fuel.norm.adjustment</field>
+    <field name="arch" type="xml">
+      <list string="Коригування норм" editable="bottom">
+        <field name="sequence" widget="handle"/>
+        <field name="name"/>
+        <field name="percent"/>
+        <field name="month_from"/>
+        <field name="month_to"/>
+        <field name="note"/>
+        <field name="company_id" groups="base.group_multi_company"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_fuel_norm_adjustment" model="ir.actions.act_window">
+    <field name="name">Коригування норм палива</field>
+    <field name="res_model">ua.fuel.norm.adjustment</field>
+    <field name="view_mode">list</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Коригувань ще немає</p>
+      <p>Зимова надбавка, робота в місті, з частими зупинками: відсоток і, якщо треба, місяці,
+        коли коригування діє саме. Числа беруть з чинної редакції наказу Мінтрансу № 43 і наказу
+        компанії.</p>
+    </field>
+  </record>
+
+  <menuitem id="menu_ua_waybill" name="Подорожні листи" parent="fleet.menu_root"
+            action="action_ua_waybill" sequence="5"/>
+  <menuitem id="menu_ua_fuel_norm_adjustment" name="Коригування норм палива"
+            parent="fleet.fleet_configuration" action="action_ua_fuel_norm_adjustment" sequence="50"/>
+
+  <record id="view_fleet_vehicle_form_ua_fuel" model="ir.ui.view">
+    <field name="name">fleet.vehicle.form.ua.fuel</field>
+    <field name="model">fleet.vehicle</field>
+    <field name="inherit_id" ref="fleet.fleet_vehicle_view_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//div[@name='button_box']" position="inside">
+        <button name="action_ua_waybills" type="object" class="oe_stat_button" icon="fa-road">
+          <field name="ua_waybill_count" widget="statinfo" string="Подорожні листи"/>
+        </button>
+      </xpath>
+      <xpath expr="//notebook" position="inside">
+        <page string="ПММ" name="ua_fuel">
+          <group>
+            <group string="Паливо і норми">
+              <field name="ua_fuel_product_id"/>
+              <field name="ua_norm_base"/>
+              <field name="ua_norm_cargo"/>
+              <field name="ua_norm_hour"/>
+              <field name="ua_fuel_in_tank"/>
+            </group>
+            <group string="Облік">
+              <field name="ua_warehouse_id"/>
+              <field name="ua_expense_account_id"/>
+              <field name="ua_overnorm_account_id"/>
+              <field name="ua_tank_location_id" invisible="not ua_tank_location_id"/>
+            </group>
+          </group>
+        </page>
+      </xpath>
+    </field>
+  </record>
+</odoo>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_waybill" model="ir.actions.report">
+    <field name="name">Подорожній лист</field>
+    <field name="model">ua.waybill</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_fleet.report_ua_waybill</field>
+    <field name="report_file">l10n_ua_fleet.report_ua_waybill</field>
+    <field name="binding_model_id" ref="model_ua_waybill"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Подорожній лист %s' % (object.name or '')</field>
+  </record>
+
+  <template id="report_ua_waybill_document">
+    <t t-set="vehicle" t-value="doc.vehicle_id"/>
+    <div class="page ua-doc">
+      <style>
+        .ua-doc { font-size: 10px; color: #000; }
+        .ua-doc h3 { font-size: 13px; text-align: center; margin: 4px 0; }
+        .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+        .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin: 6px 0; }
+        .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; }
+        .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+        .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+        .ua-doc .ua-sign { width: 100%; margin-top: 18px; }
+        .ua-doc .ua-sign td { width: 50%; vertical-align: top; padding-right: 12px; }
+      </style>
+      <div><t t-out="doc.company_id.name"/>, код за ЄДРПОУ <t t-out="doc.company_id.company_registry or '-'"/></div>
+      <h3>ПОДОРОЖНІЙ ЛИСТ № <t t-out="doc.name"/></h3>
+      <div class="ua-sub">з <t t-out="doc.date.strftime('%d.%m.%Y')"/><t t-if="doc.date_end"> по
+        <t t-out="doc.date_end.strftime('%d.%m.%Y')"/></t></div>
+      <table class="ua-grid">
+        <tr><td style="width: 30%;">Автомобіль</td><td><t t-out="vehicle.model_id.display_name"/>,
+          номерний знак <strong t-out="vehicle.license_plate or '-'"/></td></tr>
+        <tr><td>Водій</td><td><t t-out="doc.driver_id.name or '-'"/></td></tr>
+        <tr><td>Маршрут</td><td><t t-out="doc.route or '-'"/></td></tr>
+        <tr><td>Мета поїздки</td><td><t t-out="doc.purpose or '-'"/></td></tr>
+      </table>
+      <table class="ua-grid">
+        <thead>
+          <tr>
+            <th>Спідометр при виїзді</th>
+            <th>Спідометр при поверненні</th>
+            <th>Пробіг, км</th>
+            <th>Транспортна робота, т·км</th>
+            <th>Мотогодини</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="ua-num"><t t-out="'%g' % doc.odometer_start"/></td>
+            <td class="ua-num"><t t-out="'%g' % doc.odometer_end if doc.odometer_end else ''"/></td>
+            <td class="ua-num"><t t-out="'%g' % doc.distance"/></td>
+            <td class="ua-num"><t t-out="'%g' % doc.cargo_tkm"/></td>
+            <td class="ua-num"><t t-out="'%g' % doc.engine_hours"/></td>
+          </tr>
+        </tbody>
+      </table>
+      <p>Паливо: <t t-out="doc.fuel_product_id.display_name or '-'"/>. Базова норма
+        <t t-out="doc.litres(vehicle.ua_norm_base)"/> л/100 км<t t-if="vehicle.ua_norm_cargo">, на
+        транспортну роботу <t t-out="doc.litres(vehicle.ua_norm_cargo)"/> л/100 т·км</t><t
+        t-if="vehicle.ua_norm_hour">, на місці <t t-out="doc.litres(vehicle.ua_norm_hour)"/> л/год</t>.
+        <t t-if="doc.adjustment_ids">Коригування: <t t-out="', '.join('%s %g%%' % (a.name, a.percent) for a in doc.adjustment_ids)"/>.</t>
+      </p>
+      <table class="ua-grid">
+        <thead>
+          <tr>
+            <th>Залишок при виїзді, л</th>
+            <th>Заправлено, л</th>
+            <th>Залишок при поверненні, л</th>
+            <th>За нормою, л</th>
+            <th>Фактично, л</th>
+            <th>Економія, л</th>
+            <th>Перевитрата, л</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="ua-num"><t t-out="doc.litres(doc.fuel_start)"/></td>
+            <td class="ua-num"><t t-out="doc.litres(doc.fuel_issued)"/></td>
+            <td class="ua-num"><t t-out="doc.litres(doc.fuel_end)"/></td>
+            <td class="ua-num"><t t-out="doc.litres(doc.fuel_norm)"/></td>
+            <td class="ua-num"><t t-out="doc.litres(doc.fuel_actual)"/></td>
+            <td class="ua-num"><t t-out="doc.litres(doc.fuel_saved)"/></td>
+            <td class="ua-num"><t t-out="doc.litres(doc.fuel_over)"/></td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="ua-grid" t-if="doc.refuel_ids">
+        <thead>
+          <tr><th>Дата заправки</th><th>Звідки</th><th>Літрів</th><th>Чек, картка</th></tr>
+        </thead>
+        <tbody>
+          <tr t-foreach="doc.refuel_ids" t-as="refuel">
+            <td><t t-out="refuel.date and refuel.date.strftime('%d.%m.%Y')"/></td>
+            <td><t t-out="refuel.partner_id.name or ('склад' if refuel.source == 'stock' else 'АЗС')"/></td>
+            <td class="ua-num"><t t-out="doc.litres(refuel.quantity)"/></td>
+            <td><t t-out="refuel.reference or ''"/></td>
+          </tr>
+        </tbody>
+      </table>
+      <p t-if="doc.note"><t t-out="doc.note"/></p>
+      <table class="ua-sign">
+        <tr>
+          <td>Автомобіль технічно справний, виїзд дозволено<br/><br/>______________ / ______________________</td>
+          <td>Водій пройшов медичний огляд<br/><br/>______________ / ______________________</td>
+        </tr>
+        <tr>
+          <td>Автомобіль прийняв, водій<br/><br/>______________ / <t t-out="doc.driver_id.name or '______________________'"/></td>
+          <td>Лист перевірив, обробив<br/><br/>______________ / ______________________</td>
+        </tr>
+      </table>
+    </div>
+  </template>
+
+  <template id="report_ua_waybill">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_fleet.report_ua_waybill_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

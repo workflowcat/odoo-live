@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 61,
-    "models": 133,
-    "methods": 480,
-    "fields": 322
+    "modules": 62,
+    "models": 137,
+    "methods": 489,
+    "fields": 335
   },
   "areas": [
     {
@@ -6557,6 +6557,26 @@
           "fields": []
         },
         {
+          "model": "ua.fuel.norm.adjustment",
+          "ours": true,
+          "modules": [
+            "l10n_ua_fleet"
+          ],
+          "methods": [
+            {
+              "name": "for_date",
+              "signature": "for_date(date, company)",
+              "doc": "",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.navigation",
           "ours": true,
           "modules": [
@@ -7142,6 +7162,66 @@
           "fields": []
         },
         {
+          "model": "ua.waybill",
+          "ours": true,
+          "modules": [
+            "l10n_ua_fleet"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "Скасувати: рух палива сторнується, запис спідометра зникає.",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "decorators": []
+            },
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "Закрити лист: заправки - у бак, фактична витрата - зі списанням за нормою.",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open",
+              "signature": "action_open()",
+              "doc": "Видати лист водію: фіксуємо спідометр і залишок у баку.",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reset_draft",
+              "signature": "action_reset_draft()",
+              "doc": "",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "decorators": []
+            },
+            {
+              "name": "litres",
+              "signature": "litres(value)",
+              "doc": "27,50 - літри для друку.",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "decorators": [
+                "staticmethod"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "account.journal",
           "ours": false,
           "modules": [
@@ -7562,6 +7642,121 @@
               "label": "Літера в чеку ПРРО",
               "module": "l10n_ua_prro",
               "file": "addons/l10n_ua_prro/models/account.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "fleet.vehicle",
+          "ours": false,
+          "modules": [
+            "l10n_ua_fleet"
+          ],
+          "methods": [
+            {
+              "name": "action_ua_waybills",
+              "signature": "action_ua_waybills()",
+              "doc": "",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_fuel_balance",
+              "signature": "ua_fuel_balance()",
+              "doc": "Скільки палива зараз у баку.",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "decorators": []
+            }
+          ],
+          "fields": [
+            {
+              "name": "ua_expense_account_id",
+              "type": "Many2one",
+              "label": "account.account",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_expense_location_id",
+              "type": "Many2one",
+              "label": "stock.location",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_fuel_product_id",
+              "type": "Many2one",
+              "label": "product.product",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_norm_base",
+              "type": "Float",
+              "label": "Базова норма, л/100 км",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_norm_cargo",
+              "type": "Float",
+              "label": "На транспортну роботу, л/100 т·км",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_norm_hour",
+              "type": "Float",
+              "label": "Робота на місці, л/год",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_overnorm_account_id",
+              "type": "Many2one",
+              "label": "account.account",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_overnorm_location_id",
+              "type": "Many2one",
+              "label": "stock.location",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_tank_location_id",
+              "type": "Many2one",
+              "label": "stock.location",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_warehouse_id",
+              "type": "Many2one",
+              "label": "stock.warehouse",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_waybill_ids",
+              "type": "One2many",
+              "label": "ua.waybill",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
               "groups": ""
             }
           ]
@@ -8034,6 +8229,32 @@
               "label": "ua.unit.transfer",
               "module": "l10n_ua_unit_transfer",
               "file": "addons/l10n_ua_unit_transfer/models/ua_unit_transfer.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "stock.move",
+          "ours": false,
+          "modules": [
+            "l10n_ua_fleet"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_waybill_id",
+              "type": "Many2one",
+              "label": "ua.waybill",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_waybill_reversed",
+              "type": "Boolean",
+              "label": "Сторновано скасуванням листа",
+              "module": "l10n_ua_fleet",
+              "file": "addons/l10n_ua_fleet/models/ua_waybill.py",
               "groups": ""
             }
           ]

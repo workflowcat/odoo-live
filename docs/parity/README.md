@@ -73,6 +73,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Engineering changes, BOM versions | done | `l10n_ua_eco`: change notices with was/now lines, approvals (technologist, quality, military representative), BOM revision N+1 on the effective date |
 | Production planning (MPS/MRP) | part | native scheduler; OCA `mrp_multi_level` later |
 | Repairs and warranty returns | done | native `repair`; `l10n_ua_claim`: claims on serial numbers, warranty from the acceptance act, contract deadlines, investigation, decision, history in the passport |
+| Vehicles: waybills, fuel norms, fuel write-off (подорожні листи, ПММ) | done | `l10n_ua_fleet` on native `fleet`: each vehicle has its own "tank" location; the waybill takes odometer, tonne-km and engine hours, the norm with seasonal and city adjustments (company settings), refuels from stock or a fuel station, and writes off actual use - within the norm to the vehicle's expense account, over it to a separate account; cancel restores fuel and odometer |
 
 ## 5. Retail (Роздріб)
 

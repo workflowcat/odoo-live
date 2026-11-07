@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 61. Моделей: 133. Методів: 480. Збережених полів на чужих моделях: 322.
+Модулів: 62. Моделей: 137. Методів: 489. Збережених полів на чужих моделях: 335.
 
 ## Зарплата
 
@@ -1449,6 +1449,14 @@
 | `action_ua_edo_documents()` | - | `l10n_ua_edo` |
 | `action_ua_edo_send()` | - | `l10n_ua_edo` |
 
+### `ua.fuel.norm.adjustment`
+
+наша модель · `l10n_ua_fleet`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `for_date(date, company)` | - | `l10n_ua_fleet` |
+
 ### `ua.navigation`
 
 наша модель · `l10n_ua_navigation`
@@ -1590,6 +1598,19 @@
 | --- | --- | --- |
 | `lot_names()` | - | `l10n_ua_unit_transfer` |
 
+### `ua.waybill`
+
+наша модель · `l10n_ua_fleet`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | Скасувати: рух палива сторнується, запис спідометра зникає. | `l10n_ua_fleet` |
+| `action_done()` | Закрити лист: заправки - у бак, фактична витрата - зі списанням за нормою. | `l10n_ua_fleet` |
+| `action_open()` | Видати лист водію: фіксуємо спідометр і залишок у баку. | `l10n_ua_fleet` |
+| `action_print()` | - | `l10n_ua_fleet` |
+| `action_reset_draft()` | - | `l10n_ua_fleet` |
+| `litres(value)` | 27,50 - літри для друку. | `l10n_ua_fleet` |
+
 ### `account.journal`
 
 доповнена модель · `l10n_ua_bank_1c`, `l10n_ua_bank_online`, `l10n_ua_prro`
@@ -1683,6 +1704,29 @@
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `ua_prro_letter` | Char | Літера в чеку ПРРО | `l10n_ua_prro` |
+
+### `fleet.vehicle`
+
+доповнена модель · `l10n_ua_fleet`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_ua_waybills()` | - | `l10n_ua_fleet` |
+| `ua_fuel_balance()` | Скільки палива зараз у баку. | `l10n_ua_fleet` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_expense_account_id` | Many2one | account.account | `l10n_ua_fleet` |
+| `ua_expense_location_id` | Many2one | stock.location | `l10n_ua_fleet` |
+| `ua_fuel_product_id` | Many2one | product.product | `l10n_ua_fleet` |
+| `ua_norm_base` | Float | Базова норма, л/100 км | `l10n_ua_fleet` |
+| `ua_norm_cargo` | Float | На транспортну роботу, л/100 т·км | `l10n_ua_fleet` |
+| `ua_norm_hour` | Float | Робота на місці, л/год | `l10n_ua_fleet` |
+| `ua_overnorm_account_id` | Many2one | account.account | `l10n_ua_fleet` |
+| `ua_overnorm_location_id` | Many2one | stock.location | `l10n_ua_fleet` |
+| `ua_tank_location_id` | Many2one | stock.location | `l10n_ua_fleet` |
+| `ua_warehouse_id` | Many2one | stock.warehouse | `l10n_ua_fleet` |
+| `ua_waybill_ids` | One2many | ua.waybill | `l10n_ua_fleet` |
 
 ### `mrp.bom`
 
@@ -1800,6 +1844,15 @@
 | `ua_contract_id` | Many2one | ua.contract | `l10n_ua_defense` |
 | `ua_passport_number` | Char | Номер паспорта | `l10n_ua_defense` |
 | `ua_unit_transfer_id` | Many2one | ua.unit.transfer | `l10n_ua_unit_transfer` |
+
+### `stock.move`
+
+доповнена модель · `l10n_ua_fleet`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_waybill_id` | Many2one | ua.waybill | `l10n_ua_fleet` |
+| `ua_waybill_reversed` | Boolean | Сторновано скасуванням листа | `l10n_ua_fleet` |
 
 ### `stock.move.line`
 

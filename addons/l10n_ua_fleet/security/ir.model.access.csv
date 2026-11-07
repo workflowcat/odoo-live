@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_waybill_user,ua.waybill user,model_ua_waybill,fleet.fleet_group_user,1,1,1,0
+access_ua_waybill_manager,ua.waybill manager,model_ua_waybill,fleet.fleet_group_manager,1,1,1,1
+access_ua_waybill_account,ua.waybill account,model_ua_waybill,account.group_account_readonly,1,0,0,0
+access_ua_waybill_refuel_user,ua.waybill.refuel user,model_ua_waybill_refuel,fleet.fleet_group_user,1,1,1,1
+access_ua_waybill_refuel_account,ua.waybill.refuel account,model_ua_waybill_refuel,account.group_account_readonly,1,0,0,0
+access_ua_fuel_norm_adjustment_user,ua.fuel.norm.adjustment user,model_ua_fuel_norm_adjustment,fleet.fleet_group_user,1,0,0,0
+access_ua_fuel_norm_adjustment_manager,ua.fuel.norm.adjustment manager,model_ua_fuel_norm_adjustment,fleet.fleet_group_manager,1,1,1,1
+access_ua_fuel_norm_adjustment_account,ua.fuel.norm.adjustment account,model_ua_fuel_norm_adjustment,account.group_account_readonly,1,0,0,0

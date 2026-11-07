@@ -155,6 +155,14 @@ Notable changes for people who run or build on this code. Module-level API chang
   what was sold from there, invoices the commissioner and books the commission bill with an offset.
   Percent commission or a fixed consignor price; cancel undoes documents and stock; unsold goods return
   in one step. Print form of the commissioner's report. Tests: `ua_commission`.
+- `l10n_ua_fleet`: waybills and fuel accounting on native `fleet`. Fuel issued to a vehicle stays company
+  stock in the vehicle's own "Бак" location. The waybill records odometer, tonne-km and engine hours,
+  computes the norm (base l/100 km, cargo l/100 t·km, l/hour, times the sum of adjustments; adjustments
+  such as winter or city are company settings that can switch on by month), takes refuels from the
+  warehouse or a fuel station at the receipt price, and on closing writes off the actual use: within the
+  norm to the vehicle's expense account (23/91/92/93), the excess to its own account (949 or 375).
+  Opening checks the odometer and that the vehicle is not already out; cancel reverses fuel moves and the
+  odometer entry. Print form, pivot by vehicle and month. Tests: `ua_fleet`.
 
 ### Changed
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number
