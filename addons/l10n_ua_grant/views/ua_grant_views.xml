@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_grant_list" model="ir.ui.view">
+    <field name="name">ua.grant.list</field>
+    <field name="model">ua.grant</field>
+    <field name="arch" type="xml">
+      <list string="Гранти" decoration-muted="state == 'closed'" decoration-danger="over_budget">
+        <field name="name"/>
+        <field name="date" optional="show"/>
+        <field name="grantor_id"/>
+        <field name="program" optional="show"/>
+        <field name="date_end" optional="show"/>
+        <field name="report_due" optional="show"/>
+        <field name="amount" sum="Разом"/>
+        <field name="received" optional="show"/>
+        <field name="spent" optional="show"/>
+        <field name="to_recognize" optional="hide"/>
+        <field name="over_budget" column_invisible="1"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="state" widget="badge" decoration-success="state == 'active'"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_grant_form" model="ir.ui.view">
+    <field name="name">ua.grant.form</field>
+    <field name="model">ua.grant</field>
+    <field name="arch" type="xml">
+      <form string="Грант">
+        <header>
+          <button name="action_activate" type="object" string="Діє" class="btn-primary" invisible="state != 'draft'"/>
+          <button name="action_find_receipts" type="object" string="Знайти надходження" invisible="state != 'active'"/>
+          <button name="action_recognize" type="object" string="Визнати дохід" invisible="state != 'active' or not to_recognize"/>
+          <button name="action_print" type="object" string="Звіт про використання" invisible="state == 'draft'"/>
+          <button name="action_close" type="object" string="Закрити" invisible="state != 'active'"/>
+          <button name="action_draft" type="object" string="У чернетку" invisible="state == 'draft'"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_button_box" name="button_box">
+            <button name="action_view_moves" type="object" class="oe_stat_button" icon="fa-list" string="Проводки"
+                    invisible="not analytic_account_id"/>
+          </div>
+          <div class="oe_title">
+            <label for="name"/>
+            <h1><field name="name" placeholder="Номер угоди"/></h1>
+          </div>
+          <group>
+            <group>
+              <field name="grantor_id"/>
+              <field name="program"/>
+              <field name="date"/>
+              <field name="date_start"/>
+              <field name="date_end"/>
+              <field name="report_due"/>
+            </group>
+            <group>
+              <field name="amount"/>
+              <field name="budget_total"/>
+              <field name="received"/>
+              <field name="spent" decoration-danger="over_budget"/>
+              <field name="remaining"/>
+              <field name="recognized"/>
+              <field name="to_recognize"/>
+              <field name="over_budget" invisible="1"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Кошторис" name="budget">
+              <field name="line_ids">
+                <list editable="bottom" decoration-danger="over_budget">
+                  <field name="sequence" widget="handle"/>
+                  <field name="name"/>
+                  <field name="account_ids" widget="many2many_tags"/>
+                  <field name="amount" sum="Разом"/>
+                  <field name="spent" sum="Разом"/>
+                  <field name="remaining" sum="Разом"/>
+                  <field name="over_budget" column_invisible="1"/>
+                  <field name="currency_id" column_invisible="1"/>
+                </list>
+              </field>
+            </page>
+            <page string="Облік" name="accounting">
+              <group>
+                <group>
+                  <field name="funding_account_id"/>
+                  <field name="income_account_id"/>
+                  <field name="journal_id"/>
+                </group>
+                <group>
+                  <field name="analytic_account_id"/>
+                  <field name="company_id" groups="base.group_multi_company"/>
+                </group>
+              </group>
+              <div class="text-muted">
+                Витрати гранту - рядки з аналітикою гранту на рахунках статей. Надходження - кредит рахунку
+                цільового фінансування з цією аналітикою. Дохід визнається в міру використання, не більше отриманого.
+              </div>
+              <field name="move_ids" readonly="1">
+                <list>
+                  <field name="date"/>
+                  <field name="name"/>
+                  <field name="ref"/>
+                  <field name="amount_total_signed" string="Сума"/>
+                  <field name="state"/>
+                </list>
+              </field>
+            </page>
+            <page string="Умови" name="terms">
+              <field name="note" placeholder="Цілі, звітність, допустимі витрати, що робити із залишком"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_grant_search" model="ir.ui.view">
+    <field name="name">ua.grant.search</field>
+    <field name="model">ua.grant</field>
+    <field name="arch" type="xml">
+      <search string="Гранти">
+        <field name="name"/>
+        <field name="grantor_id"/>
+        <field name="program"/>
+        <filter name="active_grants" string="Діють" domain="[('state', '=', 'active')]"/>
+        <filter name="report_soon" string="Звіт за 30 днів"
+                domain="[('state', '=', 'active'), ('report_due', '&lt;=', (context_today() + relativedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+        <group>
+          <filter name="by_grantor" string="Грантодавець" context="{'group_by': 'grantor_id'}"/>
+          <filter name="by_program" string="Програма" context="{'group_by': 'program'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_grant" model="ir.actions.act_window">
+    <field name="name">Гранти</field>
+    <field name="res_model">ua.grant</field>
+    <field name="view_mode">list,form</field>
+    <field name="context">{'search_default_active_grants': 1}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Грантів ще немає</p>
+      <p>Угода, кошторис за статтями з рахунками витрат - і використання гранту видно з проводок з його аналітикою.</p>
+    </field>
+  </record>
+
+  <menuitem id="menu_ua_grant" name="Гранти" parent="account.menu_finance_entries" action="action_ua_grant"
+            sequence="30" groups="account.group_account_readonly"/>
+</odoo>

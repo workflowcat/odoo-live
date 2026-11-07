@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 68. Моделей: 148. Методів: 529. Збережених полів на чужих моделях: 358.
+Модулів: 69. Моделей: 149. Методів: 539. Збережених полів на чужих моделях: 359.
 
 ## Зарплата
 
@@ -1457,6 +1457,23 @@
 | --- | --- | --- |
 | `for_date(date, company)` | - | `l10n_ua_fleet` |
 
+### `ua.grant`
+
+наша модель · `l10n_ua_grant`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_activate()` | - | `l10n_ua_grant` |
+| `action_close()` | - | `l10n_ua_grant` |
+| `action_draft()` | - | `l10n_ua_grant` |
+| `action_find_receipts()` | Позначити грантом кредитові рядки 484 від грантодавця, що ще без аналітики. | `l10n_ua_grant` |
+| `action_print()` | - | `l10n_ua_grant` |
+| `action_recognize(date=None)` | Визнати доходом використане, але не більше отриманого. | `l10n_ua_grant` |
+| `action_view_moves()` | - | `l10n_ua_grant` |
+| `money(value)` | - | `l10n_ua_grant` |
+| `ua_analytic_distribution()` | Розподіл для рядків документів, що йдуть у грант. | `l10n_ua_grant` |
+| `ua_fresh()` | Суми з проводок, а не з кешу: проводки не є залежністю полів. | `l10n_ua_grant` |
+
 ### `ua.guarantee`
 
 наша модель · `l10n_ua_guarantee`
@@ -1679,7 +1696,7 @@
 
 ### `account.move`
 
-доповнена модель · `bp_purchase_intake`, `l10n_ua_close`, `l10n_ua_commission`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_edo`, `l10n_ua_prro`, `l10n_ua_tolling`, `l10n_ua_vat`
+доповнена модель · `bp_purchase_intake`, `l10n_ua_close`, `l10n_ua_commission`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_edo`, `l10n_ua_grant`, `l10n_ua_prro`, `l10n_ua_tolling`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1701,6 +1718,7 @@
 | `ua_customs_move_id` | Many2one | account.move | `l10n_ua_vat` |
 | `ua_customs_vat` | Monetary | Митний ПДВ | `l10n_ua_vat` |
 | `ua_fe_kind` | Selection | Проводка першої події | `l10n_ua_vat` |
+| `ua_grant_id` | Many2one | ua.grant | `l10n_ua_grant` |
 | `ua_in_pn_registered` | Boolean | ПН постачальника зареєстрована | `l10n_ua_vat` |
 | `ua_pn_deadline` | Date | Граничний строк реєстрації ПН | `l10n_ua_vat` |
 | `ua_prro_receipt_ids` | Many2many | ua.prro.receipt | `l10n_ua_prro` |

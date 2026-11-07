@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 68,
-    "models": 148,
-    "methods": 529,
-    "fields": 358
+    "modules": 69,
+    "models": 149,
+    "methods": 539,
+    "fields": 359
   },
   "areas": [
     {
@@ -6606,6 +6606,98 @@
           "fields": []
         },
         {
+          "model": "ua.grant",
+          "ours": true,
+          "modules": [
+            "l10n_ua_grant"
+          ],
+          "methods": [
+            {
+              "name": "action_activate",
+              "signature": "action_activate()",
+              "doc": "",
+              "module": "l10n_ua_grant",
+              "file": "addons/l10n_ua_grant/models/ua_grant.py",
+              "decorators": []
+            },
+            {
+              "name": "action_close",
+              "signature": "action_close()",
+              "doc": "",
+              "module": "l10n_ua_grant",
+              "file": "addons/l10n_ua_grant/models/ua_grant.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_grant",
+              "file": "addons/l10n_ua_grant/models/ua_grant.py",
+              "decorators": []
+            },
+            {
+              "name": "action_find_receipts",
+              "signature": "action_find_receipts()",
+              "doc": "Позначити грантом кредитові рядки 484 від грантодавця, що ще без аналітики.",
+              "module": "l10n_ua_grant",
+              "file": "addons/l10n_ua_grant/models/ua_grant.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_grant",
+              "file": "addons/l10n_ua_grant/models/ua_grant.py",
+              "decorators": []
+            },
+            {
+              "name": "action_recognize",
+              "signature": "action_recognize(date=None)",
+              "doc": "Визнати доходом використане, але не більше отриманого.",
+              "module": "l10n_ua_grant",
+              "file": "addons/l10n_ua_grant/models/ua_grant.py",
+              "decorators": []
+            },
+            {
+              "name": "action_view_moves",
+              "signature": "action_view_moves()",
+              "doc": "",
+              "module": "l10n_ua_grant",
+              "file": "addons/l10n_ua_grant/models/ua_grant.py",
+              "decorators": []
+            },
+            {
+              "name": "money",
+              "signature": "money(value)",
+              "doc": "",
+              "module": "l10n_ua_grant",
+              "file": "addons/l10n_ua_grant/models/ua_grant.py",
+              "decorators": [
+                "staticmethod"
+              ]
+            },
+            {
+              "name": "ua_analytic_distribution",
+              "signature": "ua_analytic_distribution()",
+              "doc": "Розподіл для рядків документів, що йдуть у грант.",
+              "module": "l10n_ua_grant",
+              "file": "addons/l10n_ua_grant/models/ua_grant.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_fresh",
+              "signature": "ua_fresh()",
+              "doc": "Суми з проводок, а не з кешу: проводки не є залежністю полів.",
+              "module": "l10n_ua_grant",
+              "file": "addons/l10n_ua_grant/models/ua_grant.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.guarantee",
           "ours": true,
           "modules": [
@@ -7545,6 +7637,7 @@
             "l10n_ua_contract",
             "l10n_ua_docs",
             "l10n_ua_edo",
+            "l10n_ua_grant",
             "l10n_ua_prro",
             "l10n_ua_tolling",
             "l10n_ua_vat"
@@ -7670,6 +7763,14 @@
               "label": "Проводка першої події",
               "module": "l10n_ua_vat",
               "file": "addons/l10n_ua_vat/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_grant_id",
+              "type": "Many2one",
+              "label": "ua.grant",
+              "module": "l10n_ua_grant",
+              "file": "addons/l10n_ua_grant/models/ua_grant.py",
               "groups": ""
             },
             {

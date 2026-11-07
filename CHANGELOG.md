@@ -201,6 +201,11 @@ Notable changes for people who run or build on this code. Module-level API chang
   to the sheet's expense account and keeps quantities per employee with wear-until dates. Return puts the item
   back at the issue cost, write-off prints an act, and the personal card shows norms and everything issued.
   Tests: `ua_workwear`.
+- `l10n_ua_grant`: grants and targeted financing. A grant agreement gets its own analytic account and a
+  budget by items, each with its expense accounts; tagged entries on those accounts are the use of the grant,
+  with overspend per item. Receipts are credits to 484 from the grantor (a button tags untagged ones);
+  income is recognised as funds are used, never above what was received (Dr 484 Cr 718). Usage report print.
+  Tests: `ua_grant`.
 
 ### Changed
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number

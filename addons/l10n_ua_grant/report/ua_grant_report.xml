@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_grant" model="ir.actions.report">
+    <field name="name">Звіт про використання гранту</field>
+    <field name="model">ua.grant</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_grant.report_ua_grant</field>
+    <field name="report_file">l10n_ua_grant.report_ua_grant</field>
+    <field name="binding_model_id" ref="model_ua_grant"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Звіт про використання гранту %s' % (object.name or '')</field>
+  </record>
+
+  <template id="report_ua_grant">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <style>
+            .ua-doc { font-size: 10.5px; color: #000; }
+            .ua-doc h3 { font-size: 13px; text-align: center; margin: 4px 0; }
+            .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+            .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin: 6px 0; }
+            .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 4px; }
+            .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+            .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+            .ua-doc .ua-sign { width: 100%; margin-top: 18px; }
+            .ua-doc .ua-sign td { width: 50%; vertical-align: top; padding: 12px 12px 0 0; }
+          </style>
+          <t t-set="fresh" t-value="doc.ua_fresh()"/>
+          <div class="ua-doc">
+            <div><t t-out="doc.company_id.name"/></div>
+            <h3>ЗВІТ ПРО ВИКОРИСТАННЯ КОШТІВ ГРАНТУ</h3>
+            <div class="ua-sub">угода № <t t-out="doc.name"/> від <t t-out="doc.date.strftime('%d.%m.%Y')"/>;
+              грантодавець: <t t-out="doc.grantor_id.name"/><t t-if="doc.program">; програма: <t t-out="doc.program"/></t></div>
+            <table class="ua-grid">
+              <thead><tr><th style="width: 5%;">№</th><th>Стаття</th><th style="width: 16%;">За кошторисом</th>
+                <th style="width: 16%;">Використано</th><th style="width: 16%;">Залишок</th></tr></thead>
+              <tbody>
+                <tr t-foreach="doc.line_ids" t-as="line">
+                  <td style="text-align: center;"><t t-out="line_index + 1"/></td>
+                  <td><t t-out="line.name"/><t t-if="line.over_budget"> (перевитрата)</t></td>
+                  <td class="ua-num"><t t-out="doc.money(line.amount)"/></td>
+                  <td class="ua-num"><t t-out="doc.money(line.spent)"/></td>
+                  <td class="ua-num"><t t-out="doc.money(line.remaining)"/></td>
+                </tr>
+                <tr><td></td><td>Разом</td>
+                  <td class="ua-num"><t t-out="doc.money(doc.budget_total)"/></td>
+                  <td class="ua-num"><t t-out="doc.money(doc.spent)"/></td>
+                  <td class="ua-num"><t t-out="doc.money(doc.budget_total - doc.spent)"/></td></tr>
+              </tbody>
+            </table>
+            <table class="ua-grid">
+              <tr><td>Сума гранту за угодою</td><td class="ua-num"><t t-out="doc.money(doc.amount)"/></td></tr>
+              <tr><td>Отримано</td><td class="ua-num"><t t-out="doc.money(doc.received)"/></td></tr>
+              <tr><td>Використано</td><td class="ua-num"><t t-out="doc.money(doc.spent)"/></td></tr>
+              <tr><td>Залишок отриманих коштів</td><td class="ua-num"><t t-out="doc.money(doc.remaining)"/></td></tr>
+            </table>
+            <table class="ua-sign"><tr>
+              <td>Керівник<br/><br/>______________ / ______________________</td>
+              <td>Головний бухгалтер<br/><br/>______________ / ______________________</td>
+            </tr></table>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

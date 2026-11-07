@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_grant_readonly,ua.grant readonly,model_ua_grant,account.group_account_readonly,1,0,0,0
+access_ua_grant_accountant,ua.grant accountant,model_ua_grant,account.group_account_user,1,1,1,1
+access_ua_grant_line_readonly,ua.grant.line readonly,model_ua_grant_line,account.group_account_readonly,1,0,0,0
+access_ua_grant_line_accountant,ua.grant.line accountant,model_ua_grant_line,account.group_account_user,1,1,1,1

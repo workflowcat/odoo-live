@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+    <!-- План аналітики для грантів: кожен грант має тут свій рахунок. -->
+    <record id="analytic_plan_grants" model="account.analytic.plan">
+      <field name="name">Гранти</field>
+    </record>
+  </data>
+</odoo>

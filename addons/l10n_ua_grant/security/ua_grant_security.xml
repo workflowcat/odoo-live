@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="rule_ua_grant_company" model="ir.rule">
+    <field name="name">Грант: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_grant"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_ua_grant_line_company" model="ir.rule">
+    <field name="name">Стаття кошторису гранту: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_grant_line"/>
+    <field name="domain_force">[('grant_id.company_id', 'in', company_ids)]</field>
+  </record>
+</odoo>
