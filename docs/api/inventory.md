@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 52. Моделей: 114. Методів: 386. Збережених полів на чужих моделях: 300.
+Модулів: 53. Моделей: 118. Методів: 396. Збережених полів на чужих моделях: 305.
 
 ## Зарплата
 
@@ -965,7 +965,7 @@
 
 ### `account.move`
 
-доповнена модель · `bp_purchase_intake`, `l10n_ua_close`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_tolling`, `l10n_ua_vat`
+доповнена модель · `bp_purchase_intake`, `l10n_ua_close`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_prro`, `l10n_ua_tolling`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -973,6 +973,7 @@
 | `action_ua_close_first_events()` | Кнопка «Закрити першу подію» - страховка, коли автоматика не | `l10n_ua_vat` |
 | `action_ua_create_tax_invoice()` | Кнопка «Скласти податкову накладну». | `l10n_ua_vat` |
 | `action_ua_post_customs_vat()` | «Взяти в кредит»: проводка Дт 6412 / Кт 3771 на суму ПДВ із митної | `l10n_ua_vat` |
+| `action_ua_prro_receipts()` | - | `l10n_ua_prro` |
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
@@ -987,6 +988,7 @@
 | `ua_fe_kind` | Selection | Проводка першої події | `l10n_ua_vat` |
 | `ua_in_pn_registered` | Boolean | ПН постачальника зареєстрована | `l10n_ua_vat` |
 | `ua_pn_deadline` | Date | Граничний строк реєстрації ПН | `l10n_ua_vat` |
+| `ua_prro_receipt_ids` | Many2many | ua.prro.receipt | `l10n_ua_prro` |
 | `ua_tolling_id` | Many2one | ua.tolling.order | `l10n_ua_tolling` |
 | `ua_vat_comp` | Boolean | Проводка компенсуючих ПЗ | `l10n_ua_vat` |
 | `ua_vat_document_ids` | One2many | ua.vat.document | `l10n_ua_vat` |
@@ -1379,6 +1381,36 @@
 | `action_submit()` | - | `l10n_ua_payment_request` |
 | `calendar_rows(date_from, date_to, company=None)` | Платіжний календар: заявки на погодженні й погоджені за датами оплати. | `l10n_ua_payment_request` |
 
+### `ua.prro.receipt`
+
+наша модель · `l10n_ua_prro`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | - | `l10n_ua_prro` |
+| `action_open_url()` | - | `l10n_ua_prro` |
+| `action_send()` | - | `l10n_ua_prro` |
+
+### `ua.prro.register`
+
+наша модель · `l10n_ua_prro`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_close_shift()` | - | `l10n_ua_prro` |
+| `action_service_in()` | - | `l10n_ua_prro` |
+| `action_service_out()` | - | `l10n_ua_prro` |
+| `service_operation(kind, amount)` | Службове внесення чи видача готівки: чек без товарів, лише сума. | `l10n_ua_prro` |
+
+### `ua.prro.shift`
+
+наша модель · `l10n_ua_prro`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_close()` | - | `l10n_ua_prro` |
+| `local_totals()` | Підсумки зміни за чеками в обліку - те, з чим звіряється Z-звіт. | `l10n_ua_prro` |
+
 ### `ua.reconciliation.act`
 
 наша модель · `l10n_ua_contract`
@@ -1424,12 +1456,17 @@
 
 ### `account.journal`
 
-доповнена модель · `l10n_ua_bank_1c`, `l10n_ua_bank_online`
+доповнена модель · `l10n_ua_bank_1c`, `l10n_ua_bank_online`, `l10n_ua_prro`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
 | `action_ua_bank_provider()` | «З'єднання з банком»: наявне відкриваємо, відсутнє - показуємо перелік. | `l10n_ua_bank_online` |
 | `action_ua_bank_test()` | «Перевірити з'єднання» на формі банківського журналу. | `l10n_ua_bank_online` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_prro_payment_type` | Selection | - | `l10n_ua_prro` |
+| `ua_prro_register_id` | Many2one | ua.prro.register | `l10n_ua_prro` |
 
 ### `account.move.line`
 
@@ -1442,7 +1479,7 @@
 
 ### `account.payment`
 
-доповнена модель · `l10n_ua_bank_1c`, `l10n_ua_cash`, `l10n_ua_contract`, `l10n_ua_fop`, `l10n_ua_vat`
+доповнена модель · `l10n_ua_bank_1c`, `l10n_ua_cash`, `l10n_ua_contract`, `l10n_ua_fop`, `l10n_ua_prro`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1462,14 +1499,23 @@
 | `ua_order_kind` | Selection | Вид касового ордера | `l10n_ua_cash` |
 | `ua_order_number` | Char | Номер ордера | `l10n_ua_cash` |
 | `ua_person` | Char | Прийнято від / Видати | `l10n_ua_cash` |
+| `ua_prro_receipt_ids` | One2many | ua.prro.receipt | `l10n_ua_prro` |
 
 ### `account.payment.register`
 
-доповнена модель · `l10n_ua_contract`
+доповнена модель · `l10n_ua_contract`, `l10n_ua_prro`
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `ua_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
+
+### `account.tax`
+
+доповнена модель · `l10n_ua_prro`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_prro_letter` | Char | Літера в чеку ПРРО | `l10n_ua_prro` |
 
 ### `mrp.production`
 

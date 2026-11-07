@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="rule_ua_prro_register_company" model="ir.rule">
+    <field name="name">Каси ПРРО: своя компанія</field>
+    <field name="model_id" ref="model_ua_prro_register"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_ua_prro_shift_company" model="ir.rule">
+    <field name="name">Зміни ПРРО: своя компанія</field>
+    <field name="model_id" ref="model_ua_prro_shift"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_ua_prro_receipt_company" model="ir.rule">
+    <field name="name">Фіскальні чеки: своя компанія</field>
+    <field name="model_id" ref="model_ua_prro_receipt"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+</odoo>

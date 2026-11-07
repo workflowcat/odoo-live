@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Каси -->
+  <record id="view_ua_prro_register_list" model="ir.ui.view">
+    <field name="name">ua.prro.register.list</field>
+    <field name="model">ua.prro.register</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="name"/>
+        <field name="fiscal_number"/>
+        <field name="mode"/>
+        <field name="location" optional="show"/>
+        <field name="current_shift_id"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+      </list>
+    </field>
+  </record>
+  <record id="view_ua_prro_register_form" model="ir.ui.view">
+    <field name="name">ua.prro.register.form</field>
+    <field name="model">ua.prro.register</field>
+    <field name="arch" type="xml">
+      <form string="Каса ПРРО">
+        <header>
+          <button name="action_service_in" type="object" string="Службове внесення"
+                  groups="account.group_account_invoice"/>
+          <button name="action_service_out" type="object" string="Службова видача"
+                  groups="account.group_account_invoice"/>
+          <button name="action_close_shift" type="object" string="Закрити зміну (Z-звіт)"
+                  invisible="not current_shift_id" groups="account.group_account_invoice"/>
+        </header>
+        <sheet>
+          <widget name="web_ribbon" title="Навчальний режим" bg_color="text-bg-warning"
+                  invisible="mode != 'test'"/>
+          <div class="oe_title"><h1><field name="name" placeholder="Каса магазину"/></h1></div>
+          <group>
+            <group>
+              <field name="mode"/>
+              <field name="provider" invisible="mode != 'bridge'"/>
+              <field name="fiscal_number" required="mode == 'bridge'"/>
+              <field name="location"/>
+            </group>
+            <group>
+              <field name="auto_send"/>
+              <field name="auto_close_shift"/>
+              <field name="current_shift_id"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+              <field name="active" invisible="1"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Журнали оплат" name="journals">
+              <field name="journal_ids" readonly="1">
+                <list>
+                  <field name="name"/>
+                  <field name="type"/>
+                  <field name="ua_prro_payment_type"/>
+                </list>
+              </field>
+              <p class="text-muted">Касу обирають у картці журналу готівки чи термінала.</p>
+            </page>
+            <page string="Зміни" name="shifts">
+              <field name="shift_ids" readonly="1">
+                <list>
+                  <field name="name"/>
+                  <field name="opened_at"/>
+                  <field name="closed_at"/>
+                  <field name="receipt_count"/>
+                  <field name="z_number"/>
+                  <field name="z_mismatch"/>
+                  <field name="state"/>
+                </list>
+              </field>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+  <record id="action_ua_prro_register" model="ir.actions.act_window">
+    <field name="name">Каси ПРРО</field>
+    <field name="res_model">ua.prro.register</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiley_face">Кас ПРРО ще немає</p>
+      <p>Почніть у навчальному режимі: чеки отримають номер «ТЕСТ-…» і нікуди не підуть.
+        Для справжніх чеків потрібен сервіс ПРРО за мостом інтеграцій.</p>
+    </field>
+  </record>
+
+  <!-- Зміни -->
+  <record id="view_ua_prro_shift_list" model="ir.ui.view">
+    <field name="name">ua.prro.shift.list</field>
+    <field name="model">ua.prro.shift</field>
+    <field name="arch" type="xml">
+      <list decoration-danger="z_mismatch" decoration-info="state == 'open'">
+        <field name="name"/>
+        <field name="register_id"/>
+        <field name="opened_at"/>
+        <field name="closed_at"/>
+        <field name="receipt_count"/>
+        <field name="sales_cash" sum="Разом"/>
+        <field name="sales_card" sum="Разом"/>
+        <field name="returns_total" sum="Разом"/>
+        <field name="z_number"/>
+        <field name="z_mismatch"/>
+        <field name="state"/>
+        <field name="currency_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+  <record id="view_ua_prro_shift_form" model="ir.ui.view">
+    <field name="name">ua.prro.shift.form</field>
+    <field name="model">ua.prro.shift</field>
+    <field name="arch" type="xml">
+      <form string="Зміна ПРРО" create="0">
+        <header>
+          <button name="action_close" type="object" string="Закрити зміну (Z-звіт)"
+                  class="btn-primary" invisible="state != 'open'"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <widget name="web_ribbon" title="Розбіжність" bg_color="text-bg-danger"
+                  invisible="not z_mismatch"/>
+          <div class="oe_title"><h1><field name="name"/></h1></div>
+          <group>
+            <group>
+              <field name="register_id"/>
+              <field name="opened_at"/>
+              <field name="closed_at"/>
+              <field name="provider_shift_id"/>
+              <field name="z_number"/>
+              <field name="z_url" widget="url"/>
+            </group>
+            <group>
+              <field name="receipt_count"/>
+              <field name="sales_cash"/>
+              <field name="sales_card"/>
+              <field name="returns_total"/>
+              <field name="service_in"/>
+              <field name="service_out"/>
+              <field name="cash_balance"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+          </group>
+          <group invisible="not z_totals">
+            <field name="z_totals"/>
+          </group>
+          <field name="receipt_ids" readonly="1">
+            <list>
+              <field name="name"/>
+              <field name="kind"/>
+              <field name="payment_type"/>
+              <field name="amount_total"/>
+              <field name="fiscal_code"/>
+              <field name="state"/>
+              <field name="currency_id" column_invisible="1"/>
+            </list>
+          </field>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+  <record id="action_ua_prro_shift" model="ir.actions.act_window">
+    <field name="name">Зміни ПРРО</field>
+    <field name="res_model">ua.prro.shift</field>
+    <field name="view_mode">list,form</field>
+  </record>
+
+  <!-- Чеки -->
+  <record id="view_ua_prro_receipt_list" model="ir.ui.view">
+    <field name="name">ua.prro.receipt.list</field>
+    <field name="model">ua.prro.receipt</field>
+    <field name="arch" type="xml">
+      <list create="0" decoration-danger="state == 'error'" decoration-muted="state == 'cancel'">
+        <field name="name"/>
+        <field name="fiscal_date"/>
+        <field name="register_id"/>
+        <field name="kind"/>
+        <field name="payment_type"/>
+        <field name="partner_id" optional="show"/>
+        <field name="amount_total" sum="Разом"/>
+        <field name="fiscal_code"/>
+        <field name="offline" optional="hide"/>
+        <field name="state" widget="badge" decoration-success="state == 'done'"
+               decoration-danger="state == 'error'"/>
+        <field name="currency_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+  <record id="view_ua_prro_receipt_search" model="ir.ui.view">
+    <field name="name">ua.prro.receipt.search</field>
+    <field name="model">ua.prro.receipt</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="name"/>
+        <field name="fiscal_code"/>
+        <field name="partner_id"/>
+        <filter name="error" string="Не надіслано" domain="[('state', '=', 'error')]"/>
+        <filter name="offline" string="Офлайн" domain="[('offline', '=', True)]"/>
+        <filter name="returns" string="Повернення" domain="[('kind', '=', 'return')]"/>
+        <group>
+          <filter name="by_register" string="Каса" context="{'group_by': 'register_id'}"/>
+          <filter name="by_shift" string="Зміна" context="{'group_by': 'shift_id'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+  <record id="view_ua_prro_receipt_form" model="ir.ui.view">
+    <field name="name">ua.prro.receipt.form</field>
+    <field name="model">ua.prro.receipt</field>
+    <field name="arch" type="xml">
+      <form string="Фіскальний чек">
+        <header>
+          <button name="action_send" type="object" string="Надіслати" class="btn-primary"
+                  invisible="state not in ('draft', 'error')"/>
+          <button name="action_open_url" type="object" string="Чек у сервісі"
+                  invisible="not receipt_url"/>
+          <button name="action_cancel" type="object" string="Скасувати"
+                  invisible="state not in ('draft', 'error')"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name"/></h1></div>
+          <group>
+            <group>
+              <field name="register_id" readonly="id"/>
+              <field name="kind" readonly="id"/>
+              <field name="payment_type" readonly="id"/>
+              <field name="service_amount" invisible="kind not in ('service_in', 'service_out')"
+                     readonly="state != 'draft'"/>
+              <field name="amount_total"/>
+              <field name="partner_id" invisible="not partner_id"/>
+              <field name="move_ids" widget="many2many_tags" invisible="not move_ids"/>
+              <field name="payment_id" invisible="not payment_id"/>
+              <field name="related_id" invisible="not related_id"/>
+            </group>
+            <group>
+              <field name="fiscal_code"/>
+              <field name="fiscal_date"/>
+              <field name="offline" invisible="not offline"/>
+              <field name="shift_id"/>
+              <field name="uuid"/>
+              <field name="attempts"/>
+              <field name="receipt_url" invisible="1"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+          </group>
+          <group invisible="not error">
+            <field name="error"/>
+          </group>
+          <field name="line_ids" invisible="kind in ('service_in', 'service_out')">
+            <list>
+              <field name="name"/>
+              <field name="quantity"/>
+              <field name="uom_name"/>
+              <field name="price_unit"/>
+              <field name="discount_amount"/>
+              <field name="amount" sum="Разом"/>
+              <field name="tax_rate"/>
+              <field name="tax_letter"/>
+              <field name="currency_id" column_invisible="1"/>
+            </list>
+          </field>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+  <record id="action_ua_prro_receipt" model="ir.actions.act_window">
+    <field name="name">Фіскальні чеки</field>
+    <field name="res_model">ua.prro.receipt</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_ua_prro_receipt_search"/>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiley_face">Фіскальних чеків ще немає</p>
+      <p>Чек з'являється сам, коли покупець платить у журналі, прив'язаному до каси ПРРО.</p>
+    </field>
+  </record>
+
+  <menuitem id="menu_ua_prro_receipts" name="Фіскальні чеки" parent="account.menu_finance_receivables"
+            action="action_ua_prro_receipt" sequence="40"/>
+  <menuitem id="menu_ua_prro_shifts" name="Зміни ПРРО" parent="account.menu_finance_receivables"
+            action="action_ua_prro_shift" sequence="41"/>
+  <menuitem id="menu_ua_prro_registers" name="Каси ПРРО" parent="account.menu_finance_configuration"
+            action="action_ua_prro_register" sequence="30" groups="account.group_account_manager"/>
+</odoo>

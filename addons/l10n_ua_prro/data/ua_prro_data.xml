@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+    <record id="seq_ua_prro_receipt" model="ir.sequence">
+      <field name="name">Фіскальні чеки</field>
+      <field name="code">ua.prro.receipt</field>
+      <field name="prefix">ФЧ/%(range_year)s/</field>
+      <field name="padding">5</field>
+      <field name="use_date_range">True</field>
+      <field name="company_id" eval="False"/>
+    </record>
+    <record id="seq_ua_prro_shift" model="ir.sequence">
+      <field name="name">Зміни ПРРО</field>
+      <field name="code">ua.prro.shift</field>
+      <field name="prefix">ЗМ/%(range_year)s/</field>
+      <field name="padding">4</field>
+      <field name="use_date_range">True</field>
+      <field name="company_id" eval="False"/>
+    </record>
+  </data>
+  <record id="cron_ua_prro_retry" model="ir.cron">
+    <field name="name">ПРРО: повторити ненадіслані чеки, закрити довгі зміни</field>
+    <field name="model_id" ref="model_ua_prro_receipt"/>
+    <field name="state">code</field>
+    <field name="code">model._cron_retry()</field>
+    <field name="interval_number">15</field>
+    <field name="interval_type">minutes</field>
+    <field name="active">True</field>
+  </record>
+</odoo>

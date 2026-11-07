@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_prro_register_invoice,ua.prro.register invoicing,model_ua_prro_register,account.group_account_invoice,1,0,0,0
+access_ua_prro_register_readonly,ua.prro.register readonly,model_ua_prro_register,account.group_account_readonly,1,0,0,0
+access_ua_prro_register_manager,ua.prro.register manager,model_ua_prro_register,account.group_account_manager,1,1,1,0
+access_ua_prro_shift_invoice,ua.prro.shift invoicing,model_ua_prro_shift,account.group_account_invoice,1,1,1,0
+access_ua_prro_shift_readonly,ua.prro.shift readonly,model_ua_prro_shift,account.group_account_readonly,1,0,0,0
+access_ua_prro_receipt_invoice,ua.prro.receipt invoicing,model_ua_prro_receipt,account.group_account_invoice,1,1,1,0
+access_ua_prro_receipt_readonly,ua.prro.receipt readonly,model_ua_prro_receipt,account.group_account_readonly,1,0,0,0
+access_ua_prro_receipt_line_invoice,ua.prro.receipt.line invoicing,model_ua_prro_receipt_line,account.group_account_invoice,1,1,1,0
+access_ua_prro_receipt_line_readonly,ua.prro.receipt.line readonly,model_ua_prro_receipt_line,account.group_account_readonly,1,0,0,0

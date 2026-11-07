@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 52,
-    "models": 114,
-    "methods": 386,
-    "fields": 300
+    "modules": 53,
+    "models": 118,
+    "methods": 396,
+    "fields": 305
   },
   "areas": [
     {
@@ -4369,6 +4369,7 @@
             "l10n_ua_close",
             "l10n_ua_contract",
             "l10n_ua_docs",
+            "l10n_ua_prro",
             "l10n_ua_tolling",
             "l10n_ua_vat"
           ],
@@ -4403,6 +4404,14 @@
               "doc": "«Взяти в кредит»: проводка Дт 6412 / Кт 3771 на суму ПДВ із митної",
               "module": "l10n_ua_vat",
               "file": "addons/l10n_ua_vat/models/account_move.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_prro_receipts",
+              "signature": "action_ua_prro_receipts()",
+              "doc": "",
+              "module": "l10n_ua_prro",
+              "file": "addons/l10n_ua_prro/models/account.py",
               "decorators": []
             }
           ],
@@ -4493,6 +4502,14 @@
               "label": "Граничний строк реєстрації ПН",
               "module": "l10n_ua_vat",
               "file": "addons/l10n_ua_vat/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_prro_receipt_ids",
+              "type": "Many2many",
+              "label": "ua.prro.receipt",
+              "module": "l10n_ua_prro",
+              "file": "addons/l10n_ua_prro/models/account.py",
               "groups": ""
             },
             {
@@ -6200,6 +6217,108 @@
           "fields": []
         },
         {
+          "model": "ua.prro.receipt",
+          "ours": true,
+          "modules": [
+            "l10n_ua_prro"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_prro",
+              "file": "addons/l10n_ua_prro/models/ua_prro.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_url",
+              "signature": "action_open_url()",
+              "doc": "",
+              "module": "l10n_ua_prro",
+              "file": "addons/l10n_ua_prro/models/ua_prro.py",
+              "decorators": []
+            },
+            {
+              "name": "action_send",
+              "signature": "action_send()",
+              "doc": "",
+              "module": "l10n_ua_prro",
+              "file": "addons/l10n_ua_prro/models/ua_prro.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.prro.register",
+          "ours": true,
+          "modules": [
+            "l10n_ua_prro"
+          ],
+          "methods": [
+            {
+              "name": "action_close_shift",
+              "signature": "action_close_shift()",
+              "doc": "",
+              "module": "l10n_ua_prro",
+              "file": "addons/l10n_ua_prro/models/ua_prro.py",
+              "decorators": []
+            },
+            {
+              "name": "action_service_in",
+              "signature": "action_service_in()",
+              "doc": "",
+              "module": "l10n_ua_prro",
+              "file": "addons/l10n_ua_prro/models/ua_prro.py",
+              "decorators": []
+            },
+            {
+              "name": "action_service_out",
+              "signature": "action_service_out()",
+              "doc": "",
+              "module": "l10n_ua_prro",
+              "file": "addons/l10n_ua_prro/models/ua_prro.py",
+              "decorators": []
+            },
+            {
+              "name": "service_operation",
+              "signature": "service_operation(kind, amount)",
+              "doc": "Службове внесення чи видача готівки: чек без товарів, лише сума.",
+              "module": "l10n_ua_prro",
+              "file": "addons/l10n_ua_prro/models/ua_prro.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.prro.shift",
+          "ours": true,
+          "modules": [
+            "l10n_ua_prro"
+          ],
+          "methods": [
+            {
+              "name": "action_close",
+              "signature": "action_close()",
+              "doc": "",
+              "module": "l10n_ua_prro",
+              "file": "addons/l10n_ua_prro/models/ua_prro.py",
+              "decorators": []
+            },
+            {
+              "name": "local_totals",
+              "signature": "local_totals()",
+              "doc": "Підсумки зміни за чеками в обліку - те, з чим звіряється Z-звіт.",
+              "module": "l10n_ua_prro",
+              "file": "addons/l10n_ua_prro/models/ua_prro.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.reconciliation.act",
           "ours": true,
           "modules": [
@@ -6412,7 +6531,8 @@
           "ours": false,
           "modules": [
             "l10n_ua_bank_1c",
-            "l10n_ua_bank_online"
+            "l10n_ua_bank_online",
+            "l10n_ua_prro"
           ],
           "methods": [
             {
@@ -6432,7 +6552,24 @@
               "decorators": []
             }
           ],
-          "fields": []
+          "fields": [
+            {
+              "name": "ua_prro_payment_type",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_prro",
+              "file": "addons/l10n_ua_prro/models/account.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_prro_register_id",
+              "type": "Many2one",
+              "label": "ua.prro.register",
+              "module": "l10n_ua_prro",
+              "file": "addons/l10n_ua_prro/models/account.py",
+              "groups": ""
+            }
+          ]
         },
         {
           "model": "account.move.line",
@@ -6470,6 +6607,7 @@
             "l10n_ua_cash",
             "l10n_ua_contract",
             "l10n_ua_fop",
+            "l10n_ua_prro",
             "l10n_ua_vat"
           ],
           "methods": [
@@ -6578,6 +6716,14 @@
               "module": "l10n_ua_cash",
               "file": "addons/l10n_ua_cash/models/account_payment.py",
               "groups": ""
+            },
+            {
+              "name": "ua_prro_receipt_ids",
+              "type": "One2many",
+              "label": "ua.prro.receipt",
+              "module": "l10n_ua_prro",
+              "file": "addons/l10n_ua_prro/models/account.py",
+              "groups": ""
             }
           ]
         },
@@ -6585,7 +6731,8 @@
           "model": "account.payment.register",
           "ours": false,
           "modules": [
-            "l10n_ua_contract"
+            "l10n_ua_contract",
+            "l10n_ua_prro"
           ],
           "methods": [],
           "fields": [
@@ -6595,6 +6742,24 @@
               "label": "ua.contract",
               "module": "l10n_ua_contract",
               "file": "addons/l10n_ua_contract/models/account_payment.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "account.tax",
+          "ours": false,
+          "modules": [
+            "l10n_ua_prro"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_prro_letter",
+              "type": "Char",
+              "label": "Літера в чеку ПРРО",
+              "module": "l10n_ua_prro",
+              "file": "addons/l10n_ua_prro/models/account.py",
               "groups": ""
             }
           ]

@@ -70,6 +70,15 @@ Notable changes for people who run or build on this code. Module-level API chang
   closes the incoming that needs one; register print. Documents marked ДСК (for official use) get their own
   numbering with a -ДСК mark, only staff with clearance can register or see them, and a reply to one is ДСК
   too. Tests: `ua_correspondence`.
+- `l10n_ua_prro`: PRRO fiscal receipts. A PRRO register is linked to cash and card terminal journals; a
+  customer payment there makes a receipt: item by item when the documents are paid in full, one line per
+  VAT rate when part is paid. The receipt goes through the integration bridge to the PRRO service with an
+  idempotency key; a failure never undoes the payment, the receipt waits and a scheduler retries it. Returns
+  refer to the fiscal number of the sale; service cash in and out; shifts with cash balance and a Z-report
+  compared with the receipts in the books. Training mode works without the bridge. Bridge routes in
+  `docs/base/spec-prro.md`. Tests: `ua_prro`.
+- `l10n_ua_tolling`: finishing or cancelling an order no longer mixes pickings and manufacturing orders in
+  one recordset (it raised a type error).
 - `docs/customization.md` and `scripts/new_pack.py`: how a team adapts the product in its own module
   (data, fields, print forms, rules) without forking the core, and a generator for such a module.
 - `docs/parity/README.md`: what 1C/BAS gives a Ukrainian company, what this repository covers, the gaps

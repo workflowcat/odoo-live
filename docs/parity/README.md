@@ -78,7 +78,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | 1C/BAS feature | Here | Where / what is missing |
 | --- | --- | --- |
 | Point of sale | part | native `point_of_sale` |
-| **Fiscalisation (ПРРО/РРО)** | gap | bridge route to a PRRO service (Checkbox, Вчасно.Каса) or the DPS fiscal server; Z-reports into accounting |
+| **Fiscalisation (ПРРО/РРО)** | done | `l10n_ua_prro`: a receipt for each customer payment in a cash or terminal journal, returns, service cash in and out, shifts with the Z-report checked against the books; the PRRO service sits behind the bridge (`docs/base/spec-prro.md`), a training mode works without it. Receipts from the native point of sale are next |
 | Shop catalogue, price labels, cash discipline | part | `small_shop` pack (goods, in-store barcodes, weighed goods); price labels missing |
 
 ## 6. Document flow (Документообіг)
@@ -131,9 +131,10 @@ packs and their loader (`l10n_ua_catalog`); `docs/customization.md` and `scripts
 customs declaration (`l10n_ua_customs`); the 1C bank exchange file (`l10n_ua_bank_1c`);
 quality gate on defense production with results in the serial passport; month-end operations
 (`l10n_ua_close`) with Form 2 kept intact after closing; tolling (`l10n_ua_tolling`); payment requests with
-approval (`l10n_ua_payment_request`); the correspondence register with ДСК access (`l10n_ua_correspondence`).
+approval (`l10n_ua_payment_request`); the correspondence register with ДСК access (`l10n_ua_correspondence`);
+PRRO fiscal receipts through the bridge (`l10n_ua_prro`).
 
 Next, in this order:
 
-1. PRRO fiscalisation through a bridge route; price labels for the shop pack.
+1. Price labels for the shop pack; PRRO receipts from the native point of sale.
 2. УКТ ЗЕД classifier from official open data, once a source with a clear licence is found.
