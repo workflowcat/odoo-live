@@ -78,7 +78,7 @@ class UaEco(models.Model):
     bom_id = fields.Many2one(
         "mrp.bom", "Чинна специфікація", required=True, tracking=True, check_company=True,
         domain="[('product_tmpl_id', '=', product_tmpl_id)]",
-        compute="_compute_bom_id", store=True, readonly=False)
+        compute="_compute_bom_id", store=True, readonly=False, precompute=True)
     revision_from = fields.Integer("Було: зміна №", related="bom_id.ua_revision")
     new_bom_id = fields.Many2one("mrp.bom", "Нова специфікація", readonly=True, copy=False)
     reason = fields.Selection(REASONS, "Причина", required=True, default="improvement")

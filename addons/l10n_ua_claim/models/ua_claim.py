@@ -77,9 +77,11 @@ class UaClaim(models.Model):
     product_id = fields.Many2one(related="lot_id.product_id", store=True, string="Виріб")
     contract_id = fields.Many2one(
         "ua.contract", "Контракт", compute="_compute_contract", store=True, readonly=False,
+        precompute=True,
         check_company=True, tracking=True)
     partner_id = fields.Many2one(
         "res.partner", "Замовник", compute="_compute_partner", store=True, readonly=False,
+        precompute=True,
         required=True, tracking=True)
     partner_ref = fields.Char("Акт замовника №", help="Номер рекламаційного акта замовника.")
     partner_date = fields.Date("Акт замовника від")
@@ -100,9 +102,9 @@ class UaClaim(models.Model):
     in_warranty = fields.Boolean("У гарантії", compute="_compute_warranty", store=True)
 
     date_response_due = fields.Date("Відповісти до", compute="_compute_due", store=True,
-                                    readonly=False, tracking=True)
+                                    readonly=False, precompute=True, tracking=True)
     date_due = fields.Date("Усунути до", compute="_compute_due", store=True, readonly=False,
-                           tracking=True)
+                           precompute=True, tracking=True)
     date_responded = fields.Date("Відповідь надіслано", readonly=True, copy=False)
     date_closed = fields.Date("Закрито", readonly=True, copy=False)
     is_overdue = fields.Boolean("Прострочено", compute="_compute_is_overdue",

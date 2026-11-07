@@ -77,6 +77,8 @@ class TestUaPriceLabel(AccountTestInvoicingCommon):
     def test_04_opens_from_product_list(self):
         wizard = self.env["ua.price.label.wizard"].with_context(
             active_model="product.template", active_ids=self.coffee.product_tmpl_id.ids).create({})
+        # без цього адміністратор без макета звітів отримує майстер макета, а не друк
+        wizard = wizard.with_context(discard_logo_check=True)
         self.assertEqual(wizard.product_ids, self.coffee)
         action = wizard.action_print()
         self.assertEqual(action["report_name"], "l10n_ua_price_label.report_ua_price_label")
