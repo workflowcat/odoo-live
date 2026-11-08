@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_cashflow_item_user,ua.cashflow.item user,model_ua_cashflow_item,account.group_account_readonly,1,0,0,0
+access_ua_cashflow_item_invoice,ua.cashflow.item invoice,model_ua_cashflow_item,account.group_account_invoice,1,0,0,0
+access_ua_cashflow_item_manager,ua.cashflow.item manager,model_ua_cashflow_item,account.group_account_manager,1,1,1,1
+access_ua_cashflow_rule_user,ua.cashflow.rule user,model_ua_cashflow_rule,account.group_account_user,1,0,0,0
+access_ua_cashflow_rule_manager,ua.cashflow.rule manager,model_ua_cashflow_rule,account.group_account_manager,1,1,1,1
+access_ua_cashflow_statement_user,ua.cashflow.statement user,model_ua_cashflow_statement,account.group_account_user,1,1,1,0
+access_ua_cashflow_statement_manager,ua.cashflow.statement manager,model_ua_cashflow_statement,account.group_account_manager,1,1,1,1
+access_ua_cashflow_statement_line_user,ua.cashflow.statement.line user,model_ua_cashflow_statement_line,account.group_account_user,1,1,1,1
+access_ua_cashflow_statement_entry_user,ua.cashflow.statement.entry user,model_ua_cashflow_statement_entry,account.group_account_user,1,1,1,1

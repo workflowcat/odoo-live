@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Статті -->
+  <record id="view_ua_cashflow_item_list" model="ir.ui.view">
+    <field name="name">ua.cashflow.item.list</field>
+    <field name="model">ua.cashflow.item</field>
+    <field name="arch" type="xml">
+      <list string="Статті руху коштів" editable="bottom">
+        <field name="code"/>
+        <field name="name"/>
+        <field name="kind"/>
+        <field name="section"/>
+        <field name="parent_id" optional="show"/>
+        <field name="active" widget="boolean_toggle" optional="hide"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_cashflow_item_search" model="ir.ui.view">
+    <field name="name">ua.cashflow.item.search</field>
+    <field name="model">ua.cashflow.item</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="code"/>
+        <field name="name"/>
+        <filter name="f_in" string="Надходження" domain="[('kind', '=', 'in')]"/>
+        <filter name="f_out" string="Витрачання" domain="[('kind', '=', 'out')]"/>
+        <separator/>
+        <filter name="f_archived" string="Архів" domain="[('active', '=', False)]"/>
+        <filter name="g_section" string="Розділ" context="{'group_by': 'section'}"/>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_cashflow_item" model="ir.actions.act_window">
+    <field name="name">Статті руху коштів</field>
+    <field name="res_model">ua.cashflow.item</field>
+    <field name="view_mode">list</field>
+    <field name="context">{'search_default_g_section': 1}</field>
+  </record>
+
+  <!-- Правила -->
+  <record id="view_ua_cashflow_rule_list" model="ir.ui.view">
+    <field name="name">ua.cashflow.rule.list</field>
+    <field name="model">ua.cashflow.rule</field>
+    <field name="arch" type="xml">
+      <list string="Статті за рахунком" editable="bottom">
+        <field name="sequence" widget="handle"/>
+        <field name="account_prefix"/>
+        <field name="item_in_id" options="{'no_create': True}"/>
+        <field name="item_out_id" options="{'no_create': True}"/>
+        <field name="company_id" groups="base.group_multi_company" optional="show"/>
+        <field name="note"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_cashflow_rule" model="ir.actions.act_window">
+    <field name="name">Статті за рахунком</field>
+    <field name="res_model">ua.cashflow.rule</field>
+    <field name="view_mode">list</field>
+    <field name="help" type="html">
+      <p>Яку статтю форми № 3 взяти за кореспондентним рахунком, якщо на платежі чи проводці статтю
+        не вибрано. Діє найдовший збіг початку коду; правило компанії важить більше за спільне.</p>
+    </field>
+  </record>
+
+  <!-- Розшифровка -->
+  <record id="view_ua_cashflow_entry_list" model="ir.ui.view">
+    <field name="name">ua.cashflow.statement.entry.list</field>
+    <field name="model">ua.cashflow.statement.entry</field>
+    <field name="arch" type="xml">
+      <list string="Розшифровка руху коштів" create="false" delete="false">
+        <field name="date"/>
+        <field name="move_id"/>
+        <field name="partner_id" optional="show"/>
+        <field name="account_id"/>
+        <field name="item_id"/>
+        <field name="source" decoration-warning="source == 'fallback'"/>
+        <field name="rule_id" optional="hide"/>
+        <field name="period" optional="hide"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="amount" sum="Разом"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_cashflow_entry_search" model="ir.ui.view">
+    <field name="name">ua.cashflow.statement.entry.search</field>
+    <field name="model">ua.cashflow.statement.entry</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="move_id"/>
+        <field name="partner_id"/>
+        <field name="account_id"/>
+        <field name="item_id"/>
+        <filter name="f_fallback" string="Без статті" domain="[('source', '=', 'fallback')]"/>
+        <filter name="g_item" string="Стаття" context="{'group_by': 'item_id'}"/>
+        <filter name="g_account" string="Кор. рахунок" context="{'group_by': 'account_id'}"/>
+      </search>
+    </field>
+  </record>
+
+  <!-- Звіт -->
+  <record id="view_ua_cashflow_statement_list" model="ir.ui.view">
+    <field name="name">ua.cashflow.statement.list</field>
+    <field name="model">ua.cashflow.statement</field>
+    <field name="arch" type="xml">
+      <list string="Звіти про рух грошових коштів">
+        <field name="name"/>
+        <field name="company_id" groups="base.group_multi_company"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="opening"/>
+        <field name="closing"/>
+        <field name="unassigned_count"/>
+        <field name="state" widget="badge" decoration-success="state == 'done'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_cashflow_statement_form" model="ir.ui.view">
+    <field name="name">ua.cashflow.statement.form</field>
+    <field name="model">ua.cashflow.statement</field>
+    <field name="arch" type="xml">
+      <form string="Звіт про рух грошових коштів">
+        <header>
+          <button name="action_compute" type="object" string="Розрахувати" class="btn-primary"
+                  invisible="state != 'draft'"/>
+          <button name="action_done" type="object" string="Затвердити" invisible="state != 'draft' or not line_ids"/>
+          <button name="action_draft" type="object" string="У чернетку" invisible="state != 'done'"/>
+          <button name="action_print" type="object" string="Друк" invisible="not line_ids"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="alert alert-warning" role="alert" invisible="unassigned_count == 0">
+            <field name="unassigned_count" class="oe_inline"/> рухів без статті (у рядках 3095 і 3190):
+            <button name="action_open_unassigned" type="object" string="переглянути" class="btn-link p-0"/>.
+            Виберіть статтю на платежі, проводці або додайте правило за рахунком і перерахуйте звіт.
+          </div>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="date_from" readonly="state != 'draft'"/>
+              <field name="date_to" readonly="state != 'draft'"/>
+              <field name="cash_prefixes" readonly="state != 'draft'"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="currency_id" invisible="1"/>
+              <field name="opening"/>
+              <field name="closing"/>
+              <field name="book_closing"/>
+              <field name="unassigned_amount" invisible="unassigned_count == 0"/>
+              <field name="computed_at"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Форма № 3" name="form3">
+              <field name="line_ids" readonly="1">
+                <list decoration-bf="row_kind in ('section', 'total')" decoration-muted="row_kind == 'sub'">
+                  <field name="name"/>
+                  <field name="code"/>
+                  <field name="row_kind" column_invisible="1"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="amount" invisible="row_kind == 'section'"/>
+                  <field name="amount_prev" invisible="row_kind == 'section'"/>
+                  <button name="action_open_entries" type="object" icon="fa-search" title="Розшифровка"
+                          invisible="row_kind not in ('item', 'sub')"/>
+                </list>
+              </field>
+            </page>
+            <page string="Розшифровка" name="entries">
+              <field name="entry_ids" readonly="1" context="{'search_default_f_fallback': 0}">
+                <list>
+                  <field name="period"/>
+                  <field name="date"/>
+                  <field name="move_id"/>
+                  <field name="partner_id"/>
+                  <field name="account_id"/>
+                  <field name="item_id"/>
+                  <field name="source" decoration-warning="source == 'fallback'"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="amount" sum="Разом"/>
+                </list>
+              </field>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_cashflow_statement" model="ir.actions.act_window">
+    <field name="name">Ф3. Рух грошових коштів</field>
+    <field name="res_model">ua.cashflow.statement</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p>Звіт про рух грошових коштів за прямим методом. Статті рухів - з платежів і проводок, де їх
+        вибрано, решта - за кореспондентним рахунком. Залишок на кінець звіряється з сальдо грошових
+        рахунків.</p>
+    </field>
+  </record>
+
+  <!-- Стаття на платежі і проводці -->
+  <record id="view_account_payment_form_ua_cashflow" model="ir.ui.view">
+    <field name="name">account.payment.form.ua.cashflow</field>
+    <field name="model">account.payment</field>
+    <field name="inherit_id" ref="account.view_account_payment_form"/>
+    <field name="arch" type="xml">
+      <field name="memo" position="after">
+        <field name="ua_cashflow_item_id" options="{'no_create': True}"/>
+      </field>
+    </field>
+  </record>
+
+  <record id="view_move_form_ua_cashflow" model="ir.ui.view">
+    <field name="name">account.move.form.ua.cashflow</field>
+    <field name="model">account.move</field>
+    <field name="inherit_id" ref="account.view_move_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//group[@id='header_left_group']" position="inside">
+        <field name="ua_cashflow_item_id" options="{'no_create': True}" invisible="move_type != 'entry'"/>
+      </xpath>
+      <xpath expr="//page[@id='aml_tab']//field[@name='line_ids']/list/field[@name='partner_id']" position="after">
+        <field name="ua_cashflow_item_id" optional="hide" options="{'no_create': True}"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>

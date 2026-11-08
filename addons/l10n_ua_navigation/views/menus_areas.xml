@@ -210,6 +210,12 @@
             parent="menu_ua_reporting_finrep" action="l10n_ua_finrep.action_open_f1m" sequence="30"/>
   <menuitem id="menu_ua_reporting_f2m" name="Ф2-м. Фінрезультати (малі)"
             parent="menu_ua_reporting_finrep" action="l10n_ua_finrep.action_open_f2m" sequence="40"/>
+  <menuitem id="menu_ua_reporting_f3" name="Ф3. Рух грошових коштів"
+            parent="menu_ua_reporting_finrep" action="l10n_ua_cashflow.action_ua_cashflow_statement" sequence="25"/>
+  <menuitem id="menu_ua_cashflow_item" name="Статті руху коштів"
+            parent="menu_ua_reporting_finrep" action="l10n_ua_cashflow.action_ua_cashflow_item" sequence="50"/>
+  <menuitem id="menu_ua_cashflow_rule" name="Статті за рахунком"
+            parent="menu_ua_reporting_finrep" action="l10n_ua_cashflow.action_ua_cashflow_rule" sequence="55"/>
 
   <!-- ================================================================= банк у «Бухобліку» -->
   <!-- Операції банку (завантажити виписку, звести з платежами, правила) - кнопки в

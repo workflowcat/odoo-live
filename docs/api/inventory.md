@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 78. Моделей: 165. Методів: 631. Збережених полів на чужих моделях: 392.
+Модулів: 79. Моделей: 169. Методів: 641. Збережених полів на чужих моделях: 395.
 
 ## Зарплата
 
@@ -1293,6 +1293,44 @@
 | `action_approve()` | - | `l10n_ua_mrp_substitute` |
 | `action_revoke()` | - | `l10n_ua_mrp_substitute` |
 
+### `ua.cashflow.rule`
+
+наша модель · `l10n_ua_cashflow`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `ua_match(company, code)` | Правило з найдовшим префіксом коду рахунку; правило компанії перед спільним. | `l10n_ua_cashflow` |
+
+### `ua.cashflow.statement`
+
+наша модель · `l10n_ua_cashflow`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_compute()` | - | `l10n_ua_cashflow` |
+| `action_done()` | - | `l10n_ua_cashflow` |
+| `action_draft()` | - | `l10n_ua_cashflow` |
+| `action_open_unassigned()` | - | `l10n_ua_cashflow` |
+| `action_print()` | - | `l10n_ua_cashflow` |
+| `ua_money(value)` | Сума для форми в гривнях з копійками: витрачання в дужках, нуль - прочерк. | `l10n_ua_cashflow` |
+| `ua_rows()` | Рядки для друку: назва, код, звітний, попередній, вид рядка. | `l10n_ua_cashflow` |
+
+### `ua.cashflow.statement.entry`
+
+наша модель · `l10n_ua_cashflow`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_set_item(item)` | Записати статтю на рядок проводки: наступний розрахунок візьме її першою. | `l10n_ua_cashflow` |
+
+### `ua.cashflow.statement.line`
+
+наша модель · `l10n_ua_cashflow`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_open_entries()` | - | `l10n_ua_cashflow` |
+
 ### `ua.catalog.load`
 
 наша модель · `l10n_ua_catalog`
@@ -1884,7 +1922,7 @@
 
 ### `account.move`
 
-доповнена модель · `bp_purchase_intake`, `l10n_ua_close`, `l10n_ua_commission`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_edo`, `l10n_ua_grant`, `l10n_ua_prro`, `l10n_ua_tolling`, `l10n_ua_vat`
+доповнена модель · `bp_purchase_intake`, `l10n_ua_cashflow`, `l10n_ua_close`, `l10n_ua_commission`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_edo`, `l10n_ua_grant`, `l10n_ua_prro`, `l10n_ua_tolling`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1897,6 +1935,7 @@
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `bp_intake_id` | Many2one | bp.purchase.intake | `bp_purchase_intake` |
+| `ua_cashflow_item_id` | Many2one | ua.cashflow.item | `l10n_ua_cashflow` |
 | `ua_close_id` | Many2one | ua.period.close | `l10n_ua_close` |
 | `ua_close_kind` | Selection | - | `l10n_ua_close` |
 | `ua_commission_report_id` | Many2one | ua.commission.report | `l10n_ua_commission` |
@@ -1916,16 +1955,17 @@
 
 ### `account.move.line`
 
-доповнена модель · `l10n_ua_contract`, `l10n_ua_tolling`, `l10n_ua_vat`
+доповнена модель · `l10n_ua_cashflow`, `l10n_ua_contract`, `l10n_ua_tolling`, `l10n_ua_vat`
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
+| `ua_cashflow_item_id` | Many2one | ua.cashflow.item | `l10n_ua_cashflow` |
 | `ua_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
 | `ua_tolling_qty` | Boolean | Кількість переробки | `l10n_ua_tolling` |
 
 ### `account.payment`
 
-доповнена модель · `l10n_ua_bank_1c`, `l10n_ua_cash`, `l10n_ua_contract`, `l10n_ua_fop`, `l10n_ua_prro`, `l10n_ua_vat`
+доповнена модель · `l10n_ua_bank_1c`, `l10n_ua_cash`, `l10n_ua_cashflow`, `l10n_ua_contract`, `l10n_ua_fop`, `l10n_ua_prro`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1936,6 +1976,7 @@
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
+| `ua_cashflow_item_id` | Many2one | ua.cashflow.item | `l10n_ua_cashflow` |
 | `ua_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
 | `ua_document` | Char | Документ одержувача | `l10n_ua_cash` |
 | `ua_fe_closed_amount` | Float | Закрито ПДВ першої події | `l10n_ua_vat` |

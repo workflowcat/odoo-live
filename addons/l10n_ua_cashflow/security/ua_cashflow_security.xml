@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="rule_ua_cashflow_statement_company" model="ir.rule">
+    <field name="name">Форма № 3: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_cashflow_statement"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_ua_cashflow_statement_line_company" model="ir.rule">
+    <field name="name">Рядок форми № 3: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_cashflow_statement_line"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_ua_cashflow_statement_entry_company" model="ir.rule">
+    <field name="name">Розшифровка форми № 3: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_cashflow_statement_entry"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_ua_cashflow_rule_company" model="ir.rule">
+    <field name="name">Правило статті: спільні і своїх компаній</field>
+    <field name="model_id" ref="model_ua_cashflow_rule"/>
+    <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+  </record>
+</odoo>

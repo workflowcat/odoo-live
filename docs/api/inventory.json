@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 78,
-    "models": 165,
-    "methods": 631,
-    "fields": 392
+    "modules": 79,
+    "models": 169,
+    "methods": 641,
+    "fields": 395
   },
   "areas": [
     {
@@ -5923,6 +5923,128 @@
           "fields": []
         },
         {
+          "model": "ua.cashflow.rule",
+          "ours": true,
+          "modules": [
+            "l10n_ua_cashflow"
+          ],
+          "methods": [
+            {
+              "name": "ua_match",
+              "signature": "ua_match(company, code)",
+              "doc": "Правило з найдовшим префіксом коду рахунку; правило компанії перед спільним.",
+              "module": "l10n_ua_cashflow",
+              "file": "addons/l10n_ua_cashflow/models/cashflow.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.cashflow.statement",
+          "ours": true,
+          "modules": [
+            "l10n_ua_cashflow"
+          ],
+          "methods": [
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "",
+              "module": "l10n_ua_cashflow",
+              "file": "addons/l10n_ua_cashflow/models/cashflow.py",
+              "decorators": []
+            },
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_cashflow",
+              "file": "addons/l10n_ua_cashflow/models/cashflow.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_cashflow",
+              "file": "addons/l10n_ua_cashflow/models/cashflow.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_unassigned",
+              "signature": "action_open_unassigned()",
+              "doc": "",
+              "module": "l10n_ua_cashflow",
+              "file": "addons/l10n_ua_cashflow/models/cashflow.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_cashflow",
+              "file": "addons/l10n_ua_cashflow/models/cashflow.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_money",
+              "signature": "ua_money(value)",
+              "doc": "Сума для форми в гривнях з копійками: витрачання в дужках, нуль - прочерк.",
+              "module": "l10n_ua_cashflow",
+              "file": "addons/l10n_ua_cashflow/models/cashflow.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_rows",
+              "signature": "ua_rows()",
+              "doc": "Рядки для друку: назва, код, звітний, попередній, вид рядка.",
+              "module": "l10n_ua_cashflow",
+              "file": "addons/l10n_ua_cashflow/models/cashflow.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.cashflow.statement.entry",
+          "ours": true,
+          "modules": [
+            "l10n_ua_cashflow"
+          ],
+          "methods": [
+            {
+              "name": "action_set_item",
+              "signature": "action_set_item(item)",
+              "doc": "Записати статтю на рядок проводки: наступний розрахунок візьме її першою.",
+              "module": "l10n_ua_cashflow",
+              "file": "addons/l10n_ua_cashflow/models/cashflow.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.cashflow.statement.line",
+          "ours": true,
+          "modules": [
+            "l10n_ua_cashflow"
+          ],
+          "methods": [
+            {
+              "name": "action_open_entries",
+              "signature": "action_open_entries()",
+              "doc": "",
+              "module": "l10n_ua_cashflow",
+              "file": "addons/l10n_ua_cashflow/models/cashflow.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.catalog.load",
           "ours": true,
           "modules": [
@@ -8548,6 +8670,7 @@
           "ours": false,
           "modules": [
             "bp_purchase_intake",
+            "l10n_ua_cashflow",
             "l10n_ua_close",
             "l10n_ua_commission",
             "l10n_ua_contract",
@@ -8607,6 +8730,14 @@
               "label": "bp.purchase.intake",
               "module": "bp_purchase_intake",
               "file": "addons/bp_purchase_intake/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_cashflow_item_id",
+              "type": "Many2one",
+              "label": "ua.cashflow.item",
+              "module": "l10n_ua_cashflow",
+              "file": "addons/l10n_ua_cashflow/models/account.py",
               "groups": ""
             },
             {
@@ -8743,12 +8874,21 @@
           "model": "account.move.line",
           "ours": false,
           "modules": [
+            "l10n_ua_cashflow",
             "l10n_ua_contract",
             "l10n_ua_tolling",
             "l10n_ua_vat"
           ],
           "methods": [],
           "fields": [
+            {
+              "name": "ua_cashflow_item_id",
+              "type": "Many2one",
+              "label": "ua.cashflow.item",
+              "module": "l10n_ua_cashflow",
+              "file": "addons/l10n_ua_cashflow/models/account.py",
+              "groups": ""
+            },
             {
               "name": "ua_contract_id",
               "type": "Many2one",
@@ -8773,6 +8913,7 @@
           "modules": [
             "l10n_ua_bank_1c",
             "l10n_ua_cash",
+            "l10n_ua_cashflow",
             "l10n_ua_contract",
             "l10n_ua_fop",
             "l10n_ua_prro",
@@ -8813,6 +8954,14 @@
             }
           ],
           "fields": [
+            {
+              "name": "ua_cashflow_item_id",
+              "type": "Many2one",
+              "label": "ua.cashflow.item",
+              "module": "l10n_ua_cashflow",
+              "file": "addons/l10n_ua_cashflow/models/account.py",
+              "groups": ""
+            },
             {
               "name": "ua_contract_id",
               "type": "Many2one",

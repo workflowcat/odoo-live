@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Статті форми № 3 (прямий метод), наказ Мінфіну № 73 (2013) зі змінами. Перевіряйте чинну редакцію. -->
+<odoo noupdate="1">
+  <record id="item_3000" model="ua.cashflow.item">
+    <field name="code">3000</field>
+    <field name="name">Надходження від реалізації продукції (товарів, робіт, послуг)</field>
+    <field name="kind">in</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3005" model="ua.cashflow.item">
+    <field name="code">3005</field>
+    <field name="name">Надходження від повернення податків і зборів</field>
+    <field name="kind">in</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3006" model="ua.cashflow.item">
+    <field name="code">3006</field>
+    <field name="name">у тому числі податку на додану вартість</field>
+    <field name="kind">in</field>
+    <field name="section">operating</field>
+    <field name="parent_id" ref="item_3005"/>
+  </record>
+  <record id="item_3010" model="ua.cashflow.item">
+    <field name="code">3010</field>
+    <field name="name">Надходження цільового фінансування</field>
+    <field name="kind">in</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3011" model="ua.cashflow.item">
+    <field name="code">3011</field>
+    <field name="name">Надходження від отримання субсидій, дотацій</field>
+    <field name="kind">in</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3015" model="ua.cashflow.item">
+    <field name="code">3015</field>
+    <field name="name">Надходження авансів від покупців і замовників</field>
+    <field name="kind">in</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3020" model="ua.cashflow.item">
+    <field name="code">3020</field>
+    <field name="name">Надходження від повернення авансів</field>
+    <field name="kind">in</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3025" model="ua.cashflow.item">
+    <field name="code">3025</field>
+    <field name="name">Надходження від відсотків за залишками коштів на поточних рахунках</field>
+    <field name="kind">in</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3035" model="ua.cashflow.item">
+    <field name="code">3035</field>
+    <field name="name">Надходження від боржників неустойки (штрафів, пені)</field>
+    <field name="kind">in</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3040" model="ua.cashflow.item">
+    <field name="code">3040</field>
+    <field name="name">Надходження від операційної оренди</field>
+    <field name="kind">in</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3045" model="ua.cashflow.item">
+    <field name="code">3045</field>
+    <field name="name">Надходження від отримання роялті, авторських винагород</field>
+    <field name="kind">in</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3050" model="ua.cashflow.item">
+    <field name="code">3050</field>
+    <field name="name">Надходження від страхових премій</field>
+    <field name="kind">in</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3055" model="ua.cashflow.item">
+    <field name="code">3055</field>
+    <field name="name">Надходження фінансових установ від повернення позик</field>
+    <field name="kind">in</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3095" model="ua.cashflow.item">
+    <field name="code">3095</field>
+    <field name="name">Інші надходження</field>
+    <field name="kind">in</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3100" model="ua.cashflow.item">
+    <field name="code">3100</field>
+    <field name="name">Витрачання на оплату товарів (робіт, послуг)</field>
+    <field name="kind">out</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3105" model="ua.cashflow.item">
+    <field name="code">3105</field>
+    <field name="name">Витрачання на оплату праці</field>
+    <field name="kind">out</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3110" model="ua.cashflow.item">
+    <field name="code">3110</field>
+    <field name="name">Витрачання на оплату відрахувань на соціальні заходи</field>
+    <field name="kind">out</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3115" model="ua.cashflow.item">
+    <field name="code">3115</field>
+    <field name="name">Витрачання на оплату зобов'язань з податків і зборів</field>
+    <field name="kind">out</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3116" model="ua.cashflow.item">
+    <field name="code">3116</field>
+    <field name="name">Витрачання на оплату зобов'язань з податку на прибуток</field>
+    <field name="kind">out</field>
+    <field name="section">operating</field>
+    <field name="parent_id" ref="item_3115"/>
+  </record>
+  <record id="item_3117" model="ua.cashflow.item">
+    <field name="code">3117</field>
+    <field name="name">Витрачання на оплату зобов'язань з податку на додану вартість</field>
+    <field name="kind">out</field>
+    <field name="section">operating</field>
+    <field name="parent_id" ref="item_3115"/>
+  </record>
+  <record id="item_3118" model="ua.cashflow.item">
+    <field name="code">3118</field>
+    <field name="name">Витрачання на оплату зобов'язань з інших податків і зборів</field>
+    <field name="kind">out</field>
+    <field name="section">operating</field>
+    <field name="parent_id" ref="item_3115"/>
+  </record>
+  <record id="item_3135" model="ua.cashflow.item">
+    <field name="code">3135</field>
+    <field name="name">Витрачання на оплату авансів</field>
+    <field name="kind">out</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3140" model="ua.cashflow.item">
+    <field name="code">3140</field>
+    <field name="name">Витрачання на оплату повернення авансів</field>
+    <field name="kind">out</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3145" model="ua.cashflow.item">
+    <field name="code">3145</field>
+    <field name="name">Витрачання на оплату цільових внесків</field>
+    <field name="kind">out</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3150" model="ua.cashflow.item">
+    <field name="code">3150</field>
+    <field name="name">Витрачання на оплату зобов'язань за страховими контрактами</field>
+    <field name="kind">out</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3155" model="ua.cashflow.item">
+    <field name="code">3155</field>
+    <field name="name">Витрачання фінансових установ на надання позик</field>
+    <field name="kind">out</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3190" model="ua.cashflow.item">
+    <field name="code">3190</field>
+    <field name="name">Інші витрачання</field>
+    <field name="kind">out</field>
+    <field name="section">operating</field>
+  </record>
+  <record id="item_3200" model="ua.cashflow.item">
+    <field name="code">3200</field>
+    <field name="name">Надходження від реалізації фінансових інвестицій</field>
+    <field name="kind">in</field>
+    <field name="section">investing</field>
+  </record>
+  <record id="item_3205" model="ua.cashflow.item">
+    <field name="code">3205</field>
+    <field name="name">Надходження від реалізації необоротних активів</field>
+    <field name="kind">in</field>
+    <field name="section">investing</field>
+  </record>
+  <record id="item_3215" model="ua.cashflow.item">
+    <field name="code">3215</field>
+    <field name="name">Надходження від отриманих відсотків</field>
+    <field name="kind">in</field>
+    <field name="section">investing</field>
+  </record>
+  <record id="item_3220" model="ua.cashflow.item">
+    <field name="code">3220</field>
+    <field name="name">Надходження від отриманих дивідендів</field>
+    <field name="kind">in</field>
+    <field name="section">investing</field>
+  </record>
+  <record id="item_3225" model="ua.cashflow.item">
+    <field name="code">3225</field>
+    <field name="name">Надходження від деривативів</field>
+    <field name="kind">in</field>
+    <field name="section">investing</field>
+  </record>
+  <record id="item_3230" model="ua.cashflow.item">
+    <field name="code">3230</field>
+    <field name="name">Надходження від погашення позик</field>
+    <field name="kind">in</field>
+    <field name="section">investing</field>
+  </record>
+  <record id="item_3235" model="ua.cashflow.item">
+    <field name="code">3235</field>
+    <field name="name">Надходження від вибуття дочірнього підприємства та іншої господарської одиниці</field>
+    <field name="kind">in</field>
+    <field name="section">investing</field>
+  </record>
+  <record id="item_3250" model="ua.cashflow.item">
+    <field name="code">3250</field>
+    <field name="name">Інші надходження (інвестиційна діяльність)</field>
+    <field name="kind">in</field>
+    <field name="section">investing</field>
+  </record>
+  <record id="item_3255" model="ua.cashflow.item">
+    <field name="code">3255</field>
+    <field name="name">Витрачання на придбання фінансових інвестицій</field>
+    <field name="kind">out</field>
+    <field name="section">investing</field>
+  </record>
+  <record id="item_3260" model="ua.cashflow.item">
+    <field name="code">3260</field>
+    <field name="name">Витрачання на придбання необоротних активів</field>
+    <field name="kind">out</field>
+    <field name="section">investing</field>
+  </record>
+  <record id="item_3270" model="ua.cashflow.item">
+    <field name="code">3270</field>
+    <field name="name">Виплати за деривативами</field>
+    <field name="kind">out</field>
+    <field name="section">investing</field>
+  </record>
+  <record id="item_3275" model="ua.cashflow.item">
+    <field name="code">3275</field>
+    <field name="name">Витрачання на надання позик</field>
+    <field name="kind">out</field>
+    <field name="section">investing</field>
+  </record>
+  <record id="item_3280" model="ua.cashflow.item">
+    <field name="code">3280</field>
+    <field name="name">Витрачання на придбання дочірнього підприємства та іншої господарської одиниці</field>
+    <field name="kind">out</field>
+    <field name="section">investing</field>
+  </record>
+  <record id="item_3290" model="ua.cashflow.item">
+    <field name="code">3290</field>
+    <field name="name">Інші платежі (інвестиційна діяльність)</field>
+    <field name="kind">out</field>
+    <field name="section">investing</field>
+  </record>
+  <record id="item_3300" model="ua.cashflow.item">
+    <field name="code">3300</field>
+    <field name="name">Надходження від власного капіталу</field>
+    <field name="kind">in</field>
+    <field name="section">financing</field>
+  </record>
+  <record id="item_3305" model="ua.cashflow.item">
+    <field name="code">3305</field>
+    <field name="name">Надходження від отримання позик</field>
+    <field name="kind">in</field>
+    <field name="section">financing</field>
+  </record>
+  <record id="item_3310" model="ua.cashflow.item">
+    <field name="code">3310</field>
+    <field name="name">Надходження від продажу частки в дочірньому підприємстві</field>
+    <field name="kind">in</field>
+    <field name="section">financing</field>
+  </record>
+  <record id="item_3340" model="ua.cashflow.item">
+    <field name="code">3340</field>
+    <field name="name">Інші надходження (фінансова діяльність)</field>
+    <field name="kind">in</field>
+    <field name="section">financing</field>
+  </record>
+  <record id="item_3345" model="ua.cashflow.item">
+    <field name="code">3345</field>
+    <field name="name">Витрачання на викуп власних акцій</field>
+    <field name="kind">out</field>
+    <field name="section">financing</field>
+  </record>
+  <record id="item_3350" model="ua.cashflow.item">
+    <field name="code">3350</field>
+    <field name="name">Витрачання на погашення позик</field>
+    <field name="kind">out</field>
+    <field name="section">financing</field>
+  </record>
+  <record id="item_3355" model="ua.cashflow.item">
+    <field name="code">3355</field>
+    <field name="name">Витрачання на сплату дивідендів</field>
+    <field name="kind">out</field>
+    <field name="section">financing</field>
+  </record>
+  <record id="item_3360" model="ua.cashflow.item">
+    <field name="code">3360</field>
+    <field name="name">Витрачання на сплату відсотків</field>
+    <field name="kind">out</field>
+    <field name="section">financing</field>
+  </record>
+  <record id="item_3365" model="ua.cashflow.item">
+    <field name="code">3365</field>
+    <field name="name">Витрачання на сплату заборгованості з фінансової оренди</field>
+    <field name="kind">out</field>
+    <field name="section">financing</field>
+  </record>
+  <record id="item_3370" model="ua.cashflow.item">
+    <field name="code">3370</field>
+    <field name="name">Витрачання на придбання частки в дочірньому підприємстві</field>
+    <field name="kind">out</field>
+    <field name="section">financing</field>
+  </record>
+  <record id="item_3375" model="ua.cashflow.item">
+    <field name="code">3375</field>
+    <field name="name">Витрачання на виплати неконтрольованим часткам у дочірніх підприємствах</field>
+    <field name="kind">out</field>
+    <field name="section">financing</field>
+  </record>
+  <record id="item_3390" model="ua.cashflow.item">
+    <field name="code">3390</field>
+    <field name="name">Інші платежі (фінансова діяльність)</field>
+    <field name="kind">out</field>
+    <field name="section">financing</field>
+  </record>
+  <record id="item_3410" model="ua.cashflow.item">
+    <field name="code">3410</field>
+    <field name="name">Вплив зміни валютних курсів на залишок коштів</field>
+    <field name="kind">in</field>
+    <field name="section">fx</field>
+  </record>
+</odoo>

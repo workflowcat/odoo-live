@@ -260,6 +260,14 @@ Notable changes for people who run or build on this code. Module-level API chang
   whose percentages come from the accounting policy and carry over to the next calculation. A debtor can be
   assessed separately with a basis. Posting compares the result with the reserve on account 38: Dr 944 Cr 38
   for a shortfall, Dr 38 Cr 719 for an excess; return to draft reverses it. Print. Tests: `ua_bad_debt`.
+- `l10n_ua_cashflow`: cash flow statement, form 3, direct method (НП(С)БО 1). Every posted entry that touches
+  a cash account (prefixes 30, 31, 33 by default, as balance line 1165) is a flow; moves between cash accounts
+  are left out. The cash flow item comes from the journal item, the entry (and so the bank statement line) or
+  the payment; otherwise a rule by the counter account picks it (longest code match, company rules before
+  shared ones, 54 default rules). Flows without an item land in 3095/3190 and are listed for the accountant,
+  who can set the item from that list. Current period and the same period last year, sub-rows 3006 and
+  3116-3118, opening 3405, FX effect 3410, closing 3415 checked against the cash accounts before approval,
+  drill-down from each row, print with ДКУД 1801004. Tests: `ua_cashflow`.
 
 ### Changed
 - Packs: defense packs bring their typical jobs with labour safety terms (hazardous work, repeat briefing and

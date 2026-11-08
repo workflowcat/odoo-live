@@ -19,6 +19,8 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Profit tax return | done | `l10n_ua_profit_tax` |
 | Single tax (FOP group 3) book and return | done | `l10n_ua_fop` |
 | Financial statements Ф1/Ф2 (full and small) | done | `l10n_ua_finrep` (mis_builder); DPS XML of the statements is a gap |
+| Cash flow statement Ф3 (direct method) with cash flow items (статті руху коштів) | done | `l10n_ua_cashflow`: every entry that touches cash accounts (30, 31, 33, as balance line 1165) is a flow, moves between cash accounts are not; the item comes from the journal item, the entry or bank statement line, or the payment, otherwise from a rule by the counter account (longest code match, company rules first); flows without an item listed for the accountant; current and same period last year, opening 3405, FX effect 3410, closing 3415 checked against the books, drill-down from every line to the entries, print |
+| Statement of changes in equity Ф4, notes Ф5 | gap | next after Ф3 |
 | Fixed assets, low-value items, intangibles, tax groups | done | `l10n_ua_assets` + OCA asset management |
 | Cash desk: ПКО/ВКО, cash book КО-4, limit | done | `l10n_ua_cash` |
 | Bank statements: file, PrivatBank, Monobank | done | `l10n_ua_bank`, `l10n_ua_bank_online` |
@@ -162,7 +164,8 @@ contracts (`l10n_ua_guarantee`); measuring instruments and their verification (`
 components (`l10n_ua_supplier_approval`); limit cards М-8 (`l10n_ua_limit_card`);
 periodic and type tests gating acceptance (`l10n_ua_product_tests`); labour safety briefings and medical exams
 (`l10n_ua_safety`); property, land and environmental taxes (`l10n_ua_local_tax`); price types and dated price setting
-(`l10n_ua_price_set`); the doubtful debts reserve (`l10n_ua_bad_debt`).
+(`l10n_ua_price_set`); the doubtful debts reserve (`l10n_ua_bad_debt`); the cash flow statement Ф3
+(`l10n_ua_cashflow`).
 
 Next, in this order:
 
