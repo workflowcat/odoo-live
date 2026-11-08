@@ -324,8 +324,18 @@ Notable changes for people who run or build on this code. Module-level API chang
   usual hryvnia set) or as one sum, and on approval the difference is posted: shortage Dr 375 with the
   cashier or another person, or Dr 947, Cr cash; surplus Dr cash Cr 719. The act prints with the cashier
   statement and the last order numbers. Tests: `ua_cash_count`.
+- `l10n_ua_finrep_dps`: financial statements for DPS as a document (Ф1, Ф2, or the small-company form Ф1-м
+  and Ф2-м) for a quarter, half-year, 9 months or year. Both columns come from the same mis_builder
+  templates as the printed forms; sums in thousands (one decimal for the small form), bracketed rows
+  positive, Ф2 profit and loss in separate rows. Totals are checked against the template formulas after
+  rounding, a line can be corrected by hand, and the XML J0900108, J0900207 or J0901107 is built and
+  validated with the DPS schemas shipped in the module. Tests: `ua_finrep_dps`.
 
 ### Changed
+- `l10n_ua_finrep`: Ф1-м and Ф2-м follow the rows of the current small-company form (the same tags as DPS
+  schema J0901107): Ф1-м gains 1001, 1002, 1005, 1103, 1135, 1160, 1200 and 1665; Ф2-м splits income into
+  2120 and 2240 and expenses into 2180 and 2270 instead of 2160 and 2165. Ф1 puts account 34 into 1125, 62
+  into 1615, 351 and 333-335 into 1165, 352 into 1160, 331, 332 and debit 643, 644 into 1190.
 - Packs: defense packs bring their typical jobs with labour safety terms (hazardous work, repeat briefing and
   medical exam periods, instructions) and the shop pack brings retail and wholesale price types with markup and
   rounding, through the generic `records` section. A record whose model is not installed is skipped and

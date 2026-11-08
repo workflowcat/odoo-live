@@ -222,6 +222,8 @@
             parent="menu_ua_reporting_finrep" action="l10n_ua_finrep.action_open_f1m" sequence="30"/>
   <menuitem id="menu_ua_reporting_f2m" name="Ф2-м. Фінрезультати (малі)"
             parent="menu_ua_reporting_finrep" action="l10n_ua_finrep.action_open_f2m" sequence="40"/>
+  <menuitem id="menu_ua_reporting_finrep_dps" name="Фінзвітність до ДПС (XML)"
+            parent="menu_ua_reporting_finrep" action="l10n_ua_finrep_dps.action_ua_finrep_filing" sequence="45"/>
   <menuitem id="menu_ua_reporting_f3" name="Ф3. Рух грошових коштів"
             parent="menu_ua_reporting_finrep" action="l10n_ua_cashflow.action_ua_cashflow_statement" sequence="25"/>
   <menuitem id="menu_ua_cashflow_item" name="Статті руху коштів"

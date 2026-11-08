@@ -1,8 +1,8 @@
 {
   "totals": {
-    "modules": 88,
-    "models": 184,
-    "methods": 715,
+    "modules": 89,
+    "models": 185,
+    "methods": 720,
     "fields": 400
   },
   "areas": [
@@ -7514,6 +7514,56 @@
               "doc": "{виріб: відвантажено} - проведені вихідні переміщення з цим дозволом.",
               "module": "l10n_ua_export_control",
               "file": "addons/l10n_ua_export_control/models/export_control.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.finrep.filing",
+          "ours": true,
+          "modules": [
+            "l10n_ua_finrep_dps"
+          ],
+          "methods": [
+            {
+              "name": "action_check",
+              "signature": "action_check()",
+              "doc": "",
+              "module": "l10n_ua_finrep_dps",
+              "file": "addons/l10n_ua_finrep_dps/models/finrep_filing.py",
+              "decorators": []
+            },
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "",
+              "module": "l10n_ua_finrep_dps",
+              "file": "addons/l10n_ua_finrep_dps/models/finrep_filing.py",
+              "decorators": []
+            },
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_finrep_dps",
+              "file": "addons/l10n_ua_finrep_dps/models/finrep_filing.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_finrep_dps",
+              "file": "addons/l10n_ua_finrep_dps/models/finrep_filing.py",
+              "decorators": []
+            },
+            {
+              "name": "action_xml",
+              "signature": "action_xml()",
+              "doc": "",
+              "module": "l10n_ua_finrep_dps",
+              "file": "addons/l10n_ua_finrep_dps/models/finrep_filing.py",
               "decorators": []
             }
           ],

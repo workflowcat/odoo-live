@@ -496,7 +496,8 @@ call("account.move", "search_read",
 `action_compute()` і `action_print_xlsx()`. Каса - `ua.cash.book.action_compute` /
 `action_print`, авансовий звіт - `ua.advance.report` (`action_confirm`,
 `action_settle_balance`, `action_print`). Фінзвітність - `mis.report.instance`
-(`action_ua_finrep_xml_draft`).
+(`action_ua_finrep_xml_draft` - стара чернетка, не для подання); файл для ДПС -
+`ua.finrep.filing` (`action_compute`, `action_check`, `action_xml`, `action_done`).
 
 ---
 

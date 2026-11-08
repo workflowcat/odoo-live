@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <!-- Ф1-м «Баланс», НП(С)БО 25 (спрощений фінансовий звіт суб'єкта малого
-         підприємництва). Та сама база, що у Ф1, лише крупніші рядки, тому
-         підсумки 1300 і 1900 збігаються з Ф1 копійка в копійку:
+    <!-- Ф1-м «Баланс», НП(С)БО 25 (фінансова звітність малого підприємства), рядки
+         чинної форми (ті самі, що в схемі ДПС J0901107). Та сама база, що у Ф1, лише
+         крупніші рядки, тому підсумки 1095, 1195, 1300, 1495, 1595, 1695 і 1900
+         збігаються з Ф1 копійка в копійку:
 
-         Ф1-м 1090 = Ф1 1005 + 1015 + 1040 + 1045 + 1090
+         Ф1-м 1090 = Ф1 1040 + 1045 + 1090
          Ф1-м 1010 = Ф1 1010 + 1015 (інвестнерухомість окремого рядка не має)
-         Ф1-м 1155 = Ф1 1130 + 1135 + 1155 + 1160
-         Ф1-м 1190 = Ф1 1190 + 1200
+         Ф1-м 1155 = Ф1 1130 + 1155
          Ф1-м 1410 = Ф1 1405 + 1410
          Ф1-м 1425 = Ф1 1425 + 1430
          Ф1-м 1595 = Ф1 1500 + 1510 + 1515 + 1520 + 1525
-         Ф1-м 1690 = Ф1 1635 + 1665 + 1690
+         Ф1-м 1690 = Ф1 1635 + 1690
+
+         Рядка 1700 немає: окремого субрахунку для зобов'язань, пов'язаних з
+         активами для продажу, план рахунків не має. Рядки «у тому числі» з
+         податку на прибуток (1136, 1621) залежать від субрахунків компанії.
     -->
     <record id="report_f1m" model="mis.report">
         <field name="name">Ф1-м. Баланс (НП(С)БО 25)</field>
@@ -20,13 +24,37 @@
         <field name="style_id" ref="style_base" />
     </record>
 
+
     <!-- ===== АКТИВ. I. Необоротні активи ===== -->
     <record id="f1m_1000" model="mis.report.kpi">
         <field name="report_id" ref="report_f1m" />
         <field name="sequence">10</field>
         <field name="name">m1000</field>
         <field name="description">1000 Нематеріальні активи</field>
-        <field name="expression">bale[12%,133%]</field>
+        <field name="expression">m1001 - m1002</field>
+    </record>
+    <record id="f1m_1001" model="mis.report.kpi">
+        <field name="report_id" ref="report_f1m" />
+        <field name="sequence">11</field>
+        <field name="name">m1001</field>
+        <field name="description">1001 первісна вартість</field>
+        <field name="expression">bale[12%]</field>
+        <field name="style_id" ref="style_sub" />
+    </record>
+    <record id="f1m_1002" model="mis.report.kpi">
+        <field name="report_id" ref="report_f1m" />
+        <field name="sequence">12</field>
+        <field name="name">m1002</field>
+        <field name="description">1002 накопичена амортизація</field>
+        <field name="expression">-bale[133%]</field>
+        <field name="style_id" ref="style_sub" />
+    </record>
+    <record id="f1m_1005" model="mis.report.kpi">
+        <field name="report_id" ref="report_f1m" />
+        <field name="sequence">15</field>
+        <field name="name">m1005</field>
+        <field name="description">1005 Незавершені капітальні інвестиції</field>
+        <field name="expression">bale[15%]</field>
     </record>
     <record id="f1m_1010" model="mis.report.kpi">
         <field name="report_id" ref="report_f1m" />
@@ -70,14 +98,14 @@
         <field name="sequence">50</field>
         <field name="name">m1090</field>
         <field name="description">1090 Інші необоротні активи</field>
-        <field name="expression">bale[15%,17%,18%,19%]</field>
+        <field name="expression">bale[17%,18%,19%]</field>
     </record>
     <record id="f1m_1095" model="mis.report.kpi">
         <field name="report_id" ref="report_f1m" />
         <field name="sequence">60</field>
         <field name="name">m1095</field>
         <field name="description">1095 Усього за розділом I (необоротні активи)</field>
-        <field name="expression">m1000 + m1010 + m1020 + m1030 + m1090</field>
+        <field name="expression">m1000 + m1005 + m1010 + m1020 + m1030 + m1090</field>
         <field name="style_id" ref="style_total" />
     </record>
 
@@ -88,6 +116,14 @@
         <field name="name">m1100</field>
         <field name="description">1100 Запаси</field>
         <field name="expression">bale[20%,22%,23%,24%,25%,26%,27%,28%] - bale[286%]</field>
+    </record>
+    <record id="f1m_1103" model="mis.report.kpi">
+        <field name="report_id" ref="report_f1m" />
+        <field name="sequence">71</field>
+        <field name="name">m1103</field>
+        <field name="description">1103 у тому числі готова продукція</field>
+        <field name="expression">bale[26%,27%]</field>
+        <field name="style_id" ref="style_sub" />
     </record>
     <record id="f1m_1110" model="mis.report.kpi">
         <field name="report_id" ref="report_f1m" />
@@ -101,23 +137,35 @@
         <field name="sequence">90</field>
         <field name="name">m1125</field>
         <field name="description">1125 Дебіторська заборгованість за продукцію, товари, роботи, послуги</field>
-        <field name="expression">pbale[36%] + bale[38%]</field>
+        <field name="expression">pbale[36%] + bale[34%] + bale[38%]</field>
+    </record>
+    <record id="f1m_1135" model="mis.report.kpi">
+        <field name="report_id" ref="report_f1m" />
+        <field name="sequence">95</field>
+        <field name="name">m1135</field>
+        <field name="description">1135 Дебіторська заборгованість за розрахунками з бюджетом</field>
+        <field name="expression">pbale[641%,642%]</field>
     </record>
     <record id="f1m_1155" model="mis.report.kpi">
         <field name="report_id" ref="report_f1m" />
         <field name="sequence">100</field>
         <field name="name">m1155</field>
         <field name="description">1155 Інша поточна дебіторська заборгованість</field>
-        <field
-            name="expression"
-        >bale[34%,35%] + pbale[371%,372%,373%,374%,375%,376%,377%,378%,379%] + pbale[63%,64%,65%,66%,67%,68%]</field>
+        <field name="expression">pbale[371%,372%,373%,374%,375%,376%,377%,378%,379%] + pbale[63%,65%,66%,67%,68%]</field>
+    </record>
+    <record id="f1m_1160" model="mis.report.kpi">
+        <field name="report_id" ref="report_f1m" />
+        <field name="sequence">105</field>
+        <field name="name">m1160</field>
+        <field name="description">1160 Поточні фінансові інвестиції</field>
+        <field name="expression">bale[352%]</field>
     </record>
     <record id="f1m_1165" model="mis.report.kpi">
         <field name="report_id" ref="report_f1m" />
         <field name="sequence">110</field>
         <field name="name">m1165</field>
         <field name="description">1165 Гроші та їх еквіваленти</field>
-        <field name="expression">bale[30%,31%,33%]</field>
+        <field name="expression">bale[30%,31%,333%,334%,335%,351%]</field>
     </record>
     <record id="f1m_1170" model="mis.report.kpi">
         <field name="report_id" ref="report_f1m" />
@@ -131,26 +179,35 @@
         <field name="sequence">130</field>
         <field name="name">m1190</field>
         <field name="description">1190 Інші оборотні активи</field>
-        <field name="expression">bale[286%]</field>
+        <field name="expression">bale[331%,332%] + pbale[643%,644%]</field>
     </record>
     <record id="f1m_1195" model="mis.report.kpi">
         <field name="report_id" ref="report_f1m" />
         <field name="sequence">140</field>
         <field name="name">m1195</field>
         <field name="description">1195 Усього за розділом II (оборотні активи)</field>
-        <field name="expression">m1100 + m1110 + m1125 + m1155 + m1165 + m1170 + m1190</field>
+        <field name="expression">m1100 + m1110 + m1125 + m1135 + m1155 + m1160 + m1165 + m1170 + m1190</field>
         <field name="style_id" ref="style_total" />
+    </record>
+
+    <!-- ===== АКТИВ. III. Необоротні активи, утримувані для продажу ===== -->
+    <record id="f1m_1200" model="mis.report.kpi">
+        <field name="report_id" ref="report_f1m" />
+        <field name="sequence">145</field>
+        <field name="name">m1200</field>
+        <field name="description">1200 Необоротні активи, утримувані для продажу, та групи вибуття</field>
+        <field name="expression">bale[286%]</field>
     </record>
     <record id="f1m_1300" model="mis.report.kpi">
         <field name="report_id" ref="report_f1m" />
         <field name="sequence">150</field>
         <field name="name">m1300</field>
         <field name="description">1300 Баланс (актив)</field>
-        <field name="expression">m1095 + m1195</field>
+        <field name="expression">m1095 + m1195 + m1200</field>
         <field name="style_id" ref="style_section" />
     </record>
 
-    <!-- ===== ПАСИВ ===== -->
+    <!-- ===== ПАСИВ. I. Власний капітал ===== -->
     <record id="f1m_1400" model="mis.report.kpi">
         <field name="report_id" ref="report_f1m" />
         <field name="sequence">200</field>
@@ -177,9 +234,7 @@
         <field name="sequence">230</field>
         <field name="name">m1420</field>
         <field name="description">1420 Нерозподілений прибуток (непокритий збиток)</field>
-        <field
-            name="expression"
-        >-(bale[44%,999999] + balu[44%,999999]) - (bale[7%,8%,90%,91%,92%,93%,94%,95%,96%,97%,98%,999001,999002,999997,999998] + balu[7%,8%,90%,91%,92%,93%,94%,95%,96%,97%,98%,999001,999002,999997,999998])</field>
+        <field name="expression">-(bale[44%,999999] + balu[44%,999999]) - (bale[7%,8%,90%,91%,92%,93%,94%,95%,96%,97%,98%,999001,999002,999997,999998] + balu[7%,8%,90%,91%,92%,93%,94%,95%,96%,97%,98%,999001,999002,999997,999998])</field>
     </record>
     <record id="f1m_1425" model="mis.report.kpi">
         <field name="report_id" ref="report_f1m" />
@@ -196,6 +251,8 @@
         <field name="expression">m1400 + m1410 + m1415 + m1420 + m1425</field>
         <field name="style_id" ref="style_total" />
     </record>
+
+    <!-- ===== ПАСИВ. II. Довгострокові зобов'язання ===== -->
     <record id="f1m_1595" model="mis.report.kpi">
         <field name="report_id" ref="report_f1m" />
         <field name="sequence">260</field>
@@ -204,6 +261,8 @@
         <field name="expression">-bale[47%,48%,49%,50%,51%,52%,53%,54%,55%]</field>
         <field name="style_id" ref="style_total" />
     </record>
+
+    <!-- ===== ПАСИВ. III. Поточні зобов'язання ===== -->
     <record id="f1m_1600" model="mis.report.kpi">
         <field name="report_id" ref="report_f1m" />
         <field name="sequence">270</field>
@@ -223,14 +282,14 @@
         <field name="sequence">290</field>
         <field name="name">m1615</field>
         <field name="description">1615 Поточна кредиторська заборгованість за товари, роботи, послуги</field>
-        <field name="expression">-nbale[63%]</field>
+        <field name="expression">-nbale[63%] - bale[62%]</field>
     </record>
     <record id="f1m_1620" model="mis.report.kpi">
         <field name="report_id" ref="report_f1m" />
         <field name="sequence">300</field>
         <field name="name">m1620</field>
         <field name="description">1620 Поточна кредиторська заборгованість за розрахунками з бюджетом</field>
-        <field name="expression">-nbale[64%]</field>
+        <field name="expression">-nbale[641%,642%]</field>
     </record>
     <record id="f1m_1625" model="mis.report.kpi">
         <field name="report_id" ref="report_f1m" />
@@ -246,21 +305,26 @@
         <field name="description">1630 Поточна кредиторська заборгованість за розрахунками з оплати праці</field>
         <field name="expression">-nbale[66%]</field>
     </record>
+    <record id="f1m_1665" model="mis.report.kpi">
+        <field name="report_id" ref="report_f1m" />
+        <field name="sequence">325</field>
+        <field name="name">m1665</field>
+        <field name="description">1665 Доходи майбутніх періодів</field>
+        <field name="expression">-bale[69%]</field>
+    </record>
     <record id="f1m_1690" model="mis.report.kpi">
         <field name="report_id" ref="report_f1m" />
         <field name="sequence">330</field>
         <field name="name">m1690</field>
         <field name="description">1690 Інші поточні зобов'язання</field>
-        <field
-            name="expression"
-        >-bale[62%,69%] - nbale[36%,371%,372%,373%,374%,375%,376%,377%,378%,379%] - nbale[67%,68%]</field>
+        <field name="expression">-nbale[36%,371%,372%,373%,374%,375%,376%,377%,378%,379%] - nbale[643%,644%] - nbale[67%,68%]</field>
     </record>
     <record id="f1m_1695" model="mis.report.kpi">
         <field name="report_id" ref="report_f1m" />
         <field name="sequence">340</field>
         <field name="name">m1695</field>
         <field name="description">1695 Усього за розділом III (поточні зобов'язання)</field>
-        <field name="expression">m1600 + m1610 + m1615 + m1620 + m1625 + m1630 + m1690</field>
+        <field name="expression">m1600 + m1610 + m1615 + m1620 + m1625 + m1630 + m1665 + m1690</field>
         <field name="style_id" ref="style_total" />
     </record>
     <record id="f1m_1900" model="mis.report.kpi">

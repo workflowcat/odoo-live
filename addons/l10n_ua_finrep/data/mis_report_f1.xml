@@ -163,7 +163,7 @@
         <field name="sequence">130</field>
         <field name="name">r1125</field>
         <field name="description">1125 Дебіторська заборгованість за продукцію, товари, роботи, послуги</field>
-        <field name="expression">pbale[36%] + bale[38%]</field>
+        <field name="expression">pbale[36%] + bale[34%] + bale[38%]</field>
     </record>
     <record id="f1_1130" model="mis.report.kpi">
         <field name="report_id" ref="report_f1" />
@@ -177,28 +177,28 @@
         <field name="sequence">150</field>
         <field name="name">r1135</field>
         <field name="description">1135 Дебіторська заборгованість за розрахунками з бюджетом</field>
-        <field name="expression">pbale[64%]</field>
+        <field name="expression">pbale[641%,642%]</field>
     </record>
     <record id="f1_1155" model="mis.report.kpi">
         <field name="report_id" ref="report_f1" />
         <field name="sequence">160</field>
         <field name="name">r1155</field>
         <field name="description">1155 Інша поточна дебіторська заборгованість</field>
-        <field name="expression">bale[34%] + pbale[372%,373%,374%,375%,376%,377%,378%,379%] + pbale[65%,66%,67%,68%]</field>
+        <field name="expression">pbale[372%,373%,374%,375%,376%,377%,378%,379%] + pbale[65%,66%,67%,68%]</field>
     </record>
     <record id="f1_1160" model="mis.report.kpi">
         <field name="report_id" ref="report_f1" />
         <field name="sequence">170</field>
         <field name="name">r1160</field>
         <field name="description">1160 Поточні фінансові інвестиції</field>
-        <field name="expression">bale[35%]</field>
+        <field name="expression">bale[352%]</field>
     </record>
     <record id="f1_1165" model="mis.report.kpi">
         <field name="report_id" ref="report_f1" />
         <field name="sequence">180</field>
         <field name="name">r1165</field>
         <field name="description">1165 Гроші та їх еквіваленти</field>
-        <field name="expression">bale[30%,31%,33%]</field>
+        <field name="expression">bale[30%,31%,333%,334%,335%,351%]</field>
     </record>
     <record id="f1_1170" model="mis.report.kpi">
         <field name="report_id" ref="report_f1" />
@@ -212,7 +212,7 @@
         <field name="sequence">200</field>
         <field name="name">r1190</field>
         <field name="description">1190 Інші оборотні активи</field>
-        <field name="expression">0.0</field>
+        <field name="expression">bale[331%,332%] + pbale[643%,644%]</field>
     </record>
     <record id="f1_1195" model="mis.report.kpi">
         <field name="report_id" ref="report_f1" />
@@ -364,14 +364,14 @@
         <field name="sequence">460</field>
         <field name="name">r1615</field>
         <field name="description">1615 Поточна кредиторська заборгованість за товари, роботи, послуги</field>
-        <field name="expression">-nbale[63%]</field>
+        <field name="expression">-nbale[63%] - bale[62%]</field>
     </record>
     <record id="f1_1620" model="mis.report.kpi">
         <field name="report_id" ref="report_f1" />
         <field name="sequence">470</field>
         <field name="name">r1620</field>
         <field name="description">1620 Поточна кредиторська заборгованість за розрахунками з бюджетом</field>
-        <field name="expression">-nbale[64%]</field>
+        <field name="expression">-nbale[641%,642%]</field>
     </record>
     <record id="f1_1625" model="mis.report.kpi">
         <field name="report_id" ref="report_f1" />
@@ -408,7 +408,7 @@
         <field name="description">1690 Інші поточні зобов'язання</field>
         <field
             name="expression"
-        >-bale[62%] - nbale[371%,372%,373%,374%,375%,376%,377%,378%,379%] - nbale[67%] - nbale[680%,682%,683%,684%,685%]</field>
+        >-nbale[371%,372%,373%,374%,375%,376%,377%,378%,379%] - nbale[643%,644%] - nbale[67%] - nbale[680%,682%,683%,684%,685%]</field>
     </record>
     <record id="f1_1695" model="mis.report.kpi">
         <field name="report_id" ref="report_f1" />

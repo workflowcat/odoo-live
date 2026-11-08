@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_finrep_filing_list" model="ir.ui.view">
+    <field name="name">ua.finrep.filing.list</field>
+    <field name="model">ua.finrep.filing</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="form"/>
+        <field name="period"/>
+        <field name="year"/>
+        <field name="company_id" groups="base.group_multi_company"/>
+        <field name="xml_name" optional="hide"/>
+        <field name="state" widget="badge" decoration-success="state == 'done'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_finrep_filing_form" model="ir.ui.view">
+    <field name="name">ua.finrep.filing.form</field>
+    <field name="model">ua.finrep.filing</field>
+    <field name="arch" type="xml">
+      <form>
+        <header>
+          <button name="action_compute" type="object" string="Розрахувати" class="btn-primary"
+                  invisible="state != 'draft'"/>
+          <button name="action_check" type="object" string="Перевірити підсумки" invisible="state != 'draft'"/>
+          <button name="action_xml" type="object" string="Сформувати XML"/>
+          <button name="action_done" type="object" string="Затвердити" invisible="state != 'draft'"/>
+          <button name="action_draft" type="object" string="У чернетку" invisible="state != 'done'"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name"/></h1></div>
+          <group>
+            <group>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+              <field name="form" readonly="state != 'draft'"/>
+              <field name="period" readonly="state != 'draft'"/>
+              <field name="year" options="{'format': false}" readonly="state != 'draft'"/>
+              <field name="standard" invisible="form != 'J0900108'" readonly="state != 'draft'"/>
+              <field name="xml_name" invisible="1"/>
+              <field name="xml_file" filename="xml_name" invisible="not xml_file"/>
+            </group>
+            <group>
+              <field name="tin" readonly="state != 'draft'"/>
+              <field name="sti_code" readonly="state != 'draft'"/>
+              <field name="kved" readonly="state != 'draft'"/>
+              <field name="koatuu" invisible="form == 'J0900207'" readonly="state != 'draft'"/>
+              <field name="director" readonly="state != 'draft'"/>
+              <field name="accountant" readonly="state != 'draft'"/>
+              <field name="computed_at"/>
+            </group>
+          </group>
+          <div class="alert alert-warning" role="alert" invisible="not check_text">
+            <field name="check_text"/>
+          </div>
+          <notebook>
+            <page string="Рядки" name="lines">
+              <field name="line_ids" readonly="state != 'draft'">
+                <list editable="bottom" create="false" delete="false" decoration-muted="sub">
+                  <field name="part"/>
+                  <field name="code"/>
+                  <field name="name"/>
+                  <field name="sub" column_invisible="1"/>
+                  <field name="g3"/>
+                  <field name="g4"/>
+                  <field name="uah_g3" optional="hide"/>
+                  <field name="uah_g4" optional="hide"/>
+                  <field name="formula" optional="hide"/>
+                </list>
+              </field>
+            </page>
+            <page string="Реквізити" name="details">
+              <group>
+                <field name="address" readonly="state != 'draft'"/>
+                <field name="phone" readonly="state != 'draft'"/>
+                <field name="legal_form" readonly="state != 'draft'"/>
+              </group>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_finrep_filing" model="ir.actions.act_window">
+    <field name="name">Фінзвітність до ДПС</field>
+    <field name="res_model">ua.finrep.filing</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Фінансова звітність у форматі ДПС</p>
+      <p>Ф1, Ф2 або фінзвітність малого підприємства: числа з тих самих шаблонів, що й друковані форми,
+        у тисячах гривень, з перевіркою підсумків і XML за схемою ДПС.</p>
+    </field>
+  </record>
+</odoo>

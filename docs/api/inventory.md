@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 88. Моделей: 184. Методів: 715. Збережених полів на чужих моделях: 400.
+Модулів: 89. Моделей: 185. Методів: 720. Збережених полів на чужих моделях: 400.
 
 ## Зарплата
 
@@ -1655,6 +1655,18 @@
 | `ua_kind_label()` | - | `l10n_ua_export_control` |
 | `ua_shipments()` | Рядки звіту: проведені відвантаження з дозволом, за датою. | `l10n_ua_export_control` |
 | `ua_used()` | {виріб: відвантажено} - проведені вихідні переміщення з цим дозволом. | `l10n_ua_export_control` |
+
+### `ua.finrep.filing`
+
+наша модель · `l10n_ua_finrep_dps`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_check()` | - | `l10n_ua_finrep_dps` |
+| `action_compute()` | - | `l10n_ua_finrep_dps` |
+| `action_done()` | - | `l10n_ua_finrep_dps` |
+| `action_draft()` | - | `l10n_ua_finrep_dps` |
+| `action_xml()` | - | `l10n_ua_finrep_dps` |
 
 ### `ua.fuel.norm.adjustment`
 

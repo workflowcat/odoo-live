@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <!-- Ф2-м «Звіт про фінансові результати», НП(С)БО 25.
+    <!-- Ф2-м «Звіт про фінансові результати», НП(С)БО 25, рядки чинної форми
+         (ті самі, що в схемі ДПС J0901107).
 
-         Рядки форми 2-м крупніші за Ф2: доходи двома рядками (2000, 2160),
-         витрати двома (2050, 2165), підсумки 2280 і 2285. Чистий результат
-         2350 дорівнює рядку 2350 Ф2 на тих самих даних: обидва рахують
-         нетто класів 7, 8 і 9 за період.
+         Доходи трьома рядками: 2000 (рахунок 70), 2120 інші операційні (71),
+         2240 інші (72-74). Витрати: 2050 собівартість (90), 2180 інші
+         операційні (91-94), 2270 інші (95-97). Чистий результат 2350 дорівнює
+         рядку 2350 Ф2 на тих самих даних: обидва рахують нетто класів 7, 8 і 9.
 
-         Клас 8 доданий окремим доданком до 2165 з тієї ж причини, що й у Ф2:
-         при схемі «8 і 9» він дорівнює нулю, при схемі «лише 8» він і є
-         витратами.
+         Клас 8 доданий до 2180 з тієї ж причини, що й у Ф2: при схемі «8 і 9»
+         він дорівнює нулю, при схемі «лише 8» він і є витратами.
     -->
     <record id="report_f2m" model="mis.report">
         <field name="name">Ф2-м. Звіт про фінансові результати (НП(С)БО 25)</field>
@@ -25,19 +25,26 @@
         <field name="description">2000 Чистий дохід від реалізації продукції (товарів, робіт, послуг)</field>
         <field name="expression">-balp[70%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
-    <record id="f2m_2160" model="mis.report.kpi">
+    <record id="f2m_2120" model="mis.report.kpi">
         <field name="report_id" ref="report_f2m" />
         <field name="sequence">20</field>
-        <field name="name">n2160</field>
-        <field name="description">2160 Інші доходи</field>
-        <field name="expression">-balp[71%,72%,73%,74%,75%,76%,999001,999997][('journal_id.code', '!=', 'CLS')]</field>
+        <field name="name">n2120</field>
+        <field name="description">2120 Інші операційні доходи</field>
+        <field name="expression">-balp[71%][('journal_id.code', '!=', 'CLS')]</field>
+    </record>
+    <record id="f2m_2240" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2m" />
+        <field name="sequence">25</field>
+        <field name="name">n2240</field>
+        <field name="description">2240 Інші доходи</field>
+        <field name="expression">-balp[72%,73%,74%,75%,76%,999001,999997][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2m_2280" model="mis.report.kpi">
         <field name="report_id" ref="report_f2m" />
         <field name="sequence">30</field>
         <field name="name">n2280</field>
-        <field name="description">2280 Разом доходи (2000 + 2160)</field>
-        <field name="expression">n2000 + n2160</field>
+        <field name="description">2280 Разом доходи (2000 + 2120 + 2240)</field>
+        <field name="expression">n2000 + n2120 + n2240</field>
         <field name="style_id" ref="style_total" />
     </record>
     <record id="f2m_2050" model="mis.report.kpi">
@@ -47,21 +54,26 @@
         <field name="description">2050 Собівартість реалізованої продукції (товарів, робіт, послуг)</field>
         <field name="expression">balp[90%][('journal_id.code', '!=', 'CLS')]</field>
     </record>
-    <record id="f2m_2165" model="mis.report.kpi">
+    <record id="f2m_2180" model="mis.report.kpi">
         <field name="report_id" ref="report_f2m" />
         <field name="sequence">50</field>
-        <field name="name">n2165</field>
-        <field name="description">2165 Інші витрати</field>
-        <field
-            name="expression"
-        >balp[85%,91%,92%,93%,94%,95%,96%,97%,999002,999998][('journal_id.code', '!=', 'CLS')] + balp[80%,81%,82%,83%,84%][('journal_id.code', '!=', 'CLS')]</field>
+        <field name="name">n2180</field>
+        <field name="description">2180 Інші операційні витрати</field>
+        <field name="expression">balp[91%,92%,93%,94%][('journal_id.code', '!=', 'CLS')] + balp[80%,81%,82%,83%,84%,85%][('journal_id.code', '!=', 'CLS')]</field>
+    </record>
+    <record id="f2m_2270" model="mis.report.kpi">
+        <field name="report_id" ref="report_f2m" />
+        <field name="sequence">55</field>
+        <field name="name">n2270</field>
+        <field name="description">2270 Інші витрати</field>
+        <field name="expression">balp[95%,96%,97%,999002,999998][('journal_id.code', '!=', 'CLS')]</field>
     </record>
     <record id="f2m_2285" model="mis.report.kpi">
         <field name="report_id" ref="report_f2m" />
         <field name="sequence">60</field>
         <field name="name">n2285</field>
-        <field name="description">2285 Разом витрати (2050 + 2165)</field>
-        <field name="expression">n2050 + n2165</field>
+        <field name="description">2285 Разом витрати (2050 + 2180 + 2270)</field>
+        <field name="expression">n2050 + n2180 + n2270</field>
         <field name="style_id" ref="style_total" />
     </record>
     <record id="f2m_2290" model="mis.report.kpi">
@@ -94,9 +106,7 @@
         <field name="sequence">900</field>
         <field name="name">ctl_1420</field>
         <field name="description">Контроль: 2350 мінус зміна рядка 1420 (0, якщо не було дивідендів і закриття через 79)</field>
-        <field
-            name="expression"
-        >n2350 + balp[44%,999999][('journal_id.code', '!=', 'CLS')] + balp[7%,8%,90%,91%,92%,93%,94%,95%,96%,97%,98%,999001,999002,999997,999998][('journal_id.code', '!=', 'CLS')]</field>
+        <field name="expression">n2350 + balp[44%,999999][('journal_id.code', '!=', 'CLS')] + balp[7%,8%,90%,91%,92%,93%,94%,95%,96%,97%,98%,999001,999002,999997,999998][('journal_id.code', '!=', 'CLS')]</field>
         <field name="style_id" ref="style_control" />
     </record>
 </odoo>
