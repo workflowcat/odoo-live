@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Базовий довідник з data/classifier.json; повторний запуск лише оновлює записи з файла. -->
+  <function model="ua.component.class" name="_ua_load_classifier"/>
+</odoo>

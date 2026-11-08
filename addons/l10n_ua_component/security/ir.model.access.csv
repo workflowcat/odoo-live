@@ -1,0 +1,22 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_component_attribute_user,ua.component.attribute user,model_ua_component_attribute,base.group_user,1,0,0,0
+access_ua_component_attribute_manager,ua.component.attribute manager,model_ua_component_attribute,purchase.group_purchase_manager,1,1,1,1
+access_ua_component_choice_user,ua.component.choice user,model_ua_component_choice,base.group_user,1,0,0,0
+access_ua_component_choice_manager,ua.component.choice manager,model_ua_component_choice,purchase.group_purchase_manager,1,1,1,1
+access_ua_component_class_user,ua.component.class user,model_ua_component_class,base.group_user,1,0,0,0
+access_ua_component_class_manager,ua.component.class manager,model_ua_component_class,purchase.group_purchase_manager,1,1,1,1
+access_ua_component_class_line_user,ua.component.class.line user,model_ua_component_class_line,base.group_user,1,0,0,0
+access_ua_component_class_line_manager,ua.component.class.line manager,model_ua_component_class_line,purchase.group_purchase_manager,1,1,1,1
+access_ua_component_equivalence_user,ua.component.equivalence user,model_ua_component_equivalence,base.group_user,1,0,0,0
+access_ua_component_equivalence_manager,ua.component.equivalence manager,model_ua_component_equivalence,purchase.group_purchase_manager,1,1,1,1
+access_ua_component_value_user,ua.component.value user,model_ua_component_value,base.group_user,1,1,1,1
+access_ua_component_analog_user,ua.component.analog user,model_ua_component_analog,base.group_user,1,0,0,0
+access_ua_component_analog_editor,ua.component.analog editor,model_ua_component_analog,stock.group_stock_user,1,1,1,1
+access_ua_component_analog_buyer,ua.component.analog buyer,model_ua_component_analog,purchase.group_purchase_user,1,1,1,1
+access_ua_component_analog_finder,ua.component.analog.finder,model_ua_component_analog_finder,base.group_user,1,1,1,1
+access_ua_component_analog_finder_line,ua.component.analog.finder.line,model_ua_component_analog_finder_line,base.group_user,1,1,1,1
+access_ua_component_intake_user,ua.component.intake user,model_ua_component_intake,purchase.group_purchase_user,1,1,1,0
+access_ua_component_intake_manager,ua.component.intake manager,model_ua_component_intake,purchase.group_purchase_manager,1,1,1,1
+access_ua_component_intake_stock,ua.component.intake stock,model_ua_component_intake,stock.group_stock_user,1,1,1,0
+access_ua_component_intake_line_user,ua.component.intake.line user,model_ua_component_intake_line,purchase.group_purchase_user,1,1,1,1
+access_ua_component_intake_line_stock,ua.component.intake.line stock,model_ua_component_intake_line,stock.group_stock_user,1,1,1,1

@@ -8,7 +8,9 @@
     categories[]   key, name, parent
     workcenters[]  key, name, code, costs_hour, fields{}
     products[]     key, name, code, category, type, storable, uom, tracking, cost, price,
-                   barcode, uktzed, dk021, sale_ok, purchase_ok, description, fields{}
+                   barcode, uktzed, dk021, sale_ok, purchase_ok, description, fields{},
+                   component{} (вид і характеристики; читає l10n_ua_component, з ним
+                   name можна не писати - назва складеться за шаблоном виду)
     boms[]         key, product, qty, code, type, lines[], operations[], byproducts[]
     records[]      key, model, values{}, match[]
 
@@ -108,6 +110,19 @@ class UaCatalog(models.AbstractModel):
         company = company or self.env.company
         loader = _Loader(self.env, read_pack(info["path"]), company, mode)
         return loader.run()
+
+    # ------------------------------------------------------------- гачки для інших модулів
+    @api.model
+    def _ua_pack_product_name(self, pack, item):
+        """Назва товару з пакета. Модулі з характеристиками складають її самі."""
+        if not item.get("name"):
+            raise UserError("Пакет %s: у товару «%s» немає назви." % (pack, item.get("key")))
+        return item["name"]
+
+    @api.model
+    def _ua_pack_product_after(self, tmpl, item, mode):
+        """Після створення чи підхоплення товару з пакета: інші модулі дописують своє."""
+        return tmpl
 
 
 class _Loader:
@@ -286,11 +301,13 @@ class _Loader:
 
     def _load_products(self, items):
         Template = self.env["product.template"]
+        Catalog = self.env["ua.catalog"].with_company(self.company)
         fields_ = Template._fields
         for item in items:
             ptype = item.get("type", "consu")
+            name = Catalog._ua_pack_product_name(self.pack, item)
             vals = {
-                "name": item["name"],
+                "name": name,
                 "type": ptype,
                 "company_id": self.company.id,
                 "uom_id": self._uom(item.get("uom")).id,
@@ -327,7 +344,7 @@ class _Loader:
                 match = [("default_code", "=", item["code"]),
                          ("company_id", "in", [self.company.id, False])]
             else:
-                match = [("name", "=", item["name"]),
+                match = [("name", "=", name),
                          ("company_id", "in", [self.company.id, False])]
             update_vals = {k: v for k, v in vals.items() if k != "barcode"}
             tmpl = self._ensure("products", "product.template", item["key"], vals, match,
@@ -335,6 +352,7 @@ class _Loader:
             if "cost" in item and (self.mode == "update" or not tmpl.with_company(
                     self.company).standard_price):
                 tmpl.with_company(self.company).sudo().standard_price = item["cost"]
+            Catalog._ua_pack_product_after(tmpl, item, self.mode)
 
     def _bom_line(self, line, field_qty="product_qty"):
         tmpl = self._ref(line["product"])

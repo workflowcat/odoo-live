@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_profile_user,profile user,model_ua_supplier_price_profile,base.group_user,1,0,0,0
+access_profile_purchase,profile purchase,model_ua_supplier_price_profile,purchase.group_purchase_user,1,1,1,1
+access_import_purchase,import purchase,model_ua_supplier_price_import,purchase.group_purchase_user,1,1,1,1
+access_import_line_purchase,import line purchase,model_ua_supplier_price_import_line,purchase.group_purchase_user,1,1,1,1
+access_source_user,source user,model_ua_supplier_source,base.group_user,1,0,0,0
+access_source_manager,source manager,model_ua_supplier_source,purchase.group_purchase_manager,1,1,1,1
+access_find_user,find user,model_ua_supplier_find,base.group_user,1,1,1,1

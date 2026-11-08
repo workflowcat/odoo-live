@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="ua_component_intake_line_view_list" model="ir.ui.view">
+    <field name="name">ua.component.intake.line.list</field>
+    <field name="model">ua.component.intake.line</field>
+    <field name="arch" type="xml">
+      <list string="Рядки розбору" editable="bottom" create="0"
+            decoration-muted="status in ('duplicate', 'exists')"
+            decoration-danger="status == 'unknown'" decoration-warning="status == 'partial'">
+        <field name="sequence" readonly="1"/>
+        <field name="apply"/>
+        <field name="raw_name" readonly="1"/>
+        <field name="raw_code" optional="hide" readonly="1"/>
+        <field name="raw_unit" optional="hide" readonly="1"/>
+        <field name="status" widget="badge" readonly="1"
+               decoration-success="status == 'ok'" decoration-warning="status == 'partial'"
+               decoration-danger="status == 'unknown'" decoration-info="status in ('duplicate', 'exists')"/>
+        <field name="class_id" options="{'no_create': True}"/>
+        <field name="values_display" optional="show"/>
+        <field name="missing" optional="show" readonly="1"/>
+        <field name="proposed_name" optional="show"/>
+        <field name="proposed_code" optional="hide"/>
+        <field name="product_tmpl_id" optional="show" readonly="1"/>
+        <field name="duplicate_line_id" optional="hide" readonly="1"/>
+        <field name="duplicate_of_id" optional="show" readonly="1"/>
+        <field name="group_size" optional="hide" readonly="1"/>
+        <field name="confidence" optional="hide" readonly="1"/>
+        <field name="key" optional="hide" readonly="1" groups="base.group_no_one"/>
+        <field name="result" optional="show"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="ua_component_intake_line_view_search" model="ir.ui.view">
+    <field name="name">ua.component.intake.line.search</field>
+    <field name="model">ua.component.intake.line</field>
+    <field name="arch" type="xml">
+      <search string="Рядки розбору">
+        <field name="raw_name"/>
+        <field name="class_id"/>
+        <field name="key"/>
+        <filter name="todo" string="Треба доробити" domain="[('status', 'in', ('partial', 'unknown'))]"/>
+        <filter name="dups" string="Дублі" domain="[('status', 'in', ('duplicate', 'exists'))]"/>
+        <filter name="to_apply" string="До застосування" domain="[('apply', '=', True)]"/>
+        <group>
+          <filter name="by_class" string="Вид" context="{'group_by': 'class_id'}"/>
+          <filter name="by_key" string="Відбиток" context="{'group_by': 'key'}"/>
+          <filter name="by_status" string="Результат" context="{'group_by': 'status'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="ua_component_intake_view_list" model="ir.ui.view">
+    <field name="name">ua.component.intake.list</field>
+    <field name="model">ua.component.intake</field>
+    <field name="arch" type="xml">
+      <list string="Розбір номенклатури">
+        <field name="name"/>
+        <field name="source"/>
+        <field name="count_total"/>
+        <field name="count_ok"/>
+        <field name="count_duplicate"/>
+        <field name="state" widget="badge" decoration-success="state == 'applied'"
+               decoration-info="state == 'parsed'"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="ua_component_intake_view_form" model="ir.ui.view">
+    <field name="name">ua.component.intake.form</field>
+    <field name="model">ua.component.intake</field>
+    <field name="arch" type="xml">
+      <form string="Розбір номенклатури">
+        <header>
+          <button name="action_parse" type="object" string="Розібрати" class="btn-primary"
+                  invisible="state != 'draft'"/>
+          <button name="action_parse" type="object" string="Розібрати знову"
+                  invisible="state != 'parsed'"/>
+          <button name="action_apply" type="object" string="Застосувати" class="btn-primary"
+                  invisible="state != 'parsed'"
+                  confirm="Позначені рядки змінять товари. Документ лишиться протоколом."/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_button_box" name="button_box">
+            <button name="action_lines" type="object" class="oe_stat_button" icon="fa-list"
+                    invisible="count_total == 0">
+              <field name="count_total" widget="statinfo" string="Рядків"/>
+            </button>
+          </div>
+          <div class="oe_title">
+            <h1><field name="name"/></h1>
+          </div>
+          <group>
+            <group>
+              <field name="source" widget="radio" readonly="state != 'draft'"/>
+              <field name="categ_id" invisible="source != 'products'" readonly="state != 'draft'"/>
+              <field name="only_unclassified" invisible="source != 'products'"
+                     readonly="state != 'draft'"/>
+              <field name="file" filename="file_name" invisible="source != 'file'"
+                     readonly="state != 'draft'"/>
+              <field name="file_name" invisible="1"/>
+            </group>
+            <group>
+              <field name="min_confidence" widget="percentage"/>
+              <field name="rename"/>
+              <field name="archive_duplicates" invisible="source != 'products'"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+            </group>
+          </group>
+          <group invisible="count_total == 0" col="5">
+            <field name="count_ok"/>
+            <field name="count_partial"/>
+            <field name="count_unknown"/>
+            <field name="count_duplicate"/>
+          </group>
+          <field name="summary" invisible="not summary" class="text-muted"/>
+          <field name="line_ids" readonly="state == 'applied'"/>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_component_intake" model="ir.actions.act_window">
+    <field name="name">Розбір номенклатури</field>
+    <field name="res_model">ua.component.intake</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Розберіть номенклатуру з 1С або наявні товари</p>
+      <p>Назви розкладаються на вид і характеристики, однакові вироби під різними назвами
+        стають однією групою, решта - до доробки вручну.</p>
+    </field>
+  </record>
+</odoo>

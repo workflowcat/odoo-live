@@ -1,0 +1,4495 @@
+{
+ "schema": 1,
+ "name": "Класифікатор комплектуючих: прокат, кріплення, інструмент, підшипники, ущільнення, компоненти БпЛА, кабель",
+ "notes": [
+  "Розміри, кроки різьби, розміри під ключ, підшипники і густини - довідкові значення з відкритих довідників (ISO 261, ISO 4017/4032, DIN 933/934, ISO 15, ISO 1832). Перед конструкторським рішенням звіряйте з чинною редакцією стандарту.",
+  "Відповідності стандартів і марок - підказка для пошуку аналогів, а не дозвіл на заміну: заміну в специфікації погоджує конструктор або представник замовника.",
+  "Коди ДК 021 - з l10n_ua_dk021; для прокату код береться з марки (сталь, алюміній, мідь, титан)."
+ ],
+ "attributes": [
+  {
+   "code": "standard",
+   "name": "Стандарт",
+   "kind": "choice",
+   "choices": [
+    {
+     "code": "din931",
+     "name": "DIN 931",
+     "class": "bolt_hex",
+     "spanner": "din"
+    },
+    {
+     "code": "din933",
+     "name": "DIN 933",
+     "class": "bolt_hex",
+     "spanner": "din"
+    },
+    {
+     "code": "iso4014",
+     "name": "ISO 4014",
+     "class": "bolt_hex",
+     "spanner": "iso"
+    },
+    {
+     "code": "iso4017",
+     "name": "ISO 4017",
+     "class": "bolt_hex",
+     "spanner": "iso"
+    },
+    {
+     "code": "gost7798",
+     "name": "ГОСТ 7798-70",
+     "aliases": [
+      "гост 7798",
+      "дсту гост 7798"
+     ],
+     "class": "bolt_hex",
+     "spanner": "din"
+    },
+    {
+     "code": "gost7805",
+     "name": "ГОСТ 7805-70",
+     "aliases": [
+      "гост 7805"
+     ],
+     "class": "bolt_hex",
+     "spanner": "din"
+    },
+    {
+     "code": "din912",
+     "name": "DIN 912",
+     "class": "screw_socket"
+    },
+    {
+     "code": "iso4762",
+     "name": "ISO 4762",
+     "class": "screw_socket"
+    },
+    {
+     "code": "gost11738",
+     "name": "ГОСТ 11738-84",
+     "aliases": [
+      "гост 11738"
+     ],
+     "class": "screw_socket"
+    },
+    {
+     "code": "din7991",
+     "name": "DIN 7991",
+     "class": "screw_csk"
+    },
+    {
+     "code": "iso10642",
+     "name": "ISO 10642",
+     "class": "screw_csk"
+    },
+    {
+     "code": "din965",
+     "name": "DIN 965",
+     "class": "screw_csk"
+    },
+    {
+     "code": "iso7046",
+     "name": "ISO 7046",
+     "class": "screw_csk"
+    },
+    {
+     "code": "iso7380",
+     "name": "ISO 7380",
+     "class": "screw_button"
+    },
+    {
+     "code": "din7985",
+     "name": "DIN 7985",
+     "class": "screw_button"
+    },
+    {
+     "code": "iso7045",
+     "name": "ISO 7045",
+     "class": "screw_button"
+    },
+    {
+     "code": "din913",
+     "name": "DIN 913",
+     "class": "set_screw"
+    },
+    {
+     "code": "iso4026",
+     "name": "ISO 4026",
+     "class": "set_screw"
+    },
+    {
+     "code": "din916",
+     "name": "DIN 916",
+     "class": "set_screw"
+    },
+    {
+     "code": "iso4029",
+     "name": "ISO 4029",
+     "class": "set_screw"
+    },
+    {
+     "code": "din975",
+     "name": "DIN 975",
+     "class": "stud"
+    },
+    {
+     "code": "din934",
+     "name": "DIN 934",
+     "class": "nut_hex",
+     "spanner": "din"
+    },
+    {
+     "code": "iso4032",
+     "name": "ISO 4032",
+     "class": "nut_hex",
+     "spanner": "iso"
+    },
+    {
+     "code": "gost5915",
+     "name": "ГОСТ 5915-70",
+     "aliases": [
+      "гост 5915"
+     ],
+     "class": "nut_hex",
+     "spanner": "din"
+    },
+    {
+     "code": "din985",
+     "name": "DIN 985",
+     "class": "nut_lock",
+     "spanner": "din"
+    },
+    {
+     "code": "iso10511",
+     "name": "ISO 10511",
+     "class": "nut_lock",
+     "spanner": "iso"
+    },
+    {
+     "code": "din125",
+     "name": "DIN 125",
+     "aliases": [
+      "din 125a",
+      "din 125-a"
+     ],
+     "class": "washer_flat"
+    },
+    {
+     "code": "iso7089",
+     "name": "ISO 7089",
+     "class": "washer_flat"
+    },
+    {
+     "code": "gost11371",
+     "name": "ГОСТ 11371-78",
+     "aliases": [
+      "гост 11371"
+     ],
+     "class": "washer_flat"
+    },
+    {
+     "code": "din9021",
+     "name": "DIN 9021",
+     "class": "washer_large"
+    },
+    {
+     "code": "iso7093",
+     "name": "ISO 7093",
+     "class": "washer_large"
+    },
+    {
+     "code": "din127",
+     "name": "DIN 127",
+     "class": "washer_spring"
+    },
+    {
+     "code": "gost6402",
+     "name": "ГОСТ 6402-70",
+     "aliases": [
+      "гост 6402"
+     ],
+     "class": "washer_spring"
+    },
+    {
+     "code": "din7337",
+     "name": "DIN 7337",
+     "class": "rivet_blind"
+    },
+    {
+     "code": "iso15977",
+     "name": "ISO 15977",
+     "class": "rivet_blind"
+    },
+    {
+     "code": "din471",
+     "name": "DIN 471",
+     "class": "circlip_shaft"
+    },
+    {
+     "code": "gost13942",
+     "name": "ГОСТ 13942-86",
+     "aliases": [
+      "гост 13942"
+     ],
+     "class": "circlip_shaft"
+    },
+    {
+     "code": "din472",
+     "name": "DIN 472",
+     "class": "circlip_bore"
+    },
+    {
+     "code": "gost13943",
+     "name": "ГОСТ 13943-86",
+     "aliases": [
+      "гост 13943"
+     ],
+     "class": "circlip_bore"
+    },
+    {
+     "code": "iso8734",
+     "name": "ISO 8734",
+     "class": "pin_dowel"
+    },
+    {
+     "code": "din6325",
+     "name": "DIN 6325",
+     "class": "pin_dowel"
+    },
+    {
+     "code": "iso2338",
+     "name": "ISO 2338",
+     "class": "pin_dowel"
+    },
+    {
+     "code": "din7",
+     "name": "DIN 7",
+     "class": "pin_dowel"
+    },
+    {
+     "code": "din8140",
+     "name": "DIN 8140",
+     "class": "thread_insert"
+    },
+    {
+     "code": "din7981",
+     "name": "DIN 7981",
+     "class": "self_tapping"
+    },
+    {
+     "code": "iso7049",
+     "name": "ISO 7049",
+     "class": "self_tapping"
+    },
+    {
+     "code": "din7504",
+     "name": "DIN 7504",
+     "class": "self_tapping"
+    },
+    {
+     "code": "din338",
+     "name": "DIN 338",
+     "class": "drill"
+    },
+    {
+     "code": "din340",
+     "name": "DIN 340",
+     "class": "drill"
+    },
+    {
+     "code": "din1897",
+     "name": "DIN 1897",
+     "class": "drill"
+    },
+    {
+     "code": "din371",
+     "name": "DIN 371",
+     "class": "tap"
+    },
+    {
+     "code": "din376",
+     "name": "DIN 376",
+     "class": "tap"
+    },
+    {
+     "code": "din352",
+     "name": "DIN 352",
+     "class": "tap"
+    },
+    {
+     "code": "iso1832",
+     "name": "ISO 1832",
+     "class": "insert"
+    },
+    {
+     "code": "iso15",
+     "name": "ISO 15"
+    },
+    {
+     "code": "gost8338",
+     "name": "ГОСТ 8338-75",
+     "aliases": [
+      "гост 8338"
+     ]
+    },
+    {
+     "code": "iso3601",
+     "name": "ISO 3601",
+     "class": "oring"
+    },
+    {
+     "code": "gost9833",
+     "name": "ГОСТ 9833-73",
+     "aliases": [
+      "гост 9833"
+     ],
+     "class": "oring"
+    },
+    {
+     "code": "gost2590",
+     "name": "ГОСТ 2590-2006",
+     "aliases": [
+      "гост 2590"
+     ],
+     "class": "bar_round"
+    },
+    {
+     "code": "en10060",
+     "name": "EN 10060",
+     "class": "bar_round"
+    },
+    {
+     "code": "gost2591",
+     "name": "ГОСТ 2591-2006",
+     "aliases": [
+      "гост 2591"
+     ],
+     "class": "bar_square"
+    },
+    {
+     "code": "en10059",
+     "name": "EN 10059",
+     "class": "bar_square"
+    },
+    {
+     "code": "gost2879",
+     "name": "ГОСТ 2879-2006",
+     "aliases": [
+      "гост 2879"
+     ],
+     "class": "bar_hex"
+    },
+    {
+     "code": "en10061",
+     "name": "EN 10061",
+     "class": "bar_hex"
+    },
+    {
+     "code": "gost103",
+     "name": "ГОСТ 103-2006",
+     "aliases": [
+      "гост 103"
+     ],
+     "class": "flat"
+    },
+    {
+     "code": "en10058",
+     "name": "EN 10058",
+     "class": "flat"
+    },
+    {
+     "code": "gost19903",
+     "name": "ГОСТ 19903",
+     "class": "sheet"
+    },
+    {
+     "code": "en10029",
+     "name": "EN 10029",
+     "class": "sheet"
+    },
+    {
+     "code": "gost8509",
+     "name": "ГОСТ 8509-93",
+     "aliases": [
+      "гост 8509"
+     ],
+     "class": "angle"
+    },
+    {
+     "code": "gost8510",
+     "name": "ГОСТ 8510-86",
+     "aliases": [
+      "гост 8510"
+     ],
+     "class": "angle"
+    },
+    {
+     "code": "en10056",
+     "name": "EN 10056",
+     "class": "angle"
+    },
+    {
+     "code": "gost8732",
+     "name": "ГОСТ 8732-78",
+     "aliases": [
+      "гост 8732"
+     ],
+     "class": "pipe"
+    },
+    {
+     "code": "gost8734",
+     "name": "ГОСТ 8734-75",
+     "aliases": [
+      "гост 8734"
+     ],
+     "class": "pipe"
+    },
+    {
+     "code": "gost10704",
+     "name": "ГОСТ 10704-91",
+     "aliases": [
+      "гост 10704"
+     ],
+     "class": "pipe"
+    },
+    {
+     "code": "en10216",
+     "name": "EN 10216",
+     "class": "pipe"
+    },
+    {
+     "code": "gost8639",
+     "name": "ГОСТ 8639-82",
+     "aliases": [
+      "гост 8639"
+     ],
+     "class": "rect_pipe"
+    },
+    {
+     "code": "gost8645",
+     "name": "ГОСТ 8645-68",
+     "aliases": [
+      "гост 8645"
+     ],
+     "class": "rect_pipe"
+    },
+    {
+     "code": "en10219",
+     "name": "EN 10219",
+     "class": "rect_pipe"
+    },
+    {
+     "code": "gost21488",
+     "name": "ГОСТ 21488-97",
+     "aliases": [
+      "гост 21488"
+     ],
+     "class": "bar_round"
+    },
+    {
+     "code": "gost21631",
+     "name": "ГОСТ 21631-76",
+     "aliases": [
+      "гост 21631"
+     ],
+     "class": "sheet"
+    },
+    {
+     "code": "gost17232",
+     "name": "ГОСТ 17232-99",
+     "aliases": [
+      "гост 17232"
+     ],
+     "class": "sheet"
+    }
+   ],
+   "help": "Стандарт на виріб або сортамент. Рівноцінні стандарти - у розділі відповідностей."
+  },
+  {
+   "code": "material",
+   "name": "Матеріал (марка)",
+   "kind": "choice",
+   "choices": [
+    {
+     "code": "st3",
+     "name": "Ст3сп",
+     "aliases": [
+      "ст3",
+      "ст.3",
+      "ст 3",
+      "ст3пс",
+      "ст3сп5",
+      "сталь 3"
+     ],
+     "density": 7850,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "s235",
+     "name": "S235JR",
+     "aliases": [
+      "s235",
+      "s235jr",
+      "s235j2"
+     ],
+     "density": 7850,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "st20",
+     "name": "Сталь 20",
+     "aliases": [
+      "ст20",
+      "ст.20",
+      "ст 20"
+     ],
+     "density": 7859,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "c22",
+     "name": "C22 (1.0402)",
+     "aliases": [
+      "c22",
+      "1.0402",
+      "ck22"
+     ],
+     "density": 7850,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "aisi1020",
+     "name": "AISI 1020",
+     "aliases": [
+      "1020"
+     ],
+     "density": 7870,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "st45",
+     "name": "Сталь 45",
+     "aliases": [
+      "ст45",
+      "ст.45",
+      "ст 45"
+     ],
+     "density": 7826,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "c45",
+     "name": "C45 (1.0503)",
+     "aliases": [
+      "c45",
+      "1.0503",
+      "ck45",
+      "c45e"
+     ],
+     "density": 7850,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "aisi1045",
+     "name": "AISI 1045",
+     "aliases": [
+      "1045"
+     ],
+     "density": 7870,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "40h",
+     "name": "Сталь 40Х",
+     "aliases": [
+      "40х",
+      "40x",
+      "ст40х",
+      "ст.40х"
+     ],
+     "density": 7820,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "41cr4",
+     "name": "41Cr4 (1.7035)",
+     "aliases": [
+      "41cr4",
+      "1.7035"
+     ],
+     "density": 7850,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "aisi5140",
+     "name": "AISI 5140",
+     "aliases": [
+      "5140"
+     ],
+     "density": 7850,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "09g2s",
+     "name": "09Г2С",
+     "aliases": [
+      "09г2с",
+      "09g2s"
+     ],
+     "density": 7850,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "s355",
+     "name": "S355J2",
+     "aliases": [
+      "s355",
+      "s355j2",
+      "s355jr"
+     ],
+     "density": 7850,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "30hgsa",
+     "name": "30ХГСА",
+     "aliases": [
+      "30хгса",
+      "30хгс",
+      "30hgsa"
+     ],
+     "density": 7850,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "65g",
+     "name": "Сталь 65Г",
+     "aliases": [
+      "65г",
+      "65g"
+     ],
+     "density": 7850,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "12h18n10t",
+     "name": "12Х18Н10Т",
+     "aliases": [
+      "12х18н10т",
+      "12x18h10t"
+     ],
+     "density": 7920,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "aisi321",
+     "name": "AISI 321",
+     "aliases": [
+      "aisi321",
+      "1.4541"
+     ],
+     "density": 7900,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "08h18n10",
+     "name": "08Х18Н10",
+     "aliases": [
+      "08х18н10",
+      "08x18h10"
+     ],
+     "density": 7900,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "aisi304",
+     "name": "AISI 304",
+     "aliases": [
+      "aisi304",
+      "1.4301",
+      "304l"
+     ],
+     "density": 7900,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "10h17n13m2t",
+     "name": "10Х17Н13М2Т",
+     "aliases": [
+      "10х17н13м2т"
+     ],
+     "density": 7950,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "aisi316",
+     "name": "AISI 316",
+     "aliases": [
+      "aisi316",
+      "316l",
+      "1.4401",
+      "1.4404",
+      "316ti"
+     ],
+     "density": 7980,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "steel",
+     "name": "сталь вуглецева",
+     "aliases": [
+      "сталь",
+      "сталев*",
+      "чорн. мет*"
+     ],
+     "density": 7850,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "stainless",
+     "name": "сталь нержавіюча",
+     "aliases": [
+      "нерж*",
+      "inox"
+     ],
+     "density": 7900,
+     "dk021": "14622000-7"
+    },
+    {
+     "code": "d16t",
+     "name": "Д16Т",
+     "aliases": [
+      "д16т",
+      "д16",
+      "d16t",
+      "д16чт"
+     ],
+     "density": 2780,
+     "dk021": "14721000-1"
+    },
+    {
+     "code": "al2024",
+     "name": "2024",
+     "aliases": [
+      "2024",
+      "2024-t3",
+      "2024-t351",
+      "en aw-2024"
+     ],
+     "density": 2780,
+     "dk021": "14721000-1"
+    },
+    {
+     "code": "amg6",
+     "name": "АМг6",
+     "aliases": [
+      "амг6",
+      "amg6",
+      "амг-6"
+     ],
+     "density": 2640,
+     "dk021": "14721000-1"
+    },
+    {
+     "code": "al5083",
+     "name": "5083",
+     "aliases": [
+      "5083",
+      "en aw-5083",
+      "almg4.5mn"
+     ],
+     "density": 2660,
+     "dk021": "14721000-1"
+    },
+    {
+     "code": "amg3",
+     "name": "АМг3",
+     "aliases": [
+      "амг3",
+      "amg3",
+      "амг-3"
+     ],
+     "density": 2660,
+     "dk021": "14721000-1"
+    },
+    {
+     "code": "al5754",
+     "name": "5754",
+     "aliases": [
+      "5754",
+      "en aw-5754",
+      "almg3"
+     ],
+     "density": 2670,
+     "dk021": "14721000-1"
+    },
+    {
+     "code": "ad31",
+     "name": "АД31",
+     "aliases": [
+      "ад31",
+      "ad31",
+      "ад31т",
+      "ад31т1"
+     ],
+     "density": 2710,
+     "dk021": "14721000-1"
+    },
+    {
+     "code": "al6063",
+     "name": "6063",
+     "aliases": [
+      "6063",
+      "en aw-6063"
+     ],
+     "density": 2700,
+     "dk021": "14721000-1"
+    },
+    {
+     "code": "ad33",
+     "name": "АД33",
+     "aliases": [
+      "ад33",
+      "ad33"
+     ],
+     "density": 2710,
+     "dk021": "14721000-1"
+    },
+    {
+     "code": "al6061",
+     "name": "6061",
+     "aliases": [
+      "6061",
+      "6061-t6",
+      "en aw-6061"
+     ],
+     "density": 2700,
+     "dk021": "14721000-1"
+    },
+    {
+     "code": "al6082",
+     "name": "6082",
+     "aliases": [
+      "6082",
+      "6082-t6",
+      "en aw-6082"
+     ],
+     "density": 2710,
+     "dk021": "14721000-1"
+    },
+    {
+     "code": "v95",
+     "name": "В95",
+     "aliases": [
+      "в95",
+      "в95т1",
+      "v95"
+     ],
+     "density": 2850,
+     "dk021": "14721000-1"
+    },
+    {
+     "code": "al7075",
+     "name": "7075",
+     "aliases": [
+      "7075",
+      "7075-t6",
+      "7075-t651",
+      "en aw-7075"
+     ],
+     "density": 2810,
+     "dk021": "14721000-1"
+    },
+    {
+     "code": "aluminium",
+     "name": "алюміній",
+     "aliases": [
+      "алюм*",
+      "дюрал*"
+     ],
+     "density": 2700,
+     "dk021": "14721000-1"
+    },
+    {
+     "code": "l63",
+     "name": "Латунь Л63",
+     "aliases": [
+      "л63",
+      "l63"
+     ],
+     "density": 8440,
+     "dk021": "14715000-6"
+    },
+    {
+     "code": "cuzn37",
+     "name": "CuZn37 (CW508L)",
+     "aliases": [
+      "cuzn37",
+      "cw508l"
+     ],
+     "density": 8440,
+     "dk021": "14715000-6"
+    },
+    {
+     "code": "ls59",
+     "name": "Латунь ЛС59-1",
+     "aliases": [
+      "лс59-1",
+      "лс59",
+      "ls59-1"
+     ],
+     "density": 8450,
+     "dk021": "14715000-6"
+    },
+    {
+     "code": "cuzn39pb3",
+     "name": "CuZn39Pb3 (CW614N)",
+     "aliases": [
+      "cuzn39pb3",
+      "cw614n",
+      "cuzn40pb2",
+      "cw617n"
+     ],
+     "density": 8470,
+     "dk021": "14715000-6"
+    },
+    {
+     "code": "brass",
+     "name": "латунь",
+     "aliases": [
+      "латун*"
+     ],
+     "density": 8500,
+     "dk021": "14715000-6"
+    },
+    {
+     "code": "m1",
+     "name": "Мідь М1",
+     "aliases": [
+      "мідь м1",
+      "мідь"
+     ],
+     "density": 8940,
+     "dk021": "14715000-6"
+    },
+    {
+     "code": "cu_etp",
+     "name": "Cu-ETP (CW004A)",
+     "aliases": [
+      "cu-etp",
+      "cw004a"
+     ],
+     "density": 8930,
+     "dk021": "14715000-6"
+    },
+    {
+     "code": "vt1_0",
+     "name": "ВТ1-0",
+     "aliases": [
+      "вт1-0",
+      "вт1",
+      "vt1-0"
+     ],
+     "density": 4505,
+     "dk021": "14724000-2"
+    },
+    {
+     "code": "ti_gr2",
+     "name": "Titanium Grade 2",
+     "aliases": [
+      "grade 2",
+      "gr2",
+      "gr.2"
+     ],
+     "density": 4510,
+     "dk021": "14724000-2"
+    },
+    {
+     "code": "vt6",
+     "name": "ВТ6",
+     "aliases": [
+      "вт6",
+      "vt6"
+     ],
+     "density": 4430,
+     "dk021": "14724000-2"
+    },
+    {
+     "code": "ti_gr5",
+     "name": "Titanium Grade 5 (Ti-6Al-4V)",
+     "aliases": [
+      "grade 5",
+      "gr5",
+      "gr.5",
+      "ti-6al-4v",
+      "ti6al4v"
+     ],
+     "density": 4430,
+     "dk021": "14724000-2"
+    },
+    {
+     "code": "pa6",
+     "name": "Капролон (PA6 блочний)",
+     "aliases": [
+      "капролон",
+      "pa6",
+      "поліамід*"
+     ],
+     "density": 1150,
+     "dk021": "19520000-7"
+    },
+    {
+     "code": "ptfe",
+     "name": "Фторопласт-4 (PTFE)",
+     "aliases": [
+      "фторопласт*",
+      "ф-4",
+      "ф4",
+      "ptfe"
+     ],
+     "density": 2200,
+     "dk021": "19520000-7"
+    },
+    {
+     "code": "pom",
+     "name": "Поліацеталь POM",
+     "aliases": [
+      "pom",
+      "поліацетал*",
+      "pom-c"
+     ],
+     "density": 1410,
+     "dk021": "19520000-7"
+    },
+    {
+     "code": "nbr",
+     "name": "NBR (нітрил)",
+     "aliases": [
+      "nbr",
+      "нітрил*",
+      "бензостійк*"
+     ],
+     "density": 1300
+    },
+    {
+     "code": "fkm",
+     "name": "FKM (фторкаучук)",
+     "aliases": [
+      "fkm",
+      "viton",
+      "вітон"
+     ],
+     "density": 1850
+    },
+    {
+     "code": "epdm",
+     "name": "EPDM",
+     "aliases": [
+      "epdm"
+     ],
+     "density": 1150
+    },
+    {
+     "code": "vmq",
+     "name": "VMQ (силікон)",
+     "aliases": [
+      "vmq",
+      "силікон*"
+     ],
+     "density": 1200
+    },
+    {
+     "code": "carbon",
+     "name": "Вуглепластик",
+     "aliases": [
+      "карбон*",
+      "вуглепласт*",
+      "carbon"
+     ],
+     "density": 1550,
+     "dk021": "19520000-7"
+    }
+   ],
+   "help": "Марка з густиною: з неї рахується маса прокату."
+  },
+  {
+   "code": "coating",
+   "name": "Покриття",
+   "kind": "choice",
+   "choices": [
+    {
+     "code": "plain",
+     "name": "без покриття",
+     "aliases": [
+      "без покр*",
+      "б/п",
+      "сирий",
+      "plain"
+     ]
+    },
+    {
+     "code": "oxide",
+     "name": "оксидоване",
+     "aliases": [
+      "оксид*",
+      "вороне*",
+      "чорнен*",
+      "black oxide"
+     ]
+    },
+    {
+     "code": "zn",
+     "name": "цинк",
+     "aliases": [
+      "цинк",
+      "оцинк*",
+      "цинкован*",
+      "оц",
+      "оц.",
+      "zn",
+      "zinc"
+     ]
+    },
+    {
+     "code": "hdg",
+     "name": "гарячий цинк",
+     "aliases": [
+      "гарячий цинк",
+      "гарячого цинкування",
+      "гарячеоцинк*",
+      "hdg",
+      "г/ц",
+      "tzn"
+     ]
+    },
+    {
+     "code": "flake",
+     "name": "цинк-ламельне",
+     "aliases": [
+      "цинк-ламел*",
+      "цинкламел*",
+      "geomet",
+      "ламельн*",
+      "delta protekt"
+     ]
+    },
+    {
+     "code": "ni",
+     "name": "нікель",
+     "aliases": [
+      "нікель",
+      "нікельован*"
+     ]
+    },
+    {
+     "code": "anod",
+     "name": "анодоване",
+     "aliases": [
+      "анодован*",
+      "анодування"
+     ]
+    }
+   ]
+  },
+  {
+   "code": "grade",
+   "name": "Клас міцності",
+   "kind": "choice",
+   "choices": [
+    {
+     "code": "g46",
+     "name": "4.6",
+     "number": 4.6,
+     "code_text": "46"
+    },
+    {
+     "code": "g48",
+     "name": "4.8",
+     "number": 4.8,
+     "code_text": "48"
+    },
+    {
+     "code": "g56",
+     "name": "5.6",
+     "number": 5.6,
+     "code_text": "56"
+    },
+    {
+     "code": "g58",
+     "name": "5.8",
+     "number": 5.8,
+     "code_text": "58"
+    },
+    {
+     "code": "g68",
+     "name": "6.8",
+     "number": 6.8,
+     "code_text": "68"
+    },
+    {
+     "code": "g88",
+     "name": "8.8",
+     "number": 8.8,
+     "code_text": "88"
+    },
+    {
+     "code": "g109",
+     "name": "10.9",
+     "number": 10.9,
+     "code_text": "109"
+    },
+    {
+     "code": "g129",
+     "name": "12.9",
+     "number": 12.9,
+     "code_text": "129"
+    },
+    {
+     "code": "n5",
+     "name": "кл. 5",
+     "number": 5,
+     "aliases": [
+      "кл.5",
+      "кл 5",
+      "клас 5"
+     ]
+    },
+    {
+     "code": "n6",
+     "name": "кл. 6",
+     "number": 6,
+     "aliases": [
+      "кл.6",
+      "кл 6",
+      "клас 6"
+     ]
+    },
+    {
+     "code": "n8",
+     "name": "кл. 8",
+     "number": 8,
+     "aliases": [
+      "кл.8",
+      "кл 8",
+      "клас 8"
+     ]
+    },
+    {
+     "code": "n10",
+     "name": "кл. 10",
+     "number": 10,
+     "aliases": [
+      "кл.10",
+      "кл 10",
+      "клас 10"
+     ]
+    },
+    {
+     "code": "n12",
+     "name": "кл. 12",
+     "number": 12,
+     "aliases": [
+      "кл.12",
+      "кл 12",
+      "клас 12"
+     ]
+    },
+    {
+     "code": "a2_70",
+     "name": "A2-70",
+     "aliases": [
+      "a2-70",
+      "а2-70",
+      "a2",
+      "а2"
+     ],
+     "code_text": "A270"
+    },
+    {
+     "code": "a2_80",
+     "name": "A2-80",
+     "aliases": [
+      "a2-80",
+      "а2-80"
+     ],
+     "code_text": "A280"
+    },
+    {
+     "code": "a4_70",
+     "name": "A4-70",
+     "aliases": [
+      "a4-70",
+      "а4-70",
+      "a4",
+      "а4"
+     ],
+     "code_text": "A470"
+    },
+    {
+     "code": "a4_80",
+     "name": "A4-80",
+     "aliases": [
+      "a4-80",
+      "а4-80"
+     ],
+     "code_text": "A480"
+    }
+   ],
+   "help": "ISO 898-1 для болтів і гвинтів, ISO 898-2 для гайок, ISO 3506 для нержавіючих."
+  },
+  {
+   "code": "thread",
+   "name": "Різьба",
+   "kind": "choice",
+   "choices": [
+    {
+     "code": "m1_6",
+     "name": "М1,6",
+     "number": 1.6,
+     "code_text": "M1.6"
+    },
+    {
+     "code": "m2",
+     "name": "М2",
+     "number": 2,
+     "code_text": "M2"
+    },
+    {
+     "code": "m2_5",
+     "name": "М2,5",
+     "number": 2.5,
+     "code_text": "M2.5"
+    },
+    {
+     "code": "m3",
+     "name": "М3",
+     "number": 3,
+     "code_text": "M3"
+    },
+    {
+     "code": "m4",
+     "name": "М4",
+     "number": 4,
+     "code_text": "M4"
+    },
+    {
+     "code": "m5",
+     "name": "М5",
+     "number": 5,
+     "code_text": "M5"
+    },
+    {
+     "code": "m6",
+     "name": "М6",
+     "number": 6,
+     "code_text": "M6"
+    },
+    {
+     "code": "m8",
+     "name": "М8",
+     "number": 8,
+     "code_text": "M8"
+    },
+    {
+     "code": "m10",
+     "name": "М10",
+     "number": 10,
+     "code_text": "M10"
+    },
+    {
+     "code": "m12",
+     "name": "М12",
+     "number": 12,
+     "code_text": "M12"
+    },
+    {
+     "code": "m14",
+     "name": "М14",
+     "number": 14,
+     "code_text": "M14"
+    },
+    {
+     "code": "m16",
+     "name": "М16",
+     "number": 16,
+     "code_text": "M16"
+    },
+    {
+     "code": "m18",
+     "name": "М18",
+     "number": 18,
+     "code_text": "M18"
+    },
+    {
+     "code": "m20",
+     "name": "М20",
+     "number": 20,
+     "code_text": "M20"
+    },
+    {
+     "code": "m22",
+     "name": "М22",
+     "number": 22,
+     "code_text": "M22"
+    },
+    {
+     "code": "m24",
+     "name": "М24",
+     "number": 24,
+     "code_text": "M24"
+    },
+    {
+     "code": "m27",
+     "name": "М27",
+     "number": 27,
+     "code_text": "M27"
+    },
+    {
+     "code": "m30",
+     "name": "М30",
+     "number": 30,
+     "code_text": "M30"
+    },
+    {
+     "code": "m36",
+     "name": "М36",
+     "number": 36,
+     "code_text": "M36"
+    }
+   ]
+  },
+  {
+   "code": "pitch",
+   "name": "Крок різьби",
+   "kind": "number",
+   "unit": "mm",
+   "digits": 2,
+   "help": "Порожньо - крупний крок за ISO 261."
+  },
+  {
+   "code": "length",
+   "name": "Довжина",
+   "kind": "number",
+   "unit": "mm"
+  },
+  {
+   "code": "diameter",
+   "name": "Діаметр",
+   "kind": "number",
+   "unit": "mm"
+  },
+  {
+   "code": "inner_d",
+   "name": "Внутрішній діаметр",
+   "kind": "number",
+   "unit": "mm"
+  },
+  {
+   "code": "outer_d",
+   "name": "Зовнішній діаметр",
+   "kind": "number",
+   "unit": "mm"
+  },
+  {
+   "code": "thickness",
+   "name": "Товщина",
+   "kind": "number",
+   "unit": "mm"
+  },
+  {
+   "code": "width",
+   "name": "Ширина",
+   "kind": "number",
+   "unit": "mm"
+  },
+  {
+   "code": "height",
+   "name": "Висота",
+   "kind": "number",
+   "unit": "mm"
+  },
+  {
+   "code": "wall",
+   "name": "Стінка",
+   "kind": "number",
+   "unit": "mm"
+  },
+  {
+   "code": "across_flats",
+   "name": "Розмір під ключ (S)",
+   "kind": "number",
+   "unit": "mm"
+  },
+  {
+   "code": "side",
+   "name": "Сторона",
+   "kind": "number",
+   "unit": "mm"
+  },
+  {
+   "code": "side_a",
+   "name": "Полиця A",
+   "kind": "number",
+   "unit": "mm"
+  },
+  {
+   "code": "side_b",
+   "name": "Полиця B",
+   "kind": "number",
+   "unit": "mm"
+  },
+  {
+   "code": "stock_length",
+   "name": "Довжина заготовки",
+   "kind": "number",
+   "unit": "mm",
+   "help": "Мірна довжина прутка чи труби: з неї рахується маса штуки."
+  },
+  {
+   "code": "drive",
+   "name": "Шліц",
+   "kind": "choice",
+   "choices": [
+    {
+     "code": "hex",
+     "name": "зовнішній шестигранник"
+    },
+    {
+     "code": "socket",
+     "name": "внутрішній шестигранник",
+     "aliases": [
+      "шестигран. шліц",
+      "imbus",
+      "allen",
+      "внутр. шестигр*"
+     ]
+    },
+    {
+     "code": "torx",
+     "name": "Torx",
+     "aliases": [
+      "torx",
+      "торкс",
+      "tx"
+     ]
+    },
+    {
+     "code": "ph",
+     "name": "хрест PH",
+     "aliases": [
+      "ph",
+      "phillips"
+     ]
+    },
+    {
+     "code": "pz",
+     "name": "хрест PZ",
+     "aliases": [
+      "pz",
+      "pozidriv"
+     ]
+    },
+    {
+     "code": "slot",
+     "name": "прямий шліц",
+     "aliases": [
+      "прямий шліц",
+      "шліц прямий"
+     ]
+    }
+   ]
+  },
+  {
+   "code": "tool_material",
+   "name": "Матеріал інструменту",
+   "kind": "choice",
+   "choices": [
+    {
+     "code": "hss",
+     "name": "HSS",
+     "aliases": [
+      "hss",
+      "р6м5",
+      "p6m5",
+      "швидкоріз*"
+     ]
+    },
+    {
+     "code": "hss_co",
+     "name": "HSS-Co",
+     "aliases": [
+      "hss-co",
+      "hssco",
+      "hss-e",
+      "кобальт*",
+      "р6м5к5",
+      "co5",
+      "co8"
+     ],
+     "code_text": "HSSCO"
+    },
+    {
+     "code": "carbide",
+     "name": "твердий сплав",
+     "aliases": [
+      "твердосплав*",
+      "тв.спл*",
+      "тв. спл*",
+      "карбід*",
+      "vhm",
+      "hm",
+      "carbide"
+     ],
+     "code_text": "HM"
+    }
+   ]
+  },
+  {
+   "code": "tool_coating",
+   "name": "Покриття інструменту",
+   "kind": "choice",
+   "choices": [
+    {
+     "code": "tin",
+     "name": "TiN",
+     "aliases": [
+      "tin"
+     ]
+    },
+    {
+     "code": "ticn",
+     "name": "TiCN",
+     "aliases": [
+      "ticn"
+     ]
+    },
+    {
+     "code": "tialn",
+     "name": "TiAlN",
+     "aliases": [
+      "tialn"
+     ]
+    },
+    {
+     "code": "altin",
+     "name": "AlTiN",
+     "aliases": [
+      "altin"
+     ]
+    },
+    {
+     "code": "dlc",
+     "name": "DLC",
+     "aliases": [
+      "dlc"
+     ]
+    },
+    {
+     "code": "none",
+     "name": "без покриття",
+     "aliases": [
+      "uncoated"
+     ]
+    }
+   ]
+  },
+  {
+   "code": "flutes",
+   "name": "Кількість зубів",
+   "kind": "number",
+   "digits": 0
+  },
+  {
+   "code": "cut_length",
+   "name": "Довжина різальної частини",
+   "kind": "number",
+   "unit": "mm"
+  },
+  {
+   "code": "corner_r",
+   "name": "Радіус при вершині",
+   "kind": "number",
+   "unit": "mm",
+   "digits": 2
+  },
+  {
+   "code": "designation",
+   "name": "Позначення",
+   "kind": "text"
+  },
+  {
+   "code": "gost_designation",
+   "name": "Позначення за ГОСТ",
+   "kind": "text"
+  },
+  {
+   "code": "seal",
+   "name": "Захист",
+   "kind": "choice",
+   "choices": [
+    {
+     "code": "open",
+     "name": "відкритий",
+     "aliases": [
+      "відкрит*"
+     ]
+    },
+    {
+     "code": "z",
+     "name": "Z"
+    },
+    {
+     "code": "2z",
+     "name": "2Z"
+    },
+    {
+     "code": "rs",
+     "name": "RS"
+    },
+    {
+     "code": "2rs",
+     "name": "2RS"
+    }
+   ]
+  },
+  {
+   "code": "insert_shape",
+   "name": "Форма пластини",
+   "kind": "choice",
+   "choices": [
+    {
+     "code": "c",
+     "name": "C ромб 80°"
+    },
+    {
+     "code": "d",
+     "name": "D ромб 55°"
+    },
+    {
+     "code": "k",
+     "name": "K паралелограм 55°"
+    },
+    {
+     "code": "r",
+     "name": "R кругла"
+    },
+    {
+     "code": "s",
+     "name": "S квадрат 90°"
+    },
+    {
+     "code": "t",
+     "name": "T трикутник 60°"
+    },
+    {
+     "code": "v",
+     "name": "V ромб 35°"
+    },
+    {
+     "code": "w",
+     "name": "W тригон 80°"
+    }
+   ]
+  },
+  {
+   "code": "clearance",
+   "name": "Задній кут",
+   "kind": "number",
+   "unit": "deg",
+   "digits": 0
+  },
+  {
+   "code": "ic",
+   "name": "Вписане коло",
+   "kind": "number",
+   "unit": "mm",
+   "digits": 3
+  },
+  {
+   "code": "iso_group",
+   "name": "Група матеріалу ISO",
+   "kind": "choice",
+   "choices": [
+    {
+     "code": "p",
+     "name": "P сталь"
+    },
+    {
+     "code": "m",
+     "name": "M нержавіюча сталь"
+    },
+    {
+     "code": "k",
+     "name": "K чавун"
+    },
+    {
+     "code": "n",
+     "name": "N кольорові метали"
+    },
+    {
+     "code": "s",
+     "name": "S жароміцні і титан"
+    },
+    {
+     "code": "h",
+     "name": "H загартована сталь"
+    }
+   ]
+  },
+  {
+   "code": "bore",
+   "name": "Посадковий отвір",
+   "kind": "number",
+   "unit": "mm",
+   "digits": 2
+  },
+  {
+   "code": "section",
+   "name": "Переріз шнура",
+   "kind": "number",
+   "unit": "mm",
+   "digits": 2
+  },
+  {
+   "code": "stator",
+   "name": "Статор",
+   "kind": "text",
+   "help": "Чотири цифри: діаметр і висота статора в мм (2207)."
+  },
+  {
+   "code": "stator_d",
+   "name": "Діаметр статора",
+   "kind": "number",
+   "unit": "mm",
+   "digits": 0
+  },
+  {
+   "code": "stator_h",
+   "name": "Висота статора",
+   "kind": "number",
+   "unit": "mm",
+   "digits": 0
+  },
+  {
+   "code": "kv",
+   "name": "KV",
+   "kind": "number",
+   "unit": "kv",
+   "digits": 0
+  },
+  {
+   "code": "prop_d",
+   "name": "Діаметр гвинта",
+   "kind": "number",
+   "unit": "in",
+   "digits": 1
+  },
+  {
+   "code": "prop_pitch",
+   "name": "Крок гвинта",
+   "kind": "number",
+   "unit": "in",
+   "digits": 1
+  },
+  {
+   "code": "blades",
+   "name": "Лопатей",
+   "kind": "number",
+   "digits": 0
+  },
+  {
+   "code": "chemistry",
+   "name": "Тип елементів",
+   "kind": "choice",
+   "choices": [
+    {
+     "code": "lipo",
+     "name": "Li-Po",
+     "aliases": [
+      "li-po",
+      "lipo",
+      "li-pol",
+      "літій-полімер*"
+     ]
+    },
+    {
+     "code": "lihv",
+     "name": "LiHV",
+     "aliases": [
+      "lihv",
+      "li-hv"
+     ]
+    },
+    {
+     "code": "liion",
+     "name": "Li-ion",
+     "aliases": [
+      "li-ion",
+      "liion",
+      "літій-іон*",
+      "18650",
+      "21700"
+     ]
+    },
+    {
+     "code": "lifepo4",
+     "name": "LiFePO4",
+     "aliases": [
+      "lifepo4",
+      "lfp"
+     ]
+    }
+   ]
+  },
+  {
+   "code": "cells",
+   "name": "Банок",
+   "kind": "number",
+   "unit": "s",
+   "digits": 0
+  },
+  {
+   "code": "capacity",
+   "name": "Ємність",
+   "kind": "number",
+   "unit": "mah",
+   "digits": 0
+  },
+  {
+   "code": "c_rating",
+   "name": "Струмовіддача",
+   "kind": "number",
+   "unit": "c",
+   "digits": 0
+  },
+  {
+   "code": "connector",
+   "name": "Роз'єм",
+   "kind": "choice",
+   "choices": [
+    {
+     "code": "xt30",
+     "name": "XT30",
+     "aliases": [
+      "xt30",
+      "xt-30"
+     ]
+    },
+    {
+     "code": "xt60",
+     "name": "XT60",
+     "aliases": [
+      "xt60",
+      "xt-60"
+     ]
+    },
+    {
+     "code": "xt90",
+     "name": "XT90",
+     "aliases": [
+      "xt90",
+      "xt-90"
+     ]
+    },
+    {
+     "code": "as150",
+     "name": "AS150",
+     "aliases": [
+      "as150"
+     ]
+    },
+    {
+     "code": "ec5",
+     "name": "EC5",
+     "aliases": [
+      "ec5"
+     ]
+    },
+    {
+     "code": "xt60h",
+     "name": "XT60H",
+     "aliases": [
+      "xt60h",
+      "xt-60h"
+     ]
+    }
+   ]
+  },
+  {
+   "code": "current",
+   "name": "Струм",
+   "kind": "number",
+   "unit": "a",
+   "digits": 0
+  },
+  {
+   "code": "cells_range",
+   "name": "Банки (діапазон)",
+   "kind": "text"
+  },
+  {
+   "code": "awg",
+   "name": "Переріз AWG",
+   "kind": "number",
+   "unit": "awg",
+   "digits": 0
+  },
+  {
+   "code": "cable_type",
+   "name": "Марка кабелю",
+   "kind": "choice",
+   "choices": [
+    {
+     "code": "pvs",
+     "name": "ПВС",
+     "aliases": [
+      "пвс"
+     ],
+     "class": "cable"
+    },
+    {
+     "code": "vvg",
+     "name": "ВВГ",
+     "aliases": [
+      "ввг"
+     ],
+     "class": "cable"
+    },
+    {
+     "code": "vvgng",
+     "name": "ВВГнг",
+     "aliases": [
+      "ввгнг",
+      "ввг-нг"
+     ],
+     "class": "cable"
+    },
+    {
+     "code": "shvvp",
+     "name": "ШВВП",
+     "aliases": [
+      "швvп",
+      "шввп"
+     ],
+     "class": "cable"
+    },
+    {
+     "code": "mgtf",
+     "name": "МГТФ",
+     "aliases": [
+      "мгтф"
+     ],
+     "class": "cable"
+    },
+    {
+     "code": "pugv",
+     "name": "ПуГВ",
+     "aliases": [
+      "пугв",
+      "пв-3",
+      "пв3"
+     ],
+     "class": "cable"
+    },
+    {
+     "code": "kvvg",
+     "name": "КВВГ",
+     "aliases": [
+      "кввг"
+     ],
+     "class": "cable"
+    }
+   ]
+  },
+  {
+   "code": "cores",
+   "name": "Жил",
+   "kind": "number",
+   "digits": 0
+  },
+  {
+   "code": "cross_section",
+   "name": "Переріз жили",
+   "kind": "number",
+   "unit": "mm2",
+   "digits": 2
+  },
+  {
+   "code": "range",
+   "name": "Діапазон вимірювання",
+   "kind": "text"
+  },
+  {
+   "code": "resolution",
+   "name": "Ціна поділки",
+   "kind": "number",
+   "unit": "mm",
+   "digits": 3
+  },
+  {
+   "code": "mass_1000",
+   "name": "Маса 1000 шт",
+   "kind": "number",
+   "unit": "kg",
+   "digits": 3,
+   "help": "Для кріплення: перерахунок штук у кілограми, коли прайс у кг."
+  }
+ ],
+ "classes": [
+  {
+   "code": "metal",
+   "name": "Прокат і заготовки",
+   "prefix": "MET",
+   "measure": "mass",
+   "uom": "кг",
+   "tracking": "lot"
+  },
+  {
+   "code": "bar_round",
+   "name": "Пруток круглий",
+   "parent": "metal",
+   "prefix": "MRD",
+   "shape": "round",
+   "dims": [
+    "diameter"
+   ],
+   "keywords": [
+    "пруток",
+    "круг",
+    "коло",
+    "прут ",
+    "кругляк",
+    "round bar"
+   ],
+   "name_template": "Пруток {material} ⌀{diameter}[ L={stock_length}][ {standard}]",
+   "code_template": "{prefix}-{material}-{diameter}",
+   "lines": [
+    {
+     "attr": "material",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "diameter",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "key": false
+    },
+    {
+     "attr": "stock_length",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "bar_hex",
+   "name": "Шестигранник",
+   "parent": "metal",
+   "prefix": "MHX",
+   "shape": "hex",
+   "dims": [
+    "across_flats"
+   ],
+   "keywords": [
+    "шестигранник",
+    "hex bar"
+   ],
+   "name_template": "Шестигранник {material} S{across_flats}[ L={stock_length}][ {standard}]",
+   "code_template": "{prefix}-{material}-{across_flats}",
+   "lines": [
+    {
+     "attr": "material",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "across_flats",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "key": false
+    },
+    {
+     "attr": "stock_length",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "bar_square",
+   "name": "Квадрат",
+   "parent": "metal",
+   "prefix": "MSQ",
+   "shape": "square",
+   "dims": [
+    "side"
+   ],
+   "keywords": [
+    "квадрат",
+    "square bar"
+   ],
+   "name_template": "Квадрат {material} {side}[ L={stock_length}][ {standard}]",
+   "code_template": "{prefix}-{material}-{side}",
+   "lines": [
+    {
+     "attr": "material",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "side",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "key": false
+    },
+    {
+     "attr": "stock_length",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "flat",
+   "name": "Смуга",
+   "parent": "metal",
+   "prefix": "MFL",
+   "shape": "flat",
+   "dims": [
+    "width",
+    "thickness"
+   ],
+   "sort_desc": true,
+   "keywords": [
+    "смуга",
+    "полоса",
+    "шина ",
+    "flat bar"
+   ],
+   "name_template": "Смуга {material} {width}×{thickness}[ L={stock_length}][ {standard}]",
+   "code_template": "{prefix}-{material}-{width}x{thickness}",
+   "lines": [
+    {
+     "attr": "material",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "width",
+     "required": true
+    },
+    {
+     "attr": "thickness",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "key": false
+    },
+    {
+     "attr": "stock_length",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "sheet",
+   "name": "Лист і плита",
+   "parent": "metal",
+   "prefix": "MSH",
+   "shape": "sheet",
+   "recipe": "sheet",
+   "keywords": [
+    "лист",
+    "плита",
+    "sheet",
+    "plate"
+   ],
+   "name_template": "Лист {material} {thickness} мм[ {width}×{length}][ {standard}]",
+   "code_template": "{prefix}-{material}-{thickness}[-{width}x{length}]",
+   "lines": [
+    {
+     "attr": "material",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "thickness",
+     "required": true
+    },
+    {
+     "attr": "width"
+    },
+    {
+     "attr": "length"
+    },
+    {
+     "attr": "standard",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "pipe",
+   "name": "Труба кругла",
+   "parent": "metal",
+   "prefix": "MPI",
+   "shape": "pipe",
+   "dims": [
+    "outer_d",
+    "wall"
+   ],
+   "switch_dims": {
+    "3": "rect_pipe"
+   },
+   "dk021": "44163100-1",
+   "keywords": [
+    "труба",
+    "pipe",
+    "tube"
+   ],
+   "name_template": "Труба {material} ⌀{outer_d}×{wall}[ L={stock_length}][ {standard}]",
+   "code_template": "{prefix}-{material}-{outer_d}x{wall}",
+   "lines": [
+    {
+     "attr": "material",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "outer_d",
+     "required": true
+    },
+    {
+     "attr": "wall",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "key": false
+    },
+    {
+     "attr": "stock_length",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "rect_pipe",
+   "name": "Труба профільна",
+   "parent": "metal",
+   "prefix": "MPR",
+   "shape": "rect_pipe",
+   "dims": [
+    "height",
+    "width",
+    "wall"
+   ],
+   "sort_desc": false,
+   "dk021": "44163100-1",
+   "keywords": [
+    "труба профільна",
+    "труба квадратна",
+    "труба прямокутна",
+    "профільна труба",
+    "профтруба"
+   ],
+   "name_template": "Труба профільна {material} {height}×{width}×{wall}[ L={stock_length}][ {standard}]",
+   "code_template": "{prefix}-{material}-{height}x{width}x{wall}",
+   "lines": [
+    {
+     "attr": "material",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "height",
+     "required": true
+    },
+    {
+     "attr": "width",
+     "required": true
+    },
+    {
+     "attr": "wall",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "key": false
+    },
+    {
+     "attr": "stock_length",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "angle",
+   "name": "Кутник",
+   "parent": "metal",
+   "prefix": "MAN",
+   "shape": "angle",
+   "recipe": "angle",
+   "dk021": "44212510-7",
+   "keywords": [
+    "кутник",
+    "куток",
+    "уголок",
+    "angle"
+   ],
+   "name_template": "Кутник {material} {side_a}×{side_b}×{thickness}[ L={stock_length}][ {standard}]",
+   "code_template": "{prefix}-{material}-{side_a}x{side_b}x{thickness}",
+   "lines": [
+    {
+     "attr": "material",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "side_a",
+     "required": true
+    },
+    {
+     "attr": "side_b",
+     "required": true
+    },
+    {
+     "attr": "thickness",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "key": false
+    },
+    {
+     "attr": "stock_length",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "wire",
+   "name": "Дріт",
+   "parent": "metal",
+   "prefix": "MWR",
+   "shape": "wire",
+   "dims": [
+    "diameter"
+   ],
+   "dk021": "44333000-3",
+   "keywords": [
+    "дріт",
+    "проволока",
+    "wire"
+   ],
+   "name_template": "Дріт {material} ⌀{diameter}[ {standard}]",
+   "code_template": "{prefix}-{material}-{diameter}",
+   "lines": [
+    {
+     "attr": "material",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "diameter",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "key": false
+    },
+    {
+     "attr": "stock_length",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "fastener",
+   "name": "Кріплення",
+   "prefix": "FST",
+   "measure": "piece",
+   "uom": "шт",
+   "dk021": "44530000-4"
+  },
+  {
+   "code": "bolt_hex",
+   "name": "Болт з шестигранною головою",
+   "parent": "fastener",
+   "prefix": "BLT",
+   "recipe": "thread_length",
+   "dk021": "44531400-5",
+   "keywords": [
+    "болт",
+    "bolt"
+   ],
+   "name_template": "Болт {thread}[×{pitch_fine}]×{length} {standard}[ {grade}][ {coating}]",
+   "code_template": "{prefix}-{standard}-{thread}[x{pitch_fine}]x{length}[-{grade}][-{coating}]",
+   "lines": [
+    {
+     "attr": "thread",
+     "required": true
+    },
+    {
+     "attr": "pitch"
+    },
+    {
+     "attr": "length",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "grade",
+     "rule": "ge"
+    },
+    {
+     "attr": "coating",
+     "rule": "equivalent"
+    },
+    {
+     "attr": "material",
+     "key": false
+    },
+    {
+     "attr": "mass_1000",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "screw_socket",
+   "name": "Гвинт з циліндричною головою і внутрішнім шестигранником",
+   "parent": "fastener",
+   "prefix": "SCS",
+   "recipe": "thread_length",
+   "dk021": "44531520-2",
+   "keywords": [
+    "гвинт din 912",
+    "гвинт з внутр",
+    "гвинт циліндр",
+    "гвинт імбус",
+    "винт din 912",
+    "socket head"
+   ],
+   "name_template": "Гвинт {thread}[×{pitch_fine}]×{length} {standard}[ {grade}][ {coating}]",
+   "code_template": "{prefix}-{standard}-{thread}x{length}[-{grade}][-{coating}]",
+   "lines": [
+    {
+     "attr": "thread",
+     "required": true
+    },
+    {
+     "attr": "pitch"
+    },
+    {
+     "attr": "length",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "grade",
+     "rule": "ge"
+    },
+    {
+     "attr": "coating",
+     "rule": "equivalent"
+    },
+    {
+     "attr": "material",
+     "key": false
+    },
+    {
+     "attr": "mass_1000",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "screw_csk",
+   "name": "Гвинт з потайною головою",
+   "parent": "fastener",
+   "prefix": "SCK",
+   "recipe": "thread_length",
+   "dk021": "44531510-9",
+   "keywords": [
+    "гвинт потай",
+    "гвинт з потай",
+    "винт потай",
+    "countersunk"
+   ],
+   "name_template": "Гвинт потайний {thread}×{length} {standard}[ {grade}][ {coating}]",
+   "code_template": "{prefix}-{standard}-{thread}x{length}[-{grade}][-{coating}]",
+   "lines": [
+    {
+     "attr": "thread",
+     "required": true
+    },
+    {
+     "attr": "pitch"
+    },
+    {
+     "attr": "length",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "grade",
+     "rule": "ge"
+    },
+    {
+     "attr": "coating",
+     "rule": "equivalent"
+    },
+    {
+     "attr": "material",
+     "key": false
+    },
+    {
+     "attr": "mass_1000",
+     "key": false
+    },
+    {
+     "attr": "drive"
+    }
+   ]
+  },
+  {
+   "code": "screw_button",
+   "name": "Гвинт з напівкруглою головою",
+   "parent": "fastener",
+   "prefix": "SCB",
+   "recipe": "thread_length",
+   "dk021": "44531510-9",
+   "keywords": [
+    "гвинт напівкругл",
+    "гвинт з напівкругл",
+    "гвинт півкругл",
+    "button head"
+   ],
+   "name_template": "Гвинт напівкруглий {thread}×{length} {standard}[ {grade}][ {coating}]",
+   "code_template": "{prefix}-{standard}-{thread}x{length}[-{grade}][-{coating}]",
+   "lines": [
+    {
+     "attr": "thread",
+     "required": true
+    },
+    {
+     "attr": "pitch"
+    },
+    {
+     "attr": "length",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "grade",
+     "rule": "ge"
+    },
+    {
+     "attr": "coating",
+     "rule": "equivalent"
+    },
+    {
+     "attr": "material",
+     "key": false
+    },
+    {
+     "attr": "mass_1000",
+     "key": false
+    },
+    {
+     "attr": "drive"
+    }
+   ]
+  },
+  {
+   "code": "screw",
+   "name": "Гвинт",
+   "parent": "fastener",
+   "prefix": "SCR",
+   "recipe": "thread_length",
+   "dk021": "44531510-9",
+   "keywords": [
+    "гвинт",
+    "винт",
+    "screw"
+   ],
+   "name_template": "Гвинт {thread}×{length}[ {standard}][ {grade}][ {coating}]",
+   "code_template": "{prefix}[-{standard}]-{thread}x{length}[-{grade}][-{coating}]",
+   "lines": [
+    {
+     "attr": "thread",
+     "required": true
+    },
+    {
+     "attr": "pitch"
+    },
+    {
+     "attr": "length",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "rule": "equivalent"
+    },
+    {
+     "attr": "grade",
+     "rule": "ge"
+    },
+    {
+     "attr": "coating",
+     "rule": "equivalent"
+    },
+    {
+     "attr": "drive"
+    },
+    {
+     "attr": "material",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "set_screw",
+   "name": "Гвинт установчий",
+   "parent": "fastener",
+   "prefix": "SST",
+   "recipe": "thread_length",
+   "dk021": "44531510-9",
+   "keywords": [
+    "гвинт установ",
+    "установчий гвинт",
+    "set screw",
+    "гвинт стопор"
+   ],
+   "name_template": "Гвинт установчий {thread}×{length} {standard}[ {grade}][ {coating}]",
+   "code_template": "{prefix}-{standard}-{thread}x{length}[-{grade}][-{coating}]",
+   "lines": [
+    {
+     "attr": "thread",
+     "required": true
+    },
+    {
+     "attr": "pitch"
+    },
+    {
+     "attr": "length",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "grade",
+     "rule": "ge"
+    },
+    {
+     "attr": "coating",
+     "rule": "equivalent"
+    },
+    {
+     "attr": "material",
+     "key": false
+    },
+    {
+     "attr": "mass_1000",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "stud",
+   "name": "Шпилька різьбова",
+   "parent": "fastener",
+   "prefix": "STD",
+   "recipe": "thread_length",
+   "dk021": "44531000-1",
+   "keywords": [
+    "шпилька",
+    "stud",
+    "різьбовий стрижень"
+   ],
+   "name_template": "Шпилька {thread}×{length}[ {standard}][ {grade}][ {coating}]",
+   "code_template": "{prefix}-{thread}x{length}[-{grade}][-{coating}]",
+   "lines": [
+    {
+     "attr": "thread",
+     "required": true
+    },
+    {
+     "attr": "pitch"
+    },
+    {
+     "attr": "length",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "rule": "equivalent"
+    },
+    {
+     "attr": "grade",
+     "rule": "ge"
+    },
+    {
+     "attr": "coating",
+     "rule": "equivalent"
+    },
+    {
+     "attr": "material",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "nut_hex",
+   "name": "Гайка шестигранна",
+   "parent": "fastener",
+   "prefix": "NUT",
+   "recipe": "thread_length",
+   "dk021": "44531600-7",
+   "keywords": [
+    "гайка",
+    "nut"
+   ],
+   "name_template": "Гайка {thread}[×{pitch_fine}] {standard}[ {grade}][ {coating}]",
+   "code_template": "{prefix}-{standard}-{thread}[x{pitch_fine}][-{grade}][-{coating}]",
+   "lines": [
+    {
+     "attr": "thread",
+     "required": true
+    },
+    {
+     "attr": "pitch"
+    },
+    {
+     "attr": "standard",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "grade",
+     "rule": "ge"
+    },
+    {
+     "attr": "coating",
+     "rule": "equivalent"
+    },
+    {
+     "attr": "material",
+     "key": false
+    },
+    {
+     "attr": "mass_1000",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "nut_lock",
+   "name": "Гайка самоконтрувальна",
+   "parent": "fastener",
+   "prefix": "NLK",
+   "recipe": "thread_length",
+   "dk021": "44531600-7",
+   "keywords": [
+    "гайка самоконтр",
+    "гайка з нейлон",
+    "гайка стопорна",
+    "гайка з кільцем",
+    "nyloc"
+   ],
+   "name_template": "Гайка самоконтрувальна {thread} {standard}[ {grade}][ {coating}]",
+   "code_template": "{prefix}-{standard}-{thread}[-{grade}][-{coating}]",
+   "lines": [
+    {
+     "attr": "thread",
+     "required": true
+    },
+    {
+     "attr": "pitch"
+    },
+    {
+     "attr": "standard",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "grade",
+     "rule": "ge"
+    },
+    {
+     "attr": "coating",
+     "rule": "equivalent"
+    },
+    {
+     "attr": "material",
+     "key": false
+    },
+    {
+     "attr": "mass_1000",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "washer_flat",
+   "name": "Шайба плоска",
+   "parent": "fastener",
+   "prefix": "WSH",
+   "recipe": "thread_length",
+   "dk021": "44532200-0",
+   "keywords": [
+    "шайба",
+    "washer"
+   ],
+   "name_template": "Шайба {thread} {standard}[ {coating}]",
+   "code_template": "{prefix}-{standard}-{thread}[-{coating}]",
+   "lines": [
+    {
+     "attr": "thread",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "coating",
+     "rule": "equivalent"
+    },
+    {
+     "attr": "material",
+     "key": false
+    },
+    {
+     "attr": "mass_1000",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "washer_large",
+   "name": "Шайба збільшена",
+   "parent": "fastener",
+   "prefix": "WSL",
+   "recipe": "thread_length",
+   "dk021": "44532200-0",
+   "keywords": [
+    "шайба збільш",
+    "шайба кузов",
+    "шайба широк",
+    "шайба посилен"
+   ],
+   "name_template": "Шайба збільшена {thread} {standard}[ {coating}]",
+   "code_template": "{prefix}-{standard}-{thread}[-{coating}]",
+   "lines": [
+    {
+     "attr": "thread",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "coating",
+     "rule": "equivalent"
+    },
+    {
+     "attr": "material",
+     "key": false
+    },
+    {
+     "attr": "mass_1000",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "washer_spring",
+   "name": "Шайба пружинна",
+   "parent": "fastener",
+   "prefix": "WSP",
+   "recipe": "thread_length",
+   "dk021": "44532200-0",
+   "keywords": [
+    "шайба пружин",
+    "гровер",
+    "шайба гровер"
+   ],
+   "name_template": "Шайба пружинна {thread} {standard}[ {coating}]",
+   "code_template": "{prefix}-{standard}-{thread}[-{coating}]",
+   "lines": [
+    {
+     "attr": "thread",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "coating",
+     "rule": "equivalent"
+    },
+    {
+     "attr": "material",
+     "key": false
+    },
+    {
+     "attr": "mass_1000",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "rivet_blind",
+   "name": "Заклепка витяжна",
+   "parent": "fastener",
+   "prefix": "RVT",
+   "recipe": "rivet",
+   "dk021": "44532100-9",
+   "keywords": [
+    "заклепка",
+    "заклепки",
+    "rivet"
+   ],
+   "name_template": "Заклепка витяжна {diameter}×{length}[ {material}][ {standard}]",
+   "code_template": "{prefix}-{diameter}x{length}[-{material}]",
+   "lines": [
+    {
+     "attr": "diameter",
+     "required": true
+    },
+    {
+     "attr": "length",
+     "required": true
+    },
+    {
+     "attr": "material",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "standard",
+     "rule": "equivalent"
+    }
+   ]
+  },
+  {
+   "code": "circlip_shaft",
+   "name": "Кільце стопорне для вала",
+   "parent": "fastener",
+   "prefix": "CLS",
+   "dims": [
+    "diameter"
+   ],
+   "dk021": "44532000-8",
+   "keywords": [
+    "кільце стопорне для вал",
+    "стопорне кільце для вал",
+    "кільце стопорне зовн",
+    "circlip shaft"
+   ],
+   "name_template": "Кільце стопорне для вала {diameter} {standard}",
+   "code_template": "{prefix}-{standard}-{diameter}",
+   "lines": [
+    {
+     "attr": "diameter",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "material",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "circlip_bore",
+   "name": "Кільце стопорне для отвору",
+   "parent": "fastener",
+   "prefix": "CLB",
+   "dims": [
+    "diameter"
+   ],
+   "dk021": "44532000-8",
+   "keywords": [
+    "кільце стопорне для отв",
+    "стопорне кільце для отв",
+    "кільце стопорне внутр",
+    "circlip bore"
+   ],
+   "name_template": "Кільце стопорне для отвору {diameter} {standard}",
+   "code_template": "{prefix}-{standard}-{diameter}",
+   "lines": [
+    {
+     "attr": "diameter",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "material",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "pin_dowel",
+   "name": "Штифт циліндричний",
+   "parent": "fastener",
+   "prefix": "PIN",
+   "recipe": "rivet",
+   "dk021": "44532000-8",
+   "keywords": [
+    "штифт",
+    "dowel"
+   ],
+   "name_template": "Штифт {diameter}×{length} {standard}[ {material}]",
+   "code_template": "{prefix}-{standard}-{diameter}x{length}",
+   "lines": [
+    {
+     "attr": "diameter",
+     "required": true
+    },
+    {
+     "attr": "length",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "material",
+     "rule": "equivalent"
+    }
+   ]
+  },
+  {
+   "code": "thread_insert",
+   "name": "Вставка різьбова спіральна",
+   "parent": "fastener",
+   "prefix": "TIN",
+   "recipe": "thread_length",
+   "dk021": "44531000-1",
+   "keywords": [
+    "вставка різьб",
+    "спіральна вставка",
+    "helicoil",
+    "хеликоил"
+   ],
+   "name_template": "Вставка різьбова {thread}[×{pitch_fine}]×{length}[ {standard}][ {material}]",
+   "code_template": "{prefix}-{thread}x{length}",
+   "lines": [
+    {
+     "attr": "thread",
+     "required": true
+    },
+    {
+     "attr": "pitch"
+    },
+    {
+     "attr": "length",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "rule": "equivalent"
+    },
+    {
+     "attr": "material",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "self_tapping",
+   "name": "Саморіз",
+   "parent": "fastener",
+   "prefix": "STP",
+   "recipe": "rivet",
+   "dk021": "44531300-4",
+   "keywords": [
+    "саморіз",
+    "саморіз",
+    "саморез",
+    "self tapping"
+   ],
+   "name_template": "Саморіз {diameter}×{length}[ {standard}][ {coating}]",
+   "code_template": "{prefix}[-{standard}]-{diameter}x{length}[-{coating}]",
+   "lines": [
+    {
+     "attr": "diameter",
+     "required": true
+    },
+    {
+     "attr": "length",
+     "required": true
+    },
+    {
+     "attr": "standard",
+     "rule": "equivalent"
+    },
+    {
+     "attr": "coating",
+     "rule": "equivalent"
+    },
+    {
+     "attr": "drive"
+    },
+    {
+     "attr": "material",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "tool",
+   "name": "Різальний інструмент",
+   "prefix": "TLS",
+   "measure": "piece",
+   "uom": "шт",
+   "dk021": "44512900-1"
+  },
+  {
+   "code": "drill",
+   "name": "Свердло спіральне",
+   "parent": "tool",
+   "prefix": "DRL",
+   "recipe": "drill",
+   "dk021": "44512910-4",
+   "keywords": [
+    "свердло",
+    "сверло",
+    "drill"
+   ],
+   "name_template": "Свердло ⌀{diameter} {tool_material}[ {tool_coating}][ {standard}]",
+   "code_template": "{prefix}-{diameter}-{tool_material}[-{standard}]",
+   "lines": [
+    {
+     "attr": "diameter",
+     "required": true
+    },
+    {
+     "attr": "tool_material",
+     "required": true
+    },
+    {
+     "attr": "tool_coating",
+     "rule": "equivalent"
+    },
+    {
+     "attr": "standard",
+     "key": false
+    },
+    {
+     "attr": "length",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "endmill",
+   "name": "Фреза кінцева",
+   "parent": "tool",
+   "prefix": "EML",
+   "recipe": "endmill",
+   "keywords": [
+    "фреза кінцева",
+    "фреза концева",
+    "фреза торцева",
+    "кінцева фреза",
+    "фреза",
+    "end mill"
+   ],
+   "name_template": "Фреза кінцева ⌀{diameter}[ z{flutes}][ R{corner_r}][×{cut_length}] {tool_material}[ {tool_coating}]",
+   "code_template": "{prefix}-{diameter}[-z{flutes}][-r{corner_r}]-{tool_material}",
+   "lines": [
+    {
+     "attr": "diameter",
+     "required": true
+    },
+    {
+     "attr": "flutes",
+     "required": true
+    },
+    {
+     "attr": "corner_r"
+    },
+    {
+     "attr": "cut_length",
+     "key": false
+    },
+    {
+     "attr": "tool_material",
+     "required": true
+    },
+    {
+     "attr": "tool_coating",
+     "rule": "equivalent"
+    }
+   ]
+  },
+  {
+   "code": "tap",
+   "name": "Мітчик",
+   "parent": "tool",
+   "prefix": "TAP",
+   "recipe": "tap",
+   "keywords": [
+    "мітчик",
+    "метчик",
+    "tap "
+   ],
+   "name_template": "Мітчик {thread}[×{pitch_fine}][ {standard}][ {tool_material}]",
+   "code_template": "{prefix}-{thread}[x{pitch_fine}][-{tool_material}]",
+   "lines": [
+    {
+     "attr": "thread",
+     "required": true
+    },
+    {
+     "attr": "pitch"
+    },
+    {
+     "attr": "standard",
+     "key": false
+    },
+    {
+     "attr": "tool_material",
+     "rule": "equivalent"
+    }
+   ]
+  },
+  {
+   "code": "insert",
+   "name": "Пластина змінна (ISO 1832)",
+   "parent": "tool",
+   "prefix": "INS",
+   "recipe": "insert",
+   "keywords": [
+    "пластина змінна",
+    "пластина токар",
+    "пластина фрез",
+    "пластина твердосплав",
+    "пластина",
+    "insert"
+   ],
+   "name_template": "Пластина {designation}[ {iso_group}]",
+   "code_template": "{prefix}-{designation}",
+   "lines": [
+    {
+     "attr": "designation",
+     "required": true
+    },
+    {
+     "attr": "insert_shape",
+     "key": false
+    },
+    {
+     "attr": "ic",
+     "key": false
+    },
+    {
+     "attr": "thickness",
+     "key": false
+    },
+    {
+     "attr": "corner_r",
+     "key": false
+    },
+    {
+     "attr": "clearance",
+     "key": false
+    },
+    {
+     "attr": "iso_group",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "disc",
+   "name": "Круг відрізний і шліфувальний",
+   "parent": "tool",
+   "prefix": "DSC",
+   "recipe": "disc",
+   "dk021": "14810000-2",
+   "keywords": [
+    "круг відрізний",
+    "круг шліф",
+    "диск відрізний",
+    "диск шліф",
+    "круг зачисний",
+    "диск зачисний",
+    "круг отрезн",
+    "диск отрезн",
+    "круг шлиф",
+    "круг зачистн"
+   ],
+   "name_template": "Круг абразивний {diameter}×{thickness}×{bore}",
+   "code_template": "{prefix}-{diameter}x{thickness}x{bore}",
+   "lines": [
+    {
+     "attr": "diameter",
+     "required": true
+    },
+    {
+     "attr": "thickness",
+     "required": true
+    },
+    {
+     "attr": "bore",
+     "required": true
+    }
+   ]
+  },
+  {
+   "code": "measure",
+   "name": "Вимірювальний інструмент",
+   "prefix": "MSR",
+   "measure": "piece",
+   "uom": "шт",
+   "dk021": "38330000-7",
+   "tracking": "serial"
+  },
+  {
+   "code": "caliper",
+   "name": "Штангенциркуль",
+   "parent": "measure",
+   "prefix": "CAL",
+   "recipe": "range",
+   "keywords": [
+    "штангенциркуль",
+    "штангель",
+    "caliper"
+   ],
+   "name_template": "Штангенциркуль {range}[ {resolution}]",
+   "code_template": "{prefix}-{range}[-{resolution}]",
+   "lines": [
+    {
+     "attr": "range",
+     "required": true
+    },
+    {
+     "attr": "resolution",
+     "required": true
+    }
+   ]
+  },
+  {
+   "code": "micrometer",
+   "name": "Мікрометр",
+   "parent": "measure",
+   "prefix": "MIC",
+   "recipe": "range",
+   "keywords": [
+    "мікрометр",
+    "микрометр",
+    "micrometer"
+   ],
+   "name_template": "Мікрометр {range}[ {resolution}]",
+   "code_template": "{prefix}-{range}[-{resolution}]",
+   "lines": [
+    {
+     "attr": "range",
+     "required": true
+    },
+    {
+     "attr": "resolution"
+    }
+   ]
+  },
+  {
+   "code": "gauge_plug",
+   "name": "Калібр-пробка різьбовий",
+   "parent": "measure",
+   "prefix": "GPL",
+   "recipe": "tap",
+   "dk021": "38540000-2",
+   "keywords": [
+    "калібр-пробка",
+    "калібр пробка",
+    "пробка різьб"
+   ],
+   "name_template": "Калібр-пробка {thread}[×{pitch_fine}]",
+   "code_template": "{prefix}-{thread}[x{pitch_fine}]",
+   "lines": [
+    {
+     "attr": "thread",
+     "required": true
+    },
+    {
+     "attr": "pitch"
+    }
+   ]
+  },
+  {
+   "code": "gauge_ring",
+   "name": "Калібр-кільце різьбовий",
+   "parent": "measure",
+   "prefix": "GRN",
+   "recipe": "tap",
+   "dk021": "38540000-2",
+   "keywords": [
+    "калібр-кільце",
+    "калібр кільце",
+    "кільце різьб"
+   ],
+   "name_template": "Калібр-кільце {thread}[×{pitch_fine}]",
+   "code_template": "{prefix}-{thread}[x{pitch_fine}]",
+   "lines": [
+    {
+     "attr": "thread",
+     "required": true
+    },
+    {
+     "attr": "pitch"
+    }
+   ]
+  },
+  {
+   "code": "bearing",
+   "name": "Підшипники",
+   "prefix": "BRG",
+   "measure": "piece",
+   "uom": "шт",
+   "dk021": "42140000-2"
+  },
+  {
+   "code": "bearing_ball",
+   "name": "Підшипник кульковий радіальний",
+   "parent": "bearing",
+   "prefix": "BRB",
+   "recipe": "bearing",
+   "keywords": [
+    "підшипник",
+    "подшипник",
+    "bearing"
+   ],
+   "name_template": "Підшипник {designation}[-{seal}][ ({gost_designation})][ {inner_d}×{outer_d}×{width}]",
+   "code_template": "{prefix}-{designation}[-{seal}]",
+   "lines": [
+    {
+     "attr": "designation",
+     "required": true
+    },
+    {
+     "attr": "seal",
+     "default": "open"
+    },
+    {
+     "attr": "inner_d",
+     "key": false
+    },
+    {
+     "attr": "outer_d",
+     "key": false
+    },
+    {
+     "attr": "width",
+     "key": false
+    },
+    {
+     "attr": "gost_designation",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "seals",
+   "name": "Ущільнення",
+   "prefix": "SEL",
+   "measure": "piece",
+   "uom": "шт",
+   "dk021": "44425000-5"
+  },
+  {
+   "code": "oring",
+   "name": "Кільце ущільнювальне круглого перерізу",
+   "parent": "seals",
+   "prefix": "ORG",
+   "recipe": "oring",
+   "dk021": "44425100-6",
+   "keywords": [
+    "кільце ущільн",
+    "кільце гумов",
+    "о-кільце",
+    "o-ring",
+    "орінг",
+    "кольцо уплотн",
+    "кольцо резин"
+   ],
+   "name_template": "Кільце ущільнювальне {inner_d}×{section}[ {material}][ {standard}]",
+   "code_template": "{prefix}-{inner_d}x{section}[-{material}]",
+   "lines": [
+    {
+     "attr": "inner_d",
+     "required": true
+    },
+    {
+     "attr": "section",
+     "required": true
+    },
+    {
+     "attr": "material",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "standard",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "uav",
+   "name": "Компоненти БпЛА",
+   "prefix": "UAV",
+   "measure": "piece",
+   "uom": "шт",
+   "dk021": "34731000-0"
+  },
+  {
+   "code": "motor",
+   "name": "Мотор безколекторний",
+   "parent": "uav",
+   "prefix": "MOT",
+   "recipe": "motor",
+   "dk021": "31110000-0",
+   "keywords": [
+    "мотор",
+    "двигун безкол",
+    "двигун",
+    "motor"
+   ],
+   "name_template": "Мотор {stator} {kv}KV",
+   "code_template": "{prefix}-{stator}-{kv}",
+   "lines": [
+    {
+     "attr": "stator",
+     "required": true
+    },
+    {
+     "attr": "kv",
+     "required": true
+    },
+    {
+     "attr": "stator_d",
+     "key": false
+    },
+    {
+     "attr": "stator_h",
+     "key": false
+    }
+   ]
+  },
+  {
+   "code": "prop",
+   "name": "Гвинт повітряний",
+   "parent": "uav",
+   "prefix": "PRP",
+   "recipe": "prop",
+   "keywords": [
+    "пропелер",
+    "гвинт повітр",
+    "пропи",
+    "prop"
+   ],
+   "name_template": "Пропелер {prop_d}×{prop_pitch}[×{blades}]",
+   "code_template": "{prefix}-{prop_d}x{prop_pitch}[x{blades}]",
+   "lines": [
+    {
+     "attr": "prop_d",
+     "required": true
+    },
+    {
+     "attr": "prop_pitch",
+     "required": true
+    },
+    {
+     "attr": "blades",
+     "default": 2.0
+    }
+   ]
+  },
+  {
+   "code": "battery",
+   "name": "Акумуляторна батарея",
+   "parent": "uav",
+   "prefix": "BAT",
+   "recipe": "battery",
+   "dk021": "31434000-7",
+   "keywords": [
+    "акумулятор",
+    "акб",
+    "батарея",
+    "battery"
+   ],
+   "name_template": "Батарея[ {chemistry}] {cells}S {capacity} мА·год[ {c_rating}C][ {connector}]",
+   "code_template": "{prefix}[-{chemistry}]-{cells}s-{capacity}[-{c_rating}c][-{connector}]",
+   "lines": [
+    {
+     "attr": "chemistry"
+    },
+    {
+     "attr": "cells",
+     "required": true
+    },
+    {
+     "attr": "capacity",
+     "required": true
+    },
+    {
+     "attr": "c_rating",
+     "rule": "ge"
+    },
+    {
+     "attr": "connector"
+    }
+   ]
+  },
+  {
+   "code": "esc",
+   "name": "Регулятор обертів (ESC)",
+   "parent": "uav",
+   "prefix": "ESC",
+   "recipe": "esc",
+   "keywords": [
+    "регулятор оберт",
+    "esc",
+    "регулятор швидк"
+   ],
+   "name_template": "Регулятор {current} А[ {cells_range}]",
+   "code_template": "{prefix}-{current}a",
+   "lines": [
+    {
+     "attr": "current",
+     "required": true,
+     "rule": "ge"
+    },
+    {
+     "attr": "cells_range"
+    }
+   ]
+  },
+  {
+   "code": "connector_power",
+   "name": "Роз'єм силовий",
+   "parent": "uav",
+   "prefix": "CON",
+   "dims": [],
+   "dk021": "31224000-2",
+   "keywords": [
+    "роз'єм",
+    "разъем",
+    "роз’єм",
+    "конектор",
+    "коннектор",
+    "connector"
+   ],
+   "name_template": "Роз'єм {connector}",
+   "code_template": "{prefix}-{connector}",
+   "lines": [
+    {
+     "attr": "connector",
+     "required": true
+    }
+   ]
+  },
+  {
+   "code": "wire_silicone",
+   "name": "Провід силіконовий",
+   "parent": "uav",
+   "prefix": "WSI",
+   "recipe": "awg",
+   "measure": "length",
+   "uom": "м",
+   "dk021": "31300000-9",
+   "keywords": [
+    "провід силікон",
+    "провод силикон",
+    "силіконовий провід",
+    "silicone wire"
+   ],
+   "name_template": "Провід силіконовий {awg} AWG",
+   "code_template": "{prefix}-{awg}awg",
+   "lines": [
+    {
+     "attr": "awg",
+     "required": true
+    }
+   ]
+  },
+  {
+   "code": "carbon_tube",
+   "name": "Трубка вуглепластикова",
+   "parent": "uav",
+   "prefix": "CTB",
+   "dims": [
+    "outer_d",
+    "inner_d",
+    "length"
+   ],
+   "dk021": "19520000-7",
+   "keywords": [
+    "трубка карбон",
+    "трубка вуглепл",
+    "карбонова трубка",
+    "carbon tube"
+   ],
+   "name_template": "Трубка вуглепластикова {outer_d}×{inner_d}[×{length}]",
+   "code_template": "{prefix}-{outer_d}x{inner_d}[x{length}]",
+   "lines": [
+    {
+     "attr": "outer_d",
+     "required": true
+    },
+    {
+     "attr": "inner_d",
+     "required": true
+    },
+    {
+     "attr": "length"
+    }
+   ]
+  },
+  {
+   "code": "carbon_plate",
+   "name": "Пластина вуглепластикова",
+   "parent": "uav",
+   "prefix": "CPL",
+   "recipe": "sheet",
+   "dk021": "19520000-7",
+   "keywords": [
+    "пластина карбон",
+    "лист карбон",
+    "пластина вуглепл",
+    "карбонова пластина",
+    "carbon plate"
+   ],
+   "name_template": "Пластина вуглепластикова {thickness}[×{width}×{length}]",
+   "code_template": "{prefix}-{thickness}[-{width}x{length}]",
+   "lines": [
+    {
+     "attr": "thickness",
+     "required": true
+    },
+    {
+     "attr": "width"
+    },
+    {
+     "attr": "length"
+    }
+   ]
+  },
+  {
+   "code": "electrical",
+   "name": "Кабель і провід",
+   "prefix": "ELC",
+   "measure": "length",
+   "uom": "м",
+   "dk021": "44321000-6"
+  },
+  {
+   "code": "cable",
+   "name": "Кабель мідний",
+   "parent": "electrical",
+   "prefix": "CBL",
+   "recipe": "cable",
+   "keywords": [
+    "кабель",
+    "провід",
+    "провод",
+    "cable"
+   ],
+   "name_template": "Кабель {cable_type} {cores}×{cross_section}",
+   "code_template": "{prefix}-{cable_type}-{cores}x{cross_section}",
+   "lines": [
+    {
+     "attr": "cable_type",
+     "required": true,
+     "rule": "equivalent"
+    },
+    {
+     "attr": "cores",
+     "required": true
+    },
+    {
+     "attr": "cross_section",
+     "required": true
+    }
+   ]
+  }
+ ],
+ "equivalences": [
+  {
+   "code": "hex_partial_iso",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "din931",
+    "iso4014"
+   ],
+   "note": "ISO 4014 - заміна DIN 931; розмір під ключ M10, M12, M14, M22 інший"
+  },
+  {
+   "code": "hex_full_iso",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "din933",
+    "iso4017"
+   ],
+   "note": "ISO 4017 - заміна DIN 933; розмір під ключ M10, M12, M14, M22 інший"
+  },
+  {
+   "code": "hex_partial_gost",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "din931",
+    "iso4014",
+    "gost7798"
+   ],
+   "note": "ГОСТ 7798: довжина різьби залежить від довжини болта - звірте з кресленням"
+  },
+  {
+   "code": "hex_full_gost",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "din933",
+    "iso4017",
+    "gost7798",
+    "gost7805"
+   ],
+   "note": "ГОСТ 7798 і 7805: болт з повною різьбою - лише короткі довжини; звірте з кресленням"
+  },
+  {
+   "code": "socket_iso",
+   "attr": "standard",
+   "level": "full",
+   "members": [
+    "din912",
+    "iso4762"
+   ],
+   "note": "ISO 4762 замінила DIN 912 без змін основних розмірів"
+  },
+  {
+   "code": "socket_gost",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "din912",
+    "iso4762",
+    "gost11738"
+   ],
+   "note": "ГОСТ 11738: звірте висоту головки і довжину різьби"
+  },
+  {
+   "code": "csk_iso",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "din7991",
+    "iso10642"
+   ],
+   "note": "діаметр і висота потайної головки трохи різні: звірте зенкування"
+  },
+  {
+   "code": "csk_ph_iso",
+   "attr": "standard",
+   "level": "full",
+   "members": [
+    "din965",
+    "iso7046"
+   ],
+   "note": ""
+  },
+  {
+   "code": "button_iso",
+   "attr": "standard",
+   "level": "full",
+   "members": [
+    "din7985",
+    "iso7045"
+   ],
+   "note": ""
+  },
+  {
+   "code": "set_iso",
+   "attr": "standard",
+   "level": "full",
+   "members": [
+    "din913",
+    "iso4026"
+   ],
+   "note": ""
+  },
+  {
+   "code": "set_cone_iso",
+   "attr": "standard",
+   "level": "full",
+   "members": [
+    "din916",
+    "iso4029"
+   ],
+   "note": ""
+  },
+  {
+   "code": "nut_iso",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "din934",
+    "iso4032"
+   ],
+   "note": "гайка ISO 4032 вища (0,84d проти 0,8d); розмір під ключ M10, M12, M14, M22 інший"
+  },
+  {
+   "code": "nut_gost",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "din934",
+    "iso4032",
+    "gost5915"
+   ],
+   "note": "ГОСТ 5915: звірте висоту і розмір під ключ"
+  },
+  {
+   "code": "nyloc_iso",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "din985",
+    "iso10511"
+   ],
+   "note": "розмір під ключ M10, M12, M14, M22 інший"
+  },
+  {
+   "code": "washer_iso",
+   "attr": "standard",
+   "level": "full",
+   "members": [
+    "din125",
+    "iso7089"
+   ],
+   "note": "DIN 125-A і ISO 7089 збігаються за розмірами"
+  },
+  {
+   "code": "washer_gost",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "din125",
+    "iso7089",
+    "gost11371"
+   ],
+   "note": "ГОСТ 11371: звірте зовнішній діаметр і товщину"
+  },
+  {
+   "code": "washer_large_iso",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "din9021",
+    "iso7093"
+   ],
+   "note": "зовнішній діаметр для деяких розмірів відрізняється"
+  },
+  {
+   "code": "spring_gost",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "din127",
+    "gost6402"
+   ],
+   "note": "звірте переріз витка"
+  },
+  {
+   "code": "rivet_iso",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "din7337",
+    "iso15977"
+   ],
+   "note": "звірте діаметр бортика і діапазон товщин, що з'єднуються"
+  },
+  {
+   "code": "circlip_shaft_gost",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "din471",
+    "gost13942"
+   ],
+   "note": "звірте товщину кільця і канавку"
+  },
+  {
+   "code": "circlip_bore_gost",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "din472",
+    "gost13943"
+   ],
+   "note": "звірте товщину кільця і канавку"
+  },
+  {
+   "code": "dowel_iso",
+   "attr": "standard",
+   "level": "full",
+   "members": [
+    "iso8734",
+    "din6325"
+   ],
+   "note": ""
+  },
+  {
+   "code": "pin_iso",
+   "attr": "standard",
+   "level": "full",
+   "members": [
+    "iso2338",
+    "din7"
+   ],
+   "note": ""
+  },
+  {
+   "code": "self_tap_iso",
+   "attr": "standard",
+   "level": "full",
+   "members": [
+    "din7981",
+    "iso7049"
+   ],
+   "note": ""
+  },
+  {
+   "code": "oring_gost",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "iso3601",
+    "gost9833"
+   ],
+   "note": "позначення різні: ГОСТ - за діаметрами штока і циліндра, ISO - внутрішній діаметр і переріз"
+  },
+  {
+   "code": "round_en",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "gost2590",
+    "en10060"
+   ],
+   "note": "допуски на діаметр різні"
+  },
+  {
+   "code": "square_en",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "gost2591",
+    "en10059"
+   ],
+   "note": "допуски різні"
+  },
+  {
+   "code": "hex_en",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "gost2879",
+    "en10061"
+   ],
+   "note": "допуски різні"
+  },
+  {
+   "code": "flat_en",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "gost103",
+    "en10058"
+   ],
+   "note": "допуски різні"
+  },
+  {
+   "code": "angle_en",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "gost8509",
+    "en10056"
+   ],
+   "note": "радіуси і допуски різні"
+  },
+  {
+   "code": "rect_en",
+   "attr": "standard",
+   "level": "check",
+   "members": [
+    "gost8639",
+    "gost8645",
+    "en10219"
+   ],
+   "note": "радіуси кутів різні"
+  },
+  {
+   "code": "st3_s235",
+   "attr": "material",
+   "level": "check",
+   "members": [
+    "st3",
+    "s235"
+   ],
+   "note": "близькі за міцністю; звірте ударну в'язкість і зварюваність"
+  },
+  {
+   "code": "st20_c22",
+   "attr": "material",
+   "level": "check",
+   "members": [
+    "st20",
+    "c22",
+    "aisi1020"
+   ],
+   "note": "звірте хімічний склад за сертифікатом"
+  },
+  {
+   "code": "st45_c45",
+   "attr": "material",
+   "level": "check",
+   "members": [
+    "st45",
+    "c45",
+    "aisi1045"
+   ],
+   "note": "звірте хімічний склад і термообробку"
+  },
+  {
+   "code": "40h_41cr4",
+   "attr": "material",
+   "level": "check",
+   "members": [
+    "40h",
+    "41cr4",
+    "aisi5140"
+   ],
+   "note": "звірте хімічний склад і термообробку"
+  },
+  {
+   "code": "09g2s_s355",
+   "attr": "material",
+   "level": "check",
+   "members": [
+    "09g2s",
+    "s355"
+   ],
+   "note": "за міцністю близькі; для зварних конструкцій погодьте з конструктором"
+  },
+  {
+   "code": "321",
+   "attr": "material",
+   "level": "check",
+   "members": [
+    "12h18n10t",
+    "aisi321"
+   ],
+   "note": "стабілізовані титаном; близькі"
+  },
+  {
+   "code": "304",
+   "attr": "material",
+   "level": "check",
+   "members": [
+    "08h18n10",
+    "aisi304"
+   ],
+   "note": "близькі"
+  },
+  {
+   "code": "316",
+   "attr": "material",
+   "level": "check",
+   "members": [
+    "10h17n13m2t",
+    "aisi316"
+   ],
+   "note": "316Ti близька до 10Х17Н13М2Т; 316L - без титану"
+  },
+  {
+   "code": "d16_2024",
+   "attr": "material",
+   "level": "check",
+   "members": [
+    "d16t",
+    "al2024"
+   ],
+   "note": "звірте стан (Т, Т3, Т351) і механічні властивості"
+  },
+  {
+   "code": "amg6_5083",
+   "attr": "material",
+   "level": "check",
+   "members": [
+    "amg6",
+    "al5083"
+   ],
+   "note": "у АМг6 більше магнію (близько 6 %): міцність вища, звірте"
+  },
+  {
+   "code": "amg3_5754",
+   "attr": "material",
+   "level": "check",
+   "members": [
+    "amg3",
+    "al5754"
+   ],
+   "note": "близькі"
+  },
+  {
+   "code": "ad31_6063",
+   "attr": "material",
+   "level": "check",
+   "members": [
+    "ad31",
+    "al6063"
+   ],
+   "note": "близькі"
+  },
+  {
+   "code": "ad33_6061",
+   "attr": "material",
+   "level": "check",
+   "members": [
+    "ad33",
+    "al6061"
+   ],
+   "note": "близькі"
+  },
+  {
+   "code": "v95_7075",
+   "attr": "material",
+   "level": "check",
+   "members": [
+    "v95",
+    "al7075"
+   ],
+   "note": "звірте стан (Т1, T6, T651)"
+  },
+  {
+   "code": "l63",
+   "attr": "material",
+   "level": "check",
+   "members": [
+    "l63",
+    "cuzn37"
+   ],
+   "note": "близькі"
+  },
+  {
+   "code": "ls59",
+   "attr": "material",
+   "level": "check",
+   "members": [
+    "ls59",
+    "cuzn39pb3"
+   ],
+   "note": "автоматні латуні; звірте вміст свинцю"
+  },
+  {
+   "code": "copper",
+   "attr": "material",
+   "level": "check",
+   "members": [
+    "m1",
+    "cu_etp"
+   ],
+   "note": "близькі"
+  },
+  {
+   "code": "vt1_gr2",
+   "attr": "material",
+   "level": "check",
+   "members": [
+    "vt1_0",
+    "ti_gr2"
+   ],
+   "note": "близькі"
+  },
+  {
+   "code": "vt6_gr5",
+   "attr": "material",
+   "level": "check",
+   "members": [
+    "vt6",
+    "ti_gr5"
+   ],
+   "note": "близькі; звірте стан і сертифікат"
+  },
+  {
+   "code": "zinc_family",
+   "attr": "coating",
+   "level": "check",
+   "members": [
+    "zn",
+    "flake"
+   ],
+   "note": "цинк-ламельне стійкіше до корозії і без водневої крихкості - заміна цинку ним допустима, навпаки - ні"
+  },
+  {
+   "code": "cable_ng",
+   "attr": "cable_type",
+   "level": "check",
+   "members": [
+    "vvg",
+    "vvgng"
+   ],
+   "note": "ВВГнг не поширює горіння: ВВГ замість ВВГнг не можна, навпаки - можна"
+  }
+ ]
+}

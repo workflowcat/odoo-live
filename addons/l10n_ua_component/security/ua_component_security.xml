@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="ua_component_intake_company_rule" model="ir.rule">
+    <field name="name">Розбір номенклатури: своя компанія</field>
+    <field name="model_id" ref="model_ua_component_intake"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="ua_component_intake_line_company_rule" model="ir.rule">
+    <field name="name">Рядки розбору: своя компанія</field>
+    <field name="model_id" ref="model_ua_component_intake_line"/>
+    <field name="domain_force">[('intake_id.company_id', 'in', company_ids)]</field>
+  </record>
+</odoo>

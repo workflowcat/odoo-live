@@ -23,6 +23,24 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 ADDONS = os.path.join(ROOT, "addons")
 DK021 = os.path.join(ADDONS, "l10n_ua_dk021", "data", "dk021_uk.json")
 UOM_SEED = os.path.join(ADDONS, "l10n_ua_vat", "models", "uom_uom.py")
+COMPONENT_DIR = os.path.join(ADDONS, "l10n_ua_component")
+
+
+def component_spec():
+    """Ядро розбору і довідник l10n_ua_component без Odoo: (core, spec) або (None, None)."""
+    core_path = os.path.join(COMPONENT_DIR, "models", "component_core.py")
+    data_path = os.path.join(COMPONENT_DIR, "data", "classifier.json")
+    if not (os.path.exists(core_path) and os.path.exists(data_path)):
+        return None, None
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("ua_component_core", core_path)
+    core = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(core)
+    with open(data_path, encoding="utf-8") as fh:
+        return core, core.spec_from_data(json.load(fh))
+
+
+CORE, SPEC = component_spec()
 
 PACK_ID = re.compile(r"^[a-z][a-z0-9_]{2,40}$")
 KEY = re.compile(r"^[a-z][a-z0-9_]{0,40}$")
@@ -36,9 +54,9 @@ ITEM_KEYS = {
     "uoms": ({"key", "name"}, {"short", "kspovo", "relative_factor", "relative_uom"}),
     "categories": ({"key", "name"}, {"parent"}),
     "workcenters": ({"key", "name"}, {"code", "costs_hour", "fields"}),
-    "products": ({"key", "name"}, {"code", "category", "type", "storable", "uom", "tracking", "cost",
-                                   "price", "barcode", "uktzed", "dk021", "sale_ok", "purchase_ok",
-                                   "description", "fields"}),
+    "products": ({"key"}, {"name", "code", "category", "type", "storable", "uom", "tracking", "cost",
+                           "price", "barcode", "uktzed", "dk021", "sale_ok", "purchase_ok",
+                           "description", "fields", "component"}),
     "boms": ({"key", "product"}, {"qty", "code", "type", "lines", "operations", "byproducts"}),
     "records": ({"key", "model", "values"}, {"match", "company_bound"}),
 }
@@ -53,6 +71,18 @@ def kspovo_shorts():
     except OSError:
         return set()
     return set(re.findall(r'\("\d{4}", "([^"]+)"\)', text))
+
+
+def component_values(comp):
+    """Вид і характеристики з component{}: розбір «parse» плюс явні values."""
+    values = {}
+    cls = comp.get("class")
+    if comp.get("parse") and CORE:
+        result = CORE.parse(SPEC, comp["parse"])
+        cls = cls or result["class"]
+        values.update(result["values"])
+    values.update(comp.get("values") or {})
+    return cls, values
 
 
 def ean13_ok(code):
@@ -74,6 +104,30 @@ class Pack:
 
     def bad(self, msg):
         self.problems.append("%s: %s" % (self.rel, msg))
+
+    def component(self, comp, where, requires):
+        """component{}: вид з довідника, відомі характеристики, повний розбір назви."""
+        if "l10n_ua_component" not in requires:
+            self.bad("%s: component потребує requires: l10n_ua_component" % where)
+        extra = set(comp) - {"class", "values", "parse"}
+        if extra:
+            self.bad("%s: component - невідомі поля %s" % (where, ", ".join(sorted(extra))))
+        if not SPEC:
+            return
+        cls, values = component_values(comp)
+        if cls not in SPEC.classes:
+            self.bad("%s: вид «%s» не знайдено (розбір: %r)" % (where, cls, comp.get("parse")))
+            return
+        lines = SPEC.classes[cls]["lines"]
+        for attr, value in values.items():
+            if attr not in lines:
+                self.bad("%s: у виду %s немає характеристики %s" % (where, cls, attr))
+            elif isinstance(value, str) and (SPEC.attributes[attr].get("kind") == "choice") \
+                    and value not in SPEC.attributes[attr]["choices"]:
+                self.bad("%s: %s - немає варіанта «%s»" % (where, attr, value))
+        missing = [a for a, line in lines.items() if line.get("required") and a not in values]
+        if missing:
+            self.bad("%s: не заповнено %s" % (where, ", ".join(missing)))
 
     def ref(self, value, where, kinds=None):
         if not isinstance(value, str) or not value.startswith("@"):
@@ -171,6 +225,10 @@ class Pack:
         barcodes = set()
         for item in data.get("products") or []:
             where = "products «%s»" % item.get("key")
+            if not item.get("name") and not item.get("component"):
+                self.bad("%s: бракує name (або component, з якого назва складеться)" % where)
+            if item.get("component"):
+                self.component(item["component"], where, requires)
             if item.get("category"):
                 self.ref(item["category"], where, ("categories",))
             self.uom(item.get("uom"), where, own_uoms)

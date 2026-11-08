@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="product_template_form_ua_component" model="ir.ui.view">
+    <field name="name">product.template.form.ua.component</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_form_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//notebook" position="inside">
+        <page string="Характеристики" name="ua_component">
+          <div class="mb-2">
+            <button name="action_ua_parse_name" type="object" string="Розібрати назву"
+                    class="btn-secondary" icon="fa-magic"/>
+            <button name="action_ua_apply_template" type="object" string="Назва за шаблоном"
+                    class="btn-secondary" invisible="not ua_component_name"/>
+            <button name="action_ua_analogs" type="object" string="Аналоги"
+                    class="btn-secondary" icon="fa-exchange" invisible="not ua_component_class_id"/>
+            <button name="action_ua_units" type="object" string="Одиниці з маси"
+                    class="btn-secondary" icon="fa-balance-scale"
+                    invisible="not ua_mass_per_m and not ua_mass_per_m2 and not ua_piece_mass"/>
+            <button name="action_ua_duplicates" type="object" class="btn-link text-warning"
+                    invisible="ua_duplicate_count == 0">
+              <field name="ua_duplicate_count" class="oe_inline"/> дублів
+            </button>
+          </div>
+          <group>
+            <group>
+              <field name="ua_component_class_id"/>
+              <field name="ua_component_name"/>
+              <field name="ua_component_code"/>
+              <field name="ua_component_missing" invisible="not ua_component_missing"
+                     decoration-warning="1"/>
+            </group>
+            <group>
+              <field name="ua_mass_per_m" invisible="not ua_mass_per_m"/>
+              <field name="ua_mass_per_m2" invisible="not ua_mass_per_m2"/>
+              <field name="ua_piece_mass" invisible="not ua_piece_mass"/>
+              <field name="ua_component_key" groups="base.group_no_one"/>
+            </group>
+          </group>
+          <field name="ua_component_value_ids">
+            <list editable="bottom">
+              <field name="sequence" widget="handle"/>
+              <field name="attribute_id" options="{'no_create': True}"/>
+              <field name="kind" column_invisible="1"/>
+              <field name="choice_id" invisible="kind != 'choice'" options="{'no_create': True}"/>
+              <field name="number" invisible="kind != 'number'"/>
+              <field name="unit" invisible="kind != 'number'"/>
+              <field name="text" invisible="kind != 'text'"/>
+              <field name="flag" invisible="kind != 'bool'"/>
+            </list>
+          </field>
+          <separator string="Аналоги"/>
+          <field name="ua_analog_ids">
+            <list editable="bottom">
+              <field name="sequence" widget="handle"/>
+              <field name="analog_tmpl_id"/>
+              <field name="level"/>
+              <field name="reason"/>
+              <field name="source"/>
+              <field name="note" optional="hide"/>
+            </list>
+          </field>
+        </page>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="product_template_search_ua_component" model="ir.ui.view">
+    <field name="name">product.template.search.ua.component</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_search_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//filter[@name='filter_to_sell']" position="before">
+        <field name="ua_component_class_id"/>
+        <filter name="ua_unclassified" string="Без виду комплектуючих"
+                domain="[('ua_component_class_id', '=', False), ('type', '=', 'consu')]"/>
+        <filter name="ua_incomplete" string="Бракує характеристик"
+                domain="[('ua_component_missing', '!=', False)]"/>
+        <separator/>
+      </xpath>
+      <xpath expr="//filter[@name='group_by_categ_id']" position="after">
+        <filter name="ua_by_class" string="Вид комплектуючих"
+                context="{'group_by': 'ua_component_class_id'}"/>
+        <filter name="ua_by_key" string="Відбиток (дублі)" context="{'group_by': 'ua_component_key'}"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>

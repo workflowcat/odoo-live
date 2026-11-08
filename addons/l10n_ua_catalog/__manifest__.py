@@ -7,7 +7,7 @@
                    "завантажувач кладе їх у вибрану компанію. Повторне завантаження "
                    "ідемпотентне. Пакет команди - модуль з теки catalog/, без Python. "
                    "Формат і правила - docs/customization.md.",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Productivity",
     "author": "Bot&Partners",
     "license": "LGPL-3",

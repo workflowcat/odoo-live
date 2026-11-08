@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 90. Моделей: 186. Методів: 725. Збережених полів на чужих моделях: 400.
+Модулів: 92. Моделей: 193. Методів: 746. Збережених полів на чужих моделях: 414.
 
 ## Зарплата
 
@@ -1428,6 +1428,43 @@
 | `money(amount)` | 1 240,50 - сума для друку. | `l10n_ua_commission` |
 | `parties()` | (комісіонер, комітент) для друку. | `l10n_ua_commission` |
 
+### `ua.component.analog.finder`
+
+наша модель · `l10n_ua_component`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_search()` | - | `l10n_ua_component` |
+
+### `ua.component.analog.finder.line`
+
+наша модель · `l10n_ua_component`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_propose_bom()` | Запропонувати аналог на рядки специфікацій з цим товаром (без погодження). | `l10n_ua_component` |
+| `action_save()` | Записати в перелік аналогів товару (і зворотний запис для повної заміни). | `l10n_ua_component` |
+
+### `ua.component.class`
+
+наша модель · `l10n_ua_component`, `l10n_ua_supplier_catalog`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_ua_find_suppliers()` | - | `l10n_ua_supplier_catalog` |
+| `action_ua_products()` | - | `l10n_ua_component` |
+| `action_ua_suppliers()` | - | `l10n_ua_supplier_catalog` |
+
+### `ua.component.intake`
+
+наша модель · `l10n_ua_component`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_apply()` | - | `l10n_ua_component` |
+| `action_lines()` | - | `l10n_ua_component` |
+| `action_parse()` | - | `l10n_ua_component` |
+
 ### `ua.contract`
 
 наша модель · `l10n_ua_claim`, `l10n_ua_contract`, `l10n_ua_defense`, `l10n_ua_edo`, `l10n_ua_guarantee`
@@ -1972,6 +2009,25 @@
 | `ua_scope_text()` | - | `l10n_ua_supplier_approval` |
 | `ua_state_label()` | - | `l10n_ua_supplier_approval` |
 
+### `ua.supplier.price.import`
+
+наша модель · `l10n_ua_supplier_catalog`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_apply()` | - | `l10n_ua_supplier_catalog` |
+| `action_lines()` | - | `l10n_ua_supplier_catalog` |
+| `action_parse()` | - | `l10n_ua_supplier_catalog` |
+
+### `ua.supplier.price.profile`
+
+наша модель · `l10n_ua_supplier_catalog`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_imports()` | - | `l10n_ua_supplier_catalog` |
+| `action_new_import()` | - | `l10n_ua_supplier_catalog` |
+
 ### `ua.tolling.order`
 
 наша модель · `l10n_ua_tolling`
@@ -2394,19 +2450,44 @@
 | `ua_precious_content(quantity=1.0, _path=())` | {метал: грами} у quantity одиниць товару, разом зі складовими специфікації. | `l10n_ua_precious_metals` |
 | `ua_precious_rows()` | Рядки розділу паспорта: метал, символ, грами на один виріб. | `l10n_ua_precious_metals` |
 
+### `product.supplierinfo`
+
+доповнена модель · `l10n_ua_supplier_catalog`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_component_class_id` | Many2one | Вид комплектуючих | `l10n_ua_supplier_catalog` |
+| `ua_import_id` | Many2one | ua.supplier.price.import | `l10n_ua_supplier_catalog` |
+| `ua_price_base` | Float | Ціна за одиницю обліку | `l10n_ua_supplier_catalog` |
+| `ua_stock` | Float | Залишок у постачальника | `l10n_ua_supplier_catalog` |
+
 ### `product.template`
 
-доповнена модель · `l10n_ua_customs`, `l10n_ua_defense`, `l10n_ua_dk021`, `l10n_ua_export_control`, `l10n_ua_mrp`, `l10n_ua_precious_metals`, `l10n_ua_price_label`, `l10n_ua_product_tests`, `l10n_ua_stock_docs`, `l10n_ua_supplier_approval`, `l10n_ua_vat`
+доповнена модель · `l10n_ua_component`, `l10n_ua_customs`, `l10n_ua_defense`, `l10n_ua_dk021`, `l10n_ua_export_control`, `l10n_ua_mrp`, `l10n_ua_precious_metals`, `l10n_ua_price_label`, `l10n_ua_product_tests`, `l10n_ua_stock_docs`, `l10n_ua_supplier_approval`, `l10n_ua_supplier_catalog`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
+| `action_ua_analogs()` | - | `l10n_ua_component` |
+| `action_ua_apply_template()` | Назву й артикул - за шаблоном виду (артикул лише якщо порожній). | `l10n_ua_component` |
+| `action_ua_compare_suppliers()` | - | `l10n_ua_supplier_catalog` |
+| `action_ua_duplicates()` | - | `l10n_ua_component` |
+| `action_ua_find_suppliers()` | - | `l10n_ua_supplier_catalog` |
+| `action_ua_parse_name()` | Розібрати назву товару в характеристики (порожні не перезаписує). | `l10n_ua_component` |
+| `action_ua_units()` | Одиниці конкретного товару з маси: метр, пруток, м², лист; кг для кріплення. | `l10n_ua_component` |
 | `ua_acceptance_block(day)` | Чому виріб зараз не можна приймати, або порожній рядок. | `l10n_ua_product_tests` |
 | `ua_assembly()` | Креслення і операції з позиціями - усе, що треба екрану збирання. | `l10n_ua_mrp` |
 | `ua_test_status(day=None)` | Коротко для списку і картки виробу. | `l10n_ua_product_tests` |
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
+| `ua_analog_ids` | One2many | ua.component.analog | `l10n_ua_component` |
 | `ua_approved_only` | Boolean | Лише від погоджених постачальників | `l10n_ua_supplier_approval` |
+| `ua_component_class_id` | Many2one | ua.component.class | `l10n_ua_component` |
+| `ua_component_code` | Char | Артикул за шаблоном | `l10n_ua_component` |
+| `ua_component_key` | Char | Відбиток | `l10n_ua_component` |
+| `ua_component_missing` | Char | Бракує | `l10n_ua_component` |
+| `ua_component_name` | Char | Назва за шаблоном | `l10n_ua_component` |
+| `ua_component_value_ids` | One2many | ua.component.value | `l10n_ua_component` |
 | `ua_control_kind` | Selection | - | `l10n_ua_export_control` |
 | `ua_control_ref` | Char | Позиція контрольного списку | `l10n_ua_export_control` |
 | `ua_cost_item` | Selection | - | `l10n_ua_defense` |
@@ -2417,10 +2498,13 @@
 | `ua_export_controlled` | Boolean | Під експортним контролем | `l10n_ua_export_control` |
 | `ua_label_content` | Float | Вміст упаковки | `l10n_ua_price_label` |
 | `ua_label_unit` | Selection | - | `l10n_ua_price_label` |
+| `ua_mass_per_m` | Float | Маса 1 м, кг | `l10n_ua_component` |
+| `ua_mass_per_m2` | Float | Маса 1 м², кг | `l10n_ua_component` |
 | `ua_periodic_first_due` | Date | Перші періодичні - до | `l10n_ua_product_tests` |
 | `ua_periodic_last_id` | Many2one | ua.product.test | `l10n_ua_product_tests` |
 | `ua_periodic_months` | Integer | Періодичні випробування, раз на (міс.) | `l10n_ua_product_tests` |
 | `ua_periodic_valid_until` | Date | Періодичні діють до | `l10n_ua_product_tests` |
+| `ua_piece_mass` | Float | Маса штуки, кг | `l10n_ua_component` |
 | `ua_precious_ids` | One2many | ua.precious.content | `l10n_ua_precious_metals` |
 | `ua_size` | Selection | Габарит | `l10n_ua_stock_docs` |
 | `ua_test_ids` | One2many | ua.product.test | `l10n_ua_product_tests` |

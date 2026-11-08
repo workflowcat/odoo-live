@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+  <!-- Публічні джерела. Посилання перевірено 2026-11-08; сайти змінюються - звіряйте. -->
+  <record id="source_prozorro_contracts" model="ua.supplier.source">
+    <field name="name">Prozorro: договори за кодом ДК 021</field>
+    <field name="kind">public</field>
+    <field name="sequence">10</field>
+    <field name="url_template">https://prozorro.gov.ua/uk/search/contracts?cpv={dk021}</field>
+    <field name="note">Хто вже постачав такий товар публічним замовникам, суми договорів</field>
+  </record>
+  <record id="source_prozorro_tenders" model="ua.supplier.source">
+    <field name="name">Prozorro: закупівлі за кодом ДК 021</field>
+    <field name="kind">public</field>
+    <field name="sequence">20</field>
+    <field name="url_template">https://prozorro.gov.ua/uk/search/tender?cpv={dk021}</field>
+    <field name="note">Учасники торгів і очікувані вартості</field>
+  </record>
+  <record id="source_prozorro_market" model="ua.supplier.source">
+    <field name="name">Prozorro Market: каталог товарів</field>
+    <field name="kind">public</field>
+    <field name="sequence">30</field>
+    <field name="url_template">https://prozorro.gov.ua/uk/search/products</field>
+    <field name="note">Товари з характеристиками і постачальники, допущені до каталогу</field>
+  </record>
+  <record id="source_prom" model="ua.supplier.source">
+    <field name="name">Prom.ua: пошук товару</field>
+    <field name="kind">market</field>
+    <field name="sequence">40</field>
+    <field name="url_template">https://prom.ua/ua/search?search_term={query}</field>
+    <field name="note">Продавці, ціни, наявність</field>
+  </record>
+  <record id="source_edr" model="ua.supplier.source">
+    <field name="name">Єдиний державний реєстр: безоплатний запит</field>
+    <field name="kind">registry</field>
+    <field name="sequence">50</field>
+    <field name="url_template">https://usr.minjust.gov.ua/content/free-search</field>
+    <field name="note">Чи існує компанія, керівник, стан реєстрації; відкривається з України</field>
+  </record>
+  <record id="source_dinmark" model="ua.supplier.source">
+    <field name="name">Dinmark: кріплення за стандартами DIN і ISO</field>
+    <field name="kind">seller</field>
+    <field name="sequence">60</field>
+    <field name="url_template">https://dinmark.com.ua/</field>
+    <field name="note">Приклад продавця кріплення; допишіть своїх постачальників</field>
+    <field name="class_codes">fastener</field>
+  </record>
+</odoo>

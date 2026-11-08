@@ -1,0 +1,371 @@
+{
+ "note": "Як назви з прайсів і 1С мають розбиратися. Перевіряє scripts/component_check.py; новий випадок - новий рядок.",
+ "samples": [
+  {
+   "text": "Болт М8х30 DIN933 8.8 оц",
+   "class": "bolt_hex",
+   "name": "Болт М8×30 DIN 933 8.8 цинк",
+   "code": "BLT-DIN933-M8x30-88-ZN"
+  },
+  {
+   "text": "болт оцинк. M8*30 кл.8,8 DIN 933",
+   "class": "bolt_hex",
+   "name": "Болт М8×30 DIN 933 8.8 цинк",
+   "code": "BLT-DIN933-M8x30-88-ZN"
+  },
+  {
+   "text": "Болт М10х1,25х40 ISO 4017 10.9 без покриття",
+   "class": "bolt_hex",
+   "name": "Болт М10×1,25×40 ISO 4017 10.9 без покриття",
+   "code": "BLT-ISO4017-M10x1.25x40-109-PLAIN"
+  },
+  {
+   "text": "Болт ГОСТ 7798-70 М12х60 5.8",
+   "class": "bolt_hex",
+   "name": "Болт М12×60 ГОСТ 7798-70 5.8",
+   "code": "BLT-GOST7798-M12x60-58"
+  },
+  {
+   "text": "Гвинт DIN 912 М5х16 12.9",
+   "class": "screw_socket",
+   "name": "Гвинт М5×16 DIN 912 12.9",
+   "code": "SCS-DIN912-M5x16-129"
+  },
+  {
+   "text": "Гвинт М4x10 DIN 7991 A2-70",
+   "class": "screw_csk",
+   "name": "Гвинт потайний М4×10 DIN 7991 A2-70",
+   "code": "SCK-DIN7991-M4x10-A270"
+  },
+  {
+   "text": "Гвинт з напівкруглою головою ISO 7380 M3x8 10.9 чорнений",
+   "class": "screw_button",
+   "name": "Гвинт напівкруглий М3×8 ISO 7380 10.9 оксидоване",
+   "code": "SCB-ISO7380-M3x8-109-OXIDE"
+  },
+  {
+   "text": "Гайка М8 DIN934 кл.8 цинк",
+   "class": "nut_hex",
+   "name": "Гайка М8 DIN 934 кл. 8 цинк",
+   "code": "NUT-DIN934-M8-N8-ZN"
+  },
+  {
+   "text": "гайка самоконтр. М6 DIN 985 оц",
+   "class": "nut_lock",
+   "name": "Гайка самоконтрувальна М6 DIN 985 цинк",
+   "code": "NLK-DIN985-M6-ZN"
+  },
+  {
+   "text": "Шайба 8 DIN 125 оцинкована",
+   "class": "washer_flat",
+   "name": "Шайба М8 DIN 125 цинк",
+   "code": "WSH-DIN125-M8-ZN"
+  },
+  {
+   "text": "Шайба пружинна М10 DIN127",
+   "class": "washer_spring",
+   "name": "Шайба пружинна М10 DIN 127",
+   "code": "WSP-DIN127-M10"
+  },
+  {
+   "text": "Шайба М6 збільшена DIN 9021 цинк",
+   "class": "washer_large",
+   "name": "Шайба збільшена М6 DIN 9021 цинк",
+   "code": "WSL-DIN9021-M6-ZN"
+  },
+  {
+   "text": "Заклепка витяжна 4x10 алюміній",
+   "class": "rivet_blind",
+   "name": "Заклепка витяжна 4×10 алюміній",
+   "code": "RVT-4x10-ALUMINIUM"
+  },
+  {
+   "text": "Шпилька М10х1000 DIN 975 оц",
+   "class": "stud",
+   "name": "Шпилька М10×1000 DIN 975 цинк",
+   "code": "STD-M10x1000-ZN"
+  },
+  {
+   "text": "Пруток Д16Т ф40",
+   "class": "bar_round",
+   "name": "Пруток Д16Т ⌀40",
+   "code": "MRD-D16T-40"
+  },
+  {
+   "text": "Круг 40 ст45 L=6000",
+   "class": "bar_round",
+   "name": "Пруток Сталь 45 ⌀40 L=6000",
+   "code": "MRD-ST45-40"
+  },
+  {
+   "text": "Пруток 40Х ⌀30 6м",
+   "class": "bar_round",
+   "name": "Пруток Сталь 40Х ⌀30 L=6000",
+   "code": "MRD-40H-30"
+  },
+  {
+   "text": "Шестигранник 17 ст.45 калібр.",
+   "class": "bar_hex",
+   "name": "Шестигранник Сталь 45 S17",
+   "code": "MHX-ST45-17"
+  },
+  {
+   "text": "Квадрат 20 Ст3",
+   "class": "bar_square",
+   "name": "Квадрат Ст3сп 20",
+   "code": "MSQ-ST3-20"
+  },
+  {
+   "text": "Смуга 40х4 ст3сп",
+   "class": "flat",
+   "name": "Смуга Ст3сп 40×4",
+   "code": "MFL-ST3-40x4"
+  },
+  {
+   "text": "Лист АМг6 2х1250х2500",
+   "class": "sheet",
+   "name": "Лист АМг6 2 мм 1250×2500",
+   "code": "MSH-AMG6-2-1250x2500"
+  },
+  {
+   "text": "Плита 20 мм АМг6",
+   "class": "sheet",
+   "name": "Лист АМг6 20 мм",
+   "code": "MSH-AMG6-20"
+  },
+  {
+   "text": "Лист 1,5 08Х18Н10",
+   "class": "sheet",
+   "name": "Лист 08Х18Н10 1,5 мм",
+   "code": "MSH-08H18N10-1.5"
+  },
+  {
+   "text": "Труба 57х3,5 ст20 ГОСТ 8732-78",
+   "class": "pipe",
+   "name": "Труба Сталь 20 ⌀57×3,5 ГОСТ 8732-78",
+   "code": "MPI-ST20-57x3.5"
+  },
+  {
+   "text": "Труба 40х20х2 ст3",
+   "class": "rect_pipe",
+   "name": "Труба профільна Ст3сп 40×20×2",
+   "code": "MPR-ST3-40x20x2"
+  },
+  {
+   "text": "Труба профільна 60х40х3 S235",
+   "class": "rect_pipe",
+   "name": "Труба профільна S235JR 60×40×3",
+   "code": "MPR-S235-60x40x3"
+  },
+  {
+   "text": "Кутник 50х50х5 ст3",
+   "class": "angle",
+   "name": "Кутник Ст3сп 50×50×5",
+   "code": "MAN-ST3-50x50x5"
+  },
+  {
+   "text": "Кутник 63х6",
+   "class": "angle",
+   "name": "Кутник 63×63×6",
+   "code": "MAN-63x63x6"
+  },
+  {
+   "text": "Дріт 2 мм 65Г",
+   "class": "wire",
+   "name": "Дріт Сталь 65Г ⌀2",
+   "code": "MWR-65G-2"
+  },
+  {
+   "text": "Свердло 8,5 HSS-Co DIN 338",
+   "class": "drill",
+   "name": "Свердло ⌀8,5 HSS-Co DIN 338",
+   "code": "DRL-8.5-HSSCO-DIN338"
+  },
+  {
+   "text": "Свердло ф6 твердосплав TiAlN",
+   "class": "drill",
+   "name": "Свердло ⌀6 твердий сплав TiAlN",
+   "code": "DRL-6-HM"
+  },
+  {
+   "text": "Фреза кінцева 10 z4 твердосплав TiAlN",
+   "class": "endmill",
+   "name": "Фреза кінцева ⌀10 z4 твердий сплав TiAlN",
+   "code": "EML-10-z4-HM"
+  },
+  {
+   "text": "Фреза 6х20 z3 R0,5 VHM",
+   "class": "endmill",
+   "name": "Фреза кінцева ⌀6 z3 R0,5×20 твердий сплав",
+   "code": "EML-6-z3-r0.5-HM"
+  },
+  {
+   "text": "Мітчик М8х1,25 HSS DIN 371",
+   "class": "tap",
+   "name": "Мітчик М8 DIN 371 HSS",
+   "code": "TAP-M8-HSS"
+  },
+  {
+   "text": "Пластина CNMG 120408-PM",
+   "class": "insert",
+   "name": "Пластина CNMG 120408-PM",
+   "code": "INS-CNMG120408-PM"
+  },
+  {
+   "text": "Пластина токарна WNMG080408",
+   "class": "insert",
+   "name": "Пластина WNMG 080408",
+   "code": "INS-WNMG080408"
+  },
+  {
+   "text": "Круг відрізний 125х1,0х22,23",
+   "class": "disc",
+   "name": "Круг абразивний 125×1×22,23",
+   "code": "DSC-125x1x22.23"
+  },
+  {
+   "text": "Штангенциркуль ШЦ-1 0-150 0,05",
+   "class": "caliper",
+   "name": "Штангенциркуль 0-150 0,05",
+   "code": "CAL-0-150-0.05"
+  },
+  {
+   "text": "Мікрометр 25-50 0.01",
+   "class": "micrometer",
+   "name": "Мікрометр 25-50 0,01",
+   "code": "MIC-25-50-0.01"
+  },
+  {
+   "text": "Калібр-пробка М10 6H",
+   "class": "gauge_plug",
+   "name": "Калібр-пробка М10",
+   "code": "GPL-M10"
+  },
+  {
+   "text": "Підшипник 6204-2RS",
+   "class": "bearing_ball",
+   "name": "Підшипник 6204-2RS (180204) 20×47×14",
+   "code": "BRB-6204-2RS"
+  },
+  {
+   "text": "Підшипник 180204",
+   "class": "bearing_ball",
+   "name": "Підшипник 6204-2RS (180204) 20×47×14",
+   "code": "BRB-6204-2RS"
+  },
+  {
+   "text": "Подшипник 6305 ZZ",
+   "class": "bearing_ball",
+   "name": "Підшипник 6305-2Z (80305) 25×62×17",
+   "code": "BRB-6305-2Z"
+  },
+  {
+   "text": "Кільце ущільнювальне 20х2 NBR",
+   "class": "oring",
+   "name": "Кільце ущільнювальне 20×2 NBR (нітрил)",
+   "code": "ORG-20x2-NBR"
+  },
+  {
+   "text": "O-ring 45x3 FKM",
+   "class": "oring",
+   "name": "Кільце ущільнювальне 45×3 FKM (фторкаучук)",
+   "code": "ORG-45x3-FKM"
+  },
+  {
+   "text": "Мотор 2207 1750KV",
+   "class": "motor",
+   "name": "Мотор 2207 1750KV",
+   "code": "MOT-2207-1750"
+  },
+  {
+   "text": "Пропелер 5х4,3х3",
+   "class": "prop",
+   "name": "Пропелер 5×4,3×3",
+   "code": "PRP-5x4.3x3"
+  },
+  {
+   "text": "Акумулятор Li-Po 6S 1300mAh 120C XT60",
+   "class": "battery",
+   "name": "Батарея Li-Po 6S 1300 мА·год 120C XT60",
+   "code": "BAT-LIPO-6s-1300-120c-XT60"
+  },
+  {
+   "text": "АКБ 4S 5000 мАг 50C XT90",
+   "class": "battery",
+   "name": "Батарея 4S 5000 мА·год 50C XT90",
+   "code": "BAT-4s-5000-50c-XT90"
+  },
+  {
+   "text": "Регулятор обертів 45A 3-6S",
+   "class": "esc",
+   "name": "Регулятор 45 А 3-6S",
+   "code": "ESC-45a"
+  },
+  {
+   "text": "Роз'єм XT60",
+   "class": "connector_power",
+   "name": "Роз'єм XT60",
+   "code": "CON-XT60"
+  },
+  {
+   "text": "Провід силіконовий 14AWG",
+   "class": "wire_silicone",
+   "name": "Провід силіконовий 14 AWG",
+   "code": "WSI-14awg"
+  },
+  {
+   "text": "Трубка карбонова 16x14x1000",
+   "class": "carbon_tube",
+   "name": "Трубка вуглепластикова 16×14×1000",
+   "code": "CTB-16x14x1000"
+  },
+  {
+   "text": "Пластина карбонова 3x200x300",
+   "class": "carbon_plate",
+   "name": "Пластина вуглепластикова 3×200×300",
+   "code": "CPL-3-200x300"
+  },
+  {
+   "text": "Кабель ПВС 3х1,5",
+   "class": "cable",
+   "name": "Кабель ПВС 3×1,5",
+   "code": "CBL-PVS-3x1.5"
+  },
+  {
+   "text": "ВВГнг 3x2.5",
+   "class": "cable",
+   "name": "Кабель ВВГнг 3×2,5",
+   "code": "CBL-VVGNG-3x2.5"
+  },
+  {
+   "text": "Кільце стопорне для вала 20 DIN 471",
+   "class": "circlip_shaft",
+   "name": "Кільце стопорне для вала 20 DIN 471",
+   "code": "CLS-DIN471-20"
+  },
+  {
+   "text": "Штифт 6х30 ISO 8734",
+   "class": "pin_dowel",
+   "name": "Штифт 6×30 ISO 8734",
+   "code": "PIN-ISO8734-6x30"
+  },
+  {
+   "text": "Саморіз 4,2х16 DIN 7981 оц",
+   "class": "self_tapping",
+   "name": "Саморіз 4,2×16 DIN 7981 цинк",
+   "code": "STP-DIN7981-4.2x16-ZN"
+  },
+  {
+   "text": "Вставка різьбова М6х9 DIN 8140",
+   "class": "thread_insert",
+   "name": "Вставка різьбова М6×9 DIN 8140",
+   "code": "TIN-M6x9"
+  },
+  {
+   "text": "Гвинт установчий М6х8 DIN 913",
+   "class": "set_screw",
+   "name": "Гвинт установчий М6×8 DIN 913",
+   "code": "SST-DIN913-M6x8"
+  }
+ ]
+}

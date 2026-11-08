@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_ua_supplier_prices_root" name="Прайси постачальників"
+            parent="purchase.menu_purchase_root" sequence="36" groups="purchase.group_purchase_user"/>
+  <menuitem id="menu_ua_supplier_price_import" name="Завантажені прайси"
+            parent="menu_ua_supplier_prices_root" action="action_ua_supplier_price_import" sequence="10"/>
+  <menuitem id="menu_ua_supplier_compare" name="Порівняння цін" parent="menu_ua_supplier_prices_root"
+            action="action_ua_supplier_compare" sequence="20"/>
+  <menuitem id="menu_ua_supplier_price_profile" name="Профілі прайсів"
+            parent="menu_ua_supplier_prices_root" action="action_ua_supplier_price_profile" sequence="30"/>
+  <menuitem id="menu_ua_supplier_source" name="Де шукати постачальників"
+            parent="menu_ua_supplier_prices_root" action="action_ua_supplier_source" sequence="40"/>
+</odoo>

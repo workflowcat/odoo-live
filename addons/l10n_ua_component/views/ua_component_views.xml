@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Види комплектуючих -->
+  <record id="ua_component_class_view_list" model="ir.ui.view">
+    <field name="name">ua.component.class.list</field>
+    <field name="model">ua.component.class</field>
+    <field name="arch" type="xml">
+      <list string="Види комплектуючих">
+        <field name="complete_name"/>
+        <field name="code" optional="show"/>
+        <field name="prefix" optional="show"/>
+        <field name="measure" optional="show"/>
+        <field name="uom_id" optional="hide"/>
+        <field name="dk021_id" optional="hide"/>
+        <field name="product_count"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="ua_component_class_view_form" model="ir.ui.view">
+    <field name="name">ua.component.class.form</field>
+    <field name="model">ua.component.class</field>
+    <field name="arch" type="xml">
+      <form string="Вид комплектуючих">
+        <sheet>
+          <div class="oe_button_box" name="button_box">
+            <button name="action_ua_products" type="object" class="oe_stat_button" icon="fa-cubes">
+              <field name="product_count" widget="statinfo" string="Товари"/>
+            </button>
+          </div>
+          <div class="oe_title">
+            <h1><field name="name" placeholder="Болт з шестигранною головою"/></h1>
+          </div>
+          <group>
+            <group>
+              <field name="code"/>
+              <field name="parent_id"/>
+              <field name="prefix"/>
+              <field name="dk021_id"/>
+              <field name="categ_id"/>
+            </group>
+            <group>
+              <field name="measure"/>
+              <field name="uom_id"/>
+              <field name="tracking"/>
+              <field name="shape"/>
+              <field name="from_file"/>
+              <field name="active" invisible="1"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Характеристики" name="lines">
+              <field name="line_ids">
+                <list editable="bottom">
+                  <field name="sequence" widget="handle"/>
+                  <field name="attribute_id" options="{'no_create': True}"/>
+                  <field name="kind" optional="hide"/>
+                  <field name="unit" optional="show"/>
+                  <field name="required"/>
+                  <field name="key"/>
+                  <field name="rule"/>
+                  <field name="default_value" optional="show"/>
+                </list>
+              </field>
+            </page>
+            <page string="Назва і артикул" name="templates">
+              <group>
+                <field name="name_template"/>
+                <field name="code_template"/>
+              </group>
+            </page>
+            <page string="Розбір назв" name="parsing">
+              <group>
+                <field name="keywords"/>
+                <field name="recipe"/>
+                <field name="dims"/>
+                <field name="sort_desc"/>
+                <field name="switch_dims"/>
+              </group>
+            </page>
+            <page string="Примітка" name="note">
+              <field name="note"/>
+            </page>
+          </notebook>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="ua_component_class_view_search" model="ir.ui.view">
+    <field name="name">ua.component.class.search</field>
+    <field name="model">ua.component.class</field>
+    <field name="arch" type="xml">
+      <search string="Види комплектуючих">
+        <field name="complete_name"/>
+        <field name="code"/>
+        <field name="keywords"/>
+        <filter name="own" string="Власні" domain="[('from_file', '=', False)]"/>
+        <filter name="archived" string="Архів" domain="[('active', '=', False)]"/>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_component_class" model="ir.actions.act_window">
+    <field name="name">Види комплектуючих</field>
+    <field name="res_model">ua.component.class</field>
+    <field name="view_mode">list,form</field>
+  </record>
+
+  <!-- Характеристики -->
+  <record id="ua_component_attribute_view_list" model="ir.ui.view">
+    <field name="name">ua.component.attribute.list</field>
+    <field name="model">ua.component.attribute</field>
+    <field name="arch" type="xml">
+      <list string="Характеристики">
+        <field name="sequence" widget="handle"/>
+        <field name="name"/>
+        <field name="code"/>
+        <field name="kind"/>
+        <field name="unit"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="ua_component_attribute_view_form" model="ir.ui.view">
+    <field name="name">ua.component.attribute.form</field>
+    <field name="model">ua.component.attribute</field>
+    <field name="arch" type="xml">
+      <form string="Характеристика">
+        <sheet>
+          <group>
+            <group>
+              <field name="name"/>
+              <field name="code"/>
+              <field name="kind"/>
+            </group>
+            <group>
+              <field name="unit" invisible="kind != 'number'"/>
+              <field name="digits" invisible="kind != 'number'"/>
+              <field name="from_file"/>
+            </group>
+          </group>
+          <field name="note" placeholder="Що це і як міряти"/>
+          <field name="choice_ids" invisible="kind != 'choice'">
+            <list editable="bottom">
+              <field name="sequence" widget="handle"/>
+              <field name="name"/>
+              <field name="code"/>
+              <field name="code_text" optional="show"/>
+              <field name="aliases"/>
+              <field name="number" optional="show"/>
+              <field name="density" optional="show"/>
+              <field name="class_hint_id" optional="hide"/>
+              <field name="spanner" optional="hide"/>
+              <field name="dk021_id" optional="hide"/>
+            </list>
+          </field>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_component_attribute" model="ir.actions.act_window">
+    <field name="name">Характеристики комплектуючих</field>
+    <field name="res_model">ua.component.attribute</field>
+    <field name="view_mode">list,form</field>
+  </record>
+
+  <!-- Відповідності -->
+  <record id="ua_component_equivalence_view_list" model="ir.ui.view">
+    <field name="name">ua.component.equivalence.list</field>
+    <field name="model">ua.component.equivalence</field>
+    <field name="arch" type="xml">
+      <list string="Відповідності стандартів і марок" editable="bottom">
+        <field name="attribute_id" options="{'no_create': True}"/>
+        <field name="choice_ids" widget="many2many_tags" options="{'no_create': True}"/>
+        <field name="level"/>
+        <field name="note"/>
+        <field name="code" optional="hide"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="ua_component_equivalence_view_search" model="ir.ui.view">
+    <field name="name">ua.component.equivalence.search</field>
+    <field name="model">ua.component.equivalence</field>
+    <field name="arch" type="xml">
+      <search string="Відповідності">
+        <field name="choice_ids"/>
+        <field name="attribute_id"/>
+        <filter name="full" string="Повна заміна" domain="[('level', '=', 'full')]"/>
+        <group>
+          <filter name="by_attribute" string="Характеристика" context="{'group_by': 'attribute_id'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_component_equivalence" model="ir.actions.act_window">
+    <field name="name">Відповідності стандартів і марок</field>
+    <field name="res_model">ua.component.equivalence</field>
+    <field name="view_mode">list</field>
+  </record>
+
+  <!-- Аналоги -->
+  <record id="ua_component_analog_view_list" model="ir.ui.view">
+    <field name="name">ua.component.analog.list</field>
+    <field name="model">ua.component.analog</field>
+    <field name="arch" type="xml">
+      <list string="Аналоги" editable="bottom">
+        <field name="product_tmpl_id"/>
+        <field name="analog_tmpl_id"/>
+        <field name="level"/>
+        <field name="reason"/>
+        <field name="source"/>
+        <field name="note" optional="show"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_component_analog" model="ir.actions.act_window">
+    <field name="name">Аналоги комплектуючих</field>
+    <field name="res_model">ua.component.analog</field>
+    <field name="view_mode">list</field>
+  </record>
+
+  <record id="ua_component_analog_finder_view_form" model="ir.ui.view">
+    <field name="name">ua.component.analog.finder.form</field>
+    <field name="model">ua.component.analog.finder</field>
+    <field name="arch" type="xml">
+      <form string="Аналоги">
+        <group>
+          <field name="product_tmpl_id" readonly="1"/>
+          <field name="include_check"/>
+        </group>
+        <field name="line_ids">
+          <list create="0" delete="0">
+            <field name="analog_tmpl_id"/>
+            <field name="level" widget="badge" decoration-success="level == 'full'"
+                   decoration-warning="level == 'check'"/>
+            <field name="reason"/>
+            <field name="qty_available"/>
+            <field name="source" optional="hide"/>
+            <field name="saved"/>
+            <button name="action_save" type="object" string="Зберегти в аналоги" icon="fa-bookmark"
+                    invisible="saved"/>
+            <button name="action_propose_bom" type="object" string="Запропонувати в специфікаціях"
+                    icon="fa-sitemap"/>
+          </list>
+        </field>
+        <footer>
+          <button name="action_search" type="object" string="Шукати знову" class="btn-primary"/>
+          <button special="cancel" string="Закрити"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+</odoo>

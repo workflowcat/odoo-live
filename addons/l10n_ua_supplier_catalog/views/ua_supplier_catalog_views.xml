@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Профілі прайсів -->
+  <record id="ua_supplier_price_profile_view_list" model="ir.ui.view">
+    <field name="name">ua.supplier.price.profile.list</field>
+    <field name="model">ua.supplier.price.profile</field>
+    <field name="arch" type="xml">
+      <list string="Профілі прайсів">
+        <field name="partner_id"/>
+        <field name="name"/>
+        <field name="price_vat"/>
+        <field name="price_per"/>
+        <field name="delay"/>
+        <field name="last_import"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="ua_supplier_price_profile_view_form" model="ir.ui.view">
+    <field name="name">ua.supplier.price.profile.form</field>
+    <field name="model">ua.supplier.price.profile</field>
+    <field name="arch" type="xml">
+      <form string="Профіль прайсу">
+        <header>
+          <button name="action_new_import" type="object" string="Завантажити прайс"
+                  class="btn-primary"/>
+        </header>
+        <sheet>
+          <div class="oe_button_box" name="button_box">
+            <button name="action_imports" type="object" class="oe_stat_button"
+                    icon="fa-file-text-o">
+              <field name="import_count" widget="statinfo" string="Прайсів"/>
+            </button>
+          </div>
+          <div class="oe_title">
+            <h1><field name="partner_id" placeholder="Постачальник"/></h1>
+            <field name="name"/>
+          </div>
+          <group>
+            <group string="Ціна">
+              <field name="price_vat"/>
+              <field name="vat_rate" invisible="price_vat != 'incl'"/>
+              <field name="price_per"/>
+              <field name="default_pack" invisible="price_per != 'pack'"/>
+              <field name="currency_id"/>
+              <field name="delay"/>
+            </group>
+            <group string="Колонки таблиці">
+              <field name="col_code"/>
+              <field name="col_name"/>
+              <field name="col_price"/>
+              <field name="col_unit"/>
+              <field name="col_pack"/>
+              <field name="col_stock"/>
+            </group>
+          </group>
+          <group>
+            <field name="website" widget="url"/>
+            <field name="last_import"/>
+            <field name="company_id" groups="base.group_multi_company"/>
+            <field name="active" invisible="1"/>
+          </group>
+          <field name="note" placeholder="Як постачальник надсилає прайс, з ким домовлятись"/>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_supplier_price_profile" model="ir.actions.act_window">
+    <field name="name">Профілі прайсів</field>
+    <field name="res_model">ua.supplier.price.profile</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Опишіть прайс постачальника один раз</p>
+      <p>Які колонки, ціна з ПДВ чи без, за штуку чи за упаковку. Далі кожен новий прайс
+        завантажується за цим описом.</p>
+    </field>
+  </record>
+
+  <!-- Прайси -->
+  <record id="ua_supplier_price_import_line_view_list" model="ir.ui.view">
+    <field name="name">ua.supplier.price.import.line.list</field>
+    <field name="model">ua.supplier.price.import.line</field>
+    <field name="arch" type="xml">
+      <list string="Рядки прайсу" editable="bottom" create="0"
+            decoration-danger="status in ('unknown', 'error')" decoration-info="status == 'new'">
+        <field name="sequence" readonly="1"/>
+        <field name="apply"/>
+        <field name="raw_code" readonly="1"/>
+        <field name="raw_name" readonly="1"/>
+        <field name="raw_unit" optional="show" readonly="1"/>
+        <field name="raw_price" optional="show" readonly="1"/>
+        <field name="raw_pack" optional="hide" readonly="1"/>
+        <field name="status" widget="badge" readonly="1" decoration-success="status == 'matched'"
+               decoration-info="status == 'new'" decoration-danger="status in ('unknown', 'error')"/>
+        <field name="match" optional="show" readonly="1"/>
+        <field name="product_tmpl_id" options="{'no_create': True}"/>
+        <field name="class_id" optional="hide" readonly="1"/>
+        <field name="unit_mode" optional="hide" readonly="1"/>
+        <field name="uom_id" optional="show" readonly="1"/>
+        <field name="price_unit" readonly="1"/>
+        <field name="min_qty" optional="hide" readonly="1"/>
+        <field name="price_base" readonly="1"/>
+        <field name="price_old" optional="show" readonly="1"/>
+        <field name="change_pct" readonly="1" decoration-danger="change_pct &gt; 5"
+               decoration-success="change_pct &lt; -5"/>
+        <field name="raw_stock" optional="hide" readonly="1"/>
+        <field name="note" optional="show" readonly="1"/>
+        <field name="result" optional="show"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="ua_supplier_price_import_line_view_search" model="ir.ui.view">
+    <field name="name">ua.supplier.price.import.line.search</field>
+    <field name="model">ua.supplier.price.import.line</field>
+    <field name="arch" type="xml">
+      <search string="Рядки прайсу">
+        <field name="raw_name"/>
+        <field name="raw_code"/>
+        <field name="product_tmpl_id"/>
+        <filter name="todo" string="Треба переглянути"
+                domain="[('status', 'in', ('unknown', 'error', 'new'))]"/>
+        <filter name="changed" string="Ціна змінилась понад 5 %"
+                domain="['|', ('change_pct', '&gt;', 5), ('change_pct', '&lt;', -5)]"/>
+        <group>
+          <filter name="by_status" string="Результат" context="{'group_by': 'status'}"/>
+          <filter name="by_class" string="Вид" context="{'group_by': 'class_id'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="ua_supplier_price_import_view_list" model="ir.ui.view">
+    <field name="name">ua.supplier.price.import.list</field>
+    <field name="model">ua.supplier.price.import</field>
+    <field name="arch" type="xml">
+      <list string="Прайси постачальників">
+        <field name="date"/>
+        <field name="partner_id"/>
+        <field name="name"/>
+        <field name="count_total"/>
+        <field name="count_matched"/>
+        <field name="count_changed"/>
+        <field name="state" widget="badge" decoration-success="state == 'applied'"
+               decoration-info="state == 'parsed'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="ua_supplier_price_import_view_search" model="ir.ui.view">
+    <field name="name">ua.supplier.price.import.search</field>
+    <field name="model">ua.supplier.price.import</field>
+    <field name="arch" type="xml">
+      <search string="Прайси">
+        <field name="partner_id"/>
+        <field name="profile_id"/>
+        <filter name="not_applied" string="Не застосовані" domain="[('state', '!=', 'applied')]"/>
+      </search>
+    </field>
+  </record>
+
+  <record id="ua_supplier_price_import_view_form" model="ir.ui.view">
+    <field name="name">ua.supplier.price.import.form</field>
+    <field name="model">ua.supplier.price.import</field>
+    <field name="arch" type="xml">
+      <form string="Прайс постачальника">
+        <header>
+          <button name="action_parse" type="object" string="Розібрати" class="btn-primary"
+                  invisible="state != 'draft'"/>
+          <button name="action_parse" type="object" string="Розібрати знову"
+                  invisible="state != 'parsed'"/>
+          <button name="action_apply" type="object" string="Застосувати" class="btn-primary"
+                  invisible="state != 'parsed'"
+                  confirm="Позначені рядки стануть цінами постачальника з дати прайсу."/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_button_box" name="button_box">
+            <button name="action_lines" type="object" class="oe_stat_button" icon="fa-list"
+                    invisible="count_total == 0">
+              <field name="count_total" widget="statinfo" string="Рядків"/>
+            </button>
+          </div>
+          <div class="oe_title">
+            <h1><field name="name"/></h1>
+          </div>
+          <group>
+            <group>
+              <field name="profile_id" readonly="state != 'draft'"/>
+              <field name="partner_id"/>
+              <field name="date"/>
+            </group>
+            <group>
+              <field name="file" filename="file_name" readonly="state != 'draft'"/>
+              <field name="file_name" invisible="1"/>
+              <field name="create_missing"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+            </group>
+          </group>
+          <group invisible="count_total == 0" col="4">
+            <field name="count_matched"/>
+            <field name="count_new"/>
+            <field name="count_unknown"/>
+            <field name="count_changed"/>
+          </group>
+          <field name="summary" invisible="not summary" class="text-muted"/>
+          <field name="line_ids" readonly="state == 'applied'"/>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_supplier_price_import" model="ir.actions.act_window">
+    <field name="name">Прайси постачальників</field>
+    <field name="res_model">ua.supplier.price.import</field>
+    <field name="view_mode">list,form</field>
+  </record>
+
+  <!-- Порівняння цін -->
+  <record id="product_supplierinfo_compare_list" model="ir.ui.view">
+    <field name="name">product.supplierinfo.compare.list</field>
+    <field name="model">product.supplierinfo</field>
+    <field name="priority">90</field>
+    <field name="arch" type="xml">
+      <list string="Порівняння постачальників" default_order="product_tmpl_id, ua_price_base">
+        <field name="product_tmpl_id"/>
+        <field name="partner_id"/>
+        <field name="product_code" optional="show"/>
+        <field name="product_name" optional="hide"/>
+        <field name="ua_price_base"/>
+        <field name="price" optional="show"/>
+        <field name="product_uom_id" optional="show"/>
+        <field name="min_qty" optional="show"/>
+        <field name="delay"/>
+        <field name="ua_stock" optional="show"/>
+        <field name="date_start" optional="show"/>
+        <field name="date_end" optional="hide"/>
+        <field name="ua_component_class_id" optional="hide"/>
+        <field name="currency_id" optional="hide"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="product_supplierinfo_compare_search" model="ir.ui.view">
+    <field name="name">product.supplierinfo.compare.search</field>
+    <field name="model">product.supplierinfo</field>
+    <field name="inherit_id" ref="product.product_supplierinfo_search_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//search" position="inside">
+        <field name="ua_component_class_id"/>
+        <filter name="ua_by_product" string="Товар" context="{'group_by': 'product_tmpl_id'}"/>
+        <filter name="ua_by_class" string="Вид комплектуючих"
+                context="{'group_by': 'ua_component_class_id'}"/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="action_ua_supplier_compare" model="ir.actions.act_window">
+    <field name="name">Порівняння цін постачальників</field>
+    <field name="res_model">product.supplierinfo</field>
+    <field name="view_mode">list</field>
+    <field name="view_id" ref="product_supplierinfo_compare_list"/>
+    <field name="context">{'search_default_ua_by_product': 1}</field>
+  </record>
+
+  <!-- Де шукати -->
+  <record id="ua_supplier_source_view_list" model="ir.ui.view">
+    <field name="name">ua.supplier.source.list</field>
+    <field name="model">ua.supplier.source</field>
+    <field name="arch" type="xml">
+      <list string="Де шукати постачальників" editable="bottom">
+        <field name="sequence" widget="handle"/>
+        <field name="name"/>
+        <field name="kind"/>
+        <field name="url_template"/>
+        <field name="class_codes" optional="show"/>
+        <field name="note" optional="show"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_supplier_source" model="ir.actions.act_window">
+    <field name="name">Де шукати постачальників</field>
+    <field name="res_model">ua.supplier.source</field>
+    <field name="view_mode">list</field>
+  </record>
+
+  <record id="ua_supplier_find_view_form" model="ir.ui.view">
+    <field name="name">ua.supplier.find.form</field>
+    <field name="model">ua.supplier.find</field>
+    <field name="arch" type="xml">
+      <form string="Де шукати постачальників">
+        <group>
+          <field name="query"/>
+          <field name="dk021_id"/>
+          <field name="class_id" invisible="not class_id" readonly="1"/>
+        </group>
+        <field name="links_html" readonly="1"/>
+        <separator string="Постачальники цього виду в базі" invisible="not class_id"/>
+        <field name="known_html" readonly="1" invisible="not class_id"/>
+        <footer>
+          <button special="cancel" string="Закрити"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+
+  <!-- Товар і вид комплектуючих -->
+  <record id="product_template_form_ua_supplier" model="ir.ui.view">
+    <field name="name">product.template.form.ua.supplier</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="l10n_ua_component.product_template_form_ua_component"/>
+    <field name="arch" type="xml">
+      <xpath expr="//page[@name='ua_component']/div[hasclass('mb-2')]" position="inside">
+        <button name="action_ua_compare_suppliers" type="object" string="Порівняти постачальників"
+                class="btn-secondary" icon="fa-balance-scale" invisible="ua_supplier_count &lt; 2"/>
+        <button name="action_ua_find_suppliers" type="object" string="Де шукати постачальників"
+                class="btn-secondary" icon="fa-search"/>
+      </xpath>
+      <xpath expr="//field[@name='ua_component_key']" position="before">
+        <field name="ua_best_price" invisible="not ua_best_price"/>
+        <field name="ua_best_partner_id" invisible="not ua_best_partner_id"/>
+        <field name="ua_supplier_count" invisible="not ua_supplier_count"/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="ua_component_class_form_ua_supplier" model="ir.ui.view">
+    <field name="name">ua.component.class.form.ua.supplier</field>
+    <field name="model">ua.component.class</field>
+    <field name="inherit_id" ref="l10n_ua_component.ua_component_class_view_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//div[@name='button_box']" position="inside">
+        <button name="action_ua_suppliers" type="object" class="oe_stat_button" icon="fa-truck"
+                string="Постачальники"/>
+        <button name="action_ua_find_suppliers" type="object" class="oe_stat_button"
+                icon="fa-search" string="Де шукати"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>

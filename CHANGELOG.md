@@ -6,6 +6,20 @@ Notable changes for people who run or build on this code. Module-level API chang
 ## Unreleased
 
 ### Added
+- `l10n_ua_component`: classifier of components and materials (55 kinds, 55 characteristics, 231 values,
+  52 equivalence groups) in `data/classifier.json`, editable in the app. Names from price lists and 1C
+  («болт оцинк. M8*30 кл.8,8 DIN 933», «Круг Д16Т ф40», «Подшипник 180204») are parsed into kind and
+  values; name and code by the kind's template; duplicates by fingerprint; mass of metal stock from the
+  grade's density and per-product units; analogs by rules (DIN ↔ ISO ↔ ГОСТ, steel and aluminium grades,
+  higher strength class) with what to check; proposal to approved BOM substitutes. Intake of a 1C
+  nomenclature export with a worked example, and packs `components_fasteners`, `components_metals`,
+  `components_tools`, `components_uav`. Packs describe goods through `component{}`. Tests: `ua_component`;
+  static check `scripts/component_check.py` with 61 parsing samples.
+- `l10n_ua_supplier_catalog`: price-list profiles per supplier, import from CSV or Excel matched by supplier
+  code, fingerprint or name, prices per base unit, change against the previous list, supplier comparison,
+  new goods from unmatched lines, and a list of public places to look for suppliers. Example price lists of
+  invented suppliers in `examples/`. Tests: `ua_supplier_catalog`.
+- `l10n_ua_catalog`: hooks for modules that build a product's name and values from a pack item.
 - Open-source groundwork: LICENSE and license texts, README in English and Ukrainian, CONTRIBUTING,
   SECURITY, CODE_OF_CONDUCT, MAINTAINERS, issue and pull request templates, `docs/open-source-plan.md`.
 - `scripts/check_static.sh` (all checks without Docker) and `scripts/test_full.sh` (what CI runs).

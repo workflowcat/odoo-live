@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_ua_component_root" name="Комплектуючі" parent="purchase.menu_purchase_root"
+            sequence="35" groups="purchase.group_purchase_user,stock.group_stock_user"/>
+  <menuitem id="menu_ua_component_intake" name="Розбір номенклатури" parent="menu_ua_component_root"
+            action="action_ua_component_intake" sequence="10"/>
+  <menuitem id="menu_ua_component_analog" name="Аналоги" parent="menu_ua_component_root"
+            action="action_ua_component_analog" sequence="20"/>
+  <menuitem id="menu_ua_component_class" name="Види комплектуючих" parent="menu_ua_component_root"
+            action="action_ua_component_class" sequence="30"/>
+  <menuitem id="menu_ua_component_attribute" name="Характеристики" parent="menu_ua_component_root"
+            action="action_ua_component_attribute" sequence="40"/>
+  <menuitem id="menu_ua_component_equivalence" name="Відповідності стандартів і марок"
+            parent="menu_ua_component_root" action="action_ua_component_equivalence" sequence="50"/>
+</odoo>

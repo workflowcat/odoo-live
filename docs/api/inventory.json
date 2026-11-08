@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 90,
-    "models": 186,
-    "methods": 725,
-    "fields": 400
+    "modules": 92,
+    "models": 193,
+    "methods": 746,
+    "fields": 414
   },
   "areas": [
     {
@@ -6505,6 +6505,119 @@
           "fields": []
         },
         {
+          "model": "ua.component.analog.finder",
+          "ours": true,
+          "modules": [
+            "l10n_ua_component"
+          ],
+          "methods": [
+            {
+              "name": "action_search",
+              "signature": "action_search()",
+              "doc": "",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/analog.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.component.analog.finder.line",
+          "ours": true,
+          "modules": [
+            "l10n_ua_component"
+          ],
+          "methods": [
+            {
+              "name": "action_propose_bom",
+              "signature": "action_propose_bom()",
+              "doc": "Запропонувати аналог на рядки специфікацій з цим товаром (без погодження).",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/analog.py",
+              "decorators": []
+            },
+            {
+              "name": "action_save",
+              "signature": "action_save()",
+              "doc": "Записати в перелік аналогів товару (і зворотний запис для повної заміни).",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/analog.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.component.class",
+          "ours": true,
+          "modules": [
+            "l10n_ua_component",
+            "l10n_ua_supplier_catalog"
+          ],
+          "methods": [
+            {
+              "name": "action_ua_find_suppliers",
+              "signature": "action_ua_find_suppliers()",
+              "doc": "",
+              "module": "l10n_ua_supplier_catalog",
+              "file": "addons/l10n_ua_supplier_catalog/models/supplierinfo.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_products",
+              "signature": "action_ua_products()",
+              "doc": "",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/classifier.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_suppliers",
+              "signature": "action_ua_suppliers()",
+              "doc": "",
+              "module": "l10n_ua_supplier_catalog",
+              "file": "addons/l10n_ua_supplier_catalog/models/supplierinfo.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.component.intake",
+          "ours": true,
+          "modules": [
+            "l10n_ua_component"
+          ],
+          "methods": [
+            {
+              "name": "action_apply",
+              "signature": "action_apply()",
+              "doc": "",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/intake.py",
+              "decorators": []
+            },
+            {
+              "name": "action_lines",
+              "signature": "action_lines()",
+              "doc": "",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/intake.py",
+              "decorators": []
+            },
+            {
+              "name": "action_parse",
+              "signature": "action_parse()",
+              "doc": "",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/intake.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.contract",
           "ours": true,
           "modules": [
@@ -8872,6 +8985,66 @@
           "fields": []
         },
         {
+          "model": "ua.supplier.price.import",
+          "ours": true,
+          "modules": [
+            "l10n_ua_supplier_catalog"
+          ],
+          "methods": [
+            {
+              "name": "action_apply",
+              "signature": "action_apply()",
+              "doc": "",
+              "module": "l10n_ua_supplier_catalog",
+              "file": "addons/l10n_ua_supplier_catalog/models/price_import.py",
+              "decorators": []
+            },
+            {
+              "name": "action_lines",
+              "signature": "action_lines()",
+              "doc": "",
+              "module": "l10n_ua_supplier_catalog",
+              "file": "addons/l10n_ua_supplier_catalog/models/price_import.py",
+              "decorators": []
+            },
+            {
+              "name": "action_parse",
+              "signature": "action_parse()",
+              "doc": "",
+              "module": "l10n_ua_supplier_catalog",
+              "file": "addons/l10n_ua_supplier_catalog/models/price_import.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.supplier.price.profile",
+          "ours": true,
+          "modules": [
+            "l10n_ua_supplier_catalog"
+          ],
+          "methods": [
+            {
+              "name": "action_imports",
+              "signature": "action_imports()",
+              "doc": "",
+              "module": "l10n_ua_supplier_catalog",
+              "file": "addons/l10n_ua_supplier_catalog/models/profile.py",
+              "decorators": []
+            },
+            {
+              "name": "action_new_import",
+              "signature": "action_new_import()",
+              "doc": "",
+              "module": "l10n_ua_supplier_catalog",
+              "file": "addons/l10n_ua_supplier_catalog/models/profile.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.tolling.order",
           "ours": true,
           "modules": [
@@ -10665,9 +10838,52 @@
           "fields": []
         },
         {
+          "model": "product.supplierinfo",
+          "ours": false,
+          "modules": [
+            "l10n_ua_supplier_catalog"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_component_class_id",
+              "type": "Many2one",
+              "label": "Вид комплектуючих",
+              "module": "l10n_ua_supplier_catalog",
+              "file": "addons/l10n_ua_supplier_catalog/models/supplierinfo.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_import_id",
+              "type": "Many2one",
+              "label": "ua.supplier.price.import",
+              "module": "l10n_ua_supplier_catalog",
+              "file": "addons/l10n_ua_supplier_catalog/models/supplierinfo.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_price_base",
+              "type": "Float",
+              "label": "Ціна за одиницю обліку",
+              "module": "l10n_ua_supplier_catalog",
+              "file": "addons/l10n_ua_supplier_catalog/models/supplierinfo.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_stock",
+              "type": "Float",
+              "label": "Залишок у постачальника",
+              "module": "l10n_ua_supplier_catalog",
+              "file": "addons/l10n_ua_supplier_catalog/models/supplierinfo.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
           "model": "product.template",
           "ours": false,
           "modules": [
+            "l10n_ua_component",
             "l10n_ua_customs",
             "l10n_ua_defense",
             "l10n_ua_dk021",
@@ -10678,9 +10894,66 @@
             "l10n_ua_product_tests",
             "l10n_ua_stock_docs",
             "l10n_ua_supplier_approval",
+            "l10n_ua_supplier_catalog",
             "l10n_ua_vat"
           ],
           "methods": [
+            {
+              "name": "action_ua_analogs",
+              "signature": "action_ua_analogs()",
+              "doc": "",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/product.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_apply_template",
+              "signature": "action_ua_apply_template()",
+              "doc": "Назву й артикул - за шаблоном виду (артикул лише якщо порожній).",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/product.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_compare_suppliers",
+              "signature": "action_ua_compare_suppliers()",
+              "doc": "",
+              "module": "l10n_ua_supplier_catalog",
+              "file": "addons/l10n_ua_supplier_catalog/models/supplierinfo.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_duplicates",
+              "signature": "action_ua_duplicates()",
+              "doc": "",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/product.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_find_suppliers",
+              "signature": "action_ua_find_suppliers()",
+              "doc": "",
+              "module": "l10n_ua_supplier_catalog",
+              "file": "addons/l10n_ua_supplier_catalog/models/supplierinfo.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_parse_name",
+              "signature": "action_ua_parse_name()",
+              "doc": "Розібрати назву товару в характеристики (порожні не перезаписує).",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/product.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_units",
+              "signature": "action_ua_units()",
+              "doc": "Одиниці конкретного товару з маси: метр, пруток, м², лист; кг для кріплення.",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/product.py",
+              "decorators": []
+            },
             {
               "name": "ua_acceptance_block",
               "signature": "ua_acceptance_block(day)",
@@ -10708,11 +10981,67 @@
           ],
           "fields": [
             {
+              "name": "ua_analog_ids",
+              "type": "One2many",
+              "label": "ua.component.analog",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/analog.py",
+              "groups": ""
+            },
+            {
               "name": "ua_approved_only",
               "type": "Boolean",
               "label": "Лише від погоджених постачальників",
               "module": "l10n_ua_supplier_approval",
               "file": "addons/l10n_ua_supplier_approval/models/supplier_approval.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_component_class_id",
+              "type": "Many2one",
+              "label": "ua.component.class",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/product.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_component_code",
+              "type": "Char",
+              "label": "Артикул за шаблоном",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/product.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_component_key",
+              "type": "Char",
+              "label": "Відбиток",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/product.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_component_missing",
+              "type": "Char",
+              "label": "Бракує",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/product.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_component_name",
+              "type": "Char",
+              "label": "Назва за шаблоном",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/product.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_component_value_ids",
+              "type": "One2many",
+              "label": "ua.component.value",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/product.py",
               "groups": ""
             },
             {
@@ -10796,6 +11125,22 @@
               "groups": ""
             },
             {
+              "name": "ua_mass_per_m",
+              "type": "Float",
+              "label": "Маса 1 м, кг",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/product.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_mass_per_m2",
+              "type": "Float",
+              "label": "Маса 1 м², кг",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/product.py",
+              "groups": ""
+            },
+            {
               "name": "ua_periodic_first_due",
               "type": "Date",
               "label": "Перші періодичні - до",
@@ -10825,6 +11170,14 @@
               "label": "Періодичні діють до",
               "module": "l10n_ua_product_tests",
               "file": "addons/l10n_ua_product_tests/models/product_tests.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_piece_mass",
+              "type": "Float",
+              "label": "Маса штуки, кг",
+              "module": "l10n_ua_component",
+              "file": "addons/l10n_ua_component/models/product.py",
               "groups": ""
             },
             {
