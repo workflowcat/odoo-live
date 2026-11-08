@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="paperformat_ua_equity_landscape" model="report.paperformat">
+    <field name="name">Україна: форма № 4, A4 альбомна</field>
+    <field name="format">A4</field>
+    <field name="orientation">Landscape</field>
+    <field name="margin_top">10</field>
+    <field name="margin_bottom">10</field>
+    <field name="margin_left">10</field>
+    <field name="margin_right">10</field>
+    <field name="header_line" eval="False"/>
+    <field name="header_spacing">0</field>
+    <field name="dpi">90</field>
+  </record>
+
+  <record id="action_report_ua_equity" model="ir.actions.report">
+    <field name="name">Звіт про власний капітал (форма № 4)</field>
+    <field name="model">ua.equity.statement</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_equity.report_ua_equity</field>
+    <field name="report_file">l10n_ua_equity.report_ua_equity</field>
+    <field name="paperformat_id" ref="paperformat_ua_equity_landscape"/>
+    <field name="binding_model_id" ref="model_ua_equity_statement"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">object.name</field>
+  </record>
+
+  <template id="report_ua_equity_table">
+    <table class="ua-grid">
+      <thead>
+        <tr><th>Стаття</th><th>Код рядка</th>
+          <t t-foreach="doc.ua_columns()" t-as="col"><th t-out="col[1]"/></t>
+          <th>Всього</th></tr>
+        <tr><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th></tr>
+      </thead>
+      <tbody>
+        <t t-foreach="doc.ua_rows(period)" t-as="row">
+          <tr t-if="row[2] == 'section'"><td colspan="10" t-out="row[0]"/></tr>
+          <tr t-else="" t-att-class="'ua-bold' if row[2] in ('opening', 'total') else ('ua-subrow' if row[2] == 'sub' else '')">
+            <td t-out="row[0]"/>
+            <td class="ua-code" t-out="row[1]"/>
+            <t t-foreach="row[3]" t-as="value"><td class="ua-num" t-out="doc.ua_money(value)"/></t>
+            <td class="ua-num" t-out="doc.ua_money(row[4])"/>
+          </tr>
+        </t>
+      </tbody>
+    </table>
+  </template>
+
+  <template id="report_ua_equity">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <style>
+            .ua-doc { font-size: 9px; color: #000; }
+            .ua-doc h3 { font-size: 12px; text-align: center; margin: 4px 0; }
+            .ua-doc h4 { font-size: 10px; margin: 10px 0 4px; }
+            .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+            .ua-doc .ua-grid { width: 100%; border-collapse: collapse; }
+            .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; vertical-align: top; }
+            .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+            .ua-doc .ua-num { text-align: right; white-space: nowrap; width: 9%; }
+            .ua-doc .ua-code { text-align: center; width: 5%; }
+            .ua-doc .ua-bold td { font-weight: bold; }
+            .ua-doc .ua-subrow td:first-child { padding-left: 16px; }
+            .ua-doc .ua-sign { width: 100%; margin-top: 18px; }
+          </style>
+          <div class="ua-doc">
+            <div>Підприємство: <t t-out="doc.company_id.name"/></div>
+            <div t-if="doc.company_id.company_registry">за ЄДРПОУ: <t t-out="doc.company_id.company_registry"/></div>
+            <div>Одиниця виміру: грн</div>
+            <h3>Звіт про власний капітал</h3>
+            <div class="ua-sub">за період з <t t-out="doc.date_from.strftime('%d.%m.%Y')"/> по
+              <t t-out="doc.date_to.strftime('%d.%m.%Y')"/>. Форма № 4, код за ДКУД 1801005</div>
+            <t t-set="period" t-value="'current'"/>
+            <t t-call="l10n_ua_equity.report_ua_equity_table"/>
+            <h4>За попередній рік</h4>
+            <t t-set="period" t-value="'previous'"/>
+            <t t-call="l10n_ua_equity.report_ua_equity_table"/>
+            <table class="ua-sign">
+              <tr><td>Керівник ____________________</td><td>Головний бухгалтер ____________________</td></tr>
+            </table>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

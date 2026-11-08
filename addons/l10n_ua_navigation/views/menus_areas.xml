@@ -221,6 +221,10 @@
             parent="menu_ua_reporting_finrep" action="l10n_ua_cashflow.action_ua_cashflow_item" sequence="50"/>
   <menuitem id="menu_ua_cashflow_rule" name="Статті за рахунком"
             parent="menu_ua_reporting_finrep" action="l10n_ua_cashflow.action_ua_cashflow_rule" sequence="55"/>
+  <menuitem id="menu_ua_reporting_f4" name="Ф4. Власний капітал"
+            parent="menu_ua_reporting_finrep" action="l10n_ua_equity.action_ua_equity_statement" sequence="27"/>
+  <menuitem id="menu_ua_equity_rule" name="Рядки Ф4 за рахунком"
+            parent="menu_ua_reporting_finrep" action="l10n_ua_equity.action_ua_equity_rule" sequence="57"/>
   <menuitem id="menu_ua_defect_act" name="Акти про брак" parent="mrp.menu_mrp_manufacturing"
             action="l10n_ua_defect.action_ua_defect_act" sequence="40"/>
   <menuitem id="menu_ua_cashflow_budget" name="Бюджет руху коштів" parent="account.menu_finance_payables"

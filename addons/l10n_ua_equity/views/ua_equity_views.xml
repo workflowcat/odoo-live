@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Правила -->
+  <record id="view_ua_equity_rule_list" model="ir.ui.view">
+    <field name="name">ua.equity.rule.list</field>
+    <field name="model">ua.equity.rule</field>
+    <field name="arch" type="xml">
+      <list string="Рядки форми № 4 за рахунком" editable="bottom">
+        <field name="sequence" widget="handle"/>
+        <field name="account_prefix"/>
+        <field name="side"/>
+        <field name="counter_prefix"/>
+        <field name="row"/>
+        <field name="company_id" groups="base.group_multi_company" optional="show"/>
+        <field name="note"/>
+      </list>
+    </field>
+  </record>
+  <record id="view_ua_equity_rule_search" model="ir.ui.view">
+    <field name="name">ua.equity.rule.search</field>
+    <field name="model">ua.equity.rule</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="account_prefix"/>
+        <field name="counter_prefix"/>
+        <field name="row"/>
+        <filter name="g_row" string="Рядок форми" context="{'group_by': 'row'}"/>
+      </search>
+    </field>
+  </record>
+  <record id="action_ua_equity_rule" model="ir.actions.act_window">
+    <field name="name">Рядки форми № 4 за рахунком</field>
+    <field name="res_model">ua.equity.rule</field>
+    <field name="view_mode">list</field>
+    <field name="help" type="html">
+      <p>У який рядок звіту про власний капітал іде рух на рахунку капіталу: за рахунком, боком і
+        кореспондентним рахунком. Діє найточніше правило; правило компанії важить більше за спільне.
+        Коригування (4005, 4010, 4090) позначають на самій проводці.</p>
+    </field>
+  </record>
+
+  <!-- Розшифровка -->
+  <record id="view_ua_equity_entry_list" model="ir.ui.view">
+    <field name="name">ua.equity.statement.entry.list</field>
+    <field name="model">ua.equity.statement.entry</field>
+    <field name="arch" type="xml">
+      <list string="Розшифровка руху капіталу" create="false" delete="false">
+        <field name="date"/>
+        <field name="move_id"/>
+        <field name="partner_id" optional="hide"/>
+        <field name="account_id"/>
+        <field name="counter_codes"/>
+        <field name="column"/>
+        <field name="row"/>
+        <field name="source" decoration-warning="source == 'fallback'"/>
+        <field name="rule_id" optional="hide"/>
+        <field name="period" optional="hide"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="amount" sum="Разом"/>
+      </list>
+    </field>
+  </record>
+  <record id="view_ua_equity_entry_search" model="ir.ui.view">
+    <field name="name">ua.equity.statement.entry.search</field>
+    <field name="model">ua.equity.statement.entry</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="move_id"/>
+        <field name="account_id"/>
+        <field name="row"/>
+        <filter name="f_fallback" string="Без правила" domain="[('source', '=', 'fallback')]"/>
+        <filter name="g_row" string="Рядок форми" context="{'group_by': 'row'}"/>
+        <filter name="g_column" string="Графа" context="{'group_by': 'column'}"/>
+      </search>
+    </field>
+  </record>
+
+  <!-- Звіт -->
+  <record id="view_ua_equity_statement_list" model="ir.ui.view">
+    <field name="name">ua.equity.statement.list</field>
+    <field name="model">ua.equity.statement</field>
+    <field name="arch" type="xml">
+      <list string="Звіти про власний капітал">
+        <field name="name"/>
+        <field name="company_id" groups="base.group_multi_company"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="opening"/>
+        <field name="profit"/>
+        <field name="closing"/>
+        <field name="fallback_count"/>
+        <field name="state" widget="badge" decoration-success="state == 'done'"/>
+      </list>
+    </field>
+  </record>
+  <record id="view_ua_equity_statement_form" model="ir.ui.view">
+    <field name="name">ua.equity.statement.form</field>
+    <field name="model">ua.equity.statement</field>
+    <field name="arch" type="xml">
+      <form string="Звіт про власний капітал">
+        <header>
+          <button name="action_compute" type="object" string="Розрахувати" class="btn-primary"
+                  invisible="state != 'draft'"/>
+          <button name="action_done" type="object" string="Затвердити" invisible="state != 'draft' or not line_ids"/>
+          <button name="action_draft" type="object" string="У чернетку" invisible="state != 'done'"/>
+          <button name="action_print" type="object" string="Друк" invisible="not line_ids"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="alert alert-warning" role="alert" invisible="fallback_count == 0">
+            <field name="fallback_count" class="oe_inline"/> рухів капіталу без правила (у рядку 4290):
+            <button name="action_open_fallback" type="object" string="переглянути" class="btn-link p-0"/>.
+            Позначте рядок на проводці або додайте правило і перерахуйте звіт.
+          </div>
+          <div class="alert alert-danger" role="alert" invisible="not check_text">
+            <field name="check_text"/>
+          </div>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="date_from" readonly="state != 'draft'"/>
+              <field name="date_to" readonly="state != 'draft'"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="currency_id" invisible="1"/>
+              <field name="opening"/>
+              <field name="profit"/>
+              <field name="closing"/>
+              <field name="book_closing"/>
+              <field name="computed_at"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Звітний рік" name="current">
+              <field name="line_ids" readonly="1">
+                <list decoration-bf="row_kind in ('section', 'opening', 'total')" decoration-muted="row_kind == 'sub'">
+                  <field name="name"/>
+                  <field name="code"/>
+                  <field name="row_kind" column_invisible="1"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="amount_registered" string="Зареєстр." invisible="row_kind == 'section'"/>
+                  <field name="amount_revaluation" string="Дооцінки" invisible="row_kind == 'section'"/>
+                  <field name="amount_additional" string="Додатк." invisible="row_kind == 'section'"/>
+                  <field name="amount_reserve" string="Резерв." invisible="row_kind == 'section'"/>
+                  <field name="amount_retained" string="Нерозподіл." invisible="row_kind == 'section'"/>
+                  <field name="amount_unpaid" string="Неоплач." invisible="row_kind == 'section'"/>
+                  <field name="amount_withdrawn" string="Вилуч." invisible="row_kind == 'section'"/>
+                  <field name="amount_total" invisible="row_kind == 'section'"/>
+                  <button name="action_open_entries" type="object" icon="fa-search" title="Розшифровка"
+                          invisible="row_kind not in ('adjust', 'item', 'sub')"/>
+                </list>
+              </field>
+            </page>
+            <page string="Попередній рік" name="previous">
+              <field name="line_prev_ids" readonly="1">
+                <list decoration-bf="row_kind in ('section', 'opening', 'total')" decoration-muted="row_kind == 'sub'">
+                  <field name="name"/>
+                  <field name="code"/>
+                  <field name="row_kind" column_invisible="1"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="amount_registered" string="Зареєстр." invisible="row_kind == 'section'"/>
+                  <field name="amount_revaluation" string="Дооцінки" invisible="row_kind == 'section'"/>
+                  <field name="amount_additional" string="Додатк." invisible="row_kind == 'section'"/>
+                  <field name="amount_reserve" string="Резерв." invisible="row_kind == 'section'"/>
+                  <field name="amount_retained" string="Нерозподіл." invisible="row_kind == 'section'"/>
+                  <field name="amount_unpaid" string="Неоплач." invisible="row_kind == 'section'"/>
+                  <field name="amount_withdrawn" string="Вилуч." invisible="row_kind == 'section'"/>
+                  <field name="amount_total" invisible="row_kind == 'section'"/>
+                  <button name="action_open_entries" type="object" icon="fa-search" title="Розшифровка"
+                          invisible="row_kind not in ('adjust', 'item', 'sub')"/>
+                </list>
+              </field>
+            </page>
+            <page string="Розшифровка" name="entries">
+              <field name="entry_ids" readonly="1">
+                <list>
+                  <field name="period"/>
+                  <field name="date"/>
+                  <field name="move_id"/>
+                  <field name="account_id"/>
+                  <field name="counter_codes"/>
+                  <field name="column"/>
+                  <field name="row"/>
+                  <field name="source" decoration-warning="source == 'fallback'"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="amount" sum="Разом"/>
+                </list>
+              </field>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+  <record id="action_ua_equity_statement" model="ir.actions.act_window">
+    <field name="name">Ф4. Власний капітал</field>
+    <field name="res_model">ua.equity.statement</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p>Звіт про власний капітал з проводок на рахунках 40-46 і фінансового результату. Рядок руху -
+        з позначки на проводці або за правилом кореспонденції. Залишок на кінець звіряється з
+        балансом.</p>
+    </field>
+  </record>
+
+  <!-- Рядок форми № 4 на проводці -->
+  <record id="view_move_form_ua_equity" model="ir.ui.view">
+    <field name="name">account.move.form.ua.equity</field>
+    <field name="model">account.move</field>
+    <field name="inherit_id" ref="account.view_move_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//group[@id='header_left_group']" position="inside">
+        <field name="ua_equity_row" invisible="move_type != 'entry'"/>
+      </xpath>
+      <xpath expr="//page[@id='aml_tab']//field[@name='line_ids']/list/field[@name='partner_id']" position="after">
+        <field name="ua_equity_row" optional="hide"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>

@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 82. Моделей: 174. Методів: 675. Збережених полів на чужих моделях: 396.
+Модулів: 83. Моделей: 178. Методів: 686. Збережених полів на чужих моделях: 398.
 
 ## Зарплата
 
@@ -1563,6 +1563,45 @@
 | `action_ua_edo_documents()` | - | `l10n_ua_edo` |
 | `action_ua_edo_send()` | - | `l10n_ua_edo` |
 
+### `ua.equity.rule`
+
+наша модель · `l10n_ua_equity`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `ua_pick(rules, company, code, side, counter_codes)` | Найточніше правило: найдовші коди, далі з боком, далі правило компанії. | `l10n_ua_equity` |
+
+### `ua.equity.statement`
+
+наша модель · `l10n_ua_equity`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_compute()` | - | `l10n_ua_equity` |
+| `action_done()` | - | `l10n_ua_equity` |
+| `action_draft()` | - | `l10n_ua_equity` |
+| `action_open_fallback()` | - | `l10n_ua_equity` |
+| `action_print()` | - | `l10n_ua_equity` |
+| `ua_columns()` | - | `l10n_ua_equity` |
+| `ua_money(value)` | Сума для форми: від'ємна в дужках, нуль - прочерк. | `l10n_ua_equity` |
+| `ua_rows(period='current')` | Рядки для друку: назва, код, вид, суми граф 3-9, разом. | `l10n_ua_equity` |
+
+### `ua.equity.statement.entry`
+
+наша модель · `l10n_ua_equity`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_set_row(row)` | Записати рядок форми на рядок проводки: наступний розрахунок візьме його першим. | `l10n_ua_equity` |
+
+### `ua.equity.statement.line`
+
+наша модель · `l10n_ua_equity`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_open_entries()` | - | `l10n_ua_equity` |
+
 ### `ua.export.permit`
 
 наша модель · `l10n_ua_export_control`
@@ -1988,7 +2027,7 @@
 
 ### `account.move`
 
-доповнена модель · `bp_purchase_intake`, `l10n_ua_cashflow`, `l10n_ua_close`, `l10n_ua_commission`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_edo`, `l10n_ua_grant`, `l10n_ua_prro`, `l10n_ua_tolling`, `l10n_ua_vat`
+доповнена модель · `bp_purchase_intake`, `l10n_ua_cashflow`, `l10n_ua_close`, `l10n_ua_commission`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_edo`, `l10n_ua_equity`, `l10n_ua_grant`, `l10n_ua_prro`, `l10n_ua_tolling`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -2010,6 +2049,7 @@
 | `ua_customs_entry` | Boolean | Позначка проводки митного ПДВ | `l10n_ua_vat` |
 | `ua_customs_move_id` | Many2one | account.move | `l10n_ua_vat` |
 | `ua_customs_vat` | Monetary | Митний ПДВ | `l10n_ua_vat` |
+| `ua_equity_row` | Selection | Рядок звіту про власний капітал | `l10n_ua_equity` |
 | `ua_fe_kind` | Selection | Проводка першої події | `l10n_ua_vat` |
 | `ua_grant_id` | Many2one | ua.grant | `l10n_ua_grant` |
 | `ua_in_pn_registered` | Boolean | ПН постачальника зареєстрована | `l10n_ua_vat` |
@@ -2021,12 +2061,13 @@
 
 ### `account.move.line`
 
-доповнена модель · `l10n_ua_cashflow`, `l10n_ua_contract`, `l10n_ua_tolling`, `l10n_ua_vat`
+доповнена модель · `l10n_ua_cashflow`, `l10n_ua_contract`, `l10n_ua_equity`, `l10n_ua_tolling`, `l10n_ua_vat`
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `ua_cashflow_item_id` | Many2one | ua.cashflow.item | `l10n_ua_cashflow` |
 | `ua_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
+| `ua_equity_row` | Selection | Рядок форми № 4 | `l10n_ua_equity` |
 | `ua_tolling_qty` | Boolean | Кількість переробки | `l10n_ua_tolling` |
 
 ### `account.payment`

@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 82,
-    "models": 174,
-    "methods": 675,
-    "fields": 396
+    "modules": 83,
+    "models": 178,
+    "methods": 686,
+    "fields": 398
   },
   "areas": [
     {
@@ -7142,6 +7142,136 @@
           "fields": []
         },
         {
+          "model": "ua.equity.rule",
+          "ours": true,
+          "modules": [
+            "l10n_ua_equity"
+          ],
+          "methods": [
+            {
+              "name": "ua_pick",
+              "signature": "ua_pick(rules, company, code, side, counter_codes)",
+              "doc": "Найточніше правило: найдовші коди, далі з боком, далі правило компанії.",
+              "module": "l10n_ua_equity",
+              "file": "addons/l10n_ua_equity/models/equity.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.equity.statement",
+          "ours": true,
+          "modules": [
+            "l10n_ua_equity"
+          ],
+          "methods": [
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "",
+              "module": "l10n_ua_equity",
+              "file": "addons/l10n_ua_equity/models/equity.py",
+              "decorators": []
+            },
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_equity",
+              "file": "addons/l10n_ua_equity/models/equity.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_equity",
+              "file": "addons/l10n_ua_equity/models/equity.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_fallback",
+              "signature": "action_open_fallback()",
+              "doc": "",
+              "module": "l10n_ua_equity",
+              "file": "addons/l10n_ua_equity/models/equity.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_equity",
+              "file": "addons/l10n_ua_equity/models/equity.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_columns",
+              "signature": "ua_columns()",
+              "doc": "",
+              "module": "l10n_ua_equity",
+              "file": "addons/l10n_ua_equity/models/equity.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_money",
+              "signature": "ua_money(value)",
+              "doc": "Сума для форми: від'ємна в дужках, нуль - прочерк.",
+              "module": "l10n_ua_equity",
+              "file": "addons/l10n_ua_equity/models/equity.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_rows",
+              "signature": "ua_rows(period='current')",
+              "doc": "Рядки для друку: назва, код, вид, суми граф 3-9, разом.",
+              "module": "l10n_ua_equity",
+              "file": "addons/l10n_ua_equity/models/equity.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.equity.statement.entry",
+          "ours": true,
+          "modules": [
+            "l10n_ua_equity"
+          ],
+          "methods": [
+            {
+              "name": "action_set_row",
+              "signature": "action_set_row(row)",
+              "doc": "Записати рядок форми на рядок проводки: наступний розрахунок візьме його першим.",
+              "module": "l10n_ua_equity",
+              "file": "addons/l10n_ua_equity/models/equity.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.equity.statement.line",
+          "ours": true,
+          "modules": [
+            "l10n_ua_equity"
+          ],
+          "methods": [
+            {
+              "name": "action_open_entries",
+              "signature": "action_open_entries()",
+              "doc": "",
+              "module": "l10n_ua_equity",
+              "file": "addons/l10n_ua_equity/models/equity.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.export.permit",
           "ours": true,
           "modules": [
@@ -8981,6 +9111,7 @@
             "l10n_ua_contract",
             "l10n_ua_docs",
             "l10n_ua_edo",
+            "l10n_ua_equity",
             "l10n_ua_grant",
             "l10n_ua_prro",
             "l10n_ua_tolling",
@@ -9110,6 +9241,14 @@
               "groups": ""
             },
             {
+              "name": "ua_equity_row",
+              "type": "Selection",
+              "label": "Рядок звіту про власний капітал",
+              "module": "l10n_ua_equity",
+              "file": "addons/l10n_ua_equity/models/account.py",
+              "groups": ""
+            },
+            {
               "name": "ua_fe_kind",
               "type": "Selection",
               "label": "Проводка першої події",
@@ -9181,6 +9320,7 @@
           "modules": [
             "l10n_ua_cashflow",
             "l10n_ua_contract",
+            "l10n_ua_equity",
             "l10n_ua_tolling",
             "l10n_ua_vat"
           ],
@@ -9200,6 +9340,14 @@
               "label": "ua.contract",
               "module": "l10n_ua_contract",
               "file": "addons/l10n_ua_contract/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_equity_row",
+              "type": "Selection",
+              "label": "Рядок форми № 4",
+              "module": "l10n_ua_equity",
+              "file": "addons/l10n_ua_equity/models/account.py",
               "groups": ""
             },
             {

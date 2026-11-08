@@ -286,6 +286,13 @@ Notable changes for people who run or build on this code. Module-level API chang
   clears 24 to salvage (209), recovery from the culprit (375, with the employee as partner), a claim to the
   supplier (374) and losses to production cost (23) or other expenses (949); return to draft reverses.
   Analysis by cause and product, print. Tests: `ua_defect`.
+- `l10n_ua_equity`: statement of changes in equity (form 4). Columns by equity accounts 40-46 as balance lines
+  1400-1430; profit or loss of classes 7-9 goes to row 4100 as one sum, so closing 79 to 44 nets to zero inside
+  the column. Each equity journal item gets its row from a mark on the item or entry (adjustments 4005, 4010,
+  4090), else from the most specific rule by equity account, debit or credit, and counter account; 39 default
+  rules (dividends, reserve, contributions, buyback, revaluation and others), company rules first, the rest in
+  4290 and listed. Current and previous year, closing checked against account balances per column, rows 4205
+  and 4210 checked to net to zero, drill-down, landscape print. Tests: `ua_equity`.
 
 ### Changed
 - Packs: defense packs bring their typical jobs with labour safety terms (hazardous work, repeat briefing and

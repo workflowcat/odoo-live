@@ -20,7 +20,8 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Single tax (FOP group 3) book and return | done | `l10n_ua_fop` |
 | Financial statements Ф1/Ф2 (full and small) | done | `l10n_ua_finrep` (mis_builder); DPS XML of the statements is a gap |
 | Cash flow statement Ф3 (direct method) with cash flow items (статті руху коштів) | done | `l10n_ua_cashflow`: every entry that touches cash accounts (30, 31, 33, as balance line 1165) is a flow, moves between cash accounts are not; the item comes from the journal item, the entry or bank statement line, or the payment, otherwise from a rule by the counter account (longest code match, company rules first); flows without an item listed for the accountant; current and same period last year, opening 3405, FX effect 3410, closing 3415 checked against the books, drill-down from every line to the entries, print |
-| Statement of changes in equity Ф4, notes Ф5 | gap | next after Ф3 |
+| Statement of changes in equity Ф4 | done | `l10n_ua_equity`: columns 3-9 by equity accounts 40-46 as balance lines 1400-1430, profit or loss of classes 7-9 in row 4100 as one sum so closing account 79 never doubles it; the row for each equity movement comes from a mark on the journal item or entry (adjustments 4005, 4010, 4090), otherwise from a rule by equity account, side and counter account (39 default rules after the Ministry of Finance guidance, company rules first); movements without a rule listed for the accountant; current and previous year, 4095, 4295, 4300 checked against the books per column, rows 4205 and 4210 checked to net to zero, drill-down from every row, landscape print |
+| Notes to the financial statements Ф5 | gap | next |
 | Fixed assets, low-value items, intangibles, tax groups | done | `l10n_ua_assets` + OCA asset management |
 | Cash desk: ПКО/ВКО, cash book КО-4, limit | done | `l10n_ua_cash` |
 | Bank statements: file, PrivatBank, Monobank | done | `l10n_ua_bank`, `l10n_ua_bank_online` |
@@ -169,7 +170,8 @@ periodic and type tests gating acceptance (`l10n_ua_product_tests`); labour safe
 (`l10n_ua_safety`); property, land and environmental taxes (`l10n_ua_local_tax`); price types and dated price setting
 (`l10n_ua_price_set`); the doubtful debts reserve (`l10n_ua_bad_debt`); the cash flow statement Ф3
 (`l10n_ua_cashflow`); the cash flow budget with payment request control (`l10n_ua_budget`); the vacation schedule
-(`l10n_ua_vacation_plan`); production defect acts (`l10n_ua_defect`).
+(`l10n_ua_vacation_plan`); production defect acts (`l10n_ua_defect`); the statement of changes in equity Ф4
+(`l10n_ua_equity`).
 
 Next, in this order:
 

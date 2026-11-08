@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_equity_rule_user,ua.equity.rule user,model_ua_equity_rule,account.group_account_user,1,0,0,0
+access_ua_equity_rule_manager,ua.equity.rule manager,model_ua_equity_rule,account.group_account_manager,1,1,1,1
+access_ua_equity_statement_user,ua.equity.statement user,model_ua_equity_statement,account.group_account_user,1,1,1,0
+access_ua_equity_statement_manager,ua.equity.statement manager,model_ua_equity_statement,account.group_account_manager,1,1,1,1
+access_ua_equity_statement_line_user,ua.equity.statement.line user,model_ua_equity_statement_line,account.group_account_user,1,1,1,1
+access_ua_equity_statement_entry_user,ua.equity.statement.entry user,model_ua_equity_statement_entry,account.group_account_user,1,1,1,1
