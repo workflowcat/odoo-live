@@ -131,8 +131,10 @@ class UaHeadcountReport(models.Model):
             })
         return True
 
-    def _ua_month_values(self, sheet, excluded):
-        """Числа одного місяця з рядків табеля."""
+    @api.model
+    def _ua_frame(self, sheet):
+        """Календар місяця табеля: перший день, днів, звідки брати коди дня, робочих днів.
+        У вихідний - коди попереднього робочого дня місяця, якщо він є."""
         d1, d2 = sheet._period()
         days = d2.day
         source, last_working = [], None
@@ -142,25 +144,44 @@ class UaHeadcountReport(models.Model):
                 last_working = i
             source.append(last_working if weekend and last_working is not None else i)
         working_days = sum(1 for i in range(days) if (d1 + timedelta(days=i)).weekday() < 5)
+        return {"d1": d1, "d2": d2, "days": days, "source": source, "working_days": working_days}
 
-        person_days = part_hours = 0.0
+    @api.model
+    def _ua_line_share(self, line, frame, excluded):
+        """Частка одного працівника в середньообліковій за місяць.
+
+        Повертає (неповна ставка?, людино-днів, частка): повна ставка - дні на обліку без кодів-
+        виключень, поділені на календарні дні; неповна - години / 8 / робочі дні."""
+        if float(line.employee_id.sudo().ua_fte or "1") < 1:
+            working = frame["working_days"]
+            return True, 0, (line.hours / FULL_DAY_HOURS / working) if working else 0.0
+        cells = line._day_cells(frame["days"])
+        counted = sum(1 for i in frame["source"]
+                      if cells[i] not in NOT_ON_BOOKS and cells[i] not in excluded)
+        return False, counted, counted / frame["days"]
+
+    def _ua_month_values(self, sheet, excluded):
+        """Числа одного місяця з рядків табеля."""
+        frame = self._ua_frame(sheet)
+        days, working_days = frame["days"], frame["working_days"]
+        person_days = part_hours = part_equiv = 0.0
         on_books_end = excluded_end = part_count = hired = dismissed = 0
         for line in sheet.line_ids:
             employee = line.employee_id.sudo()
-            cells = line._day_cells(days)
-            if cells[-1] not in NOT_ON_BOOKS:
+            last = line._day_cells(days)[-1]
+            if last not in NOT_ON_BOOKS:
                 on_books_end += 1
-                excluded_end += cells[-1] in excluded
-            if float(employee.ua_fte or "1") < 1:
+                excluded_end += last in excluded
+            part, counted, share = self._ua_line_share(line, frame, excluded)
+            if part:
                 part_count += 1
                 part_hours += line.hours
+                part_equiv += share
             else:
-                person_days += sum(1 for i in range(days)
-                                   if cells[source[i]] not in NOT_ON_BOOKS and cells[source[i]] not in excluded)
-            came, left = self._ua_moves(employee, d1, d2)
+                person_days += counted
+            came, left = self._ua_moves(employee, frame["d1"], frame["d2"])
             hired += came
             dismissed += left
-        part_equiv = part_hours / FULL_DAY_HOURS / working_days if working_days else 0.0
         average = person_days / days + part_equiv
         return {
             "days": days, "working_days": working_days, "person_days": person_days,

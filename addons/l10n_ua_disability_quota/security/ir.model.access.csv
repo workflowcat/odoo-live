@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_disability_quota_user,ua.disability.quota user,model_ua_disability_quota,hr.group_hr_user,1,1,1,0
+access_ua_disability_quota_manager,ua.disability.quota manager,model_ua_disability_quota,hr.group_hr_manager,1,1,1,1
+access_ua_disability_quota_line_user,ua.disability.quota.line user,model_ua_disability_quota_line,hr.group_hr_user,1,1,1,1

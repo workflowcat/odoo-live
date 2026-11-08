@@ -147,6 +147,8 @@
             action="l10n_ua_asset_inventory.action_ua_asset_inventory" sequence="40"/>
   <menuitem id="menu_ua_headcount" name="Середньооблікова кількість" parent="menu_ua_hr_root"
             action="l10n_ua_headcount.action_ua_headcount_report" sequence="64"/>
+  <menuitem id="menu_ua_disability_quota" name="Норматив для осіб з інвалідністю" parent="menu_ua_hr_root"
+            action="l10n_ua_disability_quota.action_ua_disability_quota" sequence="66"/>
   <menuitem id="menu_ua_military" name="Військовий облік" parent="menu_ua_hr_root" sequence="70"/>
   <menuitem id="menu_ua_military_liable" name="Військовозобов'язані" parent="menu_ua_military"
             action="l10n_ua_military.action_ua_military_liable" sequence="10"/>

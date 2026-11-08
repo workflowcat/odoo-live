@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_disability_quota" model="ir.actions.report">
+    <field name="name">Розрахунок нормативу для осіб з інвалідністю</field>
+    <field name="model">ua.disability.quota</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_disability_quota.report_ua_disability_quota</field>
+    <field name="report_file">l10n_ua_disability_quota.report_ua_disability_quota</field>
+    <field name="binding_model_id" ref="model_ua_disability_quota"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">object.name</field>
+  </record>
+
+  <template id="report_ua_disability_quota">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <style>
+            .ua-doc { font-size: 10px; color: #000; }
+            .ua-doc h3 { font-size: 12px; text-align: center; margin: 4px 0; }
+            .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+            .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+            .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; }
+            .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+            .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+            .ua-doc .ua-sign { width: 100%; margin-top: 18px; }
+          </style>
+          <div class="page ua-doc">
+            <div t-out="doc.company_id.name"/>
+            <h3>Розрахунок виконання нормативу робочих місць для осіб з інвалідністю і цільового внеску</h3>
+            <div class="ua-sub">
+              за період з <span t-out="doc.date_from.strftime('%d.%m.%Y')"/> по <span t-out="doc.date_to.strftime('%d.%m.%Y')"/>
+            </div>
+            <table class="ua-grid">
+              <tr><td>Середньооблікова кількість штатних працівників за місяцями</td><td class="ua-num" t-out="doc.month_averages"/></tr>
+              <tr><td>Середньооблікова кількість штатних працівників за квартал (цілих)</td><td class="ua-num"><t t-out="doc.headcount"/> (<t t-out="doc.headcount_int"/>)</td></tr>
+              <tr><td>Норматив робочих місць для осіб з інвалідністю</td><td class="ua-num" t-out="doc.norm"/></tr>
+              <tr><td>Зараховано осіб з інвалідністю (цілих)</td><td class="ua-num"><t t-out="doc.disabled"/> (<t t-out="doc.disabled_int"/>)</td></tr>
+              <tr><td>Кількість робочих місць, не зайнятих особами з інвалідністю</td><td class="ua-num" t-out="doc.shortfall"/></tr>
+              <tr><td>Фонд оплати праці штатних працівників за квартал</td><td class="ua-num" t-out="doc.ua_money(doc.wage_fund)"/></tr>
+              <tr><td>Середня місячна заробітна плата</td><td class="ua-num" t-out="doc.ua_money(doc.average_wage)"/></tr>
+              <tr><td>Цільовий внесок: <t t-out="doc.contribution_percent"/> % x середня зарплата x <t t-out="doc.contribution_months"/> x незайняті місця x <t t-out="doc.martial_factor"/></td>
+                <td class="ua-num"><b t-out="doc.ua_money(doc.contribution)"/></td></tr>
+            </table>
+            <table class="ua-grid" t-if="doc.line_ids">
+              <thead>
+                <tr>
+                  <th>Місяць</th><th>Працівник</th><th>Група</th><th>Частка</th><th>Нараховано</th>
+                  <th>Рахується як</th><th>Зараховано</th><th>Чому ні</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr t-foreach="doc.line_ids" t-as="line">
+                  <td t-out="line.month_start.strftime('%m.%Y')"/>
+                  <td t-out="line.employee_id.name"/>
+                  <td t-out="doc.ua_group(line)"/>
+                  <td class="ua-num" t-out="line.share"/>
+                  <td class="ua-num" t-out="doc.ua_money(line.wage)"/>
+                  <td class="ua-num" t-out="line.weight"/>
+                  <td class="ua-num" t-out="line.units"/>
+                  <td t-out="line.reason"/>
+                </tr>
+              </tbody>
+            </table>
+            <p>Мінімальна заробітна плата для зарахування: <t t-out="doc.ua_money(doc.min_wage)"/>.
+              Розрахунок довідковий; звіт подається за формою ДПС.</p>
+            <table class="ua-sign">
+              <tr><td>Керівник ____________________</td><td>Головний бухгалтер ____________________</td></tr>
+            </table>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

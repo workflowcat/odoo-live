@@ -1,8 +1,8 @@
 {
   "totals": {
-    "modules": 86,
-    "models": 182,
-    "methods": 702,
+    "modules": 87,
+    "models": 183,
+    "methods": 709,
     "fields": 400
   },
   "areas": [
@@ -6968,6 +6968,72 @@
               "decorators": [
                 "api.model"
               ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.disability.quota",
+          "ours": true,
+          "modules": [
+            "l10n_ua_disability_quota"
+          ],
+          "methods": [
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "",
+              "module": "l10n_ua_disability_quota",
+              "file": "addons/l10n_ua_disability_quota/models/disability_quota.py",
+              "decorators": []
+            },
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_disability_quota",
+              "file": "addons/l10n_ua_disability_quota/models/disability_quota.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_disability_quota",
+              "file": "addons/l10n_ua_disability_quota/models/disability_quota.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_disability_quota",
+              "file": "addons/l10n_ua_disability_quota/models/disability_quota.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_group",
+              "signature": "ua_group(line)",
+              "doc": "",
+              "module": "l10n_ua_disability_quota",
+              "file": "addons/l10n_ua_disability_quota/models/disability_quota.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_money",
+              "signature": "ua_money(value)",
+              "doc": "",
+              "module": "l10n_ua_disability_quota",
+              "file": "addons/l10n_ua_disability_quota/models/disability_quota.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_norm",
+              "signature": "ua_norm(headcount_int)",
+              "doc": "Кількість місць за нормативом для цілої середньооблікової кількості.",
+              "module": "l10n_ua_disability_quota",
+              "file": "addons/l10n_ua_disability_quota/models/disability_quota.py",
+              "decorators": []
             }
           ],
           "fields": []

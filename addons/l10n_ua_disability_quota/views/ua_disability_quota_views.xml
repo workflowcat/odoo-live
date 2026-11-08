@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_disability_quota_list" model="ir.ui.view">
+    <field name="name">ua.disability.quota.list</field>
+    <field name="model">ua.disability.quota</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="name"/>
+        <field name="company_id" groups="base.group_multi_company"/>
+        <field name="headcount_int"/>
+        <field name="norm"/>
+        <field name="disabled_int"/>
+        <field name="shortfall"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="contribution" sum="Разом"/>
+        <field name="state" widget="badge" decoration-success="state == 'done'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_disability_quota_form" model="ir.ui.view">
+    <field name="name">ua.disability.quota.form</field>
+    <field name="model">ua.disability.quota</field>
+    <field name="arch" type="xml">
+      <form>
+        <header>
+          <button name="action_compute" type="object" string="Розрахувати" class="btn-primary" invisible="state != 'draft'"/>
+          <button name="action_done" type="object" string="Затвердити" invisible="state != 'draft' or not computed_at"/>
+          <button name="action_draft" type="object" string="У чернетку" invisible="state != 'done'"/>
+          <button name="action_print" type="object" string="Друк" invisible="not computed_at"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name"/></h1></div>
+          <group>
+            <group>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+              <field name="year" options="{'format': false}" readonly="state != 'draft'"/>
+              <field name="quarter" readonly="state != 'draft'"/>
+              <field name="date_from"/>
+              <field name="date_to"/>
+            </group>
+            <group string="Результат">
+              <field name="currency_id" invisible="1"/>
+              <field name="month_averages"/>
+              <field name="headcount"/>
+              <field name="headcount_int"/>
+              <field name="norm"/>
+              <field name="disabled"/>
+              <field name="disabled_int"/>
+              <field name="shortfall"/>
+              <field name="wage_fund"/>
+              <field name="average_wage"/>
+              <field name="contribution"/>
+              <field name="computed_at"/>
+            </group>
+          </group>
+          <div class="alert alert-warning" role="alert" invisible="not check_text">
+            <field name="check_text" nolabel="1"/>
+          </div>
+          <notebook>
+            <page string="Працівники з інвалідністю" name="lines">
+              <field name="line_ids" readonly="1">
+                <list decoration-muted="not counted">
+                  <field name="month_start"/>
+                  <field name="employee_id"/>
+                  <field name="disability_group"/>
+                  <field name="part_time"/>
+                  <field name="share"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="wage"/>
+                  <field name="weight"/>
+                  <field name="units"/>
+                  <field name="counted"/>
+                  <field name="reason"/>
+                </list>
+              </field>
+            </page>
+            <page string="Правила" name="rules">
+              <p class="text-muted">Числа закону з 2026 року. Перевіряйте чинну редакцію ст. 19 Закону № 875-XII,
+                Закону № 4219-IX і порядку № 268 перед поданням звіту.</p>
+              <group>
+                <group string="Норматив">
+                  <field name="excluded_codes" readonly="state != 'draft'"/>
+                  <field name="small_from" readonly="state != 'draft'"/>
+                  <field name="small_to" readonly="state != 'draft'"/>
+                  <field name="quota_percent" readonly="state != 'draft'"/>
+                  <field name="double_group_1" readonly="state != 'draft'"/>
+                  <field name="min_wage"/>
+                </group>
+                <group string="Цільовий внесок">
+                  <field name="wage_excluded_codes" readonly="state != 'draft'"/>
+                  <field name="contribution_percent" readonly="state != 'draft'"/>
+                  <field name="contribution_months" readonly="state != 'draft'"/>
+                  <field name="martial_factor" readonly="state != 'draft'"/>
+                </group>
+              </group>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_disability_quota" model="ir.actions.act_window">
+    <field name="name">Норматив для осіб з інвалідністю</field>
+    <field name="res_model">ua.disability.quota</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Квартальний розрахунок нормативу і цільового внеску</p>
+      <p>Середньооблікова з табелів, норматив, хто з працівників з інвалідністю зараховується і чому ні,
+        незайняті місця, середня зарплата і внесок.</p>
+    </field>
+  </record>
+</odoo>

@@ -313,6 +313,12 @@ Notable changes for people who run or build on this code. Module-level API chang
   results removes missing assets through the OCA removal wizard with the residual value on 947, books the
   culprit's share Dr 375 Cr 716, books surplus Dr asset account Cr 746 (OCA creates the asset) and writes the
   new place and custodian into the asset. Count sheet and comparison sheet print. Tests: `ua_asset_inventory`.
+- `l10n_ua_disability_quota`: quarterly employment norm for persons with disabilities and the targeted
+  contribution that replaced the sanctions in 2026: average headcount for the quarter from the timesheets
+  (shared with `l10n_ua_headcount`), the norm, employees with disabilities counted by month (main job, pay
+  above the minimum wage, group I counted twice) with the reason when not, unfilled places, the average
+  wage from payslips without sick pay and the contribution with the martial-law factor. All numbers are
+  fields of the document; the DPS report form is not produced. Tests: `ua_disability_quota`.
 
 ### Changed
 - Packs: defense packs bring their typical jobs with labour safety terms (hazardous work, repeat briefing and

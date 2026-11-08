@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 86. Моделей: 182. Методів: 702. Збережених полів на чужих моделях: 400.
+Модулів: 87. Моделей: 183. Методів: 709. Збережених полів на чужих моделях: 400.
 
 ## Зарплата
 
@@ -1524,6 +1524,20 @@
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
 | `ua_open_demand(product, company)` | Непокрита частина графіків: [(дата, кількість, контракт)], від найранішого. | `l10n_ua_mrp_plan` |
+
+### `ua.disability.quota`
+
+наша модель · `l10n_ua_disability_quota`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_compute()` | - | `l10n_ua_disability_quota` |
+| `action_done()` | - | `l10n_ua_disability_quota` |
+| `action_draft()` | - | `l10n_ua_disability_quota` |
+| `action_print()` | - | `l10n_ua_disability_quota` |
+| `ua_group(line)` | - | `l10n_ua_disability_quota` |
+| `ua_money(value)` | - | `l10n_ua_disability_quota` |
+| `ua_norm(headcount_int)` | Кількість місць за нормативом для цілої середньооблікової кількості. | `l10n_ua_disability_quota` |
 
 ### `ua.eco`
 
