@@ -1,8 +1,8 @@
 {
   "totals": {
-    "modules": 77,
-    "models": 164,
-    "methods": 623,
+    "modules": 78,
+    "models": 165,
+    "methods": 631,
     "fields": 392
   },
   "areas": [
@@ -5818,6 +5818,80 @@
               "decorators": [
                 "api.model"
               ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.bad.debt.reserve",
+          "ours": true,
+          "modules": [
+            "l10n_ua_bad_debt"
+          ],
+          "methods": [
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_bad_debt",
+              "file": "addons/l10n_ua_bad_debt/models/bad_debt.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill",
+              "signature": "action_fill()",
+              "doc": "",
+              "module": "l10n_ua_bad_debt",
+              "file": "addons/l10n_ua_bad_debt/models/bad_debt.py",
+              "decorators": []
+            },
+            {
+              "name": "action_post",
+              "signature": "action_post()",
+              "doc": "",
+              "module": "l10n_ua_bad_debt",
+              "file": "addons/l10n_ua_bad_debt/models/bad_debt.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_bad_debt",
+              "file": "addons/l10n_ua_bad_debt/models/bad_debt.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_buckets",
+              "signature": "ua_buckets()",
+              "doc": "[(назва групи, борг, відсоток, резерв)] для друку.",
+              "module": "l10n_ua_bad_debt",
+              "file": "addons/l10n_ua_bad_debt/models/bad_debt.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_date",
+              "signature": "ua_date(day)",
+              "doc": "",
+              "module": "l10n_ua_bad_debt",
+              "file": "addons/l10n_ua_bad_debt/models/bad_debt.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_percent",
+              "signature": "ua_percent(bucket)",
+              "doc": "",
+              "module": "l10n_ua_bad_debt",
+              "file": "addons/l10n_ua_bad_debt/models/bad_debt.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_residual_at",
+              "signature": "ua_residual_at(line)",
+              "doc": "Залишок дебетового рядка на дату: мінус зарахування, зроблені не пізніше дати.",
+              "module": "l10n_ua_bad_debt",
+              "file": "addons/l10n_ua_bad_debt/models/bad_debt.py",
+              "decorators": []
             }
           ],
           "fields": []

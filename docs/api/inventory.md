@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 77. Моделей: 164. Методів: 623. Збережених полів на чужих моделях: 392.
+Модулів: 78. Моделей: 165. Методів: 631. Збережених полів на чужих моделях: 392.
 
 ## Зарплата
 
@@ -1268,6 +1268,21 @@
 | `stock_glance(company_id, location_ids=None, category_ids=None, query=None, offset=0, limit=500)` | Залишки з першого погляду: скільки лежить, скільки треба, на скільки вистачить. | `l10n_ua_api` |
 | `warehouse_map(company_id)` | Карта складу: дерево локацій із місткістю, заповненням і вмістом. | `l10n_ua_api` |
 | `workorder_card(workorder_id)` | Картка наряду для кіоску цеху: що робити, чим, і що вже перевірено. | `l10n_ua_api` |
+
+### `ua.bad.debt.reserve`
+
+наша модель · `l10n_ua_bad_debt`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_draft()` | - | `l10n_ua_bad_debt` |
+| `action_fill()` | - | `l10n_ua_bad_debt` |
+| `action_post()` | - | `l10n_ua_bad_debt` |
+| `action_print()` | - | `l10n_ua_bad_debt` |
+| `ua_buckets()` | [(назва групи, борг, відсоток, резерв)] для друку. | `l10n_ua_bad_debt` |
+| `ua_date(day)` | - | `l10n_ua_bad_debt` |
+| `ua_percent(bucket)` | - | `l10n_ua_bad_debt` |
+| `ua_residual_at(line)` | Залишок дебетового рядка на дату: мінус зарахування, зроблені не пізніше дати. | `l10n_ua_bad_debt` |
 
 ### `ua.bom.substitute`
 

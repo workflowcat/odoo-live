@@ -27,6 +27,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | **Counterparty contracts** (settlements by contract, currency, limits) | done | `l10n_ua_contract`: contract on invoices, payments and orders, limits that warn or block, analytic per contract |
 | **Reconciliation act** with a counterparty (акт звірки) | done | `l10n_ua_contract`: by partner or contract, two-sided print form, agreed or disputed |
 | Mutual offset of debts (взаємозалік) | done | `l10n_ua_offset`: open customer and vendor debts of one counterparty (by contract if chosen), oldest first, one entry 63 to 36 reconciled with the documents it closes, two-sided act under article 601 of the Civil Code, cancel restores the debts; UAH only |
+| Doubtful debts reserve (резерв сумнівних боргів) | done | `l10n_ua_bad_debt`: aging of customer invoices on a date (only payments made by that date count), five groups with percentages from the accounting policy carried to the next calculation, a debtor assessed separately with its basis, the difference with the reserve on 38 posted as Dr 944 Cr 38 or Dr 38 Cr 719, reversal on return to draft, print |
 | Month-end closing assistant (закриття місяця) | yes | `l10n_ua_close`: depreciation, FX revaluation with reversal, overhead 91, 7/9 to 79, 79 to 44 in order, with undo; period lock and change review in `l10n_ua_changes` |
 | Property and land tax, environmental tax | yes | `l10n_ua_local_tax`: buildings and land plots (owned or rented) with area, valuation, the community's rate and ownership dates, exempt objects with their basis; yearly calculation counting months of ownership, property tax by quarters and land payment by months as entries Dr 92 Cr tax settlements, reversal on return to draft; environmental tax per quarter by substance with the list copied from the previous quarter; print. DPS XML of the declarations is still a gap |
 | Statistical reports (Держстат) | gap | low priority |
@@ -161,7 +162,7 @@ contracts (`l10n_ua_guarantee`); measuring instruments and their verification (`
 components (`l10n_ua_supplier_approval`); limit cards М-8 (`l10n_ua_limit_card`);
 periodic and type tests gating acceptance (`l10n_ua_product_tests`); labour safety briefings and medical exams
 (`l10n_ua_safety`); property, land and environmental taxes (`l10n_ua_local_tax`); price types and dated price setting
-(`l10n_ua_price_set`).
+(`l10n_ua_price_set`); the doubtful debts reserve (`l10n_ua_bad_debt`).
 
 Next, in this order:
 

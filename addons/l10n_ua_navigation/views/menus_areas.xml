@@ -186,6 +186,8 @@
   <menuitem id="menu_ua_reporting_vat_period" name="Зведення ПДВ за період"
             parent="menu_ua_reporting_vat" action="l10n_ua_vat.action_ua_vat_period" sequence="20"/>
 
+  <menuitem id="menu_ua_bad_debt_reserve" name="Резерв сумнівних боргів" parent="account.menu_finance_entries"
+            action="l10n_ua_bad_debt.action_ua_bad_debt_reserve" sequence="60"/>
   <menuitem id="menu_ua_prices" name="Ціни" parent="sale.sale_menu_root" sequence="35"/>
   <menuitem id="menu_ua_price_order" name="Встановлення цін" parent="menu_ua_prices"
             action="l10n_ua_price_set.action_ua_price_order" sequence="10"/>

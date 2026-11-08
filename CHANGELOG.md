@@ -255,6 +255,11 @@ Notable changes for people who run or build on this code. Module-level API chang
   from cost or takes them by hand, and on posting creates fixed prices from its date and closes the previous
   ones, so the price on any date stays in history. A later price is never overwritten; cancel restores the
   previous price. Order print and price labels. Tests: `ua_price_set`.
+- `l10n_ua_bad_debt`: doubtful debts reserve by aging (НП(С)БО 10). Each customer invoice's balance on the
+  date counts only payments made by that date; days overdue from the due date put it into one of five groups
+  whose percentages come from the accounting policy and carry over to the next calculation. A debtor can be
+  assessed separately with a basis. Posting compares the result with the reserve on account 38: Dr 944 Cr 38
+  for a shortfall, Dr 38 Cr 719 for an excess; return to draft reverses it. Print. Tests: `ua_bad_debt`.
 
 ### Changed
 - Packs: defense packs bring their typical jobs with labour safety terms (hazardous work, repeat briefing and

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_bad_debt_reserve_list" model="ir.ui.view">
+    <field name="name">ua.bad.debt.reserve.list</field>
+    <field name="model">ua.bad.debt.reserve</field>
+    <field name="arch" type="xml">
+      <list decoration-info="state == 'draft'">
+        <field name="name"/>
+        <field name="date"/>
+        <field name="debt_total"/>
+        <field name="reserve_total"/>
+        <field name="adjustment" optional="show"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="state" widget="badge" decoration-success="state == 'posted'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_bad_debt_reserve_form" model="ir.ui.view">
+    <field name="name">ua.bad.debt.reserve.form</field>
+    <field name="model">ua.bad.debt.reserve</field>
+    <field name="arch" type="xml">
+      <form>
+        <header>
+          <button name="action_fill" string="Заповнити борги на дату" type="object" invisible="state != 'draft'"/>
+          <button name="action_post" string="Провести" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+          <button name="action_draft" string="В чернетку (сторно)" type="object" invisible="state != 'posted'"
+                  groups="account.group_account_manager"/>
+          <button name="action_print" string="Друк" type="object"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="debt_total"/>
+              <field name="reserve_total"/>
+              <field name="reserve_before" invisible="state == 'draft'"/>
+              <field name="adjustment" invisible="state == 'draft'"/>
+              <field name="move_id" invisible="not move_id"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+            <group string="Відсотки груп (облікова політика)">
+              <field name="pct_current" readonly="state != 'draft'"/>
+              <field name="pct_d90" readonly="state != 'draft'"/>
+              <field name="pct_d180" readonly="state != 'draft'"/>
+              <field name="pct_d365" readonly="state != 'draft'"/>
+              <field name="pct_over" readonly="state != 'draft'"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Борги" name="lines">
+              <field name="line_ids" readonly="state != 'draft'">
+                <list editable="bottom" create="0" decoration-warning="manual">
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="partner_id"/>
+                  <field name="move_id"/>
+                  <field name="due_date"/>
+                  <field name="days"/>
+                  <field name="bucket"/>
+                  <field name="residual" sum="Разом"/>
+                  <field name="percent"/>
+                  <field name="manual"/>
+                  <field name="manual_reserve" invisible="not manual" required="manual"/>
+                  <field name="manual_reason" invisible="not manual" required="manual"/>
+                  <field name="reserve" sum="Разом"/>
+                </list>
+              </field>
+            </page>
+            <page string="Рахунки" name="accounts">
+              <group>
+                <field name="receivable_account_ids" widget="many2many_tags" readonly="state != 'draft'"/>
+                <field name="reserve_account_id" readonly="state != 'draft'"/>
+                <field name="expense_account_id" readonly="state != 'draft'"/>
+                <field name="income_account_id" readonly="state != 'draft'"/>
+                <field name="journal_id" readonly="state != 'draft'"/>
+                <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+              </group>
+            </page>
+            <page string="Примітка" name="note">
+              <field name="note"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_bad_debt_reserve" model="ir.actions.act_window">
+    <field name="name">Резерв сумнівних боргів</field>
+    <field name="res_model">ua.bad.debt.reserve</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Розрахуйте резерв на кінець кварталу або року</p>
+      <p>Борги покупців на дату за строками прострочки і відсотки з облікової політики.</p>
+    </field>
+  </record>
+</odoo>

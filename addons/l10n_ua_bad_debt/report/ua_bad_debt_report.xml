@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_bad_debt" model="ir.actions.report">
+    <field name="name">Розрахунок резерву сумнівних боргів</field>
+    <field name="model">ua.bad.debt.reserve</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_bad_debt.report_ua_bad_debt</field>
+    <field name="report_file">l10n_ua_bad_debt.report_ua_bad_debt</field>
+    <field name="binding_model_id" ref="model_ua_bad_debt_reserve"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">object.name</field>
+  </record>
+
+  <template id="report_ua_bad_debt">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <style>
+            .ua-doc { font-size: 10px; color: #000; }
+            .ua-doc h3 { font-size: 12px; text-align: center; margin: 4px 0; }
+            .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+            .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+            .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; vertical-align: top; }
+            .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+            .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+            .ua-doc .ua-sign { width: 100%; margin-top: 18px; }
+          </style>
+          <div class="ua-doc">
+            <div><t t-out="doc.company_id.name"/></div>
+            <h3>РОЗРАХУНОК РЕЗЕРВУ СУМНІВНИХ БОРГІВ</h3>
+            <div class="ua-sub">на <t t-out="doc.ua_date(doc.date)"/>, метод класифікації дебіторської заборгованості за строками непогашення</div>
+            <table class="ua-grid">
+              <thead><tr><th>Група</th><th>Борг, грн</th><th>Відсоток</th><th>Резерв, грн</th></tr></thead>
+              <tbody>
+                <tr t-foreach="doc.ua_buckets()" t-as="row">
+                  <td t-out="row[0]"/>
+                  <td class="ua-num" t-out="'%.2f' % row[1]"/>
+                  <td class="ua-num" t-out="'%.2f' % row[2] if row[2] is not None else 'окремо'"/>
+                  <td class="ua-num" t-out="'%.2f' % row[3]"/>
+                </tr>
+                <tr><td>Разом</td><td class="ua-num" t-out="'%.2f' % doc.debt_total"/><td/>
+                  <td class="ua-num" t-out="'%.2f' % doc.reserve_total"/></tr>
+              </tbody>
+            </table>
+            <p t-if="doc.state == 'posted'">Резерв на рахунку до проведення: <t t-out="'%.2f' % doc.reserve_before"/> грн;
+              <t t-if="doc.adjustment &gt; 0">донараховано <t t-out="'%.2f' % doc.adjustment"/> грн.</t>
+              <t t-elif="doc.adjustment &lt; 0">зменшено на <t t-out="'%.2f' % -doc.adjustment"/> грн.</t>
+              <t t-else="">коригування не потрібне.</t></p>
+            <table class="ua-grid">
+              <thead><tr><th>Покупець</th><th>Документ</th><th>Строк оплати</th><th>Днів</th><th>Борг</th><th>%</th><th>Резерв</th><th>Примітка</th></tr></thead>
+              <tbody>
+                <tr t-foreach="doc.line_ids" t-as="line">
+                  <td t-out="line.partner_id.name"/>
+                  <td t-out="line.move_id.name"/>
+                  <td t-out="doc.ua_date(line.due_date)"/>
+                  <td class="ua-num" t-out="line.days"/>
+                  <td class="ua-num" t-out="'%.2f' % line.residual"/>
+                  <td class="ua-num" t-out="'%.2f' % line.percent"/>
+                  <td class="ua-num" t-out="'%.2f' % line.reserve"/>
+                  <td t-out="line.manual_reason or ''"/>
+                </tr>
+              </tbody>
+            </table>
+            <table class="ua-sign"><tr>
+              <td>Головний бухгалтер ______________ / ______________________</td>
+            </tr></table>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>
