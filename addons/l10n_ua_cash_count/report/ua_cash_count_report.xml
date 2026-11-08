@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_cash_count" model="ir.actions.report">
+    <field name="name">Акт інвентаризації наявних коштів</field>
+    <field name="model">ua.cash.count</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_cash_count.report_ua_cash_count</field>
+    <field name="report_file">l10n_ua_cash_count.report_ua_cash_count</field>
+    <field name="binding_model_id" ref="model_ua_cash_count"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">object.name</field>
+  </record>
+
+  <template id="report_ua_cash_count">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <style>
+            .ua-doc { font-size: 10px; color: #000; }
+            .ua-doc h3 { font-size: 12px; text-align: center; margin: 4px 0; }
+            .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+            .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+            .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; }
+            .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+            .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+            .ua-doc .ua-sign { margin-top: 12px; white-space: pre-line; }
+          </style>
+          <div class="page ua-doc">
+            <div t-out="doc.company_id.name"/>
+            <h3>Акт інвентаризації наявних коштів</h3>
+            <div class="ua-sub">
+              <span t-out="doc.journal_id.name"/>, станом на <span t-out="doc.date.strftime('%d.%m.%Y')"/>
+              <t t-if="doc.order_ref">; підстава: <span t-out="doc.order_ref"/></t>
+            </div>
+            <p>Розписка касира: на початок інвентаризації всі прибуткові й видаткові документи на гроші здані до
+              бухгалтерії, усі кошти, що надійшли, оприбутковано, а ті, що вибули, списано.
+              Останній прибутковий ордер: <t t-out="doc.last_receipt or '-'"/>; останній видатковий: <t t-out="doc.last_payment or '-'"/>.</p>
+            <table class="ua-grid" t-if="doc.line_ids">
+              <thead><tr><th>Номінал</th><th>Кількість, шт.</th><th>Сума</th></tr></thead>
+              <tbody>
+                <tr t-foreach="doc.line_ids.filtered(lambda l: l.quantity)" t-as="line">
+                  <td t-out="doc.ua_nominal(line)"/>
+                  <td class="ua-num" t-out="line.quantity"/>
+                  <td class="ua-num" t-out="doc.ua_money(line.amount)"/>
+                </tr>
+              </tbody>
+            </table>
+            <table class="ua-grid">
+              <tr><td>Фактична наявність готівки</td><td class="ua-num" t-out="doc.ua_money(doc.counted)"/></tr>
+              <tr><td>Залишок за обліком</td><td class="ua-num" t-out="doc.ua_money(doc.book_balance)"/></tr>
+              <tr t-if="doc.difference &gt; 0"><td>Лишок</td><td class="ua-num" t-out="doc.ua_money(doc.difference)"/></tr>
+              <tr t-if="doc.difference &lt; 0"><td>Нестача</td><td class="ua-num" t-out="doc.ua_money(-doc.difference)"/></tr>
+              <tr t-if="not doc.difference"><td colspan="2">Розбіжностей не виявлено</td></tr>
+            </table>
+            <div class="ua-sign">Комісія:
+<t t-out="doc.commission or '____________________'"/>
+Касир <t t-out="doc.cashier_id.name or '____________________'"/>: гроші, перелічені в акті, перебувають на моєму відповідальному зберіганні ____________________</div>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

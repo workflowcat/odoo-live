@@ -1,8 +1,8 @@
 {
   "totals": {
-    "modules": 87,
-    "models": 183,
-    "methods": 709,
+    "modules": 88,
+    "models": 184,
+    "methods": 715,
     "fields": 400
   },
   "areas": [
@@ -5967,6 +5967,64 @@
               "doc": "",
               "module": "l10n_ua_mrp_substitute",
               "file": "addons/l10n_ua_mrp_substitute/models/mrp_substitute.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.cash.count",
+          "ours": true,
+          "modules": [
+            "l10n_ua_cash_count"
+          ],
+          "methods": [
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_cash_count",
+              "file": "addons/l10n_ua_cash_count/models/cash_count.py",
+              "decorators": []
+            },
+            {
+              "name": "action_nominals",
+              "signature": "action_nominals()",
+              "doc": "Поставити звичайний набір номіналів (наявні рядки лишаються).",
+              "module": "l10n_ua_cash_count",
+              "file": "addons/l10n_ua_cash_count/models/cash_count.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_cash_count",
+              "file": "addons/l10n_ua_cash_count/models/cash_count.py",
+              "decorators": []
+            },
+            {
+              "name": "action_refresh",
+              "signature": "action_refresh()",
+              "doc": "Перечитати залишок за обліком на дату акта (після нових проводок по касі).",
+              "module": "l10n_ua_cash_count",
+              "file": "addons/l10n_ua_cash_count/models/cash_count.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_money",
+              "signature": "ua_money(value)",
+              "doc": "",
+              "module": "l10n_ua_cash_count",
+              "file": "addons/l10n_ua_cash_count/models/cash_count.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_nominal",
+              "signature": "ua_nominal(line)",
+              "doc": "Номінал для друку: гривні цілим числом, монети - у копійках.",
+              "module": "l10n_ua_cash_count",
+              "file": "addons/l10n_ua_cash_count/models/cash_count.py",
               "decorators": []
             }
           ],

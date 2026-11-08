@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="rule_ua_cash_count_company" model="ir.rule">
+    <field name="name">Інвентаризація каси: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_cash_count"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_ua_cash_count_line_company" model="ir.rule">
+    <field name="name">Номінал в акті інвентаризації каси: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_cash_count_line"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+</odoo>

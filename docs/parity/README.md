@@ -25,6 +25,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Fixed assets, low-value items, intangibles, tax groups | done | `l10n_ua_assets` + OCA asset management |
 | Inventory count of fixed assets and intangibles (інвентаризація необоротних активів) | done | `l10n_ua_asset_inventory`: count sheet from the asset register with book values on the date, commission marks (found, place, custodian, condition), surplus items; results: shortage written off through the OCA removal at residual value to 947 and the culprit's share 375/716, surplus to 746 creating the asset; count sheet and comparison sheet print |
 | Cash desk: ПКО/ВКО, cash book КО-4, limit | done | `l10n_ua_cash` |
+| Cash count act (акт інвентаризації наявних коштів) | done | `l10n_ua_cash_count`: book balance of the cash account on the date, cash counted by denominations or as a sum, shortage to the cashier or another person (375) or to expenses (947), surplus to income (719), the act with the cashier statement prints |
 | Bank statements: file, PrivatBank, Monobank | done | `l10n_ua_bank`, `l10n_ua_bank_online` |
 | Bank exchange file `1CClientBankExchange` (most Ukrainian banks) | done | `l10n_ua_bank_1c`: statements in through the usual import, payment orders out from payments or payment orders |
 | NBU rates, FX differences | done | `l10n_ua_nbu` + native |
@@ -174,7 +175,7 @@ periodic and type tests gating acceptance (`l10n_ua_product_tests`); labour safe
 (`l10n_ua_price_set`); the doubtful debts reserve (`l10n_ua_bad_debt`); the cash flow statement Ф3
 (`l10n_ua_cashflow`); the cash flow budget with payment request control (`l10n_ua_budget`); the vacation schedule
 (`l10n_ua_vacation_plan`); production defect acts (`l10n_ua_defect`); the statement of changes in equity Ф4
-(`l10n_ua_equity`); the notes Ф5, main sections (`l10n_ua_notes`); the average headcount (`l10n_ua_headcount`); the inventory count of non-current assets (`l10n_ua_asset_inventory`); the employment norm for persons with disabilities and the targeted contribution (`l10n_ua_disability_quota`).
+(`l10n_ua_equity`); the notes Ф5, main sections (`l10n_ua_notes`); the average headcount (`l10n_ua_headcount`); the inventory count of non-current assets (`l10n_ua_asset_inventory`); the employment norm for persons with disabilities and the targeted contribution (`l10n_ua_disability_quota`); the cash count act (`l10n_ua_cash_count`).
 
 Next, in this order:
 

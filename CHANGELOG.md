@@ -319,6 +319,11 @@ Notable changes for people who run or build on this code. Module-level API chang
   above the minimum wage, group I counted twice) with the reason when not, unfilled places, the average
   wage from payslips without sick pay and the contribution with the martial-law factor. All numbers are
   fields of the document; the DPS report form is not produced. Tests: `ua_disability_quota`.
+- `l10n_ua_cash_count`: cash count act (акт інвентаризації наявних коштів): the book balance of the cash
+  journal account on the date from posted entries, the count by banknotes and coins (one button adds the
+  usual hryvnia set) or as one sum, and on approval the difference is posted: shortage Dr 375 with the
+  cashier or another person, or Dr 947, Cr cash; surplus Dr cash Cr 719. The act prints with the cashier
+  statement and the last order numbers. Tests: `ua_cash_count`.
 
 ### Changed
 - Packs: defense packs bring their typical jobs with labour safety terms (hazardous work, repeat briefing and

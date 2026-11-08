@@ -257,4 +257,7 @@
             parent="account_usability.menu_accounting_bank_and_cash"
             action="account_statement_import_online.online_bank_statement_provider_action"
             sequence="40"/>
+  <!-- ================================================================= каса -->
+  <menuitem id="menu_ua_cash_count" name="Інвентаризація каси"
+            parent="l10n_ua_cash.menu_ua_cash_root" action="l10n_ua_cash_count.action_ua_cash_count" sequence="40"/>
 </odoo>

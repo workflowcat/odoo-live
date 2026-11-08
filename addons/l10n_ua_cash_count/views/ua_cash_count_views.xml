@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_cash_count_list" model="ir.ui.view">
+    <field name="name">ua.cash.count.list</field>
+    <field name="model">ua.cash.count</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="date"/>
+        <field name="journal_id"/>
+        <field name="company_id" groups="base.group_multi_company"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="book_balance"/>
+        <field name="counted"/>
+        <field name="difference" decoration-danger="difference &lt; 0" decoration-success="difference &gt; 0"/>
+        <field name="state" widget="badge" decoration-success="state == 'done'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_cash_count_form" model="ir.ui.view">
+    <field name="name">ua.cash.count.form</field>
+    <field name="model">ua.cash.count</field>
+    <field name="arch" type="xml">
+      <form>
+        <header>
+          <button name="action_nominals" type="object" string="Розписати за номіналами" invisible="state != 'draft'"/>
+          <button name="action_refresh" type="object" string="Оновити залишок за обліком" invisible="state != 'draft'"/>
+          <button name="action_done" type="object" string="Затвердити" class="btn-primary" invisible="state != 'draft'"
+                  confirm="Різницю буде проведено. Далі?"/>
+          <button name="action_print" type="object" string="Друк"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name"/></h1></div>
+          <group>
+            <group>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+              <field name="journal_id" readonly="state != 'draft'"/>
+              <field name="account_id"/>
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="order_ref" readonly="state != 'draft'"/>
+              <field name="cashier_id" readonly="state != 'draft'"/>
+              <field name="last_receipt" readonly="state != 'draft'"/>
+              <field name="last_payment" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="currency_id" invisible="1"/>
+              <field name="book_balance"/>
+              <field name="counted_manual" invisible="line_ids" readonly="state != 'draft'"/>
+              <field name="counted"/>
+              <field name="difference" decoration-danger="difference &lt; 0" decoration-success="difference &gt; 0"/>
+              <field name="shortage_to" invisible="difference &gt;= 0" readonly="state != 'draft'"/>
+              <field name="culprit_id" invisible="difference &gt;= 0 or shortage_to != 'culprit'" readonly="state != 'draft'"/>
+              <field name="move_id" invisible="not move_id"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Номінали" name="nominals">
+              <field name="line_ids" readonly="state != 'draft'">
+                <list editable="bottom">
+                  <field name="nominal"/>
+                  <field name="quantity"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="amount" sum="Разом"/>
+                </list>
+              </field>
+            </page>
+            <page string="Комісія" name="commission">
+              <field name="commission" readonly="state != 'draft'"/>
+            </page>
+            <page string="Рахунки" name="accounts">
+              <group>
+                <field name="culprit_account_id" readonly="state != 'draft'"/>
+                <field name="expense_account_id" readonly="state != 'draft'"/>
+                <field name="surplus_account_id" readonly="state != 'draft'"/>
+              </group>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_cash_count" model="ir.actions.act_window">
+    <field name="name">Інвентаризація каси</field>
+    <field name="res_model">ua.cash.count</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Акт інвентаризації наявних коштів</p>
+      <p>Залишок за обліком на дату, перерахунок готівки за номіналами, нестача чи лишок - проводкою.</p>
+    </field>
+  </record>
+</odoo>

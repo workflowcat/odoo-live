@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 87. Моделей: 183. Методів: 709. Збережених полів на чужих моделях: 400.
+Модулів: 88. Моделей: 184. Методів: 715. Збережених полів на чужих моделях: 400.
 
 ## Зарплата
 
@@ -1304,6 +1304,19 @@
 | --- | --- | --- |
 | `action_approve()` | - | `l10n_ua_mrp_substitute` |
 | `action_revoke()` | - | `l10n_ua_mrp_substitute` |
+
+### `ua.cash.count`
+
+наша модель · `l10n_ua_cash_count`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_done()` | - | `l10n_ua_cash_count` |
+| `action_nominals()` | Поставити звичайний набір номіналів (наявні рядки лишаються). | `l10n_ua_cash_count` |
+| `action_print()` | - | `l10n_ua_cash_count` |
+| `action_refresh()` | Перечитати залишок за обліком на дату акта (після нових проводок по касі). | `l10n_ua_cash_count` |
+| `ua_money(value)` | - | `l10n_ua_cash_count` |
+| `ua_nominal(line)` | Номінал для друку: гривні цілим числом, монети - у копійках. | `l10n_ua_cash_count` |
 
 ### `ua.cashflow.budget`
 
