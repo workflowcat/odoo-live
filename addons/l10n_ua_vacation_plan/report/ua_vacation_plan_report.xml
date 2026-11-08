@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_vacation_plan" model="ir.actions.report">
+    <field name="name">Графік відпусток</field>
+    <field name="model">ua.vacation.plan</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_vacation_plan.report_ua_vacation_plan</field>
+    <field name="report_file">l10n_ua_vacation_plan.report_ua_vacation_plan</field>
+    <field name="binding_model_id" ref="model_ua_vacation_plan"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">object.name</field>
+  </record>
+
+  <record id="action_report_ua_vacation_notice" model="ir.actions.report">
+    <field name="name">Повідомлення про початок відпустки</field>
+    <field name="model">ua.vacation.plan.line</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_vacation_plan.report_ua_vacation_notice</field>
+    <field name="report_file">l10n_ua_vacation_plan.report_ua_vacation_notice</field>
+    <field name="print_report_name">'Повідомлення - %s' % object.employee_id.name</field>
+  </record>
+
+  <template id="ua_vacation_style">
+    <style>
+      .ua-doc { font-size: 10px; color: #000; }
+      .ua-doc h3 { font-size: 12px; text-align: center; margin: 4px 0; }
+      .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+      .ua-doc .ua-grid { width: 100%; border-collapse: collapse; }
+      .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; vertical-align: top; }
+      .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+      .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+      .ua-doc .ua-sign { width: 100%; margin-top: 18px; }
+      .ua-doc .ua-right { text-align: right; }
+    </style>
+  </template>
+
+  <template id="report_ua_vacation_plan">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_vacation_plan.ua_vacation_style"/>
+          <div class="ua-doc">
+            <div class="ua-right">ЗАТВЕРДЖУЮ<br/>Керівник ____________________<br/>
+              <t t-out="doc.ua_date_text(doc.approved_date)"/></div>
+            <div t-out="doc.company_id.name"/>
+            <h3>ГРАФІК ВІДПУСТОК на <t t-out="doc.year"/> рік</h3>
+            <div class="ua-sub" t-if="doc.department_id" t-out="doc.department_id.name"/>
+            <table class="ua-grid">
+              <thead><tr><th>№</th><th>Підрозділ</th><th>Посада</th><th>Прізвище, ім'я, по батькові</th>
+                <th>Днів</th><th>Заплановано</th><th>Перенесено (підстава)</th><th>Примітка</th></tr></thead>
+              <tbody>
+                <tr t-foreach="doc.line_ids" t-as="line">
+                  <td class="ua-num" t-out="line_index + 1"/>
+                  <td t-out="line.department_name or ''"/>
+                  <td t-out="line.job_title or ''"/>
+                  <td t-out="line.employee_id.name"/>
+                  <td class="ua-num" t-out="line.days"/>
+                  <td><t t-if="line.original_from"><t t-out="doc.ua_date_text(line.original_from)"/> - <t t-out="doc.ua_date_text(line.original_to)"/></t>
+                    <t t-else=""><t t-out="doc.ua_date_text(line.date_from)"/> - <t t-out="doc.ua_date_text(line.date_to)"/></t></td>
+                  <td><t t-if="line.original_from"><t t-out="doc.ua_date_text(line.date_from)"/> - <t t-out="doc.ua_date_text(line.date_to)"/>
+                    (<t t-out="line.move_reason"/>)</t></td>
+                  <td><t t-if="line.convenient_time">зручний час</t> <t t-out="line.note or ''"/></td>
+                </tr>
+              </tbody>
+            </table>
+            <p t-if="doc.agreed_with">Погоджено: <t t-out="doc.agreed_with"/></p>
+            <table class="ua-sign">
+              <tr><td>Відповідальний за кадрову роботу ____________________</td>
+                <td>Представник працівників ____________________</td></tr>
+            </table>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+
+  <template id="report_ua_vacation_notice">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="line">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_vacation_plan.ua_vacation_style"/>
+          <div class="ua-doc">
+            <div t-out="line.company_id.name"/>
+            <div class="ua-right"><t t-out="line.job_title or ''"/><br/><t t-out="line.employee_id.name"/></div>
+            <h3>ПОВІДОМЛЕННЯ про дату початку щорічної відпустки</h3>
+            <p>Відповідно до графіка відпусток на <t t-out="line.plan_id.year"/> рік і статті 10 Закону України
+              «Про відпустки» повідомляємо, що Вам надається щорічна відпустка тривалістю
+              <t t-out="line.days"/> календарних днів з <t t-out="line.plan_id.ua_date_text(line.date_from)"/>
+              по <t t-out="line.plan_id.ua_date_text(line.date_to)"/>.</p>
+            <p>Якщо Ви бажаєте перенести відпустку, подайте заяву до її початку.</p>
+            <table class="ua-sign">
+              <tr><td>Відповідальний за кадрову роботу ____________________</td></tr>
+              <tr><td>З повідомленням ознайомлений(а) ____________________ «___» ____________ 20__ р.</td></tr>
+            </table>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

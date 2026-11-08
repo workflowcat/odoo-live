@@ -274,6 +274,12 @@ Notable changes for people who run or build on this code. Module-level API chang
   committed. One approved budget per company and year checks payment requests on submit: an item is
   required, and an amount over the month's remainder either adds the director step or stops the request
   (budget setting). The request's item is written to the payment. Plan-actual pivot, print. Tests: `ua_budget`.
+- `l10n_ua_vacation_plan`: vacation schedule for a year (articles 10 and 12 of the Law on Vacations). Fill
+  from the company or a department (employment contracts only); parts with dates in calendar days; checks
+  for missing dates, overlaps, no continuous part of 14 days, more days than available (balance on 1 January
+  plus the yearly right) and employees left out. Approval needs the body it was agreed with. A daily job
+  gives HR a task two weeks before each start, with a printed notice; moves keep the old dates and the basis;
+  leave requests are created from the schedule. Print, calendar. Numbers are settings. Tests: `ua_vacation_plan`.
 
 ### Changed
 - Packs: defense packs bring their typical jobs with labour safety terms (hazardous work, repeat briefing and

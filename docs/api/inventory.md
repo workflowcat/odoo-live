@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 80. Моделей: 170. Методів: 653. Збережених полів на чужих моделях: 395.
+Модулів: 81. Моделей: 173. Методів: 665. Збережених полів на чужих моделях: 395.
 
 ## Зарплата
 
@@ -1885,6 +1885,39 @@
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
 | `lot_names()` | - | `l10n_ua_unit_transfer` |
+
+### `ua.vacation.move.wizard`
+
+наша модель · `l10n_ua_vacation_plan`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_apply()` | - | `l10n_ua_vacation_plan` |
+
+### `ua.vacation.plan`
+
+наша модель · `l10n_ua_vacation_plan`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_approve()` | - | `l10n_ua_vacation_plan` |
+| `action_draft()` | - | `l10n_ua_vacation_plan` |
+| `action_fill()` | Рядок без дат кожному працівнику, якого ще немає в графіку. | `l10n_ua_vacation_plan` |
+| `action_print()` | - | `l10n_ua_vacation_plan` |
+| `ua_balance(employee)` | Невикористані дні виду відпустки за затвердженими нарахуваннями на 1 січня року. | `l10n_ua_vacation_plan` |
+| `ua_date_text(day)` | Дата для друку: 01.07.2026; порожньо - підкреслення. | `l10n_ua_vacation_plan` |
+
+### `ua.vacation.plan.line`
+
+наша модель · `l10n_ua_vacation_plan`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_create_leave()` | Заявка на відпустку за датами графіка; погоджують її звичайним порядком. | `l10n_ua_vacation_plan` |
+| `action_move(date_from, date_to, reason)` | Перенести відпустку: старі дати лишаються в рядку, нові - з підставою. | `l10n_ua_vacation_plan` |
+| `action_notified()` | - | `l10n_ua_vacation_plan` |
+| `action_open_move()` | - | `l10n_ua_vacation_plan` |
+| `action_print_notice()` | - | `l10n_ua_vacation_plan` |
 
 ### `ua.waybill`
 

@@ -1,8 +1,8 @@
 {
   "totals": {
-    "modules": 80,
-    "models": 170,
-    "methods": 653,
+    "modules": 81,
+    "models": 173,
+    "methods": 665,
     "fields": 395
   },
   "areas": [
@@ -8546,6 +8546,134 @@
               "doc": "",
               "module": "l10n_ua_unit_transfer",
               "file": "addons/l10n_ua_unit_transfer/models/ua_unit_transfer.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.vacation.move.wizard",
+          "ours": true,
+          "modules": [
+            "l10n_ua_vacation_plan"
+          ],
+          "methods": [
+            {
+              "name": "action_apply",
+              "signature": "action_apply()",
+              "doc": "",
+              "module": "l10n_ua_vacation_plan",
+              "file": "addons/l10n_ua_vacation_plan/wizard/move_wizard.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.vacation.plan",
+          "ours": true,
+          "modules": [
+            "l10n_ua_vacation_plan"
+          ],
+          "methods": [
+            {
+              "name": "action_approve",
+              "signature": "action_approve()",
+              "doc": "",
+              "module": "l10n_ua_vacation_plan",
+              "file": "addons/l10n_ua_vacation_plan/models/vacation_plan.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_vacation_plan",
+              "file": "addons/l10n_ua_vacation_plan/models/vacation_plan.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill",
+              "signature": "action_fill()",
+              "doc": "Рядок без дат кожному працівнику, якого ще немає в графіку.",
+              "module": "l10n_ua_vacation_plan",
+              "file": "addons/l10n_ua_vacation_plan/models/vacation_plan.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_vacation_plan",
+              "file": "addons/l10n_ua_vacation_plan/models/vacation_plan.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_balance",
+              "signature": "ua_balance(employee)",
+              "doc": "Невикористані дні виду відпустки за затвердженими нарахуваннями на 1 січня року.",
+              "module": "l10n_ua_vacation_plan",
+              "file": "addons/l10n_ua_vacation_plan/models/vacation_plan.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_date_text",
+              "signature": "ua_date_text(day)",
+              "doc": "Дата для друку: 01.07.2026; порожньо - підкреслення.",
+              "module": "l10n_ua_vacation_plan",
+              "file": "addons/l10n_ua_vacation_plan/models/vacation_plan.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.vacation.plan.line",
+          "ours": true,
+          "modules": [
+            "l10n_ua_vacation_plan"
+          ],
+          "methods": [
+            {
+              "name": "action_create_leave",
+              "signature": "action_create_leave()",
+              "doc": "Заявка на відпустку за датами графіка; погоджують її звичайним порядком.",
+              "module": "l10n_ua_vacation_plan",
+              "file": "addons/l10n_ua_vacation_plan/models/vacation_plan.py",
+              "decorators": []
+            },
+            {
+              "name": "action_move",
+              "signature": "action_move(date_from, date_to, reason)",
+              "doc": "Перенести відпустку: старі дати лишаються в рядку, нові - з підставою.",
+              "module": "l10n_ua_vacation_plan",
+              "file": "addons/l10n_ua_vacation_plan/models/vacation_plan.py",
+              "decorators": []
+            },
+            {
+              "name": "action_notified",
+              "signature": "action_notified()",
+              "doc": "",
+              "module": "l10n_ua_vacation_plan",
+              "file": "addons/l10n_ua_vacation_plan/models/vacation_plan.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_move",
+              "signature": "action_open_move()",
+              "doc": "",
+              "module": "l10n_ua_vacation_plan",
+              "file": "addons/l10n_ua_vacation_plan/models/vacation_plan.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print_notice",
+              "signature": "action_print_notice()",
+              "doc": "",
+              "module": "l10n_ua_vacation_plan",
+              "file": "addons/l10n_ua_vacation_plan/models/vacation_plan.py",
               "decorators": []
             }
           ],

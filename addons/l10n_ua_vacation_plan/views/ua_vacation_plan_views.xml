@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_vacation_plan_list" model="ir.ui.view">
+    <field name="name">ua.vacation.plan.list</field>
+    <field name="model">ua.vacation.plan</field>
+    <field name="arch" type="xml">
+      <list string="Графіки відпусток">
+        <field name="name"/>
+        <field name="year"/>
+        <field name="department_id" optional="show"/>
+        <field name="employee_count"/>
+        <field name="days_total"/>
+        <field name="approved_date" optional="show"/>
+        <field name="state" widget="badge" decoration-success="state == 'approved'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_vacation_plan_form" model="ir.ui.view">
+    <field name="name">ua.vacation.plan.form</field>
+    <field name="model">ua.vacation.plan</field>
+    <field name="arch" type="xml">
+      <form string="Графік відпусток">
+        <header>
+          <button name="action_fill" type="object" string="Заповнити працівниками" invisible="state != 'draft'"/>
+          <button name="action_approve" type="object" string="Затвердити" class="btn-primary"
+                  invisible="state != 'draft'"/>
+          <button name="action_print" type="object" string="Друк"/>
+          <button name="action_draft" type="object" string="У чернетку" invisible="state != 'approved'"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="year" readonly="state != 'draft'"/>
+              <field name="department_id" readonly="state != 'draft'"/>
+              <field name="leave_type_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+              <field name="user_id"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="agreed_with" readonly="state != 'draft'"
+                     placeholder="Профспілковий комітет, протокол № ... від ..."/>
+              <field name="approved_date" readonly="state != 'draft'"/>
+              <field name="days_per_year" readonly="state != 'draft'"/>
+              <field name="min_part_days" readonly="state != 'draft'"/>
+              <field name="notice_days"/>
+              <field name="employee_count"/>
+              <field name="days_total"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Відпустки" name="lines">
+              <field name="line_ids" context="{'default_plan_id': id}">
+                <list editable="bottom" decoration-muted="state == 'leave'" decoration-info="state == 'moved'">
+                  <field name="employee_id" readonly="plan_state != 'draft'" options="{'no_create': True}"/>
+                  <field name="department_name" optional="show"/>
+                  <field name="job_title" optional="hide"/>
+                  <field name="plan_state" column_invisible="1"/>
+                  <field name="date_from" readonly="plan_state != 'draft'"/>
+                  <field name="date_to" readonly="plan_state != 'draft'"/>
+                  <field name="days" sum="Разом"/>
+                  <field name="days_available" optional="show"/>
+                  <field name="convenient_time" optional="show"/>
+                  <field name="notice_date" optional="show"/>
+                  <field name="notified_date" optional="hide"/>
+                  <field name="original_from" optional="hide"/>
+                  <field name="move_reason" optional="hide"/>
+                  <field name="leave_id" optional="hide"/>
+                  <field name="note" optional="hide"/>
+                  <field name="state"/>
+                  <button name="action_open_move" type="object" icon="fa-exchange" title="Перенести"
+                          invisible="plan_state != 'approved' or leave_id"/>
+                  <button name="action_print_notice" type="object" icon="fa-print" title="Повідомлення"
+                          invisible="plan_state != 'approved'"/>
+                  <button name="action_create_leave" type="object" icon="fa-plane" title="Заявка на відпустку"
+                          invisible="plan_state != 'approved' or leave_id"/>
+                </list>
+              </field>
+            </page>
+            <page string="Перевірки" name="checks">
+              <field name="checks_html" readonly="1" nolabel="1"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_vacation_plan_line_list" model="ir.ui.view">
+    <field name="name">ua.vacation.plan.line.list</field>
+    <field name="model">ua.vacation.plan.line</field>
+    <field name="arch" type="xml">
+      <list string="Відпустки за графіком" create="false">
+        <field name="plan_id"/>
+        <field name="employee_id"/>
+        <field name="department_name"/>
+        <field name="date_from"/>
+        <field name="date_to"/>
+        <field name="days" sum="Разом"/>
+        <field name="notice_date"/>
+        <field name="state"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_vacation_plan_line_calendar" model="ir.ui.view">
+    <field name="name">ua.vacation.plan.line.calendar</field>
+    <field name="model">ua.vacation.plan.line</field>
+    <field name="arch" type="xml">
+      <calendar string="Графік відпусток" date_start="date_from" date_stop="date_to" mode="month"
+                color="employee_id" create="false">
+        <field name="employee_id"/>
+        <field name="days"/>
+      </calendar>
+    </field>
+  </record>
+
+  <record id="view_ua_vacation_move_wizard_form" model="ir.ui.view">
+    <field name="name">ua.vacation.move.wizard.form</field>
+    <field name="model">ua.vacation.move.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Перенести відпустку">
+        <group>
+          <field name="line_id" readonly="1"/>
+          <field name="date_from"/>
+          <field name="date_to"/>
+          <field name="reason" placeholder="Заява працівника від ..., наказ № ..."/>
+        </group>
+        <footer>
+          <button name="action_apply" type="object" string="Перенести" class="btn-primary"/>
+          <button special="cancel" string="Скасувати"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_vacation_plan" model="ir.actions.act_window">
+    <field name="name">Графік відпусток</field>
+    <field name="res_model">ua.vacation.plan</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p>Графік щорічних відпусток на рік: дати кожного працівника, перевірка безперервної частини і
+        днів, затвердження за погодженням із профспілкою, повідомлення за два тижні до початку і
+        заявки на відпустку з графіка.</p>
+    </field>
+  </record>
+
+  <record id="action_ua_vacation_plan_calendar" model="ir.actions.act_window">
+    <field name="name">Відпустки на календарі</field>
+    <field name="res_model">ua.vacation.plan.line</field>
+    <field name="view_mode">calendar,list</field>
+    <field name="domain">[('plan_id.state', '=', 'approved')]</field>
+  </record>
+</odoo>

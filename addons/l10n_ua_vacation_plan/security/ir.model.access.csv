@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_vacation_plan_user,ua.vacation.plan user,model_ua_vacation_plan,hr.group_hr_user,1,1,1,0
+access_ua_vacation_plan_manager,ua.vacation.plan manager,model_ua_vacation_plan,hr.group_hr_manager,1,1,1,1
+access_ua_vacation_plan_line_user,ua.vacation.plan.line user,model_ua_vacation_plan_line,hr.group_hr_user,1,1,1,1
+access_ua_vacation_move_wizard_user,ua.vacation.move.wizard user,model_ua_vacation_move_wizard,hr.group_hr_user,1,1,1,1

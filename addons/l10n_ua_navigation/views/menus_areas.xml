@@ -137,6 +137,11 @@
   <menuitem id="menu_ua_hr_leaves" name="Відсутності" parent="menu_ua_hr_root"
             action="action_ua_leaves" sequence="60"/>
 
+  <menuitem id="menu_ua_vacation_plan" name="Графік відпусток" parent="menu_ua_hr_root" sequence="62"/>
+  <menuitem id="menu_ua_vacation_plan_docs" name="Графіки" parent="menu_ua_vacation_plan"
+            action="l10n_ua_vacation_plan.action_ua_vacation_plan" sequence="10"/>
+  <menuitem id="menu_ua_vacation_plan_calendar" name="Відпустки на календарі" parent="menu_ua_vacation_plan"
+            action="l10n_ua_vacation_plan.action_ua_vacation_plan_calendar" sequence="20"/>
   <menuitem id="menu_ua_military" name="Військовий облік" parent="menu_ua_hr_root" sequence="70"/>
   <menuitem id="menu_ua_military_liable" name="Військовозобов'язані" parent="menu_ua_military"
             action="l10n_ua_military.action_ua_military_liable" sequence="10"/>
