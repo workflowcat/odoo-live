@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_defect_act_list" model="ir.ui.view">
+    <field name="name">ua.defect.act.list</field>
+    <field name="model">ua.defect.act</field>
+    <field name="arch" type="xml">
+      <list string="Акти про брак">
+        <field name="name"/>
+        <field name="date"/>
+        <field name="product_id"/>
+        <field name="production_id" optional="show"/>
+        <field name="qty"/>
+        <field name="kind"/>
+        <field name="cause"/>
+        <field name="culprit_id" optional="show"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="total_amount" sum="Разом"/>
+        <field name="loss_amount" sum="Разом"/>
+        <field name="state" widget="badge" decoration-success="state == 'posted'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_defect_act_pivot" model="ir.ui.view">
+    <field name="name">ua.defect.act.pivot</field>
+    <field name="model">ua.defect.act</field>
+    <field name="arch" type="xml">
+      <pivot string="Брак за причинами">
+        <field name="cause" type="row"/>
+        <field name="product_id" type="row"/>
+        <field name="date" interval="month" type="col"/>
+        <field name="qty" type="measure"/>
+        <field name="loss_amount" type="measure"/>
+      </pivot>
+    </field>
+  </record>
+
+  <record id="view_ua_defect_act_search" model="ir.ui.view">
+    <field name="name">ua.defect.act.search</field>
+    <field name="model">ua.defect.act</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="name"/>
+        <field name="product_id"/>
+        <field name="production_id"/>
+        <field name="culprit_id"/>
+        <field name="supplier_id"/>
+        <filter name="f_draft" string="Чернетки" domain="[('state', '=', 'draft')]"/>
+        <filter name="f_final" string="Невиправний" domain="[('kind', '=', 'final')]"/>
+        <filter name="f_fixable" string="Виправний" domain="[('kind', '=', 'fixable')]"/>
+        <filter name="g_cause" string="Причина" context="{'group_by': 'cause'}"/>
+        <filter name="g_product" string="Виріб" context="{'group_by': 'product_id'}"/>
+      </search>
+    </field>
+  </record>
+
+  <record id="view_ua_defect_act_form" model="ir.ui.view">
+    <field name="name">ua.defect.act.form</field>
+    <field name="model">ua.defect.act</field>
+    <field name="arch" type="xml">
+      <form string="Акт про брак">
+        <header>
+          <button name="action_post" type="object" string="Провести" class="btn-primary"
+                  invisible="state != 'draft'" groups="account.group_account_user"/>
+          <button name="action_draft" type="object" string="У чернетку" invisible="state != 'posted'"
+                  groups="account.group_account_user"/>
+          <button name="action_cancel" type="object" string="Скасувати" invisible="state != 'draft'"/>
+          <button name="action_print" type="object" string="Друк"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group string="Що зіпсовано">
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="production_id" readonly="state != 'draft'"/>
+              <field name="workcenter_id" readonly="state != 'draft'"/>
+              <field name="product_id" readonly="state != 'draft'"/>
+              <field name="lot_ids" widget="many2many_tags" readonly="state != 'draft'"
+                     domain="[('product_id', '=', product_id)]"/>
+              <field name="qty" readonly="state != 'draft'"/>
+              <field name="kind" widget="radio" readonly="state != 'draft'"/>
+            </group>
+            <group string="Чому">
+              <field name="cause" readonly="state != 'draft'"/>
+              <field name="culprit_id" readonly="state != 'draft'"/>
+              <field name="supplier_id" readonly="state != 'draft'" invisible="cause != 'material' and not supplier_id"/>
+              <field name="description" readonly="state != 'draft'"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+            </group>
+          </group>
+          <group string="Суми">
+            <group>
+              <field name="currency_id" invisible="1"/>
+              <field name="unit_cost" invisible="kind != 'final'" readonly="state != 'draft'"/>
+              <field name="cost_amount" invisible="kind != 'final'"/>
+              <field name="fix_amount" invisible="kind != 'fixable'"/>
+              <field name="total_amount"/>
+            </group>
+            <group>
+              <field name="salvage_amount" readonly="state != 'draft'"/>
+              <field name="culprit_amount" readonly="state != 'draft'"/>
+              <field name="supplier_amount" readonly="state != 'draft'"/>
+              <field name="loss_amount"/>
+              <field name="loss_to" readonly="state != 'draft'"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Виправлення" name="fix" invisible="kind != 'fixable'">
+              <field name="fix_line_ids" readonly="state != 'draft'">
+                <list editable="bottom">
+                  <field name="name"/>
+                  <field name="account_id"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="amount" sum="Разом"/>
+                </list>
+              </field>
+            </page>
+            <page string="Рахунки" name="accounts" groups="account.group_account_user">
+              <group>
+                <group>
+                  <field name="journal_id" readonly="state != 'draft'"/>
+                  <field name="defect_account_id" readonly="state != 'draft'"/>
+                  <field name="wip_account_id" readonly="state != 'draft'"/>
+                  <field name="salvage_account_id" readonly="state != 'draft'"/>
+                </group>
+                <group>
+                  <field name="culprit_account_id" readonly="state != 'draft'"/>
+                  <field name="supplier_account_id" readonly="state != 'draft'"/>
+                  <field name="expense_account_id" readonly="state != 'draft'"/>
+                  <field name="move_id"/>
+                </group>
+              </group>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_defect_act" model="ir.actions.act_window">
+    <field name="name">Акти про брак</field>
+    <field name="res_model">ua.defect.act</field>
+    <field name="view_mode">list,form,pivot</field>
+    <field name="help" type="html">
+      <p>Брак, виявлений у цеху: виріб, кількість, причина, винна особа, собівартість або витрати на
+        виправлення. Проведення розносить рахунок 24 на відходи, відшкодування і втрати.</p>
+    </field>
+  </record>
+
+  <record id="view_mrp_production_form_ua_defect" model="ir.ui.view">
+    <field name="name">mrp.production.form.ua.defect</field>
+    <field name="model">mrp.production</field>
+    <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//div[@name='button_box']" position="inside">
+        <button name="action_ua_open_defects" type="object" class="oe_stat_button" icon="fa-exclamation-triangle"
+                invisible="ua_defect_count == 0">
+          <field name="ua_defect_count" widget="statinfo" string="Брак"/>
+        </button>
+      </xpath>
+      <xpath expr="//header" position="inside">
+        <button name="action_ua_defect_act" type="object" string="Акт про брак"
+                invisible="state not in ('confirmed', 'progress', 'to_close', 'done')"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>

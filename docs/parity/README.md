@@ -77,6 +77,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Tolling (давальницька сировина) | yes | `l10n_ua_tolling`: customer material in its own owner-tagged location (not valued, off-balance 023), production from it, return of products and leftovers, processing invoice, processor's report with norm vs actual |
 | Workwear and low-value items in use (спецодяг, МШП, передача в експлуатацію), personal card | yes | `l10n_ua_workwear`: free-issue norms per job (item, quantity, wear period; a setting), issue sheets that fill what employees lack and post the cost to the sheet's expense account, quantity tracking per employee with wear-until dates, return to stock at issue cost, write-off act, personal card print |
 | Limit cards (лімітно-забірна картка, М-8): material issue to a workshop within a monthly limit, over-limit issue | типова форма № М-8 (check the current edition); limits from material norms | done: `l10n_ua_limit_card`: one material, one workshop location, one month; limit by hand or from the material demand of planned manufacturing orders; each issue and return is a posted transfer with a running total; over the limit only a stock manager with a reason; closed card takes nothing; М-8 print |
+| Defects in production (брак, рахунок 24): defect act, correctable and final, culprit, supplier claim | done | `l10n_ua_defect`: act from the manufacturing order with the materials cost per unit, serials, cause and culprit; final defects take their cost from work in progress, correctable ones list the correction costs; account 24 is cleared to salvage (209), recovery from the culprit (375), a claim to the supplier (374) and the rest to production cost (23) or other expenses (949); reversal on return to draft; analysis by cause and product, print |
 | Engineering changes, BOM versions | done | `l10n_ua_eco`: change notices with was/now lines, approvals (technologist, quality, military representative), BOM revision N+1 on the effective date |
 | Component substitutes (аналоги, заміни) | done | `l10n_ua_mrp_substitute`: substitutes per BOM line with a factor and priority, usable only after the production manager approves them with a basis (change notice, customer representative's decision); any change drops the approval. "Замінити відсутні" on the MO covers shortages from free stock of approved substitutes and marks each line "instead of"; the consumption check counts the approved swap as consumption of the original |
 | Production planning (MPS/MRP) | done | OCA `mrp_multi_level` over all BOM levels; open defense delivery schedules are demand (`l10n_ua_mrp_plan`) |
@@ -168,7 +169,7 @@ periodic and type tests gating acceptance (`l10n_ua_product_tests`); labour safe
 (`l10n_ua_safety`); property, land and environmental taxes (`l10n_ua_local_tax`); price types and dated price setting
 (`l10n_ua_price_set`); the doubtful debts reserve (`l10n_ua_bad_debt`); the cash flow statement Ф3
 (`l10n_ua_cashflow`); the cash flow budget with payment request control (`l10n_ua_budget`); the vacation schedule
-(`l10n_ua_vacation_plan`).
+(`l10n_ua_vacation_plan`); production defect acts (`l10n_ua_defect`).
 
 Next, in this order:
 

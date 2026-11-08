@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_defect_act_mrp_user,ua.defect.act mrp user,model_ua_defect_act,mrp.group_mrp_user,1,1,1,0
+access_ua_defect_act_mrp_manager,ua.defect.act mrp manager,model_ua_defect_act,mrp.group_mrp_manager,1,1,1,1
+access_ua_defect_act_account,ua.defect.act account,model_ua_defect_act,account.group_account_user,1,1,1,0
+access_ua_defect_fix_line_mrp_user,ua.defect.fix.line mrp user,model_ua_defect_fix_line,mrp.group_mrp_user,1,1,1,1
+access_ua_defect_fix_line_account,ua.defect.fix.line account,model_ua_defect_fix_line,account.group_account_user,1,1,1,1

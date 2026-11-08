@@ -280,6 +280,12 @@ Notable changes for people who run or build on this code. Module-level API chang
   plus the yearly right) and employees left out. Approval needs the body it was agreed with. A daily job
   gives HR a task two weeks before each start, with a printed notice; moves keep the old dates and the basis;
   leave requests are created from the schedule. Print, calendar. Numbers are settings. Tests: `ua_vacation_plan`.
+- `l10n_ua_defect`: production defect act (account 24). Opened from a manufacturing order with the materials cost
+  per unit; product, serials, quantity, final or correctable, cause, culprit, supplier. Final defects move
+  their cost from work in progress (Dr 24 Cr 23), correctable ones list correction costs by account. Posting
+  clears 24 to salvage (209), recovery from the culprit (375, with the employee as partner), a claim to the
+  supplier (374) and losses to production cost (23) or other expenses (949); return to draft reverses.
+  Analysis by cause and product, print. Tests: `ua_defect`.
 
 ### Changed
 - Packs: defense packs bring their typical jobs with labour safety terms (hazardous work, repeat briefing and

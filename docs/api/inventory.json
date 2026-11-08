@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 81,
-    "models": 173,
-    "methods": 665,
-    "fields": 395
+    "modules": 82,
+    "models": 174,
+    "methods": 675,
+    "fields": 396
   },
   "areas": [
     {
@@ -6727,6 +6727,72 @@
           "fields": []
         },
         {
+          "model": "ua.defect.act",
+          "ours": true,
+          "modules": [
+            "l10n_ua_defect"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_defect",
+              "file": "addons/l10n_ua_defect/models/defect.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_defect",
+              "file": "addons/l10n_ua_defect/models/defect.py",
+              "decorators": []
+            },
+            {
+              "name": "action_post",
+              "signature": "action_post()",
+              "doc": "",
+              "module": "l10n_ua_defect",
+              "file": "addons/l10n_ua_defect/models/defect.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_defect",
+              "file": "addons/l10n_ua_defect/models/defect.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_cause_label",
+              "signature": "ua_cause_label()",
+              "doc": "",
+              "module": "l10n_ua_defect",
+              "file": "addons/l10n_ua_defect/models/defect.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_kind_label",
+              "signature": "ua_kind_label()",
+              "doc": "",
+              "module": "l10n_ua_defect",
+              "file": "addons/l10n_ua_defect/models/defect.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_loss_label",
+              "signature": "ua_loss_label()",
+              "doc": "",
+              "module": "l10n_ua_defect",
+              "file": "addons/l10n_ua_defect/models/defect.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.defense.acceptance",
           "ours": true,
           "modules": [
@@ -9739,6 +9805,7 @@
           "model": "mrp.production",
           "ours": false,
           "modules": [
+            "l10n_ua_defect",
             "l10n_ua_defense",
             "l10n_ua_eco",
             "l10n_ua_mrp",
@@ -9747,11 +9814,35 @@
           ],
           "methods": [
             {
+              "name": "action_ua_defect_act",
+              "signature": "action_ua_defect_act()",
+              "doc": "",
+              "module": "l10n_ua_defect",
+              "file": "addons/l10n_ua_defect/models/defect.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_open_defects",
+              "signature": "action_ua_open_defects()",
+              "doc": "",
+              "module": "l10n_ua_defect",
+              "file": "addons/l10n_ua_defect/models/defect.py",
+              "decorators": []
+            },
+            {
               "name": "action_ua_substitute",
               "signature": "action_ua_substitute()",
               "doc": "Покрити нестачу компонентів вільним залишком погоджених аналогів.",
               "module": "l10n_ua_mrp_substitute",
               "file": "addons/l10n_ua_mrp_substitute/models/mrp_substitute.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_defect_unit_cost",
+              "signature": "ua_defect_unit_cost()",
+              "doc": "Матеріали замовлення на одиницю виробу за обліковою ціною компонентів.",
+              "module": "l10n_ua_defect",
+              "file": "addons/l10n_ua_defect/models/defect.py",
               "decorators": []
             },
             {
@@ -9788,6 +9879,14 @@
               "label": "ua.contract",
               "module": "l10n_ua_defense",
               "file": "addons/l10n_ua_defense/models/mrp_production.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_defect_act_ids",
+              "type": "One2many",
+              "label": "ua.defect.act",
+              "module": "l10n_ua_defect",
+              "file": "addons/l10n_ua_defect/models/defect.py",
               "groups": ""
             },
             {

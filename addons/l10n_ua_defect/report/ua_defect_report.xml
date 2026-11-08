@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_defect" model="ir.actions.report">
+    <field name="name">Акт про брак</field>
+    <field name="model">ua.defect.act</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_defect.report_ua_defect</field>
+    <field name="report_file">l10n_ua_defect.report_ua_defect</field>
+    <field name="binding_model_id" ref="model_ua_defect_act"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Акт про брак %s' % object.name</field>
+  </record>
+
+  <template id="report_ua_defect">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <style>
+            .ua-doc { font-size: 10px; color: #000; }
+            .ua-doc h3 { font-size: 12px; text-align: center; margin: 4px 0; }
+            .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+            .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+            .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; vertical-align: top; }
+            .ua-doc .ua-grid th { font-weight: normal; text-align: left; width: 35%; }
+            .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+            .ua-doc .ua-sign { width: 100%; margin-top: 18px; }
+          </style>
+          <div class="ua-doc">
+            <div t-out="doc.company_id.name"/>
+            <h3>АКТ ПРО БРАК № <t t-out="doc.name"/></h3>
+            <div class="ua-sub">від <t t-out="doc.date.strftime('%d.%m.%Y')"/></div>
+            <table class="ua-grid">
+              <tr><th>Виріб</th><td t-out="doc.product_id.display_name"/></tr>
+              <tr t-if="doc.production_id"><th>Виробниче замовлення</th><td t-out="doc.production_id.name"/></tr>
+              <tr t-if="doc.workcenter_id"><th>Де виявлено</th><td t-out="doc.workcenter_id.name"/></tr>
+              <tr t-if="doc.lot_ids"><th>Серійні номери</th><td t-out="', '.join(doc.lot_ids.mapped('name'))"/></tr>
+              <tr><th>Кількість</th><td t-out="'%g' % doc.qty"/></tr>
+              <tr><th>Вид браку</th><td t-out="doc.ua_kind_label()"/></tr>
+              <tr><th>Причина</th><td t-out="doc.ua_cause_label()"/></tr>
+              <tr><th>Опис дефекту</th><td t-out="doc.description"/></tr>
+              <tr t-if="doc.culprit_id"><th>Винна особа</th><td t-out="doc.culprit_id.name"/></tr>
+              <tr t-if="doc.supplier_id"><th>Постачальник</th><td t-out="doc.supplier_id.name"/></tr>
+            </table>
+            <table class="ua-grid">
+              <tr t-if="doc.kind == 'final'"><th>Собівартість браку</th><td class="ua-num" t-out="'%.2f' % doc.cost_amount"/></tr>
+              <tr t-foreach="doc.fix_line_ids" t-as="fix"><th>Виправлення: <t t-out="fix.name"/></th>
+                <td class="ua-num" t-out="'%.2f' % fix.amount"/></tr>
+              <tr><th>Разом втрат від браку до відшкодувань</th><td class="ua-num" t-out="'%.2f' % doc.total_amount"/></tr>
+              <tr><th>Відходи за ціною можливого використання</th><td class="ua-num" t-out="'%.2f' % doc.salvage_amount"/></tr>
+              <tr><th>Утримати з винної особи</th><td class="ua-num" t-out="'%.2f' % doc.culprit_amount"/></tr>
+              <tr><th>Претензія постачальнику</th><td class="ua-num" t-out="'%.2f' % doc.supplier_amount"/></tr>
+              <tr><th>Втрати від браку (<t t-out="doc.ua_loss_label()"/>)</th><td class="ua-num" t-out="'%.2f' % doc.loss_amount"/></tr>
+            </table>
+            <table class="ua-sign">
+              <tr><td>Начальник цеху ____________________</td><td>Контролер якості ____________________</td></tr>
+              <tr><td>Винна особа ____________________</td><td>Бухгалтер ____________________</td></tr>
+            </table>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 81. Моделей: 173. Методів: 665. Збережених полів на чужих моделях: 395.
+Модулів: 82. Моделей: 174. Методів: 675. Збережених полів на чужих моделях: 396.
 
 ## Зарплата
 
@@ -1466,6 +1466,20 @@
 | `open_amounts()` | Скільки зараз відкрито з кожного боку: (борг контрагента, борг компанії). | `l10n_ua_offset` |
 | `side_lines(side)` | - | `l10n_ua_offset` |
 
+### `ua.defect.act`
+
+наша модель · `l10n_ua_defect`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | - | `l10n_ua_defect` |
+| `action_draft()` | - | `l10n_ua_defect` |
+| `action_post()` | - | `l10n_ua_defect` |
+| `action_print()` | - | `l10n_ua_defect` |
+| `ua_cause_label()` | - | `l10n_ua_defect` |
+| `ua_kind_label()` | - | `l10n_ua_defect` |
+| `ua_loss_label()` | - | `l10n_ua_defect` |
+
 ### `ua.defense.acceptance`
 
 наша модель · `l10n_ua_defense`, `l10n_ua_product_tests`
@@ -2161,11 +2175,14 @@
 
 ### `mrp.production`
 
-доповнена модель · `l10n_ua_defense`, `l10n_ua_eco`, `l10n_ua_mrp`, `l10n_ua_mrp_substitute`, `l10n_ua_tolling`
+доповнена модель · `l10n_ua_defect`, `l10n_ua_defense`, `l10n_ua_eco`, `l10n_ua_mrp`, `l10n_ua_mrp_substitute`, `l10n_ua_tolling`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
+| `action_ua_defect_act()` | - | `l10n_ua_defect` |
+| `action_ua_open_defects()` | - | `l10n_ua_defect` |
 | `action_ua_substitute()` | Покрити нестачу компонентів вільним залишком погоджених аналогів. | `l10n_ua_mrp_substitute` |
+| `ua_defect_unit_cost()` | Матеріали замовлення на одиницю виробу за обліковою ціною компонентів. | `l10n_ua_defect` |
 | `ua_get_or_create(client_ref, vals=None)` | Замовлення за міткою клієнта: є - віддаємо, немає - створюємо. | `l10n_ua_mrp` |
 
 | Поле | Тип | Підпис | Модуль |
@@ -2173,6 +2190,7 @@
 | `ua_bom_revision` | Integer | Зміна специфікації | `l10n_ua_eco` |
 | `ua_client_ref` | Char | Мітка операції | `l10n_ua_mrp` |
 | `ua_contract_id` | Many2one | ua.contract | `l10n_ua_defense` |
+| `ua_defect_act_ids` | One2many | ua.defect.act | `l10n_ua_defect` |
 | `ua_tolling_id` | Many2one | ua.tolling.order | `l10n_ua_tolling` |
 
 ### `mrp.routing.workcenter`
