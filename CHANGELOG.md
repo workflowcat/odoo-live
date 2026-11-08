@@ -330,8 +330,18 @@ Notable changes for people who run or build on this code. Module-level API chang
   positive, Ф2 profit and loss in separate rows. Totals are checked against the template formulas after
   rounding, a line can be corrected by hand, and the XML J0900108, J0900207 or J0901107 is built and
   validated with the DPS schemas shipped in the module. Tests: `ua_finrep_dps`.
+- `l10n_ua_profit_tax`: the profit tax return to DPS in XML - the declaration J0100129 and, when there are
+  differences, annex РІ J0111829, linked to each other and validated by the bundled schemas (periods ending
+  from 2025-10-01). New on the document: tax period (year or quarter, row 18 for quarterly payers),
+  reporting or new reporting, "no adjustments" for payers under the income limit (HJ2), and the payer and
+  signer details. Tests: `ua_profit`.
 
 ### Changed
+- `l10n_ua_profit_tax`: rows follow the current form. Row 01 adds Ф2 2200 and 2220; amortisation goes to
+  annex РІ as book (2.1.1) and tax (2.2.1) instead of one difference; the prior-year loss is РІ 3.2.4 and its
+  unpaid remainder carries to the next year; a large taxpayer takes only 50 % of it unless it is within 10 %
+  of the positive object (dated settings, check the current edition). Row 04 keeps its sign. Sums are whole
+  hryvnias. "Advance paid" and "to pay" are no longer rows 16 and 19: the new row 19 is 17 minus 18.
 - `l10n_ua_finrep`: Ф1-м and Ф2-м follow the rows of the current small-company form (the same tags as DPS
   schema J0901107): Ф1-м gains 1001, 1002, 1005, 1103, 1135, 1160, 1200 and 1665; Ф2-м splits income into
   2120 and 2240 and expenses into 2180 and 2270 instead of 2160 and 2165. Ф1 puts account 34 into 1125, 62

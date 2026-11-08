@@ -27,5 +27,23 @@
       <field name="value">40000000</field>
       <field name="source">пп. 134.1.1 ПКУ</field>
     </record>
+
+    <!-- Від'ємне значення минулих років у великого платника (пп. 140.4.4 ПКУ): зменшує
+         результат лише на частку непогашеного залишку, а якщо залишок не більший за частку
+         додатного об'єкта - на весь. Дату і частки звірте з чинною редакцією ПКУ. -->
+    <record id="p_loss_share_2021" model="ua.profit.param">
+      <field name="key">profit_loss_share_large</field>
+      <field name="name">Великий платник: частка від'ємного значення минулих років, %</field>
+      <field name="valid_from">2021-01-01</field>
+      <field name="value">50</field>
+      <field name="source">пп. 140.4.4 ПКУ (Закон № 466-IX); перевірте чинну редакцію</field>
+    </record>
+    <record id="p_loss_full_2021" model="ua.profit.param">
+      <field name="key">profit_loss_full_if_large</field>
+      <field name="name">Великий платник: увесь залишок, якщо він не більший за цю частку об'єкта, %</field>
+      <field name="valid_from">2021-01-01</field>
+      <field name="value">10</field>
+      <field name="source">пп. 140.4.4 ПКУ, абзац п'ятий; перевірте чинну редакцію</field>
+    </record>
   </data>
 </odoo>

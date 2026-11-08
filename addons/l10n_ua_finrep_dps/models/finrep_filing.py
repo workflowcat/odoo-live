@@ -16,19 +16,14 @@ XML будується за схемою ДПС із теки schemas (поря�
 перевіряється. Коди форм, версії схем і правила - перевіряйте чинні.
 """
 import base64
-import os
 import re
 from datetime import date
-
-from lxml import etree
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import float_round
 
-SCHEMAS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "schemas")
-XS = "{http://www.w3.org/2001/XMLSchema}"
-XSI_NIL = "{http://www.w3.org/2001/XMLSchema-instance}nil"
+from . import dps_xml
 
 STATES = [("draft", "Чернетка"), ("done", "Затверджено")]
 FORMS = [
@@ -62,19 +57,6 @@ SPLIT_FORMS = {"J0900207"}
 ROW_RE = re.compile(r"^[a-z](\d{4})$")
 FORMULA_RE = re.compile(r"^\s*[+-]?\s*[a-z]\d{4}(\s*[+-]\s*[a-z]\d{4})*\s*$")
 TERM_RE = re.compile(r"([+-]?)\s*[a-z](\d{4})")
-
-_SCHEMAS = {}
-
-
-def _schema(form):
-    """(XMLSchema, [(тег, тип)] тіла) форми; схема читається один раз."""
-    if form not in _SCHEMAS:
-        tree = etree.parse(os.path.join(SCHEMAS_DIR, "%s.xsd" % form))
-        body = tree.find(".//%scomplexType[@name='DBody']/%ssequence" % (XS, XS))
-        elements = [(el.get("name"), el.get("type")) for el in body.iter(XS + "element")]
-        _SCHEMAS[form] = (etree.XMLSchema(tree), elements)
-    return _SCHEMAS[form]
-
 
 def _digits(value):
     return re.sub(r"\D", "", value or "")
@@ -322,14 +304,6 @@ class UaFinrepFiling(models.Model):
             values["HTEL"] = ""
         return values
 
-    @staticmethod
-    def _ua_number(value, type_name):
-        if type_name == "DGdecimal0":
-            return "%d" % float_round(value, 0)
-        if type_name == "DGdecimal1":
-            return "%.1f" % float_round(value, 1)
-        return "%.2f" % float_round(value, 2)
-
     def _ua_xml(self):
         """(ім'я файлу, байти) XML форми, перевірений схемою."""
         self.ensure_one()
@@ -337,51 +311,25 @@ class UaFinrepFiling(models.Model):
         if problems:
             raise UserError(_("Для XML заповніть: %s.") % "; ".join(problems))
         form = self.form
-        schema, elements = _schema(form)
-        sti = _digits(self.sti_code)
-        tin = _digits(self.tin)
-        month = int(self.period)
-        root = etree.Element("DECLAR", nsmap={"xsi": "http://www.w3.org/2001/XMLSchema-instance"})
-        root.set("{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation", "%s.xsd" % form)
-        head = etree.SubElement(root, "DECLARHEAD")
-        for tag, value in [
-            ("TIN", tin), ("C_DOC", form[:3]), ("C_DOC_SUB", form[3:6]), ("C_DOC_VER", str(int(form[6:8]))),
-            ("C_DOC_TYPE", "0"), ("C_DOC_CNT", "1"), ("C_REG", str(int(sti[:2]))), ("C_RAJ", str(int(sti[2:]))),
-            ("PERIOD_MONTH", str(month)), ("PERIOD_TYPE", str(PERIOD_TYPE[month])), ("PERIOD_YEAR", str(self.year)),
-            ("C_STI_ORIG", sti), ("C_DOC_STAN", "1"),
-        ]:
-            etree.SubElement(head, tag).text = value
-        etree.SubElement(head, "LINKED_DOCS").set(XSI_NIL, "true")
-        etree.SubElement(head, "D_FILL").text = fields.Date.context_today(self).strftime("%d%m%Y")
-        etree.SubElement(head, "SOFTWARE").text = "odoo-live"
-
-        header = self._ua_header_values()
-        rows = {}
-        for line in self.line_ids:
-            # У малій формі коди Ф1-м і Ф2-м не перетинаються, тож одна таблиця на файл.
-            rows["R%sG3" % line.code] = line.g3
-            rows["R%sG4" % line.code] = line.g4
+        path = dps_xml.schema_path(__file__, form)
+        _schema, elements = dps_xml.schema(path)
         known = {name for name, _type in elements}
-        body = etree.SubElement(root, "DECLARBODY")
-        for name, type_name in elements:
-            if name in header:
-                if header[name]:
-                    etree.SubElement(body, name).text = header[name]
-            elif name in rows and float_round(rows[name], 2):
-                etree.SubElement(body, name).text = self._ua_number(rows[name], type_name)
         missing = sorted({line.code for line in self.line_ids if "R%sG3" % line.code not in known
                           and (line.g3 or line.g4)})
         if missing:
             raise UserError(_("Рядків %s немає у схемі %s: перевірте шаблон форми.") % (", ".join(missing), form))
-        data = etree.tostring(root, xml_declaration=True, encoding="windows-1251", pretty_print=True)
-        document = etree.fromstring(data, etree.XMLParser(resolve_entities=False, no_network=True))
-        if not schema.validate(document):
-            errors = "\n".join("- %s" % error.message for error in list(schema.error_log)[:5])
-            raise UserError(_("XML %(form)s не відповідає схемі ДПС:\n%(errors)s") % {"form": form, "errors": errors})
-        name = "%s%s%s%s%s%s%s%s%s%s%s%s.XML" % (
-            sti, tin.rjust(10, "0"), form[:3], form[3:6], form[6:8], "1", "00", "1".rjust(7, "0"),
-            PERIOD_TYPE[month], str(month).rjust(2, "0"), self.year, sti)
-        return name, data
+        values = self._ua_header_values()
+        for line in self.line_ids:
+            # У малій формі коди Ф1-м і Ф2-м не перетинаються, тож одна таблиця на файл.
+            values["R%sG3" % line.code] = line.g3
+            values["R%sG4" % line.code] = line.g4
+        month = int(self.period)
+        try:
+            return dps_xml.build(path, form, _digits(self.sti_code), _digits(self.tin), PERIOD_TYPE[month], month,
+                                 self.year, fields.Date.context_today(self), values)
+        except ValueError as error:
+            raise UserError(_("XML %(form)s не відповідає схемі ДПС:\n%(errors)s")
+                            % {"form": form, "errors": error}) from error
 
     def action_xml(self):
         self.ensure_one()

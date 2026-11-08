@@ -2,7 +2,7 @@
   "totals": {
     "modules": 89,
     "models": 185,
-    "methods": 720,
+    "methods": 721,
     "fields": 400
   },
   "areas": [
@@ -4201,6 +4201,14 @@
               "name": "action_draft",
               "signature": "action_draft()",
               "doc": "",
+              "module": "l10n_ua_profit_tax",
+              "file": "addons/l10n_ua_profit_tax/models/ua_profit_declaration.py",
+              "decorators": []
+            },
+            {
+              "name": "action_xml",
+              "signature": "action_xml()",
+              "doc": "Зберегти XML декларації і додатка РІ в документі.",
               "module": "l10n_ua_profit_tax",
               "file": "addons/l10n_ua_profit_tax/models/ua_profit_declaration.py",
               "decorators": []

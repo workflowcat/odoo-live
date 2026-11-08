@@ -11,8 +11,10 @@
         <field name="diff_total"/>
         <field name="tax_base"/>
         <field name="tax_amount"/>
-        <field name="advance_paid"/>
-        <field name="tax_to_pay"/>
+        <field name="tax_due"/>
+        <field name="advance_paid" optional="hide"/>
+        <field name="tax_to_pay" optional="hide"/>
+        <field name="xml_name" optional="hide"/>
         <field name="state"/>
         <field name="currency_id" column_invisible="1"/>
         <field name="company_id" column_invisible="1"/>
@@ -30,6 +32,8 @@
                   class="oe_highlight" invisible="state != 'draft'"/>
           <button name="action_confirm" type="object" string="Затвердити"
                   invisible="state != 'draft'"/>
+          <button name="action_xml" type="object" string="XML для ДПС"
+                  invisible="not line_ids"/>
           <button name="action_draft" type="object" string="Повернути в чернетку"
                   invisible="state != 'confirmed'"/>
           <field name="state" widget="statusbar"/>
@@ -41,6 +45,11 @@
               <field name="company_id" groups="base.group_multi_company"
                      readonly="state != 'draft'"/>
               <field name="year" readonly="state != 'draft'"/>
+              <field name="base_period" readonly="state != 'draft'"/>
+              <field name="doc_kind" readonly="state != 'draft'"/>
+              <field name="new_number" invisible="doc_kind != 'HZN'" readonly="state != 'draft'"/>
+              <field name="no_adjustments" readonly="state != 'draft'"/>
+              <field name="large_payer" readonly="state != 'draft'"/>
               <field name="currency_id" invisible="1"/>
             </group>
             <group string="Ставка і поріг">
@@ -54,16 +63,21 @@
               <field name="income_total"/>
               <field name="finres"/>
             </group>
-            <group string="Різниці">
+            <group string="Різниці (додаток РІ)">
+              <field name="amort_book"/>
+              <field name="amort_tax"/>
               <field name="diff_amortisation"/>
               <field name="diff_loss"/>
               <field name="diff_total"/>
+              <field name="loss_left"/>
             </group>
           </group>
           <group>
             <group string="Податок">
               <field name="tax_base"/>
               <field name="tax_amount"/>
+              <field name="prior_tax" invisible="base_period != 'quarter'" readonly="state != 'draft'"/>
+              <field name="tax_due"/>
             </group>
             <group string="Сплата">
               <field name="advance_paid" readonly="state != 'draft'"/>
@@ -80,6 +94,29 @@
                   <field name="currency_id" column_invisible="1"/>
                 </list>
               </field>
+            </page>
+            <page string="Реквізити для XML">
+              <group>
+                <group>
+                  <field name="tin"/>
+                  <field name="sti_code"/>
+                  <field name="sti_name"/>
+                  <field name="kved"/>
+                  <field name="address"/>
+                  <field name="phone"/>
+                  <field name="email"/>
+                </group>
+                <group>
+                  <field name="director"/>
+                  <field name="director_rnokpp"/>
+                  <field name="accountant"/>
+                  <field name="accountant_rnokpp"/>
+                  <field name="xml_file" filename="xml_name"/>
+                  <field name="xml_name" invisible="1"/>
+                  <field name="ri_xml_file" filename="ri_xml_name" invisible="not ri_xml_file"/>
+                  <field name="ri_xml_name" invisible="1"/>
+                </group>
+              </group>
             </page>
             <page string="Примітки розрахунку">
               <field name="note"/>
