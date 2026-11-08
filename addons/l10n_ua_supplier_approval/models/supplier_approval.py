@@ -11,6 +11,8 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
 TODO = "mail.mail_activity_data_todo"
+STATES = [("draft", "Чернетка"), ("approved", "Погоджено"), ("suspended", "Призупинено"),
+          ("withdrawn", "Відкликано"), ("expired", "Строк минув")]
 
 
 class ProductTemplate(models.Model):
@@ -42,8 +44,7 @@ class UaSupplierApproval(models.Model):
     date_until = fields.Date("Діє до", tracking=True, help="Порожньо - безстроково.")
     approved_by = fields.Char("Ким погоджено", help="Служба якості, представник замовника, комісія.")
     basis = fields.Char("Підстава", help="Акт аудиту, протокол випробувань, рішення.")
-    state = fields.Selection([("draft", "Чернетка"), ("approved", "Погоджено"), ("suspended", "Призупинено"),
-                              ("withdrawn", "Відкликано"), ("expired", "Строк минув")], "Стан", required=True,
+    state = fields.Selection(STATES, "Стан", required=True,
                              default="draft", tracking=True, index=True)
     reason = fields.Char("Причина призупинення чи відкликання", tracking=True)
     user_id = fields.Many2one("res.users", "Відповідальний", default=lambda self: self.env.user)
@@ -132,7 +133,7 @@ class UaSupplierApproval(models.Model):
 
     def ua_state_label(self):
         self.ensure_one()
-        return dict(self._fields["state"]._description_selection(self.env)).get(self.state, "")
+        return dict(STATES).get(self.state, "")
 
     def ua_date(self, day):
         return day.strftime("%d.%m.%Y") if day else ""
