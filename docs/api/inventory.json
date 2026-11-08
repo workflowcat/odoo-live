@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 71,
-    "models": 152,
-    "methods": 553,
-    "fields": 364
+    "modules": 72,
+    "models": 153,
+    "methods": 564,
+    "fields": 365
   },
   "areas": [
     {
@@ -4649,6 +4649,7 @@
             "l10n_ua_docs_stock",
             "l10n_ua_export_control",
             "l10n_ua_stock_docs",
+            "l10n_ua_supplier_approval",
             "l10n_ua_tolling",
             "l10n_ua_unit_transfer"
           ],
@@ -7304,6 +7305,108 @@
           "fields": []
         },
         {
+          "model": "ua.supplier.approval",
+          "ours": true,
+          "modules": [
+            "l10n_ua_supplier_approval"
+          ],
+          "methods": [
+            {
+              "name": "action_approve",
+              "signature": "action_approve()",
+              "doc": "",
+              "module": "l10n_ua_supplier_approval",
+              "file": "addons/l10n_ua_supplier_approval/models/supplier_approval.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_supplier_approval",
+              "file": "addons/l10n_ua_supplier_approval/models/supplier_approval.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_supplier_approval",
+              "file": "addons/l10n_ua_supplier_approval/models/supplier_approval.py",
+              "decorators": []
+            },
+            {
+              "name": "action_suspend",
+              "signature": "action_suspend(reason=None)",
+              "doc": "",
+              "module": "l10n_ua_supplier_approval",
+              "file": "addons/l10n_ua_supplier_approval/models/supplier_approval.py",
+              "decorators": []
+            },
+            {
+              "name": "action_withdraw",
+              "signature": "action_withdraw(reason=None)",
+              "doc": "",
+              "module": "l10n_ua_supplier_approval",
+              "file": "addons/l10n_ua_supplier_approval/models/supplier_approval.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_check",
+              "signature": "ua_check(partner, products, company, day, what)",
+              "doc": "UserError, якщо хоч один критичний товар не має чинного погодження в постачальника.",
+              "module": "l10n_ua_supplier_approval",
+              "file": "addons/l10n_ua_supplier_approval/models/supplier_approval.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "ua_covers",
+              "signature": "ua_covers(product, day)",
+              "doc": "Чи діє погодження на товар у цей день.",
+              "module": "l10n_ua_supplier_approval",
+              "file": "addons/l10n_ua_supplier_approval/models/supplier_approval.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_date",
+              "signature": "ua_date(day)",
+              "doc": "",
+              "module": "l10n_ua_supplier_approval",
+              "file": "addons/l10n_ua_supplier_approval/models/supplier_approval.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_find",
+              "signature": "ua_find(partner, product, company, day)",
+              "doc": "Чинне погодження постачальника на товар або порожньо.",
+              "module": "l10n_ua_supplier_approval",
+              "file": "addons/l10n_ua_supplier_approval/models/supplier_approval.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "ua_scope_text",
+              "signature": "ua_scope_text()",
+              "doc": "",
+              "module": "l10n_ua_supplier_approval",
+              "file": "addons/l10n_ua_supplier_approval/models/supplier_approval.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_state_label",
+              "signature": "ua_state_label()",
+              "doc": "",
+              "module": "l10n_ua_supplier_approval",
+              "file": "addons/l10n_ua_supplier_approval/models/supplier_approval.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.tolling.order",
           "ours": true,
           "modules": [
@@ -8749,6 +8852,7 @@
             "l10n_ua_precious_metals",
             "l10n_ua_price_label",
             "l10n_ua_stock_docs",
+            "l10n_ua_supplier_approval",
             "l10n_ua_vat"
           ],
           "methods": [
@@ -8762,6 +8866,14 @@
             }
           ],
           "fields": [
+            {
+              "name": "ua_approved_only",
+              "type": "Boolean",
+              "label": "Лише від погоджених постачальників",
+              "module": "l10n_ua_supplier_approval",
+              "file": "addons/l10n_ua_supplier_approval/models/supplier_approval.py",
+              "groups": ""
+            },
             {
               "name": "ua_control_kind",
               "type": "Selection",
@@ -8897,7 +9009,8 @@
           "ours": false,
           "modules": [
             "l10n_ua_contract",
-            "l10n_ua_purchase"
+            "l10n_ua_purchase",
+            "l10n_ua_supplier_approval"
           ],
           "methods": [],
           "fields": [
@@ -8948,7 +9061,8 @@
           "ours": false,
           "modules": [
             "l10n_ua_dk021",
-            "l10n_ua_purchase"
+            "l10n_ua_purchase",
+            "l10n_ua_supplier_approval"
           ],
           "methods": [],
           "fields": [

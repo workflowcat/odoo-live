@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="product_template_form_view_ua_approved_only" model="ir.ui.view">
+    <field name="name">product.template.form.ua.approved.only</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_form_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='categ_id']" position="after">
+        <field name="ua_approved_only"/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="purchase_order_form_ua_approval" model="ir.ui.view">
+    <field name="name">purchase.order.form.ua.approval</field>
+    <field name="model">purchase.order</field>
+    <field name="inherit_id" ref="purchase.purchase_order_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='order_line']/list/field[@name='product_id']" position="after">
+        <field name="ua_supplier_unapproved" column_invisible="1"/>
+      </xpath>
+      <xpath expr="//field[@name='order_line']/list" position="attributes">
+        <attribute name="decoration-danger">ua_supplier_unapproved</attribute>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_ua_supplier_approval_list" model="ir.ui.view">
+    <field name="name">ua.supplier.approval.list</field>
+    <field name="model">ua.supplier.approval</field>
+    <field name="arch" type="xml">
+      <list decoration-muted="state in ('withdrawn', 'expired')" decoration-warning="state == 'suspended'"
+            decoration-info="state == 'draft'">
+        <field name="name"/>
+        <field name="partner_id"/>
+        <field name="scope"/>
+        <field name="manufacturer" optional="hide"/>
+        <field name="date_approved"/>
+        <field name="date_until"/>
+        <field name="approved_by" optional="show"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+        <field name="state" widget="badge" decoration-success="state == 'approved'"
+               decoration-warning="state == 'suspended'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_supplier_approval_form" model="ir.ui.view">
+    <field name="name">ua.supplier.approval.form</field>
+    <field name="model">ua.supplier.approval</field>
+    <field name="arch" type="xml">
+      <form>
+        <header>
+          <button name="action_approve" string="Погодити" type="object" class="oe_highlight"
+                  invisible="state not in ('draft', 'suspended')"/>
+          <button name="action_suspend" string="Призупинити" type="object" invisible="state != 'approved'"/>
+          <button name="action_withdraw" string="Відкликати" type="object"
+                  invisible="state in ('withdrawn', 'draft')"/>
+          <button name="action_draft" string="В чернетку" type="object" invisible="state == 'draft'"
+                  groups="purchase.group_purchase_manager"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,approved"/>
+        </header>
+        <sheet>
+          <div class="oe_title">
+            <label for="name"/>
+            <h1><field name="name" placeholder="Номер рішення"/></h1>
+          </div>
+          <group>
+            <group>
+              <field name="partner_id"/>
+              <field name="manufacturer"/>
+              <field name="scope"/>
+              <field name="product_tmpl_ids" widget="many2many_tags" invisible="scope != 'products'"
+                     required="scope == 'products'"/>
+              <field name="categ_ids" widget="many2many_tags" invisible="scope != 'categories'"
+                     required="scope == 'categories'"/>
+            </group>
+            <group>
+              <field name="date_approved"/>
+              <field name="date_until"/>
+              <field name="approved_by"/>
+              <field name="basis"/>
+              <field name="reason" invisible="state not in ('suspended', 'withdrawn')"/>
+              <field name="notify_days"/>
+              <field name="user_id" widget="many2one_avatar_user"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+            </group>
+          </group>
+          <field name="note" placeholder="Умови погодження, обмеження, вимоги до партій"/>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_supplier_approval_search" model="ir.ui.view">
+    <field name="name">ua.supplier.approval.search</field>
+    <field name="model">ua.supplier.approval</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="name"/>
+        <field name="partner_id"/>
+        <field name="product_tmpl_ids" string="Товар"/>
+        <field name="manufacturer"/>
+        <filter name="approved" string="Погоджено" domain="[('state', '=', 'approved')]"/>
+        <filter name="suspended" string="Призупинено" domain="[('state', '=', 'suspended')]"/>
+        <filter name="ended" string="Відкликано або минуло" domain="[('state', 'in', ('withdrawn', 'expired'))]"/>
+        <separator/>
+        <filter name="date_until" string="Діє до" date="date_until"/>
+        <group>
+          <filter name="by_partner" string="Постачальник" context="{'group_by': 'partner_id'}"/>
+          <filter name="by_state" string="Стан" context="{'group_by': 'state'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_supplier_approval" model="ir.actions.act_window">
+    <field name="name">Погоджені постачальники</field>
+    <field name="res_model">ua.supplier.approval</field>
+    <field name="view_mode">list,form</field>
+    <field name="context">{'search_default_approved': 1}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Додайте погодження постачальника</p>
+      <p>Критичні комплектуючі замовляють і приймають лише від постачальників з чинним погодженням.</p>
+    </field>
+  </record>
+
+  <record id="action_ua_approved_only_products" model="ir.actions.act_window">
+    <field name="name">Критичні комплектуючі</field>
+    <field name="res_model">product.template</field>
+    <field name="view_mode">list,form</field>
+    <field name="domain">[('ua_approved_only', '=', True)]</field>
+    <field name="context">{'default_ua_approved_only': True}</field>
+  </record>
+</odoo>

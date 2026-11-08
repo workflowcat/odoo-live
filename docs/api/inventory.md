@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 71. Моделей: 152. Методів: 553. Збережених полів на чужих моделях: 364.
+Модулів: 72. Моделей: 153. Методів: 564. Збережених полів на чужих моделях: 365.
 
 ## Зарплата
 
@@ -1054,7 +1054,7 @@
 
 ### `stock.picking`
 
-доповнена модель · `l10n_ua_commission`, `l10n_ua_docs_stock`, `l10n_ua_export_control`, `l10n_ua_stock_docs`, `l10n_ua_tolling`, `l10n_ua_unit_transfer`
+доповнена модель · `l10n_ua_commission`, `l10n_ua_docs_stock`, `l10n_ua_export_control`, `l10n_ua_stock_docs`, `l10n_ua_supplier_approval`, `l10n_ua_tolling`, `l10n_ua_unit_transfer`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1623,6 +1623,24 @@
 | --- | --- | --- |
 | `open_target(target)` | Відкрити ціль будь-якого блоку будь-якого екрана. | `l10n_ua_screen` |
 
+### `ua.supplier.approval`
+
+наша модель · `l10n_ua_supplier_approval`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_approve()` | - | `l10n_ua_supplier_approval` |
+| `action_draft()` | - | `l10n_ua_supplier_approval` |
+| `action_print()` | - | `l10n_ua_supplier_approval` |
+| `action_suspend(reason=None)` | - | `l10n_ua_supplier_approval` |
+| `action_withdraw(reason=None)` | - | `l10n_ua_supplier_approval` |
+| `ua_check(partner, products, company, day, what)` | UserError, якщо хоч один критичний товар не має чинного погодження в постачальника. | `l10n_ua_supplier_approval` |
+| `ua_covers(product, day)` | Чи діє погодження на товар у цей день. | `l10n_ua_supplier_approval` |
+| `ua_date(day)` | - | `l10n_ua_supplier_approval` |
+| `ua_find(partner, product, company, day)` | Чинне погодження постачальника на товар або порожньо. | `l10n_ua_supplier_approval` |
+| `ua_scope_text()` | - | `l10n_ua_supplier_approval` |
+| `ua_state_label()` | - | `l10n_ua_supplier_approval` |
+
 ### `ua.tolling.order`
 
 наша модель · `l10n_ua_tolling`
@@ -1963,7 +1981,7 @@
 
 ### `product.template`
 
-доповнена модель · `l10n_ua_customs`, `l10n_ua_defense`, `l10n_ua_dk021`, `l10n_ua_export_control`, `l10n_ua_mrp`, `l10n_ua_precious_metals`, `l10n_ua_price_label`, `l10n_ua_stock_docs`, `l10n_ua_vat`
+доповнена модель · `l10n_ua_customs`, `l10n_ua_defense`, `l10n_ua_dk021`, `l10n_ua_export_control`, `l10n_ua_mrp`, `l10n_ua_precious_metals`, `l10n_ua_price_label`, `l10n_ua_stock_docs`, `l10n_ua_supplier_approval`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1971,6 +1989,7 @@
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
+| `ua_approved_only` | Boolean | Лише від погоджених постачальників | `l10n_ua_supplier_approval` |
 | `ua_control_kind` | Selection | - | `l10n_ua_export_control` |
 | `ua_control_ref` | Char | Позиція контрольного списку | `l10n_ua_export_control` |
 | `ua_cost_item` | Selection | - | `l10n_ua_defense` |
@@ -1990,7 +2009,7 @@
 
 ### `purchase.order`
 
-доповнена модель · `l10n_ua_contract`, `l10n_ua_purchase`
+доповнена модель · `l10n_ua_contract`, `l10n_ua_purchase`, `l10n_ua_supplier_approval`
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
@@ -2002,7 +2021,7 @@
 
 ### `purchase.order.line`
 
-доповнена модель · `l10n_ua_dk021`, `l10n_ua_purchase`
+доповнена модель · `l10n_ua_dk021`, `l10n_ua_purchase`, `l10n_ua_supplier_approval`
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |

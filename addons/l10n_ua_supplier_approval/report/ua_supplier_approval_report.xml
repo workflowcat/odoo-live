@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_supplier_approval" model="ir.actions.report">
+    <field name="name">Перелік погоджених постачальників</field>
+    <field name="model">ua.supplier.approval</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_supplier_approval.report_ua_supplier_approval</field>
+    <field name="report_file">l10n_ua_supplier_approval.report_ua_supplier_approval</field>
+    <field name="binding_model_id" ref="model_ua_supplier_approval"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Перелік погоджених постачальників'</field>
+  </record>
+
+  <!-- Один аркуш на всі обрані погодження. -->
+  <template id="report_ua_supplier_approval">
+    <t t-call="web.html_container">
+      <t t-call="web.basic_layout">
+        <style>
+          .ua-doc { font-size: 10.5px; color: #000; }
+          .ua-doc h3 { font-size: 13px; text-align: center; margin: 4px 0; }
+          .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin: 6px 0; }
+          .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 4px; vertical-align: top; }
+          .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+          .ua-doc .ua-sign { width: 100%; margin-top: 18px; }
+          .ua-doc .ua-sign td { width: 50%; vertical-align: top; padding: 12px 12px 0 0; }
+        </style>
+        <div class="ua-doc">
+          <div><t t-out="docs[:1].company_id.name"/></div>
+          <h3>ПЕРЕЛІК ПОГОДЖЕНИХ ПОСТАЧАЛЬНИКІВ</h3>
+          <table class="ua-grid">
+            <thead><tr><th style="width: 4%;">№</th><th style="width: 20%;">Постачальник (виробник)</th>
+              <th>Що погоджено</th><th style="width: 13%;">Рішення, підстава</th><th style="width: 13%;">Ким погоджено</th>
+              <th style="width: 10%;">Строк</th><th style="width: 10%;">Стан</th></tr></thead>
+            <tbody>
+              <tr t-foreach="docs" t-as="doc">
+                <td style="text-align: center;"><t t-out="doc_index + 1"/></td>
+                <td><t t-out="doc.partner_id.name"/><t t-if="doc.manufacturer"> (<t t-out="doc.manufacturer"/>)</t></td>
+                <td><t t-out="doc.ua_scope_text()"/></td>
+                <td><t t-out="doc.name"/> від <t t-out="doc.ua_date(doc.date_approved)"/><t t-if="doc.basis">; <t t-out="doc.basis"/></t></td>
+                <td><t t-out="doc.approved_by or ''"/></td>
+                <td><t t-out="doc.ua_date(doc.date_until) or 'безстроково'"/></td>
+                <td><t t-out="doc.ua_state_label()"/></td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="ua-sign"><tr>
+            <td>Керівник служби якості<br/><br/>______________ / ______________________</td>
+            <td>Представник замовника<br/><br/>______________ / ______________________</td>
+          </tr></table>
+        </div>
+      </t>
+    </t>
+  </template>
+</odoo>

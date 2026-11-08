@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_ua_supplier_approval_root" name="Погоджені постачальники" parent="purchase.menu_purchase_root"
+            sequence="40" groups="purchase.group_purchase_user"/>
+  <menuitem id="menu_ua_supplier_approval" name="Погодження" parent="menu_ua_supplier_approval_root"
+            action="action_ua_supplier_approval" sequence="10"/>
+  <menuitem id="menu_ua_approved_only_products" name="Критичні комплектуючі" parent="menu_ua_supplier_approval_root"
+            action="action_ua_approved_only_products" sequence="20"/>
+</odoo>

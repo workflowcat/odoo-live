@@ -216,6 +216,11 @@ Notable changes for people who run or build on this code. Module-level API chang
   content. The product passport prints "Відомості про вміст дорогоцінних металів". A period statement per
   metal: received from suppliers, used in production, in finished products, shipped, written off, on hand.
   Tests: `ua_precious`.
+- `l10n_ua_supplier_approval`: approved suppliers of critical components. A product marked critical is bought
+  only from a supplier with a valid approval (for the product, its category with subcategories, or everything;
+  with decision number, basis, who approved and term). Purchase confirmation and receipt validation check it;
+  an approval can be suspended after claims and withdrawn. Expiry reminders, printed list.
+  Tests: `ua_supplier_approval`.
 
 ### Changed
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number
