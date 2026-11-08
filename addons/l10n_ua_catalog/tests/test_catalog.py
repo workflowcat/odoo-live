@@ -64,6 +64,12 @@ class TestUaCatalog(AccountTestInvoicingCommon):
         self.assertEqual(stats["workcenters"].get("created"), 6, stats)
         self.assertEqual(stats["boms"].get("created"), 5, stats)
         self.assertFalse(stats.get("skipped_fields"), stats.get("skipped_fields"))
+        self.assertEqual(stats["records"].get("created"), len(data["records"]), stats)
+        flight = self._rec("defense_uav", "j_flight")
+        self.assertEqual((flight._name, flight.company_id), ("hr.job", self.company))
+        self.assertTrue(flight.ua_hazardous)
+        self.assertEqual(flight.ua_medical_months, 12)
+        self.assertEqual(flight.ua_briefing_months, self.company.ua_briefing_months_hazard)
 
         quad = self._rec("defense_uav", "f_quad")
         self.assertEqual(quad.company_id, self.company)
@@ -185,6 +191,13 @@ class TestUaCatalog(AccountTestInvoicingCommon):
         month = self._rec("procurement", "u_month", shared=True)
         self.assertEqual(month.ua_kspovo_code, "0171")
         self.assertEqual(self._rec("procurement", "guard").uom_id, month)
+
+    def test_08b_shop_price_types(self):
+        self.Catalog._ua_load_pack("small_shop", self.company)
+        retail = self._rec("small_shop", "pl_retail")
+        self.assertEqual((retail._name, retail.ua_price_kind, retail.ua_markup, retail.ua_rounding),
+                         ("product.pricelist", "retail", 25.0, "0.1"))
+        self.assertEqual(self._rec("small_shop", "pl_wholesale").ua_price_kind, "wholesale")
 
     def test_09_wizard(self):
         wizard = self.env["ua.catalog.load"].create({"pack": "small_shop"})

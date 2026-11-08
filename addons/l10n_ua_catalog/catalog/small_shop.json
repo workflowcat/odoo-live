@@ -11,7 +11,8 @@
   "notes": [
     "Штрихкоди 200... - внутрішні, вони не перетинаються з кодами виробників. Заводські штрихкоди додайте скануванням.",
     "Вагові товари мають артикул для ваг (PLU) замість штрихкоду.",
-    "Ціни - орієнтир на 2026 рік, замініть своїми."
+    "Ціни - орієнтир на 2026 рік, замініть своїми.",
+    "Типи цін «Роздрібна» (націнка 25 %, округлення до 10 копійок) і «Оптова» (12 %) - заготовка: нові ціни ставить документ «Встановлення цін» з дати."
   ],
   "groups": ["uom.group_uom"],
   "categories": [
@@ -45,5 +46,9 @@
     {"key": "dish", "code": "SH-040", "name": "Засіб для миття посуду, 500 мл", "category": "@c_house", "cost": 35, "price": 49, "barcode": "2000000010151", "fields": {"available_in_pos": true}},
     {"key": "toilet", "code": "SH-041", "name": "Папір туалетний, 4 рулони", "category": "@c_house", "cost": 42, "price": 59, "barcode": "2000000010168", "fields": {"available_in_pos": true}},
     {"key": "soap", "code": "SH-042", "name": "Мило туалетне, 90 г", "category": "@c_house", "cost": 14, "price": 21, "barcode": "2000000010175", "fields": {"available_in_pos": true}}
+  ],
+  "records": [
+    {"key": "pl_retail", "model": "product.pricelist", "values": {"name": "Роздрібна", "ua_price_kind": "retail", "ua_markup": 25, "ua_rounding": "0.1"}, "match": [["name", "=", "Роздрібна"]]},
+    {"key": "pl_wholesale", "model": "product.pricelist", "values": {"name": "Оптова", "ua_price_kind": "wholesale", "ua_markup": 12, "ua_rounding": "0.01"}, "match": [["name", "=", "Оптова"]]}
   ]
 }

@@ -382,6 +382,11 @@ class _Loader:
     def _load_records(self, items):
         for item in items:
             model = item["model"]
+            if model not in self.env:
+                # модуль з цією моделлю не встановлено: запис пропускаємо, як і невідоме поле
+                self.skipped_fields.add(model)
+                self._count("records", "skipped")
+                continue
             Model = self.env[model]
             vals = self._soft(model, {}, item.get("values"))
             company_bound = "company_id" in Model._fields and item.get("company_bound", True)

@@ -257,6 +257,10 @@ Notable changes for people who run or build on this code. Module-level API chang
   previous price. Order print and price labels. Tests: `ua_price_set`.
 
 ### Changed
+- Packs: defense packs bring their typical jobs with labour safety terms (hazardous work, repeat briefing and
+  medical exam periods, instructions) and the shop pack brings retail and wholesale price types with markup and
+  rounding, through the generic `records` section. A record whose model is not installed is skipped and
+  reported, like an unknown field.
 - Defense packs `defense_uav` and `defense_ugv`: finished products are marked dual-use under export control
   with periodic tests once a year, and flight electronics, data links and optics are critical components
   bought only from approved suppliers (applied when those modules are installed; notes say to check).
