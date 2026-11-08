@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Правила компанії: декларацію і її рядки однієї компанії не видно з іншої. -->
+  <record id="rule_ua_vat_return_company" model="ir.rule">
+    <field name="name">Декларація з ПДВ: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_vat_return"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_vat_return_line_company" model="ir.rule">
+    <field name="name">Рядок декларації з ПДВ: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_vat_return_line"/>
+    <field name="domain_force">[('return_id.company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_vat_return_d2_company" model="ir.rule">
+    <field name="name">Д2 декларації з ПДВ: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_vat_return_d2"/>
+    <field name="domain_force">[('return_id.company_id', 'in', company_ids)]</field>
+  </record>
+</odoo>

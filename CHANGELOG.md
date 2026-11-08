@@ -335,8 +335,17 @@ Notable changes for people who run or build on this code. Module-level API chang
   from 2025-10-01). New on the document: tax period (year or quarter, row 18 for quarterly payers),
   reporting or new reporting, "no adjustments" for payers under the income limit (HJ2), and the payer and
   signer details. Tests: `ua_profit`.
+- `l10n_ua_vat_return`: the monthly VAT return J0200126 with annex Д2 J0215226 as a document. Rows come
+  from the VAT summary of the same month in whole hryvnias and can be corrected in draft; row 16.1 carries
+  row 21 of the previous return; rows 19.1-21 split a negative result by the registration limit (Σнакл),
+  debt offset, refund and carry-over. Д2 lists the negative value by origin period and supplier: last
+  month's rows carry over, the new part lands on this month's purchase invoices, offsets and refunds take
+  the oldest amounts. Both XML files are linked and validated by the bundled DPS schemas (periods from
+  2024-10). Menu: Звітність - ПДВ - Декларації з ПДВ. Tests: `ua_vat_return`.
 
 ### Changed
+- `l10n_ua_vat`: the VAT summary labels name the rows of the current form (7 % is row 1.2 and 10.2,
+  14 % is row 1.3 and 10.3, returns are row 7.1). Field names and numbers are unchanged.
 - `l10n_ua_profit_tax`: rows follow the current form. Row 01 adds Ф2 2200 and 2220; amortisation goes to
   annex РІ as book (2.1.1) and tax (2.2.1) instead of one difference; the prior-year loss is РІ 3.2.4 and its
   unpaid remainder carries to the next year; a large taxpayer takes only 50 % of it unless it is within 10 %

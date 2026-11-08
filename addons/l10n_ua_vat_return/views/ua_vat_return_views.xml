@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_vat_return_list" model="ir.ui.view">
+    <field name="name">ua.vat.return.list</field>
+    <field name="model">ua.vat.return</field>
+    <field name="arch" type="xml">
+      <list string="Декларації з ПДВ">
+        <field name="date_to" string="Період"/>
+        <field name="doc_kind"/>
+        <field name="r9"/>
+        <field name="r17"/>
+        <field name="r18"/>
+        <field name="r19"/>
+        <field name="r21" optional="show"/>
+        <field name="xml_name" optional="hide"/>
+        <field name="state"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="company_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_vat_return_form" model="ir.ui.view">
+    <field name="name">ua.vat.return.form</field>
+    <field name="model">ua.vat.return</field>
+    <field name="arch" type="xml">
+      <form string="Декларація з ПДВ">
+        <header>
+          <button name="action_compute" type="object" string="Розрахувати"
+                  class="oe_highlight" invisible="state != 'draft'"/>
+          <button name="action_done" type="object" string="Затвердити"
+                  invisible="state != 'draft' or not line_ids"/>
+          <button name="action_xml" type="object" string="XML для ДПС"
+                  invisible="not line_ids"/>
+          <button name="action_draft" type="object" string="Повернути в чернетку"
+                  invisible="state != 'done'"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <h1><field name="name" readonly="1"/></h1>
+          <group>
+            <group string="Платник і період">
+              <field name="company_id" groups="base.group_multi_company"
+                     readonly="state != 'draft'"/>
+              <field name="year" readonly="state != 'draft'"/>
+              <field name="month" readonly="state != 'draft'"/>
+              <field name="doc_kind" readonly="state != 'draft'"/>
+              <field name="new_number" invisible="doc_kind != 'HZN'" readonly="state != 'draft'"/>
+              <field name="summary_id"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+            <group string="Результат">
+              <field name="r9"/>
+              <field name="r16_1" readonly="state != 'draft'"/>
+              <field name="r17"/>
+              <field name="r18"/>
+              <field name="r19"/>
+            </group>
+          </group>
+          <group invisible="r19 == 0">
+            <group string="Від'ємне значення">
+              <field name="limit_amount" readonly="state != 'draft'"/>
+              <field name="r19_1"/>
+              <field name="r20"/>
+              <field name="r21"/>
+            </group>
+            <group string="Погашення і відшкодування">
+              <field name="r20_1" readonly="state != 'draft'"/>
+              <field name="r20_2_1" readonly="state != 'draft'"/>
+              <field name="r20_2_2" readonly="state != 'draft'"/>
+              <field name="r20_2"/>
+              <field name="r20_3"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Рядки декларації">
+              <field name="line_ids" readonly="state != 'draft'">
+                <list string="Рядки декларації" editable="bottom" create="0" delete="0">
+                  <field name="code"/>
+                  <field name="name"/>
+                  <field name="base"/>
+                  <field name="vat"/>
+                  <field name="currency_id" column_invisible="1"/>
+                </list>
+              </field>
+            </page>
+            <page string="Д2" invisible="r19 == 0">
+              <field name="d2_line_ids" readonly="state != 'draft'">
+                <list string="Д2: від'ємне значення" editable="bottom">
+                  <field name="origin_month"/>
+                  <field name="origin_year"/>
+                  <field name="partner_id"/>
+                  <field name="ipn"/>
+                  <field name="doc_month"/>
+                  <field name="doc_year"/>
+                  <field name="amount" sum="Разом"/>
+                  <field name="from_reorg" optional="hide"/>
+                  <field name="debt_amount" sum="Разом"/>
+                  <field name="refund_amount" sum="Разом"/>
+                  <field name="carry_amount" sum="Разом"/>
+                  <field name="currency_id" column_invisible="1"/>
+                </list>
+              </field>
+            </page>
+            <page string="Реквізити для XML">
+              <group>
+                <group>
+                  <field name="tin"/>
+                  <field name="ipn"/>
+                  <field name="sti_code"/>
+                  <field name="sti_name"/>
+                  <field name="address"/>
+                  <field name="phone"/>
+                  <field name="email"/>
+                </group>
+                <group>
+                  <field name="director"/>
+                  <field name="director_rnokpp"/>
+                  <field name="accountant"/>
+                  <field name="accountant_rnokpp"/>
+                  <field name="xml_file" filename="xml_name"/>
+                  <field name="xml_name" invisible="1"/>
+                  <field name="d2_xml_file" filename="d2_xml_name" invisible="not d2_xml_file"/>
+                  <field name="d2_xml_name" invisible="1"/>
+                </group>
+              </group>
+            </page>
+            <page string="Зауваження">
+              <field name="problems"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_vat_return" model="ir.actions.act_window">
+    <field name="name">Декларації з ПДВ</field>
+    <field name="res_model">ua.vat.return</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>

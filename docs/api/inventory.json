@@ -1,8 +1,8 @@
 {
   "totals": {
-    "modules": 89,
-    "models": 185,
-    "methods": 721,
+    "modules": 90,
+    "models": 186,
+    "methods": 725,
     "fields": 400
   },
   "areas": [
@@ -9210,6 +9210,48 @@
               "doc": "",
               "module": "l10n_ua_vacation_plan",
               "file": "addons/l10n_ua_vacation_plan/models/vacation_plan.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.vat.return",
+          "ours": true,
+          "modules": [
+            "l10n_ua_vat_return"
+          ],
+          "methods": [
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "",
+              "module": "l10n_ua_vat_return",
+              "file": "addons/l10n_ua_vat_return/models/vat_return.py",
+              "decorators": []
+            },
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_vat_return",
+              "file": "addons/l10n_ua_vat_return/models/vat_return.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_vat_return",
+              "file": "addons/l10n_ua_vat_return/models/vat_return.py",
+              "decorators": []
+            },
+            {
+              "name": "action_xml",
+              "signature": "action_xml()",
+              "doc": "",
+              "module": "l10n_ua_vat_return",
+              "file": "addons/l10n_ua_vat_return/models/vat_return.py",
               "decorators": []
             }
           ],

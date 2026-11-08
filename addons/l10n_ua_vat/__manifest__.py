@@ -10,7 +10,7 @@
                    "зобов'язання за п.198.5 і ст.199 ПКУ, строки реєстрації та оцінку штрафу. "
                    "Модуль логічний: жодного OWL, жодної залежності від модулів інтерфейсу. "
                    "Опис у docs/base/spec-vat.md.",
-    "version": "19.0.1.2.0",
+    "version": "19.0.1.2.1",
     "category": "Accounting/Localizations",
     "author": "Bot&Partners",
     "license": "LGPL-3",

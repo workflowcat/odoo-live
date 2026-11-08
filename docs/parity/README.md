@@ -15,7 +15,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Trial balance (ОСВ), account card, account analysis | done | `l10n_ua_ledger` |
 | Primary documents: invoice for payment, act, delivery note, waybill | done | `l10n_ua_docs*` |
 | VAT: first event, tax invoices, adjustments, ЄРПН XML, customs VAT | done | `l10n_ua_vat` |
-| VAT return with annexes in DPS XML | part | the return exists; checking all annexes against the current form is open |
+| VAT return with annexes in DPS XML | done | `l10n_ua_vat_return`: the monthly return J0200126 from the VAT summary, rows 16.1-21 carried between months, annex Д2 by period and supplier, both files validated by the DPS schemas; annexes Д1, Д3-Д6 and the clarifying return are not built |
 | Profit tax return | done | `l10n_ua_profit_tax`: the annual return with annex РІ (book and tax amortisation, prior-year loss with the large-taxpayer share), yearly or quarterly payer, and the DPS XML J0100129 + J0111829 linked and validated by the bundled schemas |
 | Single tax (FOP group 3) book and return | done | `l10n_ua_fop` |
 | Financial statements Ф1/Ф2 (full and small) | done | `l10n_ua_finrep` (mis_builder), small forms in the rows of the current form; `l10n_ua_finrep_dps`: the filing for a quarter, half-year, 9 months or year with both columns (start and end of year for the balance, this and last year for results) in thousands, totals rechecked after rounding with manual correction, and the DPS XML J0900108, J0900207, J0901107 validated by the bundled schemas. Signing and sending stay in the reporting program |
@@ -175,7 +175,7 @@ periodic and type tests gating acceptance (`l10n_ua_product_tests`); labour safe
 (`l10n_ua_price_set`); the doubtful debts reserve (`l10n_ua_bad_debt`); the cash flow statement Ф3
 (`l10n_ua_cashflow`); the cash flow budget with payment request control (`l10n_ua_budget`); the vacation schedule
 (`l10n_ua_vacation_plan`); production defect acts (`l10n_ua_defect`); the statement of changes in equity Ф4
-(`l10n_ua_equity`); the notes Ф5, main sections (`l10n_ua_notes`); the average headcount (`l10n_ua_headcount`); the inventory count of non-current assets (`l10n_ua_asset_inventory`); the employment norm for persons with disabilities and the targeted contribution (`l10n_ua_disability_quota`); the cash count act (`l10n_ua_cash_count`); financial statements to DPS in XML with the small-company forms brought to the current rows (`l10n_ua_finrep_dps`); the profit tax return with annex РІ in XML (`l10n_ua_profit_tax`).
+(`l10n_ua_equity`); the notes Ф5, main sections (`l10n_ua_notes`); the average headcount (`l10n_ua_headcount`); the inventory count of non-current assets (`l10n_ua_asset_inventory`); the employment norm for persons with disabilities and the targeted contribution (`l10n_ua_disability_quota`); the cash count act (`l10n_ua_cash_count`); financial statements to DPS in XML with the small-company forms brought to the current rows (`l10n_ua_finrep_dps`); the profit tax return with annex РІ in XML (`l10n_ua_profit_tax`); the monthly VAT return with annex Д2 in XML (`l10n_ua_vat_return`).
 
 Next, in this order:
 

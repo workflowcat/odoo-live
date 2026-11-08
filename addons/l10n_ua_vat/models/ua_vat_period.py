@@ -68,10 +68,10 @@ class UaVatPeriod(models.Model):
     # Розділ I декларації, податкові зобов'язання.
     ua_r1_base = fields.Float(string="р.1.1 база 20 %", readonly=True)
     ua_r1_vat = fields.Float(string="р.1.1 ПДВ 20 %", readonly=True)
-    ua_r2_base = fields.Float(string="р.1.2 база 14 %", readonly=True)
-    ua_r2_vat = fields.Float(string="р.1.2 ПДВ 14 %", readonly=True)
-    ua_r3_base = fields.Float(string="р.1.3 база 7 %", readonly=True)
-    ua_r3_vat = fields.Float(string="р.1.3 ПДВ 7 %", readonly=True)
+    ua_r2_base = fields.Float(string="р.1.3 база 14 %", readonly=True)
+    ua_r2_vat = fields.Float(string="р.1.3 ПДВ 14 %", readonly=True)
+    ua_r3_base = fields.Float(string="р.1.2 база 7 %", readonly=True)
+    ua_r3_vat = fields.Float(string="р.1.2 ПДВ 7 %", readonly=True)
     ua_r0_base = fields.Float(
         string="Нульові обсяги разом", readonly=True,
         help="Обсяги за ставкою 0 % і звільнені разом. Дорівнює сумі рядків "
@@ -84,17 +84,17 @@ class UaVatPeriod(models.Model):
     ua_r41_vat = fields.Float(string="р.4.1 ПДВ (компенсуючі)", readonly=True)
     ua_r411_vat = fields.Float(
         string="р.4.1.1 ПДВ (річний перерахунок ЧВ)", readonly=True)
-    ua_r7_base = fields.Float(string="р.7 коригування ПЗ (обсяг)", readonly=True)
-    ua_r7_vat = fields.Float(string="р.7 коригування ПЗ (ПДВ)", readonly=True)
+    ua_r7_base = fields.Float(string="р.7.1 коригування ПЗ (обсяг)", readonly=True)
+    ua_r7_vat = fields.Float(string="р.7.1 коригування ПЗ (ПДВ)", readonly=True)
     ua_pz_total = fields.Float(string="р.9 усього ПЗ", readonly=True)
 
     # Розділ II, податковий кредит.
     ua_pk1_base = fields.Float(string="р.10.1 база 20 %", readonly=True)
     ua_pk1_vat = fields.Float(string="р.10.1 ПДВ 20 %", readonly=True)
-    ua_pk2_base = fields.Float(string="р.10.2 база 14 %", readonly=True)
-    ua_pk2_vat = fields.Float(string="р.10.2 ПДВ 14 %", readonly=True)
-    ua_pk3_base = fields.Float(string="р.10.3 база 7 %", readonly=True)
-    ua_pk3_vat = fields.Float(string="р.10.3 ПДВ 7 %", readonly=True)
+    ua_pk2_base = fields.Float(string="р.10.3 база 14 %", readonly=True)
+    ua_pk2_vat = fields.Float(string="р.10.3 ПДВ 14 %", readonly=True)
+    ua_pk3_base = fields.Float(string="р.10.2 база 7 %", readonly=True)
+    ua_pk3_vat = fields.Float(string="р.10.2 ПДВ 7 %", readonly=True)
     ua_customs_vat = fields.Float(string="ПК з імпорту (митний ПДВ)", readonly=True)
     ua_r14_base = fields.Float(string="р.14 коригування ПК (обсяг)", readonly=True)
     ua_r14_vat = fields.Float(string="р.14 коригування ПК (ПДВ)", readonly=True)

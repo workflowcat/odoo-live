@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_vat_return_user,ua.vat.return user,model_ua_vat_return,account.group_account_readonly,1,0,0,0
+access_ua_vat_return_accountant,ua.vat.return accountant,model_ua_vat_return,account.group_account_user,1,1,1,1
+access_ua_vat_return_line_user,ua.vat.return.line user,model_ua_vat_return_line,account.group_account_readonly,1,0,0,0
+access_ua_vat_return_line_accountant,ua.vat.return.line accountant,model_ua_vat_return_line,account.group_account_user,1,1,1,1
+access_ua_vat_return_d2_user,ua.vat.return.d2 user,model_ua_vat_return_d2,account.group_account_readonly,1,0,0,0
+access_ua_vat_return_d2_accountant,ua.vat.return.d2 accountant,model_ua_vat_return_d2,account.group_account_user,1,1,1,1

@@ -197,6 +197,8 @@
             parent="menu_ua_reporting_vat" action="l10n_ua_vat.action_ua_vat_document" sequence="10"/>
   <menuitem id="menu_ua_reporting_vat_period" name="Зведення ПДВ за період"
             parent="menu_ua_reporting_vat" action="l10n_ua_vat.action_ua_vat_period" sequence="20"/>
+  <menuitem id="menu_ua_reporting_vat_return" name="Декларації з ПДВ"
+            parent="menu_ua_reporting_vat" action="l10n_ua_vat_return.action_ua_vat_return" sequence="30"/>
 
   <menuitem id="menu_ua_bad_debt_reserve" name="Резерв сумнівних боргів" parent="account.menu_finance_entries"
             action="l10n_ua_bad_debt.action_ua_bad_debt_reserve" sequence="60"/>

@@ -6,6 +6,7 @@
 Спільне для фінзвітності і декларації з прибутку; інші форми можуть брати так само.
 """
 import os
+import re
 
 from lxml import etree
 
@@ -41,6 +42,22 @@ def number(value, type_name):
     return "%.2f" % round(value, 2)
 
 
+def _cell(value, type_name):
+    """Текст клітинки таблиці (тег з ROWNUM) або None, якщо клітинку не пишемо."""
+    if value is None or value is False or value == "":
+        return None
+    if isinstance(value, bool):
+        return "1"
+    if isinstance(value, (int, float)):
+        digits = re.search(r"Decimal(\d)", type_name or "")
+        if digits:
+            if not round(value, 2):
+                return None
+            return "%.*f" % (int(digits.group(1)), round(value, int(digits.group(1))))
+        return "%d" % value
+    return str(value)
+
+
 def file_name(form, sti, tin, period_type, month, year, count=1, state=1, doc_type=0):
     """Ім'я файлу: ДПІ(4) ЄДРПОУ(10) форма(8) стан(1) тип(2) номер(7) період(1) місяць(2) рік(4) ДПІ(4)."""
     return "%s%s%s%d%02d%07d%d%02d%d%s.XML" % (
@@ -51,6 +68,7 @@ def build(path, form, sti, tin, period_type, month, year, fill_date, values, lin
     """(ім'я файлу, байти windows-1251). Порожні значення не пишуться; помилка схеми - ValueError.
 
     values: {тег: значення}; числа форматуються за типом тегу у схемі, позначки (DGchk) - «1».
+    Колонка таблиці - список [(номер рядка, значення)]: кожна клітинка - тег з ROWNUM.
     linked: [(форма, ім'я файлу, тип зв'язку)] для LINKED_DOCS; пов'язані документи подаються
     разом, тож мають той самий стан і номер.
     state, doc_type: C_DOC_STAN і C_DOC_TYPE - 1 і 0 для звітного, 2 і номер для звітного нового.
@@ -82,6 +100,12 @@ def build(path, form, sti, tin, period_type, month, year, fill_date, values, lin
     for name, type_name in elements:
         value = values.get(name)
         if value is None or value is False or value == "":
+            continue
+        if isinstance(value, (list, tuple)):
+            for rownum, cell in value:
+                text = _cell(cell, type_name)
+                if text is not None:
+                    etree.SubElement(body, name, ROWNUM=str(rownum)).text = text
             continue
         if isinstance(value, bool) or type_name == "DGchk":
             text = "1"

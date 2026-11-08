@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 89. Моделей: 185. Методів: 721. Збережених полів на чужих моделях: 400.
+Модулів: 90. Моделей: 186. Методів: 725. Збережених полів на чужих моделях: 400.
 
 ## Зарплата
 
@@ -2048,6 +2048,17 @@
 | `action_notified()` | - | `l10n_ua_vacation_plan` |
 | `action_open_move()` | - | `l10n_ua_vacation_plan` |
 | `action_print_notice()` | - | `l10n_ua_vacation_plan` |
+
+### `ua.vat.return`
+
+наша модель · `l10n_ua_vat_return`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_compute()` | - | `l10n_ua_vat_return` |
+| `action_done()` | - | `l10n_ua_vat_return` |
+| `action_draft()` | - | `l10n_ua_vat_return` |
+| `action_xml()` | - | `l10n_ua_vat_return` |
 
 ### `ua.waybill`
 
