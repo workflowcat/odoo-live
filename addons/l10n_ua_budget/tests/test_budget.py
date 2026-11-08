@@ -142,6 +142,7 @@ class TestUaBudget(AccountTestInvoicingCommon):
         request = self._request(25000.0)
         request.with_user(self.initiator).action_submit()
         request.with_user(self.finance).action_approve()
+        request = request.with_env(self.env)  # платіж робить бухгалтер
         request.action_create_payment()
         payment = request.payment_ids
         self.assertEqual(payment.ua_cashflow_item_id, self._item("3100"))

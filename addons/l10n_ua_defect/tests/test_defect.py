@@ -42,7 +42,7 @@ class TestUaDefect(AccountTestInvoicingCommon):
         cls.production = cls.env["mrp.production"].create(
             {"product_id": cls.drone.id, "product_qty": 5, "bom_id": cls.bom.id})
         cls.production.action_confirm()
-        cls.worker = cls.env["hr.employee"].create({"name": "Складальник Тарас (тест браку)"})
+        cls.worker = cls.env["hr.employee"].sudo().create({"name": "Складальник Тарас (тест браку)"})
         cls.supplier = cls.env["res.partner"].create({"name": "ТОВ Плати (тест браку)"})
         cls.Act = cls.env["ua.defect.act"]
 
