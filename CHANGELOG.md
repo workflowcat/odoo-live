@@ -236,6 +236,12 @@ Notable changes for people who run or build on this code. Module-level API chang
   primary, repeat or unscheduled one. Medical exams carry the result and validity. The employee card shows what
   blocks work today; an overdue list, reminders to the manager and the briefings journal print.
   Tests: `ua_safety`.
+- `l10n_ua_military`: reservation request (заявка на бронювання). Candidates are liable employees on an
+  employment contract who are not reserved or whose reservation ends within a set number of days. Each line
+  shows what the Дія request lacks (tax number, birth date, military document number); the request cannot be
+  marked as filed while data is missing or the reservations that stay plus the request exceed the quota.
+  CSV working list, print, and the decision per line (reserved until a date or refused) carried to the
+  employee card and the military events. Tests: `ua_military`.
 
 ### Changed
 - Defense packs `defense_uav` and `defense_ugv`: finished products are marked dual-use under export control

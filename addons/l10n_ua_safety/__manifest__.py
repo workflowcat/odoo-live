@@ -22,7 +22,6 @@
         "data/ua_safety_cron.xml",
         "report/ua_safety_report.xml",
         "views/ua_safety_views.xml",
-        "views/ua_safety_menus.xml",
     ],
     "installable": True,
     "application": False,

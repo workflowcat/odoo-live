@@ -148,8 +148,18 @@
             action="l10n_ua_military.action_ua_military_notice" sequence="40"/>
   <menuitem id="menu_ua_military_reserved" name="Списки заброньованих" parent="menu_ua_military"
             action="l10n_ua_military.action_ua_military_reserved" sequence="50"/>
+  <menuitem id="menu_ua_military_reserve_request" name="Заявки на бронювання" parent="menu_ua_military"
+            action="l10n_ua_military.action_ua_military_reserve_request" sequence="55"/>
   <menuitem id="menu_ua_military_critical" name="Статус критично важливого" parent="menu_ua_military"
             action="l10n_ua_military.action_ua_military_critical" sequence="60"/>
+
+  <menuitem id="menu_ua_safety" name="Охорона праці" parent="menu_ua_hr_root" sequence="75"/>
+  <menuitem id="menu_ua_safety_briefing" name="Журнал інструктажів" parent="menu_ua_safety"
+            action="l10n_ua_safety.action_ua_safety_briefing" sequence="10"/>
+  <menuitem id="menu_ua_medical_exam" name="Медогляди" parent="menu_ua_safety"
+            action="l10n_ua_safety.action_ua_medical_exam" sequence="20"/>
+  <menuitem id="menu_ua_safety_overdue" name="Строки" parent="menu_ua_safety"
+            action="l10n_ua_safety.action_ua_safety_overdue" sequence="30"/>
 
   <menuitem id="menu_ua_hr_refs" name="Довідники" parent="menu_ua_hr_root" sequence="80"/>
   <menuitem id="l10n_ua_hr_orders.menu_ua_hr_doc_requirement" name="Обов'язкові документи"

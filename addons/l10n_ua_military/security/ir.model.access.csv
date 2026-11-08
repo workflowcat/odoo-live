@@ -7,3 +7,5 @@ access_ua_military_notice_line,ua.military.notice.line,model_ua_military_notice_
 access_ua_military_reserved,ua.military.reserved,model_ua_military_reserved,hr.group_hr_user,1,1,1,1
 access_ua_military_reserved_line,ua.military.reserved.line,model_ua_military_reserved_line,hr.group_hr_user,1,1,1,1
 access_ua_military_critical,ua.military.critical,model_ua_military_critical,hr.group_hr_user,1,1,1,1
+access_ua_military_reserve_request,ua.military.reserve.request,model_ua_military_reserve_request,hr.group_hr_user,1,1,1,1
+access_ua_military_reserve_request_line,ua.military.reserve.request.line,model_ua_military_reserve_request_line,hr.group_hr_user,1,1,1,1

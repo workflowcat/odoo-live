@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_military_reserve_request_form" model="ir.ui.view">
+    <field name="name">ua.military.reserve.request.form</field>
+    <field name="model">ua.military.reserve.request</field>
+    <field name="arch" type="xml">
+      <form string="Заявка на бронювання">
+        <header>
+          <button name="action_fill" type="object" string="Заповнити кандидатами" invisible="state != 'draft'"/>
+          <button name="action_submit" type="object" string="Подано в Дії" class="oe_highlight"
+                  invisible="state != 'draft'"/>
+          <button name="action_apply" type="object" string="Внести рішення на картки" class="oe_highlight"
+                  invisible="state != 'submitted'"/>
+          <button name="action_draft" type="object" string="Повернути в чернетку" invisible="state != 'submitted'"/>
+          <button name="action_export_csv" type="object" string="CSV для Дії"/>
+          <button name="action_print" type="object" string="Друк"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="horizon_days" readonly="state != 'draft'"/>
+              <field name="submitted_date" invisible="state == 'draft'"/>
+              <field name="decision_ref" invisible="state == 'draft'" readonly="state == 'done'"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+            </group>
+            <group string="Квота">
+              <field name="critical_id"/>
+              <field name="liable_count"/>
+              <field name="quota"/>
+              <field name="kept_count"/>
+              <field name="included_count"/>
+              <field name="blocked_count" invisible="not blocked_count" decoration-danger="blocked_count"/>
+              <field name="wage_floor" invisible="not wage_floor"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Кандидати" name="lines">
+              <field name="line_ids" readonly="state == 'done'">
+                <list editable="bottom" create="0" decoration-danger="include and blocking"
+                      decoration-muted="not include">
+                  <field name="state" column_invisible="1"/>
+                  <field name="include" readonly="state != 'draft'"/>
+                  <field name="employee_id" readonly="1"/>
+                  <field name="rnokpp" readonly="state != 'draft'"/>
+                  <field name="birthday" readonly="state != 'draft'"/>
+                  <field name="doc_type" optional="hide" readonly="state != 'draft'"/>
+                  <field name="doc_series" optional="hide" readonly="state != 'draft'"/>
+                  <field name="doc_number" readonly="state != 'draft'"/>
+                  <field name="job_title" optional="show" readonly="state != 'draft'"/>
+                  <field name="wage" optional="hide" readonly="1"/>
+                  <field name="purpose" readonly="state != 'draft'"/>
+                  <field name="current_until" optional="show" readonly="1"/>
+                  <field name="problems" readonly="1"/>
+                  <field name="blocking" column_invisible="1"/>
+                  <field name="result" column_invisible="parent.state == 'draft'" readonly="state != 'submitted'"/>
+                  <field name="decision_until" column_invisible="parent.state == 'draft'"
+                         readonly="state != 'submitted' or result != 'approved'"/>
+                </list>
+              </field>
+            </page>
+            <page string="Примітка" name="note">
+              <field name="note"/>
+            </page>
+            <page string="Перевірки" name="ua_checks">
+              <field name="checks_html" readonly="1" nolabel="1"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_military_reserve_request_list" model="ir.ui.view">
+    <field name="name">ua.military.reserve.request.list</field>
+    <field name="model">ua.military.reserve.request</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="name"/>
+        <field name="date" options="{'numeric': True}"/>
+        <field name="submitted_date" optional="show"/>
+        <field name="decision_ref" optional="show"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+        <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'done'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_military_reserve_request" model="ir.actions.act_window">
+    <field name="name">Заявки на бронювання</field>
+    <field name="res_model">ua.military.reserve.request</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Створіть заявку на бронювання</p>
+      <p>Кандидати - військовозобов'язані, ще не заброньовані або з бронюванням, що скоро закінчиться.
+        Заявка покаже, чого не вистачає, і чи вкладаєтесь у квоту.</p>
+    </field>
+  </record>
+</odoo>

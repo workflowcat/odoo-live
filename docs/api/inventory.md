@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 75. Моделей: 156. Методів: 590. Збережених полів на чужих моделях: 388.
+Модулів: 75. Моделей: 157. Методів: 600. Збережених полів на чужих моделях: 388.
 
 ## Зарплата
 
@@ -537,6 +537,23 @@
 | `action_draft()` | - | `l10n_ua_military` |
 | `action_refill()` | - | `l10n_ua_military` |
 | `ua_compose(company, year=None, month=None, date_from=None, date_to=None, **params)` | Нове повідомлення ТЦК за період, одразу заповнене. | `l10n_ua_military` |
+
+### `ua.military.reserve.request`
+
+наша модель · `l10n_ua_military`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_apply()` | Рішення з заявки - на картки працівників і в події обліку. | `l10n_ua_military` |
+| `action_draft()` | - | `l10n_ua_military` |
+| `action_export_csv()` | - | `l10n_ua_military` |
+| `action_fill()` | - | `l10n_ua_military` |
+| `action_print()` | - | `l10n_ua_military` |
+| `action_submit()` | - | `l10n_ua_military` |
+| `ua_csv()` | CSV для заповнення заявки: лише включені рядки, у порядку переліку. | `l10n_ua_military` |
+| `ua_date(day)` | - | `l10n_ua_military` |
+| `ua_doc_label(line)` | - | `l10n_ua_military` |
+| `ua_purpose_label(line)` | - | `l10n_ua_military` |
 
 ### `ua.military.reserved`
 

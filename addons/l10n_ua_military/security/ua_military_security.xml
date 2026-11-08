@@ -50,4 +50,16 @@
     <field name="model_id" ref="model_ua_military_critical"/>
     <field name="domain_force">[('company_id', 'in', company_ids)]</field>
   </record>
+
+  <record id="rule_ua_military_reserve_request_company" model="ir.rule">
+    <field name="name">Заявка на бронювання: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_military_reserve_request"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+
+  <record id="rule_ua_military_reserve_request_line_company" model="ir.rule">
+    <field name="name">Кандидат на бронювання: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_military_reserve_request_line"/>
+    <field name="domain_force">[('request_id.company_id', 'in', company_ids)]</field>
+  </record>
 </odoo>

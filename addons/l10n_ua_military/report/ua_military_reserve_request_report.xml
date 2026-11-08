@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_military_reserve_request" model="ir.actions.report">
+    <field name="name">Заявка на бронювання</field>
+    <field name="model">ua.military.reserve.request</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_military.report_ua_military_reserve_request</field>
+    <field name="report_file">l10n_ua_military.report_ua_military_reserve_request</field>
+    <field name="binding_model_id" ref="model_ua_military_reserve_request"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">object.name</field>
+  </record>
+
+  <template id="report_ua_military_reserve_request">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <style>
+            .ua-doc { font-size: 10px; color: #000; }
+            .ua-doc h3 { font-size: 12px; text-align: center; margin: 4px 0; }
+            .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+            .ua-doc .ua-grid { width: 100%; border-collapse: collapse; }
+            .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; vertical-align: top; }
+            .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+            .ua-doc .ua-sign { width: 100%; margin-top: 18px; }
+          </style>
+          <div class="ua-doc">
+            <div><t t-out="doc.company_id.name"/><t t-if="doc.company_id.company_registry">, ЄДРПОУ <t t-out="doc.company_id.company_registry"/></t></div>
+            <h3>ПЕРЕЛІК ВІЙСЬКОВОЗОБОВ'ЯЗАНИХ ДЛЯ БРОНЮВАННЯ</h3>
+            <div class="ua-sub">станом на <t t-out="doc.ua_date(doc.date)"/>
+              <t t-if="doc.critical_id">; статус критично важливого: рішення № <t t-out="doc.critical_id.decision_number or '-'"/>,
+                діє до <t t-out="doc.ua_date(doc.critical_id.date_to)"/>; квота <t t-out="doc.quota"/>,
+                чинних бронювань <t t-out="doc.kept_count"/>, у переліку <t t-out="doc.included_count"/></t>
+            </div>
+            <table class="ua-grid">
+              <thead>
+                <tr>
+                  <th>№</th><th>Прізвище, ім'я, по батькові</th><th>РНОКПП</th><th>Дата народження</th>
+                  <th>Військово-обліковий документ</th><th>Посада</th><th>Мета</th>
+                  <th t-if="doc.state != 'draft'">Рішення</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr t-foreach="doc.line_ids.filtered('include')" t-as="line">
+                  <td t-out="line_index + 1"/>
+                  <td t-out="line.full_name"/>
+                  <td t-out="line.rnokpp"/>
+                  <td t-out="doc.ua_date(line.birthday)"/>
+                  <td><t t-out="doc.ua_doc_label(line)"/> <t t-out="line.doc_series"/> <t t-out="line.doc_number"/></td>
+                  <td t-out="line.job_title"/>
+                  <td><t t-out="doc.ua_purpose_label(line)"/><t t-if="line.current_until"> (чинне до <t t-out="doc.ua_date(line.current_until)"/>)</t></td>
+                  <td t-if="doc.state != 'draft'">
+                    <t t-if="line.result == 'approved'">заброньовано до <t t-out="doc.ua_date(line.decision_until)"/></t>
+                    <t t-elif="line.result == 'refused'">відмовлено</t>
+                    <t t-else="">чекає рішення</t>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <table class="ua-sign"><tr>
+              <td>Керівник ______________ / ______________________</td>
+              <td>Відповідальний за військовий облік ______________ / ______________________</td>
+            </tr></table>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

@@ -1,7 +1,7 @@
 {
     "name": "Військовий облік (Україна)",
-    "summary": "Дані військового обліку працівника, список персонального обліку, повідомлення ТЦК, список заброньованих, статус критично важливого і квота бронювання",
-    "version": "19.0.1.5.0",
+    "summary": "Дані військового обліку працівника, список персонального обліку, повідомлення ТЦК, список заброньованих, статус критично важливого і квота бронювання, заявка на бронювання з перевіркою даних і квоти",
+    "version": "19.0.1.6.0",
     "license": "LGPL-3",
     "author": "Bot&Partners",
     "category": "Human Resources/Payroll",
@@ -13,11 +13,13 @@
         "report/ua_military_list_report.xml",
         "report/ua_military_notice_report.xml",
         "report/ua_military_reserved_report.xml",
+        "report/ua_military_reserve_request_report.xml",
         "views/hr_employee_views.xml",
         "views/ua_military_list_views.xml",
         "views/ua_military_notice_views.xml",
         "views/ua_military_reserved_views.xml",
         "views/ua_military_critical_views.xml",
+        "views/ua_military_reserve_request_views.xml",
     ],
     "installable": True,
 }
