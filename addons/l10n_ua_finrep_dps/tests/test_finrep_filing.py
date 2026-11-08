@@ -144,14 +144,18 @@ class TestUaFinrepFiling(TransactionCase):
 
     def test_05_rounding_check_and_manual_fix(self):
         doc = self._filing("J0900108")
-        line = self._rows(doc)["1630"]
-        line.g4 = 13.0
+        rows = self._rows(doc)
+        rows["1630"].g4 = 13.0
         doc.action_check()
         self.assertIn("1695", doc.check_text)
-        self.assertIn("1900", doc.check_text)
+        self.assertNotIn("1900", doc.check_text, "1900 рахується з рядка 1695, а він не змінився")
         with self.assertRaises(UserError):
             doc.action_done()
-        line.g4 = 12.0
+        rows["1695"].g4 = 59.0  # підсумок розділу піднявся слідом - тепер не сходиться баланс
+        doc.action_check()
+        self.assertNotIn("1695", doc.check_text)
+        self.assertIn("1900", doc.check_text)
+        rows["1630"].g4, rows["1695"].g4 = 12.0, 58.0
         doc.action_done()
         self.assertEqual(doc.state, "done")
         with self.assertRaises(UserError):
