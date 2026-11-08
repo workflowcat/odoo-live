@@ -88,6 +88,12 @@ class HrEmployee(models.Model):
     _inherit = "hr.employee"
 
     ua_workwear_line_ids = fields.One2many("ua.workwear.line", "employee_id", "Предмети в експлуатації")
+
+    def ua_tab_number(self):
+        """Табельний номер для картки: поле є не в кожній збірці Odoo, і воно закрите групою."""
+        self.ensure_one()
+        employee = self.sudo()
+        return employee["registration_number"] or "" if "registration_number" in employee._fields else ""
     ua_workwear_count = fields.Integer("В експлуатації", compute="_compute_ua_workwear_count")
 
     def _compute_ua_workwear_count(self):

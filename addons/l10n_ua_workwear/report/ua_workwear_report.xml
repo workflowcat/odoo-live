@@ -100,7 +100,7 @@
             <h3>ОСОБОВА КАРТКА ОБЛІКУ СПЕЦОДЯГУ, СПЕЦВЗУТТЯ ТА ЗАПОБІЖНИХ ПРИСТОСУВАНЬ</h3>
             <table class="ua-grid">
               <tr><td style="width: 30%;">Працівник</td><td><t t-out="doc.name"/></td></tr>
-              <tr><td>Табельний номер</td><td><t t-out="doc.sudo().registration_number or ''"/></td></tr>
+              <tr><td>Табельний номер</td><td><t t-out="doc.ua_tab_number()"/></td></tr>
               <tr><td>Підрозділ</td><td><t t-out="doc.department_id.name or ''"/></td></tr>
               <tr><td>Посада, професія</td><td><t t-out="doc.job_id.name or ''"/></td></tr>
             </table>

@@ -160,11 +160,12 @@ class UaMetrologyVerification(models.Model):
     equipment_id = fields.Many2one("maintenance.equipment", "Засіб вимірювання", required=True, index=True,
                                    ondelete="cascade", domain="[('ua_measuring', '=', True)]")
     company_id = fields.Many2one(related="equipment_id.company_id", store=True)
-    kind = fields.Selection(KINDS, "Вид", required=True, compute="_compute_kind", store=True, readonly=False)
+    kind = fields.Selection(KINDS, "Вид", required=True, compute="_compute_kind", store=True, readonly=False,
+                            precompute=True)
     date = fields.Date("Дата", required=True, default=fields.Date.context_today, tracking=True)
     result = fields.Selection(RESULTS, "Результат", required=True, default="passed", tracking=True)
     valid_until = fields.Date("Придатний до", compute="_compute_valid_until", store=True, readonly=False,
-                              tracking=True)
+                              precompute=True, tracking=True)
     certificate = fields.Char("Свідоцтво, сертифікат №",
                               help="Номер свідоцтва про повірку, сертифіката калібрування або довідки про непридатність.")
     provider_id = fields.Many2one("res.partner", "Виконавець",

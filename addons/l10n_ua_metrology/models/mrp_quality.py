@@ -54,7 +54,7 @@ class MrpWorkorder(models.Model):
         answer = self.ua_check_ids.filtered(lambda check: check.sequence == int(index))
         answer.sudo().write({
             "ua_instrument_ids": [(6, 0, instruments.ids)],
-            "ua_instruments_text": "; ".join(instruments.mapped(lambda i: i.ua_label())) or False,
+            "ua_instruments_text": "; ".join(instrument.ua_label() for instrument in instruments) or False,
         })
         return self.ua_check_rows()
 
