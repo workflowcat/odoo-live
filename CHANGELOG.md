@@ -387,6 +387,11 @@ Notable changes for people who run or build on this code. Module-level API chang
 - Labels in documents recognised during hiring match choices in Ukrainian as well as in the user's
   language (broke for English users after the English interface was added).
 
+### Fixed
+- Dated parameters (`ua.payroll.param`, `ua.fop.param`, `ua.profit.param` and the payslip explanation):
+  a company's own value now wins over the common one. The lookup sorted by company descending, and
+  PostgreSQL puts empty values first in that order, so the common record always won. Test: `ua_fop`.
+
 ### Security
 - `l10n_ua_mrp`: assembly drawings are returned without scripts, event handlers, embedded HTML or outside links.
 - `bp_purchase_intake`: an IBAN read from an email is not added to an existing supplier's card.

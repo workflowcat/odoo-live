@@ -23,7 +23,10 @@ class UaPayrollParam(models.Model):
         domain = [("key", "=", key), ("valid_from", "<=", date)]
         if company:
             domain += ["|", ("company_id", "=", company.id), ("company_id", "=", False)]
-        rec = self.search(domain, order="company_id desc, valid_from desc", limit=1)
+        # Значення компанії б'є загальне. Не сортуємо за company_id: у PostgreSQL порожні
+        # значення при DESC ідуть першими, і загальний запис перемагав би.
+        rec = self.search(domain, order="valid_from desc, id desc")
+        rec = rec.filtered("company_id")[:1] or rec[:1]
         if not rec:
             raise UserError(f"Немає параметра «{key}» на дату {date}. Додайте його в Зарплата → Параметри (Україна).")
         return rec.value

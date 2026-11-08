@@ -35,8 +35,10 @@ class UaProfitParam(models.Model):
         domain = [("key", "=", key), ("valid_from", "<=", on_date)]
         if company:
             domain += ["|", ("company_id", "=", company.id), ("company_id", "=", False)]
-        record = self.sudo().search(
-            domain, order="company_id desc, valid_from desc", limit=1)
+        # Значення компанії б'є загальне. Не сортуємо за company_id: у PostgreSQL порожні
+        # значення при DESC ідуть першими, і загальний запис перемагав би.
+        record = self.sudo().search(domain, order="valid_from desc, id desc")
+        record = record.filtered("company_id")[:1] or record[:1]
         if not record:
             raise UserError(
                 "Немає параметра податку на прибуток «%s» на дату %s. Додайте "

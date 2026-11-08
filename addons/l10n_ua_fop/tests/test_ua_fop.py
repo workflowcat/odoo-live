@@ -289,3 +289,16 @@ class TestUaFop(AccountTestInvoicingCommon):
             "company_id": self.company.id, "year": 2015, "quarter": "1"})
         with self.assertRaises(UserError):
             old.action_compute()
+
+    def test_14_company_value_beats_common(self):
+        """Параметр компанії перемагає загальний, навіть коли загальний новіший; інша компанія бере загальний.
+
+        Загальна МЗП з 2026-01-01 - 8 647 грн (дані модуля). Компанія має свій запис з 2025-06-01 -
+        9 000 грн: на 2026-03-01 для неї 9 000, для іншої компанії 8 647.
+        """
+        Param = self.env["ua.fop.param"].sudo()
+        Param.create({"key": "fop_mzp", "name": "Мінімальна зарплата, грн/міс", "valid_from": date(2025, 6, 1),
+                      "value": 9000.0, "company_id": self.company.id, "source": "уявне значення для перевірки"})
+        other = self.env["res.company"].sudo().create({"name": "ТОВ Інше", "currency_id": self.uah.id})
+        self.assertEqual(Param.get("fop_mzp", date(2026, 3, 1), self.company), 9000.0)
+        self.assertEqual(Param.get("fop_mzp", date(2026, 3, 1), other), 8647.0)
