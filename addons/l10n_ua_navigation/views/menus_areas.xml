@@ -186,6 +186,12 @@
   <menuitem id="menu_ua_reporting_vat_period" name="Зведення ПДВ за період"
             parent="menu_ua_reporting_vat" action="l10n_ua_vat.action_ua_vat_period" sequence="20"/>
 
+  <menuitem id="menu_ua_reporting_local_tax" name="Місцеві податки" parent="menu_ua_reporting_root" sequence="25"/>
+  <menuitem id="menu_ua_local_tax_return" name="Розрахунки" parent="menu_ua_reporting_local_tax"
+            action="l10n_ua_local_tax.action_ua_local_tax_return" sequence="10"/>
+  <menuitem id="menu_ua_local_tax_object" name="Нерухомість і земля" parent="menu_ua_reporting_local_tax"
+            action="l10n_ua_local_tax.action_ua_local_tax_object" sequence="20"/>
+
   <menuitem id="menu_ua_reporting_finrep" name="Фінзвітність" parent="menu_ua_reporting_root"
             sequence="30"/>
   <menuitem id="menu_ua_reporting_f1" name="Ф1. Баланс" parent="menu_ua_reporting_finrep"

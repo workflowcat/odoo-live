@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_local_tax_object_list" model="ir.ui.view">
+    <field name="name">ua.local.tax.object.list</field>
+    <field name="model">ua.local.tax.object</field>
+    <field name="arch" type="xml">
+      <list decoration-muted="exempt">
+        <field name="name"/>
+        <field name="kind"/>
+        <field name="cadastral_number" optional="show"/>
+        <field name="territory" optional="show"/>
+        <field name="area"/>
+        <field name="rate_percent" optional="show"/>
+        <field name="valuation" optional="hide"/>
+        <field name="annual_rent" optional="hide"/>
+        <field name="date_from"/>
+        <field name="date_to" optional="show"/>
+        <field name="exempt" optional="show"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+        <field name="currency_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_local_tax_object_form" model="ir.ui.view">
+    <field name="name">ua.local.tax.object.form</field>
+    <field name="model">ua.local.tax.object</field>
+    <field name="arch" type="xml">
+      <form>
+        <sheet>
+          <widget name="web_ribbon" title="Архів" bg_color="text-bg-danger" invisible="active"/>
+          <div class="oe_title">
+            <label for="name"/>
+            <h1><field name="name" placeholder="Наприклад, адмінбудівля або ділянка під цехом"/></h1>
+          </div>
+          <group>
+            <group>
+              <field name="kind"/>
+              <field name="address"/>
+              <field name="cadastral_number"/>
+              <field name="territory"/>
+              <field name="date_from"/>
+              <field name="date_to"/>
+            </group>
+            <group>
+              <field name="area"/>
+              <field name="rate_percent" invisible="kind == 'rent'"/>
+              <field name="valuation" invisible="kind != 'land'"/>
+              <field name="rate_per_ha" invisible="kind != 'land' or valuation"/>
+              <field name="annual_rent" invisible="kind != 'rent'"/>
+              <field name="exempt" invisible="kind == 'rent'"/>
+              <field name="exempt_reason" invisible="not exempt" required="exempt"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+          </group>
+          <group>
+            <group>
+              <field name="expense_account_id"/>
+              <field name="liability_account_id"/>
+            </group>
+            <group>
+              <field name="company_id" groups="base.group_multi_company"/>
+              <field name="active" invisible="1"/>
+            </group>
+          </group>
+          <field name="note" placeholder="Рішення громади, договір оренди, витяг з реєстру"/>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_local_tax_object_search" model="ir.ui.view">
+    <field name="name">ua.local.tax.object.search</field>
+    <field name="model">ua.local.tax.object</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="name"/>
+        <field name="cadastral_number"/>
+        <field name="territory"/>
+        <filter name="property" string="Нерухомість" domain="[('kind', '=', 'property')]"/>
+        <filter name="land" string="Земля" domain="[('kind', 'in', ('land', 'rent'))]"/>
+        <separator/>
+        <filter name="exempt" string="Не об'єкти оподаткування" domain="[('exempt', '=', True)]"/>
+        <filter name="archived" string="Архів" domain="[('active', '=', False)]"/>
+        <group>
+          <filter name="by_kind" string="Вид" context="{'group_by': 'kind'}"/>
+          <filter name="by_territory" string="Громада" context="{'group_by': 'territory'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_local_tax_object" model="ir.actions.act_window">
+    <field name="name">Об'єкти місцевих податків</field>
+    <field name="res_model">ua.local.tax.object</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Додайте будівлю, приміщення або земельну ділянку</p>
+      <p>Площа, ставка громади і дати права - з них рахується податок за рік.</p>
+    </field>
+  </record>
+
+  <record id="view_ua_local_tax_return_list" model="ir.ui.view">
+    <field name="name">ua.local.tax.return.list</field>
+    <field name="model">ua.local.tax.return</field>
+    <field name="arch" type="xml">
+      <list decoration-info="state == 'draft'">
+        <field name="name"/>
+        <field name="kind" optional="hide"/>
+        <field name="year" options="{'format': false}"/>
+        <field name="quarter" optional="show"/>
+        <field name="due_date"/>
+        <field name="amount_total" sum="Разом"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="state" widget="badge" decoration-success="state == 'posted'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_local_tax_return_form" model="ir.ui.view">
+    <field name="name">ua.local.tax.return.form</field>
+    <field name="model">ua.local.tax.return</field>
+    <field name="arch" type="xml">
+      <form>
+        <header>
+          <button name="action_fill" string="Заповнити з об'єктів" type="object"
+                  invisible="state != 'draft' or kind == 'env'"/>
+          <button name="action_copy_previous" string="Склад з попереднього кварталу" type="object"
+                  invisible="state != 'draft' or kind != 'env'"/>
+          <button name="action_post" string="Нарахувати" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+          <button name="action_draft" string="В чернетку (сторно)" type="object" invisible="state != 'posted'"
+                  groups="account.group_account_manager"/>
+          <button name="action_print" string="Друк" type="object"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="kind" readonly="state != 'draft'"/>
+              <field name="year" options="{'format': false}" readonly="state != 'draft'"/>
+              <field name="quarter" invisible="kind != 'env'" required="kind == 'env'" readonly="state != 'draft'"/>
+              <field name="min_wage" invisible="kind != 'property'" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="due_date"/>
+              <field name="amount_total"/>
+              <field name="journal_id" readonly="state != 'draft'"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Рядки" name="lines">
+              <field name="line_ids" readonly="state != 'draft'">
+                <list editable="bottom" decoration-muted="exempt">
+                  <field name="kind" column_invisible="1"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="object_id" column_invisible="parent.kind == 'env'" readonly="1"/>
+                  <field name="name" readonly="object_id"/>
+                  <field name="env_kind" column_invisible="parent.kind != 'env'"/>
+                  <field name="area" column_invisible="parent.kind == 'env'"/>
+                  <field name="base" column_invisible="parent.kind == 'env'"/>
+                  <field name="rate_percent" column_invisible="parent.kind == 'env'"/>
+                  <field name="months" column_invisible="parent.kind == 'env'"/>
+                  <field name="exempt" column_invisible="parent.kind != 'property'"/>
+                  <field name="quantity" column_invisible="parent.kind != 'env'"/>
+                  <field name="rate" column_invisible="parent.kind != 'env'"/>
+                  <field name="amount" sum="Разом" readonly="1"/>
+                  <field name="expense_account_id" optional="hide"/>
+                  <field name="liability_account_id" optional="hide"/>
+                </list>
+              </field>
+            </page>
+            <page string="Проводки" name="moves" invisible="not move_ids">
+              <field name="move_ids">
+                <list>
+                  <field name="date"/>
+                  <field name="name"/>
+                  <field name="ref"/>
+                  <field name="amount_total_signed" string="Сума"/>
+                  <field name="state"/>
+                </list>
+              </field>
+            </page>
+            <page string="Примітка" name="note">
+              <field name="note"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_local_tax_return_search" model="ir.ui.view">
+    <field name="name">ua.local.tax.return.search</field>
+    <field name="model">ua.local.tax.return</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="name"/>
+        <field name="year"/>
+        <filter name="property" string="Нерухомість" domain="[('kind', '=', 'property')]"/>
+        <filter name="land" string="Земля" domain="[('kind', '=', 'land')]"/>
+        <filter name="env" string="Екологічний" domain="[('kind', '=', 'env')]"/>
+        <separator/>
+        <filter name="draft" string="Чернетки" domain="[('state', '=', 'draft')]"/>
+        <group>
+          <filter name="by_year" string="Рік" context="{'group_by': 'year'}"/>
+          <filter name="by_kind" string="Податок" context="{'group_by': 'kind'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_local_tax_return" model="ir.actions.act_window">
+    <field name="name">Розрахунки місцевих податків</field>
+    <field name="res_model">ua.local.tax.return</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Створіть розрахунок за рік або квартал</p>
+      <p>Податок на нерухомість і плата за землю заповнюються з об'єктів, екологічний - речовинами.</p>
+    </field>
+  </record>
+</odoo>

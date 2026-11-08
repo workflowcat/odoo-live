@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_local_tax_return" model="ir.actions.report">
+    <field name="name">Розрахунок місцевого податку</field>
+    <field name="model">ua.local.tax.return</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_local_tax.report_ua_local_tax_return</field>
+    <field name="report_file">l10n_ua_local_tax.report_ua_local_tax_return</field>
+    <field name="binding_model_id" ref="model_ua_local_tax_return"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">object.name</field>
+  </record>
+
+  <template id="report_ua_local_tax_return">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <style>
+            .ua-doc { font-size: 10px; color: #000; }
+            .ua-doc h3 { font-size: 12px; text-align: center; margin: 4px 0; }
+            .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+            .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+            .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; vertical-align: top; }
+            .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+            .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+          </style>
+          <div class="ua-doc">
+            <div><t t-out="doc.company_id.name"/><t t-if="doc.company_id.company_registry">, ЄДРПОУ <t t-out="doc.company_id.company_registry"/></t></div>
+            <h3>РОЗРАХУНОК: <t t-out="doc.ua_kind_label().upper()"/></h3>
+            <div class="ua-sub"><t t-out="doc.name"/>; подати до <t t-out="doc.ua_date(doc.due_date)"/>
+              <t t-if="doc.kind == 'property' and doc.min_wage">; мінімальна зарплата на 1 січня <t t-out="'%.2f' % doc.min_wage"/> грн</t>
+            </div>
+            <table class="ua-grid">
+              <thead>
+                <tr t-if="doc.kind != 'env'">
+                  <th>№</th><th>Об'єкт</th><th>Номер</th><th>Громада</th><th>Площа</th><th>База за рік</th>
+                  <th>Ставка, %</th><th>Місяців</th><th>Сума, грн</th>
+                </tr>
+                <tr t-else="">
+                  <th>№</th><th>Речовина</th><th>Вид</th><th>Кількість, т</th><th>Ставка, грн/т</th><th>Сума, грн</th>
+                </tr>
+              </thead>
+              <tbody>
+                <t t-foreach="doc.line_ids" t-as="line">
+                  <tr t-if="doc.kind != 'env'">
+                    <td t-out="line_index + 1"/>
+                    <td><t t-out="line.name"/><t t-if="line.exempt"> (не є об'єктом: <t t-out="line.object_id.exempt_reason"/>)</t></td>
+                    <td t-out="line.object_id.cadastral_number or ''"/>
+                    <td t-out="line.object_id.territory or ''"/>
+                    <td class="ua-num" t-out="'%.4f' % line.area if line.area else ''"/>
+                    <td class="ua-num" t-out="'%.2f' % line.base"/>
+                    <td class="ua-num" t-out="'%.4f' % line.rate_percent if line.rate_percent else ''"/>
+                    <td class="ua-num" t-out="line.months"/>
+                    <td class="ua-num" t-out="'%.2f' % line.amount"/>
+                  </tr>
+                  <tr t-else="">
+                    <td t-out="line_index + 1"/>
+                    <td t-out="line.name"/>
+                    <td t-out="line.ua_env_kind_label()"/>
+                    <td class="ua-num" t-out="'%.4f' % line.quantity"/>
+                    <td class="ua-num" t-out="'%.2f' % line.rate"/>
+                    <td class="ua-num" t-out="'%.2f' % line.amount"/>
+                  </tr>
+                </t>
+                <tr><td t-att-colspan="8 if doc.kind != 'env' else 5">Разом</td>
+                  <td class="ua-num" t-out="'%.2f' % doc.amount_total"/></tr>
+              </tbody>
+            </table>
+            <table class="ua-grid" t-if="doc.kind != 'env'">
+              <thead><tr><th>Період (кінець)</th><th>Нараховано, грн</th></tr></thead>
+              <tbody>
+                <tr t-foreach="doc.ua_schedule()" t-as="period">
+                  <td t-out="doc.ua_date(period[0])"/>
+                  <td class="ua-num" t-out="'%.2f' % period[1]"/>
+                </tr>
+              </tbody>
+            </table>
+            <p>Ставки - з рішення громади і чинної редакції Податкового кодексу.</p>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

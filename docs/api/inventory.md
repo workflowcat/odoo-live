@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 75. Моделей: 157. Методів: 600. Збережених полів на чужих моделях: 388.
+Модулів: 76. Моделей: 160. Методів: 612. Збережених полів на чужих моделях: 388.
 
 ## Зарплата
 
@@ -1545,6 +1545,39 @@
 | `action_return(quantity, day=None)` | Повернути невикористаний матеріал з цеху на склад. | `l10n_ua_limit_card` |
 | `ua_month()` | - | `l10n_ua_limit_card` |
 | `ua_rows()` | Рядки друку: дата, відпущено, повернуто, наростаючим підсумком, залишок ліміту. | `l10n_ua_limit_card` |
+
+### `ua.local.tax.line`
+
+наша модель · `l10n_ua_local_tax`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `ua_env_kind_label()` | - | `l10n_ua_local_tax` |
+| `ua_split()` | [(кінець періоду, сума)]: нерухомість - квартали, земля - місяці, екологія - квартал. | `l10n_ua_local_tax` |
+
+### `ua.local.tax.object`
+
+наша модель · `l10n_ua_local_tax`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `ua_annual(min_wage=0.0)` | Сума за повний рік. | `l10n_ua_local_tax` |
+| `ua_months(year)` | Місяці року, за які платить власник: з місяця набуття до місяця перед втратою права. | `l10n_ua_local_tax` |
+
+### `ua.local.tax.return`
+
+наша модель · `l10n_ua_local_tax`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_copy_previous()` | Склад речовин і ставки з попереднього кварталу, кількості - нулі. | `l10n_ua_local_tax` |
+| `action_draft()` | Повернути в чернетку: проводки сторнуються. | `l10n_ua_local_tax` |
+| `action_fill()` | - | `l10n_ua_local_tax` |
+| `action_post()` | - | `l10n_ua_local_tax` |
+| `action_print()` | - | `l10n_ua_local_tax` |
+| `ua_date(day)` | - | `l10n_ua_local_tax` |
+| `ua_kind_label()` | - | `l10n_ua_local_tax` |
+| `ua_schedule()` | [(дата кінця періоду, сума)] за всіма рядками. | `l10n_ua_local_tax` |
 
 ### `ua.navigation`
 

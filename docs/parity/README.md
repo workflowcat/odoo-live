@@ -28,7 +28,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | **Reconciliation act** with a counterparty (акт звірки) | done | `l10n_ua_contract`: by partner or contract, two-sided print form, agreed or disputed |
 | Mutual offset of debts (взаємозалік) | done | `l10n_ua_offset`: open customer and vendor debts of one counterparty (by contract if chosen), oldest first, one entry 63 to 36 reconciled with the documents it closes, two-sided act under article 601 of the Civil Code, cancel restores the debts; UAH only |
 | Month-end closing assistant (закриття місяця) | yes | `l10n_ua_close`: depreciation, FX revaluation with reversal, overhead 91, 7/9 to 79, 79 to 44 in order, with undo; period lock and change review in `l10n_ua_changes` |
-| Property and land tax, environmental tax | gap | low priority; returns as XML |
+| Property and land tax, environmental tax | yes | `l10n_ua_local_tax`: buildings and land plots (owned or rented) with area, valuation, the community's rate and ownership dates, exempt objects with their basis; yearly calculation counting months of ownership, property tax by quarters and land payment by months as entries Dr 92 Cr tax settlements, reversal on return to draft; environmental tax per quarter by substance with the list copied from the previous quarter; print. DPS XML of the declarations is still a gap |
 | Statistical reports (Держстат) | gap | low priority |
 | E-signature (КЕП) and sending reports, ЄРПН registration | gap | XML files are produced; signing and sending stay in M.E.Doc/Вчасно or a bridge route |
 | Electronic document exchange with counterparties | done | `l10n_ua_edo`: invoices, acts, waybills, contracts and reconciliation acts out as PDF through the bridge (one or many at once, no double sends), status and the counterparty's signature back, rejection with a task, paper signature; incoming documents matched to vendor bills, signed or rejected from Odoo. Service adapters in the bridge are separate work |
@@ -130,7 +130,7 @@ payload in our catalogues is a camera; nothing here covers munitions.
 | Periodic and type tests of serial products; acceptance suspended while tests are failed, overdue or pending after a design change | the product's technical conditions and the contract (periodicity and scope); state defense standards on product acceptance as applied by the customer (check the current edition) | done: `l10n_ua_product_tests`: periodicity per product with the first due date, test protocols (periodic, type, qualification) with samples by serial, result, place and representative, validity from the protocol date; the acceptance act is refused while periodic tests failed or expired or type tests are pending; a design change can require type tests; reminders; protocol print |
 | Claims (рекламації) from units: deadlines, warranty, root cause, replacement, repeat failures | contract terms | done: `l10n_ua_claim`; the passport prints the claim history; a design cause opens a change notice |
 | Imported components: customs declaration, duty and VAT in cost | Митний кодекс, ст. 49-58; ПКУ, ст. 190 | done: `l10n_ua_customs`; duty-free import under defense benefits goes as a 0 % duty rate or a VAT basis on the line |
-| Reservation of employees | постанова КМУ № 76 (2023) and its changes | done except the Дія request list: status, quota, wage floor, deadlines; the numbers are settings on the status, checked against the current edition |
+| Reservation of employees | постанова КМУ № 76 (2023) and its changes | done: status, quota, wage floor, deadlines; reservation request with candidates, missing data, quota, CSV working list for Дія and decisions carried to the cards; the numbers are settings on the status, checked against the current edition |
 | Donor-funded deliveries to units | civil and tax rules on charity | done: `l10n_ua_unit_transfer`: a three-party act (maker, donor, unit) or a free transfer from the company, built from the delivery with serials and the order price or book value; the passport shows the unit; a serial cannot be handed over twice. Tax effects of a free transfer stay with the accountant |
 
 Sources checked on 2026-11-07: Resolution 309 cost items and price formula (paragraphs 11-13; profit
@@ -160,11 +160,10 @@ contracts (`l10n_ua_guarantee`); measuring instruments and their verification (`
 (`l10n_ua_export_control`); precious metals in products (`l10n_ua_precious_metals`); approved suppliers of critical
 components (`l10n_ua_supplier_approval`); limit cards М-8 (`l10n_ua_limit_card`);
 periodic and type tests gating acceptance (`l10n_ua_product_tests`); labour safety briefings and medical exams
-(`l10n_ua_safety`).
+(`l10n_ua_safety`); property, land and environmental taxes (`l10n_ua_local_tax`).
 
 Next, in this order:
 
 1. PRRO receipts from the native point of sale (needs a screen; lives in the UI repository).
-2. Reservation: the list for the Дія request, once the current field set is confirmed.
-3. Continuous exchange with a running 1C during a move (beyond the one-off import in `l10n_ua_migrate`).
-4. УКТ ЗЕД classifier from official open data, once a source with a clear licence is found.
+2. Continuous exchange with a running 1C during a move (beyond the one-off import in `l10n_ua_migrate`).
+3. УКТ ЗЕД classifier from official open data, once a source with a clear licence is found.

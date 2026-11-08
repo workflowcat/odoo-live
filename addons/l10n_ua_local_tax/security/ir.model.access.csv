@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_local_tax_object_user,ua.local.tax.object user,model_ua_local_tax_object,account.group_account_user,1,1,1,0
+access_ua_local_tax_object_manager,ua.local.tax.object manager,model_ua_local_tax_object,account.group_account_manager,1,1,1,1
+access_ua_local_tax_return_user,ua.local.tax.return user,model_ua_local_tax_return,account.group_account_user,1,1,1,0
+access_ua_local_tax_return_manager,ua.local.tax.return manager,model_ua_local_tax_return,account.group_account_manager,1,1,1,1
+access_ua_local_tax_line_user,ua.local.tax.line user,model_ua_local_tax_line,account.group_account_user,1,1,1,1

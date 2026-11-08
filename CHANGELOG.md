@@ -242,6 +242,13 @@ Notable changes for people who run or build on this code. Module-level API chang
   marked as filed while data is missing or the reservations that stay plus the request exceed the quota.
   CSV working list, print, and the decision per line (reserved until a date or refused) carried to the
   employee card and the military events. Tests: `ua_military`.
+- `l10n_ua_local_tax`: property tax, land payment and environmental tax. Objects (non-residential buildings,
+  owned land plots, land rent) carry area, valuation or rent, the community's rate, ownership dates and an
+  exempt flag with its basis. A yearly calculation counts the months of ownership (from the month acquired to
+  the month before it was lost), posts property tax by quarters and land payment by months (Dr 92, Cr tax
+  settlements), and reverses its entries when returned to draft. Environmental tax per quarter by substance,
+  quantity and rate, with the list copied from the previous quarter. Print. Rates are settings: check the
+  current decision of the community and the Tax Code. Tests: `ua_local_tax`.
 
 ### Changed
 - Defense packs `defense_uav` and `defense_ugv`: finished products are marked dual-use under export control

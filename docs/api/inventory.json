@@ -1,8 +1,8 @@
 {
   "totals": {
-    "modules": 75,
-    "models": 157,
-    "methods": 600,
+    "modules": 76,
+    "models": 160,
+    "methods": 612,
     "fields": 388
   },
   "areas": [
@@ -7090,6 +7090,132 @@
               "doc": "Рядки друку: дата, відпущено, повернуто, наростаючим підсумком, залишок ліміту.",
               "module": "l10n_ua_limit_card",
               "file": "addons/l10n_ua_limit_card/models/limit_card.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.local.tax.line",
+          "ours": true,
+          "modules": [
+            "l10n_ua_local_tax"
+          ],
+          "methods": [
+            {
+              "name": "ua_env_kind_label",
+              "signature": "ua_env_kind_label()",
+              "doc": "",
+              "module": "l10n_ua_local_tax",
+              "file": "addons/l10n_ua_local_tax/models/local_tax.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_split",
+              "signature": "ua_split()",
+              "doc": "[(кінець періоду, сума)]: нерухомість - квартали, земля - місяці, екологія - квартал.",
+              "module": "l10n_ua_local_tax",
+              "file": "addons/l10n_ua_local_tax/models/local_tax.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.local.tax.object",
+          "ours": true,
+          "modules": [
+            "l10n_ua_local_tax"
+          ],
+          "methods": [
+            {
+              "name": "ua_annual",
+              "signature": "ua_annual(min_wage=0.0)",
+              "doc": "Сума за повний рік.",
+              "module": "l10n_ua_local_tax",
+              "file": "addons/l10n_ua_local_tax/models/local_tax.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_months",
+              "signature": "ua_months(year)",
+              "doc": "Місяці року, за які платить власник: з місяця набуття до місяця перед втратою права.",
+              "module": "l10n_ua_local_tax",
+              "file": "addons/l10n_ua_local_tax/models/local_tax.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.local.tax.return",
+          "ours": true,
+          "modules": [
+            "l10n_ua_local_tax"
+          ],
+          "methods": [
+            {
+              "name": "action_copy_previous",
+              "signature": "action_copy_previous()",
+              "doc": "Склад речовин і ставки з попереднього кварталу, кількості - нулі.",
+              "module": "l10n_ua_local_tax",
+              "file": "addons/l10n_ua_local_tax/models/local_tax.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "Повернути в чернетку: проводки сторнуються.",
+              "module": "l10n_ua_local_tax",
+              "file": "addons/l10n_ua_local_tax/models/local_tax.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill",
+              "signature": "action_fill()",
+              "doc": "",
+              "module": "l10n_ua_local_tax",
+              "file": "addons/l10n_ua_local_tax/models/local_tax.py",
+              "decorators": []
+            },
+            {
+              "name": "action_post",
+              "signature": "action_post()",
+              "doc": "",
+              "module": "l10n_ua_local_tax",
+              "file": "addons/l10n_ua_local_tax/models/local_tax.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_local_tax",
+              "file": "addons/l10n_ua_local_tax/models/local_tax.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_date",
+              "signature": "ua_date(day)",
+              "doc": "",
+              "module": "l10n_ua_local_tax",
+              "file": "addons/l10n_ua_local_tax/models/local_tax.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_kind_label",
+              "signature": "ua_kind_label()",
+              "doc": "",
+              "module": "l10n_ua_local_tax",
+              "file": "addons/l10n_ua_local_tax/models/local_tax.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_schedule",
+              "signature": "ua_schedule()",
+              "doc": "[(дата кінця періоду, сума)] за всіма рядками.",
+              "module": "l10n_ua_local_tax",
+              "file": "addons/l10n_ua_local_tax/models/local_tax.py",
               "decorators": []
             }
           ],
