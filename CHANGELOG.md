@@ -20,6 +20,15 @@ Notable changes for people who run or build on this code. Module-level API chang
   new goods from unmatched lines, and a list of public places to look for suppliers. Example price lists of
   invented suppliers in `examples/`. Tests: `ua_supplier_catalog`.
 - `l10n_ua_catalog`: hooks for modules that build a product's name and values from a pack item.
+- `l10n_ua_parcel`: parcels in and out with Nova Poshta, Ukrposhta and other carriers. Tracking numbers
+  pasted as they come (a whole supplier email is fine), the carrier recognised by the number, status pulled
+  on a schedule and mapped to one list of states (new, in transit, customs, out for delivery, waiting at the
+  branch, failed attempt, delivered, returning, returned, problem, cancelled), the delivery history, cash on
+  delivery, a reminder to pick up before paid storage, "needs attention" for stuck, late and returning
+  parcels, links from purchase orders and pickings. Nova Poshta and Ukrposhta through their APIs, others
+  through the integration bridge or by hand, a demo carrier without network. Tests: `ua_parcel`.
+- `docs/parity/capability-map.md`: what a manufacturer (defense or civil) needs from one system, what is
+  covered, what is missing and in what order to build it.
 - Open-source groundwork: LICENSE and license texts, README in English and Ukrainian, CONTRIBUTING,
   SECURITY, CODE_OF_CONDUCT, MAINTAINERS, issue and pull request templates, `docs/open-source-plan.md`.
 - `scripts/check_static.sh` (all checks without Docker) and `scripts/test_full.sh` (what CI runs).
@@ -402,6 +411,12 @@ Notable changes for people who run or build on this code. Module-level API chang
   language (broke for English users after the English interface was added).
 
 ### Fixed
+- Column guessing in the component intake and price lists no longer takes a title row such as
+  «Номенклатура за 2026-11-01» for the header: the row with the most column names wins.
+- Supplier prices that do not fit two decimals per unit (250 UAH for 500 washers) are kept per pack
+  (`уп. 500 шт`) instead of being rounded per piece; comparison fields carry four decimals.
+- Month close: revaluation lines keep their UAH amount when Odoo recomputes it from the zero
+  currency amount, so the entry balances every time.
 - Dated parameters (`ua.payroll.param`, `ua.fop.param`, `ua.profit.param` and the payslip explanation):
   a company's own value now wins over the common one. The lookup sorted by company descending, and
   PostgreSQL puts empty values first in that order, so the common record always won. Test: `ua_fop`.

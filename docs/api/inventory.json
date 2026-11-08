@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 92,
-    "models": 193,
-    "methods": 746,
-    "fields": 414
+    "modules": 93,
+    "models": 197,
+    "methods": 754,
+    "fields": 416
   },
   "areas": [
     {
@@ -4830,129 +4830,6 @@
           ]
         },
         {
-          "model": "stock.picking",
-          "ours": false,
-          "modules": [
-            "l10n_ua_commission",
-            "l10n_ua_docs_stock",
-            "l10n_ua_export_control",
-            "l10n_ua_stock_docs",
-            "l10n_ua_supplier_approval",
-            "l10n_ua_tolling",
-            "l10n_ua_unit_transfer"
-          ],
-          "methods": [
-            {
-              "name": "action_ua_unit_transfer",
-              "signature": "action_ua_unit_transfer()",
-              "doc": "Акт передачі з цього відвантаження: існуючий або новий, заповнений.",
-              "module": "l10n_ua_unit_transfer",
-              "file": "addons/l10n_ua_unit_transfer/models/ua_unit_transfer.py",
-              "decorators": []
-            },
-            {
-              "name": "ua_get_or_create",
-              "signature": "ua_get_or_create(client_ref, vals=None)",
-              "doc": "Доставка за міткою клієнта: є - віддаємо, немає - створюємо.",
-              "module": "l10n_ua_stock_docs",
-              "file": "addons/l10n_ua_stock_docs/models/stock_picking.py",
-              "decorators": [
-                "api.model"
-              ]
-            }
-          ],
-          "fields": [
-            {
-              "name": "ua_act_condition",
-              "type": "Char",
-              "label": "Стан цінностей",
-              "module": "l10n_ua_stock_docs",
-              "file": "addons/l10n_ua_stock_docs/models/stock_picking.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_act_handover",
-              "type": "Char",
-              "label": "Передав (ПІБ, посада)",
-              "module": "l10n_ua_stock_docs",
-              "file": "addons/l10n_ua_stock_docs/models/stock_picking.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_act_receiver",
-              "type": "Char",
-              "label": "Прийняв (ПІБ, посада)",
-              "module": "l10n_ua_stock_docs",
-              "file": "addons/l10n_ua_stock_docs/models/stock_picking.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_client_ref",
-              "type": "Char",
-              "label": "Мітка операції",
-              "module": "l10n_ua_stock_docs",
-              "file": "addons/l10n_ua_stock_docs/models/stock_picking.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_commission_id",
-              "type": "Many2one",
-              "label": "ua.commission.agreement",
-              "module": "l10n_ua_commission",
-              "file": "addons/l10n_ua_commission/models/ua_commission.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_export_permit_id",
-              "type": "Many2one",
-              "label": "ua.export.permit",
-              "module": "l10n_ua_export_control",
-              "file": "addons/l10n_ua_export_control/models/export_control.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_proxy_date",
-              "type": "Date",
-              "label": "Дата довіреності",
-              "module": "l10n_ua_docs_stock",
-              "file": "addons/l10n_ua_docs_stock/models/stock_picking.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_proxy_number",
-              "type": "Char",
-              "label": "Довіреність №",
-              "module": "l10n_ua_docs_stock",
-              "file": "addons/l10n_ua_docs_stock/models/stock_picking.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_proxy_person",
-              "type": "Char",
-              "label": "Видана на (ПІБ)",
-              "module": "l10n_ua_docs_stock",
-              "file": "addons/l10n_ua_docs_stock/models/stock_picking.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_tolling_id",
-              "type": "Many2one",
-              "label": "ua.tolling.order",
-              "module": "l10n_ua_tolling",
-              "file": "addons/l10n_ua_tolling/models/stock.py",
-              "groups": ""
-            },
-            {
-              "name": "ua_unit_transfer_ids",
-              "type": "One2many",
-              "label": "ua.unit.transfer",
-              "module": "l10n_ua_unit_transfer",
-              "file": "addons/l10n_ua_unit_transfer/models/ua_unit_transfer.py",
-              "groups": ""
-            }
-          ]
-        },
-        {
           "model": "uom.uom",
           "ours": false,
           "modules": [
@@ -8181,6 +8058,110 @@
           "fields": []
         },
         {
+          "model": "ua.parcel",
+          "ours": true,
+          "modules": [
+            "l10n_ua_parcel"
+          ],
+          "methods": [
+            {
+              "name": "action_ua_close",
+              "signature": "action_ua_close()",
+              "doc": "",
+              "module": "l10n_ua_parcel",
+              "file": "addons/l10n_ua_parcel/models/parcel.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_open_carrier",
+              "signature": "action_ua_open_carrier()",
+              "doc": "",
+              "module": "l10n_ua_parcel",
+              "file": "addons/l10n_ua_parcel/models/parcel.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_reopen",
+              "signature": "action_ua_reopen()",
+              "doc": "",
+              "module": "l10n_ua_parcel",
+              "file": "addons/l10n_ua_parcel/models/parcel.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_track",
+              "signature": "action_ua_track()",
+              "doc": "Спитати перевізника зараз. Помилка одного перевізника не зупиняє інших.",
+              "module": "l10n_ua_parcel",
+              "file": "addons/l10n_ua_parcel/models/parcel.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.parcel.add",
+          "ours": true,
+          "modules": [
+            "l10n_ua_parcel"
+          ],
+          "methods": [
+            {
+              "name": "action_add",
+              "signature": "action_add()",
+              "doc": "",
+              "module": "l10n_ua_parcel",
+              "file": "addons/l10n_ua_parcel/wizard/parcel_add.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.parcel.carrier",
+          "ours": true,
+          "modules": [
+            "l10n_ua_parcel"
+          ],
+          "methods": [
+            {
+              "name": "action_ua_parcels",
+              "signature": "action_ua_parcels()",
+              "doc": "",
+              "module": "l10n_ua_parcel",
+              "file": "addons/l10n_ua_parcel/models/carrier.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.parcel.links",
+          "ours": true,
+          "modules": [
+            "l10n_ua_parcel"
+          ],
+          "methods": [
+            {
+              "name": "action_ua_parcel_add",
+              "signature": "action_ua_parcel_add()",
+              "doc": "",
+              "module": "l10n_ua_parcel",
+              "file": "addons/l10n_ua_parcel/models/links.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_parcels",
+              "signature": "action_ua_parcels()",
+              "doc": "",
+              "module": "l10n_ua_parcel",
+              "file": "addons/l10n_ua_parcel/models/links.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.payment.request",
           "ours": true,
           "modules": [
@@ -11275,6 +11256,7 @@
           "ours": false,
           "modules": [
             "l10n_ua_contract",
+            "l10n_ua_parcel",
             "l10n_ua_purchase",
             "l10n_ua_supplier_approval"
           ],
@@ -11302,6 +11284,14 @@
               "label": "Рахунок витрат",
               "module": "l10n_ua_purchase",
               "file": "addons/l10n_ua_purchase/models/purchase_order.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_parcel_ids",
+              "type": "One2many",
+              "label": "ua.parcel",
+              "module": "l10n_ua_parcel",
+              "file": "addons/l10n_ua_parcel/models/links.py",
               "groups": ""
             },
             {
@@ -11591,6 +11581,138 @@
               "label": "ua.commission.report",
               "module": "l10n_ua_commission",
               "file": "addons/l10n_ua_commission/models/ua_commission.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "stock.picking",
+          "ours": false,
+          "modules": [
+            "l10n_ua_commission",
+            "l10n_ua_docs_stock",
+            "l10n_ua_export_control",
+            "l10n_ua_parcel",
+            "l10n_ua_stock_docs",
+            "l10n_ua_supplier_approval",
+            "l10n_ua_tolling",
+            "l10n_ua_unit_transfer"
+          ],
+          "methods": [
+            {
+              "name": "action_ua_unit_transfer",
+              "signature": "action_ua_unit_transfer()",
+              "doc": "Акт передачі з цього відвантаження: існуючий або новий, заповнений.",
+              "module": "l10n_ua_unit_transfer",
+              "file": "addons/l10n_ua_unit_transfer/models/ua_unit_transfer.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_get_or_create",
+              "signature": "ua_get_or_create(client_ref, vals=None)",
+              "doc": "Доставка за міткою клієнта: є - віддаємо, немає - створюємо.",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_picking.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": [
+            {
+              "name": "ua_act_condition",
+              "type": "Char",
+              "label": "Стан цінностей",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_picking.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_act_handover",
+              "type": "Char",
+              "label": "Передав (ПІБ, посада)",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_picking.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_act_receiver",
+              "type": "Char",
+              "label": "Прийняв (ПІБ, посада)",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_picking.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_client_ref",
+              "type": "Char",
+              "label": "Мітка операції",
+              "module": "l10n_ua_stock_docs",
+              "file": "addons/l10n_ua_stock_docs/models/stock_picking.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_commission_id",
+              "type": "Many2one",
+              "label": "ua.commission.agreement",
+              "module": "l10n_ua_commission",
+              "file": "addons/l10n_ua_commission/models/ua_commission.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_export_permit_id",
+              "type": "Many2one",
+              "label": "ua.export.permit",
+              "module": "l10n_ua_export_control",
+              "file": "addons/l10n_ua_export_control/models/export_control.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_parcel_ids",
+              "type": "One2many",
+              "label": "ua.parcel",
+              "module": "l10n_ua_parcel",
+              "file": "addons/l10n_ua_parcel/models/links.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_proxy_date",
+              "type": "Date",
+              "label": "Дата довіреності",
+              "module": "l10n_ua_docs_stock",
+              "file": "addons/l10n_ua_docs_stock/models/stock_picking.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_proxy_number",
+              "type": "Char",
+              "label": "Довіреність №",
+              "module": "l10n_ua_docs_stock",
+              "file": "addons/l10n_ua_docs_stock/models/stock_picking.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_proxy_person",
+              "type": "Char",
+              "label": "Видана на (ПІБ)",
+              "module": "l10n_ua_docs_stock",
+              "file": "addons/l10n_ua_docs_stock/models/stock_picking.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_tolling_id",
+              "type": "Many2one",
+              "label": "ua.tolling.order",
+              "module": "l10n_ua_tolling",
+              "file": "addons/l10n_ua_tolling/models/stock.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_unit_transfer_ids",
+              "type": "One2many",
+              "label": "ua.unit.transfer",
+              "module": "l10n_ua_unit_transfer",
+              "file": "addons/l10n_ua_unit_transfer/models/ua_unit_transfer.py",
               "groups": ""
             }
           ]

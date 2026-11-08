@@ -2,8 +2,8 @@
 
 1С і постачальники віддають CSV у windows-1251 з «;», Excel - XLSX. Тут одна
 функція read_table(): байти файла -> список рядків (списки рядків тексту) і номер
-рядка заголовка. Заголовок шукаємо серед перших 15 рядків: перший рядок, де є
-слово-назва колонки (найменування, назва, артикул, ціна).
+рядка заголовка. Заголовок шукаємо серед перших 15 рядків: рядок, де найбільше клітинок
+схожі на назви колонок (найменування, назва, артикул, ціна).
 """
 import csv
 import re
@@ -42,12 +42,13 @@ def read_table(raw, filename=""):
         rows = [[c.strip() for c in row] for row in csv.reader(io.StringIO(text),
                                                                delimiter=delimiter)]
     rows = [r for r in rows if any(c for c in r)]
-    header = None
+    # Заголовок - рядок, де найбільше клітинок схожі на назви колонок. Рядок-титул
+    # «Номенклатура за 2026-11-01» має одну таку клітинку, справжній заголовок - кілька.
+    header, best = None, 0
     for i, row in enumerate(rows[:15]):
-        cells = [c.lower() for c in row]
-        if any(any(w in c for w in HEADER_WORDS) for c in cells if c):
-            header = i
-            break
+        hits = sum(1 for c in row if c and any(w in c.lower() for w in HEADER_WORDS))
+        if hits > best:
+            header, best = i, hits
     return rows, header
 
 

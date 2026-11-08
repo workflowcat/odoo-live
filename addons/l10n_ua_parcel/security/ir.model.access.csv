@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_carrier_user,carrier user,model_ua_parcel_carrier,base.group_user,1,0,0,0
+access_carrier_manager,carrier manager,model_ua_parcel_carrier,stock.group_stock_manager,1,1,1,1
+access_parcel_user,parcel user,model_ua_parcel,base.group_user,1,0,0,0
+access_parcel_stock,parcel stock,model_ua_parcel,stock.group_stock_user,1,1,1,1
+access_parcel_purchase,parcel purchase,model_ua_parcel,purchase.group_purchase_user,1,1,1,0
+access_event_user,event user,model_ua_parcel_event,base.group_user,1,0,0,0
+access_event_stock,event stock,model_ua_parcel_event,stock.group_stock_user,1,1,1,1
+access_event_purchase,event purchase,model_ua_parcel_event,purchase.group_purchase_user,1,1,1,0
+access_add_stock,add stock,model_ua_parcel_add,stock.group_stock_user,1,1,1,1
+access_add_purchase,add purchase,model_ua_parcel_add,purchase.group_purchase_user,1,1,1,1

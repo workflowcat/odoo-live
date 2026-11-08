@@ -20,9 +20,13 @@ import json
 
 from odoo import fields, models
 from odoo.exceptions import UserError
+from odoo.tools import float_compare, float_round
 
 from odoo.addons.l10n_ua_component.models import component_core as core
 from odoo.addons.l10n_ua_component.models import table_io
+
+# Ціна за штуку дрібного кріплення - частки копійки: 250 грн за 500 шайб = 0,4167.
+PRICE_DIGITS = (16, 4)
 
 STATES = [("draft", "Чернетка"), ("parsed", "Розібрано"), ("applied", "Застосовано")]
 STATUSES = [("matched", "Знайдено"), ("new", "Новий товар"), ("unknown", "Не розібрано"),
@@ -260,6 +264,7 @@ class UaSupplierPriceImport(models.Model):
 
     def _ua_apply(self):
         Info = self.env["product.supplierinfo"]
+        prec = self.env["decimal.precision"].precision_get("Product Price")
         created = updated = made = 0
         for line in self.line_ids.filtered("apply").sorted("sequence"):
             tmpl = line.product_tmpl_id
@@ -274,9 +279,16 @@ class UaSupplierPriceImport(models.Model):
                 tmpl._ua_make_units()
                 uom = tmpl.uom_ids.filtered(lambda u: u.name.startswith("кг ("))[:1]
             uom = uom or tmpl.uom_id
+            price, min_qty = line.price_unit, line.min_qty
+            if line.unit_mode == "pack" and min_qty > 1 and float_compare(
+                    price, float_round(price, precision_digits=prec), precision_digits=6):
+                # Шайба 0,4167 за штуку не вміщається в ціну Odoo з двома знаками: ціну
+                # кладемо за упаковку («уп. 500 шт» - 208,33), щоб не губити копійки.
+                uom = tmpl._ua_pack_unit(min_qty)
+                price, min_qty = float_round(price * min_qty, precision_digits=prec), 1.0
             vals = {"partner_id": self.partner_id.id, "product_tmpl_id": tmpl.id,
                     "product_code": line.raw_code or False, "product_name": line.raw_name,
-                    "price": line.price_unit, "product_uom_id": uom.id, "min_qty": line.min_qty,
+                    "price": price, "product_uom_id": uom.id, "min_qty": min_qty,
                     "delay": self.profile_id.delay, "currency_id": self.profile_id.currency_id.id,
                     "date_start": self.date, "company_id": self.company_id.id,
                     "ua_import_id": self.id, "ua_stock": line.raw_stock}
@@ -326,11 +338,11 @@ class UaSupplierPriceImportLine(models.Model):
     apply = fields.Boolean("Застосувати")
     unit_mode = fields.Selection(UNIT_MODES, "Одиниця ціни")
     uom_id = fields.Many2one("uom.uom", "Одиниця постачальника")
-    price_unit = fields.Float("Ціна без ПДВ", digits="Product Price",
+    price_unit = fields.Float("Ціна без ПДВ", digits=PRICE_DIGITS,
                               help="За одиницю постачальника.")
     min_qty = fields.Float("Мін. кількість")
-    price_base = fields.Float("За одиницю обліку", digits="Product Price")
-    price_old = fields.Float("Була", digits="Product Price")
+    price_base = fields.Float("За одиницю обліку", digits=PRICE_DIGITS)
+    price_old = fields.Float("Була", digits=PRICE_DIGITS)
     change_pct = fields.Float("Зміна, %", digits=(6, 1))
     note = fields.Char("Примітка")
     result = fields.Char("Що зроблено", readonly=True)

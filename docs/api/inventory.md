@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 92. Моделей: 193. Методів: 746. Збережених полів на чужих моделях: 414.
+Модулів: 93. Моделей: 197. Методів: 754. Збережених полів на чужих моделях: 416.
 
 ## Зарплата
 
@@ -1081,29 +1081,6 @@
 | `ua_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
 | `ua_contract_number` | Char | Договір № | `l10n_ua_docs_sale` |
 
-### `stock.picking`
-
-доповнена модель · `l10n_ua_commission`, `l10n_ua_docs_stock`, `l10n_ua_export_control`, `l10n_ua_stock_docs`, `l10n_ua_supplier_approval`, `l10n_ua_tolling`, `l10n_ua_unit_transfer`
-
-| Метод | Що робить | Модуль |
-| --- | --- | --- |
-| `action_ua_unit_transfer()` | Акт передачі з цього відвантаження: існуючий або новий, заповнений. | `l10n_ua_unit_transfer` |
-| `ua_get_or_create(client_ref, vals=None)` | Доставка за міткою клієнта: є - віддаємо, немає - створюємо. | `l10n_ua_stock_docs` |
-
-| Поле | Тип | Підпис | Модуль |
-| --- | --- | --- | --- |
-| `ua_act_condition` | Char | Стан цінностей | `l10n_ua_stock_docs` |
-| `ua_act_handover` | Char | Передав (ПІБ, посада) | `l10n_ua_stock_docs` |
-| `ua_act_receiver` | Char | Прийняв (ПІБ, посада) | `l10n_ua_stock_docs` |
-| `ua_client_ref` | Char | Мітка операції | `l10n_ua_stock_docs` |
-| `ua_commission_id` | Many2one | ua.commission.agreement | `l10n_ua_commission` |
-| `ua_export_permit_id` | Many2one | ua.export.permit | `l10n_ua_export_control` |
-| `ua_proxy_date` | Date | Дата довіреності | `l10n_ua_docs_stock` |
-| `ua_proxy_number` | Char | Довіреність № | `l10n_ua_docs_stock` |
-| `ua_proxy_person` | Char | Видана на (ПІБ) | `l10n_ua_docs_stock` |
-| `ua_tolling_id` | Many2one | ua.tolling.order | `l10n_ua_tolling` |
-| `ua_unit_transfer_ids` | One2many | ua.unit.transfer | `l10n_ua_unit_transfer` |
-
 ### `uom.uom`
 
 доповнена модель · `l10n_ua_vat`
@@ -1824,6 +1801,42 @@
 | `ua_money(value)` | Сума для форми: від'ємна в дужках, нуль - прочерк. | `l10n_ua_notes` |
 | `ua_sections()` | Для друку: (назва розділу, [(графа, заголовок)], [(назва, код, вид, [суми])]). | `l10n_ua_notes` |
 
+### `ua.parcel`
+
+наша модель · `l10n_ua_parcel`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_ua_close()` | - | `l10n_ua_parcel` |
+| `action_ua_open_carrier()` | - | `l10n_ua_parcel` |
+| `action_ua_reopen()` | - | `l10n_ua_parcel` |
+| `action_ua_track()` | Спитати перевізника зараз. Помилка одного перевізника не зупиняє інших. | `l10n_ua_parcel` |
+
+### `ua.parcel.add`
+
+наша модель · `l10n_ua_parcel`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_add()` | - | `l10n_ua_parcel` |
+
+### `ua.parcel.carrier`
+
+наша модель · `l10n_ua_parcel`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_ua_parcels()` | - | `l10n_ua_parcel` |
+
+### `ua.parcel.links`
+
+наша модель · `l10n_ua_parcel`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_ua_parcel_add()` | - | `l10n_ua_parcel` |
+| `action_ua_parcels()` | - | `l10n_ua_parcel` |
+
 ### `ua.payment.request`
 
 наша модель · `l10n_ua_budget`, `l10n_ua_payment_request`
@@ -2519,13 +2532,14 @@
 
 ### `purchase.order`
 
-доповнена модель · `l10n_ua_contract`, `l10n_ua_purchase`, `l10n_ua_supplier_approval`
+доповнена модель · `l10n_ua_contract`, `l10n_ua_parcel`, `l10n_ua_purchase`, `l10n_ua_supplier_approval`
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `ua_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
 | `ua_department_id` | Many2one | Підрозділ | `l10n_ua_purchase` |
 | `ua_expense_account_id` | Many2one | Рахунок витрат | `l10n_ua_purchase` |
+| `ua_parcel_ids` | One2many | ua.parcel | `l10n_ua_parcel` |
 | `ua_request_id` | Many2one | Запит на закупівлю | `l10n_ua_purchase` |
 | `ua_sale_contract_id` | Many2one | ua.contract | `l10n_ua_contract` |
 
@@ -2598,3 +2612,27 @@
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `ua_commission_report_id` | Many2one | ua.commission.report | `l10n_ua_commission` |
+
+### `stock.picking`
+
+доповнена модель · `l10n_ua_commission`, `l10n_ua_docs_stock`, `l10n_ua_export_control`, `l10n_ua_parcel`, `l10n_ua_stock_docs`, `l10n_ua_supplier_approval`, `l10n_ua_tolling`, `l10n_ua_unit_transfer`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_ua_unit_transfer()` | Акт передачі з цього відвантаження: існуючий або новий, заповнений. | `l10n_ua_unit_transfer` |
+| `ua_get_or_create(client_ref, vals=None)` | Доставка за міткою клієнта: є - віддаємо, немає - створюємо. | `l10n_ua_stock_docs` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_act_condition` | Char | Стан цінностей | `l10n_ua_stock_docs` |
+| `ua_act_handover` | Char | Передав (ПІБ, посада) | `l10n_ua_stock_docs` |
+| `ua_act_receiver` | Char | Прийняв (ПІБ, посада) | `l10n_ua_stock_docs` |
+| `ua_client_ref` | Char | Мітка операції | `l10n_ua_stock_docs` |
+| `ua_commission_id` | Many2one | ua.commission.agreement | `l10n_ua_commission` |
+| `ua_export_permit_id` | Many2one | ua.export.permit | `l10n_ua_export_control` |
+| `ua_parcel_ids` | One2many | ua.parcel | `l10n_ua_parcel` |
+| `ua_proxy_date` | Date | Дата довіреності | `l10n_ua_docs_stock` |
+| `ua_proxy_number` | Char | Довіреність № | `l10n_ua_docs_stock` |
+| `ua_proxy_person` | Char | Видана на (ПІБ) | `l10n_ua_docs_stock` |
+| `ua_tolling_id` | Many2one | ua.tolling.order | `l10n_ua_tolling` |
+| `ua_unit_transfer_ids` | One2many | ua.unit.transfer | `l10n_ua_unit_transfer` |

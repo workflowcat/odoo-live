@@ -5,14 +5,14 @@ Odoo обирає постачальника за ціною без огляду
 (з урахуванням знижки), і порівнюються вже ці числа. Валюта не перераховується:
 порівнюються ціни в одній валюті.
 """
-from odoo import api, fields, models
+from odoo import Command, api, fields, models
 
 
 class ProductSupplierinfo(models.Model):
     _inherit = "product.supplierinfo"
 
     ua_price_base = fields.Float("Ціна за одиницю обліку", compute="_compute_ua_price_base",
-                                 store=True, digits="Product Price",
+                                 store=True, digits=(16, 4),
                                  help="Ціна зі знижкою, перерахована в одиницю обліку товару.")
     ua_stock = fields.Float("Залишок у постачальника", help="З останнього прайсу.")
     ua_import_id = fields.Many2one("ua.supplier.price.import", "З прайсу", ondelete="set null",
@@ -36,7 +36,7 @@ class ProductTemplate(models.Model):
     _inherit = "product.template"
 
     ua_best_price = fields.Float("Найкраща ціна", compute="_compute_ua_best",
-                                 digits="Product Price",
+                                 digits=(16, 4),
                                  help="Найменша чинна ціна постачальника за одиницю обліку.")
     ua_best_partner_id = fields.Many2one("res.partner", "Найдешевший постачальник",
                                          compute="_compute_ua_best")
@@ -59,6 +59,21 @@ class ProductTemplate(models.Model):
             tmpl.ua_best_price = best.ua_price_base if best else 0.0
             tmpl.ua_best_partner_id = best.partner_id if best else False
             tmpl.ua_supplier_count = len(sellers.mapped("partner_id"))
+
+    def _ua_pack_unit(self, size):
+        """Одиниця «уп. 500 шт» до одиниці обліку товару: ціна за упаковку без втрати копійок."""
+        self.ensure_one()
+        base = self.uom_id
+        size = float(size)
+        short = getattr(base, "ua_kspovo_short", False) or base.name
+        name = "уп. %s %s" % (int(size) if size.is_integer() else size, short)
+        Uom = self.env["uom.uom"].sudo()
+        uom = Uom.search([("name", "=", name), ("relative_uom_id", "=", base.id)], limit=1)
+        if not uom:
+            uom = Uom.create({"name": name, "relative_factor": size, "relative_uom_id": base.id})
+        if uom not in self.uom_ids:
+            self.uom_ids = [Command.link(uom.id)]
+        return uom
 
     def action_ua_compare_suppliers(self):
         return {

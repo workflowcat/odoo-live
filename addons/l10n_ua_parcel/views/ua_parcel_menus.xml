@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_ua_parcel_root" name="Відправлення" parent="stock.menu_stock_root" sequence="4"
+            groups="stock.group_stock_user,purchase.group_purchase_user"/>
+  <menuitem id="menu_ua_parcel_attention" name="Потребують уваги" parent="menu_ua_parcel_root"
+            action="action_ua_parcel_attention" sequence="10"/>
+  <menuitem id="menu_ua_parcel_all" name="Усі відправлення" parent="menu_ua_parcel_root"
+            action="action_ua_parcel" sequence="20"/>
+  <menuitem id="menu_ua_parcel_add" name="Додати номери" parent="menu_ua_parcel_root"
+            action="action_ua_parcel_add" sequence="30"/>
+  <menuitem id="menu_ua_parcel_carrier" name="Перевізники" parent="menu_ua_parcel_root"
+            action="action_ua_parcel_carrier" sequence="40" groups="stock.group_stock_manager"/>
+</odoo>

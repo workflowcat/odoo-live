@@ -2,7 +2,7 @@
     "name": "Україна: меню продукту",
     "summary": "Три власні розділи - Зарплата, Кадри, Звітність - над стандартними поданнями Odoo; "
                "єдиний власник меню і українських назв довідників",
-    "version": "19.0.2.3.39",
+    "version": "19.0.2.3.40",
     "category": "Human Resources/Payroll",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -33,7 +33,7 @@
         "l10n_ua_migrate",
         # контрагенти і закупівлі
         "l10n_ua_partner_edr", "l10n_ua_contract", "l10n_ua_defense", "l10n_ua_dk021", "l10n_ua_catalog",
-        "l10n_ua_component", "l10n_ua_supplier_catalog",
+        "l10n_ua_component", "l10n_ua_supplier_catalog", "l10n_ua_parcel",
         "l10n_ua_customs",
         "l10n_ua_bank_1c", "l10n_ua_close", "l10n_ua_tolling",
         "l10n_ua_payment_request", "l10n_ua_correspondence", "l10n_ua_prro", "l10n_ua_price_label",

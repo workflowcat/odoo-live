@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Відправлення -->
+  <record id="ua_parcel_list" model="ir.ui.view">
+    <field name="name">ua.parcel.list</field>
+    <field name="model">ua.parcel</field>
+    <field name="arch" type="xml">
+      <list string="Відправлення" decoration-danger="attention" decoration-muted="done">
+        <field name="name"/>
+        <field name="carrier_id"/>
+        <field name="direction"/>
+        <field name="partner_id"/>
+        <field name="description" optional="show"/>
+        <field name="state" widget="badge" decoration-success="state == 'delivered'"
+               decoration-warning="state in ('at_pickup', 'customs', 'failed_attempt')"
+               decoration-danger="state in ('returning', 'returned', 'exception')"
+               decoration-info="state in ('in_transit', 'out_for_delivery')"/>
+        <field name="attention_reason" string="Що не так"/>
+        <field name="status_text" optional="hide"/>
+        <field name="expected_date" optional="show"/>
+        <field name="last_event_date" optional="show"/>
+        <field name="cod_amount" optional="hide" sum="Накладені платежі"/>
+        <field name="purchase_id" optional="hide"/>
+        <field name="picking_id" optional="hide"/>
+        <field name="user_id" optional="hide" widget="many2one_avatar_user"/>
+        <field name="attention" column_invisible="1"/>
+        <field name="done" column_invisible="1"/>
+        <field name="currency_id" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="ua_parcel_kanban" model="ir.ui.view">
+    <field name="name">ua.parcel.kanban</field>
+    <field name="model">ua.parcel</field>
+    <field name="arch" type="xml">
+      <kanban default_group_by="state" group_create="false" group_delete="false" group_edit="false"
+              records_draggable="false" quick_create="false">
+        <field name="attention"/>
+        <templates>
+          <t t-name="card">
+            <div class="d-flex justify-content-between">
+              <field name="name" class="fw-bold"/>
+              <field name="carrier_id" class="text-muted"/>
+            </div>
+            <field name="partner_id"/>
+            <field name="description" class="text-muted"/>
+            <field name="attention_reason" class="text-danger" invisible="not attention"/>
+            <div class="d-flex justify-content-between mt-1">
+              <field name="last_event_date" widget="date" class="text-muted small"/>
+              <field name="user_id" widget="many2one_avatar_user"/>
+            </div>
+          </t>
+        </templates>
+      </kanban>
+    </field>
+  </record>
+
+  <record id="ua_parcel_form" model="ir.ui.view">
+    <field name="name">ua.parcel.form</field>
+    <field name="model">ua.parcel</field>
+    <field name="arch" type="xml">
+      <form string="Відправлення">
+        <header>
+          <button name="action_ua_track" type="object" string="Перевірити стан" class="btn-primary"
+                  invisible="done"/>
+          <button name="action_ua_open_carrier" type="object" string="Відкрити на сайті перевізника"
+                  invisible="not tracking_link"/>
+          <button name="action_ua_close" type="object" string="Закрити" invisible="done"
+                  help="Більше не перевіряти це відправлення."/>
+          <button name="action_ua_reopen" type="object" string="Відкрити знову" invisible="not closed"/>
+          <field name="state" widget="statusbar" options="{'clickable': '1'}"
+                 statusbar_visible="new,in_transit,at_pickup,delivered"/>
+        </header>
+        <div class="alert alert-warning mb-0" role="alert" invisible="not attention">
+          <field name="attention_reason" readonly="1"/>
+        </div>
+        <sheet>
+          <div class="oe_title">
+            <label for="name"/>
+            <h1><field name="name" placeholder="20450123456789"/></h1>
+            <field name="status_text" class="text-muted" invisible="not status_text"/>
+          </div>
+          <group>
+            <group string="Що і куди">
+              <field name="carrier_id" options="{'no_create': True}"/>
+              <field name="direction" widget="radio" options="{'horizontal': true}"/>
+              <field name="partner_id"/>
+              <field name="description" placeholder="Наприклад: мотори 2807, 40 шт"/>
+              <field name="user_id" widget="many2one_avatar_user"/>
+            </group>
+            <group string="Документи">
+              <field name="purchase_id"/>
+              <field name="picking_id"/>
+              <field name="origin"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Хід доставки" name="events">
+              <field name="event_ids" readonly="1" nolabel="1">
+                <list>
+                  <field name="date"/>
+                  <field name="text"/>
+                  <field name="place"/>
+                  <field name="state" widget="badge"/>
+                  <field name="code" optional="hide"/>
+                </list>
+              </field>
+            </page>
+            <page string="Дати і гроші" name="details">
+              <group>
+                <group string="Дати">
+                  <field name="expected_date"/>
+                  <field name="delivered_date"/>
+                  <field name="storage_from"/>
+                  <field name="last_event_date"/>
+                  <field name="last_check"/>
+                  <field name="check_error" invisible="not check_error"/>
+                </group>
+                <group string="Вантаж і оплата">
+                  <field name="from_place"/>
+                  <field name="to_place"/>
+                  <field name="weight"/>
+                  <field name="seats"/>
+                  <field name="cost"/>
+                  <field name="cod_amount"/>
+                  <field name="phone"/>
+                  <field name="currency_id" invisible="1"/>
+                </group>
+              </group>
+            </page>
+          </notebook>
+          <field name="tracking_link" invisible="1"/>
+          <field name="closed" invisible="1"/>
+          <field name="done" invisible="1"/>
+          <field name="attention" invisible="1"/>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="ua_parcel_search" model="ir.ui.view">
+    <field name="name">ua.parcel.search</field>
+    <field name="model">ua.parcel</field>
+    <field name="arch" type="xml">
+      <search string="Відправлення">
+        <field name="name"/>
+        <field name="partner_id"/>
+        <field name="description"/>
+        <field name="purchase_id"/>
+        <field name="carrier_id"/>
+        <filter name="attention" string="Потребують уваги" domain="[('attention', '=', True)]"/>
+        <filter name="open" string="Відкриті" domain="[('done', '=', False)]"/>
+        <separator/>
+        <filter name="incoming" string="До нас" domain="[('direction', '=', 'in')]"/>
+        <filter name="outgoing" string="Від нас" domain="[('direction', '=', 'out')]"/>
+        <separator/>
+        <filter name="in_transit" string="У дорозі"
+                domain="[('state', 'in', ('new', 'in_transit', 'customs', 'out_for_delivery'))]"/>
+        <filter name="at_pickup" string="Чекають у відділенні" domain="[('state', '=', 'at_pickup')]"/>
+        <filter name="delivered" string="Отримані" domain="[('state', '=', 'delivered')]"/>
+        <filter name="cod" string="З накладеним платежем" domain="[('cod_amount', '>', 0)]"/>
+        <filter name="mine" string="Мої" domain="[('user_id', '=', uid)]"/>
+        <group>
+          <filter name="group_state" string="Стан" context="{'group_by': 'state'}"/>
+          <filter name="group_carrier" string="Перевізник" context="{'group_by': 'carrier_id'}"/>
+          <filter name="group_partner" string="Контрагент" context="{'group_by': 'partner_id'}"/>
+          <filter name="group_user" string="Відповідальний" context="{'group_by': 'user_id'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_parcel" model="ir.actions.act_window">
+    <field name="name">Відправлення</field>
+    <field name="res_model">ua.parcel</field>
+    <field name="view_mode">list,kanban,form</field>
+    <field name="search_view_id" ref="ua_parcel_search"/>
+    <field name="context">{'search_default_open': 1}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Додайте номер відправлення</p>
+      <p>Номер з листа постачальника чи накладної: стан підтягнеться від перевізника, а коли
+         посилка чекатиме у відділенні, відповідальний отримає нагадування.</p>
+    </field>
+  </record>
+
+  <record id="action_ua_parcel_attention" model="ir.actions.act_window">
+    <field name="name">Потребують уваги</field>
+    <field name="res_model">ua.parcel</field>
+    <field name="view_mode">list,kanban,form</field>
+    <field name="search_view_id" ref="ua_parcel_search"/>
+    <field name="context">{'search_default_attention': 1}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Усе гаразд</p>
+      <p>Тут з'являються відправлення, що чекають у відділенні, застрягли, запізнюються
+         або повертаються.</p>
+    </field>
+  </record>
+
+  <!-- Додати відправлення -->
+  <record id="ua_parcel_add_form" model="ir.ui.view">
+    <field name="name">ua.parcel.add.form</field>
+    <field name="model">ua.parcel.add</field>
+    <field name="arch" type="xml">
+      <form string="Додати відправлення">
+        <group>
+          <field name="text" placeholder="Вставте номер або весь лист постачальника"/>
+          <field name="preview" readonly="1" invisible="not preview"/>
+        </group>
+        <group>
+          <group>
+            <field name="carrier_id" placeholder="визначимо за номером" options="{'no_create': True}"/>
+            <field name="direction" widget="radio" options="{'horizontal': true}"/>
+            <field name="partner_id"/>
+            <field name="description"/>
+          </group>
+          <group>
+            <field name="user_id" widget="many2one_avatar_user"/>
+            <field name="purchase_id"/>
+            <field name="picking_id"/>
+            <field name="origin"/>
+          </group>
+        </group>
+        <footer>
+          <button name="action_add" type="object" string="Додати і перевірити" class="btn-primary"/>
+          <button special="cancel" string="Скасувати"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_parcel_add" model="ir.actions.act_window">
+    <field name="name">Додати відправлення</field>
+    <field name="res_model">ua.parcel.add</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+  </record>
+
+  <!-- Перевізники -->
+  <record id="ua_parcel_carrier_list" model="ir.ui.view">
+    <field name="name">ua.parcel.carrier.list</field>
+    <field name="model">ua.parcel.carrier</field>
+    <field name="arch" type="xml">
+      <list string="Перевізники">
+        <field name="sequence" widget="handle"/>
+        <field name="name"/>
+        <field name="code"/>
+        <field name="connector"/>
+        <field name="check_hours"/>
+        <field name="stuck_days"/>
+        <field name="parcel_count"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="ua_parcel_carrier_form" model="ir.ui.view">
+    <field name="name">ua.parcel.carrier.form</field>
+    <field name="model">ua.parcel.carrier</field>
+    <field name="arch" type="xml">
+      <form string="Перевізник">
+        <sheet>
+          <div class="oe_button_box" name="button_box">
+            <button name="action_ua_parcels" type="object" class="oe_stat_button" icon="fa-truck">
+              <field name="parcel_count" widget="statinfo" string="Відправлень"/>
+            </button>
+          </div>
+          <div class="oe_title">
+            <h1><field name="name" placeholder="Нова пошта"/></h1>
+          </div>
+          <group>
+            <group string="Як дізнаємося стан">
+              <field name="connector"/>
+              <field name="api_key" password="True" groups="base.group_system"
+                     invisible="connector not in ('novaposhta', 'ukrposhta')"/>
+              <field name="phone" invisible="connector != 'novaposhta'"/>
+              <field name="check_hours"/>
+            </group>
+            <group string="Номер і строки">
+              <field name="code"/>
+              <field name="number_pattern" placeholder="CV\d{9}UA"/>
+              <field name="tracking_url" widget="url"/>
+              <field name="stuck_days"/>
+              <field name="pickup_days"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+            </group>
+          </group>
+          <field name="note" placeholder="Що варто знати про цього перевізника"/>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_parcel_carrier" model="ir.actions.act_window">
+    <field name="name">Перевізники</field>
+    <field name="res_model">ua.parcel.carrier</field>
+    <field name="view_mode">list,form</field>
+  </record>
+
+  <!-- Замовлення постачальнику і складський документ -->
+  <record id="purchase_order_form_ua_parcel" model="ir.ui.view">
+    <field name="name">purchase.order.form.ua.parcel</field>
+    <field name="model">purchase.order</field>
+    <field name="inherit_id" ref="purchase.purchase_order_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//div[@name='button_box']" position="inside">
+        <button name="action_ua_parcels" type="object" class="oe_stat_button" icon="fa-truck"
+                invisible="not ua_parcel_count">
+          <div class="o_stat_info">
+            <field name="ua_parcel_count" class="o_stat_value"/>
+            <span class="o_stat_text">Відправлення</span>
+          </div>
+        </button>
+      </xpath>
+      <xpath expr="//header" position="inside">
+        <button name="action_ua_parcel_add" type="object" string="Номер відправлення"
+                invisible="state not in ('purchase', 'done')"
+                help="Постачальник надіслав номер накладної: стан підтягнеться сам."/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="stock_picking_form_ua_parcel" model="ir.ui.view">
+    <field name="name">stock.picking.form.ua.parcel</field>
+    <field name="model">stock.picking</field>
+    <field name="inherit_id" ref="stock.view_picking_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//div[@name='button_box']" position="inside">
+        <button name="action_ua_parcels" type="object" class="oe_stat_button" icon="fa-truck"
+                invisible="not ua_parcel_count">
+          <div class="o_stat_info">
+            <field name="ua_parcel_count" class="o_stat_value"/>
+            <span class="o_stat_text">Відправлення</span>
+          </div>
+        </button>
+      </xpath>
+      <xpath expr="//header" position="inside">
+        <button name="action_ua_parcel_add" type="object" string="Номер відправлення"
+                invisible="state == 'cancel'"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>

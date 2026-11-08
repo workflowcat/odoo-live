@@ -344,11 +344,18 @@ class UaPeriodClose(models.Model):
         moves.write({"ua_close_id": self.id, "ua_close_kind": kind})
 
     def _ua_post_entry(self, journal, last, ref, lines, kind):
-        move = self.env["account.move"].create({
+        move = self.env["account.move"].with_context(check_move_validity=False).create({
             "journal_id": journal.id, "company_id": self.company_id.id, "date": last,
             "ref": ref, "move_type": "entry", "line_ids": [(0, 0, line) for line in lines],
             "ua_close_id": self.id, "ua_close_kind": kind,
         })
+        # Рядок переоцінки - валюта з нульовою сумою у валюті і сумою в гривні. Odoo може
+        # перерахувати гривню з валютної суми (0) залежно від порядку обчислення полів,
+        # і проводка то сходиться, то ні. Повертаємо задані суми перед проведенням.
+        currency = self.company_id.currency_id
+        for line, vals in zip(move.line_ids.sorted("id"), lines):
+            if "balance" in vals and currency.compare_amounts(line.balance, vals["balance"]):
+                line.with_context(check_move_validity=False).balance = vals["balance"]
         move.action_post()
         return move
 

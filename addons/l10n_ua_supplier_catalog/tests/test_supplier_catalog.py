@@ -3,7 +3,7 @@
 Числа:
 - «Приклад Кріплення», ціна з ПДВ 20 % за упаковку: болт М10×40 360 грн за 100 шт ->
   300 без ПДВ -> 3,00 за штуку, мінімум 100; гайка 180 за 100 -> 1,50; шайба 250 за 500 ->
-  208,33 / 500 = 0,4167.
+  208,33 / 500 = 0,4167; у ціні Odoo два знаки, тому ціна лягає за упаковку «уп. 500 шт».
 - Другий прайс того ж постачальника: болт 396 -> 3,30, зміна +10 %.
 - «Приклад Метал», без ПДВ: пруток Д16Т ⌀40 350 за кг; профільна труба 40×20×2 Ст3
   140 грн за метр, маса метра (40·20 − 36·16) · 7850 · 10⁻⁶ = 1,7584 кг -> 79,62 за кг.
@@ -96,6 +96,12 @@ class TestUaSupplierCatalog(TransactionCase):
         self.assertEqual((nut.name, nut.ua_component_class_id.code),
                          ("Гайка М10 DIN 934 цинк", "nut_hex"))
         self.assertAlmostEqual(self._info(self.fasteners, nut).price, 1.5, places=4)
+        # 0,4167 за шайбу не вміщається в ціну з двома знаками: ціна лягла за упаковку.
+        washer_info = self._info(self.fasteners, washer.product_tmpl_id)
+        self.assertTrue(washer_info.product_uom_id.name.startswith("уп. 500 "))
+        self.assertEqual(washer_info.min_qty, 1.0)
+        self.assertAlmostEqual(washer_info.price, 208.33, places=2)
+        self.assertAlmostEqual(washer_info.ua_price_base, 0.4167, places=4)
         self.assertFalse(kit.product_tmpl_id)
         self.assertIn("нових товарів 4", imp.summary)
 

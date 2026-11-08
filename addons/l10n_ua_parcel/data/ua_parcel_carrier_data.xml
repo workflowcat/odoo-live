@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+    <record id="carrier_novaposhta" model="ua.parcel.carrier">
+      <field name="name">Нова пошта</field>
+      <field name="code">novaposhta</field>
+      <field name="sequence">10</field>
+      <field name="connector">novaposhta</field>
+      <field name="tracking_url">https://novaposhta.ua/tracking/?cargo_number={number}</field>
+      <field name="note">Стан видно і без ключа API. З ключем і телефоном відправника чи одержувача видно дати, суми і відділення. Коди станів - за довідником API Нової пошти, перевіряйте чинний.</field>
+    </record>
+    <record id="carrier_ukrposhta" model="ua.parcel.carrier">
+      <field name="name">Укрпошта</field>
+      <field name="code">ukrposhta</field>
+      <field name="sequence">20</field>
+      <field name="connector">ukrposhta</field>
+      <field name="tracking_url">https://track.ukrposhta.ua/tracking_UA.html?barcode={number}</field>
+      <field name="note">Токен відстеження Укрпошта видає в додатку до договору. Міжнародні відправлення з номером на кшталт LP123456789CN теж ведемо тут, коли вони в Україні. Коди подій - за додатком Б документації API, перевіряйте чинну.</field>
+    </record>
+    <record id="carrier_meest" model="ua.parcel.carrier">
+      <field name="name">Meest</field>
+      <field name="code">meest</field>
+      <field name="sequence">30</field>
+      <field name="connector">manual</field>
+      <field name="note">Стан вручну, доки в мосту інтеграцій немає маршруту для Meest. Тоді: спосіб «Через міст інтеграцій».</field>
+    </record>
+    <record id="carrier_other" model="ua.parcel.carrier">
+      <field name="name">Інший перевізник</field>
+      <field name="code">other</field>
+      <field name="sequence">90</field>
+      <field name="connector">manual</field>
+    </record>
+  </data>
+  <record id="ir_cron_ua_parcel_track" model="ir.cron">
+    <field name="name">Відправлення: перевірити стан у перевізників</field>
+    <field name="model_id" ref="model_ua_parcel"/>
+    <field name="state">code</field>
+    <field name="code">model._cron_ua_track()</field>
+    <field name="interval_number">1</field>
+    <field name="interval_type">hours</field>
+    <field name="active">True</field>
+  </record>
+</odoo>
