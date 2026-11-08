@@ -48,6 +48,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Unified tax report (ПДФО/ВЗ/ЄСВ) with annexes, XML | done | `l10n_ua_payroll_reports` |
 | HR orders, staff list, timesheet П-5, personal card П-2 | done | `l10n_ua_hr_*` |
 | Hiring case to filed notice | done | `l10n_ua_hire` |
+| Employee documents from Diia (шеринг) instead of scans | gap | Researched in `docs/base/spec-diia.md`: one document per request is free (an ID card fills 12 hiring fields and comes as a signed PDF), each employer connects on its own, the package arrives through the bridge and is decrypted on the company's server. The check that the e-military document was formed no more than 72 hours before the first working day (from 2026-06-27) is not built yet |
 | Military registration, TCC notices | done | `l10n_ua_military` |
 | **Reservation of employees** (бронювання) of critically important companies | done | `l10n_ua_military`: data on the employee card; the critical-company status with its term, quota and wage floor; quota and deadline checks on the reserved list; reminders before the status or a reservation ends; a task when a reserved employee leaves; a reservation request: candidates (not reserved or ending soon), missing data that blocks the Дія request, quota with the reservations that stay, CSV working list and print, decisions carried to employee cards and military events (check the current Дія form) |
 | Civil contracts (ЦПХ) | done | `l10n_ua_gph` |
