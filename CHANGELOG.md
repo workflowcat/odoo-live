@@ -6,6 +6,11 @@ Notable changes for people who run or build on this code. Module-level API chang
 ## Unreleased
 
 ### Added
+- `l10n_ua_map`: `ua.api.system_map()` - the whole company on one screen: 12 areas, 88 items, each
+  with its state (here, part, missing), live counts, the open part («в дорозі», «не оплачено») and
+  what needs a person (late suppliers, unpaid bills past due, parcels waiting at a branch, expiring
+  permits and documents). Missing modules show as not installed; what the user may not read shows
+  without numbers. Read only, tested under the `ua_map` tag.
 - `l10n_ua_component`: classifier of components and materials (55 kinds, 55 characteristics, 231 values,
   52 equivalence groups) in `data/classifier.json`, editable in the app. Names from price lists and 1C
   («болт оцинк. M8*30 кл.8,8 DIN 933», «Круг Д16Т ф40», «Подшипник 180204») are parsed into kind and
@@ -414,7 +419,8 @@ Notable changes for people who run or build on this code. Module-level API chang
 - Column guessing in the component intake and price lists no longer takes a title row such as
   «Номенклатура за 2026-11-01» for the header: the row with the most column names wins.
 - Supplier prices that do not fit two decimals per unit (250 UAH for 500 washers) are kept per pack
-  (`уп. 500 шт`) instead of being rounded per piece; comparison fields carry four decimals.
+  (`уп. 500 шт`) instead of being rounded per piece; the pack price is taken from the price list,
+  not from the rounded piece price; comparison fields carry four decimals.
 - Month close: revaluation lines keep their UAH amount when Odoo recomputes it from the zero
   currency amount, so the entry balances every time.
 - Dated parameters (`ua.payroll.param`, `ua.fop.param`, `ua.profit.param` and the payslip explanation):

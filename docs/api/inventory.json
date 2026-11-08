@@ -1,8 +1,8 @@
 {
   "totals": {
-    "modules": 93,
+    "modules": 94,
     "models": 197,
-    "methods": 754,
+    "methods": 755,
     "fields": 416
   },
   "areas": [
@@ -5591,7 +5591,8 @@
           "model": "ua.api",
           "ours": true,
           "modules": [
-            "l10n_ua_api"
+            "l10n_ua_api",
+            "l10n_ua_map"
           ],
           "methods": [
             {
@@ -5680,6 +5681,16 @@
               "doc": "Залишки з першого погляду: скільки лежить, скільки треба, на скільки вистачить.",
               "module": "l10n_ua_api",
               "file": "addons/l10n_ua_api/models/ua_api.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "system_map",
+              "signature": "system_map(company_id=None)",
+              "doc": "Карта системи з живими лічильниками.",
+              "module": "l10n_ua_map",
+              "file": "addons/l10n_ua_map/models/ua_api_map.py",
               "decorators": [
                 "api.model"
               ]

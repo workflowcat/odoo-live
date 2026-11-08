@@ -120,6 +120,7 @@ Odoo; зовнішньому клієнтові він незручний чер
 | `ua.api.product_assembly(product_id)` | складальна карта виробу: креслення, операції, позиції, полиці |
 | `ua.api.inventory_plan(inventory_id)` | план проведення інвентаризації і чи пройде воно взагалі |
 | `ua.api.workorder_card(workorder_id)` | картка наряду для кіоску цеху: кроки, пункти перевірки з відповідями, комплектуючі операції |
+| `ua.api.system_map(company_id)` | карта системи: дванадцять ділянок, що в кожній є (є / частково / бракує), лічильники, живе, смуга «Потребує уваги», цілі для переходу. Модуль `l10n_ua_map` |
 
 Решта читань - звичайні `get_*` моделей із `inventory.md`
 (`ua.payroll.param.get_all`, `ua.cpi.index.get_map`, `ua.kp.code.suggest`...).
@@ -235,6 +236,44 @@ ua.explain.explain(model, res_id, field=None, when="auto")
 Дати - рядки `YYYY-MM-DD`, дата з часом - `YYYY-MM-DD HH:MM:SS`. Зв'язок - пара
 `[id, назва]`, як його віддає `read()`. Порожнеча - `false`, не `null`. Домени -
 списки списків. Кортежів у відповідях `ua.api` немає.
+
+## Карта системи
+
+`ua.api.system_map(company_id)` - екран огляду всього підприємства. Ділянки і пункти
+лежать у `addons/l10n_ua_map/data/system_map.json`, ті самі, що в
+[capability-map.md](../parity/capability-map.md). Відповідь:
+
+```json
+{"company": {"id": 1, "name": "..."}, "today": "2026-11-08",
+ "statuses": {"done": "Є", "part": "Частково", "gap": "Бракує"},
+ "summary": {"items": 88, "done": 60, "part": 11, "gap": 17, "installed": 70, "attention": 9},
+ "areas": [{"key": "delivery", "title": "Доставка", "icon": "package",
+            "summary": {"items": 4, "done": 4, "part": 0, "gap": 0, "attention": 2},
+            "items": [{"key": "parcels", "title": "Відправлення", "status": "done",
+                       "status_label": "Є", "note": "", "modules": ["l10n_ua_parcel"],
+                       "missing": [], "installed": true, "model": "ua.parcel", "access": true,
+                       "count": 14, "open": 5, "open_label": "в дорозі",
+                       "attention": {"count": 2, "label": "потребують уваги",
+                                     "target": {"xmlid": "l10n_ua_parcel.action_ua_parcel",
+                                                "domain": [["attention", "=", true]]}},
+                       "target": {"xmlid": "l10n_ua_parcel.action_ua_parcel"},
+                       "open_target": {"xmlid": "l10n_ua_parcel.action_ua_parcel",
+                                       "domain": [["done", "=", false]]}}]}],
+ "attention": [{"area": "delivery", "area_title": "Доставка", "item": "parcels",
+                "title": "Відправлення", "label": "потребують уваги", "count": 2,
+                "target": {"...": "..."}}]}
+```
+
+- Порядок ділянок і пунктів сталий; `key` не змінюється, назви можуть.
+- `count` - усі записи пункту в межах компанії, `open` - живі (`False`, якщо звуження
+  немає), `attention` - що чекає на людину (`False`, якщо нічого рахувати).
+- Пункт без моделі (`status: gap` або опис) має `count`, `target` = `False`.
+- Модуля немає - `installed: false` і `missing` зі списком; карта не падає.
+- Модель закрита правами - `access: false`, числа `False`. Поле, закрите групою
+  (звірка військового обліку), дає `attention: false`.
+- Цілі відкриваються як завжди: `ua.screen.open_target(target)`.
+- Смуга `attention` - лише ненульові пункти, найбільші перші. Це основа панелі
+  «Потребує уваги».
 
 ## Помилки
 

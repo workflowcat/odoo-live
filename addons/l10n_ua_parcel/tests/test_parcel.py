@@ -132,7 +132,8 @@ class TestUaParcel(TransactionCase):
         back = parcels.filtered(lambda p: p.name == UP)
         self.assertEqual((back.state, len(back.event_ids)), ("returned", 3))
         self.assertTrue(back.done)
-        self.assertEqual(back.event_ids[0].text, "Вручено (відправнику)")
+        # у кеші події лежать у порядку створення; sorted() - у порядку моделі, найновіша перша
+        self.assertEqual(back.event_ids.sorted()[0].text, "Вручено (відправнику)")
         customs = parcels.filtered(lambda p: p.name == S10)
         self.assertEqual(customs.state, "customs")
         self.assertEqual(customs.attention_reason, "На митниці")

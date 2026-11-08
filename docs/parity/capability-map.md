@@ -63,7 +63,7 @@ about nonconformities, a certificate of conformity on delivery). The gaps below 
 | Vendor bills from mail | done | `bp_purchase_intake` |
 | Payment requests with approval | done | `l10n_ua_payment_request` |
 | Customs declaration into cost and VAT | done | `l10n_ua_customs` |
-| Parcels in and out: tracking numbers, carrier status, events, late and stuck parcels, cash on delivery | gap | building now (`l10n_ua_parcel`); OCA `delivery_state` gives a state on the picking, not a parcel register |
+| Parcels in and out: tracking numbers, carrier status, events, late and stuck parcels, cash on delivery | done | `l10n_ua_parcel`: Nova Poshta and Ukrposhta connectors, a bridge and a demo connector, attention and reminders |
 | Expediting: late purchase lines, promised against confirmed dates | part | native dates; a view of what is late is missing |
 | Incoming inspection: sample size, hold in quarantine, release or reject | part | an inspection protocol with norms and measured values on a receipt (`l10n_ua_stock_docs`), on paper only: no sampling, no hold; OCA `quality_control_oca` exists on 19.0 |
 
@@ -116,7 +116,7 @@ about nonconformities, a certificate of conformity on delivery). The gaps below 
 | Delivery note, simplified waybill, power of attorney | done | `l10n_ua_docs_stock` |
 | Transfer act to a military unit | done | `l10n_ua_unit_transfer` |
 | Trip sheets and fuel | done | `l10n_ua_fleet` |
-| Parcels to customers and units with tracking | gap | building now, same module as in section 3 |
+| Parcels to customers and units with tracking | done | `l10n_ua_parcel`, same module as in section 3 |
 
 ## 9. People
 
@@ -152,8 +152,8 @@ State secrets never go into this system; at most a clearance register with form 
 | --- | --- | --- |
 | Ukrainian menus over standard screens | done | `l10n_ua_navigation` |
 | Composite read API for screens | done | `l10n_ua_api` |
-| System map: every area, what exists, live counts, a link into each screen | gap | building now: the map in the core API, the screen in `odoo-ui` |
-| Dashboards: contracts against schedule, shortages for planned orders, late purchases, parcels in transit, open quality items, cash | gap | building now, same place |
+| System map: every area, what exists, live counts, a link into each screen | done | `l10n_ua_map`: `ua.api.system_map()`; the screen lives in `odoo-ui` |
+| Dashboards: contracts against schedule, shortages for planned orders, late purchases, parcels in transit, open quality items, cash | part | the "needs attention" strip comes from the map; charts in `odoo-ui` |
 
 ## Order of work
 

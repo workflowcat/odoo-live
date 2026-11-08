@@ -285,7 +285,12 @@ class UaSupplierPriceImport(models.Model):
                 # Шайба 0,4167 за штуку не вміщається в ціну Odoo з двома знаками: ціну
                 # кладемо за упаковку («уп. 500 шт» - 208,33), щоб не губити копійки.
                 uom = tmpl._ua_pack_unit(min_qty)
-                price, min_qty = float_round(price * min_qty, precision_digits=prec), 1.0
+                # ціна упаковки - з прайсу, а не з округленої ціни штуки (0,4167 × 500 = 208,35);
+                # якщо ціну рядка правили руками, рахуємо з неї
+                pack_price = self.profile_id._ua_net(line.raw_price)
+                if abs(price * min_qty - pack_price) > min_qty * 0.0001:
+                    pack_price = price * min_qty
+                price, min_qty = float_round(pack_price, precision_digits=prec), 1.0
             vals = {"partner_id": self.partner_id.id, "product_tmpl_id": tmpl.id,
                     "product_code": line.raw_code or False, "product_name": line.raw_name,
                     "price": price, "product_uom_id": uom.id, "min_qty": min_qty,
