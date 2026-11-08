@@ -22,6 +22,24 @@ def _decode(raw):
     return raw.decode("latin-1")
 
 
+def _delimiter(text):
+    """Роздільник CSV: той, що дає найбільше клітинок у рядках однакової ширини
+    (рядків такої ширини x ширина); за рівності - «;». csv.Sniffer тут не годиться: у
+    рядку «Ціна, грн» і в цінах «396,00» кома трапляється в кожному рядку однаково, і він
+    обирає кому."""
+    lines = [line for line in text[:8192].splitlines() if line.strip()][:30]
+    best, best_score = ";", (0, 0)
+    for delimiter in (";", "\t", ","):
+        widths = [len(row) for row in csv.reader(lines, delimiter=delimiter)]
+        common = max(set(widths), key=widths.count) if widths else 0
+        if common < 2:
+            continue
+        score = (widths.count(common) * common, common)
+        if score > best_score:
+            best, best_score = delimiter, score
+    return best
+
+
 def read_table(raw, filename=""):
     """-> (rows, header_index). rows - список списків тексту; header_index або None."""
     name = (filename or "").lower()
@@ -33,14 +51,8 @@ def read_table(raw, filename=""):
                 for row in sheet.iter_rows(values_only=True)]
     else:
         text = _decode(raw)
-        sample = text[:4096]
-        try:
-            dialect = csv.Sniffer().sniff(sample, delimiters=";,\t")
-            delimiter = dialect.delimiter
-        except csv.Error:
-            delimiter = ";" if sample.count(";") >= sample.count(",") else ","
         rows = [[c.strip() for c in row] for row in csv.reader(io.StringIO(text),
-                                                               delimiter=delimiter)]
+                                                               delimiter=_delimiter(text))]
     rows = [r for r in rows if any(c for c in r)]
     # Заголовок - рядок, де найбільше клітинок схожі на назви колонок. Рядок-титул
     # «Номенклатура за 2026-11-01» має одну таку клітинку, справжній заголовок - кілька.

@@ -425,6 +425,9 @@ Notable changes for people who run or build on this code. Module-level API chang
 ### Fixed
 - Column guessing in the component intake and price lists no longer takes a title row such as
   «Номенклатура за 2026-11-01» for the header: the row with the most column names wins.
+- CSV files split on «;» even when every row also has one comma («Ціна, грн», «396,00»): the
+  delimiter is the one that gives the most cells in rows of equal width, «;» on a tie. Python's
+  sniffer picked the comma there.
 - Supplier prices that do not fit two decimals per unit (250 UAH for 500 washers) are kept per pack
   (`уп. 500 шт`) instead of being rounded per piece; the pack price is taken from the price list,
   not from the rounded piece price; comparison fields carry four decimals.
