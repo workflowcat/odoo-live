@@ -140,3 +140,47 @@ class TestUaEmployeeStandardForm(TransactionCase):
         self.assertIn(result, (False, None), "кнопка лише перечитує форму, дії не повертає")
         self.assertEqual(employee.ua_mil_event_ids.mapped("kind"), ["check"])
         self.assertEqual(employee.ua_mil_last_check, today)
+
+    # ------------------------------------------------------------------ 10. «Потребує уваги» словами
+    def test_10_attention_says_what_and_why(self):
+        """Над вкладками - список причин, а не голе число: те саме, що лічильник, словами."""
+        from datetime import timedelta
+
+        from odoo import fields as odoo_fields
+
+        employee = self._employee("Увага Тест")
+        today = odoo_fields.Date.context_today(employee)
+        self.env["ua.employee.document"].create({
+            "employee_id": employee.id, "name": "Медична довідка",
+            "valid_until": today + timedelta(days=10)})
+        self.env["ua.employee.document"].create({
+            "employee_id": employee.id, "name": "Посвідчення водія",
+            "valid_until": today - timedelta(days=3)})
+        employee.invalidate_recordset()
+
+        items = employee._ua_attention_items()
+        texts = [item["text"] for item in items]
+        self.assertEqual(len(items), employee.ua_overview_alert_count)
+        self.assertIn("Немає РНОКПП", texts)
+        self.assertIn("Немає документа, що посвідчує особу", texts)
+        docs = next(text for text in texts if text.startswith("Документи: "))
+        # найраніший перший, прострочений названо прямо
+        self.assertLess(docs.index("Посвідчення водія"), docs.index("Медична довідка"))
+        self.assertIn("прострочено з " + odoo_fields.Date.to_string(today - timedelta(days=3)), docs)
+        self.assertIn("діє до " + odoo_fields.Date.to_string(today + timedelta(days=10)), docs)
+        self.assertEqual(next(i for i in items if i["text"] == docs)["level"], "crit")
+        for text in texts:
+            self.assertIn(text, str(employee.ua_attention_html))
+
+        employee.write({"ua_rnokpp": "3555555555", "ua_id_doc_type": "id_card",
+                        "ua_id_doc_number": "000123456"})
+        texts = [item["text"] for item in employee._ua_attention_items()]
+        self.assertNotIn("Немає РНОКПП", texts)
+        self.assertNotIn("Немає документа, що посвідчує особу", texts)
+
+        arch = self.Employee.get_views([(False, "form")])["views"]["form"]["arch"]
+        self.assertIn('name="ua_attention_html"', arch)
+        overview = arch.split('name="ua_overview"', 1)[1].split("<page", 1)[0]
+        self.assertIn('name="ua_mil_status"', overview)
+        self.assertNotIn("ua_esv_category", overview, "коди зарплати не на «Огляді»")
+        self.assertNotIn("ua_psp", overview)

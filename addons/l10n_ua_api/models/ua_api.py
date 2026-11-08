@@ -361,8 +361,9 @@ class UaApi(models.AbstractModel):
                      найновіші перші
           leaves     {allocations: [...], requests: [...]} - нарахування і заявки відпусток;
                      залишки днів лежать у tabs.vacation, другий раз тут їх немає
-          alerts     {count, docs_expiring, military_needs_check} - те, що форма показує
-                     лічильником «Потребує уваги»
+          alerts     {count, docs_expiring, military_needs_check, items} - те, що форма
+                     показує смугою «Потребує уваги»; items - [{level: crit|warn, text}],
+                     по рядку на кожну причину лічильника
           targets    {form, documents, orders} - цілі для ua.screen.open_target()
 
         Права. Метод не робить sudo(): користувач без hr.group_hr_user отримає
@@ -404,6 +405,7 @@ class UaApi(models.AbstractModel):
                 "count": employee.ua_overview_alert_count,
                 "docs_expiring": employee.ua_docs_expiring,
                 "military_needs_check": bool(employee.ua_mil_needs_check),
+                "items": employee._ua_attention_items(),
             },
             "targets": {
                 "form": {"model": "hr.employee", "res_id": employee.id},

@@ -269,7 +269,8 @@ call("ua.api", "employee_card", [12])
                      "request_date_from": "2026-09-21", "request_date_to": "2026-09-22",
                      "number_of_days": 2.0, "state": "confirm"}]
   },
-  "alerts": {"count": 1, "docs_expiring": 0, "military_needs_check": true},
+  "alerts": {"count": 1, "docs_expiring": 0, "military_needs_check": true,
+             "items": [{"level": "warn", "text": "Військовий облік: потрібна звірка даних"}]},
   "targets": {"form": {"model": "hr.employee", "res_id": 12},
               "documents": {"model": "ua.employee.document",
                             "domain": [["employee_id","=",12]], "name": "Документи"},

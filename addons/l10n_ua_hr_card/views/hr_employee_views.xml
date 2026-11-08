@@ -211,13 +211,19 @@
               <span class="o_stat_text">У компанії, днів</span>
             </div>
           </button>
-          <button class="oe_stat_button" icon="fa-exclamation-triangle" disabled="1" groups="hr.group_hr_user"
-                  invisible="ua_overview_alert_count == 0">
-            <div class="o_stat_info">
-              <span class="o_stat_value"><field name="ua_overview_alert_count"/></span>
-              <span class="o_stat_text">Потребує уваги</span>
-            </div>
-          </button>
+        </xpath>
+
+        <!-- ==================== Що потребує уваги - словами, над усіма вкладками ====================
+             Раніше тут була кнопка з числом «Потребує уваги: 3», і людина мусила вгадувати, що саме.
+             Тепер ті самі причини одним списком: документ, що спливає, немає РНОКПП, звірка
+             військового обліку, задовга невикористана відпустка. -->
+        <xpath expr="//div[@name='button_box']" position="after">
+          <field name="ua_overview_alert_count" invisible="1" groups="hr.group_hr_user"/>
+          <div class="alert alert-warning mb-3" role="alert" groups="hr.group_hr_user"
+               invisible="ua_overview_alert_count == 0">
+            <div class="fw-bold mb-1">Потребує уваги</div>
+            <field name="ua_attention_html" nolabel="1" readonly="1"/>
+          </div>
         </xpath>
 
         <!-- ==================== Зарплата (колишня «Україна»): перейменувати, додати «Виплата» ==================== -->
@@ -283,20 +289,23 @@
              саме їх, а не справжній оригінал, лишаючи оригінал недоторканим і спорожняючи Огляд. -->
         <xpath expr="//page[@name='work_information']" position="before">
           <page name="ua_overview" string="Огляд" groups="hr.group_hr_user">
-            <group string="Стан" name="ua_overview_grp_state">
+            <!-- Огляд відповідає на три питання: де людина працює, хто вона, що з військовим
+                 обліком. Коди ЄСВ і ПСП тут не показуємо: це дані для зарплати, вони на вкладці
+                 «Зарплата». -->
+            <group string="Робота" name="ua_overview_grp_state">
               <field name="ua_contract_kind" widget="badge" readonly="1"/>
               <field name="ua_main_job" readonly="1"/>
               <field name="ua_fte" readonly="1"/>
-              <field name="ua_esv_category" readonly="1"/>
-              <field name="ua_psp" readonly="1"/>
-              <field name="ua_disability_group" readonly="1"/>
+              <field name="ua_first_hire_date" readonly="1"/>
+            </group>
+            <group string="Військовий облік" name="ua_overview_grp_military">
               <field name="ua_mil_status" widget="badge" readonly="1"/>
               <field name="ua_mil_rank" readonly="1"/>
               <field name="ua_mil_fitness" widget="badge" readonly="1"/>
               <field name="ua_mil_reserved" readonly="1"/>
               <field name="ua_mil_last_check" readonly="1"/>
             </group>
-            <group string="Ідентифікація" name="ua_overview_grp_ident">
+            <group string="Особа" name="ua_overview_grp_ident">
               <field name="ua_rnokpp" readonly="1"/>
               <field name="birthday" readonly="1"/>
               <field name="ua_id_doc_type" readonly="1"/>
@@ -305,6 +314,7 @@
               <field name="private_city" readonly="1"/>
               <field name="ua_actual_address" readonly="1"/>
               <field name="private_phone" readonly="1"/>
+              <field name="ua_disability_group" readonly="1"/>
             </group>
             <group string="Документи" name="ua_overview_grp_docs">
               <field name="ua_document_ids" nolabel="1" colspan="2" readonly="1">

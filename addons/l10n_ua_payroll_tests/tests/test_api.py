@@ -194,7 +194,7 @@ class TestUaApi(NoWriteMixin, TransactionCase):
         self.assertIn("ua_vacation_balance", card["tabs"]["vacation"])
         self.assertIn("ua_mil_status", card["tabs"]["military"])
         self.assertEqual(set(card["leaves"]), {"allocations", "requests"})
-        self.assertEqual(set(card["alerts"]), {"count", "docs_expiring", "military_needs_check"})
+        self.assertEqual(set(card["alerts"]), {"count", "docs_expiring", "military_needs_check", "items"})
         self.assertEqual(set(card["targets"]), {"form", "documents", "orders"})
         self.assertEqual(card["targets"]["form"],
                          {"model": "hr.employee", "res_id": self.employee.id})
@@ -244,6 +244,10 @@ class TestUaApi(NoWriteMixin, TransactionCase):
         self.assertEqual(card["tabs"]["vacation"]["ua_vacation_balance"],
                          self.employee.ua_vacation_balance)
         self.assertEqual(card["alerts"]["count"], self.employee.ua_overview_alert_count)
+        self.assertEqual(len(card["alerts"]["items"]), card["alerts"]["count"])
+        for item in card["alerts"]["items"]:
+            self.assertEqual(set(item), {"level", "text"})
+            self.assertIn(item["level"], ("crit", "warn"))
         self.assertEqual(card["version"]["wage"], self.employee.version_id.wage)
 
         sheet = self.env["ua.timesheet.sheet"].search([

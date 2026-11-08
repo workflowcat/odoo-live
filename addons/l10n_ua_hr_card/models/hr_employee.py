@@ -1,5 +1,7 @@
 from datetime import timedelta
 
+from markupsafe import Markup
+
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
@@ -106,6 +108,9 @@ class HrEmployee(models.Model):
     ua_current_wage = fields.Monetary("Поточний оклад", compute="_compute_ua_current_wage", currency_field="currency_id", groups="hr.group_hr_user")
     ua_docs_count = fields.Integer("Документів", compute="_compute_ua_docs_count", groups="hr.group_hr_user")
     ua_overview_alert_count = fields.Integer("Потребує уваги", compute="_compute_ua_overview_alert_count", groups="hr.group_hr_user")
+    ua_attention_html = fields.Html("Що потребує уваги", compute="_compute_ua_overview_alert_count",
+                                    sanitize=True, groups="hr.group_hr_user",
+                                    help="Те саме, що лічильник «Потребує уваги», словами.")
 
     @api.depends("version_ids.contract_date_start", "version_ids.contract_date_end")
     def _compute_ua_days_in_company(self):
@@ -144,22 +149,40 @@ class HrEmployee(models.Model):
     @api.depends("ua_document_ids.valid_until", "ua_rnokpp", "ua_id_doc_type", "ua_id_doc_number",
                  "ua_mil_needs_check", "ua_vacation_balance")
     def _compute_ua_overview_alert_count(self):
+        for employee in self:
+            items = employee._ua_attention_items()
+            employee.ua_overview_alert_count = len(items)
+            employee.ua_attention_html = Markup("<ul class=\"mb-0 ps-3\">%s</ul>") % Markup("").join(
+                Markup("<li>%s</li>") % item["text"] for item in items) if items else False
+
+    def _ua_attention_items(self):
+        """Що на картці чекає дії, словами: [{level: crit|warn, text}].
+
+        Один пункт - одна причина лічильника «Потребує уваги»: документи, що спливають
+        (усі одним рядком), немає РНОКПП, немає документа, що посвідчує особу, потрібна
+        звірка військового обліку, понад 60 днів невикористаної відпустки."""
+        self.ensure_one()
+        emp = self.sudo()
         today = fields.Date.context_today(self)
         limit = today + timedelta(days=30)
-        for employee in self:
-            emp = employee.sudo()
-            count = 0
-            if any(d.valid_until and d.valid_until <= limit for d in emp.ua_document_ids):
-                count += 1
-            if not emp.ua_rnokpp:
-                count += 1
-            if not (emp.ua_id_doc_type and emp.ua_id_doc_number):
-                count += 1
-            if emp.ua_mil_needs_check:
-                count += 1
-            if (emp.ua_vacation_balance or 0.0) > 60:
-                count += 1
-            employee.ua_overview_alert_count = count
+        items = []
+        docs = emp.ua_document_ids.filtered(lambda d: d.valid_until and d.valid_until <= limit)
+        if docs:
+            parts = []
+            for doc in docs.sorted(lambda d: d.valid_until):
+                when = fields.Date.to_string(doc.valid_until)
+                parts.append("%s %s" % (doc.name, ("прострочено з " if doc.valid_until < today else "діє до ") + when))
+            items.append({"level": "crit" if any(d.valid_until < today for d in docs) else "warn",
+                          "text": "Документи: " + "; ".join(parts)})
+        if not emp.ua_rnokpp:
+            items.append({"level": "warn", "text": "Немає РНОКПП"})
+        if not (emp.ua_id_doc_type and emp.ua_id_doc_number):
+            items.append({"level": "warn", "text": "Немає документа, що посвідчує особу"})
+        if emp.ua_mil_needs_check:
+            items.append({"level": "warn", "text": "Військовий облік: потрібна звірка даних"})
+        if (emp.ua_vacation_balance or 0.0) > 60:
+            items.append({"level": "warn", "text": "Невикористана відпустка: %s дн." % round(emp.ua_vacation_balance)})
+        return items
 
     def action_view_ua_documents(self):
         self.ensure_one()

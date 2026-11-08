@@ -6,6 +6,10 @@ Notable changes for people who run or build on this code. Module-level API chang
 ## Unreleased
 
 ### Added
+- Person card: a «Потребує уваги» band above the tabs says what needs action in words (a document
+  that expired or expires within 30 days, with its date; no РНОКПП; no ID document; military record
+  check due; more than 60 unused vacation days) instead of a bare count. `ua.api.employee_card`
+  returns the same lines in `alerts.items`.
 - `l10n_ua_map`: `ua.api.system_map()` - the whole company on one screen: 12 areas, 88 items, each
   with its state (here, part, missing), live counts, the open part («в дорозі», «не оплачено») and
   what needs a person (late suppliers, unpaid bills past due, parcels waiting at a branch, expiring
@@ -372,6 +376,9 @@ Notable changes for people who run or build on this code. Module-level API chang
   2024-10). Menu: Звітність - ПДВ - Декларації з ПДВ. Tests: `ua_vat_return`.
 
 ### Changed
+- Person card «Огляд» tab: three groups (Робота, Особа, Військовий облік); payroll codes (ЄСВ, ПСП)
+  stay on «Зарплата» only. Count labels on the system map read right with any number
+  («1 відкрито», «17 в силі»).
 - `l10n_ua_vat`: the VAT summary labels name the rows of the current form (7 % is row 1.2 and 10.2,
   14 % is row 1.3 and 10.3, returns are row 7.1). Field names and numbers are unchanged.
 - `l10n_ua_profit_tax`: rows follow the current form. Row 01 adds Ф2 2200 and 2220; amortisation goes to
