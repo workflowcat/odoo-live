@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_precious_metal_user,ua.precious.metal user,model_ua_precious_metal,base.group_user,1,0,0,0
+access_ua_precious_metal_manager,ua.precious.metal manager,model_ua_precious_metal,stock.group_stock_manager,1,1,1,1
+access_ua_precious_content_user,ua.precious.content user,model_ua_precious_content,base.group_user,1,0,0,0
+access_ua_precious_content_stock,ua.precious.content stock,model_ua_precious_content,stock.group_stock_user,1,1,1,1
+access_ua_precious_content_mrp,ua.precious.content mrp,model_ua_precious_content,mrp.group_mrp_user,1,1,1,1
+access_ua_precious_report_stock,ua.precious.report stock,model_ua_precious_report,stock.group_stock_user,1,1,1,1

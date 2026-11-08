@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 70,
-    "models": 150,
-    "methods": 547,
-    "fields": 363
+    "modules": 71,
+    "models": 152,
+    "methods": 553,
+    "fields": 364
   },
   "areas": [
     {
@@ -6997,6 +6997,40 @@
           "fields": []
         },
         {
+          "model": "ua.precious.report",
+          "ours": true,
+          "modules": [
+            "l10n_ua_precious_metals"
+          ],
+          "methods": [
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_precious_metals",
+              "file": "addons/l10n_ua_precious_metals/models/precious.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_date",
+              "signature": "ua_date(day)",
+              "doc": "",
+              "module": "l10n_ua_precious_metals",
+              "file": "addons/l10n_ua_precious_metals/models/precious.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_rows",
+              "signature": "ua_rows()",
+              "doc": "Рядок на кожен метал, що трапився: {\"metal\", \"code\", колонка: текст грамів}.",
+              "module": "l10n_ua_precious_metals",
+              "file": "addons/l10n_ua_precious_metals/models/precious.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.price.label.wizard",
           "ours": true,
           "modules": [
@@ -8678,6 +8712,32 @@
           ]
         },
         {
+          "model": "product.product",
+          "ours": false,
+          "modules": [
+            "l10n_ua_precious_metals"
+          ],
+          "methods": [
+            {
+              "name": "ua_precious_content",
+              "signature": "ua_precious_content(quantity=1.0, _path=())",
+              "doc": "{метал: грами} у quantity одиниць товару, разом зі складовими специфікації.",
+              "module": "l10n_ua_precious_metals",
+              "file": "addons/l10n_ua_precious_metals/models/precious.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_precious_rows",
+              "signature": "ua_precious_rows()",
+              "doc": "Рядки розділу паспорта: метал, символ, грами на один виріб.",
+              "module": "l10n_ua_precious_metals",
+              "file": "addons/l10n_ua_precious_metals/models/precious.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "product.template",
           "ours": false,
           "modules": [
@@ -8686,6 +8746,7 @@
             "l10n_ua_dk021",
             "l10n_ua_export_control",
             "l10n_ua_mrp",
+            "l10n_ua_precious_metals",
             "l10n_ua_price_label",
             "l10n_ua_stock_docs",
             "l10n_ua_vat"
@@ -8779,6 +8840,14 @@
               "label": "",
               "module": "l10n_ua_price_label",
               "file": "addons/l10n_ua_price_label/models/price_label.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_precious_ids",
+              "type": "One2many",
+              "label": "ua.precious.content",
+              "module": "l10n_ua_precious_metals",
+              "file": "addons/l10n_ua_precious_metals/models/precious.py",
               "groups": ""
             },
             {
@@ -9003,6 +9072,7 @@
             "l10n_ua_claim",
             "l10n_ua_defense",
             "l10n_ua_eco",
+            "l10n_ua_precious_metals",
             "l10n_ua_unit_transfer"
           ],
           "methods": [
@@ -9020,6 +9090,14 @@
               "doc": "",
               "module": "l10n_ua_claim",
               "file": "addons/l10n_ua_claim/models/stock_lot.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_precious_rows",
+              "signature": "ua_precious_rows()",
+              "doc": "",
+              "module": "l10n_ua_precious_metals",
+              "file": "addons/l10n_ua_precious_metals/models/precious.py",
               "decorators": []
             }
           ],

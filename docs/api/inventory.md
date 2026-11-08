@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 70. Моделей: 150. Методів: 547. Збережених полів на чужих моделях: 363.
+Модулів: 71. Моделей: 152. Методів: 553. Збережених полів на чужих моделях: 364.
 
 ## Зарплата
 
@@ -1539,6 +1539,16 @@
 | `money(amount)` | 1 240,50 - сума для друку. | `l10n_ua_piecework` |
 | `qty(amount)` | - | `l10n_ua_piecework` |
 
+### `ua.precious.report`
+
+наша модель · `l10n_ua_precious_metals`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_print()` | - | `l10n_ua_precious_metals` |
+| `ua_date(day)` | - | `l10n_ua_precious_metals` |
+| `ua_rows()` | Рядок на кожен метал, що трапився: {"metal", "code", колонка: текст грамів}. | `l10n_ua_precious_metals` |
+
 ### `ua.price.label.wizard`
 
 наша модель · `l10n_ua_price_label`
@@ -1942,9 +1952,18 @@
 | `ua_check_ids` | One2many | ua.workorder.check | `l10n_ua_mrp` |
 | `ua_piecework_line_ids` | One2many | ua.piecework.line | `l10n_ua_piecework` |
 
+### `product.product`
+
+доповнена модель · `l10n_ua_precious_metals`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `ua_precious_content(quantity=1.0, _path=())` | {метал: грами} у quantity одиниць товару, разом зі складовими специфікації. | `l10n_ua_precious_metals` |
+| `ua_precious_rows()` | Рядки розділу паспорта: метал, символ, грами на один виріб. | `l10n_ua_precious_metals` |
+
 ### `product.template`
 
-доповнена модель · `l10n_ua_customs`, `l10n_ua_defense`, `l10n_ua_dk021`, `l10n_ua_export_control`, `l10n_ua_mrp`, `l10n_ua_price_label`, `l10n_ua_stock_docs`, `l10n_ua_vat`
+доповнена модель · `l10n_ua_customs`, `l10n_ua_defense`, `l10n_ua_dk021`, `l10n_ua_export_control`, `l10n_ua_mrp`, `l10n_ua_precious_metals`, `l10n_ua_price_label`, `l10n_ua_stock_docs`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1962,6 +1981,7 @@
 | `ua_export_controlled` | Boolean | Під експортним контролем | `l10n_ua_export_control` |
 | `ua_label_content` | Float | Вміст упаковки | `l10n_ua_price_label` |
 | `ua_label_unit` | Selection | - | `l10n_ua_price_label` |
+| `ua_precious_ids` | One2many | ua.precious.content | `l10n_ua_precious_metals` |
 | `ua_size` | Selection | Габарит | `l10n_ua_stock_docs` |
 | `ua_uktzed` | Char | Код УКТ ЗЕД | `l10n_ua_vat` |
 | `ua_vat_relief_id` | Many2one | ua.vat.relief | `l10n_ua_vat` |
@@ -2014,12 +2034,13 @@
 
 ### `stock.lot`
 
-доповнена модель · `l10n_ua_claim`, `l10n_ua_defense`, `l10n_ua_eco`, `l10n_ua_unit_transfer`
+доповнена модель · `l10n_ua_claim`, `l10n_ua_defense`, `l10n_ua_eco`, `l10n_ua_precious_metals`, `l10n_ua_unit_transfer`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
 | `action_print_passport()` | - | `l10n_ua_defense` |
 | `action_ua_claims()` | - | `l10n_ua_claim` |
+| `ua_precious_rows()` | - | `l10n_ua_precious_metals` |
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |

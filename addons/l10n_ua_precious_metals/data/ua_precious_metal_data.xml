@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+  <record id="metal_au" model="ua.precious.metal"><field name="name">Золото</field><field name="code">Au</field><field name="sequence">10</field></record>
+  <record id="metal_ag" model="ua.precious.metal"><field name="name">Срібло</field><field name="code">Ag</field><field name="sequence">20</field></record>
+  <record id="metal_pt" model="ua.precious.metal"><field name="name">Платина</field><field name="code">Pt</field><field name="sequence">30</field></record>
+  <record id="metal_pd" model="ua.precious.metal"><field name="name">Паладій</field><field name="code">Pd</field><field name="sequence">40</field></record>
+  <record id="metal_rh" model="ua.precious.metal"><field name="name">Родій</field><field name="code">Rh</field><field name="sequence">50</field></record>
+  <record id="metal_ir" model="ua.precious.metal"><field name="name">Іридій</field><field name="code">Ir</field><field name="sequence">60</field></record>
+  <record id="metal_ru" model="ua.precious.metal"><field name="name">Рутеній</field><field name="code">Ru</field><field name="sequence">70</field></record>
+  <record id="metal_os" model="ua.precious.metal"><field name="name">Осмій</field><field name="code">Os</field><field name="sequence">80</field></record>
+</odoo>

@@ -122,6 +122,7 @@ payload in our catalogues is a camera; nothing here covers munitions.
 | Acceptance by the customer's representative (військове приймання), quality records | contract terms | done: acceptance act per batch with serials; inspection checks on routing steps gate release and acceptance; results in the passport |
 | Measuring instruments: periodic verification (повірка) and calibration, certificates, schedule; quality checks only with fit instruments | Закон «Про метрологію та метрологічну діяльність»; intervals for legally regulated instruments set by the authority (a setting per instrument) | done: `l10n_ua_metrology` on native maintenance equipment: verification records with certificate and lab, validity, reminders, yearly schedule print; routing operations name their instruments, a "yes" answer is refused with an overdue, failed or conserved one, and the passport prints which instrument and verification were used |
 | Product passport / log per serial, spare parts kits (ЗІП) | contract terms | done: passport per serial with components' serials; ЗІП as a kit BOM in the drone pack |
+| Precious metals in products (облік дорогоцінних металів): content per component, the passport section, receipts and use for the yearly report | Закон «Про державне регулювання видобутку, виробництва і використання дорогоцінних металів і дорогоцінного каміння та контроль за операціями з ними»; накази Мінфіну про облік (check the current edition) | done: `l10n_ua_precious_metals`: grams per metal on components from datasheets, rolled up through multi-level BOMs plus the product's own (plating), "Відомості про вміст дорогоцінних металів" in the product passport, period statement per metal: received, used in production, in finished products, shipped, written off, on hand |
 | Design changes agreed with the customer's representative, revision on every serial | contract terms; ЄСКД change-notice practice | done: `l10n_ua_eco`; the military representative signs when the product was made under a defense contract; the passport shows the revision |
 | Claims (рекламації) from units: deadlines, warranty, root cause, replacement, repeat failures | contract terms | done: `l10n_ua_claim`; the passport prints the claim history; a design cause opens a change notice |
 | Imported components: customs declaration, duty and VAT in cost | Митний кодекс, ст. 49-58; ПКУ, ст. 190 | done: `l10n_ua_customs`; duty-free import under defense benefits goes as a 0 % duty rate or a VAT basis on the line |
@@ -152,7 +153,7 @@ from defense delivery schedules (`l10n_ua_mrp_plan` on OCA `mrp_multi_level`); p
 from production output (`l10n_ua_piecework`); approved component substitutes (`l10n_ua_mrp_substitute`); advances and bank guarantees on
 contracts (`l10n_ua_guarantee`); measuring instruments and their verification (`l10n_ua_metrology`); workwear and items in use
 (`l10n_ua_workwear`); grants and targeted financing (`l10n_ua_grant`); export control permits
-(`l10n_ua_export_control`).
+(`l10n_ua_export_control`); precious metals in products (`l10n_ua_precious_metals`).
 
 Next, in this order:
 

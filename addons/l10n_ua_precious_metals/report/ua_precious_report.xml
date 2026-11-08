@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_precious" model="ir.actions.report">
+    <field name="name">Відомість дорогоцінних металів</field>
+    <field name="model">ua.precious.report</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_precious_metals.report_ua_precious</field>
+    <field name="report_file">l10n_ua_precious_metals.report_ua_precious</field>
+    <field name="print_report_name">'Дорогоцінні метали %s - %s' % (object.date_from, object.date_to)</field>
+  </record>
+
+  <template id="report_ua_precious">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <style>
+            .ua-doc { font-size: 10.5px; color: #000; }
+            .ua-doc h3 { font-size: 13px; text-align: center; margin: 4px 0; }
+            .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+            .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin: 6px 0; }
+            .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 4px; }
+            .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+            .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+            .ua-doc .ua-sign { width: 100%; margin-top: 18px; }
+            .ua-doc .ua-sign td { width: 50%; vertical-align: top; padding: 12px 12px 0 0; }
+          </style>
+          <t t-set="rows" t-value="doc.ua_rows()"/>
+          <div class="ua-doc">
+            <div><t t-out="doc.company_id.name"/></div>
+            <h3>ВІДОМІСТЬ НАДХОДЖЕННЯ І ВИКОРИСТАННЯ ДОРОГОЦІННИХ МЕТАЛІВ</h3>
+            <div class="ua-sub">за період з <t t-out="doc.ua_date(doc.date_from)"/> по <t t-out="doc.ua_date(doc.date_to)"/>, грамів</div>
+            <table class="ua-grid">
+              <thead><tr><th>Метал</th>
+                <th t-foreach="doc.COLUMNS" t-as="column" style="width: 13%;"><t t-out="column[1]"/></th></tr></thead>
+              <tbody>
+                <tr t-if="not rows"><td colspan="7" style="text-align: center;">рухів товарів з дорогоцінними металами не було</td></tr>
+                <tr t-foreach="rows" t-as="row">
+                  <td><t t-out="row['metal']"/> (<t t-out="row['code']"/>)</td>
+                  <td t-foreach="doc.COLUMNS" t-as="column" class="ua-num"><t t-out="row[column[0]]"/></td>
+                </tr>
+              </tbody>
+            </table>
+            <div>Вміст металів у товарах - за довідковими даними виробників і специфікаціями, чинними на дату друку.</div>
+            <table class="ua-sign"><tr>
+              <td>Головний бухгалтер<br/><br/>______________ / ______________________</td>
+              <td>Відповідальний за облік дорогоцінних металів<br/><br/>______________ / ______________________</td>
+            </tr></table>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+
+  <!-- Паспорт виробу: вміст дорогоцінних металів за конструкторською документацією. -->
+  <template id="report_ua_product_passport_document_precious" inherit_id="l10n_ua_defense.report_ua_product_passport_document">
+    <xpath expr="//table[hasclass('ua-sign')]" position="before">
+      <t t-set="precious" t-value="doc.ua_precious_rows()"/>
+      <t t-if="precious">
+        <h3>Відомості про вміст дорогоцінних металів</h3>
+        <table class="ua-grid">
+          <thead><tr><th>Метал</th><th style="width: 30%;">Грамів на один виріб</th></tr></thead>
+          <tbody>
+            <tr t-foreach="precious" t-as="metal">
+              <td><t t-out="metal['name']"/> (<t t-out="metal['code']"/>)</td>
+              <td style="text-align: right;"><t t-out="metal['grams']"/></td>
+            </tr>
+          </tbody>
+        </table>
+      </t>
+    </xpath>
+  </template>
+</odoo>

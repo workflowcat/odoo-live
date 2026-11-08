@@ -211,6 +211,11 @@ Notable changes for people who run or build on this code. Module-level API chang
   products with quantities. A delivery of such goods to a partner in another country is not validated without
   a valid permit for that partner, country and product, or above what the permit has left; a single matching
   permit is set on the delivery by itself. Expiry reminders and a usage report. Tests: `ua_export_control`.
+- `l10n_ua_precious_metals`: precious metals in products. Grams of gold, silver, platinum, palladium and
+  the other metals per unit on a component; a product with a BOM adds up its parts on every level plus its own
+  content. The product passport prints "Відомості про вміст дорогоцінних металів". A period statement per
+  metal: received from suppliers, used in production, in finished products, shipped, written off, on hand.
+  Tests: `ua_precious`.
 
 ### Changed
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number
