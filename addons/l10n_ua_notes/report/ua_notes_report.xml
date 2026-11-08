@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="paperformat_ua_notes_landscape" model="report.paperformat">
+    <field name="name">Україна: форма № 5, A4 альбомна</field>
+    <field name="format">A4</field>
+    <field name="orientation">Landscape</field>
+    <field name="margin_top">10</field>
+    <field name="margin_bottom">10</field>
+    <field name="margin_left">8</field>
+    <field name="margin_right">8</field>
+    <field name="header_line" eval="False"/>
+    <field name="header_spacing">0</field>
+    <field name="dpi">90</field>
+  </record>
+
+  <record id="action_report_ua_notes" model="ir.actions.report">
+    <field name="name">Примітки до річної фінансової звітності (форма № 5)</field>
+    <field name="model">ua.notes.statement</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_notes.report_ua_notes</field>
+    <field name="report_file">l10n_ua_notes.report_ua_notes</field>
+    <field name="paperformat_id" ref="paperformat_ua_notes_landscape"/>
+    <field name="binding_model_id" ref="model_ua_notes_statement"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">object.name</field>
+  </record>
+
+  <template id="report_ua_notes">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <style>
+            .ua-doc { font-size: 8px; color: #000; }
+            .ua-doc h3 { font-size: 12px; text-align: center; margin: 4px 0; }
+            .ua-doc h4 { font-size: 10px; text-align: center; margin: 10px 0 4px; }
+            .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+            .ua-doc .ua-grid { width: 100%; border-collapse: collapse; page-break-inside: auto; }
+            .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 1px 2px; vertical-align: top; }
+            .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+            .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+            .ua-doc .ua-code { text-align: center; width: 4%; }
+            .ua-doc .ua-bold td { font-weight: bold; }
+            .ua-doc .ua-subrow td:first-child { padding-left: 12px; }
+            .ua-doc .ua-sign { width: 100%; margin-top: 18px; }
+          </style>
+          <div class="ua-doc">
+            <div>Підприємство: <t t-out="doc.company_id.name"/></div>
+            <div t-if="doc.company_id.company_registry">за ЄДРПОУ: <t t-out="doc.company_id.company_registry"/></div>
+            <div>Одиниця виміру: грн</div>
+            <h3>Примітки до річної фінансової звітності</h3>
+            <div class="ua-sub">за період з <t t-out="doc.date_from.strftime('%d.%m.%Y')"/> по
+              <t t-out="doc.date_to.strftime('%d.%m.%Y')"/>. Форма № 5, код за ДКУД 1801008</div>
+            <t t-foreach="doc.ua_sections()" t-as="section">
+              <h4 t-out="section[0]"/>
+              <table class="ua-grid">
+                <thead>
+                  <tr><th>Показник</th><th>Код рядка</th>
+                    <t t-foreach="section[1]" t-as="col"><th t-out="col[1]"/></t></tr>
+                  <tr><th>1</th><th>2</th>
+                    <t t-foreach="section[1]" t-as="col"><th t-out="col[0][1:]"/></t></tr>
+                </thead>
+                <tbody>
+                  <tr t-foreach="section[2]" t-as="row"
+                      t-att-class="'ua-bold' if row[2] == 'total' else ('ua-subrow' if row[2] == 'sub' else '')">
+                    <td t-out="row[0]"/>
+                    <td class="ua-code" t-out="row[1]"/>
+                    <t t-foreach="row[3]" t-as="value"><td class="ua-num" t-out="doc.ua_money(value)"/></t>
+                  </tr>
+                </tbody>
+              </table>
+            </t>
+            <table class="ua-sign">
+              <tr><td>Керівник ____________________</td><td>Головний бухгалтер ____________________</td></tr>
+            </table>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

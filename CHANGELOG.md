@@ -293,6 +293,14 @@ Notable changes for people who run or build on this code. Module-level API chang
   rules (dividends, reserve, contributions, buyback, revaluation and others), company rules first, the rest in
   4290 and listed. Current and previous year, closing checked against account balances per column, rows 4205
   and 4210 checked to net to zero, drill-down, landscape print. Tests: `ua_equity`.
+- `l10n_ua_notes`: notes to the annual financial statements (form 5), main sections. I and II: movement of
+  intangible and fixed assets by account group in columns 3-15, every journal item in exactly one column
+  (revaluation by counter 41/746/975, transfers between groups as other changes, impairment by 972/742),
+  depreciation split by the asset on the item, else by the counter account, unassigned rows flagged. III
+  capital investments, VI cash, VII provisions (accrued, used, reversed), VIII inventories with write-downs and
+  increases of net realisable value, IX receivables by age (each partner's balance laid on its newest debits),
+  X shortages, XII income tax, XIII depreciation charged checked against I and II. Landscape print.
+  Tests: `ua_notes`.
 
 ### Changed
 - Packs: defense packs bring their typical jobs with labour safety terms (hazardous work, repeat briefing and

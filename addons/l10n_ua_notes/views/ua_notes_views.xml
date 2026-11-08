@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_notes_statement_list" model="ir.ui.view">
+    <field name="name">ua.notes.statement.list</field>
+    <field name="model">ua.notes.statement</field>
+    <field name="arch" type="xml">
+      <list string="Примітки до річної фінансової звітності">
+        <field name="name"/>
+        <field name="company_id" groups="base.group_multi_company"/>
+        <field name="computed_at"/>
+        <field name="state" widget="badge" decoration-success="state == 'done'"/>
+      </list>
+    </field>
+  </record>
+  <record id="view_ua_notes_statement_form" model="ir.ui.view">
+    <field name="name">ua.notes.statement.form</field>
+    <field name="model">ua.notes.statement</field>
+    <field name="arch" type="xml">
+      <form string="Примітки до річної фінансової звітності">
+        <header>
+          <button name="action_compute" type="object" string="Розрахувати" class="btn-primary"
+                  invisible="state != 'draft'"/>
+          <button name="action_done" type="object" string="Затвердити" invisible="state != 'draft' or not line_ids"/>
+          <button name="action_draft" type="object" string="У чернетку" invisible="state != 'done'"/>
+          <button name="action_print" type="object" string="Друк" invisible="not line_ids"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="alert alert-warning" role="alert" invisible="not check_text">
+            <field name="check_text"/>
+          </div>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="date_from" readonly="state != 'draft'"/>
+              <field name="date_to" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+              <field name="computed_at"/>
+              <field name="line_ids" invisible="1"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="I. НМА" name="intangible">
+              <field name="intangible_ids" readonly="1">
+                <list decoration-bf="row_kind == 'total'" decoration-muted="row_kind == 'sub'">
+                  <field name="code"/>
+                  <field name="name"/>
+                  <field name="row_kind" column_invisible="1"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="c3" string="Поч.: вартість"/>
+                  <field name="c4" string="Поч.: знос"/>
+                  <field name="c5" string="Надійшло"/>
+                  <field name="c6" string="Переоц.: вартість"/>
+                  <field name="c7" string="Переоц.: знос"/>
+                  <field name="c8" string="Вибуло: вартість"/>
+                  <field name="c9" string="Вибуло: знос"/>
+                  <field name="c10" string="Аморт."/>
+                  <field name="c11" string="Корисність"/>
+                  <field name="c12" string="Інші: вартість"/>
+                  <field name="c13" string="Інші: знос"/>
+                  <field name="c14" string="Кін.: вартість"/>
+                  <field name="c15" string="Кін.: знос"/>
+                </list>
+              </field>
+            </page>
+            <page string="II. Основні засоби" name="fixed">
+              <field name="fixed_ids" readonly="1">
+                <list decoration-bf="row_kind == 'total'" decoration-muted="row_kind == 'sub'">
+                  <field name="code"/>
+                  <field name="name"/>
+                  <field name="row_kind" column_invisible="1"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="c3" string="Поч.: вартість"/>
+                  <field name="c4" string="Поч.: знос"/>
+                  <field name="c5" string="Надійшло"/>
+                  <field name="c6" string="Переоц.: вартість"/>
+                  <field name="c7" string="Переоц.: знос"/>
+                  <field name="c8" string="Вибуло: вартість"/>
+                  <field name="c9" string="Вибуло: знос"/>
+                  <field name="c10" string="Аморт."/>
+                  <field name="c11" string="Корисність"/>
+                  <field name="c12" string="Інші: вартість"/>
+                  <field name="c13" string="Інші: знос"/>
+                  <field name="c14" string="Кін.: вартість"/>
+                  <field name="c15" string="Кін.: знос"/>
+                </list>
+              </field>
+            </page>
+            <page string="III. Кап. інвестиції" name="capex">
+              <field name="capex_ids" readonly="1">
+                <list decoration-bf="row_kind == 'total'" decoration-muted="row_kind == 'sub'">
+                  <field name="code"/>
+                  <field name="name"/>
+                  <field name="row_kind" column_invisible="1"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="c3" string="За рік"/>
+                  <field name="c4" string="На кінець року"/>
+                </list>
+              </field>
+            </page>
+            <page string="VI. Гроші" name="cash">
+              <field name="cash_ids" readonly="1">
+                <list decoration-bf="row_kind == 'total'" decoration-muted="row_kind == 'sub'">
+                  <field name="code"/>
+                  <field name="name"/>
+                  <field name="row_kind" column_invisible="1"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="c3" string="На кінець року"/>
+                </list>
+              </field>
+            </page>
+            <page string="VII. Забезпечення" name="provision">
+              <field name="provision_ids" readonly="1">
+                <list decoration-bf="row_kind == 'total'" decoration-muted="row_kind == 'sub'">
+                  <field name="code"/>
+                  <field name="name"/>
+                  <field name="row_kind" column_invisible="1"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="c3" string="На початок"/>
+                  <field name="c4" string="Нараховано"/>
+                  <field name="c5" string="Додатково"/>
+                  <field name="c6" string="Використано"/>
+                  <field name="c7" string="Сторновано"/>
+                  <field name="c8" string="Відшкодування"/>
+                  <field name="c9" string="На кінець"/>
+                </list>
+              </field>
+            </page>
+            <page string="VIII. Запаси" name="inventory">
+              <field name="inventory_ids" readonly="1">
+                <list decoration-bf="row_kind == 'total'" decoration-muted="row_kind == 'sub'">
+                  <field name="code"/>
+                  <field name="name"/>
+                  <field name="row_kind" column_invisible="1"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="c3" string="На кінець року"/>
+                  <field name="c4" string="Збільшення ЧВР"/>
+                  <field name="c5" string="Уцінка"/>
+                </list>
+              </field>
+            </page>
+            <page string="IX. Дебіторська" name="receivable">
+              <field name="receivable_ids" readonly="1">
+                <list decoration-bf="row_kind == 'total'" decoration-muted="row_kind == 'sub'">
+                  <field name="code"/>
+                  <field name="name"/>
+                  <field name="row_kind" column_invisible="1"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="c3" string="Всього"/>
+                  <field name="c4" string="До 12 міс."/>
+                  <field name="c5" string="12-18 міс."/>
+                  <field name="c6" string="18-36 міс."/>
+                </list>
+              </field>
+            </page>
+            <page string="X, XII, XIII" name="other">
+              <field name="other_ids" readonly="1">
+                <list decoration-bf="row_kind == 'total'" decoration-muted="row_kind == 'sub'">
+                  <field name="section"/>
+                  <field name="code"/>
+                  <field name="name"/>
+                  <field name="row_kind" column_invisible="1"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="c3" string="Сума"/>
+                </list>
+              </field>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+  <record id="action_ua_notes_statement" model="ir.actions.act_window">
+    <field name="name">Ф5. Примітки</field>
+    <field name="res_model">ua.notes.statement</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p>Примітки до річної фінансової звітності: рух активів за групами з реєстру активів і проводок,
+        капітальні інвестиції, гроші, забезпечення, запаси, дебіторська заборгованість за строками,
+        нестачі, податок на прибуток, амортизація.</p>
+    </field>
+  </record>
+</odoo>
