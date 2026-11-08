@@ -232,6 +232,9 @@ Notable changes for people who run or build on this code. Module-level API chang
   protocol print. Tests: `ua_product_tests`.
 
 ### Changed
+- Defense packs `defense_uav` and `defense_ugv`: finished products are marked dual-use under export control
+  with periodic tests once a year, and flight electronics, data links and optics are critical components
+  bought only from approved suppliers (applied when those modules are installed; notes say to check).
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number
   (Вих/...), and a restricted flag passed the same way needs clearance like a typed one.
 - `l10n_ua_prro`: a sale right after the Z-report in the same transaction opens a new shift instead of

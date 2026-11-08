@@ -11,7 +11,10 @@
   "notes": [
     "Пакет без озброєння: платформи для підвезення вантажів і евакуації поранених.",
     "Ціни, собівартість і норми часу - орієнтир на 2026 рік, замініть своїми.",
-    "Код УКТ ЗЕД платформ не заповнено: визначте його з митним брокером за конструкцією."
+    "Код УКТ ЗЕД платформ не заповнено: визначте його з митним брокером за конструкцією.",
+    "Позначка «під експортним контролем» і категорія подвійного використання на готових виробах - орієнтир: класифікацію і позицію контрольного списку визначає підприємство за чинними списками.",
+    "Періодичні випробування раз на 12 місяців - орієнтир; періодичність і обсяг беріть з технічних умов і контракту.",
+    "Критичні комплектуючі (польотна електроніка, канали зв'язку, оптика) купуються лише в погоджених постачальників: заведіть погодження до першого замовлення."
   ],
   "groups": [
     "stock.group_production_lot",
@@ -50,20 +53,20 @@
 
     {"key": "c_track", "code": "CMP-101", "name": "Гусеничний рушій у зборі, пара", "category": "@c_comp", "uom": "@u_kit", "cost": 68000, "sale_ok": false, "dk021": "44464000-0", "fields": {"ua_cost_item": "02"}},
     {"key": "c_motor", "code": "CMP-102", "name": "Мотор-редуктор 3 кВт, 48 В", "category": "@c_comp", "cost": 24000, "sale_ok": false, "tracking": "serial", "dk021": "31110000-0", "fields": {"ua_cost_item": "02"}},
-    {"key": "c_mctrl", "code": "CMP-103", "name": "Контролер двигуна 48 В, 150 А", "category": "@c_comp", "cost": 7800, "sale_ok": false, "fields": {"ua_cost_item": "02"}},
+    {"key": "c_mctrl", "code": "CMP-103", "name": "Контролер двигуна 48 В, 150 А", "category": "@c_comp", "cost": 7800, "sale_ok": false, "fields": {"ua_cost_item": "02", "ua_approved_only": true}},
     {"key": "c_pack", "code": "CMP-104", "name": "Батарея LiFePO4 48 В, 100 А·год", "category": "@c_comp", "cost": 52000, "price": 64000, "tracking": "serial", "dk021": "31434000-7", "fields": {"ua_cost_item": "02", "ua_warranty_months": 12}},
-    {"key": "c_mesh", "code": "CMP-105", "name": "Радіомодем mesh 1,4 ГГц", "category": "@c_comp", "cost": 38000, "sale_ok": false, "tracking": "serial", "dk021": "32552410-4", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_mesh", "code": "CMP-105", "name": "Радіомодем mesh 1,4 ГГц", "category": "@c_comp", "cost": 38000, "sale_ok": false, "tracking": "serial", "dk021": "32552410-4", "fields": {"ua_cost_item": "02", "ua_approved_only": true}},
     {"key": "c_cam", "code": "CMP-106", "name": "Камера оглядова з ІЧ-підсвічуванням", "category": "@c_comp", "cost": 3400, "sale_ok": false, "fields": {"ua_cost_item": "02"}},
-    {"key": "c_ctrl", "code": "CMP-107", "name": "Бортовий комп'ютер керування", "category": "@c_comp", "cost": 18000, "sale_ok": false, "tracking": "serial", "fields": {"ua_cost_item": "02"}},
+    {"key": "c_ctrl", "code": "CMP-107", "name": "Бортовий комп'ютер керування", "category": "@c_comp", "cost": 18000, "sale_ok": false, "tracking": "serial", "fields": {"ua_cost_item": "02", "ua_approved_only": true}},
     {"key": "c_light", "code": "CMP-108", "name": "Фара світлодіодна", "category": "@c_comp", "cost": 1200, "sale_ok": false, "fields": {"ua_cost_item": "02"}},
     {"key": "c_stretcher", "code": "CMP-109", "name": "Ноші евакуаційні з кріпленням", "category": "@c_comp", "cost": 6500, "sale_ok": false, "fields": {"ua_cost_item": "02"}},
 
     {"key": "s_hull", "code": "SF-101", "name": "Корпус-рама зварна", "category": "@c_semi", "sale_ok": false, "purchase_ok": false, "tracking": "serial"},
     {"key": "w_scrap", "code": "WST-101", "name": "Металобрухт сталевий", "category": "@c_waste", "uom": "кг", "cost": 6, "price": 6, "purchase_ok": false},
 
-    {"key": "f_log", "code": "UGV-L300", "name": "Наземна роботизована платформа логістична, 300 кг", "category": "@c_fg", "price": 1150000, "purchase_ok": false, "tracking": "serial", "dk021": "35400000-8", "description": "Підвезення води, провізії і майна. Вантаж до 300 кг, хід до 20 км.", "fields": {"ua_warranty_months": 12}},
-    {"key": "f_evac", "code": "UGV-E01", "name": "Наземна роботизована платформа евакуаційна", "category": "@c_fg", "price": 1240000, "purchase_ok": false, "tracking": "serial", "dk021": "35400000-8", "description": "Евакуація пораненого на ношах з позиції, хід до 20 км.", "fields": {"ua_warranty_months": 12}},
-    {"key": "f_rc", "code": "UGV-RC1", "name": "Пульт керування НРК з планшетом", "category": "@c_fg", "cost": 32000, "price": 45000, "tracking": "serial", "dk021": "30213200-7", "fields": {"ua_cost_item": "02", "ua_warranty_months": 12}},
+    {"key": "f_log", "code": "UGV-L300", "name": "Наземна роботизована платформа логістична, 300 кг", "category": "@c_fg", "price": 1150000, "purchase_ok": false, "tracking": "serial", "dk021": "35400000-8", "description": "Підвезення води, провізії і майна. Вантаж до 300 кг, хід до 20 км.", "fields": {"ua_warranty_months": 12, "ua_export_controlled": true, "ua_control_kind": "dual_use", "ua_periodic_months": 12}},
+    {"key": "f_evac", "code": "UGV-E01", "name": "Наземна роботизована платформа евакуаційна", "category": "@c_fg", "price": 1240000, "purchase_ok": false, "tracking": "serial", "dk021": "35400000-8", "description": "Евакуація пораненого на ношах з позиції, хід до 20 км.", "fields": {"ua_warranty_months": 12, "ua_export_controlled": true, "ua_control_kind": "dual_use", "ua_periodic_months": 12}},
+    {"key": "f_rc", "code": "UGV-RC1", "name": "Пульт керування НРК з планшетом", "category": "@c_fg", "cost": 32000, "price": 45000, "tracking": "serial", "dk021": "30213200-7", "fields": {"ua_cost_item": "02", "ua_warranty_months": 12, "ua_export_controlled": true, "ua_control_kind": "dual_use", "ua_periodic_months": 12}},
 
     {"key": "sv_train", "code": "SRV-101", "name": "Навчання операторів НРК", "category": "@c_svc", "type": "service", "uom": "доб", "price": 7000, "purchase_ok": false, "dk021": "80511000-9"},
     {"key": "sv_service", "code": "SRV-102", "name": "Сервісне обслуговування НРК", "category": "@c_svc", "type": "service", "uom": "год", "price": 1100, "purchase_ok": false, "dk021": "50600000-1"}
