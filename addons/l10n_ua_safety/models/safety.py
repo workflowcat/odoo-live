@@ -64,6 +64,8 @@ class HrEmployee(models.Model):
     ua_safety_alert = fields.Boolean("Не допускати до роботи", compute="_compute_ua_safety_alert",
                                      help="Сьогодні є прострочений інструктаж або медогляд.")
 
+    @api.depends("ua_briefing_line_ids", "ua_briefing_last", "ua_briefing_due", "ua_medical_result",
+                 "ua_medical_valid_until", "job_id.ua_medical_months")
     def _compute_ua_safety_alert(self):
         today = fields.Date.context_today(self)
         for employee in self:
