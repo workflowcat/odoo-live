@@ -186,6 +186,12 @@
   <menuitem id="menu_ua_reporting_vat_period" name="Зведення ПДВ за період"
             parent="menu_ua_reporting_vat" action="l10n_ua_vat.action_ua_vat_period" sequence="20"/>
 
+  <menuitem id="menu_ua_prices" name="Ціни" parent="sale.sale_menu_root" sequence="35"/>
+  <menuitem id="menu_ua_price_order" name="Встановлення цін" parent="menu_ua_prices"
+            action="l10n_ua_price_set.action_ua_price_order" sequence="10"/>
+  <menuitem id="menu_ua_price_history" name="Історія цін" parent="menu_ua_prices"
+            action="l10n_ua_price_set.action_ua_price_history" sequence="20"/>
+
   <menuitem id="menu_ua_reporting_local_tax" name="Місцеві податки" parent="menu_ua_reporting_root" sequence="25"/>
   <menuitem id="menu_ua_local_tax_return" name="Розрахунки" parent="menu_ua_reporting_local_tax"
             action="l10n_ua_local_tax.action_ua_local_tax_return" sequence="10"/>

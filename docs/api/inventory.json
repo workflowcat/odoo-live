@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 76,
-    "models": 160,
-    "methods": 612,
-    "fields": 388
+    "modules": 77,
+    "models": 164,
+    "methods": 623,
+    "fields": 392
   },
   "areas": [
     {
@@ -7456,6 +7456,114 @@
           "fields": []
         },
         {
+          "model": "ua.price.order",
+          "ours": true,
+          "modules": [
+            "l10n_ua_price_set"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "Скасувати: прибрати ціни документа і повернути попереднім їхній кінець.",
+              "module": "l10n_ua_price_set",
+              "file": "addons/l10n_ua_price_set/models/price_set.py",
+              "decorators": []
+            },
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "Нова ціна = собівартість x (1 + націнка типу) з округленням типу.",
+              "module": "l10n_ua_price_set",
+              "file": "addons/l10n_ua_price_set/models/price_set.py",
+              "decorators": []
+            },
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_price_set",
+              "file": "addons/l10n_ua_price_set/models/price_set.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_price_set",
+              "file": "addons/l10n_ua_price_set/models/price_set.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill_category",
+              "signature": "action_fill_category()",
+              "doc": "",
+              "module": "l10n_ua_price_set",
+              "file": "addons/l10n_ua_price_set/models/price_set.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill_picking",
+              "signature": "action_fill_picking()",
+              "doc": "",
+              "module": "l10n_ua_price_set",
+              "file": "addons/l10n_ua_price_set/models/price_set.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill_pricelist",
+              "signature": "action_fill_pricelist()",
+              "doc": "Товари, які вже мають ціну в обраних типах цін.",
+              "module": "l10n_ua_price_set",
+              "file": "addons/l10n_ua_price_set/models/price_set.py",
+              "decorators": []
+            },
+            {
+              "name": "action_labels",
+              "signature": "action_labels()",
+              "doc": "",
+              "module": "l10n_ua_price_set",
+              "file": "addons/l10n_ua_price_set/models/price_set.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_price_set",
+              "file": "addons/l10n_ua_price_set/models/price_set.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_date",
+              "signature": "ua_date(day)",
+              "doc": "",
+              "module": "l10n_ua_price_set",
+              "file": "addons/l10n_ua_price_set/models/price_set.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.price.order.line",
+          "ours": true,
+          "modules": [
+            "l10n_ua_price_set"
+          ],
+          "methods": [
+            {
+              "name": "ua_changed",
+              "signature": "ua_changed()",
+              "doc": "",
+              "module": "l10n_ua_price_set",
+              "file": "addons/l10n_ua_price_set/models/price_set.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.procurement.plan",
           "ours": true,
           "modules": [
@@ -9357,6 +9465,58 @@
               "label": "ua.piecework.line",
               "module": "l10n_ua_piecework",
               "file": "addons/l10n_ua_piecework/models/mrp_routing.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "product.pricelist",
+          "ours": false,
+          "modules": [
+            "l10n_ua_price_set"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_markup",
+              "type": "Float",
+              "label": "Націнка від собівартості, %",
+              "module": "l10n_ua_price_set",
+              "file": "addons/l10n_ua_price_set/models/price_set.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_price_kind",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_price_set",
+              "file": "addons/l10n_ua_price_set/models/price_set.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_rounding",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_price_set",
+              "file": "addons/l10n_ua_price_set/models/price_set.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "product.pricelist.item",
+          "ours": false,
+          "modules": [
+            "l10n_ua_price_set"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_price_order_id",
+              "type": "Many2one",
+              "label": "ua.price.order",
+              "module": "l10n_ua_price_set",
+              "file": "addons/l10n_ua_price_set/models/price_set.py",
               "groups": ""
             }
           ]

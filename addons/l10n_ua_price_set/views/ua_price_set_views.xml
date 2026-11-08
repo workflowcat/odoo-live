@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="product_pricelist_form_ua_price_set" model="ir.ui.view">
+    <field name="name">product.pricelist.form.ua.price.set</field>
+    <field name="model">product.pricelist</field>
+    <field name="inherit_id" ref="product.product_pricelist_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//sheet" position="inside">
+        <group string="Тип цін" name="ua_price_type">
+          <field name="ua_price_kind"/>
+          <field name="ua_markup"/>
+          <field name="ua_rounding"/>
+        </group>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_ua_price_order_list" model="ir.ui.view">
+    <field name="name">ua.price.order.list</field>
+    <field name="model">ua.price.order</field>
+    <field name="arch" type="xml">
+      <list decoration-info="state == 'draft'" decoration-muted="state == 'cancel'">
+        <field name="name"/>
+        <field name="date"/>
+        <field name="pricelist_ids" widget="many2many_tags"/>
+        <field name="basis" optional="show"/>
+        <field name="responsible_id" optional="hide"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+        <field name="state" widget="badge" decoration-success="state == 'done'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_price_order_form" model="ir.ui.view">
+    <field name="name">ua.price.order.form</field>
+    <field name="model">ua.price.order</field>
+    <field name="arch" type="xml">
+      <form>
+        <header>
+          <button name="action_compute" string="Розрахувати від собівартості" type="object" invisible="state != 'draft'"/>
+          <button name="action_done" string="Провести" type="object" class="oe_highlight" invisible="state != 'draft'"
+                  groups="stock.group_stock_manager"/>
+          <button name="action_cancel" string="Скасувати" type="object" invisible="state != 'done'"
+                  groups="stock.group_stock_manager"/>
+          <button name="action_draft" string="В чернетку" type="object" invisible="state != 'cancel'"/>
+          <button name="action_labels" string="Цінники" type="object" invisible="state != 'done'"/>
+          <button name="action_print" string="Друк наказу" type="object"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title">
+            <h1><field name="name" readonly="1"/></h1>
+          </div>
+          <group>
+            <group>
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="pricelist_ids" widget="many2many_tags" readonly="state != 'draft'"/>
+              <field name="basis" readonly="state != 'draft'"/>
+              <field name="responsible_id" readonly="state != 'draft'"/>
+            </group>
+            <group string="Заповнити" invisible="state != 'draft'">
+              <label for="categ_id"/>
+              <div class="o_row">
+                <field name="categ_id"/>
+                <button name="action_fill_category" string="Додати" type="object" class="btn-link"/>
+              </div>
+              <label for="picking_id"/>
+              <div class="o_row">
+                <field name="picking_id"/>
+                <button name="action_fill_picking" string="Додати" type="object" class="btn-link"/>
+              </div>
+              <button name="action_fill_pricelist" string="Усі товари з цінами в цих типах" type="object"
+                      class="btn-link" colspan="2"/>
+            </group>
+          </group>
+          <field name="line_ids" readonly="state != 'draft'">
+            <list editable="bottom">
+              <field name="currency_id" column_invisible="1"/>
+              <field name="pricelist_id"/>
+              <field name="product_id"/>
+              <field name="uom_id" optional="show"/>
+              <field name="cost" optional="show"/>
+              <field name="old_price"/>
+              <field name="new_price"/>
+              <field name="markup" optional="show"/>
+              <field name="change"/>
+            </list>
+          </field>
+          <field name="company_id" invisible="1"/>
+          <field name="note" placeholder="Примітка"/>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_price_order_search" model="ir.ui.view">
+    <field name="name">ua.price.order.search</field>
+    <field name="model">ua.price.order</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="name"/>
+        <field name="line_ids" string="Товар" filter_domain="[('line_ids.product_id', 'ilike', self)]"/>
+        <field name="pricelist_ids"/>
+        <filter name="draft" string="Чернетки" domain="[('state', '=', 'draft')]"/>
+        <filter name="done" string="Проведені" domain="[('state', '=', 'done')]"/>
+        <separator/>
+        <filter name="date" string="Дата" date="date"/>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_price_order" model="ir.actions.act_window">
+    <field name="name">Встановлення цін</field>
+    <field name="res_model">ua.price.order</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Встановіть нові ціни з дати</p>
+      <p>Ціни діють з дати документа; попередні лишаються в історії.</p>
+    </field>
+  </record>
+
+  <record id="view_ua_price_history_list" model="ir.ui.view">
+    <field name="name">product.pricelist.item.list.ua.history</field>
+    <field name="model">product.pricelist.item</field>
+    <field name="priority">90</field>
+    <field name="arch" type="xml">
+      <list create="0" edit="0" default_order="product_id, pricelist_id, date_start desc">
+        <field name="pricelist_id"/>
+        <field name="product_id"/>
+        <field name="fixed_price" string="Ціна"/>
+        <field name="date_start" string="Діє з"/>
+        <field name="date_end" string="Діє до"/>
+        <field name="ua_price_order_id"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_price_history" model="ir.actions.act_window">
+    <field name="name">Історія цін</field>
+    <field name="res_model">product.pricelist.item</field>
+    <field name="view_mode">list</field>
+    <field name="view_id" ref="view_ua_price_history_list"/>
+    <field name="domain">[('ua_price_order_id', '!=', False)]</field>
+  </record>
+</odoo>

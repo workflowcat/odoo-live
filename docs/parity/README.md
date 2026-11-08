@@ -53,7 +53,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | 1C/BAS feature | Here | Where / what is missing |
 | --- | --- | --- |
 | Sales and purchase orders, deliveries, returns | done | native |
-| Price types, discounts | part | native pricelists; named price types (опт, роздріб, закупівельна) as presets in the packs |
+| Price types, discounts | done | native pricelists and discounts; `l10n_ua_price_set`: a pricelist becomes a price type (retail, wholesale, purchase) with a markup on cost and a rounding rule; the price setting document (встановлення цін) fills from a category, a receipt or the type's current goods, shows the price in force, computes new prices or takes them by hand, and sets them from its date while the previous price stays in history; a later price is never overwritten, cancel restores the previous one; order print and price labels |
 | Purchase requests and approvals | done | OCA `purchase_request`, `l10n_ua_purchase` |
 | Supplier risk, invoices from email | done | `l10n_ua_purchase`, `bp_purchase_intake`, `bp_kyc` |
 | Debt control by contract, credit limits | done | `l10n_ua_contract`: balance by contract, contract amount as a limit |
@@ -160,7 +160,8 @@ contracts (`l10n_ua_guarantee`); measuring instruments and their verification (`
 (`l10n_ua_export_control`); precious metals in products (`l10n_ua_precious_metals`); approved suppliers of critical
 components (`l10n_ua_supplier_approval`); limit cards М-8 (`l10n_ua_limit_card`);
 periodic and type tests gating acceptance (`l10n_ua_product_tests`); labour safety briefings and medical exams
-(`l10n_ua_safety`); property, land and environmental taxes (`l10n_ua_local_tax`).
+(`l10n_ua_safety`); property, land and environmental taxes (`l10n_ua_local_tax`); price types and dated price setting
+(`l10n_ua_price_set`).
 
 Next, in this order:
 

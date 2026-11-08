@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 76. Моделей: 160. Методів: 612. Збережених полів на чужих моделях: 388.
+Модулів: 77. Моделей: 164. Методів: 623. Збережених полів на чужих моделях: 392.
 
 ## Зарплата
 
@@ -1636,6 +1636,31 @@
 | `action_print()` | - | `l10n_ua_price_label` |
 | `label_rows()` | Рядки цінників по порядку, з копіями: [{name, code, price, unit, unit_price, | `l10n_ua_price_label` |
 
+### `ua.price.order`
+
+наша модель · `l10n_ua_price_set`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | Скасувати: прибрати ціни документа і повернути попереднім їхній кінець. | `l10n_ua_price_set` |
+| `action_compute()` | Нова ціна = собівартість x (1 + націнка типу) з округленням типу. | `l10n_ua_price_set` |
+| `action_done()` | - | `l10n_ua_price_set` |
+| `action_draft()` | - | `l10n_ua_price_set` |
+| `action_fill_category()` | - | `l10n_ua_price_set` |
+| `action_fill_picking()` | - | `l10n_ua_price_set` |
+| `action_fill_pricelist()` | Товари, які вже мають ціну в обраних типах цін. | `l10n_ua_price_set` |
+| `action_labels()` | - | `l10n_ua_price_set` |
+| `action_print()` | - | `l10n_ua_price_set` |
+| `ua_date(day)` | - | `l10n_ua_price_set` |
+
+### `ua.price.order.line`
+
+наша модель · `l10n_ua_price_set`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `ua_changed()` | - | `l10n_ua_price_set` |
+
 ### `ua.procurement.plan`
 
 наша модель · `l10n_ua_procurement_plan`
@@ -2077,6 +2102,24 @@
 | --- | --- | --- | --- |
 | `ua_check_ids` | One2many | ua.workorder.check | `l10n_ua_mrp` |
 | `ua_piecework_line_ids` | One2many | ua.piecework.line | `l10n_ua_piecework` |
+
+### `product.pricelist`
+
+доповнена модель · `l10n_ua_price_set`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_markup` | Float | Націнка від собівартості, % | `l10n_ua_price_set` |
+| `ua_price_kind` | Selection | - | `l10n_ua_price_set` |
+| `ua_rounding` | Selection | - | `l10n_ua_price_set` |
+
+### `product.pricelist.item`
+
+доповнена модель · `l10n_ua_price_set`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_price_order_id` | Many2one | ua.price.order | `l10n_ua_price_set` |
 
 ### `product.product`
 

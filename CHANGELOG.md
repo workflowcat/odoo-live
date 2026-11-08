@@ -249,6 +249,12 @@ Notable changes for people who run or build on this code. Module-level API chang
   settlements), and reverses its entries when returned to draft. Environmental tax per quarter by substance,
   quantity and rate, with the list copied from the previous quarter. Print. Rates are settings: check the
   current decision of the community and the Tax Code. Tests: `ua_local_tax`.
+- `l10n_ua_price_set`: price types and the price setting document. A pricelist gets a kind (retail, wholesale,
+  purchase), a markup on cost and a rounding rule. The document fills from a category, a receipt or the goods
+  already priced in the chosen types, shows the price in force the day before its date, computes new prices
+  from cost or takes them by hand, and on posting creates fixed prices from its date and closes the previous
+  ones, so the price on any date stays in history. A later price is never overwritten; cancel restores the
+  previous price. Order print and price labels. Tests: `ua_price_set`.
 
 ### Changed
 - Defense packs `defense_uav` and `defense_ugv`: finished products are marked dual-use under export control
