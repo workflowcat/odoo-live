@@ -1,8 +1,8 @@
 {
   "totals": {
-    "modules": 85,
-    "models": 181,
-    "methods": 697,
+    "modules": 86,
+    "models": 182,
+    "methods": 702,
     "fields": 400
   },
   "areas": [
@@ -5818,6 +5818,56 @@
               "decorators": [
                 "api.model"
               ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.asset.inventory",
+          "ours": true,
+          "modules": [
+            "l10n_ua_asset_inventory"
+          ],
+          "methods": [
+            {
+              "name": "action_fill",
+              "signature": "action_fill()",
+              "doc": "Заповнити опис з реєстру: рядки за обліком перестворюються, лишки лишаються.",
+              "module": "l10n_ua_asset_inventory",
+              "file": "addons/l10n_ua_asset_inventory/models/asset_inventory.py",
+              "decorators": []
+            },
+            {
+              "name": "action_post",
+              "signature": "action_post()",
+              "doc": "Відобразити результати в обліку: нестачі, суми з винних, лишки, нові місця і МВО.",
+              "module": "l10n_ua_asset_inventory",
+              "file": "addons/l10n_ua_asset_inventory/models/asset_inventory.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_asset_inventory",
+              "file": "addons/l10n_ua_asset_inventory/models/asset_inventory.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_condition",
+              "signature": "ua_condition(line)",
+              "doc": "",
+              "module": "l10n_ua_asset_inventory",
+              "file": "addons/l10n_ua_asset_inventory/models/asset_inventory.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_money",
+              "signature": "ua_money(value)",
+              "doc": "Сума для друку: пробіл між тисячами, кома, нуль - прочерк.",
+              "module": "l10n_ua_asset_inventory",
+              "file": "addons/l10n_ua_asset_inventory/models/asset_inventory.py",
+              "decorators": []
             }
           ],
           "fields": []

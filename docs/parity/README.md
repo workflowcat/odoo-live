@@ -23,6 +23,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Statement of changes in equity Ф4 | done | `l10n_ua_equity`: columns 3-9 by equity accounts 40-46 as balance lines 1400-1430, profit or loss of classes 7-9 in row 4100 as one sum so closing account 79 never doubles it; the row for each equity movement comes from a mark on the journal item or entry (adjustments 4005, 4010, 4090), otherwise from a rule by equity account, side and counter account (39 default rules after the Ministry of Finance guidance, company rules first); movements without a rule listed for the accountant; current and previous year, 4095, 4295, 4300 checked against the books per column, rows 4205 and 4210 checked to net to zero, drill-down from every row, landscape print |
 | Notes to the financial statements Ф5 | partial | `l10n_ua_notes`: sections I and II (movement of intangible and fixed assets by account group: additions, revaluation, disposals, depreciation, impairment, other changes; depreciation split by the asset on the journal item, else by the counter account, the rest flagged), III capital investments, IV financial investments (row and measurement basis set on accounts 14 and 352; 141 without a row shown as associates and flagged), V other income and expenses by row (sums checked against classes 71-74 and 94-97, closing to 79 left out), VI cash, VII provisions, VIII inventories with write-downs, IX receivables by age (each partner's balance laid on its newest debits), X shortages, XII income tax, XIII depreciation charged; closing balances checked against the books, landscape print. Sections XI, XIV, XV (construction contracts, biological assets) not filled yet |
 | Fixed assets, low-value items, intangibles, tax groups | done | `l10n_ua_assets` + OCA asset management |
+| Inventory count of fixed assets and intangibles (інвентаризація необоротних активів) | done | `l10n_ua_asset_inventory`: count sheet from the asset register with book values on the date, commission marks (found, place, custodian, condition), surplus items; results: shortage written off through the OCA removal at residual value to 947 and the culprit's share 375/716, surplus to 746 creating the asset; count sheet and comparison sheet print |
 | Cash desk: ПКО/ВКО, cash book КО-4, limit | done | `l10n_ua_cash` |
 | Bank statements: file, PrivatBank, Monobank | done | `l10n_ua_bank`, `l10n_ua_bank_online` |
 | Bank exchange file `1CClientBankExchange` (most Ukrainian banks) | done | `l10n_ua_bank_1c`: statements in through the usual import, payment orders out from payments or payment orders |
@@ -172,7 +173,7 @@ periodic and type tests gating acceptance (`l10n_ua_product_tests`); labour safe
 (`l10n_ua_price_set`); the doubtful debts reserve (`l10n_ua_bad_debt`); the cash flow statement Ф3
 (`l10n_ua_cashflow`); the cash flow budget with payment request control (`l10n_ua_budget`); the vacation schedule
 (`l10n_ua_vacation_plan`); production defect acts (`l10n_ua_defect`); the statement of changes in equity Ф4
-(`l10n_ua_equity`); the notes Ф5, main sections (`l10n_ua_notes`); the average headcount (`l10n_ua_headcount`).
+(`l10n_ua_equity`); the notes Ф5, main sections (`l10n_ua_notes`); the average headcount (`l10n_ua_headcount`); the inventory count of non-current assets (`l10n_ua_asset_inventory`).
 
 Next, in this order:
 

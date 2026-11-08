@@ -307,6 +307,12 @@ Notable changes for people who run or build on this code. Module-level API chang
   maternity and childcare leave left out (codes are a setting); headcount at month end, hires, dismissals,
   hours worked; missing timesheets are created the same way as the daily cron does; print.
   Tests: `ua_headcount`.
+- `l10n_ua_asset_inventory`: inventory count of fixed assets and intangibles: count sheet from the asset
+  register (filters by custodian, place, profile) with cost, depreciation and residual value on the date;
+  the commission marks found items, place, custodian and condition and adds surplus items. Posting the
+  results removes missing assets through the OCA removal wizard with the residual value on 947, books the
+  culprit's share Dr 375 Cr 716, books surplus Dr asset account Cr 746 (OCA creates the asset) and writes the
+  new place and custodian into the asset. Count sheet and comparison sheet print. Tests: `ua_asset_inventory`.
 
 ### Changed
 - Packs: defense packs bring their typical jobs with labour safety terms (hazardous work, repeat briefing and

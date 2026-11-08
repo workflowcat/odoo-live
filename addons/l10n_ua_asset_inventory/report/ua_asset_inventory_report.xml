@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="paperformat_ua_asset_inventory" model="report.paperformat">
+    <field name="name">Інвентаризація необоротних активів (альбомна)</field>
+    <field name="format">A4</field>
+    <field name="orientation">Landscape</field>
+    <field name="margin_top">10</field>
+    <field name="margin_bottom">10</field>
+    <field name="margin_left">8</field>
+    <field name="margin_right">8</field>
+    <field name="header_spacing">0</field>
+    <field name="dpi">90</field>
+  </record>
+
+  <record id="action_report_ua_asset_inventory" model="ir.actions.report">
+    <field name="name">Інвентаризаційний опис і порівняльна відомість</field>
+    <field name="model">ua.asset.inventory</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_asset_inventory.report_ua_asset_inventory</field>
+    <field name="report_file">l10n_ua_asset_inventory.report_ua_asset_inventory</field>
+    <field name="paperformat_id" ref="paperformat_ua_asset_inventory"/>
+    <field name="binding_model_id" ref="model_ua_asset_inventory"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">object.name</field>
+  </record>
+
+  <template id="report_ua_asset_inventory">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <style>
+            .ua-doc { font-size: 9px; color: #000; }
+            .ua-doc h3 { font-size: 12px; text-align: center; margin: 6px 0 2px; }
+            .ua-doc .ua-sub { text-align: center; margin-bottom: 6px; }
+            .ua-doc .ua-grid { width: 100%; border-collapse: collapse; }
+            .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; vertical-align: top; }
+            .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+            .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+            .ua-doc .ua-total td { font-weight: bold; }
+            .ua-doc .ua-sign { margin-top: 12px; white-space: pre-line; }
+            .ua-doc .ua-break { page-break-before: always; }
+          </style>
+          <div class="page ua-doc">
+            <div t-out="doc.company_id.name"/>
+            <h3>Інвентаризаційний опис необоротних активів</h3>
+            <div class="ua-sub">
+              станом на <span t-out="doc.date.strftime('%d.%m.%Y')"/>
+              <t t-if="doc.order_ref">; підстава: <span t-out="doc.order_ref"/></t>
+            </div>
+            <table class="ua-grid">
+              <thead>
+                <tr>
+                  <th>№</th>
+                  <th>Інвентарний номер</th>
+                  <th>Найменування</th>
+                  <th>Заводський номер</th>
+                  <th>Введено</th>
+                  <th>Місце фактично</th>
+                  <th>МВО</th>
+                  <th>Первісна вартість</th>
+                  <th>Знос</th>
+                  <th>Залишкова вартість</th>
+                  <th>Наявність</th>
+                  <th>Стан</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr t-foreach="doc.line_ids" t-as="line">
+                  <td class="ua-num" t-out="line_index + 1"/>
+                  <td t-out="line.inventory_number"/>
+                  <td t-out="line.name"/>
+                  <td t-out="line.factory_number"/>
+                  <td t-out="line.date_start and line.date_start.strftime('%d.%m.%Y')"/>
+                  <td t-out="line.location_fact"/>
+                  <td t-out="line.responsible_fact"/>
+                  <td class="ua-num" t-out="doc.ua_money(line.cost)"/>
+                  <td class="ua-num" t-out="doc.ua_money(line.depreciation)"/>
+                  <td class="ua-num" t-out="doc.ua_money(line.residual)"/>
+                  <td t-out="line.found and 'є' or 'немає'"/>
+                  <td t-out="doc.ua_condition(line)"/>
+                </tr>
+                <tr class="ua-total">
+                  <td colspan="7">Разом за обліком: <t t-out="doc.count_book"/> об'єкт(ів), виявлено <t t-out="doc.count_found"/></td>
+                  <td class="ua-num" t-out="doc.ua_money(sum(doc.line_ids.mapped('cost')))"/>
+                  <td class="ua-num" t-out="doc.ua_money(sum(doc.line_ids.mapped('depreciation')))"/>
+                  <td class="ua-num" t-out="doc.ua_money(doc.residual_book)"/>
+                  <td colspan="2"/>
+                </tr>
+              </tbody>
+            </table>
+            <div class="ua-sign">Комісія:
+<t t-out="doc.commission or '____________________'"/>
+Матеріально відповідальна особа ____________________</div>
+
+            <div class="ua-break"/>
+            <h3>Порівняльна відомість результатів інвентаризації необоротних активів</h3>
+            <div class="ua-sub">станом на <span t-out="doc.date.strftime('%d.%m.%Y')"/></div>
+            <table class="ua-grid">
+              <thead>
+                <tr>
+                  <th>Інвентарний номер</th>
+                  <th>Найменування</th>
+                  <th>Результат</th>
+                  <th>Первісна вартість</th>
+                  <th>Знос</th>
+                  <th>Залишкова вартість (нестача) / оцінка (лишок)</th>
+                  <th>Винна особа</th>
+                  <th>Сума з винної особи</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr t-foreach="doc.line_ids.filtered(lambda l: not l.found)" t-as="line">
+                  <td t-out="line.inventory_number"/>
+                  <td t-out="line.name"/>
+                  <td>нестача</td>
+                  <td class="ua-num" t-out="doc.ua_money(line.cost)"/>
+                  <td class="ua-num" t-out="doc.ua_money(line.depreciation)"/>
+                  <td class="ua-num" t-out="doc.ua_money(line.residual)"/>
+                  <td t-out="line.culprit_partner_id.name"/>
+                  <td class="ua-num" t-out="doc.ua_money(line.culprit_amount)"/>
+                </tr>
+                <tr t-foreach="doc.surplus_ids" t-as="line">
+                  <td t-out="line.inventory_number"/>
+                  <td t-out="line.name"/>
+                  <td>лишок</td>
+                  <td colspan="2"/>
+                  <td class="ua-num" t-out="doc.ua_money(line.value)"/>
+                  <td colspan="2"/>
+                </tr>
+                <tr class="ua-total">
+                  <td colspan="5">Нестача разом / лишки разом</td>
+                  <td class="ua-num"><t t-out="doc.ua_money(doc.residual_missing)"/> / <t t-out="doc.ua_money(doc.surplus_total)"/></td>
+                  <td/>
+                  <td class="ua-num" t-out="doc.ua_money(doc.culprit_total)"/>
+                </tr>
+              </tbody>
+            </table>
+            <div class="ua-sign">Бухгалтер ____________________</div>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

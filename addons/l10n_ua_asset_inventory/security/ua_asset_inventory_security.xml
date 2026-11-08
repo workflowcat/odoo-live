@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="rule_ua_asset_inventory_company" model="ir.rule">
+    <field name="name">Інвентаризація необоротних активів: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_asset_inventory"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_ua_asset_inventory_line_company" model="ir.rule">
+    <field name="name">Рядок інвентаризації необоротних активів: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_asset_inventory_line"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+</odoo>

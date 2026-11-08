@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 85. Моделей: 181. Методів: 697. Збережених полів на чужих моделях: 400.
+Модулів: 86. Моделей: 182. Методів: 702. Збережених полів на чужих моделях: 400.
 
 ## Зарплата
 
@@ -1268,6 +1268,18 @@
 | `stock_glance(company_id, location_ids=None, category_ids=None, query=None, offset=0, limit=500)` | Залишки з першого погляду: скільки лежить, скільки треба, на скільки вистачить. | `l10n_ua_api` |
 | `warehouse_map(company_id)` | Карта складу: дерево локацій із місткістю, заповненням і вмістом. | `l10n_ua_api` |
 | `workorder_card(workorder_id)` | Картка наряду для кіоску цеху: що робити, чим, і що вже перевірено. | `l10n_ua_api` |
+
+### `ua.asset.inventory`
+
+наша модель · `l10n_ua_asset_inventory`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_fill()` | Заповнити опис з реєстру: рядки за обліком перестворюються, лишки лишаються. | `l10n_ua_asset_inventory` |
+| `action_post()` | Відобразити результати в обліку: нестачі, суми з винних, лишки, нові місця і МВО. | `l10n_ua_asset_inventory` |
+| `action_print()` | - | `l10n_ua_asset_inventory` |
+| `ua_condition(line)` | - | `l10n_ua_asset_inventory` |
+| `ua_money(value)` | Сума для друку: пробіл між тисячами, кома, нуль - прочерк. | `l10n_ua_asset_inventory` |
 
 ### `ua.bad.debt.reserve`
 

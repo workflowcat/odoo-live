@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_asset_inventory_list" model="ir.ui.view">
+    <field name="name">ua.asset.inventory.list</field>
+    <field name="model">ua.asset.inventory</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="date"/>
+        <field name="name"/>
+        <field name="order_ref" optional="show"/>
+        <field name="company_id" groups="base.group_multi_company"/>
+        <field name="count_book"/>
+        <field name="count_missing"/>
+        <field name="count_surplus"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="residual_missing" sum="Разом"/>
+        <field name="state" widget="badge" decoration-success="state == 'done'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_asset_inventory_form" model="ir.ui.view">
+    <field name="name">ua.asset.inventory.form</field>
+    <field name="model">ua.asset.inventory</field>
+    <field name="arch" type="xml">
+      <form>
+        <header>
+          <button name="action_fill" type="object" string="Заповнити з реєстру" class="btn-primary"
+                  invisible="state != 'draft' or line_ids"/>
+          <button name="action_fill" type="object" string="Перезаповнити з реєстру"
+                  invisible="state != 'draft' or not line_ids"
+                  confirm="Рядки за обліком і відмітки комісії буде створено знову. Лишки лишаться. Далі?"/>
+          <button name="action_post" type="object" string="Відобразити результати" class="btn-primary"
+                  invisible="state != 'draft' or not line_ids"
+                  confirm="Нестачі буде списано, лишки оприбутковано. Скасувати це можна лише сторно проводок. Далі?"/>
+          <button name="action_print" type="object" string="Друк" invisible="not line_ids and not surplus_ids"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name"/></h1></div>
+          <group>
+            <group>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="date_post" readonly="state != 'draft'"/>
+              <field name="order_ref" readonly="state != 'draft'"/>
+              <field name="commission" readonly="state != 'draft'"/>
+            </group>
+            <group string="Відбір">
+              <field name="filter_responsible" readonly="state != 'draft'"/>
+              <field name="filter_location" readonly="state != 'draft'"/>
+              <field name="filter_profile_ids" widget="many2many_tags" readonly="state != 'draft'"/>
+            </group>
+          </group>
+          <group>
+            <group string="Підсумки">
+              <field name="currency_id" invisible="1"/>
+              <field name="count_book"/>
+              <field name="count_found"/>
+              <field name="count_missing"/>
+              <field name="count_surplus"/>
+              <field name="residual_book"/>
+              <field name="residual_missing"/>
+              <field name="culprit_total"/>
+              <field name="surplus_total"/>
+            </group>
+            <group string="Рахунки">
+              <field name="shortage_account_id" readonly="state != 'draft'"/>
+              <field name="culprit_account_id" readonly="state != 'draft'"/>
+              <field name="culprit_income_account_id" readonly="state != 'draft'"/>
+              <field name="surplus_account_id" readonly="state != 'draft'"/>
+              <field name="journal_id" readonly="state != 'draft'"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Опис" name="lines">
+              <field name="line_ids" readonly="state != 'draft'">
+                <list editable="bottom" create="false" decoration-danger="not found">
+                  <field name="inventory_number"/>
+                  <field name="name"/>
+                  <field name="factory_number" optional="hide"/>
+                  <field name="location_book" optional="hide"/>
+                  <field name="location_fact"/>
+                  <field name="responsible_book" optional="hide"/>
+                  <field name="responsible_fact"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="cost" sum="Разом"/>
+                  <field name="depreciation" sum="Разом"/>
+                  <field name="residual" sum="Разом"/>
+                  <field name="found"/>
+                  <field name="condition"/>
+                  <field name="culprit_partner_id" invisible="found"/>
+                  <field name="culprit_amount" invisible="found"/>
+                  <field name="note" optional="show"/>
+                  <field name="removal_move_id" optional="hide"/>
+                </list>
+              </field>
+            </page>
+            <page string="Лишки" name="surplus">
+              <field name="surplus_ids" readonly="state != 'draft'" context="{'default_kind': 'surplus'}">
+                <list editable="bottom">
+                  <field name="kind" column_invisible="1"/>
+                  <field name="inventory_number"/>
+                  <field name="name"/>
+                  <field name="factory_number"/>
+                  <field name="profile_id"/>
+                  <field name="location_fact"/>
+                  <field name="responsible_fact"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="value" sum="Разом"/>
+                  <field name="condition"/>
+                  <field name="asset_id" optional="show"/>
+                  <field name="removal_move_id" optional="hide"/>
+                </list>
+              </field>
+            </page>
+            <page string="Проводки" name="moves" invisible="not move_ids">
+              <field name="move_ids"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_asset_inventory" model="ir.actions.act_window">
+    <field name="name">Інвентаризація необоротних активів</field>
+    <field name="res_model">ua.asset.inventory</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Інвентаризація основних засобів і нематеріальних активів</p>
+      <p>Опис з реєстру з вартістю на дату, відмітки комісії, лишки, порівняльна відомість і проводки за
+        результатами.</p>
+    </field>
+  </record>
+</odoo>
