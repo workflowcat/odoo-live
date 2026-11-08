@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 72. Моделей: 153. Методів: 564. Збережених полів на чужих моделях: 365.
+Модулів: 72. Моделей: 153. Методів: 565. Збережених полів на чужих моделях: 365.
 
 ## Зарплата
 
@@ -165,6 +165,7 @@
 | `ua_ensure_allocations(year=None)` | - | `l10n_ua_average` |
 | `ua_ensure_leave_allocations(on_date=None)` | Публічна обгортка: Odoo не дає викликати методи з підкресленням через execute_kw. | `l10n_ua_average` |
 | `ua_mil_register_check(note=None)` | Записати звірку з ТЦК: подія обліку плюс дата останньої звірки. | `l10n_ua_military` |
+| `ua_tab_number()` | Табельний номер для картки: поле є не в кожній збірці Odoo, і воно закрите групою. | `l10n_ua_workwear` |
 | `ua_workwear_due(day=None)` | Чого бракує за нормами посади на дату: [{product, norm, in_use, due, months, reference}]. | `l10n_ua_workwear` |
 
 | Поле | Тип | Підпис | Модуль |

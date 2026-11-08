@@ -2,7 +2,7 @@
   "totals": {
     "modules": 72,
     "models": 153,
-    "methods": 564,
+    "methods": 565,
     "fields": 365
   },
   "areas": [
@@ -580,6 +580,14 @@
               "doc": "Записати звірку з ТЦК: подія обліку плюс дата останньої звірки.",
               "module": "l10n_ua_military",
               "file": "addons/l10n_ua_military/models/hr_employee.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_tab_number",
+              "signature": "ua_tab_number()",
+              "doc": "Табельний номер для картки: поле є не в кожній збірці Odoo, і воно закрите групою.",
+              "module": "l10n_ua_workwear",
+              "file": "addons/l10n_ua_workwear/models/workwear.py",
               "decorators": []
             },
             {
