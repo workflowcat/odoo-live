@@ -1,7 +1,8 @@
 """Інвентаризація каси: залишок за обліком, перерахунок за номіналами, проводка різниці.
 
-Числа порахровані вручну, арифметика в коментарях. Окремий журнал каси дає свій рахунок 301,
-тож на залишок не впливають проводки інших тестів.
+Числа пораховані вручну, арифметика в коментарях. Окремий журнал каси дає свій новий рахунок
+групи 30 (код Odoo бере наступний вільний, наприклад 303), тож на залишок не впливають проводки
+інших тестів.
 """
 from datetime import date
 
@@ -28,7 +29,7 @@ class TestUaCashCount(TransactionCase):
         cls.journal = cls.env["account.journal"].create({
             "name": "Каса інвентаризації", "type": "cash", "code": "CCNT", "company_id": cls.company.id})
         cls.cash = cls.journal.default_account_id
-        assert cls.cash.code.startswith("301"), cls.cash.code
+        assert cls.cash.account_type == "asset_cash" and cls.cash.code.startswith("30"), cls.cash.code
         cls.misc = cls.env["account.journal"].search(
             [("type", "=", "general"), ("company_id", "=", cls.company.id)], limit=1)
         cls.acc_311 = cls._account("311")
