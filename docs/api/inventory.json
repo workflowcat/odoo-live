@@ -1,8 +1,8 @@
 {
   "totals": {
-    "modules": 79,
-    "models": 169,
-    "methods": 641,
+    "modules": 80,
+    "models": 170,
+    "methods": 653,
     "fields": 395
   },
   "areas": [
@@ -5923,6 +5923,90 @@
           "fields": []
         },
         {
+          "model": "ua.cashflow.budget",
+          "ours": true,
+          "modules": [
+            "l10n_ua_budget"
+          ],
+          "methods": [
+            {
+              "name": "action_approve",
+              "signature": "action_approve()",
+              "doc": "",
+              "module": "l10n_ua_budget",
+              "file": "addons/l10n_ua_budget/models/budget.py",
+              "decorators": []
+            },
+            {
+              "name": "action_close",
+              "signature": "action_close()",
+              "doc": "",
+              "module": "l10n_ua_budget",
+              "file": "addons/l10n_ua_budget/models/budget.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_budget",
+              "file": "addons/l10n_ua_budget/models/budget.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill_from_fact",
+              "signature": "action_fill_from_fact()",
+              "doc": "План = факт року «Рік факту» по місяцях, змінений на «Зміна, %». Лише чернетка.",
+              "module": "l10n_ua_budget",
+              "file": "addons/l10n_ua_budget/models/budget.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open_analysis",
+              "signature": "action_open_analysis()",
+              "doc": "",
+              "module": "l10n_ua_budget",
+              "file": "addons/l10n_ua_budget/models/budget.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_budget",
+              "file": "addons/l10n_ua_budget/models/budget.py",
+              "decorators": []
+            },
+            {
+              "name": "action_refresh_fact",
+              "signature": "action_refresh_fact()",
+              "doc": "Факт і зобов'язання в усі рядки; стаття з фактом без плану отримує рядок з нулем плану.",
+              "module": "l10n_ua_budget",
+              "file": "addons/l10n_ua_budget/models/budget.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_active",
+              "signature": "ua_active(company, day)",
+              "doc": "Затверджений бюджет компанії на рік дня, або порожньо.",
+              "module": "l10n_ua_budget",
+              "file": "addons/l10n_ua_budget/models/budget.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "ua_rows",
+              "signature": "ua_rows(upto_month=12)",
+              "doc": "Рядки виконання за статтями до місяця включно: стаття, план, факт, відхилення, %.",
+              "module": "l10n_ua_budget",
+              "file": "addons/l10n_ua_budget/models/budget.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.cashflow.rule",
           "ours": true,
           "modules": [
@@ -5988,6 +6072,16 @@
               "module": "l10n_ua_cashflow",
               "file": "addons/l10n_ua_cashflow/models/cashflow.py",
               "decorators": []
+            },
+            {
+              "name": "ua_flow_totals",
+              "signature": "ua_flow_totals(company, date_from, date_to, cash_prefixes='30,31,33')",
+              "doc": "Рух коштів за статтями за період: {id статті: сума}, надходження плюс, витрачання мінус.",
+              "module": "l10n_ua_cashflow",
+              "file": "addons/l10n_ua_cashflow/models/cashflow.py",
+              "decorators": [
+                "api.model"
+              ]
             },
             {
               "name": "ua_money",
@@ -7441,6 +7535,7 @@
           "model": "ua.payment.request",
           "ours": true,
           "modules": [
+            "l10n_ua_budget",
             "l10n_ua_payment_request"
           ],
           "methods": [
@@ -7458,6 +7553,14 @@
               "doc": "",
               "module": "l10n_ua_payment_request",
               "file": "addons/l10n_ua_payment_request/models/ua_payment_request.py",
+              "decorators": []
+            },
+            {
+              "name": "action_create_payment",
+              "signature": "action_create_payment()",
+              "doc": "",
+              "module": "l10n_ua_budget",
+              "file": "addons/l10n_ua_budget/models/payment_request.py",
               "decorators": []
             },
             {
@@ -7490,6 +7593,14 @@
               "doc": "",
               "module": "l10n_ua_payment_request",
               "file": "addons/l10n_ua_payment_request/models/ua_payment_request.py",
+              "decorators": []
+            },
+            {
+              "name": "action_submit",
+              "signature": "action_submit()",
+              "doc": "",
+              "module": "l10n_ua_budget",
+              "file": "addons/l10n_ua_budget/models/payment_request.py",
               "decorators": []
             },
             {

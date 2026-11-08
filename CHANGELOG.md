@@ -268,6 +268,12 @@ Notable changes for people who run or build on this code. Module-level API chang
   who can set the item from that list. Current period and the same period last year, sub-rows 3006 and
   3116-3118, opening 3405, FX effect 3410, closing 3415 checked against the cash accounts before approval,
   drill-down from each row, print with ДКУД 1801004. Tests: `ua_cashflow`.
+- `l10n_ua_budget`: cash flow budget (БДДС) for a year, plan per Ф3 cash flow item and month, filled from a
+  previous year's actuals with a percentage. Actuals come from the same item rules as Ф3; an item with
+  actuals but no plan gets a zero-plan line so unplanned spending shows. Open payment requests count as
+  committed. One approved budget per company and year checks payment requests on submit: an item is
+  required, and an amount over the month's remainder either adds the director step or stops the request
+  (budget setting). The request's item is written to the payment. Plan-actual pivot, print. Tests: `ua_budget`.
 
 ### Changed
 - Packs: defense packs bring their typical jobs with labour safety terms (hazardous work, repeat briefing and

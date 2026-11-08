@@ -97,6 +97,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | --- | --- | --- |
 | Incoming and outgoing correspondence register | done | `l10n_ua_correspondence`: yearly numbering without gaps, executor and deadline with a task, reply closes the incoming, register print, ДСК numbered apart and visible only with clearance |
 | Approvals of documents and payments | done | purchase request approvals; `l10n_ua_payment_request`: finance and director steps by limit, payment from the request, payment calendar |
+| Cash flow budget (БДДС) with control of payment requests | done | `l10n_ua_budget`: plan by Ф3 cash flow item and month, filled from last year's actuals with a percentage; actuals by the same item rules as Ф3, unplanned items get their own line; committed amounts from open payment requests; an approved budget requires an item on every request and sends a request over the month's remainder to the director or stops it (a setting); the request's item goes into the payment; plan-actual pivot and print |
 
 ## 7. Platform and ecosystem
 
@@ -165,7 +166,7 @@ components (`l10n_ua_supplier_approval`); limit cards М-8 (`l10n_ua_limit_card`
 periodic and type tests gating acceptance (`l10n_ua_product_tests`); labour safety briefings and medical exams
 (`l10n_ua_safety`); property, land and environmental taxes (`l10n_ua_local_tax`); price types and dated price setting
 (`l10n_ua_price_set`); the doubtful debts reserve (`l10n_ua_bad_debt`); the cash flow statement Ф3
-(`l10n_ua_cashflow`).
+(`l10n_ua_cashflow`); the cash flow budget with payment request control (`l10n_ua_budget`).
 
 Next, in this order:
 

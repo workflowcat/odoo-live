@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_budget" model="ir.actions.report">
+    <field name="name">Виконання бюджету руху коштів</field>
+    <field name="model">ua.cashflow.budget</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_budget.report_ua_budget</field>
+    <field name="report_file">l10n_ua_budget.report_ua_budget</field>
+    <field name="binding_model_id" ref="model_ua_cashflow_budget"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">object.name</field>
+  </record>
+
+  <template id="report_ua_budget">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <style>
+            .ua-doc { font-size: 10px; color: #000; }
+            .ua-doc h3 { font-size: 12px; text-align: center; margin: 4px 0; }
+            .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+            .ua-doc .ua-grid { width: 100%; border-collapse: collapse; }
+            .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; vertical-align: top; }
+            .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+            .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+            .ua-doc .ua-bold td { font-weight: bold; }
+          </style>
+          <div class="ua-doc">
+            <div t-out="doc.company_id.name"/>
+            <h3>Виконання бюджету руху грошових коштів</h3>
+            <div class="ua-sub"><t t-out="doc.name"/>, <t t-out="doc.year"/> рік. Факт на
+              <t t-out="doc.fact_at and doc.fact_at.strftime('%d.%m.%Y %H:%M') or '-'"/></div>
+            <table class="ua-grid">
+              <thead><tr><th>Код</th><th>Стаття</th><th>План, грн</th><th>Факт, грн</th>
+                <th>Відхилення, грн</th><th>Виконання, %</th></tr></thead>
+              <tbody>
+                <tr t-foreach="doc.ua_rows()" t-as="row">
+                  <td t-out="row[0].code"/>
+                  <td t-out="row[0].name"/>
+                  <td class="ua-num" t-out="'%.2f' % row[1]"/>
+                  <td class="ua-num" t-out="'%.2f' % row[2]"/>
+                  <td class="ua-num" t-out="'%.2f' % row[3]"/>
+                  <td class="ua-num" t-out="'%.1f' % row[4] if row[4] is not None else '-'"/>
+                </tr>
+                <tr class="ua-bold"><td/><td>Надходження разом</td>
+                  <td class="ua-num" t-out="'%.2f' % doc.plan_in"/><td class="ua-num" t-out="'%.2f' % doc.fact_in"/>
+                  <td class="ua-num" t-out="'%.2f' % (doc.fact_in - doc.plan_in)"/><td/></tr>
+                <tr class="ua-bold"><td/><td>Витрачання разом</td>
+                  <td class="ua-num" t-out="'%.2f' % doc.plan_out"/><td class="ua-num" t-out="'%.2f' % doc.fact_out"/>
+                  <td class="ua-num" t-out="'%.2f' % (doc.fact_out - doc.plan_out)"/><td/></tr>
+              </tbody>
+            </table>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

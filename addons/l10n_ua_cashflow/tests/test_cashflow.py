@@ -24,22 +24,20 @@
 from datetime import date
 
 from odoo.exceptions import UserError
-from odoo.tests import TransactionCase, tagged
+from odoo.tests import tagged
+from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
 
 @tagged("post_install", "-at_install", "ua_cashflow")
-class TestUaCashflow(TransactionCase):
+class TestUaCashflow(AccountTestInvoicingCommon):
+    """Своя компанія з планом ua_psbo: у звіт не потрапляють чужі гроші."""
 
     @classmethod
+    @AccountTestInvoicingCommon.setup_country("ua")
+    @AccountTestInvoicingCommon.setup_chart_template("ua_psbo")
     def setUpClass(cls):
         super().setUpClass()
         cls.company = cls.env.company
-        ukraine = cls.env.ref("base.ua")
-        if cls.company.country_id != ukraine:
-            cls.company.country_id = ukraine
-        if cls.company.chart_template != "ua_psbo":
-            cls.env["account.chart.template"].try_loading("ua_psbo", cls.company, install_demo=False)
-        cls.company.invalidate_recordset()
         cls.Item = cls.env["ua.cashflow.item"]
         cls.misc = cls.env["account.journal"].search(
             [("type", "=", "general"), ("company_id", "=", cls.company.id)], limit=1)
@@ -101,7 +99,7 @@ class TestUaCashflow(TransactionCase):
         return move
 
     def _statement(self, **values):
-        data = {"date_from": date(2026, 1, 1), "date_to": date(2026, 3, 31)}
+        data = {"date_from": date(2026, 1, 1), "date_to": date(2026, 3, 31), "company_id": self.company.id}
         data.update(values)
         statement = self.env["ua.cashflow.statement"].create(data)
         statement.action_compute()
@@ -188,3 +186,10 @@ class TestUaCashflow(TransactionCase):
         entries = self.env["ua.cashflow.statement.entry"].search(action["domain"])
         self.assertEqual(sorted(entries.mapped("item_id.code")), ["3117", "3118"])
         self.assertAlmostEqual(sum(entries.mapped("amount")), -13000, places=2)
+
+    def test_07_flow_totals_for_other_reports(self):
+        totals = self.env["ua.cashflow.statement"].ua_flow_totals(
+            self.company, date(2026, 1, 1), date(2026, 1, 31))
+        by_code = {self.env["ua.cashflow.item"].browse(k).code: v for k, v in totals.items()}
+        self.assertEqual(by_code, {"3000": 100000.0, "3100": -30000.0, "3260": -40000.0, "3105": -25000.0,
+                                   "3117": -8000.0, "3118": -5000.0})

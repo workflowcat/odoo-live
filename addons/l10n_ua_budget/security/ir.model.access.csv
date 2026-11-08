@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_cashflow_budget_user,ua.cashflow.budget user,model_ua_cashflow_budget,account.group_account_user,1,1,1,0
+access_ua_cashflow_budget_manager,ua.cashflow.budget manager,model_ua_cashflow_budget,account.group_account_manager,1,1,1,1
+access_ua_cashflow_budget_approver,ua.cashflow.budget approver,model_ua_cashflow_budget,l10n_ua_payment_request.group_ua_payment_request_approver,1,0,0,0
+access_ua_cashflow_budget_line_user,ua.cashflow.budget.line user,model_ua_cashflow_budget_line,account.group_account_user,1,1,1,1
+access_ua_cashflow_budget_line_approver,ua.cashflow.budget.line approver,model_ua_cashflow_budget_line,l10n_ua_payment_request.group_ua_payment_request_approver,1,0,0,0
+access_ua_cashflow_item_request_user,ua.cashflow.item request user,l10n_ua_cashflow.model_ua_cashflow_item,l10n_ua_payment_request.group_ua_payment_request_user,1,0,0,0

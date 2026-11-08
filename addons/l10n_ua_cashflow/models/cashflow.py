@@ -248,6 +248,19 @@ class UaCashflowStatement(models.Model):
                 })
         return result
 
+    @api.model
+    def ua_flow_totals(self, company, date_from, date_to, cash_prefixes="30,31,33"):
+        """Рух коштів за статтями за період: {id статті: сума}, надходження плюс, витрачання мінус.
+
+        Те саме правило статей, що й у формі № 3; для бюджету та інших звітів.
+        """
+        probe = self.new({"company_id": company.id, "cash_prefixes": cash_prefixes,
+                          "date_from": date_from, "date_to": date_to})
+        totals = defaultdict(float)
+        for values in probe._ua_entries(date_from, date_to, "current"):
+            totals[values["item_id"]] += values["amount"]
+        return dict(totals)
+
     def _ua_form_lines(self, totals_now, totals_prev, opening_now, opening_prev):
         """Рядки форми у порядку статей з підсумками розділів."""
         Item = self.env["ua.cashflow.item"]

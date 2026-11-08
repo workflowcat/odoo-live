@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 79. Моделей: 169. Методів: 641. Збережених полів на чужих моделях: 395.
+Модулів: 80. Моделей: 170. Методів: 653. Збережених полів на чужих моделях: 395.
 
 ## Зарплата
 
@@ -1293,6 +1293,22 @@
 | `action_approve()` | - | `l10n_ua_mrp_substitute` |
 | `action_revoke()` | - | `l10n_ua_mrp_substitute` |
 
+### `ua.cashflow.budget`
+
+наша модель · `l10n_ua_budget`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_approve()` | - | `l10n_ua_budget` |
+| `action_close()` | - | `l10n_ua_budget` |
+| `action_draft()` | - | `l10n_ua_budget` |
+| `action_fill_from_fact()` | План = факт року «Рік факту» по місяцях, змінений на «Зміна, %». Лише чернетка. | `l10n_ua_budget` |
+| `action_open_analysis()` | - | `l10n_ua_budget` |
+| `action_print()` | - | `l10n_ua_budget` |
+| `action_refresh_fact()` | Факт і зобов'язання в усі рядки; стаття з фактом без плану отримує рядок з нулем плану. | `l10n_ua_budget` |
+| `ua_active(company, day)` | Затверджений бюджет компанії на рік дня, або порожньо. | `l10n_ua_budget` |
+| `ua_rows(upto_month=12)` | Рядки виконання за статтями до місяця включно: стаття, план, факт, відхилення, %. | `l10n_ua_budget` |
+
 ### `ua.cashflow.rule`
 
 наша модель · `l10n_ua_cashflow`
@@ -1312,6 +1328,7 @@
 | `action_draft()` | - | `l10n_ua_cashflow` |
 | `action_open_unassigned()` | - | `l10n_ua_cashflow` |
 | `action_print()` | - | `l10n_ua_cashflow` |
+| `ua_flow_totals(company, date_from, date_to, cash_prefixes='30,31,33')` | Рух коштів за статтями за період: {id статті: сума}, надходження плюс, витрачання мінус. | `l10n_ua_cashflow` |
 | `ua_money(value)` | Сума для форми в гривнях з копійками: витрачання в дужках, нуль - прочерк. | `l10n_ua_cashflow` |
 | `ua_rows()` | Рядки для друку: назва, код, звітний, попередній, вид рядка. | `l10n_ua_cashflow` |
 
@@ -1642,16 +1659,18 @@
 
 ### `ua.payment.request`
 
-наша модель · `l10n_ua_payment_request`
+наша модель · `l10n_ua_budget`, `l10n_ua_payment_request`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
 | `action_approve()` | - | `l10n_ua_payment_request` |
 | `action_cancel()` | - | `l10n_ua_payment_request` |
+| `action_create_payment()` | - | `l10n_ua_budget` |
 | `action_create_payment()` | Платіж за погодженою заявкою: за рахунками - майстром оплати, інакше аванс. | `l10n_ua_payment_request` |
 | `action_draft()` | - | `l10n_ua_payment_request` |
 | `action_print()` | - | `l10n_ua_payment_request` |
 | `action_reject()` | - | `l10n_ua_payment_request` |
+| `action_submit()` | - | `l10n_ua_budget` |
 | `action_submit()` | - | `l10n_ua_payment_request` |
 | `calendar_rows(date_from, date_to, company=None)` | Платіжний календар: заявки на погодженні й погоджені за датами оплати. | `l10n_ua_payment_request` |
 
