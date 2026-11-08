@@ -297,7 +297,8 @@ Notable changes for people who run or build on this code. Module-level API chang
   intangible and fixed assets by account group in columns 3-15, every journal item in exactly one column
   (revaluation by counter 41/746/975, transfers between groups as other changes, impairment by 972/742),
   depreciation split by the asset on the item, else by the counter account, unassigned rows flagged. III
-  capital investments, VI cash, VII provisions (accrued, used, reversed), VIII inventories with write-downs and
+  capital investments, V other income and expenses by row (checked against classes 71-74 and 94-97), VI
+  cash, VII provisions (accrued, used, reversed), VIII inventories with write-downs and
   increases of net realisable value, IX receivables by age (each partner's balance laid on its newest debits),
   X shortages, XII income tax, XIII depreciation charged checked against I and II. Landscape print.
   Tests: `ua_notes`.

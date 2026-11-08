@@ -100,6 +100,18 @@
                 </list>
               </field>
             </page>
+            <page string="V. Доходи і витрати" name="income">
+              <field name="income_ids" readonly="1">
+                <list decoration-bf="row_kind == 'total'" decoration-muted="row_kind == 'sub'">
+                  <field name="code"/>
+                  <field name="name"/>
+                  <field name="row_kind" column_invisible="1"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="c3" string="Доходи"/>
+                  <field name="c4" string="Витрати"/>
+                </list>
+              </field>
+            </page>
             <page string="VI. Гроші" name="cash">
               <field name="cash_ids" readonly="1">
                 <list decoration-bf="row_kind == 'total'" decoration-muted="row_kind == 'sub'">
