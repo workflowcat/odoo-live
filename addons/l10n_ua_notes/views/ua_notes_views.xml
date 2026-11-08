@@ -100,6 +100,19 @@
                 </list>
               </field>
             </page>
+            <page string="IV. Фін. інвестиції" name="investment">
+              <field name="investment_ids" readonly="1">
+                <list decoration-bf="row_kind == 'total'" decoration-muted="row_kind == 'sub'">
+                  <field name="code"/>
+                  <field name="name"/>
+                  <field name="row_kind" column_invisible="1"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="c3" string="За рік"/>
+                  <field name="c4" string="На кінець року: довгострокові"/>
+                  <field name="c5" string="На кінець року: поточні"/>
+                </list>
+              </field>
+            </page>
             <page string="V. Доходи і витрати" name="income">
               <field name="income_ids" readonly="1">
                 <list decoration-bf="row_kind == 'total'" decoration-muted="row_kind == 'sub'">
@@ -191,8 +204,26 @@
     <field name="view_mode">list,form</field>
     <field name="help" type="html">
       <p>Примітки до річної фінансової звітності: рух активів за групами з реєстру активів і проводок,
-        капітальні інвестиції, гроші, забезпечення, запаси, дебіторська заборгованість за строками,
+        капітальні інвестиції, фінансові інвестиції, інші доходи і витрати, гроші, забезпечення, запаси, дебіторська заборгованість за строками,
         нестачі, податок на прибуток, амортизація.</p>
+    </field>
+  </record>
+
+  <record id="view_account_form_ua_notes" model="ir.ui.view">
+    <field name="name">account.account.form.ua.notes</field>
+    <field name="model">account.account</field>
+    <field name="inherit_id" ref="account.view_account_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//page[@name='accounting']" position="after">
+        <page string="Примітки (форма № 5)" name="ua_notes">
+          <group>
+            <group string="Розділ IV. Фінансові інвестиції (рахунки 14 і 352)">
+              <field name="ua_investment_row"/>
+              <field name="ua_investment_basis"/>
+            </group>
+          </group>
+        </page>
+      </xpath>
     </field>
   </record>
 </odoo>

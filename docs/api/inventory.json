@@ -1,9 +1,9 @@
 {
   "totals": {
     "modules": 84,
-    "models": 179,
+    "models": 180,
     "methods": 692,
-    "fields": 398
+    "fields": 400
   },
   "areas": [
     {
@@ -9112,6 +9112,32 @@
             }
           ],
           "fields": []
+        },
+        {
+          "model": "account.account",
+          "ours": false,
+          "modules": [
+            "l10n_ua_notes"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_investment_basis",
+              "type": "Selection",
+              "label": "Оцінка інвестиції у формі № 5",
+              "module": "l10n_ua_notes",
+              "file": "addons/l10n_ua_notes/models/account.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_investment_row",
+              "type": "Selection",
+              "label": "Рядок розділу IV форми № 5",
+              "module": "l10n_ua_notes",
+              "file": "addons/l10n_ua_notes/models/account.py",
+              "groups": ""
+            }
+          ]
         },
         {
           "model": "account.journal",

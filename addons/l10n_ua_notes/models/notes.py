@@ -13,11 +13,12 @@
 активів (180, 250, 105, 070) і зауваження. Тож графи 14 і 15 завжди дорівнюють сальдо рахунків.
 
 Розділи III, V, VI, VII, VIII, X, XII, XIII - сальдо й обороти рахунків, за потреби з кореспондентом.
+Розділ IV - фінансові інвестиції 14 і 352 за рядком і оцінкою, які бухгалтер ставить на рахунку.
 Розділ IX - додатне сальдо кожного контрагента на рахунку, розкладене на найновіші дебетові обороти
 (строк від дати обороту до кінця періоду: до 12, 12-18, 18-36 місяців).
 
-Розділи IV, XI, XIV, XV модуль поки не заповнює. Коди рядків - форма № 5 у редакції наказу
-№ 302 зі змінами; перевіряйте чинну редакцію перед поданням.
+Розділи XI, XIV, XV (будівельні контракти, біологічні активи) модуль поки не заповнює. Коди
+рядків - форма № 5 у редакції наказу № 302 зі змінами; перевіряйте чинну редакцію перед поданням.
 """
 from collections import defaultdict
 from datetime import timedelta
@@ -35,6 +36,7 @@ SECTIONS = [
     ("intangible", "I. Нематеріальні активи"),
     ("fixed", "II. Основні засоби"),
     ("capex", "III. Капітальні інвестиції"),
+    ("investment", "IV. Фінансові інвестиції"),
     ("income", "V. Доходи і витрати"),
     ("cash", "VI. Грошові кошти"),
     ("provision", "VII. Забезпечення і резерви"),
@@ -69,6 +71,7 @@ HEADS = {
         ("c19", "Передані в оперативну оренду: знос"),
     ],
     "capex": [("c3", "За рік"), ("c4", "На кінець року")],
+    "investment": [("c3", "За рік"), ("c4", "На кінець року: довгострокові"), ("c5", "На кінець року: поточні")],
     "income": [("c3", "Доходи"), ("c4", "Витрати")],
     "cash": [("c3", "На кінець року")],
     "provision": [
@@ -170,6 +173,27 @@ def _stock(code, name, prefixes, exclude=()):
                                  "c5": [_ct(prefixes, exclude=exclude, counters=("946",))]})
 
 
+# Розділ IV: довгострокові (14) і поточні (352) фінансові інвестиції; 351 - еквіваленти грошей, у розділі VI.
+INVESTMENT_LONG, INVESTMENT_CURRENT = ("14",), ("352",)
+# Не придбання: переміщення між інвестиціями, частка результату за методом участі, переоцінка.
+INVESTMENT_NOT_BOUGHT = ("14", "352", "72", "96", "742", "746")
+INVESTMENT_ROW_NAMES = [
+    ("350", "Фінансові інвестиції за методом участі в капіталі: асоційовані підприємства"),
+    ("360", "дочірні підприємства"),
+    ("370", "спільна діяльність"),
+    ("380", "Інші фінансові інвестиції: частки і паї у статутному капіталі інших підприємств"),
+    ("390", "акції"),
+    ("400", "облігації"),
+    ("410", "інші"),
+]
+INVESTMENT_BASIS_ROWS = [
+    ("421", "Інші довгострокові фінансові інвестиції відображені: за собівартістю", "long", "cost"),
+    ("422", "за справедливою вартістю", "long", "fair"),
+    ("423", "за амортизованою собівартістю", "long", "amortized"),
+    ("424", "Поточні фінансові інвестиції відображені: за собівартістю", "current", "cost"),
+    ("425", "за справедливою вартістю", "current", "fair"),
+    ("426", "за амортизованою собівартістю", "current", "amortized"),
+]
 CLOSING = ("79",)
 PL_INCOME = ("71", "72", "73", "74")
 PL_EXPENSE = ("94", "95", "96", "97")
@@ -334,6 +358,8 @@ class UaNotesStatement(models.Model):
                                 domain=[("section", "=", "fixed")], string="II")
     capex_ids = fields.One2many("ua.notes.statement.line", "statement_id",
                                 domain=[("section", "=", "capex")], string="III")
+    investment_ids = fields.One2many("ua.notes.statement.line", "statement_id",
+                                     domain=[("section", "=", "investment")], string="IV")
     income_ids = fields.One2many("ua.notes.statement.line", "statement_id",
                                  domain=[("section", "=", "income")], string="V")
     cash_ids = fields.One2many("ua.notes.statement.line", "statement_id",
@@ -588,6 +614,42 @@ class UaNotesStatement(models.Model):
                      dict(dict.fromkeys(COLS, 0.0), c3=written_off)))
         return rows
 
+    def _ua_investment_rows(self, data):
+        """Розділ IV: рядок - з рахунку (ua_investment_row), інакше 141 - 350, решта - 410. Графа 3 -
+        дебетові обороти без переміщень, частки результату за методом участі і переоцінки."""
+        Account = self.env["account.account"].with_company(self.company_id)
+        ids = [aid for aid, code in data["codes"].items()
+               if _match(code, INVESTMENT_LONG) or _match(code, INVESTMENT_CURRENT)]
+        cells = {code: dict.fromkeys(COLS, 0.0) for code, _name in INVESTMENT_ROW_NAMES}
+        basis = {code: dict.fromkeys(COLS, 0.0) for code, *_rest in INVESTMENT_BASIS_ROWS}
+        basis_of = {(kind, how): code for code, _name, kind, how in INVESTMENT_BASIS_ROWS}
+        notes = []
+        lines = self.env["account.move.line"].search(
+            self._ua_period() + [("account_id", "in", ids), ("debit", ">", 0)])
+        bought = defaultdict(float)
+        for line in lines:
+            if not any(c.startswith(INVESTMENT_NOT_BOUGHT) for c in self._ua_counters(line)):
+                bought[line.account_id.id] += line.debit
+        for account in Account.browse(ids):
+            long_term = _match(account.code, INVESTMENT_LONG)
+            row = account.ua_investment_row or ("350" if account.code.startswith("141") else "410")
+            end = data["end"].get(account.id, 0.0)
+            cell = cells[row]
+            cell["c3"] += bought[account.id]
+            column = "c4" if long_term else "c5"
+            cell[column] += end
+            basis[basis_of[("long" if long_term else "current", account.ua_investment_basis or "cost")]][column] += end
+            if not account.ua_investment_row and account.code.startswith("141") \
+                    and not self.currency_id.is_zero(end):
+                notes.append(_("Розділ IV: рахунок %(code)s без рядка - показано в рядку 350 (асоційовані "
+                               "підприємства); для дочірніх чи спільної діяльності вкажіть рядок у плані "
+                               "рахунків.") % {"code": account.code})
+        rows = [(code, name, "item", cells[code]) for code, name in INVESTMENT_ROW_NAMES]
+        total = {c: sum(cells[code][c] for code, _name in INVESTMENT_ROW_NAMES) for c in COLS}
+        rows.append(("420", "Разом (розд. А + розд. Б)", "total", total))
+        rows += [(code, name, "sub", basis[code]) for code, name, *_rest in INVESTMENT_BASIS_ROWS]
+        return rows, notes
+
     def action_compute(self):
         for st in self:
             if st.state == "done":
@@ -601,6 +663,9 @@ class UaNotesStatement(models.Model):
                     notes += section_notes
                 elif section == "receivable":
                     rows = st._ua_receivable_rows(data)
+                elif section == "investment":
+                    rows, section_notes = st._ua_investment_rows(data)
+                    notes += section_notes
                 else:
                     rows = st._ua_table_rows(section, data)
                 for seq, (code, name, kind, amounts) in enumerate(rows, 1):
