@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="rule_ua_safety_briefing_company" model="ir.rule">
+    <field name="name">Інструктаж: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_safety_briefing"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_ua_safety_briefing_line_company" model="ir.rule">
+    <field name="name">Рядок інструктажу: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_safety_briefing_line"/>
+    <field name="domain_force">[('briefing_id.company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_ua_medical_exam_company" model="ir.rule">
+    <field name="name">Медогляд: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_medical_exam"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+</odoo>

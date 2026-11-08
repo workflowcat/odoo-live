@@ -45,6 +45,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Military registration, TCC notices | done | `l10n_ua_military` |
 | **Reservation of employees** (бронювання) of critically important companies | part | `l10n_ua_military`: data on the employee card; the critical-company status with its term, quota and wage floor; quota and deadline checks on the reserved list; reminders before the status or a reservation ends; a task when a reserved employee leaves. A ready list for the Дія request is missing |
 | Civil contracts (ЦПХ) | done | `l10n_ua_gph` |
+| Labour safety: briefings journal, repeat terms by job, medical exams (охорона праці) | done | `l10n_ua_safety`: jobs marked as hazardous with repeat-briefing and medical-exam periods (company settings, check the current edition of the standard regulation), briefings of five kinds for a group of employees with instructor and instructions, a not-passed line does not count, medical exams with result and validity, what blocks an employee today, overdue list, reminders to the manager, journal print |
 | Labour statistics, vacancy reports | gap | low priority |
 
 ## 3. Trade and procurement (Управління торгівлею)
@@ -158,7 +159,8 @@ contracts (`l10n_ua_guarantee`); measuring instruments and their verification (`
 (`l10n_ua_workwear`); grants and targeted financing (`l10n_ua_grant`); export control permits
 (`l10n_ua_export_control`); precious metals in products (`l10n_ua_precious_metals`); approved suppliers of critical
 components (`l10n_ua_supplier_approval`); limit cards М-8 (`l10n_ua_limit_card`);
-periodic and type tests gating acceptance (`l10n_ua_product_tests`).
+periodic and type tests gating acceptance (`l10n_ua_product_tests`); labour safety briefings and medical exams
+(`l10n_ua_safety`).
 
 Next, in this order:
 

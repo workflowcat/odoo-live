@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 74. Моделей: 155. Методів: 582. Збережених полів на чужих моделях: 375.
+Модулів: 75. Моделей: 156. Методів: 590. Збережених полів на чужих моделях: 388.
 
 ## Зарплата
 
@@ -152,7 +152,7 @@
 
 ### `hr.employee`
 
-доповнена модель · `l10n_ua_average`, `l10n_ua_gph`, `l10n_ua_hr_card`, `l10n_ua_hr_orders`, `l10n_ua_index`, `l10n_ua_military`, `l10n_ua_payments`, `l10n_ua_payroll_account`, `l10n_ua_payroll_reports`, `l10n_ua_payroll_rules`, `l10n_ua_workwear`
+доповнена модель · `l10n_ua_average`, `l10n_ua_gph`, `l10n_ua_hr_card`, `l10n_ua_hr_orders`, `l10n_ua_index`, `l10n_ua_military`, `l10n_ua_payments`, `l10n_ua_payroll_account`, `l10n_ua_payroll_reports`, `l10n_ua_payroll_rules`, `l10n_ua_safety`, `l10n_ua_workwear`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -165,6 +165,7 @@
 | `ua_ensure_allocations(year=None)` | - | `l10n_ua_average` |
 | `ua_ensure_leave_allocations(on_date=None)` | Публічна обгортка: Odoo не дає викликати методи з підкресленням через execute_kw. | `l10n_ua_average` |
 | `ua_mil_register_check(note=None)` | Записати звірку з ТЦК: подія обліку плюс дата останньої звірки. | `l10n_ua_military` |
+| `ua_safety_problems(day=None)` | Що заважає допустити працівника до роботи в цей день. | `l10n_ua_safety` |
 | `ua_tab_number()` | Табельний номер для картки: поле є не в кожній збірці Odoo, і воно закрите групою. | `l10n_ua_workwear` |
 | `ua_workwear_due(day=None)` | Чого бракує за нормами посади на дату: [{product, norm, in_use, due, months, reference}]. | `l10n_ua_workwear` |
 
@@ -173,6 +174,9 @@
 | `marital` | Selection | - | `l10n_ua_hr_card` |
 | `ua_actual_address` | Char | Фактична адреса | `l10n_ua_hr_card` |
 | `ua_alimony_partner_id` | Many2one | res.partner | `l10n_ua_payroll_account` |
+| `ua_briefing_due` | Date | Повторний інструктаж до | `l10n_ua_safety` |
+| `ua_briefing_last` | Date | Останній інструктаж на робочому місці | `l10n_ua_safety` |
+| `ua_briefing_line_ids` | One2many | ua.safety.briefing.line | `l10n_ua_safety` |
 | `ua_chernobyl_category` | Selection | - | `l10n_ua_hr_card` |
 | `ua_child_ids` | One2many | ua.employee.child | `l10n_ua_hr_card` |
 | `ua_contract_kind` | Selection | - | `l10n_ua_payroll_rules` |
@@ -208,6 +212,9 @@
 | `ua_large_family` | Boolean | Багатодітна сім'я | `l10n_ua_hr_card` |
 | `ua_last_name` | Char | Прізвище | `l10n_ua_payroll_reports` |
 | `ua_main_job` | Boolean | Основне місце роботи | `l10n_ua_payroll_rules` |
+| `ua_medical_exam_ids` | One2many | ua.medical.exam | `l10n_ua_safety` |
+| `ua_medical_result` | Selection | - | `l10n_ua_safety` |
+| `ua_medical_valid_until` | Date | Медогляд дійсний до | `l10n_ua_safety` |
 | `ua_middle_name` | Char | По батькові | `l10n_ua_payroll_reports` |
 | `ua_mil_category` | Selection | Категорія обліку | `l10n_ua_military` |
 | `ua_mil_deferment` | Char | Відстрочка (підстава) | `l10n_ua_military` |
@@ -325,7 +332,7 @@
 
 ### `res.company`
 
-доповнена модель · `l10n_ua_average`, `l10n_ua_cash`, `l10n_ua_chart`, `l10n_ua_docs`, `l10n_ua_edo`, `l10n_ua_fop`, `l10n_ua_hr_orders`, `l10n_ua_payment_request`, `l10n_ua_payments`, `l10n_ua_payroll_account`, `l10n_ua_payroll_reports`, `l10n_ua_payroll_rules`, `l10n_ua_purchase`, `l10n_ua_setup`, `l10n_ua_vat`
+доповнена модель · `l10n_ua_average`, `l10n_ua_cash`, `l10n_ua_chart`, `l10n_ua_docs`, `l10n_ua_edo`, `l10n_ua_fop`, `l10n_ua_hr_orders`, `l10n_ua_payment_request`, `l10n_ua_payments`, `l10n_ua_payroll_account`, `l10n_ua_payroll_reports`, `l10n_ua_payroll_rules`, `l10n_ua_purchase`, `l10n_ua_safety`, `l10n_ua_setup`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -339,6 +346,8 @@
 | `ua_acts_on_basis` | Char | Діє на підставі | `l10n_ua_docs` |
 | `ua_below_min_wage` | Boolean | Є оклади нижче мінімальної зарплати | `l10n_ua_setup` |
 | `ua_booking_planned` | Boolean | Бронюємо або плануємо бронювати | `l10n_ua_setup` |
+| `ua_briefing_months_hazard` | Integer | Повторний інструктаж на роботах з підвищеною небезпекою, раз на (міс.) | `l10n_ua_safety` |
+| `ua_briefing_months_other` | Integer | Повторний інструктаж на інших роботах, раз на (міс.) | `l10n_ua_safety` |
 | `ua_cash_limit` | Monetary | Ліміт каси | `l10n_ua_cash` |
 | `ua_director_name` | Char | Керівник (ПІБ) | `l10n_ua_docs` |
 | `ua_director_name` | Char | Керівник (ПІБ) | `l10n_ua_payroll_reports` |
@@ -373,6 +382,7 @@
 | `ua_purchase_approval_limit` | Monetary | Ліміт погодження запиту | `l10n_ua_purchase` |
 | `ua_raj` | Char | Код району (C_RAJ) | `l10n_ua_payroll_reports` |
 | `ua_reg` | Char | Код області (C_REG) | `l10n_ua_payroll_reports` |
+| `ua_safety_notify_days` | Integer | Нагадувати про охорону праці за, днів | `l10n_ua_safety` |
 | `ua_settlement_currency` | Char | Валюта розрахунків з клієнтами | `l10n_ua_setup` |
 | `ua_sti_code` | Char | Код ДПІ (C_STI_ORIG) | `l10n_ua_payroll_reports` |
 | `ua_sti_name` | Char | Назва ДПІ | `l10n_ua_payroll_reports` |
@@ -1645,6 +1655,20 @@
 | `action_print()` | - | `l10n_ua_contract` |
 | `action_reset_draft()` | - | `l10n_ua_contract` |
 
+### `ua.safety.briefing`
+
+наша модель · `l10n_ua_safety`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_done()` | - | `l10n_ua_safety` |
+| `action_draft()` | - | `l10n_ua_safety` |
+| `action_fill_job()` | - | `l10n_ua_safety` |
+| `action_print()` | - | `l10n_ua_safety` |
+| `ua_date(day)` | - | `l10n_ua_safety` |
+| `ua_journal_rows()` | Рядки журналу за датою: № з/п, дата, працівник, посада, вид, інструкції, інструктор. | `l10n_ua_safety` |
+| `ua_kind_label()` | - | `l10n_ua_safety` |
+
 ### `ua.screen`
 
 наша модель · `l10n_ua_screen`
@@ -1874,10 +1898,14 @@
 
 ### `hr.job`
 
-доповнена модель · `l10n_ua_workwear`
+доповнена модель · `l10n_ua_safety`, `l10n_ua_workwear`
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
+| `ua_briefing_months` | Integer | Повторний інструктаж, раз на (міс.) | `l10n_ua_safety` |
+| `ua_hazardous` | Boolean | Роботи з підвищеною небезпекою | `l10n_ua_safety` |
+| `ua_medical_months` | Integer | Медогляд, раз на (міс.) | `l10n_ua_safety` |
+| `ua_safety_instructions` | Char | Інструкції з охорони праці | `l10n_ua_safety` |
 | `ua_workwear_norm_ids` | One2many | ua.workwear.norm | `l10n_ua_workwear` |
 
 ### `hr.payslip.input`

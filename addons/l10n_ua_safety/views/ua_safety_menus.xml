@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_ua_safety_root" name="Охорона праці" parent="hr.menu_hr_root" sequence="85"
+            groups="hr.group_hr_user"/>
+  <menuitem id="menu_ua_safety_briefing" name="Журнал інструктажів" parent="menu_ua_safety_root"
+            action="action_ua_safety_briefing" sequence="10"/>
+  <menuitem id="menu_ua_medical_exam" name="Медогляди" parent="menu_ua_safety_root"
+            action="action_ua_medical_exam" sequence="20"/>
+  <menuitem id="menu_ua_safety_overdue" name="Строки" parent="menu_ua_safety_root"
+            action="action_ua_safety_overdue" sequence="30"/>
+</odoo>

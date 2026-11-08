@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_safety_journal" model="ir.actions.report">
+    <field name="name">Журнал інструктажів</field>
+    <field name="model">ua.safety.briefing</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_safety.report_ua_safety_journal</field>
+    <field name="report_file">l10n_ua_safety.report_ua_safety_journal</field>
+    <field name="binding_model_id" ref="model_ua_safety_briefing"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Журнал інструктажів'</field>
+  </record>
+
+  <template id="report_ua_safety_journal">
+    <t t-call="web.html_container">
+      <t t-call="web.basic_layout">
+        <style>
+          .ua-doc { font-size: 10px; color: #000; }
+          .ua-doc h3 { font-size: 12px; text-align: center; margin: 4px 0 8px; }
+          .ua-doc .ua-grid { width: 100%; border-collapse: collapse; }
+          .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; vertical-align: top; }
+          .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+          .ua-doc .ua-num { text-align: center; }
+        </style>
+        <div class="ua-doc">
+          <div><t t-out="docs[:1].company_id.name"/></div>
+          <h3>ЖУРНАЛ РЕЄСТРАЦІЇ ІНСТРУКТАЖІВ З ПИТАНЬ ОХОРОНИ ПРАЦІ НА РОБОЧОМУ МІСЦІ</h3>
+          <table class="ua-grid">
+            <thead>
+              <tr>
+                <th>№ з/п</th>
+                <th>Дата проведення інструктажу</th>
+                <th>Прізвище, ім'я, по батькові особи, яку інструктують</th>
+                <th>Професія, посада особи, яку інструктують</th>
+                <th>Вид інструктажу (для позапланового - причина)</th>
+                <th>Назва та номер інструкції</th>
+                <th>Прізвище, ініціали, посада особи, яка інструктує і перевіряє знання</th>
+                <th>Підпис особи, яка інструктує</th>
+                <th>Підпис особи, яку інструктують</th>
+                <th>Знання перевірено, допущено до роботи</th>
+              </tr>
+              <tr><t t-foreach="range(1, 11)" t-as="col"><th class="ua-num" t-out="col"/></t></tr>
+            </thead>
+            <tbody>
+              <tr t-foreach="docs.ua_journal_rows()" t-as="row">
+                <td class="ua-num" t-out="row['n']"/>
+                <td t-out="row['date']"/>
+                <td t-out="row['employee']"/>
+                <td t-out="row['job']"/>
+                <td t-out="row['kind']"/>
+                <td t-out="row['instructions']"/>
+                <td t-out="row['instructor']"/>
+                <td/>
+                <td/>
+                <td><t t-out="'так' if row['passed'] else 'ні'"/><t t-if="row['note']">; <t t-out="row['note']"/></t></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </t>
+    </t>
+  </template>
+</odoo>

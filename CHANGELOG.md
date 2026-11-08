@@ -230,6 +230,12 @@ Notable changes for people who run or build on this code. Module-level API chang
   result, place and the customer's representative. The acceptance act is refused while periodic tests failed
   or expired, or while type tests are pending after a design change that asks for them. Reminders and a
   protocol print. Tests: `ua_product_tests`.
+- `l10n_ua_safety`: labour safety. A job says whether the work is hazardous, how often the repeat briefing
+  and the medical exam are due and which instructions apply. Briefings (introductory, primary, repeat,
+  unscheduled, targeted) are recorded for a group of employees; the next repeat is counted from the last passed
+  primary, repeat or unscheduled one. Medical exams carry the result and validity. The employee card shows what
+  blocks work today; an overdue list, reminders to the manager and the briefings journal print.
+  Tests: `ua_safety`.
 
 ### Changed
 - Defense packs `defense_uav` and `defense_ugv`: finished products are marked dual-use under export control

@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 74,
-    "models": 155,
-    "methods": 582,
-    "fields": 375
+    "modules": 75,
+    "models": 156,
+    "methods": 590,
+    "fields": 388
   },
   "areas": [
     {
@@ -507,6 +507,7 @@
             "l10n_ua_payroll_account",
             "l10n_ua_payroll_reports",
             "l10n_ua_payroll_rules",
+            "l10n_ua_safety",
             "l10n_ua_workwear"
           ],
           "methods": [
@@ -583,6 +584,14 @@
               "decorators": []
             },
             {
+              "name": "ua_safety_problems",
+              "signature": "ua_safety_problems(day=None)",
+              "doc": "Що заважає допустити працівника до роботи в цей день.",
+              "module": "l10n_ua_safety",
+              "file": "addons/l10n_ua_safety/models/safety.py",
+              "decorators": []
+            },
+            {
               "name": "ua_tab_number",
               "signature": "ua_tab_number()",
               "doc": "Табельний номер для картки: поле є не в кожній збірці Odoo, і воно закрите групою.",
@@ -623,6 +632,30 @@
               "module": "l10n_ua_payroll_account",
               "file": "addons/l10n_ua_payroll_account/models/hr_employee.py",
               "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_briefing_due",
+              "type": "Date",
+              "label": "Повторний інструктаж до",
+              "module": "l10n_ua_safety",
+              "file": "addons/l10n_ua_safety/models/safety.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_briefing_last",
+              "type": "Date",
+              "label": "Останній інструктаж на робочому місці",
+              "module": "l10n_ua_safety",
+              "file": "addons/l10n_ua_safety/models/safety.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_briefing_line_ids",
+              "type": "One2many",
+              "label": "ua.safety.briefing.line",
+              "module": "l10n_ua_safety",
+              "file": "addons/l10n_ua_safety/models/safety.py",
+              "groups": ""
             },
             {
               "name": "ua_chernobyl_category",
@@ -903,6 +936,30 @@
               "module": "l10n_ua_payroll_rules",
               "file": "addons/l10n_ua_payroll_rules/models/hr_employee.py",
               "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_medical_exam_ids",
+              "type": "One2many",
+              "label": "ua.medical.exam",
+              "module": "l10n_ua_safety",
+              "file": "addons/l10n_ua_safety/models/safety.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_medical_result",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_safety",
+              "file": "addons/l10n_ua_safety/models/safety.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_medical_valid_until",
+              "type": "Date",
+              "label": "Медогляд дійсний до",
+              "module": "l10n_ua_safety",
+              "file": "addons/l10n_ua_safety/models/safety.py",
+              "groups": ""
             },
             {
               "name": "ua_middle_name",
@@ -1568,6 +1625,7 @@
             "l10n_ua_payroll_reports",
             "l10n_ua_payroll_rules",
             "l10n_ua_purchase",
+            "l10n_ua_safety",
             "l10n_ua_setup",
             "l10n_ua_vat"
           ],
@@ -1628,6 +1686,22 @@
               "label": "Бронюємо або плануємо бронювати",
               "module": "l10n_ua_setup",
               "file": "addons/l10n_ua_setup/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_briefing_months_hazard",
+              "type": "Integer",
+              "label": "Повторний інструктаж на роботах з підвищеною небезпекою, раз на (міс.)",
+              "module": "l10n_ua_safety",
+              "file": "addons/l10n_ua_safety/models/safety.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_briefing_months_other",
+              "type": "Integer",
+              "label": "Повторний інструктаж на інших роботах, раз на (міс.)",
+              "module": "l10n_ua_safety",
+              "file": "addons/l10n_ua_safety/models/safety.py",
               "groups": ""
             },
             {
@@ -1900,6 +1974,14 @@
               "label": "Код області (C_REG)",
               "module": "l10n_ua_payroll_reports",
               "file": "addons/l10n_ua_payroll_reports/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_safety_notify_days",
+              "type": "Integer",
+              "label": "Нагадувати про охорону праці за, днів",
+              "module": "l10n_ua_safety",
+              "file": "addons/l10n_ua_safety/models/safety.py",
               "groups": ""
             },
             {
@@ -7435,6 +7517,72 @@
           "fields": []
         },
         {
+          "model": "ua.safety.briefing",
+          "ours": true,
+          "modules": [
+            "l10n_ua_safety"
+          ],
+          "methods": [
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_safety",
+              "file": "addons/l10n_ua_safety/models/safety.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_safety",
+              "file": "addons/l10n_ua_safety/models/safety.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill_job",
+              "signature": "action_fill_job()",
+              "doc": "",
+              "module": "l10n_ua_safety",
+              "file": "addons/l10n_ua_safety/models/safety.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_safety",
+              "file": "addons/l10n_ua_safety/models/safety.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_date",
+              "signature": "ua_date(day)",
+              "doc": "",
+              "module": "l10n_ua_safety",
+              "file": "addons/l10n_ua_safety/models/safety.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_journal_rows",
+              "signature": "ua_journal_rows()",
+              "doc": "Рядки журналу за датою: № з/п, дата, працівник, посада, вид, інструкції, інструктор.",
+              "module": "l10n_ua_safety",
+              "file": "addons/l10n_ua_safety/models/safety.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_kind_label",
+              "signature": "ua_kind_label()",
+              "doc": "",
+              "module": "l10n_ua_safety",
+              "file": "addons/l10n_ua_safety/models/safety.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.screen",
           "ours": true,
           "modules": [
@@ -8505,10 +8653,43 @@
           "model": "hr.job",
           "ours": false,
           "modules": [
+            "l10n_ua_safety",
             "l10n_ua_workwear"
           ],
           "methods": [],
           "fields": [
+            {
+              "name": "ua_briefing_months",
+              "type": "Integer",
+              "label": "Повторний інструктаж, раз на (міс.)",
+              "module": "l10n_ua_safety",
+              "file": "addons/l10n_ua_safety/models/safety.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_hazardous",
+              "type": "Boolean",
+              "label": "Роботи з підвищеною небезпекою",
+              "module": "l10n_ua_safety",
+              "file": "addons/l10n_ua_safety/models/safety.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_medical_months",
+              "type": "Integer",
+              "label": "Медогляд, раз на (міс.)",
+              "module": "l10n_ua_safety",
+              "file": "addons/l10n_ua_safety/models/safety.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_safety_instructions",
+              "type": "Char",
+              "label": "Інструкції з охорони праці",
+              "module": "l10n_ua_safety",
+              "file": "addons/l10n_ua_safety/models/safety.py",
+              "groups": ""
+            },
             {
               "name": "ua_workwear_norm_ids",
               "type": "One2many",

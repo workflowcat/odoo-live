@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_safety_briefing_user,ua.safety.briefing user,model_ua_safety_briefing,hr.group_hr_user,1,1,1,0
+access_ua_safety_briefing_manager,ua.safety.briefing manager,model_ua_safety_briefing,hr.group_hr_manager,1,1,1,1
+access_ua_safety_briefing_line_user,ua.safety.briefing.line user,model_ua_safety_briefing_line,hr.group_hr_user,1,1,1,1
+access_ua_medical_exam_user,ua.medical.exam user,model_ua_medical_exam,hr.group_hr_user,1,1,1,0
+access_ua_medical_exam_manager,ua.medical.exam manager,model_ua_medical_exam,hr.group_hr_manager,1,1,1,1

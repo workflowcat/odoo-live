@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_company_form_ua_safety" model="ir.ui.view">
+    <field name="name">res.company.form.ua.safety</field>
+    <field name="model">res.company</field>
+    <field name="inherit_id" ref="base.view_company_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//notebook" position="inside">
+        <page string="Охорона праці" name="ua_safety">
+          <group>
+            <field name="ua_briefing_months_hazard"/>
+            <field name="ua_briefing_months_other"/>
+            <field name="ua_safety_notify_days"/>
+          </group>
+        </page>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_hr_job_form_ua_safety" model="ir.ui.view">
+    <field name="name">hr.job.form.ua.safety</field>
+    <field name="model">hr.job</field>
+    <field name="inherit_id" ref="hr.view_hr_job_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//notebook" position="inside">
+        <page string="Охорона праці" name="ua_safety">
+          <group>
+            <group>
+              <field name="ua_hazardous"/>
+              <field name="ua_briefing_months"/>
+              <field name="ua_medical_months"/>
+            </group>
+            <group>
+              <field name="ua_safety_instructions"/>
+            </group>
+          </group>
+        </page>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_employee_form_ua_safety" model="ir.ui.view">
+    <field name="name">hr.employee.form.ua.safety</field>
+    <field name="model">hr.employee</field>
+    <field name="inherit_id" ref="hr.view_employee_form"/>
+    <field name="arch" type="xml">
+      <notebook position="inside">
+        <page string="Охорона праці" name="ua_safety" groups="hr.group_hr_user">
+          <group>
+            <group>
+              <field name="ua_briefing_last"/>
+              <field name="ua_briefing_due"/>
+            </group>
+            <group>
+              <field name="ua_medical_result"/>
+              <field name="ua_medical_valid_until"/>
+            </group>
+          </group>
+          <separator string="Інструктажі"/>
+          <field name="ua_briefing_line_ids" readonly="1">
+            <list decoration-danger="not passed" decoration-muted="state == 'draft'">
+              <field name="date"/>
+              <field name="kind"/>
+              <field name="briefing_id"/>
+              <field name="passed"/>
+              <field name="note"/>
+              <field name="state" column_invisible="1"/>
+            </list>
+          </field>
+          <separator string="Медогляди"/>
+          <field name="ua_medical_exam_ids" readonly="1">
+            <list decoration-danger="result == 'unfit'">
+              <field name="date"/>
+              <field name="kind"/>
+              <field name="result"/>
+              <field name="restrictions"/>
+              <field name="valid_until"/>
+            </list>
+          </field>
+        </page>
+      </notebook>
+    </field>
+  </record>
+
+  <record id="view_employee_list_ua_safety" model="ir.ui.view">
+    <field name="name">hr.employee.list.ua.safety</field>
+    <field name="model">hr.employee</field>
+    <field name="inherit_id" ref="hr.view_employee_tree"/>
+    <field name="arch" type="xml">
+      <xpath expr="//list" position="inside">
+        <field name="ua_briefing_due" optional="hide" groups="hr.group_hr_user"/>
+        <field name="ua_medical_valid_until" optional="hide" groups="hr.group_hr_user"/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_ua_safety_briefing_list" model="ir.ui.view">
+    <field name="name">ua.safety.briefing.list</field>
+    <field name="model">ua.safety.briefing</field>
+    <field name="arch" type="xml">
+      <list decoration-info="state == 'draft'">
+        <field name="date"/>
+        <field name="kind"/>
+        <field name="instructor_id"/>
+        <field name="instructions"/>
+        <field name="job_id" optional="show"/>
+        <field name="reason" optional="hide"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+        <field name="state" widget="badge"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_safety_briefing_form" model="ir.ui.view">
+    <field name="name">ua.safety.briefing.form</field>
+    <field name="model">ua.safety.briefing</field>
+    <field name="arch" type="xml">
+      <form>
+        <header>
+          <button name="action_fill_job" string="Заповнити працівниками посади" type="object"
+                  invisible="state != 'draft' or not job_id"/>
+          <button name="action_done" string="Провести" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+          <button name="action_draft" string="В чернетку" type="object" invisible="state != 'done'"
+                  groups="hr.group_hr_manager"/>
+          <button name="action_print" string="Друк журналу" type="object"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <group>
+            <group>
+              <field name="kind" readonly="state != 'draft'"/>
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="instructor_id" readonly="state != 'draft'"/>
+              <field name="reason" invisible="kind not in ('unscheduled', 'targeted')"
+                     required="kind in ('unscheduled', 'targeted')" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="job_id" readonly="state != 'draft'"/>
+              <field name="instructions" readonly="state != 'draft'"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+            </group>
+          </group>
+          <field name="line_ids" readonly="state != 'draft'">
+            <list editable="bottom" decoration-danger="not passed">
+              <field name="employee_id"/>
+              <field name="job_name"/>
+              <field name="passed"/>
+              <field name="note"/>
+            </list>
+          </field>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_safety_briefing_search" model="ir.ui.view">
+    <field name="name">ua.safety.briefing.search</field>
+    <field name="model">ua.safety.briefing</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="line_ids" string="Працівник" filter_domain="[('line_ids.employee_id', 'ilike', self)]"/>
+        <field name="instructor_id"/>
+        <field name="instructions"/>
+        <filter name="repeat" string="Повторні" domain="[('kind', '=', 'repeat')]"/>
+        <filter name="unscheduled" string="Позапланові і цільові" domain="[('kind', 'in', ('unscheduled', 'targeted'))]"/>
+        <separator/>
+        <filter name="draft" string="Чернетки" domain="[('state', '=', 'draft')]"/>
+        <separator/>
+        <filter name="date" string="Дата" date="date"/>
+        <group>
+          <filter name="by_kind" string="Вид" context="{'group_by': 'kind'}"/>
+          <filter name="by_job" string="Посада" context="{'group_by': 'job_id'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_safety_briefing" model="ir.actions.act_window">
+    <field name="name">Журнал інструктажів</field>
+    <field name="res_model">ua.safety.briefing</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Запишіть інструктаж з охорони праці</p>
+      <p>Повторний рахується від останнього пройденого первинного, повторного або позапланового.</p>
+    </field>
+  </record>
+
+  <record id="view_ua_medical_exam_list" model="ir.ui.view">
+    <field name="name">ua.medical.exam.list</field>
+    <field name="model">ua.medical.exam</field>
+    <field name="arch" type="xml">
+      <list decoration-danger="result == 'unfit'" decoration-warning="result == 'limited'">
+        <field name="employee_id"/>
+        <field name="kind"/>
+        <field name="date"/>
+        <field name="result" widget="badge" decoration-success="result == 'fit'"
+               decoration-warning="result == 'limited'" decoration-danger="result == 'unfit'"/>
+        <field name="restrictions" optional="show"/>
+        <field name="valid_until"/>
+        <field name="clinic" optional="hide"/>
+        <field name="document" optional="hide"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_medical_exam_form" model="ir.ui.view">
+    <field name="name">ua.medical.exam.form</field>
+    <field name="model">ua.medical.exam</field>
+    <field name="arch" type="xml">
+      <form>
+        <sheet>
+          <group>
+            <group>
+              <field name="employee_id"/>
+              <field name="kind"/>
+              <field name="date"/>
+              <field name="result"/>
+              <field name="restrictions" invisible="result != 'limited'"/>
+              <field name="valid_until"/>
+            </group>
+            <group>
+              <field name="clinic"/>
+              <field name="document"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+            </group>
+          </group>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_medical_exam_search" model="ir.ui.view">
+    <field name="name">ua.medical.exam.search</field>
+    <field name="model">ua.medical.exam</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="employee_id"/>
+        <field name="clinic"/>
+        <filter name="unfit" string="Непридатні" domain="[('result', '=', 'unfit')]"/>
+        <filter name="limited" string="З обмеженнями" domain="[('result', '=', 'limited')]"/>
+        <separator/>
+        <filter name="date" string="Дата" date="date"/>
+        <group>
+          <filter name="by_employee" string="Працівник" context="{'group_by': 'employee_id'}"/>
+          <filter name="by_result" string="Висновок" context="{'group_by': 'result'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_medical_exam" model="ir.actions.act_window">
+    <field name="name">Медогляди</field>
+    <field name="res_model">ua.medical.exam</field>
+    <field name="view_mode">list,form</field>
+  </record>
+
+  <record id="view_employee_list_ua_safety_due" model="ir.ui.view">
+    <field name="name">hr.employee.list.ua.safety.due</field>
+    <field name="model">hr.employee</field>
+    <field name="priority">90</field>
+    <field name="arch" type="xml">
+      <list decoration-danger="ua_safety_alert">
+        <field name="ua_safety_alert" column_invisible="1"/>
+        <field name="name"/>
+        <field name="job_id"/>
+        <field name="department_id" optional="show"/>
+        <field name="ua_briefing_last"/>
+        <field name="ua_briefing_due"/>
+        <field name="ua_medical_result"/>
+        <field name="ua_medical_valid_until"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_employee_filter_ua_safety" model="ir.ui.view">
+    <field name="name">hr.employee.search.ua.safety</field>
+    <field name="model">hr.employee</field>
+    <field name="inherit_id" ref="hr.view_employee_filter"/>
+    <field name="arch" type="xml">
+      <xpath expr="//search" position="inside">
+        <filter name="ua_briefing_overdue" string="Повторний інструктаж прострочено"
+                domain="[('ua_briefing_due', '&lt;', context_today().strftime('%Y-%m-%d'))]"
+                groups="hr.group_hr_user"/>
+        <filter name="ua_medical_overdue" string="Медогляд прострочено або непридатний"
+                domain="['|', ('ua_medical_valid_until', '&lt;', context_today().strftime('%Y-%m-%d')),
+                         ('ua_medical_result', '=', 'unfit')]"
+                groups="hr.group_hr_user"/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="action_ua_safety_overdue" model="ir.actions.act_window">
+    <field name="name">Строки охорони праці</field>
+    <field name="res_model">hr.employee</field>
+    <field name="view_mode">list,form</field>
+    <field name="view_id" ref="view_employee_list_ua_safety_due"/>
+    <field name="domain">[('ua_briefing_line_ids', '!=', False)]</field>
+    <field name="help" type="html">
+      <p>Тут з'являться працівники, щойно їх запишуть в інструктаж.</p>
+    </field>
+  </record>
+</odoo>
