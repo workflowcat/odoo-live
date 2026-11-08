@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_ua_limit_card" name="Лімітно-забірні картки" parent="stock.menu_stock_warehouse_mgmt"
+            action="action_ua_limit_card" sequence="45"/>
+</odoo>

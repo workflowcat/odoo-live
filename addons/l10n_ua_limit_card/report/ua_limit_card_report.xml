@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_limit_card" model="ir.actions.report">
+    <field name="name">Лімітно-забірна картка (М-8)</field>
+    <field name="model">ua.limit.card</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_limit_card.report_ua_limit_card</field>
+    <field name="report_file">l10n_ua_limit_card.report_ua_limit_card</field>
+    <field name="binding_model_id" ref="model_ua_limit_card"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Лімітно-забірна картка %s' % (object.name or '')</field>
+  </record>
+
+  <template id="report_ua_limit_card">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <style>
+            .ua-doc { font-size: 10.5px; color: #000; }
+            .ua-doc h3 { font-size: 13px; text-align: center; margin: 4px 0; }
+            .ua-doc .ua-form { text-align: right; font-size: 9px; }
+            .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+            .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin: 6px 0; }
+            .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 4px; }
+            .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+            .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+            .ua-doc .ua-sign { width: 100%; margin-top: 18px; }
+            .ua-doc .ua-sign td { width: 33%; vertical-align: top; padding: 12px 12px 0 0; }
+          </style>
+          <t t-set="rows" t-value="doc.ua_rows()"/>
+          <div class="ua-doc">
+            <div class="ua-form">Типова форма № М-8</div>
+            <div><t t-out="doc.company_id.name"/></div>
+            <h3>ЛІМІТНО-ЗАБІРНА КАРТКА № <t t-out="doc.name"/></h3>
+            <div class="ua-sub">на <t t-out="doc.ua_month()"/></div>
+            <table class="ua-grid">
+              <tr><td style="width: 30%;">Склад (відправник)</td><td><t t-out="doc.location_id.display_name"/></td></tr>
+              <tr><td>Цех (отримувач)</td><td><t t-out="doc.location_dest_id.display_name"/><t t-if="doc.department">, <t t-out="doc.department"/></t></td></tr>
+              <tr t-if="doc.purpose"><td>Призначення</td><td><t t-out="doc.purpose"/></td></tr>
+              <tr><td>Матеріал</td><td><t t-out="doc.product_id.display_name"/><t t-if="doc.product_id.default_code">, номенклатурний № <t t-out="doc.product_id.default_code"/></t></td></tr>
+              <tr><td>Одиниця виміру</td><td><t t-out="doc.uom_id.name"/></td></tr>
+              <tr><td>Ліміт</td><td><t t-out="'%g' % doc.limit_qty"/></td></tr>
+            </table>
+            <table class="ua-grid">
+              <thead><tr><th style="width: 12%;">Дата</th><th style="width: 11%;">Відпущено</th>
+                <th style="width: 11%;">Повернуто</th><th style="width: 13%;">Разом з початку місяця</th>
+                <th style="width: 11%;">Залишок ліміту</th><th>Понад ліміт: причина</th><th style="width: 16%;">Отримав</th></tr></thead>
+              <tbody>
+                <tr t-if="not rows"><td colspan="7" style="text-align: center;">відпусків не було</td></tr>
+                <tr t-foreach="rows" t-as="row">
+                  <td><t t-out="row['date']"/></td>
+                  <td class="ua-num"><t t-out="row['issued']"/></td>
+                  <td class="ua-num"><t t-out="row['returned']"/></td>
+                  <td class="ua-num"><t t-out="row['total']"/></td>
+                  <td class="ua-num"><t t-out="row['left']"/></td>
+                  <td><t t-out="row['note']"/></td>
+                  <td><t t-out="row['receiver']"/></td>
+                </tr>
+              </tbody>
+            </table>
+            <table class="ua-sign"><tr>
+              <td>Начальник цеху<br/><br/>______________ / ______________________</td>
+              <td>Відпустив (комірник)<br/><br/>______________ / ______________________</td>
+              <td>Отримав<br/><br/>______________ / ______________________</td>
+            </tr></table>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

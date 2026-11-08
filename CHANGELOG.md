@@ -221,6 +221,10 @@ Notable changes for people who run or build on this code. Module-level API chang
   with decision number, basis, who approved and term). Purchase confirmation and receipt validation check it;
   an approval can be suspended after claims and withdrawn. Expiry reminders, printed list.
   Tests: `ua_supplier_approval`.
+- `l10n_ua_limit_card`: limit cards (form М-8). One material, one workshop location, one month. The limit is
+  set by hand or from the material demand of chosen manufacturing orders. Issues and returns are posted
+  transfers with a running total; over the limit only a stock manager may issue, with a reason, and the line
+  is marked. A closed card takes no issues. М-8 print. Tests: `ua_limit_card`.
 
 ### Changed
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number

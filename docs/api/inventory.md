@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 72. Моделей: 153. Методів: 565. Збережених полів на чужих моделях: 365.
+Модулів: 73. Моделей: 154. Методів: 574. Збережених полів на чужих моделях: 366.
 
 ## Зарплата
 
@@ -1502,6 +1502,22 @@
 | `action_draft()` | - | `l10n_ua_guarantee` |
 | `action_release()` | - | `l10n_ua_guarantee` |
 
+### `ua.limit.card`
+
+наша модель · `l10n_ua_limit_card`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_close()` | - | `l10n_ua_limit_card` |
+| `action_fill_from_productions()` | Ліміт = потреба в матеріалі за обраними виробничими замовленнями. | `l10n_ua_limit_card` |
+| `action_issue(quantity, reason=None, receiver=None, day=None)` | Відпустити в цех. Понад ліміт - лише керівник складу з причиною. | `l10n_ua_limit_card` |
+| `action_open()` | - | `l10n_ua_limit_card` |
+| `action_print()` | - | `l10n_ua_limit_card` |
+| `action_reopen()` | - | `l10n_ua_limit_card` |
+| `action_return(quantity, day=None)` | Повернути невикористаний матеріал з цеху на склад. | `l10n_ua_limit_card` |
+| `ua_month()` | - | `l10n_ua_limit_card` |
+| `ua_rows()` | Рядки друку: дата, відпущено, повернуто, наростаючим підсумком, залишок ліміту. | `l10n_ua_limit_card` |
+
 ### `ua.navigation`
 
 наша модель · `l10n_ua_navigation`
@@ -2071,10 +2087,11 @@
 
 ### `stock.move`
 
-доповнена модель · `l10n_ua_fleet`, `l10n_ua_mrp_substitute`, `l10n_ua_workwear`
+доповнена модель · `l10n_ua_fleet`, `l10n_ua_limit_card`, `l10n_ua_mrp_substitute`, `l10n_ua_workwear`
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
+| `ua_limit_card_id` | Many2one | ua.limit.card | `l10n_ua_limit_card` |
 | `ua_substitute_id` | Many2one | ua.bom.substitute | `l10n_ua_mrp_substitute` |
 | `ua_substitute_of_id` | Many2one | product.product | `l10n_ua_mrp_substitute` |
 | `ua_waybill_id` | Many2one | ua.waybill | `l10n_ua_fleet` |

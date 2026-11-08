@@ -71,6 +71,7 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Quality control (ВТК), inspections | done | check items on routing operations, yes/no answers on work orders (`l10n_ua_mrp`); defense contracts block release and acceptance until every item is "yes" and print the results in the serial passport (`l10n_ua_defense`); incoming and outgoing protocols (`l10n_ua_stock_docs`) |
 | Tolling (давальницька сировина) | yes | `l10n_ua_tolling`: customer material in its own owner-tagged location (not valued, off-balance 023), production from it, return of products and leftovers, processing invoice, processor's report with norm vs actual |
 | Workwear and low-value items in use (спецодяг, МШП, передача в експлуатацію), personal card | yes | `l10n_ua_workwear`: free-issue norms per job (item, quantity, wear period; a setting), issue sheets that fill what employees lack and post the cost to the sheet's expense account, quantity tracking per employee with wear-until dates, return to stock at issue cost, write-off act, personal card print |
+| Limit cards (лімітно-забірна картка, М-8): material issue to a workshop within a monthly limit, over-limit issue | типова форма № М-8 (check the current edition); limits from material norms | done: `l10n_ua_limit_card`: one material, one workshop location, one month; limit by hand or from the material demand of planned manufacturing orders; each issue and return is a posted transfer with a running total; over the limit only a stock manager with a reason; closed card takes nothing; М-8 print |
 | Engineering changes, BOM versions | done | `l10n_ua_eco`: change notices with was/now lines, approvals (technologist, quality, military representative), BOM revision N+1 on the effective date |
 | Component substitutes (аналоги, заміни) | done | `l10n_ua_mrp_substitute`: substitutes per BOM line with a factor and priority, usable only after the production manager approves them with a basis (change notice, customer representative's decision); any change drops the approval. "Замінити відсутні" on the MO covers shortages from free stock of approved substitutes and marks each line "instead of"; the consumption check counts the approved swap as consumption of the original |
 | Production planning (MPS/MRP) | done | OCA `mrp_multi_level` over all BOM levels; open defense delivery schedules are demand (`l10n_ua_mrp_plan`) |
@@ -155,7 +156,7 @@ from production output (`l10n_ua_piecework`); approved component substitutes (`l
 contracts (`l10n_ua_guarantee`); measuring instruments and their verification (`l10n_ua_metrology`); workwear and items in use
 (`l10n_ua_workwear`); grants and targeted financing (`l10n_ua_grant`); export control permits
 (`l10n_ua_export_control`); precious metals in products (`l10n_ua_precious_metals`); approved suppliers of critical
-components (`l10n_ua_supplier_approval`).
+components (`l10n_ua_supplier_approval`); limit cards М-8 (`l10n_ua_limit_card`).
 
 Next, in this order:
 

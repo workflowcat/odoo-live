@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 72,
-    "models": 153,
-    "methods": 565,
-    "fields": 365
+    "modules": 73,
+    "models": 154,
+    "methods": 574,
+    "fields": 366
   },
   "areas": [
     {
@@ -6832,6 +6832,88 @@
           "fields": []
         },
         {
+          "model": "ua.limit.card",
+          "ours": true,
+          "modules": [
+            "l10n_ua_limit_card"
+          ],
+          "methods": [
+            {
+              "name": "action_close",
+              "signature": "action_close()",
+              "doc": "",
+              "module": "l10n_ua_limit_card",
+              "file": "addons/l10n_ua_limit_card/models/limit_card.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill_from_productions",
+              "signature": "action_fill_from_productions()",
+              "doc": "Ліміт = потреба в матеріалі за обраними виробничими замовленнями.",
+              "module": "l10n_ua_limit_card",
+              "file": "addons/l10n_ua_limit_card/models/limit_card.py",
+              "decorators": []
+            },
+            {
+              "name": "action_issue",
+              "signature": "action_issue(quantity, reason=None, receiver=None, day=None)",
+              "doc": "Відпустити в цех. Понад ліміт - лише керівник складу з причиною.",
+              "module": "l10n_ua_limit_card",
+              "file": "addons/l10n_ua_limit_card/models/limit_card.py",
+              "decorators": []
+            },
+            {
+              "name": "action_open",
+              "signature": "action_open()",
+              "doc": "",
+              "module": "l10n_ua_limit_card",
+              "file": "addons/l10n_ua_limit_card/models/limit_card.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_limit_card",
+              "file": "addons/l10n_ua_limit_card/models/limit_card.py",
+              "decorators": []
+            },
+            {
+              "name": "action_reopen",
+              "signature": "action_reopen()",
+              "doc": "",
+              "module": "l10n_ua_limit_card",
+              "file": "addons/l10n_ua_limit_card/models/limit_card.py",
+              "decorators": []
+            },
+            {
+              "name": "action_return",
+              "signature": "action_return(quantity, day=None)",
+              "doc": "Повернути невикористаний матеріал з цеху на склад.",
+              "module": "l10n_ua_limit_card",
+              "file": "addons/l10n_ua_limit_card/models/limit_card.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_month",
+              "signature": "ua_month()",
+              "doc": "",
+              "module": "l10n_ua_limit_card",
+              "file": "addons/l10n_ua_limit_card/models/limit_card.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_rows",
+              "signature": "ua_rows()",
+              "doc": "Рядки друку: дата, відпущено, повернуто, наростаючим підсумком, залишок ліміту.",
+              "module": "l10n_ua_limit_card",
+              "file": "addons/l10n_ua_limit_card/models/limit_card.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.navigation",
           "ours": true,
           "modules": [
@@ -9263,11 +9345,20 @@
           "ours": false,
           "modules": [
             "l10n_ua_fleet",
+            "l10n_ua_limit_card",
             "l10n_ua_mrp_substitute",
             "l10n_ua_workwear"
           ],
           "methods": [],
           "fields": [
+            {
+              "name": "ua_limit_card_id",
+              "type": "Many2one",
+              "label": "ua.limit.card",
+              "module": "l10n_ua_limit_card",
+              "file": "addons/l10n_ua_limit_card/models/limit_card.py",
+              "groups": ""
+            },
             {
               "name": "ua_substitute_id",
               "type": "Many2one",
