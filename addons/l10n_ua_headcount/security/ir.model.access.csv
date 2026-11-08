@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_headcount_report_user,ua.headcount.report user,model_ua_headcount_report,hr.group_hr_user,1,1,1,0
+access_ua_headcount_report_manager,ua.headcount.report manager,model_ua_headcount_report,hr.group_hr_manager,1,1,1,1
+access_ua_headcount_month_user,ua.headcount.month user,model_ua_headcount_month,hr.group_hr_user,1,1,1,1

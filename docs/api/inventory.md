@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 84. Моделей: 180. Методів: 692. Збережених полів на чужих моделях: 400.
+Модулів: 85. Моделей: 181. Методів: 697. Збережених полів на чужих моделях: 400.
 
 ## Зарплата
 
@@ -1652,6 +1652,18 @@
 | `action_claim()` | - | `l10n_ua_guarantee` |
 | `action_draft()` | - | `l10n_ua_guarantee` |
 | `action_release()` | - | `l10n_ua_guarantee` |
+
+### `ua.headcount.report`
+
+наша модель · `l10n_ua_headcount`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_compute()` | - | `l10n_ua_headcount` |
+| `action_done()` | - | `l10n_ua_headcount` |
+| `action_draft()` | - | `l10n_ua_headcount` |
+| `action_print()` | - | `l10n_ua_headcount` |
+| `ua_number(value, digits=2)` | Число для друку: дві цифри після коми, кома як роздільник. | `l10n_ua_headcount` |
 
 ### `ua.limit.card`
 

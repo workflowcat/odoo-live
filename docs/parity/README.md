@@ -51,7 +51,8 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 | Civil contracts (ЦПХ) | done | `l10n_ua_gph` |
 | Labour safety: briefings journal, repeat terms by job, medical exams (охорона праці) | done | `l10n_ua_safety`: jobs marked as hazardous with repeat-briefing and medical-exam periods (company settings, check the current edition of the standard regulation), briefings of five kinds for a group of employees with instructor and instructions, a not-passed line does not count, medical exams with result and validity, what blocks an employee today, overdue list, reminders to the manager, journal print |
 | Vacation schedule (графік відпусток) | done | `l10n_ua_vacation_plan`: yearly schedule for the company or a department (employment contracts only), parts with dates in calendar days, checks for missing dates, overlaps, a continuous part of at least 14 days and more days than the employee has (balance on 1 January plus the yearly right), approval only with the body it was agreed with, a task for HR two weeks before each start with a printed notice, moves with a basis keeping the old dates, leave requests from the schedule, print and calendar |
-| Labour statistics, vacancy reports | gap | low priority |
+| Average headcount (середньооблікова кількість) by month, quarter, year | done | `l10n_ua_headcount`: from the П-5 timesheets, weekends as the previous working day, part-time by hours, maternity and childcare leave left out (codes are a setting), headcount at month end, hires, dismissals, hours worked; print |
+| Labour statistics forms, vacancy reports | gap | the numbers come from `l10n_ua_headcount` and payslips; the Держстат form itself is low priority |
 
 ## 3. Trade and procurement (Управління торгівлею)
 
@@ -171,7 +172,7 @@ periodic and type tests gating acceptance (`l10n_ua_product_tests`); labour safe
 (`l10n_ua_price_set`); the doubtful debts reserve (`l10n_ua_bad_debt`); the cash flow statement Ф3
 (`l10n_ua_cashflow`); the cash flow budget with payment request control (`l10n_ua_budget`); the vacation schedule
 (`l10n_ua_vacation_plan`); production defect acts (`l10n_ua_defect`); the statement of changes in equity Ф4
-(`l10n_ua_equity`); the notes Ф5, main sections (`l10n_ua_notes`).
+(`l10n_ua_equity`); the notes Ф5, main sections (`l10n_ua_notes`); the average headcount (`l10n_ua_headcount`).
 
 Next, in this order:
 

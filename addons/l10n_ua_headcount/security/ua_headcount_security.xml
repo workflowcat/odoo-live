@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="rule_ua_headcount_report_company" model="ir.rule">
+    <field name="name">Середньооблікова кількість: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_headcount_report"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+  <record id="rule_ua_headcount_month_company" model="ir.rule">
+    <field name="name">Місяць середньооблікової кількості: лише свої компанії</field>
+    <field name="model_id" ref="model_ua_headcount_month"/>
+    <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+  </record>
+</odoo>

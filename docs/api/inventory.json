@@ -1,8 +1,8 @@
 {
   "totals": {
-    "modules": 84,
-    "models": 180,
-    "methods": 692,
+    "modules": 85,
+    "models": 181,
+    "methods": 697,
     "fields": 400
   },
   "areas": [
@@ -7494,6 +7494,56 @@
               "doc": "",
               "module": "l10n_ua_guarantee",
               "file": "addons/l10n_ua_guarantee/models/ua_guarantee.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.headcount.report",
+          "ours": true,
+          "modules": [
+            "l10n_ua_headcount"
+          ],
+          "methods": [
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "",
+              "module": "l10n_ua_headcount",
+              "file": "addons/l10n_ua_headcount/models/headcount.py",
+              "decorators": []
+            },
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_headcount",
+              "file": "addons/l10n_ua_headcount/models/headcount.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_headcount",
+              "file": "addons/l10n_ua_headcount/models/headcount.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_headcount",
+              "file": "addons/l10n_ua_headcount/models/headcount.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_number",
+              "signature": "ua_number(value, digits=2)",
+              "doc": "Число для друку: дві цифри після коми, кома як роздільник.",
+              "module": "l10n_ua_headcount",
+              "file": "addons/l10n_ua_headcount/models/headcount.py",
               "decorators": []
             }
           ],

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_headcount" model="ir.actions.report">
+    <field name="name">Середньооблікова кількість працівників</field>
+    <field name="model">ua.headcount.report</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_headcount.report_ua_headcount</field>
+    <field name="report_file">l10n_ua_headcount.report_ua_headcount</field>
+    <field name="binding_model_id" ref="model_ua_headcount_report"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">object.name</field>
+  </record>
+
+  <template id="report_ua_headcount">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <style>
+            .ua-doc { font-size: 10px; color: #000; }
+            .ua-doc h3 { font-size: 12px; text-align: center; margin: 4px 0; }
+            .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+            .ua-doc .ua-grid { width: 100%; border-collapse: collapse; }
+            .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; }
+            .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+            .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+            .ua-doc .ua-total td { font-weight: bold; }
+            .ua-doc .ua-sign { width: 100%; margin-top: 18px; }
+          </style>
+          <div class="page ua-doc">
+            <div t-out="doc.company_id.name"/>
+            <h3>Розрахунок середньооблікової кількості штатних працівників</h3>
+            <div class="ua-sub">
+              за період з <span t-out="doc.date_from.strftime('%d.%m.%Y')"/>
+              по <span t-out="doc.date_to.strftime('%d.%m.%Y')"/>
+            </div>
+            <table class="ua-grid">
+              <thead>
+                <tr>
+                  <th>Місяць</th>
+                  <th>Календарних днів</th>
+                  <th>Людино-днів повної ставки</th>
+                  <th>Повна ставка, середня</th>
+                  <th>Неповна ставка: людей / годин / у перерахунку</th>
+                  <th>Середньооблікова</th>
+                  <th>Облікова на кінець місяця (з них поза середньообліковою)</th>
+                  <th>Прийнято</th>
+                  <th>Звільнено</th>
+                  <th>Відпрацьовано людино-годин</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr t-foreach="doc.month_ids" t-as="m">
+                  <td t-out="m.month_start.strftime('%m.%Y')"/>
+                  <td class="ua-num" t-out="m.days"/>
+                  <td class="ua-num" t-out="doc.ua_number(m.person_days, 0)"/>
+                  <td class="ua-num" t-out="doc.ua_number(m.full_average)"/>
+                  <td class="ua-num"><t t-out="m.part_count"/> / <t t-out="doc.ua_number(m.part_hours, 1)"/> / <t t-out="doc.ua_number(m.part_equiv)"/></td>
+                  <td class="ua-num" t-out="doc.ua_number(m.average)"/>
+                  <td class="ua-num"><t t-out="m.on_books_end"/> (<t t-out="m.excluded_end"/>)</td>
+                  <td class="ua-num" t-out="m.hired"/>
+                  <td class="ua-num" t-out="m.dismissed"/>
+                  <td class="ua-num" t-out="doc.ua_number(m.hours, 1)"/>
+                </tr>
+                <tr class="ua-total">
+                  <td colspan="5">За період (сума місячних / <t t-out="doc.months"/>)</td>
+                  <td class="ua-num" t-out="doc.ua_number(doc.average)"/>
+                  <td class="ua-num" t-out="doc.on_books_end"/>
+                  <td class="ua-num" t-out="doc.hired"/>
+                  <td class="ua-num" t-out="doc.dismissed"/>
+                  <td class="ua-num" t-out="doc.ua_number(doc.hours, 1)"/>
+                </tr>
+              </tbody>
+            </table>
+            <p>Середньооблікова кількість за період у цілих одиницях: <b t-out="doc.average_int"/>.
+              Не враховано в середньообліковій: <t t-out="doc.excluded_codes"/>.</p>
+            <table class="ua-sign">
+              <tr>
+                <td>Керівник ____________________</td>
+                <td>Відповідальна особа ____________________</td>
+              </tr>
+            </table>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

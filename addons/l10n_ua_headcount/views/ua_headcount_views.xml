@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_headcount_report_list" model="ir.ui.view">
+    <field name="name">ua.headcount.report.list</field>
+    <field name="model">ua.headcount.report</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="name"/>
+        <field name="company_id" groups="base.group_multi_company"/>
+        <field name="average"/>
+        <field name="on_books_end"/>
+        <field name="state" widget="badge" decoration-success="state == 'done'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_headcount_report_form" model="ir.ui.view">
+    <field name="name">ua.headcount.report.form</field>
+    <field name="model">ua.headcount.report</field>
+    <field name="arch" type="xml">
+      <form>
+        <header>
+          <button name="action_compute" type="object" string="Розрахувати" class="btn-primary" invisible="state != 'draft'"/>
+          <button name="action_done" type="object" string="Затвердити" invisible="state != 'draft' or not month_ids"/>
+          <button name="action_draft" type="object" string="У чернетку" invisible="state != 'done'"/>
+          <button name="action_print" type="object" string="Друк" invisible="not month_ids"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name"/></h1></div>
+          <group>
+            <group>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+              <field name="date_from" readonly="state != 'draft'"/>
+              <field name="date_to" readonly="state != 'draft'"/>
+              <field name="excluded_codes" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="months"/>
+              <field name="average"/>
+              <field name="average_int"/>
+              <field name="on_books_end"/>
+              <field name="hired"/>
+              <field name="dismissed"/>
+              <field name="hours"/>
+              <field name="computed_at"/>
+            </group>
+          </group>
+          <div class="alert alert-warning" role="alert" invisible="not check_text">
+            <field name="check_text" nolabel="1"/>
+          </div>
+          <field name="month_ids" readonly="1">
+            <list>
+              <field name="month_start"/>
+              <field name="days"/>
+              <field name="person_days"/>
+              <field name="full_average"/>
+              <field name="part_count"/>
+              <field name="part_hours"/>
+              <field name="part_equiv"/>
+              <field name="average"/>
+              <field name="on_books_end"/>
+              <field name="excluded_end"/>
+              <field name="hired"/>
+              <field name="dismissed"/>
+              <field name="hours"/>
+              <field name="timesheet_id"/>
+            </list>
+          </field>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_headcount_report" model="ir.actions.act_window">
+    <field name="name">Середньооблікова кількість</field>
+    <field name="res_model">ua.headcount.report</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Розрахунок середньооблікової кількості працівників</p>
+      <p>Місяць, квартал чи рік з табелів П-5: у вихідні - як у попередній робочий день, неповна ставка -
+        пропорційно годинам, відпустки у зв'язку з вагітністю та для догляду за дитиною окремо.</p>
+    </field>
+  </record>
+</odoo>
