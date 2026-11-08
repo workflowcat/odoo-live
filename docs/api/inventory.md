@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 73. Моделей: 154. Методів: 574. Збережених полів на чужих моделях: 366.
+Модулів: 74. Моделей: 155. Методів: 582. Збережених полів на чужих моделях: 375.
 
 ## Зарплата
 
@@ -1371,13 +1371,14 @@
 
 ### `ua.defense.acceptance`
 
-наша модель · `l10n_ua_defense`
+наша модель · `l10n_ua_defense`, `l10n_ua_product_tests`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
 | `action_cancel()` | - | `l10n_ua_defense` |
 | `action_done()` | - | `l10n_ua_defense` |
 | `action_done()` | - | `l10n_ua_defense` |
+| `action_done()` | - | `l10n_ua_product_tests` |
 | `action_fill_from_picking()` | Рядки з відвантаження: виріб, кількість і серійні номери. | `l10n_ua_defense` |
 | `action_print()` | - | `l10n_ua_defense` |
 | `action_reset_draft()` | - | `l10n_ua_defense` |
@@ -1403,7 +1404,7 @@
 
 ### `ua.eco`
 
-наша модель · `l10n_ua_eco`
+наша модель · `l10n_ua_eco`, `l10n_ua_product_tests`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1588,6 +1589,18 @@
 | `actual_rows()` | План проти замовлень за класами ДК 021: [{code, name, planned, ordered, left, level}]. | `l10n_ua_procurement_plan` |
 | `prozorro_plans()` | Предмети плану у вигляді планів API Prozorro (без процедури і звіту - не йдуть). | `l10n_ua_procurement_plan` |
 | `subject_rows()` | Предмети закупівлі: [{key, dk021, name, kind, total, threshold, lines}]. | `l10n_ua_procurement_plan` |
+
+### `ua.product.test`
+
+наша модель · `l10n_ua_product_tests`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_done()` | - | `l10n_ua_product_tests` |
+| `action_draft()` | - | `l10n_ua_product_tests` |
+| `action_print()` | - | `l10n_ua_product_tests` |
+| `ua_date(day)` | - | `l10n_ua_product_tests` |
+| `ua_kind_label()` | - | `l10n_ua_product_tests` |
 
 ### `ua.prro.receipt`
 
@@ -1998,11 +2011,13 @@
 
 ### `product.template`
 
-доповнена модель · `l10n_ua_customs`, `l10n_ua_defense`, `l10n_ua_dk021`, `l10n_ua_export_control`, `l10n_ua_mrp`, `l10n_ua_precious_metals`, `l10n_ua_price_label`, `l10n_ua_stock_docs`, `l10n_ua_supplier_approval`, `l10n_ua_vat`
+доповнена модель · `l10n_ua_customs`, `l10n_ua_defense`, `l10n_ua_dk021`, `l10n_ua_export_control`, `l10n_ua_mrp`, `l10n_ua_precious_metals`, `l10n_ua_price_label`, `l10n_ua_product_tests`, `l10n_ua_stock_docs`, `l10n_ua_supplier_approval`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
+| `ua_acceptance_block(day)` | Чому виріб зараз не можна приймати, або порожній рядок. | `l10n_ua_product_tests` |
 | `ua_assembly()` | Креслення і операції з позиціями - усе, що треба екрану збирання. | `l10n_ua_mrp` |
+| `ua_test_status(day=None)` | Коротко для списку і картки виробу. | `l10n_ua_product_tests` |
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
@@ -2017,8 +2032,17 @@
 | `ua_export_controlled` | Boolean | Під експортним контролем | `l10n_ua_export_control` |
 | `ua_label_content` | Float | Вміст упаковки | `l10n_ua_price_label` |
 | `ua_label_unit` | Selection | - | `l10n_ua_price_label` |
+| `ua_periodic_first_due` | Date | Перші періодичні - до | `l10n_ua_product_tests` |
+| `ua_periodic_last_id` | Many2one | ua.product.test | `l10n_ua_product_tests` |
+| `ua_periodic_months` | Integer | Періодичні випробування, раз на (міс.) | `l10n_ua_product_tests` |
+| `ua_periodic_valid_until` | Date | Періодичні діють до | `l10n_ua_product_tests` |
 | `ua_precious_ids` | One2many | ua.precious.content | `l10n_ua_precious_metals` |
 | `ua_size` | Selection | Габарит | `l10n_ua_stock_docs` |
+| `ua_test_ids` | One2many | ua.product.test | `l10n_ua_product_tests` |
+| `ua_test_notify_days` | Integer | Нагадати про випробування за, днів | `l10n_ua_product_tests` |
+| `ua_test_program` | Char | Програма і методика випробувань | `l10n_ua_product_tests` |
+| `ua_type_test_reason` | Char | Чому потрібні типові | `l10n_ua_product_tests` |
+| `ua_type_test_required` | Boolean | Потрібні типові випробування | `l10n_ua_product_tests` |
 | `ua_uktzed` | Char | Код УКТ ЗЕД | `l10n_ua_vat` |
 | `ua_vat_relief_id` | Many2one | ua.vat.relief | `l10n_ua_vat` |
 | `ua_vat_treatment` | Selection | Режим ПДВ товару | `l10n_ua_vat` |

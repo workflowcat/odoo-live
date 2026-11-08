@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_product_test_user,ua.product.test user,model_ua_product_test,base.group_user,1,0,0,0
+access_ua_product_test_mrp,ua.product.test mrp,model_ua_product_test,mrp.group_mrp_user,1,1,1,0
+access_ua_product_test_manager,ua.product.test manager,model_ua_product_test,mrp.group_mrp_manager,1,1,1,1

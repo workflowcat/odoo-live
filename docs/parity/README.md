@@ -126,6 +126,7 @@ payload in our catalogues is a camera; nothing here covers munitions.
 | Product passport / log per serial, spare parts kits (ЗІП) | contract terms | done: passport per serial with components' serials; ЗІП as a kit BOM in the drone pack |
 | Precious metals in products (облік дорогоцінних металів): content per component, the passport section, receipts and use for the yearly report | Закон «Про державне регулювання видобутку, виробництва і використання дорогоцінних металів і дорогоцінного каміння та контроль за операціями з ними»; накази Мінфіну про облік (check the current edition) | done: `l10n_ua_precious_metals`: grams per metal on components from datasheets, rolled up through multi-level BOMs plus the product's own (plating), "Відомості про вміст дорогоцінних металів" in the product passport, period statement per metal: received, used in production, in finished products, shipped, written off, on hand |
 | Design changes agreed with the customer's representative, revision on every serial | contract terms; ЄСКД change-notice practice | done: `l10n_ua_eco`; the military representative signs when the product was made under a defense contract; the passport shows the revision |
+| Periodic and type tests of serial products; acceptance suspended while tests are failed, overdue or pending after a design change | the product's technical conditions and the contract (periodicity and scope); state defense standards on product acceptance as applied by the customer (check the current edition) | done: `l10n_ua_product_tests`: periodicity per product with the first due date, test protocols (periodic, type, qualification) with samples by serial, result, place and representative, validity from the protocol date; the acceptance act is refused while periodic tests failed or expired or type tests are pending; a design change can require type tests; reminders; protocol print |
 | Claims (рекламації) from units: deadlines, warranty, root cause, replacement, repeat failures | contract terms | done: `l10n_ua_claim`; the passport prints the claim history; a design cause opens a change notice |
 | Imported components: customs declaration, duty and VAT in cost | Митний кодекс, ст. 49-58; ПКУ, ст. 190 | done: `l10n_ua_customs`; duty-free import under defense benefits goes as a 0 % duty rate or a VAT basis on the line |
 | Reservation of employees | постанова КМУ № 76 (2023) and its changes | done except the Дія request list: status, quota, wage floor, deadlines; the numbers are settings on the status, checked against the current edition |
@@ -156,7 +157,8 @@ from production output (`l10n_ua_piecework`); approved component substitutes (`l
 contracts (`l10n_ua_guarantee`); measuring instruments and their verification (`l10n_ua_metrology`); workwear and items in use
 (`l10n_ua_workwear`); grants and targeted financing (`l10n_ua_grant`); export control permits
 (`l10n_ua_export_control`); precious metals in products (`l10n_ua_precious_metals`); approved suppliers of critical
-components (`l10n_ua_supplier_approval`); limit cards М-8 (`l10n_ua_limit_card`).
+components (`l10n_ua_supplier_approval`); limit cards М-8 (`l10n_ua_limit_card`);
+periodic and type tests gating acceptance (`l10n_ua_product_tests`).
 
 Next, in this order:
 

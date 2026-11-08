@@ -225,6 +225,11 @@ Notable changes for people who run or build on this code. Module-level API chang
   set by hand or from the material demand of chosen manufacturing orders. Issues and returns are posted
   transfers with a running total; over the limit only a stock manager may issue, with a reason, and the line
   is marked. A closed card takes no issues. М-8 print. Tests: `ua_limit_card`.
+- `l10n_ua_product_tests`: periodic and type tests of serial products. A product gets a test period in
+  months and a first due date; protocols (periodic, type, qualification) record samples by serial number,
+  result, place and the customer's representative. The acceptance act is refused while periodic tests failed
+  or expired, or while type tests are pending after a design change that asks for them. Reminders and a
+  protocol print. Tests: `ua_product_tests`.
 
 ### Changed
 - `l10n_ua_correspondence`: a reply made with the "Відповісти" button now gets an outgoing number

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="product_template_form_view_ua_tests" model="ir.ui.view">
+    <field name="name">product.template.form.ua.tests</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_form_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//notebook" position="inside">
+        <page string="Випробування" name="ua_tests">
+          <group>
+            <group>
+              <field name="ua_periodic_months"/>
+              <field name="ua_periodic_first_due" invisible="ua_periodic_months &lt;= 0"/>
+              <field name="ua_periodic_valid_until" invisible="ua_periodic_months &lt;= 0"/>
+              <field name="ua_periodic_last_id" invisible="not ua_periodic_last_id"/>
+              <field name="ua_test_notify_days" invisible="ua_periodic_months &lt;= 0"/>
+            </group>
+            <group>
+              <field name="ua_test_program"/>
+              <field name="ua_type_test_required"/>
+              <field name="ua_type_test_reason" invisible="not ua_type_test_required"/>
+            </group>
+          </group>
+          <field name="ua_test_ids" readonly="1">
+            <list decoration-danger="result == 'failed'" decoration-muted="state == 'draft'">
+              <field name="name"/>
+              <field name="kind"/>
+              <field name="date"/>
+              <field name="result" widget="badge" decoration-success="result == 'passed'"
+                     decoration-danger="result == 'failed'"/>
+              <field name="valid_until"/>
+              <field name="state"/>
+            </list>
+          </field>
+        </page>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="ua_eco_form_ua_type_test" model="ir.ui.view">
+    <field name="name">ua.eco.form.ua.type.test</field>
+    <field name="model">ua.eco</field>
+    <field name="inherit_id" ref="l10n_ua_eco.view_ua_eco_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='effective_date']" position="after">
+        <field name="ua_type_test" readonly="state == 'applied'"/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_ua_product_test_list" model="ir.ui.view">
+    <field name="name">ua.product.test.list</field>
+    <field name="model">ua.product.test</field>
+    <field name="arch" type="xml">
+      <list decoration-danger="result == 'failed'" decoration-info="state == 'draft'">
+        <field name="name"/>
+        <field name="product_tmpl_id"/>
+        <field name="kind"/>
+        <field name="date"/>
+        <field name="result" widget="badge" decoration-success="result == 'passed'"
+               decoration-danger="result == 'failed'"/>
+        <field name="valid_until"/>
+        <field name="representative" optional="hide"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+        <field name="state" widget="badge"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_product_test_form" model="ir.ui.view">
+    <field name="name">ua.product.test.form</field>
+    <field name="model">ua.product.test</field>
+    <field name="arch" type="xml">
+      <form>
+        <header>
+          <button name="action_done" string="Затвердити" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+          <button name="action_draft" string="В чернетку" type="object" invisible="state != 'done'"
+                  groups="mrp.group_mrp_manager"/>
+          <button name="action_print" string="Друк протоколу" type="object"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title">
+            <label for="name"/>
+            <h1><field name="name" placeholder="Номер протоколу" readonly="state != 'draft'"/></h1>
+          </div>
+          <group>
+            <group>
+              <field name="product_tmpl_id" readonly="state != 'draft'"/>
+              <field name="kind" readonly="state != 'draft'"/>
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="result" readonly="state != 'draft'"/>
+              <field name="valid_until" invisible="kind != 'periodic'" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="program"/>
+              <field name="eco_id" invisible="kind != 'type'"/>
+              <field name="basis"/>
+              <field name="place"/>
+              <field name="representative"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+            </group>
+          </group>
+          <group>
+            <field name="lot_ids" widget="many2many_tags" readonly="state != 'draft'"/>
+          </group>
+          <field name="findings" placeholder="Що перевіряли, що виявили, висновок"/>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_product_test_search" model="ir.ui.view">
+    <field name="name">ua.product.test.search</field>
+    <field name="model">ua.product.test</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="name"/>
+        <field name="product_tmpl_id"/>
+        <filter name="periodic" string="Періодичні" domain="[('kind', '=', 'periodic')]"/>
+        <filter name="type_tests" string="Типові" domain="[('kind', '=', 'type')]"/>
+        <separator/>
+        <filter name="failed" string="Не витримано" domain="[('result', '=', 'failed')]"/>
+        <filter name="draft" string="Чернетки" domain="[('state', '=', 'draft')]"/>
+        <separator/>
+        <filter name="date" string="Дата" date="date"/>
+        <group>
+          <filter name="by_product" string="Виріб" context="{'group_by': 'product_tmpl_id'}"/>
+          <filter name="by_kind" string="Вид" context="{'group_by': 'kind'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_product_test" model="ir.actions.act_window">
+    <field name="name">Випробування виробів</field>
+    <field name="res_model">ua.product.test</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Додайте протокол випробувань</p>
+      <p>Не витримані або прострочені періодичні випробування призупиняють приймання виробу.</p>
+    </field>
+  </record>
+
+  <record id="action_ua_tested_products" model="ir.actions.act_window">
+    <field name="name">Вироби з періодичними випробуваннями</field>
+    <field name="res_model">product.template</field>
+    <field name="view_mode">list,form</field>
+    <field name="domain">['|', ('ua_periodic_months', '&gt;', 0), ('ua_type_test_required', '=', True)]</field>
+  </record>
+</odoo>

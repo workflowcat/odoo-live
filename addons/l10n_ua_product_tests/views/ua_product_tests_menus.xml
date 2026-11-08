@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_ua_product_test" name="Випробування виробів" parent="l10n_ua_defense.menu_ua_defense_root"
+            action="action_ua_product_test" sequence="45"/>
+  <menuitem id="menu_ua_tested_products" name="Вироби з періодичними випробуваннями"
+            parent="l10n_ua_defense.menu_ua_defense_root" action="action_ua_tested_products" sequence="46"/>
+</odoo>

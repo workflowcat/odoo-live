@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 73,
-    "models": 154,
-    "methods": 574,
-    "fields": 366
+    "modules": 74,
+    "models": 155,
+    "methods": 582,
+    "fields": 375
   },
   "areas": [
     {
@@ -6268,7 +6268,8 @@
           "model": "ua.defense.acceptance",
           "ours": true,
           "modules": [
-            "l10n_ua_defense"
+            "l10n_ua_defense",
+            "l10n_ua_product_tests"
           ],
           "methods": [
             {
@@ -6293,6 +6294,14 @@
               "doc": "",
               "module": "l10n_ua_defense",
               "file": "addons/l10n_ua_defense/models/ua_defense_acceptance.py",
+              "decorators": []
+            },
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_product_tests",
+              "file": "addons/l10n_ua_product_tests/models/product_tests.py",
               "decorators": []
             },
             {
@@ -6389,7 +6398,8 @@
           "model": "ua.eco",
           "ours": true,
           "modules": [
-            "l10n_ua_eco"
+            "l10n_ua_eco",
+            "l10n_ua_product_tests"
           ],
           "methods": [
             {
@@ -7208,6 +7218,56 @@
               "doc": "Предмети закупівлі: [{key, dk021, name, kind, total, threshold, lines}].",
               "module": "l10n_ua_procurement_plan",
               "file": "addons/l10n_ua_procurement_plan/models/ua_procurement_plan.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.product.test",
+          "ours": true,
+          "modules": [
+            "l10n_ua_product_tests"
+          ],
+          "methods": [
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_product_tests",
+              "file": "addons/l10n_ua_product_tests/models/product_tests.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_product_tests",
+              "file": "addons/l10n_ua_product_tests/models/product_tests.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_product_tests",
+              "file": "addons/l10n_ua_product_tests/models/product_tests.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_date",
+              "signature": "ua_date(day)",
+              "doc": "",
+              "module": "l10n_ua_product_tests",
+              "file": "addons/l10n_ua_product_tests/models/product_tests.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_kind_label",
+              "signature": "ua_kind_label()",
+              "doc": "",
+              "module": "l10n_ua_product_tests",
+              "file": "addons/l10n_ua_product_tests/models/product_tests.py",
               "decorators": []
             }
           ],
@@ -8941,17 +9001,34 @@
             "l10n_ua_mrp",
             "l10n_ua_precious_metals",
             "l10n_ua_price_label",
+            "l10n_ua_product_tests",
             "l10n_ua_stock_docs",
             "l10n_ua_supplier_approval",
             "l10n_ua_vat"
           ],
           "methods": [
             {
+              "name": "ua_acceptance_block",
+              "signature": "ua_acceptance_block(day)",
+              "doc": "Чому виріб зараз не можна приймати, або порожній рядок.",
+              "module": "l10n_ua_product_tests",
+              "file": "addons/l10n_ua_product_tests/models/product_tests.py",
+              "decorators": []
+            },
+            {
               "name": "ua_assembly",
               "signature": "ua_assembly()",
               "doc": "Креслення і операції з позиціями - усе, що треба екрану збирання.",
               "module": "l10n_ua_mrp",
               "file": "addons/l10n_ua_mrp/models/product_template.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_test_status",
+              "signature": "ua_test_status(day=None)",
+              "doc": "Коротко для списку і картки виробу.",
+              "module": "l10n_ua_product_tests",
+              "file": "addons/l10n_ua_product_tests/models/product_tests.py",
               "decorators": []
             }
           ],
@@ -9045,6 +9122,38 @@
               "groups": ""
             },
             {
+              "name": "ua_periodic_first_due",
+              "type": "Date",
+              "label": "Перші періодичні - до",
+              "module": "l10n_ua_product_tests",
+              "file": "addons/l10n_ua_product_tests/models/product_tests.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_periodic_last_id",
+              "type": "Many2one",
+              "label": "ua.product.test",
+              "module": "l10n_ua_product_tests",
+              "file": "addons/l10n_ua_product_tests/models/product_tests.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_periodic_months",
+              "type": "Integer",
+              "label": "Періодичні випробування, раз на (міс.)",
+              "module": "l10n_ua_product_tests",
+              "file": "addons/l10n_ua_product_tests/models/product_tests.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_periodic_valid_until",
+              "type": "Date",
+              "label": "Періодичні діють до",
+              "module": "l10n_ua_product_tests",
+              "file": "addons/l10n_ua_product_tests/models/product_tests.py",
+              "groups": ""
+            },
+            {
               "name": "ua_precious_ids",
               "type": "One2many",
               "label": "ua.precious.content",
@@ -9058,6 +9167,46 @@
               "label": "Габарит",
               "module": "l10n_ua_stock_docs",
               "file": "addons/l10n_ua_stock_docs/models/product_template.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_test_ids",
+              "type": "One2many",
+              "label": "ua.product.test",
+              "module": "l10n_ua_product_tests",
+              "file": "addons/l10n_ua_product_tests/models/product_tests.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_test_notify_days",
+              "type": "Integer",
+              "label": "Нагадати про випробування за, днів",
+              "module": "l10n_ua_product_tests",
+              "file": "addons/l10n_ua_product_tests/models/product_tests.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_test_program",
+              "type": "Char",
+              "label": "Програма і методика випробувань",
+              "module": "l10n_ua_product_tests",
+              "file": "addons/l10n_ua_product_tests/models/product_tests.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_type_test_reason",
+              "type": "Char",
+              "label": "Чому потрібні типові",
+              "module": "l10n_ua_product_tests",
+              "file": "addons/l10n_ua_product_tests/models/product_tests.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_type_test_required",
+              "type": "Boolean",
+              "label": "Потрібні типові випробування",
+              "module": "l10n_ua_product_tests",
+              "file": "addons/l10n_ua_product_tests/models/product_tests.py",
               "groups": ""
             },
             {
