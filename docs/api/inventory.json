@@ -1,8 +1,8 @@
 {
   "totals": {
     "modules": 105,
-    "models": 212,
-    "methods": 815,
+    "models": 213,
+    "methods": 817,
     "fields": 445
   },
   "areas": [
@@ -9490,6 +9490,32 @@
               "name": "action_print",
               "signature": "action_print()",
               "doc": "",
+              "module": "l10n_ua_return_act",
+              "file": "addons/l10n_ua_return_act/models/ua_return_act.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.return.act.line",
+          "ours": true,
+          "modules": [
+            "l10n_ua_return_act"
+          ],
+          "methods": [
+            {
+              "name": "decision_label",
+              "signature": "decision_label()",
+              "doc": "Назва рішення для друку.",
+              "module": "l10n_ua_return_act",
+              "file": "addons/l10n_ua_return_act/models/ua_return_act.py",
+              "decorators": []
+            },
+            {
+              "name": "issue_label",
+              "signature": "issue_label()",
+              "doc": "Назва невідповідності для друку.",
               "module": "l10n_ua_return_act",
               "file": "addons/l10n_ua_return_act/models/ua_return_act.py",
               "decorators": []

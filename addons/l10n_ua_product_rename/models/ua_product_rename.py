@@ -115,7 +115,8 @@ class UaProductRenameLine(models.Model):
                 raise UserError(_("У рядку %s нічого не змінюється.") % product.display_name)
             template.name = new_name
             values.update(mode="rename", quantity_new=values["quantity_old"], cost_new=product.standard_price)
-        elif not self.env["stock.move"].search_count([("product_id", "=", product.id)], limit=1):
+        elif not quants and not self.env["stock.move"].search_count([("product_id", "=", product.id)], limit=1):
+            # Ні залишку, ні руху: одиницю міняють у самій картці.
             template.write({"name": new_name, "uom_id": self.new_uom_id.id})
             values.update(mode="uom", quantity_new=values["quantity_old"], cost_new=product.standard_price)
         else:

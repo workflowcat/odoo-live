@@ -140,7 +140,9 @@ class UaReturnAct(models.Model):
                 raise UserError(_("Невідповідностей немає: усі рядки «Відповідає». Акт не потрібен."))
         self.write({"state": "done"})
         for act in self:
-            for source in act.refund_id | act.picking_id:
+            for source in (act.refund_id, act.picking_id):
+                if not source:
+                    continue
                 source.message_post(body=_("Акт невідповідності %(act)s: розбіжність %(amount)s.",
                                            act=act.name, amount=act.amount_diff))
         return True
