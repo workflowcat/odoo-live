@@ -45,6 +45,10 @@
                   <field name="days_sick" string="Лікарняний" readonly="1" optional="show"/>
                   <field name="days_unpaid" string="Без збереження" readonly="1" optional="hide"/>
                   <field name="days_mat" string="Декрет" readonly="1" optional="hide"/>
+                  <field name="days_trip" string="Відрядження" readonly="1" optional="hide"/>
+                  <field name="days_study" string="Навчальна" readonly="1" optional="hide"/>
+                  <field name="days_mil" string="Військова служба" readonly="1" optional="hide"/>
+                  <field name="days_other" string="Інші відсутності" readonly="1" optional="hide"/>
                   <field name="note"/>
                 </list>
               </field>

@@ -182,8 +182,7 @@ class UaTimesheetSheet(models.Model):
         leave_employees = leaves.mapped("employee_id")
         lines_by_emp = {line.employee_id: line for line in self.line_ids}
         mismatched = leave_employees.filtered(
-            lambda e: (lines_by_emp[e].days_vac + lines_by_emp[e].days_sick
-                      + lines_by_emp[e].days_unpaid + lines_by_emp[e].days_mat) == 0 if e in lines_by_emp else False)
+            lambda e: lines_by_emp[e]._absent_days() == 0 if e in lines_by_emp else False)
         if mismatched:
             out.append(self._check_warn(
                 "Затверджена відсутність не відображена в днях табеля", fact=len(mismatched),
@@ -257,11 +256,18 @@ class UaTimesheetLine(models.Model):
     days_sick = fields.Integer("ТН", compute="_compute_totals", store=True)
     days_unpaid = fields.Integer("НА", compute="_compute_totals", store=True)
     days_mat = fields.Integer("ВП", compute="_compute_totals", store=True)
+    days_trip = fields.Integer("ВД", compute="_compute_totals", store=True, help="Дні відрядження")
+    days_study = fields.Integer("Н", compute="_compute_totals", store=True, help="Дні навчальної відпустки")
+    days_mil = fields.Integer("ІН", compute="_compute_totals", store=True,
+                              help="Дні військової служби: місце роботи зберігається, зарплати немає")
+    days_other = fields.Integer("Інші", compute="_compute_totals", store=True,
+                                help="Інші дні відсутності: додаткова відпустка на дітей (Д), відпустка для "
+                                     "догляду за дитиною (ДД), інші причини неявок (І)")
     night_hours = fields.Float("Нічні години", help="Години в нічну зміну (22:00-6:00) за місяць - для надбавки 20 % (ст. 108 КЗпП)")
     note = fields.Char("Примітка")
 
     @api.depends("employee_id", "sheet_id.year", "sheet_id.month", "days_worked",
-                 "days_vac", "days_sick", "days_unpaid", "days_mat")
+                 "days_vac", "days_sick", "days_unpaid", "days_mat", "days_trip", "days_study", "days_mil", "days_other")
     def _compute_norm(self):
         """Норма місяця: робочі дні за виробничим календарем (свята - через відсутності
         у resource.calendar), години = тижнева норма версії контракту × робочі дні / 5 × ставка.
@@ -288,7 +294,7 @@ class UaTimesheetLine(models.Model):
                 hours = round(weekly_hours * working_days / 5.0 * fte, 2) if working_days else 0.0
             line.norm_days = days
             line.norm_hours = hours
-            absent = line.days_vac + line.days_sick + line.days_unpaid + line.days_mat
+            absent = line._absent_days()
             line.diff_days = round(line.days_worked + absent - days, 2)
 
     def _day_cells(self, last_day=31):
@@ -307,3 +313,13 @@ class UaTimesheetLine(models.Model):
             line.days_sick = codes.count("ТН")
             line.days_unpaid = codes.count("НА")
             line.days_mat = codes.count("ВП")
+            line.days_trip = codes.count("ВД")
+            line.days_study = codes.count("Н")
+            line.days_mil = codes.count("ІН")
+            line.days_other = codes.count("Д") + codes.count("ДД") + codes.count("І")
+
+    def _absent_days(self):
+        """Усі дні відсутності рядка: разом із фактом вони дають норму місяця."""
+        self.ensure_one()
+        return (self.days_vac + self.days_sick + self.days_unpaid + self.days_mat
+                + self.days_trip + self.days_study + self.days_mil + self.days_other)

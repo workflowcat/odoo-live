@@ -321,6 +321,23 @@ class TestHistoryOfOneEmployee(TransactionCase):
         later.action_refill()
         self.assertNotIn(self.employee, later.line_ids.mapped("employee_id"), "у квітні його вже немає")
 
+    def test_timesheet_counts_trip_study_and_service(self):
+        """П-5: дні відрядження, навчальної відпустки і військової служби мають свої підсумки
+        і разом із фактом дають норму місяця. Раніше вони не рахувалися ніде, і рядок табеля
+        показував «менше норми»."""
+        for code, date_from, date_to in (("TRIP", "2025-03-03", "2025-03-05"), ("STUDY", "2025-03-10", "2025-03-11"),
+                                         ("MIL", "2025-03-24", "2025-03-31")):
+            leave_type = self.env["hr.leave.type"].search([("work_entry_type_id.code", "=", code)], limit=1)
+            self.env["hr.leave"].with_context(leave_skip_state_check=True, mail_notrack=True).create({
+                "employee_id": self.employee.id, "holiday_status_id": leave_type.id,
+                "request_date_from": date_from, "request_date_to": date_to}).sudo().action_approve()
+        sheet = self.env["ua.timesheet.sheet"].create({"company_id": self.company.id, "year": 2025, "month": 3})
+        sheet.action_refill()
+        line = sheet.line_ids.filtered(lambda l: l.employee_id == self.employee)
+        self.assertEqual((line.days_trip, line.days_study, line.days_mil), (3, 2, 6))
+        self.assertEqual(line.d24, "ІН", "військова служба - «інші неявки, передбачені законодавством»")
+        self.assertAlmostEqual(line.diff_days, 0.0, msg="факт плюс усі відсутності - рівно норма")
+
 
 @tagged("post_install", "-at_install", "ua_regress")
 class TestPayrollParams2025(TransactionCase):

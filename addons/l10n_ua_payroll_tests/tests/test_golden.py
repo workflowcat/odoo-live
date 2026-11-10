@@ -7,6 +7,7 @@ scripts/payroll_check.py через JSON-RPC на живому стенді). Т
 
 Один сценарій - один метод тесту, тому в звіті падіння видно поіменно.
 """
+import calendar
 import json
 import logging
 import os
@@ -133,7 +134,7 @@ class TestGoldenScenarios(TransactionCase):
                 "struct_id": self.structure.id, "resource_calendar_id": self.calendar.id,
             })
         if setup.get("history"):
-            self._earnings_history(employee, setup["history"])
+            self._earnings_history(employee, setup["history"], setup.get("history_mil", 0))
         # нарахування днів відпустки мають існувати до заявки: рідна перевірка hr_holidays
         # не проводить відпустку без нарахування
         employee.sudo()._ua_ensure_leave_allocations()
@@ -141,16 +142,21 @@ class TestGoldenScenarios(TransactionCase):
             self._leave(employee, code, date_from, date_to)
         return employee, version
 
-    def _earnings_history(self, employee, gross):
-        """12 місяців до періоду листка: серпень 2025 - липень 2026."""
+    def _earnings_history(self, employee, gross, on_service=0):
+        """12 місяців до періоду листка: серпень 2025 - липень 2026.
+
+        `on_service` останніх місяців людина була на військовій службі: заробітку немає,
+        усі календарні дні виключено (п. 4 Порядку 100)."""
         history = self.env["ua.earnings.history"].sudo()
         for step in range(12):
             year, month = (2025, 8 + step) if 8 + step <= 12 else (2026, 8 + step - 12)
+            serving = step >= 12 - on_service
             history.create({
                 "employee_id": employee.id,
                 "month": "%d-%02d-01" % (year, month),
-                "gross": gross,
-                "work_days": WORK_DAYS.get((year, month), 21),
+                "gross": 0.0 if serving else gross,
+                "work_days": 0.0 if serving else WORK_DAYS.get((year, month), 21),
+                "excluded_days": calendar.monthrange(year, month)[1] if serving else 0,
             })
 
     def _leave(self, employee, code, date_from, date_to):

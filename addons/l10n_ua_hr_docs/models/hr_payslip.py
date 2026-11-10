@@ -60,7 +60,7 @@ class HrPayslip(models.Model):
         line = self._ua_timesheet_line()
         if not line:
             return res
-        absent_days = line.days_vac + line.days_sick + line.days_unpaid + line.days_mat
+        absent_days = line._absent_days()
         hours_day = line.hours_day or (line.norm_hours / line.norm_days if line.norm_days else 8.0)
         for vals in res:
             if vals.get("code") == "WORK100":

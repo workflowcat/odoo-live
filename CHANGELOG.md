@@ -6,6 +6,23 @@ Notable changes for people who run or build on this code. Module-level API chang
 ## Unreleased
 
 ### Added
+- Vacation pay across months: the payslip of the month a vacation starts pays all its days, as the law asks for
+  pay before the vacation (ст. 21 ЗУ «Про відпустки»); the next month's payslip does not pay them again. ЄСВ and
+  Д1 count each month's share on its own: Д1 rows with accrual type code 10 for the current and each later month,
+  each with that month's maximum base. Earnings history puts vacation pay into the month its days fall in.
+  Golden scenario 39.
+- Military service and unpaid leave leave the average-pay window: a posted payslip writes those calendar days as
+  excluded days of its month; a window without any pay falls back to the wage (п. 4 Порядку 100). Golden
+  scenarios 40 and 41.
+- Annex Д6 of the unified tax report (special seniority, J0510611): one row per person whose contract version has
+  the special seniority mark and a basis code - first and last day, days without unpaid leave, the month's norm
+  in calendar days, the attestation order number and date; the main form marks and counts the annex; a
+  corrective report removes the filed rows and enters the new ones. New contract version fields for the
+  attestation order.
+- Timesheet П-5 totals for business trips (ВД), study leave (Н), military service (ІН) and other absences (Д, ДД,
+  І): shown in the list and the print, counted in the norm check and in the payslip's worked days.
+- Phone app shortcuts: Odoo 19 CE installs as an app from the phone's browser; its long-press shortcuts now
+  start with Сканування, Заявки на оплату and Відсутності, each shown only to people who see that menu.
 - Company templates for HR orders (`l10n_ua_hr_order_template`): the order's title and text with
   placeholders such as {{працівник}}, {{посада}}, {{з_дати}}, {{оклад}}; a new order takes its company's
   template for its kind, and the print uses it instead of the standard text. Three samples (hire, leave,

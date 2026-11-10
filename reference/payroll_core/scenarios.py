@@ -16,7 +16,7 @@ from datetime import date
 from . import calendar_ua as cal
 from .model import CpiMonth, EarningsMonth, Employee, Leaves, Slip, WorkedTime
 
-KNOWN_SETUP = {"start", "end", "history", "leaves", "years", "rehire", "index_base", "diia_city"}
+KNOWN_SETUP = {"start", "end", "history", "history_mil", "leaves", "years", "rehire", "index_base", "diia_city"}
 KNOWN_EMPLOYEE = {"ua_main_job", "ua_fte", "ua_psp", "ua_esv_category", "ua_contract_kind"}
 KNOWN_LEAVES = {"VAC", "SICK", "SICK_CARE", "MAT", "STUDY", "TRIP", "CHILD_VAC", "MIL"}
 KNOWN_PSP = {"none", "base", "child", "child150", "s150", "s200"}
@@ -90,19 +90,24 @@ def _history(scenario, year, month):
 
     Постанова КМУ 100 (відпускні, відрядження) і Постанова КМУ 1266 (лікарняні, декрет)
     беруть той самий розрахунковий період. `setup.history` - місячний заробіток; сценарії
-    описують рівний заробіток усі місяці."""
+    описують рівний заробіток усі місяці. `setup.history_mil` - скільки останніх місяців
+    людина була на військовій службі: заробітку немає, усі дні виключено з періоду."""
     gross = scenario.get("setup", {}).get("history")
     if not gross:
         return []
+    on_service = int(scenario.get("setup", {}).get("history_mil") or 0)
     rows = []
     for back in range(HISTORY_MONTHS, 0, -1):
         total = (year * 12 + month - 1) - back
         row_year, row_month = divmod(total, 12)
         row_month += 1
+        serving = back <= on_service
         rows.append(EarningsMonth(
             month=date(row_year, row_month, 1),
-            gross=float(gross),
-            work_days=cal.workdays_in_month(row_year, row_month),
+            gross=0.0 if serving else float(gross),
+            work_days=0.0 if serving else cal.workdays_in_month(row_year, row_month),
+            excluded_days=float(cal.calendar_days_between(
+                date(row_year, row_month, 1), cal.month_end(row_year, row_month))) if serving else 0.0,
         ))
     return rows
 
@@ -123,6 +128,20 @@ def _leaves(scenario, month_start, month_finish, hired, fired):
         absence[code] = absence.get(code, 0) + cal.workdays_between(in_month, in_month_end)
         if code == "VAC":
             leaves.vac_days += days
+            if start < month_start:
+                # ст. 21 ЗУ про відпустки: відпускні платять до початку відпустки, тож дні цього
+                # місяця оплатив листок місяця, у якому відпустка почалася
+                leaves.vac_paid_days += days
+            elif finish > month_finish:
+                ahead = dict(leaves.vac_ahead)
+                seg_start = date.fromordinal(month_finish.toordinal() + 1)
+                while seg_start <= finish:
+                    seg_end = min(cal.month_end(seg_start.year, seg_start.month), finish)
+                    key = "%d-%02d" % (seg_start.year, seg_start.month)
+                    ahead[key] = ahead.get(key, 0) + cal.calendar_days_between(seg_start, seg_end)
+                    seg_start = date.fromordinal(seg_end.toordinal() + 1)
+                leaves.vac_ahead = tuple(sorted(ahead.items()))
+                leaves.vac_ahead_days = float(sum(ahead.values()))
         elif code == "STUDY":
             leaves.study_days += days
         elif code == "CHILD_VAC":

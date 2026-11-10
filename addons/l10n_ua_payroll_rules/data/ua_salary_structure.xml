@@ -132,14 +132,17 @@ rate = payroll.ua.esv_rate
 max_base = payroll.ua.esv_max_base
 min_wage = payroll.ua.min_wage
 shares = list(payroll.ua.mat_shares or [])
-salary = categories.GROSS
+# відпускні за дні наступних місяців (КТН 10): база тих місяців, кожен зі своєю максимальною базою
+ahead = list(payroll.ua.vac_ahead_shares or [])
+ahead_base = sum(min(share, max_base) for share in ahead)
+salary = categories.GROSS - sum(ahead)
 full_month = payroll.ua.month_workdays and worked_days.WORK100 and worked_days.WORK100.number_of_days &gt;= payroll.ua.month_workdays
 if payroll.ua.dc_applies:
     # Дія Сіті: мінімальний страховий внесок раз на місяць, незалежно від суми і відпрацьованих днів
     due = tools.r2(min_wage * rate / 100.0, 2) if (salary + categories.MAT) &gt; 0 else 0.0
     result = tools.r2(max(due - payroll.ua.dc_esv_paid, 0.0), 2)
 elif shares:
-    total = 0.0
+    total = ahead_base * rate / 100.0
     for index, share in enumerate(shares):
         base = share + (salary if index == 0 else 0.0)
         if payroll.ua.esv_min_applies and base &lt; min_wage:
@@ -152,8 +155,8 @@ else:
     # відпустка без збереження зарплати на весь місяць) ЄСВ немає
     if payroll.ua.esv_min_applies and full_month and 0 &lt; base &lt; min_wage:
         base = min_wage
-    result = tools.r2(min(base, max_base) * rate / 100.0, 2)</field>
-      <field name="note">Єдиний соціальний внесок за рахунок роботодавця, ставка 22 % (ч. 5 ст. 8 ЗУ про ЄСВ), не утримується з працівника. Рахується від нарахованої зарплати, з мінімальною базою не нижче мінімальної зарплати за повний відпрацьований місяць і максимальною базою 20 мінімальних зарплат (п. 4 ч. 1 ст. 1 ЗУ про ЄСВ); для декретної допомоги мінімум перевіряється окремо за кожен місяць періоду. У резидента Дія Сіті, що відповідає вимогам, - мінімальний страховий внесок (мінімальна зарплата × ставка) раз на місяць незалежно від суми і відпрацьованих днів. На оплату ФОП-підряднику не нараховується.</field>
+    result = tools.r2((min(base, max_base) + ahead_base) * rate / 100.0, 2)</field>
+      <field name="note">Єдиний соціальний внесок за рахунок роботодавця, ставка 22 % (ч. 5 ст. 8 ЗУ про ЄСВ), не утримується з працівника. Рахується від нарахованої зарплати, з мінімальною базою не нижче мінімальної зарплати за повний відпрацьований місяць і максимальною базою 20 мінімальних зарплат (п. 4 ч. 1 ст. 1 ЗУ про ЄСВ); для декретної допомоги мінімум перевіряється окремо за кожен місяць періоду; відпускні за дні наступних місяців - база тих місяців, кожен зі своєю максимальною базою. У резидента Дія Сіті, що відповідає вимогам, - мінімальний страховий внесок (мінімальна зарплата × ставка) раз на місяць незалежно від суми і відпрацьованих днів. На оплату ФОП-підряднику не нараховується.</field>
     </record>
 
     <record id="rule_reserve" model="hr.salary.rule">

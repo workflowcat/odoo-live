@@ -85,8 +85,8 @@
       "code": "VAC",
       "name": "Відпускні",
       "category": "AVG",
-      "when": "vac_days > 0",
-      "amount": "round(vac_days * avg100_day, 2)"
+      "when": "vac_days - vac_paid_days + vac_ahead_days > 0",
+      "amount": "round((vac_days - vac_paid_days + vac_ahead_days) * avg100_day, 2)"
     },
     {
       "sequence": 22,

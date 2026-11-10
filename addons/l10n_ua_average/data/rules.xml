@@ -5,9 +5,9 @@
     <record id="rule_vac" model="hr.salary.rule">
       <field name="name">Відпускні</field><field name="code">VAC</field><field name="sequence">20</field>
       <field name="category_id" ref="cat_avg"/><field name="condition_select">python</field>
-      <field name="condition_python">result = payroll.ua.vac_days &gt; 0</field>
-      <field name="amount_select">code</field><field name="amount_python_compute">result = tools.r2(payroll.ua.vac_days * payroll.ua.avg100_day, 2)</field>
-      <field name="note">Оплата днів щорічної відпустки, за рахунок підприємства. Рахується як дні відпустки, помножені на середньоденний заробіток за календарний день за 12 повних місяців перед місяцем листка (Постанова КМУ № 100).</field>
+      <field name="condition_python">result = payroll.ua.vac_days - payroll.ua.vac_paid_days + payroll.ua.vac_ahead_days &gt; 0</field>
+      <field name="amount_select">code</field><field name="amount_python_compute">result = tools.r2((payroll.ua.vac_days - payroll.ua.vac_paid_days + payroll.ua.vac_ahead_days) * payroll.ua.avg100_day, 2)</field>
+      <field name="note">Оплата днів щорічної відпустки, за рахунок підприємства. Рахується як дні відпустки, помножені на середньоденний заробіток за календарний день за 12 повних місяців перед місяцем листка (Постанова КМУ № 100). Відпускні платять до початку відпустки (ст. 21 ЗУ «Про відпустки»), тому листок місяця, у якому відпустка почалася, оплачує і її дні в наступних місяцях; листок наступного місяця ці дні вже не оплачує. ЄСВ і Д1 рахують частку кожного місяця окремо (КТН 10).</field>
     </record>
     <record id="rule_sick_emp" model="hr.salary.rule">
       <field name="name">Лікарняні за рахунок підприємства, перші 5 днів</field><field name="code">SICK_EMP</field><field name="sequence">22</field>

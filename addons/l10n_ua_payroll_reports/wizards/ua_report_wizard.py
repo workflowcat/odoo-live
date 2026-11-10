@@ -26,6 +26,14 @@ GENDER = {"male": "1", "female": "0"}   # схема допускає лише 0
 
 D1_COLS = ["G5", "G6", "G7S", "G8", "G9", "G101", "G102", "G111S", "G112S", "G113S", "G12", "G13", "G14",
            "G15", "G16", "G17", "G18", "G19", "G20", "G21", "G22", "G23", "G24", "G25", "G26"]
+# Д6 (J0510611), спецстаж: 05 громадянин, 06 РНОКПП, 07 код підстави, 08 ПІБ, 09-10 перший і останній день
+# періоду, 11 дні, 12 години і хвилини, 13 норма (дні, години, хвилини), 14-15 наказ про атестацію,
+# 16 сезон, 17 ознака рядка (0 - ввести, 1 - вилучити).
+D6_COLS = ["G5", "G6S", "G7S", "G81S", "G82S", "G83S", "G9", "G10", "G11", "G121", "G122", "G131", "G132", "G133",
+           "G14S", "G15D", "G16", "G17"]
+D6_FLAG = "G17"
+D6_KEY = ("G6S", "G7S", "G9")
+NAME_COLS = (("G111S", "G112S", "G113S"), ("G81S", "G82S", "G83S"))
 DF_COLS = ["G02", "G03A", "G03", "G04A", "G04", "G5A", "G5", "G05", "G06D", "G07D", "G08", "G09"]
 # Графи Д1 за бланком: 12 - дні непрацездатності, 13 - дні без збереження зарплати, 14 - дні трудових
 # відносин, 15 - дні відпустки у зв'язку з вагітністю та пологами, 21 - основне місце роботи (трудова книжка),
@@ -34,6 +42,8 @@ D1_FLAG, DF_FLAG = "G25", "G09"          # графа «Ознака (0, 1)»: 0
 D1_KEY = ("G7S", "G8", "G9", "G101", "G102")   # РНОКПП, категорія ЗО, код типу нарахувань, місяць, рік
 D1_ADD = ("G12", "G13", "G15", "G16", "G17", "G18", "G19", "G20")   # графи, що складаються при злитті рядків
 KTN_PRIOR_BENEFIT = "13"   # код типу нарахувань: допомога по непрацездатності чи вагітності та пологах за минулі місяці
+KTN_VACATION = "10"        # код типу нарахувань: відпускні, окремим рядком за кожен місяць, на який припадають дні
+VACATION_CODES = ("VAC", "CHILD_VAC_PAY", "STUDY_PAY")   # правила листка з відпускними
 MIL_CODE = "MIL"           # вид відсутності «військова служба»: трудові відносини тривають, зарплати немає
 DF_KEY = ("G02", "G05")                  # РНОКПП, ознака доходу
 D1_SUMS = [("R01G16", "G16"), ("R01G17", "G17"), ("R01G18", "G18"), ("R01G19", None), ("R01G20", "G20")]
@@ -57,6 +67,9 @@ class UaPayrollReportWizard(models.TransientModel):
     with_d1 = fields.Boolean("Додаток 1 (Д1)", default=True)
     with_4df = fields.Boolean("Додаток 4ДФ", default=True)
     with_d5 = fields.Boolean("Додаток 5 (Д5, трудові відносини)", default=True)
+    with_d6 = fields.Boolean("Додаток 6 (Д6, спецстаж)", default=True,
+                             help="Періоди роботи, що дають право на пенсію на пільгових умовах або за вислугу років: "
+                                  "люди з позначкою «Спецстаж» у версії договору.")
     fill_date = fields.Date("Дата заповнення", default=fields.Date.context_today, required=True)
     base_attachment_ids = fields.Many2many(
         "ir.attachment", "ua_report_wizard_base_att_rel", "wizard_id", "attachment_id",
@@ -102,7 +115,11 @@ class UaPayrollReportWizard(models.TransientModel):
         sick_emp, sick_pfu = self._line(slip, "SICK_EMP"), self._line(slip, "SICK_PFU")
         sick_care = self._line(slip, "SICK_CARE_PAY")        # догляд за хворим: ПФУ з першого дня, у Д1 та сама категорія 29
         gross = self._line(slip, "GROSS")
-        salary = r2(gross - sick_emp - sick_pfu - sick_care)
+        # відпускні наперед (дні наступних місяців): рядки КТН 10 з місяцем відпустки, база - кожного свого місяця
+        ahead = slip._ua_vac_ahead_rows() if hasattr(slip, "_ua_vac_ahead_rows") else []
+        ahead_total = r2(sum(amount for _month, _days, amount in ahead))
+        vacation = r2(sum(self._line(slip, code) for code in VACATION_CODES) - ahead_total)
+        salary = r2(gross - sick_emp - sick_pfu - sick_care - vacation - ahead_total)
         esv_total = r2(self._line(slip, "ESV"))
         max_base = params["min_wage"] * params["esv_max_multiplier"]
         remaining = max_base
@@ -111,8 +128,9 @@ class UaPayrollReportWizard(models.TransientModel):
         min_diff = 0.0
         leaves_all = slip._ua_leave_calendar_days() if hasattr(slip, "_ua_leave_calendar_days") else {}
         # без нарахувань (військова служба весь місяць) мінімальної доплати немає - як у правилі ЄСВ листка
-        if kind == "employment" and emp.ua_main_job and 0 < gross < params["min_wage"] and days_in >= (d2 - d1).days + 1 and not leaves_all.get("mat_cover_days"):
-            min_diff = r2(params["min_wage"] - gross)
+        gross_month = r2(gross - ahead_total)
+        if kind == "employment" and emp.ua_main_job and 0 < gross_month < params["min_wage"] and days_in >= (d2 - d1).days + 1 and not leaves_all.get("mat_cover_days"):
+            min_diff = r2(params["min_wage"] - gross_month)
         base_main = r2(min(salary, remaining)); remaining = r2(remaining - base_main)
         esv_main = r2(base_main * rate / 100.0)
         esv_diff = r2(min_diff * 22.0 / 100.0)
@@ -122,6 +140,15 @@ class UaPayrollReportWizard(models.TransientModel):
         common = {**self._row_head(emp, kind, days_in), "G13": (unpaid_days or None) if not late else None}
         rows.append({**common, "G8": cat, "G12": None, "G16": salary, "G17": base_main, "G18": min_diff or None, "G19": 0.0,
                      "G20": r2(esv_main + esv_diff), "rate": rate})
+        extra = {"G8": cat, "G9": KTN_VACATION, "G12": None, "G13": None, "G14": None, "G15": None, "G18": None,
+                 "G19": 0.0, "rate": rate}
+        if vacation:
+            base_vac = r2(min(vacation, remaining)); remaining = r2(remaining - base_vac)
+            rows.append({**common, **extra, "G16": vacation, "G17": base_vac, "G20": r2(base_vac * rate / 100.0)})
+        for month, _days, amount in ahead:
+            base_ahead = r2(min(amount, max_base))
+            rows.append({**common, **extra, "G101": month.month, "G102": month.year, "G16": r2(amount),
+                         "G17": base_ahead, "G20": r2(base_ahead * rate / 100.0)})
         mat = r2(self._line(slip, "MAT"))
         if mat:
             # допомога по вагітності та пологах: категорія 42, у кожному місяці періоду відпустки своя частка (пропорційно календарним дням)
@@ -172,7 +199,8 @@ class UaPayrollReportWizard(models.TransientModel):
             taxable = r2(sum(self._line(slip, code) for code in tax_codes))
             if income:
                 other[sign] = (income, taxable)
-        return rows, {"gross": gross, "salary": salary, "gph": salary if kind in CIVIL_KINDS else 0.0, "sick_emp": sick_emp, "sick_pfu": r2(sick_pfu + sick_care), "mat": mat,
+        pay = r2(salary + vacation + ahead_total)   # головна форма, рядок 1.1: уся зарплата з відпускними
+        return rows, {"gross": gross, "salary": pay, "gph": pay if kind in CIVIL_KINDS else 0.0, "sick_emp": sick_emp, "sick_pfu": r2(sick_pfu + sick_care), "mat": mat,
                       "pdfo": r2(-self._line(slip, "PDFO")), "vz": r2(-self._line(slip, "VZ")), "kind": kind, "cat": cat, "min_diff": min_diff,
                       "other": other, "other_income": r2(sum(v[0] for v in other.values())),
                       "emp": emp, "hire": hire, "dism": dism}
@@ -283,12 +311,13 @@ class UaPayrollReportWizard(models.TransientModel):
         X = self.env["ua.dps.xml"]
         out = {}
         for col in cols:
-            if col in ("G111S", "G112S", "G113S") and "names" in row:
-                value = row["names"][("G111S", "G112S", "G113S").index(col)]
+            names = next((group for group in NAME_COLS if col in group), None)
+            if names and "names" in row:
+                value = row["names"][names.index(col)]
             else:
                 value = row.get(col)
             out[col] = "" if value is None or value == "" or value is False else X._fmt(value)
-        out[D1_FLAG if cols is D1_COLS else DF_FLAG] = flag
+        out[D1_FLAG if cols is D1_COLS else D6_FLAG if cols is D6_COLS else DF_FLAG] = flag
         return out
 
     @staticmethod
@@ -444,7 +473,51 @@ class UaPayrollReportWizard(models.TransientModel):
                 f.append((f"T1RXXXX{col}", val, {"ROWNUM": i}))
         return f + self._signers()
 
-    def _build_main(self, persons, all_rows, params, n_d1, n_4df, n_d5=0):
+    def _d6_rows(self):
+        """Рядки Д6: людина в місяці працювала на роботі зі спецстажем (позначка і код у версії договору).
+
+        Період - дні трудових відносин цієї версії в місяці, облік у календарних днях: графа 11 -
+        дні періоду без днів відпустки без збереження зарплати, графа 13 - календарні дні місяця.
+        Відпустки по вагітності та догляду за дитиною стаж не переривають (п. 6 розд. IV Порядку № 4)."""
+        d1, d2 = self._period()
+        versions = self.env["hr.version"].sudo().search([
+            ("employee_id.company_id", "=", self.company_id.id), ("ua_special_seniority", "=", True),
+            ("contract_date_start", "!=", False), ("contract_date_start", "<=", d2),
+            "|", ("contract_date_end", "=", False), ("contract_date_end", ">=", d1)])
+        rows = []
+        for version in versions.sorted(lambda v: (v.employee_id.name or "", v.contract_date_start)):
+            emp = version.employee_id.sudo()
+            if (emp.ua_contract_kind or "employment") != "employment" or not version.ua_special_seniority_code:
+                continue
+            start = max(d1, version.contract_date_start)
+            end = min(d2, version.contract_date_end) if version.contract_date_end else d2
+            if end < start:
+                continue
+            unpaid = self.env["hr.leave"].sudo().search([
+                ("employee_id", "=", emp.id), ("state", "=", "validate"),
+                ("holiday_status_id.work_entry_type_id.code", "=", "UNPAID"),
+                ("request_date_from", "<=", end), ("request_date_to", ">=", start)])
+            off = sum((min(lv.request_date_to, end) - max(lv.request_date_from, start)).days + 1 for lv in unpaid)
+            days = (end - start).days + 1 - off
+            if days <= 0:
+                continue
+            rows.append({"G5": "1", "G6S": emp.ua_rnokpp or "", "G7S": version.ua_special_seniority_code,
+                         "names": emp._ua_name_parts(), "G9": start.day, "G10": end.day, "G11": days,
+                         "G121": None, "G122": None, "G131": (d2 - d1).days + 1, "G132": None, "G133": None,
+                         "G14S": version.ua_special_attest_number or None, "G15D": version.ua_special_attest_date or None,
+                         "G16": None, "employee_id": emp.id})
+        return rows
+
+    def _build_d6(self, rows, text_rows=None):
+        c = self.company_id
+        rows = text_rows if text_rows is not None else [self._text_row(r, D6_COLS) for r in rows]
+        f = self._company_head() + [("HNAME", c.name), ("HTIN", c.company_registry)]
+        for col in D6_COLS:
+            for i, r in enumerate(rows, 1):
+                f.append((f"T1RXXXX{col}", r.get(col) or None, {"ROWNUM": i}))
+        return f + self._signers()
+
+    def _build_main(self, persons, all_rows, params, n_d1, n_4df, n_d5=0, n_d6=0):
         c = self.company_id
         rate22 = [r for r in all_rows if r["rate"] == params["esv_rate"]]
         rate841 = [r for r in all_rows if r["rate"] == params["esv_rate_disabled"] and r["rate"] != params["esv_rate"]]
@@ -460,7 +533,7 @@ class UaPayrollReportWizard(models.TransientModel):
         f = self._company_head() + [("HNUM", self.number), ("HNAME", c.name), ("HTIN", c.company_registry), ("HKATOTTG", c.ua_katottg or ""),
              ("HLOC", c.street or ""), ("HZIP", c.zip or ""), ("HTEL", c.phone or None), ("HEMAIL", c.email or None), ("HSTI", c.ua_sti_name or ""),
              ("R061G3", bool(n_d1)), ("R061G4", n_d1 or None), ("R064G3", bool(n_4df)), ("R064G4", n_4df or None),
-             ("R065G3", bool(n_d5)), ("R065G4", n_d5 or None),
+             ("R065G3", bool(n_d5)), ("R065G4", n_d5 or None), ("R066G3", bool(n_d6)), ("R066G4", n_d6 or None),
              ("HKVED", c.ua_kved or None), ("R081G3", True),
              ("R091G3", len(employment)), ("R0911G3", sum(1 for p in employment if p["emp"].ua_esv_category == "disabled")),
              ("R092G3", len(employment)), ("R101G3", 0),
@@ -531,13 +604,24 @@ class UaPayrollReportWizard(models.TransientModel):
         d5_rows = self._d5_rows() if self.with_d5 else []
         if d5_rows:
             appendices.append(("105", "J0510511", self._build_d5(d5_rows)))
+        d6_rows = self._d6_rows() if self.with_d6 else []
+        d6_text = None
+        if d6_rows and self.doc_type in ("HZN", "HZU"):
+            # коригування: вилучити подані рядки Д6 і ввести виправлені; без поданого Д6 - усі рядки на введення
+            old_d6 = self._base_rows("106", D6_COLS)
+            new_d6 = [self._text_row(r, D6_COLS) for r in d6_rows]
+            d6_text = self._diff_rows(old_d6, new_d6, D6_KEY, D6_FLAG) if old_d6 is not None else new_d6
+        if d6_rows and (d6_text is None or d6_text):
+            appendices.append(("106", "J0510611", self._build_d6(d6_rows, text_rows=d6_text)))
         linked_for_main, app_files = [], []
         for i, (sub, code, body) in enumerate(appendices, 1):
             linked = [{"num": 1, "type": 2, "C_DOC": "J05", "C_DOC_SUB": "001", "C_DOC_VER": VER, "C_DOC_TYPE": 0, "C_DOC_CNT": self.number, "C_DOC_STAN": stan, "FILENAME": main_name}]
             fname, data = X.build(c, "J05", sub, VER, 1, self.month, self.year, body, linked=linked, c_doc_cnt=self.number, c_doc_stan=stan, fill_date=self.fill_date)
             app_files.append((fname, data, code))
             linked_for_main.append({"num": i, "type": 1, "C_DOC": "J05", "C_DOC_SUB": sub, "C_DOC_VER": VER, "C_DOC_TYPE": 0, "C_DOC_CNT": self.number, "C_DOC_STAN": stan, "FILENAME": fname})
-        body_main = self._build_main(persons, all_rows, params, 1 if self.with_d1 else 0, 1 if self.with_4df else 0, 1 if d5_rows else 0)
+        has_d6 = any(sub == "106" for sub, _code, _body in appendices)
+        body_main = self._build_main(persons, all_rows, params, 1 if self.with_d1 else 0, 1 if self.with_4df else 0,
+                                     1 if d5_rows else 0, 1 if has_d6 else 0)
         fname, data = X.build(c, "J05", "001", VER, 1, self.month, self.year, body_main, linked=linked_for_main, c_doc_cnt=self.number, c_doc_stan=stan, fill_date=self.fill_date)
         files.append((fname, data, "J0500111")); files += app_files
         Att = self.env["ir.attachment"]; atts = Att

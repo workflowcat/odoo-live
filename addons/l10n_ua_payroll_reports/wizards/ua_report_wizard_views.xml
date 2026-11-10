@@ -6,7 +6,7 @@
       <form string="Об'єднана звітність (XML для ДПС)">
         <group>
           <group><field name="company_id"/><field name="year" options="{'enable_formatting': False}"/><field name="month"/><field name="doc_type"/><field name="number"/></group>
-          <group><field name="with_d1"/><field name="with_4df"/><field name="with_d5"/><field name="fill_date"/></group>
+          <group><field name="with_d1"/><field name="with_4df"/><field name="with_d5"/><field name="with_d6"/><field name="fill_date"/></group>
         </group>
         <field name="lines_edited" invisible="1"/>
         <div class="alert alert-info" role="status" invisible="not lines_edited">

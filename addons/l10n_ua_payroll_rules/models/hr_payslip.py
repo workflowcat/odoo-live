@@ -130,6 +130,7 @@ class HrPayslip(models.Model):
             "gift_limit_share": p.get("gift_limit_share", 0.0),
             "aid_used_year": self._ua_aid_used_year(),
             "mat_cover_days": 0,   # l10n_ua_average перевизначає
+            "vac_ahead_shares": [],   # l10n_ua_average: відпускні за дні наступних місяців
             "time_ratio": -1.0,    # l10n_ua_hr_docs ставить частку часу із затвердженого табеля
             "dc_applies": dc,
             "dc_pdfo_rate": p.get("dc_pdfo_rate", p["pdfo_rate"]),
@@ -288,6 +289,8 @@ class HrPayslip(models.Model):
         # вони доповнюють цей словник через super(), так само як доповнюють _ua_payroll_values.
         out["mat_cover_days"] = {"label": "Днів декрету в цьому місяці", "state": "not_applicable", "kind": "count",
                                  "source": None, "note": "рахує l10n_ua_average, якщо модуль встановлено"}
+        out["vac_ahead_shares"] = {"label": "Відпускні за дні наступних місяців", "state": "not_applicable", "kind": "amount",
+                                   "source": None, "note": "рахує l10n_ua_average, якщо модуль встановлено"}
         out["time_ratio"] = {"label": "Частка відпрацьованого часу за табелем", "state": "not_applicable", "kind": "rate",
                              "source": None, "note": "-1 = табель не задіяно; рахує l10n_ua_hr_docs, якщо модуль встановлено"}
 

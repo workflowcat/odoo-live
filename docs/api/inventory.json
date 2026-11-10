@@ -3,7 +3,7 @@
     "modules": 105,
     "models": 213,
     "methods": 817,
-    "fields": 445
+    "fields": 448
   },
   "areas": [
     {
@@ -1649,6 +1649,14 @@
               "module": "l10n_ua_payroll_reports",
               "file": "addons/l10n_ua_payroll_reports/models/hr_payslip.py",
               "groups": ""
+            },
+            {
+              "name": "ua_vac_ahead",
+              "type": "Json",
+              "label": "Відпускні наперед",
+              "module": "l10n_ua_average",
+              "file": "addons/l10n_ua_average/models/hr_payslip.py",
+              "groups": ""
             }
           ]
         },
@@ -1751,6 +1759,22 @@
               "groups": "hr.group_hr_user"
             },
             {
+              "name": "ua_special_attest_date",
+              "type": "Date",
+              "label": "Дата наказу про атестацію",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/hr_version.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_special_attest_number",
+              "type": "Char",
+              "label": "Наказ про атестацію робочого місця, №",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/hr_version.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
               "name": "ua_special_seniority",
               "type": "Boolean",
               "label": "Спецстаж (пільгова пенсія)",
@@ -1761,7 +1785,7 @@
             {
               "name": "ua_special_seniority_code",
               "type": "Char",
-              "label": "Підстава спецстажу",
+              "label": "Код підстави спецстажу",
               "module": "l10n_ua_payroll_reports",
               "file": "addons/l10n_ua_payroll_reports/models/hr_version.py",
               "groups": "hr.group_hr_user"

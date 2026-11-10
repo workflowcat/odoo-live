@@ -33,6 +33,13 @@ def _entry(label, kind, state, source=None, note=None):
 class HrPayslip(models.Model):
     _inherit = "hr.payslip"
 
+    ua_vac_ahead = fields.Json(
+        "Відпускні наперед", readonly=True, copy=False,
+        help="Дні щорічної відпустки наступних місяців, оплачені цим листком, і сума за них: "
+             "{\"2026-09\": {\"days\": 6, \"amount\": 3945.21}}. "
+             "Записується під час проведення; листок наступного місяця ці дні вже не оплачує, "
+             "а Д1 показує їх рядком КТН 10 у своєму місяці.")
+
     def _ua_average_window(self):
         """12 повних місяців перед місяцем листка."""
         first = self.date_from.replace(day=1)
@@ -51,13 +58,18 @@ class HrPayslip(models.Model):
         days = sum(r.calendar_days or calendar.monthrange(r.month.year, r.month.month)[1] for r in rows)
         days -= sum(rows.mapped("excluded_days"))
         days -= holidays * len(rows) / 12.0
+        if total <= 0 or days <= 0:
+            # п. 4 Порядку 100: за весь розрахунковий період немає заробітку (військова служба,
+            # відпустка без збереження зарплати) - середня від окладу
+            wage = self.contract_id.wage or 0.0
+            return wage * 12.0, 365.0
         return total, max(days, 1.0)
 
     def _ua_leave_calendar_days(self):
         """Календарні дні відпусток і лікарняних у періоді листка, з поділом лікарняних на роботодавця (1-5) і ПФУ (6+)."""
         out = {"vac_days": 0, "sick_emp_days": 0, "sick_pfu_days": 0, "unpaid_days": 0, "mat_days": 0, "mat_cover_days": 0,
                "study_days": 0, "child_vac_days": 0, "trip_days": 0, "trip_work_days": 0, "child3_days": 0, "sick_care_days": 0,
-               "mil_days": 0}
+               "mil_days": 0, "vac_paid_days": 0, "vac_ahead_days": 0}
         leaves = self.env["hr.leave"].search([("employee_id", "=", self.employee_id.id), ("state", "=", "validate"),
                                               ("request_date_from", "<=", self.date_to), ("request_date_to", ">=", self.date_from)])
         for lv in leaves:
@@ -100,7 +112,62 @@ class HrPayslip(models.Model):
                     idx = (d - lv.request_date_from).days + 1
                     out["sick_emp_days" if idx <= 5 else "sick_pfu_days"] += 1
                     d = fields.Date.add(d, days=1)
+        ahead = self._ua_vac_ahead()
+        out["vac_ahead_days"] = sum(days for _key, days in ahead)
+        out["vac_paid_days"] = min(self._ua_vac_paid_ahead()[0], out["vac_days"])
         return out
+
+    def _ua_vac_ahead(self):
+        """Дні щорічної відпустки після кінця листка, якщо відпустка почалася в ньому.
+
+        Ст. 21 ЗУ «Про відпустки»: відпускні виплачують до початку відпустки, тож листок
+        місяця початку нараховує всю відпустку. ЄСВ і Д1 (КТН 10) рахують частку кожного
+        наступного місяця окремо. Повертає [("2026-09", 6), ...]."""
+        self.ensure_one()
+        ahead = {}
+        leaves = self.env["hr.leave"].sudo().search([
+            ("employee_id", "=", self.employee_id.id), ("state", "=", "validate"),
+            ("holiday_status_id.work_entry_type_id.code", "=", "VAC"),
+            ("request_date_from", ">=", self.date_from), ("request_date_from", "<=", self.date_to),
+            ("request_date_to", ">", self.date_to),
+        ])
+        for leave in leaves:
+            current = self.date_to + timedelta(days=1)
+            while current <= leave.request_date_to:
+                month_end = date(current.year, current.month, calendar.monthrange(current.year, current.month)[1])
+                segment_end = min(month_end, leave.request_date_to)
+                key = "%d-%02d" % (current.year, current.month)
+                ahead[key] = ahead.get(key, 0) + (segment_end - current).days + 1
+                current = segment_end + timedelta(days=1)
+        return sorted(ahead.items())
+
+    def _ua_vac_paid_ahead(self):
+        """Дні відпустки цього місяця, які вже оплатив проведений листок попереднього місяця, і сума за них."""
+        self.ensure_one()
+        key = "%d-%02d" % (self.date_from.year, self.date_from.month)
+        # відпустка не довша за кілька місяців: досить листків трьох попередніх місяців
+        slips = self.sudo().search([
+            ("employee_id", "=", self.employee_id.id), ("state", "=", "done"), ("credit_note", "=", False),
+            ("date_to", "<", self.date_from), ("date_from", ">=", _add_months(self.date_from.replace(day=1), -3)),
+        ])
+        parts = [(slip.ua_vac_ahead or {}).get(key) or {} for slip in slips]
+        return sum(int(part.get("days", 0)) for part in parts), sum(float(part.get("amount", 0.0)) for part in parts)
+
+    def _ua_store_vac_ahead(self):
+        """Записати відпускні наперед під час проведення: дні й суму за кожен наступний місяць."""
+        for slip in self.filtered(lambda s: not s.credit_note):
+            avg = slip._ua_average_day()
+            ahead = {key: {"days": days, "amount": ua_round(days * avg)} for key, days in slip._ua_vac_ahead()}
+            slip.ua_vac_ahead = ahead or False
+
+    def _ua_vac_ahead_rows(self):
+        """Відпускні наперед проведеного листка: [(перше число місяця, дні, сума), ...] для Д1."""
+        self.ensure_one()
+        rows = []
+        for key, value in sorted((self.ua_vac_ahead or {}).items()):
+            year, month = (int(part) for part in key.split("-"))
+            rows.append((date(year, month, 1), int(value.get("days", 0)), float(value.get("amount", 0.0))))
+        return rows
 
     def _ua_trip_window(self):
         """Два повні календарні місяці перед місяцем події (Постанова 100 у редакції 1213)."""
@@ -189,6 +256,7 @@ class HrPayslip(models.Model):
             "avg1266_day": avg,         # те саме вікно; виключення - через excluded_days
             "avg_trip_day": self._ua_trip_day(),
             "mat_shares": self._ua_mat_shares(),
+            "vac_ahead_shares": [ua_round(days * avg) for _key, days in self._ua_vac_ahead()],
             "sick_percent": self.employee_id.sudo().ua_sick_percent or 50.0,
             "extra_comp_days": self._ua_comp_extra_days(),
             **self._ua_leave_calendar_days(),
@@ -260,6 +328,22 @@ class HrPayslip(models.Model):
                 "Частки декретної допомоги за місяцями", "money", "not_applicable",
                 note="У цьому листку немає декретної відпустки, що почалася в періоді (mat_days = 0).")
 
+        if leave_days.get("vac_ahead_days"):
+            res["vac_ahead_shares"] = _entry(
+                "Відпускні за дні наступних місяців", "money", "calculated",
+                note="avg100_day x дні відпустки в кожному наступному місяці. Відпускні платять до початку "
+                     "відпустки (ст. 21 ЗУ «Про відпустки»); ЄСВ і Д1 (КТН 10) рахують кожен місяць окремо.")
+        else:
+            res["vac_ahead_shares"] = _entry(
+                "Відпускні за дні наступних місяців", "money", "not_applicable",
+                note="Відпустка, що почалася в цьому листку, не переходить на наступний місяць.")
+        res["vac_paid_days"] = _entry(
+            "Дні відпустки, оплачені наперед минулим листком", "days", "calculated",
+            source={"model": "hr.payslip", "domain": [("employee_id", "=", self.employee_id.id), ("state", "=", "done"),
+                                                       ("date_to", "<", self.date_from)],
+                    "label": "проведені листки попередніх місяців (поле «Відпускні наперед»)",
+                    "basis": "ст. 21 ЗУ «Про відпустки»"})
+
         res["sick_percent"] = _entry(
             "Відсоток оплати лікарняного (страховий стаж)", "rate", "supplied",
             source={"model": "hr.employee", "res_id": self.employee_id.id,
@@ -273,6 +357,8 @@ class HrPayslip(models.Model):
 
         leave_specs = [
             ("vac_days", "VAC", "Дні щорічної відпустки в періоді листка",
+             "Заява на щорічну відпустку, затверджена HR"),
+            ("vac_ahead_days", "VAC", "Дні відпустки наступних місяців, оплачені наперед (ст. 21 ЗУ «Про відпустки»)",
              "Заява на щорічну відпустку, затверджена HR"),
             ("unpaid_days", "UNPAID", "Дні відпустки без збереження зарплати",
              "Заява на відпустку без збереження зарплати, затверджена HR"),
@@ -310,14 +396,28 @@ class HrPayslip(models.Model):
 
     def action_payslip_done(self):
         res = super().action_payslip_done()
+        self._ua_store_vac_ahead()
         Hist = self.env["ua.earnings.history"]
         for slip in self:
             gross = sum(slip.line_ids.filtered(lambda l: l.category_id.code in ("BASIC", "ALW", "AVG")).mapped("total"))
+            # відпускні - у заробіток місяців, на які припадають дні відпустки: частку наступних
+            # місяців забираємо, частку цього місяця з минулого листка додаємо
+            gross -= sum(amount for _month, _days, amount in slip._ua_vac_ahead_rows())
+            gross += slip._ua_vac_paid_ahead()[1]
             month = slip.date_from.replace(day=1)
             row = Hist.search([("employee_id", "=", slip.employee_id.id), ("month", "=", month)], limit=1)
             worked = sum(line.number_of_days for line in slip.worked_days_line_ids if line.code == "WORK100")
             absent = sum(abs(line.number_of_days) for line in slip.worked_days_line_ids if line.code != "WORK100")
             vals = {"employee_id": slip.employee_id.id, "month": month, "gross": gross, "source": "payslip",
-                    "payslip_id": slip.id, "work_days": max(worked - absent, 0.0)}
+                    "payslip_id": slip.id, "work_days": max(worked - absent, 0.0),
+                    "excluded_days": slip._ua_excluded_days()}
             row.write(vals) if row else Hist.create(vals)
         return res
+
+    def _ua_excluded_days(self):
+        """Календарні дні місяця без збереження заробітку: військова служба, відпустка без
+        збереження зарплати. П. 4 Порядку 100 виключає їх із розрахункового періоду разом із
+        сумами за них, тож рядок історії несе їх у `excluded_days`."""
+        self.ensure_one()
+        days = self._ua_leave_calendar_days()
+        return int(days.get("mil_days", 0) + days.get("unpaid_days", 0))

@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 105. Моделей: 213. Методів: 817. Збережених полів на чужих моделях: 445.
+Модулів: 105. Моделей: 213. Методів: 817. Збережених полів на чужих моделях: 448.
 
 ## Зарплата
 
@@ -340,6 +340,7 @@
 | `move_id` | Many2one | account.move | `l10n_ua_payroll_account` |
 | `ua_diia_city` | Boolean | Ставки Дія Сіті | `l10n_ua_payroll_rules` |
 | `ua_report_month` | Date | Місяць звітності | `l10n_ua_payroll_reports` |
+| `ua_vac_ahead` | Json | Відпускні наперед | `l10n_ua_average` |
 
 ### `hr.version`
 
@@ -358,8 +359,10 @@
 | `ua_order_ref` | Char | Наказ про прийняття (№ і дата) | `l10n_ua_payroll_reports` |
 | `ua_pay_type` | Selection | - | `l10n_ua_payroll_rules` |
 | `ua_prof_name` | Char | Професійна назва роботи | `l10n_ua_payroll_reports` |
+| `ua_special_attest_date` | Date | Дата наказу про атестацію | `l10n_ua_payroll_reports` |
+| `ua_special_attest_number` | Char | Наказ про атестацію робочого місця, № | `l10n_ua_payroll_reports` |
 | `ua_special_seniority` | Boolean | Спецстаж (пільгова пенсія) | `l10n_ua_payroll_reports` |
-| `ua_special_seniority_code` | Char | Підстава спецстажу | `l10n_ua_payroll_reports` |
+| `ua_special_seniority_code` | Char | Код підстави спецстажу | `l10n_ua_payroll_reports` |
 | `ua_unfixed_hours` | Boolean | Нефіксований робочий час | `l10n_ua_payroll_reports` |
 | `ua_weekly_hours` | Float | Норма годин на тиждень | `l10n_ua_payroll_rules` |
 

@@ -19,3 +19,4 @@ from . import test_api_warehouse
 from . import test_security
 from . import test_report_d1
 from . import test_payroll_statement
+from . import test_mobile

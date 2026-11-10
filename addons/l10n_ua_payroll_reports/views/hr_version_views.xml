@@ -11,6 +11,8 @@
         <group string="Ознаки для Д1">
           <field name="ua_special_seniority"/>
           <field name="ua_special_seniority_code" invisible="not ua_special_seniority"/>
+          <field name="ua_special_attest_number" invisible="not ua_special_seniority"/>
+          <field name="ua_special_attest_date" invisible="not ua_special_seniority"/>
           <field name="ua_new_workplace"/>
           <field name="ua_new_workplace_until" invisible="not ua_new_workplace"/>
           <field name="ua_unfixed_hours"/>

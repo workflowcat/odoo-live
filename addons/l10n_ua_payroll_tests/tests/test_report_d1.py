@@ -15,7 +15,7 @@ from datetime import date
 from odoo.exceptions import ValidationError
 from odoo.tests import TransactionCase, tagged
 
-from odoo.addons.l10n_ua_payroll_reports.wizards.ua_report_wizard import D1_COLS
+from odoo.addons.l10n_ua_payroll_reports.wizards.ua_report_wizard import D1_COLS, D6_COLS
 
 YEAR, MONTH = 2026, 10
 OCT_START, OCT_END = date(YEAR, 10, 1), date(YEAR, 10, 31)
@@ -150,6 +150,62 @@ class TestUaReportD1(TransactionCase):
 
         with self.assertRaises(ValidationError):
             late.ua_report_month = date(YEAR, 8, 1)
+
+    def test_vacation_into_next_month_ktn_10(self):
+        """Відпустка 26 жовтня - 8 листопада: жовтневий листок платить усі 14 днів (ст. 21 ЗУ «Про
+        відпустки»), Д1 жовтня має рядки КТН 10 за жовтень і за листопад, листопадовий листок ці дні
+        вже не оплачує."""
+        rested = self._employee("Відпустка через місяць (тест)")
+        rested.sudo()._ua_ensure_leave_allocations()   # без нарахування днів hr_holidays відпустку не проведе
+        self._leave(rested, "VAC", date(YEAR, 10, 26), date(YEAR, 11, 8))
+        october = self._done_slip(rested)
+        october._ua_store_vac_ahead()
+        self.assertEqual(october.ua_vac_ahead["%d-11" % YEAR]["days"], 8)
+        lines = {line.code: line.total for line in october.line_ids}
+        day = october._ua_average_day()
+        self.assertAlmostEqual(lines["VAC"], round(14 * day, 2), places=2, msg="жовтень оплачує всі 14 днів")
+
+        wizard = self._wizard()
+        rows, _person = wizard._person_rows(october, self._params(wizard))
+        vacation = [row for row in rows if row["G9"] == "10"]
+        self.assertEqual([(row["G101"], row["G102"]) for row in vacation], [(10, YEAR), (11, YEAR)])
+        self.assertAlmostEqual(vacation[1]["G16"], round(8 * day, 2), places=2)
+        self.assertAlmostEqual(sum(row["G16"] for row in rows), lines["GROSS"], places=2,
+                               msg="рядки Д1 разом - усе нараховане за листок")
+        self.assertAlmostEqual(sum(row["G20"] for row in rows), lines["ESV"], places=2)
+        self.assertTrue(all(row["G14"] is None for row in vacation), "дні трудових відносин - лише в основному рядку")
+        X = self.env["ua.dps.xml"]
+        _name, data = X.build(self.company, "J05", "101", "11", 1, MONTH, YEAR, wizard._build_d1(rows),
+                              c_doc_cnt=1, c_doc_stan=1, fill_date=date(YEAR, 11, 10))
+        self.assertFalse(X.validate(data, "J0510111"), "Д1 з рядками КТН 10 відповідає схемі")
+
+        november = self._done_slip(rested, date(YEAR, 11, 1), date(YEAR, 11, 30))
+        self.assertFalse(november.line_ids.filtered(lambda line: line.code == "VAC"),
+                         "дні листопада вже оплатив жовтневий листок")
+
+    def test_special_seniority_d6(self):
+        """Д6: людина зі спецстажем - рядок з кодом підстави, днями періоду без відпустки без
+        збереження зарплати і нормою в календарних днях; без коду підстави рядка немає."""
+        doctor = self._employee("Лікар (тест)")
+        doctor.version_id.write({"ua_special_seniority": True, "ua_special_seniority_code": "ЗПЗ055Е2",
+                                 "ua_special_attest_number": "17-к", "ua_special_attest_date": date(2024, 3, 1)})
+        self._leave(doctor, "UNPAID", date(YEAR, 10, 13), date(YEAR, 10, 15))
+        no_code = self._employee("Спецстаж без коду (тест)")
+        no_code.version_id.ua_special_seniority = True
+        plain = self._employee("Без спецстажу (тест)")
+        wizard = self._wizard()
+        rows = wizard._d6_rows()
+        self.assertEqual([row["employee_id"] for row in rows], [doctor.id], "у Д6 - лише люди з кодом підстави")
+        row = rows[0]
+        self.assertEqual((row["G7S"], row["G9"], row["G10"], row["G11"], row["G131"]), ("ЗПЗ055Е2", 1, 31, 28, 31))
+        self.assertEqual(row["G14S"], "17-к")
+        self.assertNotIn(plain.id, [r["employee_id"] for r in rows])
+        text = wizard._text_row(row, D6_COLS)
+        self.assertEqual((text["G81S"], text["G17"], text["G15D"]), (doctor._ua_name_parts()[0], "0", "01032024"))
+        X = self.env["ua.dps.xml"]
+        _name, data = X.build(self.company, "J05", "106", "11", 1, MONTH, YEAR, wizard._build_d6(rows),
+                              c_doc_cnt=1, c_doc_stan=1, fill_date=date(YEAR, 11, 10))
+        self.assertFalse(X.validate(data, "J0510611"), "Д6 відповідає схемі")
 
     def test_edited_rows_go_to_files(self):
         worker = self._employee("Рядок поправлено (тест)")

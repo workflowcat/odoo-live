@@ -25,7 +25,7 @@ INPUT_CODES = ("BONUS", "PIECE", "GPH", "GIG", "GIG_BONUS", "COMP_DAYS", "DAILY"
                "DAMAGE_AMT", "ADVANCE")
 LEAVE_FIELDS = ("vac_days", "sick_emp_days", "sick_pfu_days", "sick_care_days", "mat_days",
                 "mat_cover_days", "study_days", "child_vac_days", "child3_days", "unpaid_days",
-                "trip_days", "trip_work_days", "mil_days")
+                "trip_days", "trip_work_days", "mil_days", "vac_paid_days", "vac_ahead_days")
 
 
 def _r2(value, digits=2):
@@ -80,6 +80,8 @@ def values(slip, params):
             _index_share(slip, employee)),
     }
     ua["mat_shares"] = _mat_shares(slip, ua)
+    # відпускні за дні наступних місяців: ЄСВ і Д1 рахують їх у своєму місяці (КТН 10)
+    ua["vac_ahead_shares"] = [_r2(days * ua["avg100_day"]) for _key, days in slip.leaves.vac_ahead]
     return ua
 
 
@@ -140,9 +142,13 @@ def esv_monthly(slip, ua, gross, mat_total=0.0):
     місяць, незалежно від суми і відпрацьованих днів."""
     if ua.get("dc_applies"):
         return _r2(ua["min_wage"] * ua["esv_rate"] / 100.0) if (gross + mat_total) > 0 else 0.0
+    # відпускні за дні наступних місяців - база тих місяців, кожен зі своєю максимальною базою
+    ahead = ua.get("vac_ahead_shares") or []
+    ahead_base = sum(min(share, ua["esv_max_base"]) for share in ahead)
+    gross = gross - sum(ahead)
     shares = ua.get("mat_shares") or []
     if shares:
-        total = 0.0
+        total = ahead_base * ua["esv_rate"] / 100.0
         for index, share in enumerate(shares):
             base = share + (gross if index == 0 else 0.0)
             if ua["esv_min_applies"] and base < ua["min_wage"]:
@@ -153,7 +159,7 @@ def esv_monthly(slip, ua, gross, mat_total=0.0):
     full_month = bool(ua["month_workdays"]) and slip.worked.work_days >= ua["month_workdays"]
     if ua["esv_min_applies"] and full_month and 0 < base < ua["min_wage"]:   # без нарахувань ЄСВ немає
         base = ua["min_wage"]
-    return _r2(min(base, ua["esv_max_base"]) * ua["esv_rate"] / 100.0)
+    return _r2((min(base, ua["esv_max_base"]) + ahead_base) * ua["esv_rate"] / 100.0)
 
 
 class _Ctx:
