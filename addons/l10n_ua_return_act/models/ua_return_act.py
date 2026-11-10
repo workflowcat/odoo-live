@@ -100,7 +100,11 @@ class UaReturnAct(models.Model):
         return rows
 
     def action_fill(self):
-        """Рядки з кредит-ноти і прийомки; рядки, вписані рукою, лишаються."""
+        """Рядки з кредит-ноти і прийомки; рядки, вписані рукою, лишаються.
+
+        У рядках з документів кількість і ціна беруться заново, а вид невідповідності (крім нестачі
+        й надлишку, їх видно з кількості), опис і рішення, поставлені рукою, переходять у нові рядки.
+        """
         for act in self:
             if act.state != "draft":
                 raise UserError(_("Заповнити можна лише чернетку."))
@@ -108,7 +112,9 @@ class UaReturnAct(models.Model):
                 raise UserError(_("Вкажіть кредит-ноту або прийомку повернення."))
             refund = act._ua_refund_rows()
             picking = act._ua_picking_rows()
-            act.line_ids.filtered("auto").unlink()
+            old_auto = act.line_ids.filtered("auto")
+            kept = {line.product_id: (line.issue, line.description, line.decision) for line in old_auto}
+            old_auto.unlink()
             values = []
             for product in list(refund) + [p for p in picking if p not in refund]:
                 ref_qty, ref_amount = refund.get(product, (0.0, 0.0))
@@ -116,11 +122,15 @@ class UaReturnAct(models.Model):
                 qty_doc = ref_qty if act.refund_id else doc_qty
                 qty_received = got_qty if act.picking_id else qty_doc
                 price = ref_amount / ref_qty if ref_qty else 0.0
+                issue = "shortage" if qty_received < qty_doc else "surplus" if qty_received > qty_doc else "none"
+                old_issue, description, decision = kept.get(product, (None, False, False))
+                if old_issue not in (None, "none", "shortage", "surplus"):
+                    issue = old_issue
                 values.append({
                     "act_id": act.id, "auto": True, "product_id": product.id, "qty_doc": qty_doc,
                     "qty_received": qty_received, "price_unit": act.currency_id.round(price),
-                    "lot_names": ", ".join(lots),
-                    "issue": "shortage" if qty_received < qty_doc else "surplus" if qty_received > qty_doc else "none",
+                    "lot_names": ", ".join(lots), "issue": issue, "description": description,
+                    "decision": decision,
                 })
             self.env["ua.return.act.line"].create(values)
             if not act.line_ids:

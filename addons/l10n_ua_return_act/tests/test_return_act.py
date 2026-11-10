@@ -87,6 +87,9 @@ class TestUaReturnAct(TransactionCase):
         act.action_fill()
         self.assertIn(manual, act.line_ids, "«Перезаповнити» не чіпає рядки, вписані рукою")
         self.assertEqual(len(act.line_ids), 3)
+        camera = act.line_ids.filtered(lambda l: l.auto and l.product_id == self.camera)
+        self.assertEqual((camera.issue, camera.decision, camera.description),
+                         ("damage", "repair", "Розбитий об'єктив"), "позначки рукою пережили перезаповнення")
 
         act.action_done()
         self.assertEqual(act.state, "done")
