@@ -2,7 +2,7 @@
     "name": "Україна: меню продукту",
     "summary": "Три власні розділи - Зарплата, Кадри, Звітність - над стандартними поданнями Odoo; "
                "єдиний власник меню і українських назв довідників",
-    "version": "19.0.2.3.46",
+    "version": "19.0.2.3.47",
     "category": "Human Resources/Payroll",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -33,9 +33,9 @@
         "l10n_ua_docs", "l10n_ua_docs_sale", "l10n_ua_docs_stock", "l10n_ua_fop",
         "l10n_ua_migrate",
         # контрагенти і закупівлі
-        "l10n_ua_partner_edr", "l10n_ua_fx_deal", "l10n_ua_contract", "l10n_ua_dunning", "l10n_ua_defense", "l10n_ua_dk021", "l10n_ua_catalog",
+        "l10n_ua_partner_edr", "l10n_ua_fx_deal", "l10n_ua_contract", "l10n_ua_dunning", "l10n_ua_scan", "l10n_ua_product_rename", "l10n_ua_defense", "l10n_ua_dk021", "l10n_ua_catalog",
         "l10n_ua_component", "l10n_ua_supplier_catalog", "l10n_ua_parcel", "l10n_ua_map",
-        "l10n_ua_customs",
+        "l10n_ua_customs", "l10n_ua_landed_sold",
         "l10n_ua_bank_1c", "l10n_ua_close", "l10n_ua_tolling",
         "l10n_ua_payment_request", "l10n_ua_correspondence", "l10n_ua_prro", "l10n_ua_price_label",
         "l10n_ua_eco", "l10n_ua_claim", "l10n_ua_edo", "l10n_ua_procurement_plan", "l10n_ua_unit_transfer", "l10n_ua_offset", "l10n_ua_commission", "l10n_ua_fleet", "l10n_ua_mrp_plan", "l10n_ua_piecework", "l10n_ua_mrp_substitute", "l10n_ua_guarantee", "l10n_ua_metrology", "l10n_ua_workwear", "l10n_ua_grant", "l10n_ua_export_control", "l10n_ua_precious_metals", "l10n_ua_supplier_approval", "l10n_ua_limit_card", "l10n_ua_product_tests", "l10n_ua_safety", "l10n_ua_local_tax", "l10n_ua_price_set", "l10n_ua_bad_debt", "l10n_ua_cashflow", "l10n_ua_budget", "l10n_ua_vacation_plan", "l10n_ua_defect", "l10n_ua_equity", "l10n_ua_notes", "l10n_ua_headcount", "l10n_ua_asset_inventory", "l10n_ua_disability_quota", "l10n_ua_cash_count", "l10n_ua_finrep_dps", "l10n_ua_vat_return", "bp_kyc", "bp_purchase_intake",

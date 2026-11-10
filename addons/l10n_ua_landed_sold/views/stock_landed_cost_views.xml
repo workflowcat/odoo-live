@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_stock_landed_cost_form_ua_sold" model="ir.ui.view">
+    <field name="name">stock.landed.cost.form.ua.sold</field>
+    <field name="model">stock.landed.cost</field>
+    <field name="inherit_id" ref="stock_landed_costs.view_stock_landed_cost_form"/>
+    <field name="arch" type="xml">
+      <field name="vendor_bill_id" position="after">
+        <field name="ua_sold_to_cogs" readonly="state != 'draft'"/>
+      </field>
+    </field>
+  </record>
+</odoo>

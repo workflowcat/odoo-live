@@ -6,6 +6,19 @@ Notable changes for people who run or build on this code. Module-level API chang
 ## Unreleased
 
 ### Added
+- Barcode scanning in transfers and manufacturing orders (`l10n_ua_scan`), with Odoo's Community barcodes module and
+  any keyboard scanner. In a transfer a product adds one unit to its line (the first scan of a line starts from zero,
+  not from the reservation), a lot or serial number goes on its own line, a serial only once. In a manufacturing
+  order the finished product adds one to production and consumes components by the bill of materials; a component
+  adds one to its consumption. The «Сканування» window opens a transfer or an order by its scanned number.
+- Act of changing a product's name or unit of measure (`l10n_ua_product_rename`): renames in place, changes the
+  unit in place when the product has no moves, otherwise converts the stock onto a new card with a factor (stock
+  value kept, lots kept, old card archived); print.
+- Additional costs on goods already sold (`l10n_ua_landed_sold`): the landed cost share for quantity no longer in
+  stock goes to cost of sales in the same entry instead of staying on the service account; on by default, a
+  switch on the document.
+- Automatic write-off of low-value items in use after their term (`l10n_ua_workwear`): a product flag and a daily
+  job that writes them off on the last day of the month.
 - Reminders to customers about overdue debts (`l10n_ua_dunning`). Levels by days overdue (3, 15 and 30 days by
   default, editable) carry the subject and text of the letter and may send without review. A daily job prepares
   one letter per customer and contract listing every overdue invoice with days overdue and the open amount; a new

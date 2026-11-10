@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+  <record id="ir_cron_ua_workwear_auto_write_off" model="ir.cron">
+    <field name="name">Предмети в експлуатації: списання після строку</field>
+    <field name="model_id" ref="model_ua_workwear_line"/>
+    <field name="state">code</field>
+    <field name="code">model._ua_cron_auto_write_off()</field>
+    <field name="interval_number">1</field>
+    <field name="interval_type">days</field>
+    <field name="nextcall" eval="'2026-11-11 05:00:00'"/>
+  </record>
+</odoo>

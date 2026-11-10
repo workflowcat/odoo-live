@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 99. Моделей: 207. Методів: 798. Збережених полів на чужих моделях: 439.
+Модулів: 102. Моделей: 209. Методів: 804. Збережених полів на чужих моделях: 441.
 
 ## Зарплата
 
@@ -2051,6 +2051,17 @@
 | `prozorro_plans()` | Предмети плану у вигляді планів API Prozorro (без процедури і звіту - не йдуть). | `l10n_ua_procurement_plan` |
 | `subject_rows()` | Предмети закупівлі: [{key, dk021, name, kind, total, threshold, lines}]. | `l10n_ua_procurement_plan` |
 
+### `ua.product.rename`
+
+наша модель · `l10n_ua_product_rename`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | - | `l10n_ua_product_rename` |
+| `action_done()` | - | `l10n_ua_product_rename` |
+| `action_draft()` | - | `l10n_ua_product_rename` |
+| `action_print()` | - | `l10n_ua_product_rename` |
+
 ### `ua.product.test`
 
 наша модель · `l10n_ua_product_tests`
@@ -2119,6 +2130,15 @@
 | `ua_date(day)` | - | `l10n_ua_safety` |
 | `ua_journal_rows()` | Рядки журналу за датою: № з/п, дата, працівник, посада, вид, інструкції, інструктор. | `l10n_ua_safety` |
 | `ua_kind_label()` | - | `l10n_ua_safety` |
+
+### `ua.scan.start`
+
+наша модель · `l10n_ua_scan`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_open()` | - | `l10n_ua_scan` |
+| `on_barcode_scanned(barcode)` | - | `l10n_ua_scan` |
 
 ### `ua.screen`
 
@@ -2519,7 +2539,7 @@
 
 ### `mrp.production`
 
-доповнена модель · `l10n_ua_defect`, `l10n_ua_defense`, `l10n_ua_eco`, `l10n_ua_mrp`, `l10n_ua_mrp_substitute`, `l10n_ua_tolling`
+доповнена модель · `l10n_ua_defect`, `l10n_ua_defense`, `l10n_ua_eco`, `l10n_ua_mrp`, `l10n_ua_mrp_substitute`, `l10n_ua_scan`, `l10n_ua_tolling`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -2593,7 +2613,7 @@
 
 ### `product.product`
 
-доповнена модель · `l10n_ua_precious_metals`
+доповнена модель · `l10n_ua_precious_metals`, `l10n_ua_scan`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -2613,7 +2633,7 @@
 
 ### `product.template`
 
-доповнена модель · `l10n_ua_component`, `l10n_ua_customs`, `l10n_ua_defense`, `l10n_ua_dk021`, `l10n_ua_export_control`, `l10n_ua_mrp`, `l10n_ua_precious_metals`, `l10n_ua_price_label`, `l10n_ua_product_tests`, `l10n_ua_stock_docs`, `l10n_ua_supplier_approval`, `l10n_ua_supplier_catalog`, `l10n_ua_vat`
+доповнена модель · `l10n_ua_component`, `l10n_ua_customs`, `l10n_ua_defense`, `l10n_ua_dk021`, `l10n_ua_export_control`, `l10n_ua_mrp`, `l10n_ua_precious_metals`, `l10n_ua_price_label`, `l10n_ua_product_tests`, `l10n_ua_stock_docs`, `l10n_ua_supplier_approval`, `l10n_ua_supplier_catalog`, `l10n_ua_vat`, `l10n_ua_workwear`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -2666,6 +2686,7 @@
 | `ua_vat_relief_id` | Many2one | ua.vat.relief | `l10n_ua_vat` |
 | `ua_vat_treatment` | Selection | Режим ПДВ товару | `l10n_ua_vat` |
 | `ua_warranty_months` | Integer | Гарантія, місяців | `l10n_ua_defense` |
+| `ua_wear_auto_write_off` | Boolean | Списувати після строку автоматично | `l10n_ua_workwear` |
 
 ### `purchase.order`
 
@@ -2690,11 +2711,12 @@
 
 ### `stock.landed.cost`
 
-доповнена модель · `l10n_ua_customs`
+доповнена модель · `l10n_ua_customs`, `l10n_ua_landed_sold`
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `ua_customs_declaration_id` | Many2one | ua.customs.declaration | `l10n_ua_customs` |
+| `ua_sold_to_cogs` | Boolean | Продане - на собівартість | `l10n_ua_landed_sold` |
 
 ### `stock.location`
 
@@ -2731,7 +2753,7 @@
 
 ### `stock.move`
 
-доповнена модель · `l10n_ua_fleet`, `l10n_ua_limit_card`, `l10n_ua_mrp_substitute`, `l10n_ua_workwear`
+доповнена модель · `l10n_ua_fleet`, `l10n_ua_limit_card`, `l10n_ua_mrp_substitute`, `l10n_ua_scan`, `l10n_ua_workwear`
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
@@ -2752,7 +2774,7 @@
 
 ### `stock.picking`
 
-доповнена модель · `l10n_ua_commission`, `l10n_ua_docs_stock`, `l10n_ua_export_control`, `l10n_ua_parcel`, `l10n_ua_stock_docs`, `l10n_ua_supplier_approval`, `l10n_ua_tolling`, `l10n_ua_unit_transfer`
+доповнена модель · `l10n_ua_commission`, `l10n_ua_docs_stock`, `l10n_ua_export_control`, `l10n_ua_parcel`, `l10n_ua_scan`, `l10n_ua_stock_docs`, `l10n_ua_supplier_approval`, `l10n_ua_tolling`, `l10n_ua_unit_transfer`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |

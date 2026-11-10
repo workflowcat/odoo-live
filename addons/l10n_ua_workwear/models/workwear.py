@@ -54,6 +54,15 @@ class StockMove(models.Model):
                 move.reference = move.ua_workwear_line_id.issue_id.name
 
 
+class ProductTemplate(models.Model):
+    _inherit = "product.template"
+
+    ua_wear_auto_write_off = fields.Boolean(
+        "Списувати після строку автоматично",
+        help="Предмет в експлуатації, чий строк минув, списується сам в останній день місяця "
+             "(малоцінні предмети з відомим строком використання).")
+
+
 class UaWorkwearNorm(models.Model):
     _name = "ua.workwear.norm"
     _description = "Норма видачі спецодягу на посаду"
@@ -350,6 +359,24 @@ class UaWorkwearLine(models.Model):
             line.write({"state": "written_off", "date_closed": fields.Date.context_today(line),
                         "close_reason": reason or line.close_reason or _("знос")})
         return True
+
+    @api.model
+    def _ua_auto_write_off(self, day=None):
+        """Списати предмети з позначкою автосписання, чий строк минув на дату (типово - сьогодні)."""
+        day = day or fields.Date.context_today(self)
+        lines = self.search([("state", "=", "in_use"), ("date_until", "!=", False), ("date_until", "<=", day),
+                             ("product_id.ua_wear_auto_write_off", "=", True)])
+        lines.write({"state": "written_off", "date_closed": day,
+                     "close_reason": _("строк використання минув")})
+        return lines
+
+    @api.model
+    def _ua_cron_auto_write_off(self):
+        """Щоденна задача; списує лише в останній день місяця."""
+        day = fields.Date.context_today(self)
+        if (day + relativedelta(days=1)).day != 1:
+            return self.browse()
+        return self._ua_auto_write_off(day)
 
     def action_print_write_off(self):
         lines = self.filtered(lambda l: l.state == "written_off")

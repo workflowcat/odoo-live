@@ -8,6 +8,8 @@
 
 Запуск: тег ua_workwear.
 """
+from datetime import date
+
 from dateutil.relativedelta import relativedelta
 
 from odoo import fields
@@ -146,3 +148,20 @@ class TestUaWorkwear(TransactionCase):
         self.assertEqual(empty.state, "cancel")
         empty.action_draft()
         self.assertEqual(empty.state, "draft")
+
+    def test_03_auto_write_off_after_term(self):
+        self.gloves.ua_wear_auto_write_off = True
+        issue = self._issue(self.ivan)
+        issue.date = date(2025, 11, 3)
+        issue.action_done()
+        gloves = issue.line_ids.filtered(lambda l: l.product_id == self.gloves)
+        jacket = issue.line_ids.filtered(lambda l: l.product_id == self.jacket)
+        self.assertEqual((gloves.date_until, jacket.date_until), (date(2026, 11, 3), date(2027, 11, 3)))
+        Line = self.env["ua.workwear.line"]
+        self.assertFalse(Line._ua_auto_write_off(date(2026, 10, 31)), "строк ще не минув")
+        done = Line._ua_auto_write_off(date(2026, 11, 30))
+        self.assertEqual(done, gloves, "куртка без позначки автосписання лишається")
+        self.assertEqual((gloves.state, gloves.date_closed), ("written_off", date(2026, 11, 30)))
+        self.assertEqual(jacket.state, "in_use")
+        self.assertIn("строк", gloves.close_reason)
+

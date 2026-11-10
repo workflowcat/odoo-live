@@ -193,4 +193,15 @@
       </div>
     </field>
   </record>
+
+  <record id="view_product_template_form_ua_workwear" model="ir.ui.view">
+    <field name="name">product.template.form.ua.workwear</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="stock.view_template_property_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//group[@name='group_lots_and_weight']" position="inside">
+        <field name="ua_wear_auto_write_off"/>
+      </xpath>
+    </field>
+  </record>
 </odoo>

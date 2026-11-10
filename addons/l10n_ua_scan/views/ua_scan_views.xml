@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_picking_form_ua_scan" model="ir.ui.view">
+    <field name="name">stock.picking.form.ua.scan</field>
+    <field name="model">stock.picking</field>
+    <field name="inherit_id" ref="stock.view_picking_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//sheet" position="inside">
+        <field name="_barcode_scanned" widget="barcode_handler" invisible="1"/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_mrp_production_form_ua_scan" model="ir.ui.view">
+    <field name="name">mrp.production.form.ua.scan</field>
+    <field name="model">mrp.production</field>
+    <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//sheet" position="inside">
+        <field name="_barcode_scanned" widget="barcode_handler" invisible="1"/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_ua_scan_start_form" model="ir.ui.view">
+    <field name="name">ua.scan.start.form</field>
+    <field name="model">ua.scan.start</field>
+    <field name="arch" type="xml">
+      <form string="Сканування">
+        <field name="_barcode_scanned" widget="barcode_handler" invisible="1"/>
+        <p class="text-muted" invisible="code">Відскануйте номер переміщення або замовлення на виробництво.</p>
+        <group>
+          <field name="code" invisible="not code"/>
+          <field name="message" invisible="not message"/>
+          <field name="picking_id" invisible="not picking_id"/>
+          <field name="production_id" invisible="not production_id"/>
+        </group>
+        <footer>
+          <button name="action_open" type="object" string="Відкрити" class="btn-primary"
+                  invisible="not picking_id and not production_id"/>
+          <button string="Закрити" special="cancel"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_scan_start" model="ir.actions.act_window">
+    <field name="name">Сканування</field>
+    <field name="res_model">ua.scan.start</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+  </record>
+</odoo>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_product_rename_form" model="ir.ui.view">
+    <field name="name">ua.product.rename.form</field><field name="model">ua.product.rename</field>
+    <field name="arch" type="xml">
+      <form string="Акт зміни найменування та одиниці виміру">
+        <header>
+          <button name="action_done" type="object" string="Провести" class="btn-primary" invisible="state != 'draft'"
+                  confirm="Назви й одиниці в картках товарів зміняться, а запас з іншою одиницею перейде на нові картки. Провести?"/>
+          <button name="action_print" type="object" string="Друк"/>
+          <button name="action_cancel" type="object" string="Скасувати" invisible="state != 'draft'"/>
+          <button name="action_draft" type="object" string="У чернетку" invisible="state != 'cancel'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="reason" readonly="state != 'draft'"/>
+            </group>
+          </group>
+          <field name="line_ids" readonly="state != 'draft'">
+            <list editable="bottom">
+              <field name="product_id"/>
+              <field name="old_name" optional="show"/>
+              <field name="new_name"/>
+              <field name="old_uom_id" optional="show"/>
+              <field name="new_uom_id"/>
+              <field name="factor"/>
+              <field name="mode" optional="show"/>
+              <field name="quantity_old" optional="show"/>
+              <field name="quantity_new" optional="show"/>
+              <field name="new_product_id" optional="show"/>
+            </list>
+          </field>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_product_rename_list" model="ir.ui.view">
+    <field name="name">ua.product.rename.list</field><field name="model">ua.product.rename</field>
+    <field name="arch" type="xml">
+      <list string="Акти зміни найменування">
+        <field name="date"/>
+        <field name="name"/>
+        <field name="reason" optional="show"/>
+        <field name="state" widget="badge" decoration-success="state == 'done'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_product_rename" model="ir.actions.act_window">
+    <field name="name">Акти зміни найменування</field>
+    <field name="res_model">ua.product.rename</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>

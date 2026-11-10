@@ -267,6 +267,13 @@
             parent="menu_ua_reporting_finrep" action="l10n_ua_notes.action_ua_notes_statement" sequence="28"/>
   <menuitem id="menu_ua_equity_rule" name="Рядки Ф4 за рахунком"
             parent="menu_ua_reporting_finrep" action="l10n_ua_equity.action_ua_equity_rule" sequence="57"/>
+  <!-- ================================================================= склад: сканер, зміна найменування -->
+  <menuitem id="menu_ua_scan_stock" name="Сканування" parent="stock.menu_stock_warehouse_mgmt"
+            action="l10n_ua_scan.action_ua_scan_start" sequence="1"/>
+  <menuitem id="menu_ua_scan_mrp" name="Сканування" parent="mrp.menu_mrp_manufacturing"
+            action="l10n_ua_scan.action_ua_scan_start" sequence="1"/>
+  <menuitem id="menu_ua_product_rename" name="Акти зміни найменування" parent="stock.menu_stock_inventory_control"
+            action="l10n_ua_product_rename.action_ua_product_rename" sequence="70"/>
   <menuitem id="menu_ua_defect_act" name="Акти про брак" parent="mrp.menu_mrp_manufacturing"
             action="l10n_ua_defect.action_ua_defect_act" sequence="40"/>
   <menuitem id="menu_ua_cashflow_budget" name="Бюджет руху коштів" parent="account.menu_finance_payables"

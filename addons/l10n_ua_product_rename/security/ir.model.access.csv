@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_product_rename_user,ua.product.rename user,model_ua_product_rename,stock.group_stock_user,1,0,0,0
+access_ua_product_rename_manager,ua.product.rename manager,model_ua_product_rename,stock.group_stock_manager,1,1,1,1
+access_ua_product_rename_line_user,ua.product.rename.line user,model_ua_product_rename_line,stock.group_stock_user,1,0,0,0
+access_ua_product_rename_line_manager,ua.product.rename.line manager,model_ua_product_rename_line,stock.group_stock_manager,1,1,1,1

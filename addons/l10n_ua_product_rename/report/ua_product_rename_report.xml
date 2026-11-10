@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="report_ua_product_rename_document">
+    <t t-call="web.external_layout">
+      <div class="page">
+        <h4 class="text-center">Акт зміни найменування та одиниці виміру запасів № <t t-esc="o.name"/></h4>
+        <p class="text-center">від <t t-esc="o.date.strftime('%d.%m.%Y')"/></p>
+        <p t-if="o.reason">Підстава: <t t-esc="o.reason"/></p>
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>№</th><th>Було: назва</th><th>Од.</th><th>Стало: назва</th><th>Од.</th>
+              <th class="text-end">Коеф.</th><th class="text-end">Залишок до</th><th class="text-end">Залишок після</th>
+              <th class="text-end">Собівартість до</th><th class="text-end">після</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr t-foreach="o.line_ids" t-as="line">
+              <td t-esc="line_index + 1"/>
+              <td t-esc="line.old_name"/>
+              <td t-esc="line.old_uom_id.name"/>
+              <td t-esc="line.new_name"/>
+              <td t-esc="line.new_uom_id.name"/>
+              <td class="text-end" t-esc="'%g' % line.factor"/>
+              <td class="text-end" t-esc="'%g' % line.quantity_old"/>
+              <td class="text-end" t-esc="'%g' % line.quantity_new"/>
+              <td class="text-end" t-esc="'%.2f' % line.cost_old"/>
+              <td class="text-end" t-esc="'%.2f' % line.cost_new"/>
+            </tr>
+          </tbody>
+        </table>
+        <p>Вартість запасів після зміни не змінюється.</p>
+        <table class="table table-borderless mt-4">
+          <tr><td>Голова комісії</td><td>__________________</td><td>Власне ім'я ПРІЗВИЩЕ</td></tr>
+          <tr><td>Члени комісії</td><td>__________________</td><td>Власне ім'я ПРІЗВИЩЕ</td></tr>
+          <tr><td>Матеріально відповідальна особа</td><td>__________________</td><td>Власне ім'я ПРІЗВИЩЕ</td></tr>
+        </table>
+      </div>
+    </t>
+  </template>
+
+  <template id="report_ua_product_rename">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="o">
+        <t t-call="l10n_ua_product_rename.report_ua_product_rename_document"/>
+      </t>
+    </t>
+  </template>
+
+  <record id="action_report_ua_product_rename" model="ir.actions.report">
+    <field name="name">Акт зміни найменування</field>
+    <field name="model">ua.product.rename</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_product_rename.report_ua_product_rename</field>
+    <field name="report_file">l10n_ua_product_rename.report_ua_product_rename</field>
+    <field name="print_report_name">'Акт %s' % object.name</field>
+    <field name="binding_model_id" ref="model_ua_product_rename"/>
+    <field name="binding_type">report</field>
+  </record>
+</odoo>

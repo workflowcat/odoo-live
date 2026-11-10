@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 99,
-    "models": 207,
-    "methods": 798,
-    "fields": 439
+    "modules": 102,
+    "models": 209,
+    "methods": 804,
+    "fields": 441
   },
   "areas": [
     {
@@ -9159,6 +9159,48 @@
           "fields": []
         },
         {
+          "model": "ua.product.rename",
+          "ours": true,
+          "modules": [
+            "l10n_ua_product_rename"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_product_rename",
+              "file": "addons/l10n_ua_product_rename/models/ua_product_rename.py",
+              "decorators": []
+            },
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_product_rename",
+              "file": "addons/l10n_ua_product_rename/models/ua_product_rename.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_product_rename",
+              "file": "addons/l10n_ua_product_rename/models/ua_product_rename.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_product_rename",
+              "file": "addons/l10n_ua_product_rename/models/ua_product_rename.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.product.test",
           "ours": true,
           "modules": [
@@ -9430,6 +9472,32 @@
               "doc": "",
               "module": "l10n_ua_safety",
               "file": "addons/l10n_ua_safety/models/safety.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.scan.start",
+          "ours": true,
+          "modules": [
+            "l10n_ua_scan"
+          ],
+          "methods": [
+            {
+              "name": "action_open",
+              "signature": "action_open()",
+              "doc": "",
+              "module": "l10n_ua_scan",
+              "file": "addons/l10n_ua_scan/models/ua_scan.py",
+              "decorators": []
+            },
+            {
+              "name": "on_barcode_scanned",
+              "signature": "on_barcode_scanned(barcode)",
+              "doc": "",
+              "module": "l10n_ua_scan",
+              "file": "addons/l10n_ua_scan/models/ua_scan.py",
               "decorators": []
             }
           ],
@@ -11172,6 +11240,7 @@
             "l10n_ua_eco",
             "l10n_ua_mrp",
             "l10n_ua_mrp_substitute",
+            "l10n_ua_scan",
             "l10n_ua_tolling"
           ],
           "methods": [
@@ -11448,7 +11517,8 @@
           "model": "product.product",
           "ours": false,
           "modules": [
-            "l10n_ua_precious_metals"
+            "l10n_ua_precious_metals",
+            "l10n_ua_scan"
           ],
           "methods": [
             {
@@ -11528,7 +11598,8 @@
             "l10n_ua_stock_docs",
             "l10n_ua_supplier_approval",
             "l10n_ua_supplier_catalog",
-            "l10n_ua_vat"
+            "l10n_ua_vat",
+            "l10n_ua_workwear"
           ],
           "methods": [
             {
@@ -11900,6 +11971,14 @@
               "module": "l10n_ua_defense",
               "file": "addons/l10n_ua_defense/models/product.py",
               "groups": ""
+            },
+            {
+              "name": "ua_wear_auto_write_off",
+              "type": "Boolean",
+              "label": "Списувати після строку автоматично",
+              "module": "l10n_ua_workwear",
+              "file": "addons/l10n_ua_workwear/models/workwear.py",
+              "groups": ""
             }
           ]
         },
@@ -11988,7 +12067,8 @@
           "model": "stock.landed.cost",
           "ours": false,
           "modules": [
-            "l10n_ua_customs"
+            "l10n_ua_customs",
+            "l10n_ua_landed_sold"
           ],
           "methods": [],
           "fields": [
@@ -11998,6 +12078,14 @@
               "label": "ua.customs.declaration",
               "module": "l10n_ua_customs",
               "file": "addons/l10n_ua_customs/models/stock_landed_cost.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_sold_to_cogs",
+              "type": "Boolean",
+              "label": "Продане - на собівартість",
+              "module": "l10n_ua_landed_sold",
+              "file": "addons/l10n_ua_landed_sold/models/stock_landed_cost.py",
               "groups": ""
             }
           ]
@@ -12165,6 +12253,7 @@
             "l10n_ua_fleet",
             "l10n_ua_limit_card",
             "l10n_ua_mrp_substitute",
+            "l10n_ua_scan",
             "l10n_ua_workwear"
           ],
           "methods": [],
@@ -12245,6 +12334,7 @@
             "l10n_ua_docs_stock",
             "l10n_ua_export_control",
             "l10n_ua_parcel",
+            "l10n_ua_scan",
             "l10n_ua_stock_docs",
             "l10n_ua_supplier_approval",
             "l10n_ua_tolling",
