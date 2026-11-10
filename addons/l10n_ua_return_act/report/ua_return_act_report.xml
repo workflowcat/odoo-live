@@ -33,9 +33,9 @@
               <td class="text-end" t-esc="'%g' % line.qty_diff"/>
               <td class="text-end" t-esc="'%.2f' % line.price_unit"/>
               <td class="text-end" t-esc="'%.2f' % line.amount_diff"/>
-              <td t-esc="dict(line._fields['issue'].selection).get(line.issue)"/>
+              <td t-esc="line.issue_label()"/>
               <td><t t-esc="line.description or ''"/><t t-if="line.lot_names"><br/><t t-esc="line.lot_names"/></t></td>
-              <td t-esc="dict(line._fields['decision'].selection).get(line.decision) or ''"/>
+              <td t-esc="line.decision_label()"/>
             </tr>
           </tbody>
           <tfoot>

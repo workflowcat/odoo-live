@@ -203,6 +203,16 @@ class UaReturnActLine(models.Model):
             line.amount_received = currency.round(line.qty_received * line.price_unit)
             line.amount_diff = line.amount_received - line.amount_doc
 
+    def issue_label(self):
+        """Назва невідповідності для друку."""
+        self.ensure_one()
+        return dict(ISSUES).get(self.issue, "")
+
+    def decision_label(self):
+        """Назва рішення для друку."""
+        self.ensure_one()
+        return dict(DECISIONS).get(self.decision, "")
+
     def write(self, vals):
         if any(line.act_id.state != "draft" for line in self):
             raise UserError(_("Рядки змінюють лише в чернетці акта."))
