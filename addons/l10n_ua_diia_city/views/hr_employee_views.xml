@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_employee_form_ua_gig" model="ir.ui.view">
+    <field name="name">hr.employee.form.ua.gig</field><field name="model">hr.employee</field>
+    <field name="inherit_id" ref="l10n_ua_payroll_rules.view_employee_form_ua"/>
+    <field name="arch" type="xml">
+      <field name="ua_contract_kind" position="after">
+        <field name="ua_gig_currency_id" invisible="ua_contract_kind != 'gig'"/>
+        <field name="ua_gig_fee" invisible="ua_contract_kind != 'gig'"/>
+      </field>
+    </field>
+  </record>
+</odoo>

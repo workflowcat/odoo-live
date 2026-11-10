@@ -1,7 +1,7 @@
 {
     "name": "Зарплата: правила України",
-    "summary": "Параметри з датами (МЗП, ПМ, ПСП, ставки), поля працівника, структура «Україна: оклад», правила ПДФО, ВЗ, ЄСВ",
-    "version": "19.0.0.7.1",
+    "summary": "Параметри з датами (МЗП, ПМ, ПСП, ставки), поля працівника, структура «Україна: оклад», правила ПДФО, ВЗ, ЄСВ, ставки Дія Сіті",
+    "version": "19.0.0.8.0",
     "category": "Human Resources/Payroll",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -16,6 +16,7 @@
         "views/ua_payroll_param_views.xml",
         "views/hr_employee_views.xml",
         "views/ua_advance_sheet_views.xml",
+        "views/ua_diia_city_views.xml",
     ],
     # вмикає uk_UA: без неї гачки інших модулів падають на порожній базі
     "post_init_hook": "post_init_hook",

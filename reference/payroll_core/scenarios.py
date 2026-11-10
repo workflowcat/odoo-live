@@ -16,11 +16,11 @@ from datetime import date
 from . import calendar_ua as cal
 from .model import CpiMonth, EarningsMonth, Employee, Leaves, Slip, WorkedTime
 
-KNOWN_SETUP = {"start", "end", "history", "leaves", "years", "rehire", "index_base"}
+KNOWN_SETUP = {"start", "end", "history", "leaves", "years", "rehire", "index_base", "diia_city"}
 KNOWN_EMPLOYEE = {"ua_main_job", "ua_fte", "ua_psp", "ua_esv_category", "ua_contract_kind"}
 KNOWN_LEAVES = {"VAC", "SICK", "SICK_CARE", "MAT", "STUDY", "TRIP", "CHILD_VAC"}
 KNOWN_PSP = {"none", "base", "child", "child150", "s150", "s200"}
-KNOWN_KINDS = {"employment", "gph", "fop"}
+KNOWN_KINDS = {"employment", "gph", "gig", "fop"}
 
 # ч. 2 ст. 22 ЗУ 1105-XIV: перші п'ять днів хвороби оплачує роботодавець,
 # з шостого - Пенсійний фонд.
@@ -148,6 +148,14 @@ def _leaves(scenario, month_start, month_finish, hired, fired):
     return leaves, absence
 
 
+def _diia_city(setup):
+    """Стан резидента Дія Сіті в місяці листка: "" (не резидент), compliant, noncompliant."""
+    value = setup.get("diia_city") or ""
+    if value not in ("", "compliant", "noncompliant"):
+        raise Unsupported("невідомий стан Дія Сіті: %s" % value)
+    return value
+
+
 def build(scenario, cpi=()):
     """Зібрати листок зі сценарію. Піднімає Unsupported, якщо сценарій не виражається."""
     setup = scenario.get("setup") or {}
@@ -182,6 +190,7 @@ def build(scenario, cpi=()):
         inputs=dict(scenario.get("inputs") or {}),
         history=_history(scenario, year, month),
         cpi=list(cpi) if employee.index_base else [],
+        diia_city=_diia_city(setup),
     )
     return slip
 

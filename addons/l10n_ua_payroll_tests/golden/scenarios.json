@@ -1220,6 +1220,228 @@
    "confirmed_by": null,
    "confirmed_on": null,
    "basis": "виведено з правил: відрядна оплата - основна зарплата, тож податки, ЄСВ, резерв і проводка як у сценарії 1; бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 32,
+   "title": "Гіг-спеціаліст Дія Сіті: винагорода і премія",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 0,
+   "employee": {
+    "ua_contract_kind": "gig",
+    "ua_main_job": false
+   },
+   "setup": {
+    "diia_city": "compliant"
+   },
+   "inputs": {
+    "GIG": 60000,
+    "GIG_BONUS": 10000
+   },
+   "expect": {
+    "GROSS": 70000.0,
+    "PDFO": -3500.0,
+    "VZ": -3500.0,
+    "NET": 63000.0,
+    "ESV": 1902.34
+   },
+   "moves": [
+    {
+     "side": "Дт",
+     "account": "92",
+     "amount": 71902.34
+    },
+    {
+     "side": "Кт",
+     "account": "661",
+     "amount": 70000.0
+    },
+    {
+     "side": "Дт",
+     "account": "661",
+     "amount": 7000.0
+    },
+    {
+     "side": "Кт",
+     "account": "6411",
+     "amount": 3500.0
+    },
+    {
+     "side": "Кт",
+     "account": "6415",
+     "amount": 3500.0
+    },
+    {
+     "side": "Кт",
+     "account": "651",
+     "amount": 1902.34
+    }
+   ],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "числа порахував код за правилами Дія Сіті 2026-11-10 (ставка ПДФО 5 %, мінімальний ЄСВ); бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 33,
+   "title": "Працівник резидента Дія Сіті за трудовим договором",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 80000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {
+    "diia_city": "compliant"
+   },
+   "inputs": {},
+   "expect": {
+    "GROSS": 80000.0,
+    "PDFO": -4000.0,
+    "VZ": -4000.0,
+    "NET": 72000.0,
+    "ESV": 1902.34,
+    "RESERVE_ESV": 0.0
+   },
+   "moves": [
+    {
+     "side": "Дт",
+     "account": "92",
+     "amount": 89582.34
+    },
+    {
+     "side": "Кт",
+     "account": "661",
+     "amount": 80000.0
+    },
+    {
+     "side": "Дт",
+     "account": "661",
+     "amount": 8000.0
+    },
+    {
+     "side": "Кт",
+     "account": "6411",
+     "amount": 4000.0
+    },
+    {
+     "side": "Кт",
+     "account": "6415",
+     "amount": 4000.0
+    },
+    {
+     "side": "Кт",
+     "account": "651",
+     "amount": 1902.34
+    },
+    {
+     "side": "Кт",
+     "account": "471",
+     "amount": 7680.0
+    }
+   ],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "числа порахував код за правилами Дія Сіті 2026-11-10 (ставка ПДФО 5 %, мінімальний ЄСВ); бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 34,
+   "title": "Дія Сіті, місяць невідповідності вимогам: загальні ставки",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 0,
+   "employee": {
+    "ua_contract_kind": "gig",
+    "ua_main_job": false
+   },
+   "setup": {
+    "diia_city": "noncompliant"
+   },
+   "inputs": {
+    "GIG": 60000
+   },
+   "expect": {
+    "GROSS": 60000.0,
+    "PDFO": -10800.0,
+    "VZ": -3000.0,
+    "NET": 46200.0,
+    "ESV": 13200.0
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "числа порахував код за правилами Дія Сіті 2026-11-10 (ставка ПДФО 5 %, мінімальний ЄСВ); бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 35,
+   "title": "Гіг-спеціаліст Дія Сіті з винагородою, меншою за мінімальну зарплату",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 0,
+   "employee": {
+    "ua_contract_kind": "gig",
+    "ua_main_job": false
+   },
+   "setup": {
+    "diia_city": "compliant"
+   },
+   "inputs": {
+    "GIG": 5000
+   },
+   "expect": {
+    "GROSS": 5000.0,
+    "PDFO": -250.0,
+    "VZ": -250.0,
+    "NET": 4500.0,
+    "ESV": 1902.34
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "числа порахував код за правилами Дія Сіті 2026-11-10 (ставка ПДФО 5 %, мінімальний ЄСВ); бухгалтер ще не підтвердив"
+  },
+  {
+   "id": 36,
+   "title": "Працівник Дія Сіті з подарунком понад межу: 5 % із зарплати, 18 % з подарунка",
+   "period": [
+    "2026-08-01",
+    "2026-08-31"
+   ],
+   "wage": 80000,
+   "employee": {
+    "ua_main_job": true
+   },
+   "setup": {
+    "diia_city": "compliant"
+   },
+   "inputs": {
+    "GIFT": 4161.75
+   },
+   "expect": {
+    "GROSS": 80000.0,
+    "GIFT_FREE": 2161.75,
+    "GIFT_TAX": 2000.0,
+    "PDFO": -4360.0,
+    "VZ": -4100.0,
+    "NET": 75701.75,
+    "ESV": 1902.34
+   },
+   "moves": [],
+   "confirmed": false,
+   "confirmed_by": null,
+   "confirmed_on": null,
+   "basis": "числа порахував код за правилами Дія Сіті 2026-11-10 (ставка ПДФО 5 %, мінімальний ЄСВ); бухгалтер ще не підтвердив"
   }
  ]
 }

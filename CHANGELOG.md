@@ -6,6 +6,21 @@ Notable changes for people who run or build on this code. Module-level API chang
 ## Unreleased
 
 ### Added
+- Diia City payroll. A company can be marked a Diia City resident with the date it joined. From the next
+  month, pay of employees and gig specialists is taxed at 5 % ПДФО and 5 % military levy, and ЄСВ is one
+  minimum contribution a month (1 902,34 грн in 2026) whatever the amount or days worked. Gifts and other
+  non-pay income keep 18 %. A month marked «не відповідає вимогам» in the new «Дія Сіті за місяцями»
+  document falls back to general rates; the document counts people and the average reward in euro and
+  lists anyone past the 240 000 EUR yearly limit (they pay the difference in their own declaration).
+  New contract kind «гіг-контракт (Дія Сіті)», pay lines «Винагорода за гіг-контрактом» (GIG) and
+  «Премія гіг-спеціалісту» (GIG_BONUS); the unified report uses income code 102 and insured person
+  categories 83/82 for gig specialists. Rates and limits are dated parameters. Golden scenarios 32-36,
+  not yet confirmed by an accountant.
+- `l10n_ua_diia_city`: gig fee in the contract currency on the employee card; «Акт гіг-спеціаліста» takes
+  the NBU rate on the act date from currency rates (or a rate typed in), prints both currencies, and sends
+  reward and bonus to the payslip. Tests: `ua_diia_city`.
+- Payroll accounts from the employee card: «Рахунок розрахунків (замість 661)» moves every 661 line of that
+  person (accruals, withholdings, payments) to another account, such as 663 or 685 for gig specialists.
 - Person card: a «Потребує уваги» band above the tabs says what needs action in words (a document
   that expired or expires within 30 days, with its date; no РНОКПП; no ID document; military record
   check due; more than 60 unused vacation days) instead of a bare count. `ua.api.employee_card`

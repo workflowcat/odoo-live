@@ -28,6 +28,13 @@
     <field name="arch" type="xml">
       <xpath expr="//notebook" position="inside">
         <page string="Відпустки (облік)" name="ua_vacation"><group><field name="ua_vacation_opening_date"/></group></page>
+        <page string="Дія Сіті" name="ua_diia_city">
+          <group>
+            <field name="ua_dc_resident"/>
+            <field name="ua_dc_since" invisible="not ua_dc_resident" required="ua_dc_resident"/>
+            <field name="ua_dc_until" invisible="not ua_dc_resident"/>
+          </group>
+        </page>
       </xpath>
     </field>
   </record>

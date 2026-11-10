@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_gig_act_form" model="ir.ui.view">
+    <field name="name">ua.gig.act.form</field><field name="model">ua.gig.act</field>
+    <field name="arch" type="xml">
+      <form string="Акт гіг-спеціаліста">
+        <header>
+          <button name="action_confirm" type="object" string="Затвердити" class="btn-primary" invisible="state != 'draft'"/>
+          <button name="action_refresh_rate" type="object" string="Оновити курс" invisible="state != 'draft'"/>
+          <button name="action_print" type="object" string="Друк" invisible="state == 'cancel'"/>
+          <button name="action_cancel" type="object" string="Скасувати" invisible="state != 'confirmed'"/>
+          <button name="action_draft" type="object" string="У чернетку" invisible="state != 'cancel'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,confirmed"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="employee_id" readonly="state != 'draft'"/>
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="date_from" readonly="state != 'draft'"/>
+              <field name="date_to" readonly="state != 'draft'"/>
+              <field name="payslip_id"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="currency_id" readonly="state != 'draft'"/>
+              <field name="amount_currency" readonly="state != 'draft'"/>
+              <field name="bonus_currency" readonly="state != 'draft'"/>
+              <field name="rate" readonly="state != 'draft'"/>
+              <field name="company_currency_id" invisible="1"/>
+              <field name="amount"/>
+              <field name="bonus"/>
+              <field name="total"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Послуги" name="description">
+              <field name="description" nolabel="1" readonly="state != 'draft'"/>
+            </page>
+            <page string="Примітка" name="note">
+              <field name="note" nolabel="1"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_gig_act_list" model="ir.ui.view">
+    <field name="name">ua.gig.act.list</field><field name="model">ua.gig.act</field>
+    <field name="arch" type="xml">
+      <list string="Акти гіг-спеціалістів">
+        <field name="name"/>
+        <field name="date" options="{'numeric': True}"/>
+        <field name="employee_id"/>
+        <field name="currency_id" optional="show"/>
+        <field name="total_currency" optional="show"/>
+        <field name="rate" optional="hide"/>
+        <field name="company_currency_id" column_invisible="1"/>
+        <field name="total" sum="Разом"/>
+        <field name="state"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_gig_act_search" model="ir.ui.view">
+    <field name="name">ua.gig.act.search</field><field name="model">ua.gig.act</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="employee_id"/>
+        <field name="name"/>
+        <filter name="draft" string="Чернетки" domain="[('state', '=', 'draft')]"/>
+        <filter name="confirmed" string="Затверджені" domain="[('state', '=', 'confirmed')]"/>
+        <group>
+          <filter name="by_employee" string="Гіг-спеціаліст" context="{'group_by': 'employee_id'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_gig_act" model="ir.actions.act_window">
+    <field name="name">Акти гіг-спеціалістів</field>
+    <field name="res_model">ua.gig.act</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>

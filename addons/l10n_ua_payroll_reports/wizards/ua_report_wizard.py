@@ -9,8 +9,10 @@ from odoo import fields, models
 from odoo.exceptions import UserError
 
 VER = "11"
-ESV_CAT = {"employment": "1", "disabled": "2", "gph": "26", "sick": "29", "mat": "42"}
-INCOME_SIGN = {"employment": "101", "gph": "102", "fop": "157"}   # ознака доходу 4ДФ
+ESV_CAT = {"employment": "1", "disabled": "2", "gph": "26", "sick": "29", "mat": "42",
+           "gig": "83", "gig_disabled": "82"}   # 83/82 - гіг-спеціаліст резидента Дія Сіті (з інвалідністю - 82)
+INCOME_SIGN = {"employment": "101", "gph": "102", "gig": "102", "fop": "157"}   # ознака доходу 4ДФ
+CIVIL_KINDS = ("gph", "gig")   # винагорода за цивільно-правовим договором: окремий рядок у розрахунку
 # Виплати поза зарплатою: ознака 4ДФ -> (правила з сумою доходу, правила з оподатковуваною частиною).
 # У Д1 вони не потрапляють: ЄСВ на них не нараховується.
 OTHER_INCOME = {
@@ -80,7 +82,13 @@ class UaPayrollReportWizard(models.TransientModel):
         end = min(d2, dism) if dism else d2
         days_in = max((end - start).days + 1, 0)
         kind = emp.ua_contract_kind or "employment"
-        cat = ESV_CAT["gph"] if kind == "gph" else (ESV_CAT["disabled"] if emp.ua_esv_category == "disabled" else ESV_CAT["employment"])
+        disabled = emp.ua_esv_category == "disabled"
+        if kind == "gig":
+            cat = ESV_CAT["gig_disabled"] if disabled else ESV_CAT["gig"]
+        elif kind == "gph":
+            cat = ESV_CAT["gph"]
+        else:
+            cat = ESV_CAT["disabled"] if disabled else ESV_CAT["employment"]
         rate = params["esv_rate_disabled"] if emp.ua_esv_category == "disabled" else params["esv_rate"]
         sick_emp, sick_pfu = self._line(slip, "SICK_EMP"), self._line(slip, "SICK_PFU")
         sick_care = self._line(slip, "SICK_CARE_PAY")        # догляд за хворим: ПФУ з першого дня, у Д1 та сама категорія 29
@@ -134,6 +142,15 @@ class UaPayrollReportWizard(models.TransientModel):
         delta = r2(esv_total - sum(r["G20"] for r in rows))
         if abs(delta) <= 0.05:
             rows[0]["G20"] = r2(rows[0]["G20"] + delta)
+        if getattr(slip, "ua_diia_city", False) and rows:
+            # Дія Сіті: ЄСВ - мінімальний внесок за місяць, тож один рядок за основною категорією:
+            # нараховано все (і лікарняні), база - мінімальна зарплата, внесок - як у листку.
+            # Окремі рядки 29 і 42 для резидента підтверджує бухгалтер.
+            main = rows[0]
+            main.update({"G16": r2(gross + mat), "G17": r2(params["min_wage"]) if esv_total else 0.0,
+                         "G18": None, "G19": 0.0, "G20": esv_total})
+            rows = [main]
+            min_diff = 0.0
         if kind == "fop":
             rows = []   # ФОП-підрядник: без ЄСВ, у Д1 не потрапляє; лише 4ДФ з ознакою 157
         other = {}
@@ -142,7 +159,7 @@ class UaPayrollReportWizard(models.TransientModel):
             taxable = r2(sum(self._line(slip, code) for code in tax_codes))
             if income:
                 other[sign] = (income, taxable)
-        return rows, {"gross": gross, "salary": salary, "gph": salary if kind == "gph" else 0.0, "sick_emp": sick_emp, "sick_pfu": r2(sick_pfu + sick_care), "mat": mat,
+        return rows, {"gross": gross, "salary": salary, "gph": salary if kind in CIVIL_KINDS else 0.0, "sick_emp": sick_emp, "sick_pfu": r2(sick_pfu + sick_care), "mat": mat,
                       "pdfo": r2(-self._line(slip, "PDFO")), "vz": r2(-self._line(slip, "VZ")), "kind": kind, "cat": cat, "min_diff": min_diff,
                       "other": other, "other_income": r2(sum(v[0] for v in other.values())),
                       "emp": emp, "hire": hire, "dism": dism}
@@ -288,7 +305,7 @@ class UaPayrollReportWizard(models.TransientModel):
         c = self.company_id
         rows = text_rows if text_rows is not None else [self._text_row(r, DF_COLS) for r in self._4df_rows(persons)]
         f = self._company_head() + [("HNUM", self.number), ("HNAME", c.name), ("HTIN", c.company_registry), ("HKATOTTG", c.ua_katottg or "")]
-        f += [("R00G01I", sum(1 for p in persons if p["kind"] == "employment")), ("R00G02I", sum(1 for p in persons if p["kind"] == "gph"))]
+        f += [("R00G01I", sum(1 for p in persons if p["kind"] == "employment")), ("R00G02I", sum(1 for p in persons if p["kind"] in CIVIL_KINDS))]
         for col in DF_COLS:
             for i, r in enumerate(rows, 1):
                 f.append((f"T1RXXXX{col}", r.get(col) or None, {"ROWNUM": i}))
@@ -307,7 +324,8 @@ class UaPayrollReportWizard(models.TransientModel):
             started = d1 <= v.contract_date_start <= d2
             ended = bool(v.contract_date_end) and d1 <= v.contract_date_end <= d2
             kind = emp.ua_contract_kind or "employment"
-            rows.append({"G5": "1", "G6": "1" if kind == "gph" else "0", "G7": "3" if kind == "gph" else "1",
+            civil = kind in CIVIL_KINDS
+            rows.append({"G5": "1", "G6": "1" if civil else "0", "G7": "3" if civil else "1",
                          "G8S": emp.ua_rnokpp or "", "names": emp._ua_name_parts(),
                          "G101D": v.contract_date_start if started else None, "G102D": v.contract_date_end if ended else None,
                          "G11": "1" if v.ua_internal_parttime else "0", "G12": "0",
@@ -331,7 +349,7 @@ class UaPayrollReportWizard(models.TransientModel):
         rate22 = [r for r in all_rows if r["rate"] == params["esv_rate"]]
         rate841 = [r for r in all_rows if r["rate"] == params["esv_rate_disabled"] and r["rate"] != params["esv_rate"]]
         s = lambda rows, k: r2(sum(r[k] or 0 for r in rows))
-        r1_1 = r2(sum(p["salary"] for p in persons if p["kind"] != "gph"))
+        r1_1 = r2(sum(p["salary"] for p in persons if p["kind"] not in CIVIL_KINDS))
         r1_2 = r2(sum(p["gph"] for p in persons))
         r1_3 = r2(sum(p["sick_emp"] for p in persons)); r1_4 = r2(sum(p["sick_pfu"] for p in persons))
         r2_1, r2_2 = s(rate22, "G17"), s(rate841, "G17")

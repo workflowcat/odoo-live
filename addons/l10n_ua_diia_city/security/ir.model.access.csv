@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_gig_act_user,ua.gig.act user,model_ua_gig_act,hr.group_hr_user,1,1,1,1

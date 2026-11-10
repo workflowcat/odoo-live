@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_gig_act" model="ir.actions.report">
+    <field name="name">Акт гіг-спеціаліста</field>
+    <field name="model">ua.gig.act</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_diia_city.report_ua_gig_act</field>
+    <field name="report_file">l10n_ua_diia_city.report_ua_gig_act</field>
+    <field name="binding_model_id" ref="model_ua_gig_act"/>
+    <field name="binding_type">report</field>
+    <field name="print_report_name">'Акт %s' % (object.name or '')</field>
+  </record>
+
+  <template id="report_ua_gig_act_document">
+    <t t-set="company" t-value="doc.company_id"/>
+    <t t-set="emp" t-value="doc.employee_id.sudo()"/>
+    <t t-set="foreign" t-value="doc.currency_id != doc.company_currency_id"/>
+    <div class="page ua-doc">
+      <style>
+        .ua-doc { font-size: 10px; color: #000; }
+        .ua-doc h3 { font-size: 13px; text-align: center; margin: 4px 0; }
+        .ua-doc .ua-sub { text-align: center; margin-bottom: 8px; }
+        .ua-doc .ua-grid { width: 100%; border-collapse: collapse; margin: 6px 0; }
+        .ua-doc .ua-grid th, .ua-doc .ua-grid td { border: 1px solid #000; padding: 2px 3px; }
+        .ua-doc .ua-grid th { font-weight: normal; text-align: center; }
+        .ua-doc .ua-num { text-align: right; white-space: nowrap; }
+        .ua-doc .ua-bold td { font-weight: bold; }
+        .ua-doc .ua-sign { width: 100%; margin-top: 18px; }
+        .ua-doc .ua-sign td { width: 50%; vertical-align: top; padding-right: 12px; }
+      </style>
+      <h3>АКТ № <t t-out="doc.name"/></h3>
+      <div class="ua-sub">приймання-передачі наданих послуг (виконаних робіт) за гіг-контрактом
+        <t t-if="emp.ua_gph_contract_ref">№ <t t-out="emp.ua_gph_contract_ref"/></t>
+        <t t-if="emp.ua_gph_contract_date"> від <t t-out="emp.ua_gph_contract_date.strftime('%d.%m.%Y')"/></t></div>
+      <div>Дата акта: <t t-out="doc.date.strftime('%d.%m.%Y')"/>.
+        Період: з <t t-out="doc.date_from.strftime('%d.%m.%Y')"/> по <t t-out="doc.date_to.strftime('%d.%m.%Y')"/>.</div>
+      <p>Замовник - <t t-out="company.name"/> (код за ЄДРПОУ <t t-out="company.company_registry or '-'"/>),
+        резидент Дія Сіті. Гіг-спеціаліст - <t t-out="emp.name"/>
+        (РНОКПП <t t-out="emp.ua_rnokpp or '-'"/>). Гіг-спеціаліст надав, а замовник прийняв такі послуги (роботи):</p>
+      <p t-if="doc.description" style="white-space: pre-wrap;"><t t-out="doc.description"/></p>
+      <table class="ua-grid">
+        <thead>
+          <tr>
+            <th>Вид виплати</th>
+            <th t-if="foreign" style="width: 16%;">Сума, <t t-out="doc.currency_id.name"/></th>
+            <th t-if="foreign" style="width: 16%;">Курс НБУ на <t t-out="doc.date.strftime('%d.%m.%Y')"/></th>
+            <th style="width: 18%;">Сума, грн</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Винагорода за гіг-контрактом</td>
+            <td t-if="foreign" class="ua-num"><t t-out="doc.money(doc.amount_currency)"/></td>
+            <td t-if="foreign" class="ua-num"><t t-out="doc.rate_text(doc.rate)"/></td>
+            <td class="ua-num"><t t-out="doc.money(doc.amount)"/></td>
+          </tr>
+          <tr t-if="doc.bonus_currency">
+            <td>Премія</td>
+            <td t-if="foreign" class="ua-num"><t t-out="doc.money(doc.bonus_currency)"/></td>
+            <td t-if="foreign" class="ua-num"><t t-out="doc.rate_text(doc.rate)"/></td>
+            <td class="ua-num"><t t-out="doc.money(doc.bonus)"/></td>
+          </tr>
+          <tr class="ua-bold">
+            <td>Разом</td>
+            <td t-if="foreign" class="ua-num"><t t-out="doc.money(doc.total_currency)"/></td>
+            <td t-if="foreign"/>
+            <td class="ua-num"><t t-out="doc.money(doc.total)"/></td>
+          </tr>
+        </tbody>
+      </table>
+      <p>Суми в гривнях - за офіційним курсом НБУ на дату акта. З винагороди замовник утримує податок на
+        доходи фізичних осіб і військовий збір за ставками, що діють для резидента Дія Сіті. Сторони
+        претензій одна до одної не мають.</p>
+      <table class="ua-sign">
+        <tr>
+          <td>Замовник<br/><t t-out="company.name"/><br/><br/>______________ / ______________</td>
+          <td>Гіг-спеціаліст<br/><t t-out="emp.name"/><br/><br/>______________ / ______________</td>
+        </tr>
+      </table>
+    </div>
+  </template>
+
+  <template id="report_ua_gig_act">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="web.basic_layout">
+          <t t-call="l10n_ua_diia_city.report_ua_gig_act_document"/>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

@@ -134,6 +134,9 @@ class AccountPaymentOrder(models.Model):
         закриє. Тому вид відносин питаємо в картки, а не вгадуємо за рахунком."""
         self.ensure_one()
         kind = employee.sudo().ua_contract_kind
+        if kind != "fop" and employee.sudo().ua_payable_account_id:
+            # рахунок розрахунків з картки (гіг-спеціаліст на 663/685): проводки листка кредитують саме його
+            return employee.sudo().ua_payable_account_id
         return self._ua_account(CONTRACTOR_ACCOUNT if kind == "fop" else EMPLOYEE_ACCOUNT)
 
     # ------------------------------------------------------------------ наповнення

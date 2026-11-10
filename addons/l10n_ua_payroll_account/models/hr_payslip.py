@@ -18,6 +18,14 @@ class HrPayslip(models.Model):
             raise UserError(_("Немає рахунку %s у плані рахунків компанії %s.", code, self.company_id.name))
         return acc
 
+    def _ua_code_account(self, code):
+        """Рахунок за кодом карти проводок. 661 підміняється рахунком розрахунків з картки працівника."""
+        if code == "661":
+            payable = self.employee_id.sudo().ua_payable_account_id
+            if payable:
+                return payable
+        return self._ua_account(code)
+
     def _ua_expense_account(self):
         emp = self.employee_id.sudo()
         return emp.ua_expense_account_id or emp.department_id.ua_expense_account_id or self._ua_account("92")
@@ -42,8 +50,8 @@ class HrPayslip(models.Model):
             if not amount:
                 continue
             for m in by_code.get(line.code, []):
-                debit = expense if m.debit_side == "expense" else self._ua_account(m.debit_code)
-                credit = expense if m.credit_side == "expense" else self._ua_account(m.credit_code)
+                debit = expense if m.debit_side == "expense" else self._ua_code_account(m.debit_code)
+                credit = expense if m.credit_side == "expense" else self._ua_code_account(m.credit_code)
                 # Повернення дзеркалить проводку оригінального листка.
                 if self.credit_note:
                     debit, credit = credit, debit
@@ -56,6 +64,8 @@ class HrPayslip(models.Model):
         code = account.code or ""
         emp = self.employee_id.sudo()
         company = self.company_id
+        if emp.ua_payable_account_id and account == emp.ua_payable_account_id:
+            return emp.work_contact_id.id or False
         if code.startswith("66"):
             return emp.work_contact_id.id or False
         if code.startswith(("641", "642", "651", "652")):

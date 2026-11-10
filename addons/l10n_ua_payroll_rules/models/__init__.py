@@ -5,3 +5,4 @@ from . import res_company
 from . import hr_version_pay
 from . import hr_payslip
 from . import ua_advance_sheet
+from . import ua_diia_city

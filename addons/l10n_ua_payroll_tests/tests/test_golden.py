@@ -44,6 +44,8 @@ DEFAULT_START = "2026-01-01"
 REHIRE_FIRST_START = "2026-01-01"
 REHIRE_FIRST_END = "2026-05-31"
 REHIRE_SECOND_START = "2026-08-17"
+# Резидент Дія Сіті з червня 2025: ставки Дія Сіті діють з липня 2025, тобто в місяці кожного сценарію.
+DIIA_CITY_SINCE = "2025-06-10"
 
 
 @tagged("post_install", "-at_install", "ua_golden")
@@ -231,7 +233,19 @@ class TestGoldenScenarios(TransactionCase):
                [(line.account_id.with_company(self.company).code, line.debit, line.credit) for line in move.line_ids]),
         )
 
+    def _diia_city(self, scenario):
+        """setup.diia_city: compliant - резидент, що відповідає вимогам; noncompliant - резидент,
+        у місяці листка позначений «не відповідає вимогам»."""
+        state = scenario["setup"].get("diia_city")
+        if not state:
+            return
+        self.company.write({"ua_dc_resident": True, "ua_dc_since": DIIA_CITY_SINCE})
+        if state == "noncompliant":
+            self.env["ua.diia.city.month"].create({
+                "company_id": self.company.id, "month": scenario["period"][0], "compliant": False})
+
     def _run_scenario(self, scenario):
+        self._diia_city(scenario)
         employee, version = self._employee(scenario)
         slip = self._payslip(scenario, employee, version)
         self._check_lines(scenario, slip)

@@ -12,16 +12,16 @@
 <odoo>
   <!-- Назва дії стоїть у стежці навігації, тому вирівнюємо її зі своїм словом:
        у системі людина - «працівник», не «співробітник». -->
-  <!-- Виконавці за договором ЦПХ/ФОП - контрагенти, не працівники: у кадровий облік не входять
+  <!-- Виконавці за договором ЦПХ, гіг-контрактом і ФОП - контрагенти, не працівники: у кадровий облік не входять
        (правило бухгалтера Лани, 2026-09-16). Прибираємо їх з карток і оргструктури; свій перелік -
        «Договори ЦПХ» - у модулі l10n_ua_gph. -->
   <record id="hr.open_view_employee_list_my" model="ir.actions.act_window">
     <field name="name">Картки працівників</field>
-    <field name="domain">[("ua_contract_kind", "not in", ["gph", "fop"])]</field>
+    <field name="domain">[("ua_contract_kind", "not in", ["gph", "gig", "fop"])]</field>
   </record>
   <record id="hr_org_chart.action_hr_employee_org_chart" model="ir.actions.act_window">
     <field name="name">Оргструктура</field>
-    <field name="domain">[("ua_contract_kind", "not in", ["gph", "fop"])]</field>
+    <field name="domain">[("ua_contract_kind", "not in", ["gph", "gig", "fop"])]</field>
   </record>
 
   <!-- «Відсутності» зі стандартною дією hr_holidays відкривались з фільтром «Очікує на мене»:
@@ -72,6 +72,10 @@
             action="l10n_ua_hr_docs.action_ua_pfu_claim" sequence="20"/>
   <menuitem id="menu_ua_income_certificates" name="Довідки про доходи" parent="menu_ua_payroll_docs"
             action="l10n_ua_payroll_reports.action_ua_income_certificate" sequence="30"/>
+  <menuitem id="menu_ua_gig_acts" name="Акти гіг-спеціалістів" parent="menu_ua_payroll_docs"
+            action="l10n_ua_diia_city.action_ua_gig_act" sequence="40"/>
+  <menuitem id="menu_ua_diia_city_months" name="Дія Сіті за місяцями" parent="menu_ua_payroll_docs"
+            action="l10n_ua_payroll_rules.action_ua_diia_city_month" sequence="45"/>
 
   <menuitem id="menu_ua_payouts" name="Виплати" parent="menu_ua_payroll_root" sequence="40"/>
   <menuitem id="menu_ua_payment_orders" name="Відомості на перерахування" parent="menu_ua_payouts"

@@ -1,7 +1,9 @@
 from datetime import datetime, time, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 
-from odoo import models
+from dateutil.relativedelta import relativedelta
+
+from odoo import fields, models
 from odoo.addons.payroll.models.base_browsable import BaseBrowsableObject
 
 
@@ -19,6 +21,66 @@ def ua_round(value, digits=2):
 
 class HrPayslip(models.Model):
     _inherit = "hr.payslip"
+
+    ua_diia_city = fields.Boolean(
+        "Ставки Дія Сіті", readonly=True, copy=False,
+        help="Листок пораховано за ставками резидента Дія Сіті: ПДФО 5 % з винагороди і зарплати, "
+             "ЄСВ - мінімальний страховий внесок за місяць. Ставиться під час розрахунку листка.")
+
+    # ---- Дія Сіті --------------------------------------------------------------------
+    def _ua_dc_month(self):
+        """Запис «Дія Сіті: відповідність за місяць» для місяця листка, або порожньо."""
+        self.ensure_one()
+        Month = self.env["ua.diia.city.month"].sudo()
+        if not self.date_from:
+            return Month
+        return Month.search([
+            ("company_id", "=", self.company_id.id), ("month", "=", self.date_from.replace(day=1))], limit=1)
+
+    def _ua_dc_applies(self):
+        """Чи діють для листка ставки Дія Сіті.
+
+        Так, коли компанія - резидент, місяць листка настав після місяця набуття статусу
+        (ставка 5 % - з наступного місяця), статус ще чинний, у місяці немає позначки
+        «не відповідає вимогам», а людина працює за трудовим договором або гіг-контрактом.
+        ЦПХ і ФОП пільги не мають."""
+        self.ensure_one()
+        company = self.company_id.sudo()
+        kind = self.employee_id.sudo().ua_contract_kind or "employment"
+        if kind not in ("employment", "gig") or not self.date_from:
+            return False
+        if not company.ua_dc_resident or not company.ua_dc_since:
+            return False
+        first_month = company.ua_dc_since.replace(day=1) + relativedelta(months=1)
+        if self.date_from.replace(day=1) < first_month:
+            return False
+        if company.ua_dc_until and self.date_from > company.ua_dc_until:
+            return False
+        month = self._ua_dc_month()
+        return not month or bool(month.compliant)
+
+    def _ua_dc_esv_paid(self):
+        """ЄСВ Дія Сіті, уже нарахований цій людині іншими проведеними листками того самого місяця.
+
+        Мінімальний внесок береться раз на місяць, а не з кожного листка."""
+        self.ensure_one()
+        if not self.employee_id or not self.date_from:
+            return 0.0
+        start = self.date_from.replace(day=1)
+        end = start + relativedelta(months=1, days=-1)
+        domain = [("slip_id.employee_id", "=", self.employee_id.id), ("slip_id.state", "=", "done"),
+                  ("slip_id.ua_diia_city", "=", True), ("slip_id.date_from", ">=", start),
+                  ("slip_id.date_from", "<=", end), ("code", "=", "ESV")]
+        if self.id:
+            domain.append(("slip_id", "!=", self.id))
+        return ua_round(sum(self.env["hr.payslip.line"].sudo().search(domain).mapped("total")))
+
+    def compute_sheet(self):
+        for slip in self:
+            applies = slip._ua_dc_applies()
+            if slip.ua_diia_city != applies:
+                slip.ua_diia_city = applies
+        return super().compute_sheet()
 
     def _get_tools_dict(self):
         """Функції, доступні у формулах правил. r2 - округлення грошей."""
@@ -50,6 +112,7 @@ class HrPayslip(models.Model):
                     "child150": 1.5 * max(emp.ua_psp_children, 1), "s150": 1.5, "s200": 2.0}[emp.ua_psp or "none"]
         thr_mult = float(max(emp.ua_psp_children, 1)) if emp.ua_psp in ("child", "child150") else 1.0
         contract = contracts[:1]
+        dc = self._ua_dc_applies()
         return {
             "min_wage": p["min_wage"], "living_wage": p["living_wage"],
             "pdfo_rate": p["pdfo_rate"], "vz_rate": p["vz_rate"], "night_rate": p["night_rate"],
@@ -68,6 +131,9 @@ class HrPayslip(models.Model):
             "aid_used_year": self._ua_aid_used_year(),
             "mat_cover_days": 0,   # l10n_ua_average перевизначає
             "time_ratio": -1.0,    # l10n_ua_hr_docs ставить частку часу із затвердженого табеля
+            "dc_applies": dc,
+            "dc_pdfo_rate": p.get("dc_pdfo_rate", p["pdfo_rate"]),
+            "dc_esv_paid": self._ua_dc_esv_paid() if dc else 0.0,
         }
 
     def _ua_aid_used_year(self):
@@ -224,6 +290,22 @@ class HrPayslip(models.Model):
                                  "source": None, "note": "рахує l10n_ua_average, якщо модуль встановлено"}
         out["time_ratio"] = {"label": "Частка відпрацьованого часу за табелем", "state": "not_applicable", "kind": "rate",
                              "source": None, "note": "-1 = табель не задіяно; рахує l10n_ua_hr_docs, якщо модуль встановлено"}
+
+        dc = self._ua_dc_applies()
+        out["dc_applies"] = {
+            "label": "Ставки Дія Сіті", "state": "calculated", "kind": "flag", "source": None,
+            "note": "компанія - резидент Дія Сіті (%s), вид відносин %s; ставка 5 %% - з місяця, наступного за набуттям "
+                    "статусу, лише в місяцях без позначки «не відповідає вимогам»" % (
+                        bool(self.company_id.sudo().ua_dc_resident), emp.ua_contract_kind)}
+        if dc:
+            out["dc_pdfo_rate"] = self._ua_param_source("dc_pdfo_rate", date, company, "Ставка ПДФО Дія Сіті, %", kind="rate")
+            out["dc_esv_paid"] = {"label": "ЄСВ Дія Сіті, уже нарахований у місяці", "state": "calculated", "kind": "amount",
+                                  "source": None, "note": "сума рядків ESV інших проведених листків цього місяця"}
+        else:
+            out["dc_pdfo_rate"] = {"label": "Ставка ПДФО Дія Сіті, %", "state": "not_applicable", "kind": "rate",
+                                   "source": None, "note": "ставки Дія Сіті до листка не застосовуються"}
+            out["dc_esv_paid"] = {"label": "ЄСВ Дія Сіті, уже нарахований у місяці", "state": "not_applicable",
+                                  "kind": "amount", "source": None, "note": "ставки Дія Сіті до листка не застосовуються"}
 
         out["min_sal_target"] = {"label": "Цільова мінімальна зарплата за місяць", "state": "calculated", "kind": "amount",
                                  "source": None,

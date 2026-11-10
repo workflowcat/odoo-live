@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 94. Моделей: 197. Методів: 755. Збережених полів на чужих моделях: 416.
+Модулів: 95. Моделей: 199. Методів: 763. Збережених полів на чужих моделях: 424.
 
 ## Зарплата
 
@@ -28,6 +28,14 @@
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
 | `get_map(date_from, date_to)` | {(рік, місяць): індекс} за період включно. | `l10n_ua_index` |
+
+### `ua.diia.city.month`
+
+наша модель · `l10n_ua_payroll_rules`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_fill()` | Порахувати кількість людей і середню винагороду з проведених листків місяця. | `l10n_ua_payroll_rules` |
 
 ### `ua.dps.xml`
 
@@ -152,7 +160,7 @@
 
 ### `hr.employee`
 
-доповнена модель · `l10n_ua_average`, `l10n_ua_gph`, `l10n_ua_hr_card`, `l10n_ua_hr_orders`, `l10n_ua_index`, `l10n_ua_military`, `l10n_ua_payments`, `l10n_ua_payroll_account`, `l10n_ua_payroll_reports`, `l10n_ua_payroll_rules`, `l10n_ua_safety`, `l10n_ua_workwear`
+доповнена модель · `l10n_ua_average`, `l10n_ua_diia_city`, `l10n_ua_gph`, `l10n_ua_hr_card`, `l10n_ua_hr_orders`, `l10n_ua_index`, `l10n_ua_military`, `l10n_ua_payments`, `l10n_ua_payroll_account`, `l10n_ua_payroll_reports`, `l10n_ua_payroll_rules`, `l10n_ua_safety`, `l10n_ua_workwear`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -192,6 +200,8 @@
 | `ua_first_name` | Char | Ім'я | `l10n_ua_payroll_reports` |
 | `ua_fte` | Selection | - | `l10n_ua_payroll_rules` |
 | `ua_full_time` | Boolean | Повна зайнятість | `l10n_ua_payroll_reports` |
+| `ua_gig_currency_id` | Many2one | res.currency | `l10n_ua_diia_city` |
+| `ua_gig_fee` | Monetary | Винагорода за місяць у валюті договору | `l10n_ua_diia_city` |
 | `ua_gph_contract_date` | Date | Дата договору ЦПХ | `l10n_ua_payroll_rules` |
 | `ua_gph_contract_end` | Date | Договір діє до | `l10n_ua_payroll_rules` |
 | `ua_gph_contract_ref` | Char | Договір ЦПХ № | `l10n_ua_payroll_rules` |
@@ -238,6 +248,7 @@
 | `ua_mil_vlk_date` | Date | Дата ВЛК | `l10n_ua_military` |
 | `ua_mil_vos` | Char | ВОС | `l10n_ua_military` |
 | `ua_mil_women_list` | Boolean | У списку жінок | `l10n_ua_military` |
+| `ua_payable_account_id` | Many2one | account.account | `l10n_ua_payroll_account` |
 | `ua_previous_employee_id` | Many2one | hr.employee | `l10n_ua_hr_card` |
 | `ua_prior_job_ids` | One2many | ua.employee.prior.job | `l10n_ua_hr_card` |
 | `ua_psp` | Selection | - | `l10n_ua_payroll_rules` |
@@ -293,7 +304,7 @@
 
 ### `hr.payslip`
 
-доповнена модель · `l10n_ua_average`, `l10n_ua_explain`, `l10n_ua_hr_docs`, `l10n_ua_index`, `l10n_ua_payroll_account`, `l10n_ua_payroll_rules`, `l10n_ua_piecework`
+доповнена модель · `l10n_ua_average`, `l10n_ua_diia_city`, `l10n_ua_explain`, `l10n_ua_hr_docs`, `l10n_ua_index`, `l10n_ua_payroll_account`, `l10n_ua_payroll_rules`, `l10n_ua_piecework`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -312,6 +323,7 @@
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `move_id` | Many2one | account.move | `l10n_ua_payroll_account` |
+| `ua_diia_city` | Boolean | Ставки Дія Сіті | `l10n_ua_payroll_rules` |
 
 ### `hr.version`
 
@@ -349,6 +361,9 @@
 | `ua_briefing_months_hazard` | Integer | Повторний інструктаж на роботах з підвищеною небезпекою, раз на (міс.) | `l10n_ua_safety` |
 | `ua_briefing_months_other` | Integer | Повторний інструктаж на інших роботах, раз на (міс.) | `l10n_ua_safety` |
 | `ua_cash_limit` | Monetary | Ліміт каси | `l10n_ua_cash` |
+| `ua_dc_resident` | Boolean | Резидент Дія Сіті | `l10n_ua_payroll_rules` |
+| `ua_dc_since` | Date | Статус резидента з | `l10n_ua_payroll_rules` |
+| `ua_dc_until` | Date | Статус припинено | `l10n_ua_payroll_rules` |
 | `ua_director_name` | Char | Керівник (ПІБ) | `l10n_ua_docs` |
 | `ua_director_name` | Char | Керівник (ПІБ) | `l10n_ua_payroll_reports` |
 | `ua_director_rnokpp` | Char | РНОКПП керівника | `l10n_ua_payroll_reports` |
@@ -1692,6 +1707,20 @@
 | --- | --- | --- |
 | `for_date(date, company)` | - | `l10n_ua_fleet` |
 
+### `ua.gig.act`
+
+наша модель · `l10n_ua_diia_city`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | - | `l10n_ua_diia_city` |
+| `action_confirm()` | - | `l10n_ua_diia_city` |
+| `action_draft()` | - | `l10n_ua_diia_city` |
+| `action_print()` | - | `l10n_ua_diia_city` |
+| `action_refresh_rate()` | Взяти курс НБУ на дату акта ще раз (після оновлення курсів). | `l10n_ua_diia_city` |
+| `money(amount)` | 1 240,50 - сума для друку. | `l10n_ua_diia_city` |
+| `rate_text(rate)` | - | `l10n_ua_diia_city` |
+
 ### `ua.grant`
 
 наша модель · `l10n_ua_grant`
@@ -2315,10 +2344,11 @@
 
 ### `hr.payslip.input`
 
-доповнена модель · `l10n_ua_piecework`
+доповнена модель · `l10n_ua_diia_city`, `l10n_ua_piecework`
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
+| `ua_gig_auto` | Boolean | З акта гіг-спеціаліста | `l10n_ua_diia_city` |
 | `ua_piecework_auto` | Boolean | З виробітку | `l10n_ua_piecework` |
 
 ### `maintenance.equipment`

@@ -65,6 +65,22 @@
       "amount": "round(in_GPH, 2)"
     },
     {
+      "sequence": 13,
+      "code": "GIG",
+      "name": "Винагорода за гіг-контрактом",
+      "category": "ALW",
+      "when": "in_GIG",
+      "amount": "round(in_GIG, 2)"
+    },
+    {
+      "sequence": 14,
+      "code": "GIG_BONUS",
+      "name": "Премія гіг-спеціалісту",
+      "category": "ALW",
+      "when": "in_GIG_BONUS",
+      "amount": "round(in_GIG_BONUS, 2)"
+    },
+    {
       "sequence": 20,
       "code": "VAC",
       "name": "Відпускні",
@@ -230,7 +246,7 @@
       "name": "ПДФО",
       "category": "DED",
       "when": "kind != 'fop'",
-      "amount": "-round(max(GROSS + NOESV - (psp_amount if (psp_amount and GROSS <= psp_threshold) else 0.0), 0.0) * pdfo_rate / 100.0, 2)"
+      "amount": "-pdfo_amount(GROSS, NOESV)"
     },
     {
       "sequence": 120,
@@ -309,7 +325,7 @@
       "code": "RESERVE_ESV",
       "name": "ЄСВ на резерв відпусток",
       "category": "COMP",
-      "when": "kind == 'employment' and reserve_rate > 0",
+      "when": "kind == 'employment' and reserve_rate > 0 and not dc_applies",
       "amount": "round((BASIC + ALW) * reserve_rate / 100.0 * esv_rate / 100.0, 2)"
     }
   ]

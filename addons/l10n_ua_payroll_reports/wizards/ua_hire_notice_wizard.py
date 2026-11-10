@@ -31,7 +31,7 @@ class UaHireNoticeWizard(models.TransientModel):
             v = emp.version_ids.filtered("contract_date_start").sorted("contract_date_start")[-1:]
             if not v:
                 raise UserError(f"{emp.name}: немає версії контракту з датою початку.")
-            cat = CATEGORY["gph"] if kind == "gph" else (CATEGORY["main"] if emp.ua_main_job else CATEGORY["parttime"])
+            cat = CATEGORY.get(kind) if kind in ("gph", "gig") else (CATEGORY["main"] if emp.ua_main_job else CATEGORY["parttime"])
             order_no, order_date = "", v.contract_date_start
             ref = (v.ua_order_ref or "").strip()
             if ref:

@@ -19,8 +19,8 @@ from . import average, indexation
 from .dsl import evaluate
 from .model import Line, Result
 
-EXTRA_FUNCS = ("esv_monthly",)   # названі алгоритми, дозволені у виразах правил
-INPUT_CODES = ("BONUS", "PIECE", "GPH", "COMP_DAYS", "DAILY", "FOP_PAY", "INDEX", "AID", "GIFT",
+EXTRA_FUNCS = ("esv_monthly", "pdfo_amount")   # названі алгоритми, дозволені у виразах правил
+INPUT_CODES = ("BONUS", "PIECE", "GPH", "GIG", "GIG_BONUS", "COMP_DAYS", "DAILY", "FOP_PAY", "INDEX", "AID", "GIFT",
                "SEVERANCE", "COMP_TOOL", "ALIM_PCT", "UNION_PCT", "EXEC_AMT", "EXEC_PCT",
                "DAMAGE_AMT", "ADVANCE")
 LEAVE_FIELDS = ("vac_days", "sick_emp_days", "sick_pfu_days", "sick_care_days", "mat_days",
@@ -47,6 +47,9 @@ def values(slip, params):
     thr_mult = float(children) if employee.psp in ("child", "child150") else 1.0
     holidays = p.get("holidays_per_year", 0.0)
     kind = employee.contract_kind or "employment"
+    # Дія Сіті: пільгові ставки для трудового договору і гіг-контракту, коли резидент
+    # відповідає вимогам у місяці; ЦПХ і ФОП пільг не мають
+    dc_applies = slip.diia_city == "compliant" and kind in ("employment", "gig")
     ua = {
         "min_wage": p["min_wage"], "living_wage": p["living_wage"],
         "pdfo_rate": p["pdfo_rate"], "vz_rate": p["vz_rate"],
@@ -56,6 +59,8 @@ def values(slip, params):
         "esv_max_base": p["min_wage"] * p["esv_max_multiplier"],
         # ч. 5 ст. 8 ЗУ про ЄСВ: мінімальний внесок лише за основним місцем роботи
         "esv_min_applies": bool(employee.main_job) and kind == "employment",
+        "dc_applies": dc_applies,
+        "dc_pdfo_rate": p.get("dc_pdfo_rate", p["pdfo_rate"]),
         "psp_amount": p["psp_base"] * psp_mult,            # пп. 169.1 ПКУ
         "psp_threshold": p["psp_threshold"] * thr_mult,    # пп. 169.4.1 ПКУ
         "month_workdays": slip.worked.month_workdays,
@@ -110,12 +115,31 @@ def _mat_shares(slip, ua):
     return shares
 
 
+def pdfo_amount(ua, gross, noesv):
+    """ПДФО листка (п. 167.1 ПКУ) як додатне число.
+
+    База - нараховане плюс оподатковувані виплати без ЄСВ, мінус податкова соціальна пільга,
+    якщо нараховане не більше за поріг (пп. 169.1.1, 169.4.1 ПКУ). У резидента Дія Сіті, що
+    відповідає вимогам, ставка 5 % береться лише з винагороди і зарплати (GROSS); подарунки
+    і допомога понад межу (NOESV) - за загальною ставкою."""
+    psp = ua["psp_amount"] if (ua["psp_amount"] and gross <= ua["psp_threshold"]) else 0.0
+    taxable = max(gross + noesv - psp, 0.0)
+    if not ua.get("dc_applies"):
+        return _r2(taxable * ua["pdfo_rate"] / 100.0)
+    preferential = min(max(gross - psp, 0.0), taxable)
+    return _r2(preferential * ua["dc_pdfo_rate"] / 100.0 + (taxable - preferential) * ua["pdfo_rate"] / 100.0)
+
+
 def esv_monthly(slip, ua, gross, mat_total=0.0):
     """ЄСВ за листок (ЗУ про ЄСВ, ст. 7, 8).
 
     Без декрету - один місяць: база = нараховане, не більше максимальної бази, і не
     менше мінімальної зарплати, якщо місяць відпрацьовано повністю за основним місцем.
-    З декретом - по місяцях листка непрацездатності, мінімум за кожен місяць окремо."""
+    З декретом - по місяцях листка непрацездатності, мінімум за кожен місяць окремо.
+    Резидент Дія Сіті, що відповідає вимогам, платить мінімальний страховий внесок раз на
+    місяць, незалежно від суми і відпрацьованих днів."""
+    if ua.get("dc_applies"):
+        return _r2(ua["min_wage"] * ua["esv_rate"] / 100.0) if (gross + mat_total) > 0 else 0.0
     shares = ua.get("mat_shares") or []
     if shares:
         total = 0.0
@@ -173,6 +197,7 @@ def compute(slip, params, ruleset):
     ctx = _Ctx(slip, ua)
     names = context(slip, ua, ctx.cat)
     names["esv_monthly"] = lambda gross, mat=0.0: esv_monthly(slip, ua, gross, mat)
+    names["pdfo_amount"] = lambda gross, noesv=0.0: pdfo_amount(ua, gross, noesv)
     for item in ruleset.derived:
         names[item["name"]] = evaluate(item["value"], names, EXTRA_FUNCS)
     for rule in ruleset.rules:

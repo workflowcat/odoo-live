@@ -7,7 +7,7 @@
 from dataclasses import dataclass, field
 from datetime import date
 
-CONTRACT_KINDS = ("employment", "gph", "fop")
+CONTRACT_KINDS = ("employment", "gph", "gig", "fop")
 
 
 @dataclass
@@ -16,7 +16,7 @@ class Employee:
     name: str = ""
     rnokpp: str = ""
     main_job: bool = True                 # основне місце роботи: від цього мінімальний ЄСВ
-    contract_kind: str = "employment"     # employment | gph | fop
+    contract_kind: str = "employment"     # employment | gph | gig | fop
     disabled: bool = False                # ставка ЄСВ 8,41 %
     psp: str = "none"                     # none | base | child | child150 | s150 | s200
     psp_children: int = 0
@@ -92,6 +92,7 @@ class Slip:
     history: list = field(default_factory=list)            # [EarningsMonth, ...]
     cpi: list = field(default_factory=list)                # [CpiMonth, ...]
     aid_used_year: float = 0.0                             # уже видана матдопомога цього року
+    diia_city: str = ""                                    # "" | compliant | noncompliant (резидент Дія Сіті)
 
     def date_to(self):
         import calendar

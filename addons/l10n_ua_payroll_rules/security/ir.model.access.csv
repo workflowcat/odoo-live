@@ -3,3 +3,5 @@ access_ua_payroll_param_user,ua.payroll.param user,model_ua_payroll_param,hr.gro
 access_ua_payroll_param_manager,ua.payroll.param manager,model_ua_payroll_param,hr.group_hr_manager,1,1,1,1
 access_ua_advance_sheet_user,ua.advance.sheet user,model_ua_advance_sheet,hr.group_hr_user,1,1,1,1
 access_ua_advance_line_user,ua.advance.line user,model_ua_advance_line,hr.group_hr_user,1,1,1,1
+access_ua_diia_city_month_user,ua.diia.city.month user,model_ua_diia_city_month,hr.group_hr_user,1,1,1,0
+access_ua_diia_city_month_manager,ua.diia.city.month manager,model_ua_diia_city_month,hr.group_hr_manager,1,1,1,1

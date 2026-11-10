@@ -1,7 +1,7 @@
 {
     "name": "Зарплата: договори ЦПХ",
     "summary": "Окремий екран для виконавців за договором ЦПХ/ФОП - контрагенти, не кадровий облік",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.1.1",
     "category": "Human Resources/Payroll",
     "author": "Bot&Partners",
     "license": "LGPL-3",

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_diia_city_month_form" model="ir.ui.view">
+    <field name="name">ua.diia.city.month.form</field><field name="model">ua.diia.city.month</field>
+    <field name="arch" type="xml">
+      <form string="Дія Сіті за місяць">
+        <header>
+          <button name="action_fill" type="object" string="Порахувати" class="btn-primary"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="company_id" groups="base.group_multi_company"/>
+              <field name="month"/>
+              <field name="compliant"/>
+            </group>
+            <group>
+              <field name="headcount"/>
+              <field name="reward_total"/>
+              <field name="avg_reward"/>
+              <field name="eur_rate"/>
+              <field name="avg_reward_eur"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Перевірки" name="ua_checks">
+              <field name="checks_html" readonly="1" nolabel="1"/>
+            </page>
+            <page string="Примітка" name="note">
+              <field name="note" nolabel="1"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_diia_city_month_list" model="ir.ui.view">
+    <field name="name">ua.diia.city.month.list</field><field name="model">ua.diia.city.month</field>
+    <field name="arch" type="xml">
+      <list string="Дія Сіті за місяцями">
+        <field name="month" options="{'numeric': True}"/>
+        <field name="company_id" groups="base.group_multi_company"/>
+        <field name="headcount"/>
+        <field name="avg_reward_eur"/>
+        <field name="compliant"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_diia_city_month" model="ir.actions.act_window">
+    <field name="name">Дія Сіті за місяцями</field>
+    <field name="res_model">ua.diia.city.month</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>

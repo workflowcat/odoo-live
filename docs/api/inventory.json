@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 94,
-    "models": 197,
-    "methods": 755,
-    "fields": 416
+    "modules": 95,
+    "models": 199,
+    "methods": 763,
+    "fields": 424
   },
   "areas": [
     {
@@ -77,6 +77,24 @@
               "decorators": [
                 "api.model"
               ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.diia.city.month",
+          "ours": true,
+          "modules": [
+            "l10n_ua_payroll_rules"
+          ],
+          "methods": [
+            {
+              "name": "action_fill",
+              "signature": "action_fill()",
+              "doc": "Порахувати кількість людей і середню винагороду з проведених листків місяця.",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/ua_diia_city.py",
+              "decorators": []
             }
           ],
           "fields": []
@@ -498,6 +516,7 @@
           "ours": false,
           "modules": [
             "l10n_ua_average",
+            "l10n_ua_diia_city",
             "l10n_ua_gph",
             "l10n_ua_hr_card",
             "l10n_ua_hr_orders",
@@ -775,6 +794,22 @@
               "label": "Повна зайнятість",
               "module": "l10n_ua_payroll_reports",
               "file": "addons/l10n_ua_payroll_reports/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_gig_currency_id",
+              "type": "Many2one",
+              "label": "res.currency",
+              "module": "l10n_ua_diia_city",
+              "file": "addons/l10n_ua_diia_city/models/hr_employee.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_gig_fee",
+              "type": "Monetary",
+              "label": "Винагорода за місяць у валюті договору",
+              "module": "l10n_ua_diia_city",
+              "file": "addons/l10n_ua_diia_city/models/hr_employee.py",
               "groups": "hr.group_hr_user"
             },
             {
@@ -1146,6 +1181,14 @@
               "groups": "hr.group_hr_user"
             },
             {
+              "name": "ua_payable_account_id",
+              "type": "Many2one",
+              "label": "account.account",
+              "module": "l10n_ua_payroll_account",
+              "file": "addons/l10n_ua_payroll_account/models/hr_department.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
               "name": "ua_previous_employee_id",
               "type": "Many2one",
               "label": "hr.employee",
@@ -1408,6 +1451,7 @@
           "ours": false,
           "modules": [
             "l10n_ua_average",
+            "l10n_ua_diia_city",
             "l10n_ua_explain",
             "l10n_ua_hr_docs",
             "l10n_ua_index",
@@ -1512,6 +1556,14 @@
               "label": "account.move",
               "module": "l10n_ua_payroll_account",
               "file": "addons/l10n_ua_payroll_account/models/hr_payslip.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_diia_city",
+              "type": "Boolean",
+              "label": "Ставки Дія Сіті",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/hr_payslip.py",
               "groups": ""
             }
           ]
@@ -1710,6 +1762,30 @@
               "label": "Ліміт каси",
               "module": "l10n_ua_cash",
               "file": "addons/l10n_ua_cash/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_dc_resident",
+              "type": "Boolean",
+              "label": "Резидент Дія Сіті",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_dc_since",
+              "type": "Date",
+              "label": "Статус резидента з",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/res_company.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_dc_until",
+              "type": "Date",
+              "label": "Статус припинено",
+              "module": "l10n_ua_payroll_rules",
+              "file": "addons/l10n_ua_payroll_rules/models/res_company.py",
               "groups": ""
             },
             {
@@ -7599,6 +7675,76 @@
           "fields": []
         },
         {
+          "model": "ua.gig.act",
+          "ours": true,
+          "modules": [
+            "l10n_ua_diia_city"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_diia_city",
+              "file": "addons/l10n_ua_diia_city/models/ua_gig_act.py",
+              "decorators": []
+            },
+            {
+              "name": "action_confirm",
+              "signature": "action_confirm()",
+              "doc": "",
+              "module": "l10n_ua_diia_city",
+              "file": "addons/l10n_ua_diia_city/models/ua_gig_act.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_diia_city",
+              "file": "addons/l10n_ua_diia_city/models/ua_gig_act.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_diia_city",
+              "file": "addons/l10n_ua_diia_city/models/ua_gig_act.py",
+              "decorators": []
+            },
+            {
+              "name": "action_refresh_rate",
+              "signature": "action_refresh_rate()",
+              "doc": "Взяти курс НБУ на дату акта ще раз (після оновлення курсів).",
+              "module": "l10n_ua_diia_city",
+              "file": "addons/l10n_ua_diia_city/models/ua_gig_act.py",
+              "decorators": []
+            },
+            {
+              "name": "money",
+              "signature": "money(amount)",
+              "doc": "1 240,50 - сума для друку.",
+              "module": "l10n_ua_diia_city",
+              "file": "addons/l10n_ua_diia_city/models/ua_gig_act.py",
+              "decorators": [
+                "api.model"
+              ]
+            },
+            {
+              "name": "rate_text",
+              "signature": "rate_text(rate)",
+              "doc": "",
+              "module": "l10n_ua_diia_city",
+              "file": "addons/l10n_ua_diia_city/models/ua_gig_act.py",
+              "decorators": [
+                "api.model"
+              ]
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.grant",
           "ours": true,
           "modules": [
@@ -10277,10 +10423,19 @@
           "model": "hr.payslip.input",
           "ours": false,
           "modules": [
+            "l10n_ua_diia_city",
             "l10n_ua_piecework"
           ],
           "methods": [],
           "fields": [
+            {
+              "name": "ua_gig_auto",
+              "type": "Boolean",
+              "label": "З акта гіг-спеціаліста",
+              "module": "l10n_ua_diia_city",
+              "file": "addons/l10n_ua_diia_city/models/hr_payslip.py",
+              "groups": ""
+            },
             {
               "name": "ua_piecework_auto",
               "type": "Boolean",

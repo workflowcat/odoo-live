@@ -58,7 +58,7 @@
     <field name="name">Договори ЦПХ</field>
     <field name="res_model">hr.employee</field>
     <field name="view_mode">list,form</field>
-    <field name="domain">[("ua_contract_kind", "in", ["gph", "fop"])]</field>
+    <field name="domain">[("ua_contract_kind", "in", ["gph", "gig", "fop"])]</field>
     <field name="context">{"default_employee_type": "contractor", "default_ua_contract_kind": "gph", "default_ua_main_job": False}</field>
     <field name="view_ids" eval="[(5, 0, 0),
         (0, 0, {'view_mode': 'list', 'view_id': ref('view_ua_gph_list')}),
