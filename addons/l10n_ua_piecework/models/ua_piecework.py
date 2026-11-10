@@ -124,26 +124,35 @@ class UaPiecework(models.Model):
             rows.append((employee, spent, part))
         return rows
 
+    def _ua_auto_lines(self):
+        """Рядки, які «Заповнити» перебудовує (решту вписано руками)."""
+        return self.line_ids.filtered("workorder_id")
+
+    def _ua_fill_values(self):
+        """Значення рядків із завершених операцій виробництва; інші джерела додають свої."""
+        self.ensure_one()
+        workorders = self.env["mrp.workorder"].search(
+            self._workorder_domain(), order="date_finished, id") - self._taken_workorders()
+        values = []
+        for workorder in workorders:
+            if not workorder.qty_produced:
+                continue
+            for employee, spent, qty in self._split(workorder):
+                values.append({
+                    "piecework_id": self.id, "workorder_id": workorder.id,
+                    "employee_id": employee.id or False, "minutes": spent, "quantity": qty,
+                    "rate": workorder.operation_id.ua_piece_rate,
+                })
+        return values
+
     def action_fill(self):
         for doc in self:
             if doc.state != "draft":
                 raise UserError(_("Заповнити можна лише чернетку."))
-            doc.line_ids.filtered("workorder_id").unlink()
-            workorders = self.env["mrp.workorder"].search(
-                doc._workorder_domain(), order="date_finished, id") - doc._taken_workorders()
-            values = []
-            for workorder in workorders:
-                if not workorder.qty_produced:
-                    continue
-                for employee, spent, qty in doc._split(workorder):
-                    values.append({
-                        "piecework_id": doc.id, "workorder_id": workorder.id,
-                        "employee_id": employee.id or False, "minutes": spent, "quantity": qty,
-                        "rate": workorder.operation_id.ua_piece_rate,
-                    })
-            self.env["ua.piecework.line"].create(values)
+            doc._ua_auto_lines().unlink()
+            self.env["ua.piecework.line"].create(doc._ua_fill_values())
             if not doc.line_ids:
-                raise UserError(_("За період немає завершених операцій з розцінкою, яких ще немає в "
+                raise UserError(_("За період немає завершених робіт з розцінкою, яких ще немає в "
                                   "іншому виробітку."))
         return True
 
@@ -178,7 +187,7 @@ class UaPiecework(models.Model):
             missing = doc.line_ids.filtered(lambda l: not l.employee_id)
             if missing:
                 raise UserError(_("Вкажіть працівника в рядках: %s.") % ", ".join(
-                    missing.mapped(lambda l: l.workorder_id.display_name or l.operation_id.name or "-")))
+                    missing.mapped(lambda l: l._ua_source_name())))
             if doc.line_ids.filtered(lambda l: l.quantity < 0 or l.rate < 0):
                 raise UserError(_("Кількість і розцінка не бувають від'ємними."))
         self._check_closed_slips()
@@ -258,6 +267,26 @@ class UaPieceworkLine(models.Model):
         for line in self:
             currency = line.piecework_id.currency_id or self.env.company.currency_id
             line.amount = currency.round(line.quantity * line.rate)
+
+    def _ua_source_name(self):
+        """Звідки рядок: для повідомлень і друку."""
+        self.ensure_one()
+        return self.workorder_id.display_name or self.operation_id.name or "-"
+
+    def _ua_doc_name(self):
+        """Документ-джерело для друку: виробниче замовлення або інший документ."""
+        self.ensure_one()
+        return self.production_id.name or "-"
+
+    def _ua_work_name(self):
+        """Назва роботи для друку."""
+        self.ensure_one()
+        return self.operation_id.name or "-"
+
+    def _ua_norm_minutes(self):
+        """Нормативні хвилини виконаної роботи: кількість × норма часу операції на одиницю."""
+        self.ensure_one()
+        return self.quantity * (self.operation_id.time_cycle_manual or 0.0)
 
     def write(self, vals):
         if any(line.piecework_id.state != "draft" for line in self) and set(vals) - {"state"}:

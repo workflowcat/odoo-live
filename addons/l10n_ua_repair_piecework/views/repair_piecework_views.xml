@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_repair_order_form_ua_labour" model="ir.ui.view">
+    <field name="name">repair.order.form.ua.labour</field>
+    <field name="model">repair.order</field>
+    <field name="inherit_id" ref="repair.view_repair_order_form"/>
+    <field name="arch" type="xml">
+      <page name="repair_notes" position="before">
+        <page string="Роботи (відрядна оплата)" name="ua_labour">
+          <field name="ua_labour_ids" readonly="state == 'cancel'">
+            <list editable="bottom">
+              <field name="employee_id" readonly="in_piecework"/>
+              <field name="operation_id" readonly="in_piecework"/>
+              <field name="quantity" readonly="in_piecework"/>
+              <field name="rate" readonly="in_piecework"/>
+              <field name="currency_id" column_invisible="1"/>
+              <field name="amount" sum="Разом"/>
+              <field name="in_piecework"/>
+            </list>
+          </field>
+          <group>
+            <field name="ua_date_done" invisible="not ua_date_done"/>
+          </group>
+        </page>
+      </page>
+    </field>
+  </record>
+
+  <record id="view_ua_piecework_form_repair" model="ir.ui.view">
+    <field name="name">ua.piecework.form.repair</field>
+    <field name="model">ua.piecework</field>
+    <field name="inherit_id" ref="l10n_ua_piecework.view_ua_piecework_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='line_ids']/list/field[@name='production_id']" position="after">
+        <field name="repair_id" optional="show"/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_ua_repair_operation_list" model="ir.ui.view">
+    <field name="name">ua.repair.operation.list</field>
+    <field name="model">ua.repair.operation</field>
+    <field name="arch" type="xml">
+      <list string="Роботи ремонту" editable="bottom">
+        <field name="name"/>
+        <field name="rate"/>
+        <field name="minutes"/>
+        <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+        <field name="active" column_invisible="1"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_repair_operation" model="ir.actions.act_window">
+    <field name="name">Роботи ремонту і розцінки</field>
+    <field name="res_model">ua.repair.operation</field>
+    <field name="view_mode">list</field>
+  </record>
+</odoo>

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_return_act_form" model="ir.ui.view">
+    <field name="name">ua.return.act.form</field>
+    <field name="model">ua.return.act</field>
+    <field name="arch" type="xml">
+      <form string="Акт невідповідності при поверненні">
+        <header>
+          <button name="action_fill" type="object" string="Заповнити" class="btn-primary"
+                  invisible="state != 'draft' or line_ids"/>
+          <button name="action_fill" type="object" string="Перезаповнити" invisible="state != 'draft' or not line_ids"/>
+          <button name="action_done" type="object" string="Підписати" class="btn-primary"
+                  invisible="state != 'draft' or not line_ids"/>
+          <button name="action_print" type="object" string="Друк" invisible="not line_ids"/>
+          <button name="action_cancel" type="object" string="Скасувати" invisible="state == 'cancel'"/>
+          <button name="action_draft" type="object" string="У чернетку" invisible="state != 'cancel'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="partner_id" readonly="state != 'draft'"/>
+              <field name="refund_id" readonly="state != 'draft'"
+                     domain="[('move_type', '=', 'out_refund'), ('company_id', '=', company_id)]"/>
+              <field name="picking_id" readonly="state != 'draft'"
+                     domain="[('picking_type_code', '=', 'incoming'), ('company_id', '=', company_id)]"/>
+            </group>
+            <group>
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+          </group>
+          <field name="reason" placeholder="Підстава повернення: лист покупця, рекламація, домовленість" readonly="state != 'draft'"/>
+          <notebook>
+            <page string="Товари" name="lines">
+              <field name="line_ids" readonly="state != 'draft'">
+                <list editable="bottom" decoration-danger="issue != 'none'">
+                  <field name="sequence" widget="handle"/>
+                  <field name="product_id"/>
+                  <field name="uom_id" optional="show"/>
+                  <field name="qty_doc"/>
+                  <field name="qty_received"/>
+                  <field name="qty_diff"/>
+                  <field name="price_unit" optional="show"/>
+                  <field name="currency_id" column_invisible="1"/>
+                  <field name="amount_diff" sum="Разом"/>
+                  <field name="issue"/>
+                  <field name="lot_names" optional="show"/>
+                  <field name="description"/>
+                  <field name="decision"/>
+                  <field name="auto" column_invisible="1"/>
+                </list>
+              </field>
+              <group class="oe_subtotal_footer">
+                <field name="amount_doc"/>
+                <field name="amount_received"/>
+                <field name="amount_diff"/>
+              </group>
+            </page>
+            <page string="Висновок комісії" name="conclusion">
+              <field name="conclusion" readonly="state != 'draft'"
+                     placeholder="Що встановила комісія і що робити з кредит-нотою: виправити, лишити, виставити претензію"/>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_return_act_list" model="ir.ui.view">
+    <field name="name">ua.return.act.list</field>
+    <field name="model">ua.return.act</field>
+    <field name="arch" type="xml">
+      <list string="Акти невідповідності" decoration-muted="state == 'cancel'" decoration-info="state == 'draft'">
+        <field name="name"/>
+        <field name="date"/>
+        <field name="partner_id"/>
+        <field name="refund_id" optional="show"/>
+        <field name="picking_id" optional="show"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="amount_diff" sum="Разом"/>
+        <field name="state" widget="badge" decoration-success="state == 'done'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_return_act_search" model="ir.ui.view">
+    <field name="name">ua.return.act.search</field>
+    <field name="model">ua.return.act</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="name"/>
+        <field name="partner_id"/>
+        <field name="line_ids" string="Товар" filter_domain="[('line_ids.product_id', 'ilike', self)]"/>
+        <filter name="draft" string="Чернетки" domain="[('state', '=', 'draft')]"/>
+        <filter name="done" string="Підписані" domain="[('state', '=', 'done')]"/>
+        <group>
+          <filter name="by_partner" string="Покупець" context="{'group_by': 'partner_id'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_return_act" model="ir.actions.act_window">
+    <field name="name">Акти невідповідності при поверненні</field>
+    <field name="res_model">ua.return.act</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Акт до повернення від покупця</p>
+      <p>Відкрийте кредит-ноту покупцю або прийомку повернення і натисніть «Акт невідповідності».</p>
+    </field>
+  </record>
+
+  <record id="view_move_form_ua_return_act" model="ir.ui.view">
+    <field name="name">account.move.form.ua.return.act</field>
+    <field name="model">account.move</field>
+    <field name="inherit_id" ref="account.view_move_form"/>
+    <field name="arch" type="xml">
+      <div name="button_box" position="inside">
+        <button name="action_ua_return_act" type="object" class="oe_stat_button" icon="fa-exclamation-triangle"
+                invisible="move_type != 'out_refund' or not ua_return_act_count">
+          <field name="ua_return_act_count" widget="statinfo" string="Акт невідповідності"/>
+        </button>
+      </div>
+      <xpath expr="//header" position="inside">
+        <button name="action_ua_return_act" type="object" string="Акт невідповідності"
+                invisible="move_type != 'out_refund' or ua_return_act_count"/>
+      </xpath>
+    </field>
+  </record>
+
+  <record id="view_picking_form_ua_return_act" model="ir.ui.view">
+    <field name="name">stock.picking.form.ua.return.act</field>
+    <field name="model">stock.picking</field>
+    <field name="inherit_id" ref="stock.view_picking_form"/>
+    <field name="arch" type="xml">
+      <div name="button_box" position="inside">
+        <button name="action_ua_return_act" type="object" class="oe_stat_button" icon="fa-exclamation-triangle"
+                invisible="not ua_return_act_count">
+          <field name="ua_return_act_count" widget="statinfo" string="Акт невідповідності"/>
+        </button>
+      </div>
+      <xpath expr="//header" position="inside">
+        <button name="action_ua_return_act" type="object" string="Акт невідповідності"
+                invisible="picking_type_code != 'incoming' or not return_id or ua_return_act_count"/>
+        <field name="return_id" invisible="1"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>

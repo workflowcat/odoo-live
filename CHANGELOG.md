@@ -6,6 +6,20 @@ Notable changes for people who run or build on this code. Module-level API chang
 ## Unreleased
 
 ### Added
+- Piece-rate plan and fact by month (`l10n_ua_piecework`): a plan per employee in hryvnias and, if wanted, in
+  standard hours; the fact comes from confirmed piece-rate documents of the month - amount, standard hours of the
+  work done (quantity × time per unit of the operation) and hours worked from the operation time log. Plan
+  completion and efficiency (standard hours / hours worked) per employee; copy last month's plan.
+- Piece-rate pay for repairs (`l10n_ua_repair_piecework`): a list of repair jobs with a rate and a standard time; a
+  repair order gets a jobs tab (who, which job, how many). When the repair is done, the piece-rate document for
+  the period takes those jobs next to manufacturing operations, and the payslip gets them as piece-rate pay. A
+  job goes into one piece-rate document only and is locked there; the print shows the repair and the job.
+- Nonconformity act on a customer return (`l10n_ua_return_act`): from the customer credit note and the return
+  receipt - quantity and price by the document against quantity received, the difference in quantity and amount
+  without VAT, shortage or surplus set by itself, damage, missing parts, wrong item or quality set by hand with
+  a description, serial numbers and a decision (to stock, to repair, write off, back to the customer); lines
+  typed by hand stay on a refill; signing records the act on the credit note and the receipt; print with the
+  commission and the customer's representative.
 - Barcode scanning in transfers and manufacturing orders (`l10n_ua_scan`), with Odoo's Community barcodes module and
   any keyboard scanner. In a transfer a product adds one unit to its line (the first scan of a line starts from zero,
   not from the reservation), a lot or serial number goes on its own line, a serial only once. In a manufacturing

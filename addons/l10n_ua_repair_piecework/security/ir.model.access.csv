@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_repair_operation_user,ua.repair.operation user,model_ua_repair_operation,stock.group_stock_user,1,0,0,0
+access_ua_repair_operation_mrp,ua.repair.operation mrp manager,model_ua_repair_operation,mrp.group_mrp_manager,1,1,1,1
+access_ua_repair_labour_user,ua.repair.labour user,model_ua_repair_labour,stock.group_stock_user,1,1,1,1
+access_ua_repair_labour_mrp,ua.repair.labour mrp user,model_ua_repair_labour,mrp.group_mrp_user,1,1,1,1

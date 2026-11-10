@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 102. Моделей: 209. Методів: 804. Збережених полів на чужих моделях: 441.
+Модулів: 104. Моделей: 212. Методів: 814. Збережених полів на чужих моделях: 445.
 
 ## Зарплата
 
@@ -1980,7 +1980,7 @@
 
 ### `ua.piecework`
 
-наша модель · `l10n_ua_piecework`
+наша модель · `l10n_ua_piecework`, `l10n_ua_repair_piecework`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1992,6 +1992,15 @@
 | `by_employee()` | [(працівник, рядки, сума)] за абеткою. | `l10n_ua_piecework` |
 | `money(amount)` | 1 240,50 - сума для друку. | `l10n_ua_piecework` |
 | `qty(amount)` | - | `l10n_ua_piecework` |
+
+### `ua.piecework.plan`
+
+наша модель · `l10n_ua_piecework`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_compute()` | Порахувати факт; працівник з виробітком без плану отримує рядок з нульовим планом. | `l10n_ua_piecework` |
+| `action_copy_previous()` | План минулого місяця як початок для цього. | `l10n_ua_piecework` |
 
 ### `ua.precious.report`
 
@@ -2116,6 +2125,18 @@
 | `action_mark_sent()` | - | `l10n_ua_contract` |
 | `action_print()` | - | `l10n_ua_contract` |
 | `action_reset_draft()` | - | `l10n_ua_contract` |
+
+### `ua.return.act`
+
+наша модель · `l10n_ua_return_act`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | - | `l10n_ua_return_act` |
+| `action_done()` | - | `l10n_ua_return_act` |
+| `action_draft()` | - | `l10n_ua_return_act` |
+| `action_fill()` | Рядки з кредит-ноти і прийомки; рядки, вписані рукою, лишаються. | `l10n_ua_return_act` |
+| `action_print()` | - | `l10n_ua_return_act` |
 
 ### `ua.safety.briefing`
 
@@ -2337,7 +2358,7 @@
 
 ### `account.move`
 
-доповнена модель · `bp_purchase_intake`, `l10n_ua_cashflow`, `l10n_ua_close`, `l10n_ua_commission`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_dunning`, `l10n_ua_edo`, `l10n_ua_equity`, `l10n_ua_grant`, `l10n_ua_prro`, `l10n_ua_tolling`, `l10n_ua_vat`
+доповнена модель · `bp_purchase_intake`, `l10n_ua_cashflow`, `l10n_ua_close`, `l10n_ua_commission`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_dunning`, `l10n_ua_edo`, `l10n_ua_equity`, `l10n_ua_grant`, `l10n_ua_prro`, `l10n_ua_return_act`, `l10n_ua_tolling`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -2346,6 +2367,7 @@
 | `action_ua_create_tax_invoice()` | Кнопка «Скласти податкову накладну». | `l10n_ua_vat` |
 | `action_ua_post_customs_vat()` | «Взяти в кредит»: проводка Дт 6412 / Кт 3771 на суму ПДВ із митної | `l10n_ua_vat` |
 | `action_ua_prro_receipts()` | - | `l10n_ua_prro` |
+| `action_ua_return_act()` | - | `l10n_ua_return_act` |
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
@@ -2368,6 +2390,7 @@
 | `ua_in_pn_registered` | Boolean | ПН постачальника зареєстрована | `l10n_ua_vat` |
 | `ua_pn_deadline` | Date | Граничний строк реєстрації ПН | `l10n_ua_vat` |
 | `ua_prro_receipt_ids` | Many2many | ua.prro.receipt | `l10n_ua_prro` |
+| `ua_return_act_ids` | One2many | ua.return.act | `l10n_ua_return_act` |
 | `ua_tolling_id` | Many2one | ua.tolling.order | `l10n_ua_tolling` |
 | `ua_vat_comp` | Boolean | Проводка компенсуючих ПЗ | `l10n_ua_vat` |
 | `ua_vat_document_ids` | One2many | ua.vat.document | `l10n_ua_vat` |
@@ -2709,6 +2732,19 @@
 | --- | --- | --- | --- |
 | `ua_dk021_id` | Many2one | ua.dk021 | `l10n_ua_dk021` |
 
+### `repair.order`
+
+доповнена модель · `l10n_ua_repair_piecework`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_repair_done()` | - | `l10n_ua_repair_piecework` |
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_date_done` | Date | Завершено | `l10n_ua_repair_piecework` |
+| `ua_labour_ids` | One2many | ua.repair.labour | `l10n_ua_repair_piecework` |
+
 ### `stock.landed.cost`
 
 доповнена модель · `l10n_ua_customs`, `l10n_ua_landed_sold`
@@ -2774,10 +2810,11 @@
 
 ### `stock.picking`
 
-доповнена модель · `l10n_ua_commission`, `l10n_ua_docs_stock`, `l10n_ua_export_control`, `l10n_ua_parcel`, `l10n_ua_scan`, `l10n_ua_stock_docs`, `l10n_ua_supplier_approval`, `l10n_ua_tolling`, `l10n_ua_unit_transfer`
+доповнена модель · `l10n_ua_commission`, `l10n_ua_docs_stock`, `l10n_ua_export_control`, `l10n_ua_parcel`, `l10n_ua_return_act`, `l10n_ua_scan`, `l10n_ua_stock_docs`, `l10n_ua_supplier_approval`, `l10n_ua_tolling`, `l10n_ua_unit_transfer`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
+| `action_ua_return_act()` | - | `l10n_ua_return_act` |
 | `action_ua_unit_transfer()` | Акт передачі з цього відвантаження: існуючий або новий, заповнений. | `l10n_ua_unit_transfer` |
 | `ua_get_or_create(client_ref, vals=None)` | Доставка за міткою клієнта: є - віддаємо, немає - створюємо. | `l10n_ua_stock_docs` |
 
@@ -2793,5 +2830,6 @@
 | `ua_proxy_date` | Date | Дата довіреності | `l10n_ua_docs_stock` |
 | `ua_proxy_number` | Char | Довіреність № | `l10n_ua_docs_stock` |
 | `ua_proxy_person` | Char | Видана на (ПІБ) | `l10n_ua_docs_stock` |
+| `ua_return_act_ids` | One2many | ua.return.act | `l10n_ua_return_act` |
 | `ua_tolling_id` | Many2one | ua.tolling.order | `l10n_ua_tolling` |
 | `ua_unit_transfer_ids` | One2many | ua.unit.transfer | `l10n_ua_unit_transfer` |

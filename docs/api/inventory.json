@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 102,
-    "models": 209,
-    "methods": 804,
-    "fields": 441
+    "modules": 104,
+    "models": 212,
+    "methods": 814,
+    "fields": 445
   },
   "areas": [
     {
@@ -8850,7 +8850,8 @@
           "model": "ua.piecework",
           "ours": true,
           "modules": [
-            "l10n_ua_piecework"
+            "l10n_ua_piecework",
+            "l10n_ua_repair_piecework"
           ],
           "methods": [
             {
@@ -8920,6 +8921,32 @@
               "decorators": [
                 "api.model"
               ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.piecework.plan",
+          "ours": true,
+          "modules": [
+            "l10n_ua_piecework"
+          ],
+          "methods": [
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "Порахувати факт; працівник з виробітком без плану отримує рядок з нульовим планом.",
+              "module": "l10n_ua_piecework",
+              "file": "addons/l10n_ua_piecework/models/ua_piecework_plan.py",
+              "decorators": []
+            },
+            {
+              "name": "action_copy_previous",
+              "signature": "action_copy_previous()",
+              "doc": "План минулого місяця як початок для цього.",
+              "module": "l10n_ua_piecework",
+              "file": "addons/l10n_ua_piecework/models/ua_piecework_plan.py",
+              "decorators": []
             }
           ],
           "fields": []
@@ -9406,6 +9433,56 @@
               "doc": "",
               "module": "l10n_ua_contract",
               "file": "addons/l10n_ua_contract/models/ua_reconciliation_act.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.return.act",
+          "ours": true,
+          "modules": [
+            "l10n_ua_return_act"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_return_act",
+              "file": "addons/l10n_ua_return_act/models/ua_return_act.py",
+              "decorators": []
+            },
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_return_act",
+              "file": "addons/l10n_ua_return_act/models/ua_return_act.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_return_act",
+              "file": "addons/l10n_ua_return_act/models/ua_return_act.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill",
+              "signature": "action_fill()",
+              "doc": "Рядки з кредит-ноти і прийомки; рядки, вписані рукою, лишаються.",
+              "module": "l10n_ua_return_act",
+              "file": "addons/l10n_ua_return_act/models/ua_return_act.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_return_act",
+              "file": "addons/l10n_ua_return_act/models/ua_return_act.py",
               "decorators": []
             }
           ],
@@ -10337,6 +10414,7 @@
             "l10n_ua_equity",
             "l10n_ua_grant",
             "l10n_ua_prro",
+            "l10n_ua_return_act",
             "l10n_ua_tolling",
             "l10n_ua_vat"
           ],
@@ -10379,6 +10457,14 @@
               "doc": "",
               "module": "l10n_ua_prro",
               "file": "addons/l10n_ua_prro/models/account.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_return_act",
+              "signature": "action_ua_return_act()",
+              "doc": "",
+              "module": "l10n_ua_return_act",
+              "file": "addons/l10n_ua_return_act/models/ua_return_act.py",
               "decorators": []
             }
           ],
@@ -10533,6 +10619,14 @@
               "label": "ua.prro.receipt",
               "module": "l10n_ua_prro",
               "file": "addons/l10n_ua_prro/models/account.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_return_act_ids",
+              "type": "One2many",
+              "label": "ua.return.act",
+              "module": "l10n_ua_return_act",
+              "file": "addons/l10n_ua_return_act/models/ua_return_act.py",
               "groups": ""
             },
             {
@@ -12064,6 +12158,41 @@
           ]
         },
         {
+          "model": "repair.order",
+          "ours": false,
+          "modules": [
+            "l10n_ua_repair_piecework"
+          ],
+          "methods": [
+            {
+              "name": "action_repair_done",
+              "signature": "action_repair_done()",
+              "doc": "",
+              "module": "l10n_ua_repair_piecework",
+              "file": "addons/l10n_ua_repair_piecework/models/repair_piecework.py",
+              "decorators": []
+            }
+          ],
+          "fields": [
+            {
+              "name": "ua_date_done",
+              "type": "Date",
+              "label": "Завершено",
+              "module": "l10n_ua_repair_piecework",
+              "file": "addons/l10n_ua_repair_piecework/models/repair_piecework.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_labour_ids",
+              "type": "One2many",
+              "label": "ua.repair.labour",
+              "module": "l10n_ua_repair_piecework",
+              "file": "addons/l10n_ua_repair_piecework/models/repair_piecework.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
           "model": "stock.landed.cost",
           "ours": false,
           "modules": [
@@ -12334,6 +12463,7 @@
             "l10n_ua_docs_stock",
             "l10n_ua_export_control",
             "l10n_ua_parcel",
+            "l10n_ua_return_act",
             "l10n_ua_scan",
             "l10n_ua_stock_docs",
             "l10n_ua_supplier_approval",
@@ -12341,6 +12471,14 @@
             "l10n_ua_unit_transfer"
           ],
           "methods": [
+            {
+              "name": "action_ua_return_act",
+              "signature": "action_ua_return_act()",
+              "doc": "",
+              "module": "l10n_ua_return_act",
+              "file": "addons/l10n_ua_return_act/models/ua_return_act.py",
+              "decorators": []
+            },
             {
               "name": "action_ua_unit_transfer",
               "signature": "action_ua_unit_transfer()",
@@ -12439,6 +12577,14 @@
               "label": "Видана на (ПІБ)",
               "module": "l10n_ua_docs_stock",
               "file": "addons/l10n_ua_docs_stock/models/stock_picking.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_return_act_ids",
+              "type": "One2many",
+              "label": "ua.return.act",
+              "module": "l10n_ua_return_act",
+              "file": "addons/l10n_ua_return_act/models/ua_return_act.py",
               "groups": ""
             },
             {

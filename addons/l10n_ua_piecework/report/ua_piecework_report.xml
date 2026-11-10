@@ -34,7 +34,7 @@
         <thead>
           <tr>
             <th style="width: 4%;">№</th>
-            <th>Виробниче замовлення</th>
+            <th>Документ</th>
             <th>Операція</th>
             <th>Виріб</th>
             <th style="width: 9%;">Кількість</th>
@@ -47,8 +47,8 @@
             <tr class="ua-bold"><td colspan="7"><t t-out="group[0].name or 'Працівника не вказано'"/></td></tr>
             <tr t-foreach="group[1]" t-as="line">
               <td style="text-align: center;"><t t-out="line_index + 1"/></td>
-              <td><t t-out="line.production_id.name or '-'"/></td>
-              <td><t t-out="line.operation_id.name or '-'"/></td>
+              <td><t t-out="line._ua_doc_name()"/></td>
+              <td><t t-out="line._ua_work_name()"/></td>
               <td><t t-out="line.product_id.display_name or '-'"/></td>
               <td class="ua-num"><t t-out="doc.qty(line.quantity)"/></td>
               <td class="ua-num"><t t-out="doc.money(line.rate)"/></td>

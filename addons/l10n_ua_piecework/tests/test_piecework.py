@@ -161,3 +161,27 @@ class TestUaPiecework(TransactionCase):
         for text in ("НАРЯД НА ВІДРЯДНУ РОБОТУ", doc.name, "Анна Відрядна", "Богдан Відрядний",
                      "10 000,00", "15 000,00", "Складання"):
             self.assertIn(text, html)
+
+    def test_04_plan_and_fact(self):
+        self._mo(60.0, [(self.anna, 120.0), (self.bohdan, 60.0)])
+        doc = self.env["ua.piecework"].create({})
+        doc.action_fill()
+        doc.action_confirm()
+        plan = self.env["ua.piecework.plan"].create({
+            "month": doc.date_to, "line_ids": [(0, 0, {"employee_id": self.anna.id, "plan_amount": 8000.0})]})
+        self.assertEqual(plan.month, doc.date_to.replace(day=1), "місяць - перше число")
+        plan.action_compute()
+        rows = {line.employee_id: line for line in plan.line_ids}
+        anna = rows[self.anna]
+        self.assertEqual(anna.fact_amount, 10000.0)
+        self.assertAlmostEqual(anna.percent_plan, 125.0, places=1)
+        # норма складання 30 хв на дрон: 40 дронів - 20 нормо-годин; в обліку часу 2 години
+        self.assertAlmostEqual(anna.fact_norm_hours, 20.0, places=2)
+        self.assertAlmostEqual(anna.fact_hours, 2.0, places=2)
+        self.assertAlmostEqual(anna.efficiency, 1000.0, places=1)
+        self.assertIn(self.bohdan, rows, "виробіток без плану - рядок з нульовим планом")
+        self.assertEqual(rows[self.bohdan].percent_plan, 0.0)
+        self.assertAlmostEqual(plan.percent_total, 15000.0 / 8000.0 * 100.0, places=1)
+        doc.action_cancel()
+        plan.action_compute()
+        self.assertEqual(anna.fact_amount, 0.0, "скасований виробіток з факту зникає")

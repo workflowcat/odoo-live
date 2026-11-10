@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_return_act_stock,ua.return.act stock user,model_ua_return_act,stock.group_stock_user,1,1,1,0
+access_ua_return_act_stock_manager,ua.return.act stock manager,model_ua_return_act,stock.group_stock_manager,1,1,1,1
+access_ua_return_act_invoice,ua.return.act billing,model_ua_return_act,account.group_account_invoice,1,1,1,0
+access_ua_return_act_line_stock,ua.return.act.line stock user,model_ua_return_act_line,stock.group_stock_user,1,1,1,1
+access_ua_return_act_line_invoice,ua.return.act.line billing,model_ua_return_act_line,account.group_account_invoice,1,1,1,1

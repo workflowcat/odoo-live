@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="report_ua_return_act_document">
+    <t t-call="web.external_layout">
+      <div class="page">
+        <h4 class="text-center">АКТ № <t t-esc="o.name"/></h4>
+        <p class="text-center">про невідповідність товару при поверненні від <t t-esc="o.date.strftime('%d.%m.%Y')"/></p>
+        <table class="table table-borderless table-sm">
+          <tr><td style="width: 30%;">Постачальник</td><td><t t-esc="o.company_id.name"/></td></tr>
+          <tr><td>Покупець</td><td><t t-esc="o.partner_id.name"/></td></tr>
+          <tr t-if="o.refund_id"><td>Кредит-нота</td>
+            <td><t t-esc="o.refund_id.name"/><t t-if="o.refund_id.invoice_date"> від <t t-esc="o.refund_id.invoice_date.strftime('%d.%m.%Y')"/></t></td></tr>
+          <tr t-if="o.picking_id"><td>Прийомка повернення</td><td><t t-esc="o.picking_id.name"/></td></tr>
+          <tr t-if="o.reason"><td>Підстава</td><td><t t-esc="o.reason"/></td></tr>
+        </table>
+        <p>Комісія перевірила товар, повернутий покупцем, і встановила:</p>
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>№</th><th>Товар</th><th>Од.</th>
+              <th class="text-end">За документом</th><th class="text-end">Фактично</th><th class="text-end">Розбіжність</th>
+              <th class="text-end">Ціна без ПДВ</th><th class="text-end">Сума розбіжності</th>
+              <th>Невідповідність</th><th>Опис, серійні номери</th><th>Рішення</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr t-foreach="o.line_ids" t-as="line">
+              <td t-esc="line_index + 1"/>
+              <td t-esc="line.product_id.display_name"/>
+              <td t-esc="line.uom_id.name"/>
+              <td class="text-end" t-esc="'%g' % line.qty_doc"/>
+              <td class="text-end" t-esc="'%g' % line.qty_received"/>
+              <td class="text-end" t-esc="'%g' % line.qty_diff"/>
+              <td class="text-end" t-esc="'%.2f' % line.price_unit"/>
+              <td class="text-end" t-esc="'%.2f' % line.amount_diff"/>
+              <td t-esc="dict(line._fields['issue'].selection).get(line.issue)"/>
+              <td><t t-esc="line.description or ''"/><t t-if="line.lot_names"><br/><t t-esc="line.lot_names"/></t></td>
+              <td t-esc="dict(line._fields['decision'].selection).get(line.decision) or ''"/>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="7">Разом розбіжність, грн без ПДВ</td>
+              <td class="text-end" t-esc="'%.2f' % o.amount_diff"/>
+              <td colspan="3"/>
+            </tr>
+          </tfoot>
+        </table>
+        <p t-if="o.conclusion">Висновок комісії: <t t-esc="o.conclusion"/></p>
+        <table class="table table-borderless mt-4">
+          <tr><td>Голова комісії</td><td>__________________</td><td>Власне ім'я ПРІЗВИЩЕ</td></tr>
+          <tr><td>Члени комісії</td><td>__________________</td><td>Власне ім'я ПРІЗВИЩЕ</td></tr>
+          <tr><td>Матеріально відповідальна особа</td><td>__________________</td><td>Власне ім'я ПРІЗВИЩЕ</td></tr>
+          <tr><td>Представник покупця</td><td>__________________</td><td>Власне ім'я ПРІЗВИЩЕ</td></tr>
+        </table>
+      </div>
+    </t>
+  </template>
+
+  <template id="report_ua_return_act">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="o">
+        <t t-call="l10n_ua_return_act.report_ua_return_act_document"/>
+      </t>
+    </t>
+  </template>
+
+  <record id="action_report_ua_return_act" model="ir.actions.report">
+    <field name="name">Акт невідповідності</field>
+    <field name="model">ua.return.act</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_return_act.report_ua_return_act</field>
+    <field name="report_file">l10n_ua_return_act.report_ua_return_act</field>
+    <field name="print_report_name">'Акт невідповідності %s' % object.name</field>
+    <field name="binding_model_id" ref="model_ua_return_act"/>
+    <field name="binding_type">report</field>
+  </record>
+</odoo>

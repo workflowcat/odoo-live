@@ -4,3 +4,7 @@ access_ua_piecework_mrp_manager,ua.piecework mrp manager,model_ua_piecework,mrp.
 access_ua_piecework_payroll,ua.piecework payroll,model_ua_piecework,payroll.group_payroll_user,1,0,0,0
 access_ua_piecework_line_mrp_user,ua.piecework.line mrp user,model_ua_piecework_line,mrp.group_mrp_user,1,1,1,1
 access_ua_piecework_line_payroll,ua.piecework.line payroll,model_ua_piecework_line,payroll.group_payroll_user,1,0,0,0
+access_ua_piecework_plan_mrp_user,ua.piecework.plan mrp user,model_ua_piecework_plan,mrp.group_mrp_user,1,0,0,0
+access_ua_piecework_plan_mrp_manager,ua.piecework.plan mrp manager,model_ua_piecework_plan,mrp.group_mrp_manager,1,1,1,1
+access_ua_piecework_plan_line_mrp_user,ua.piecework.plan.line mrp user,model_ua_piecework_plan_line,mrp.group_mrp_user,1,0,0,0
+access_ua_piecework_plan_line_mrp_manager,ua.piecework.plan.line mrp manager,model_ua_piecework_plan_line,mrp.group_mrp_manager,1,1,1,1

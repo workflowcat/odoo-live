@@ -274,6 +274,12 @@
             action="l10n_ua_scan.action_ua_scan_start" sequence="1"/>
   <menuitem id="menu_ua_product_rename" name="Акти зміни найменування" parent="stock.menu_stock_inventory_control"
             action="l10n_ua_product_rename.action_ua_product_rename" sequence="70"/>
+  <menuitem id="menu_ua_repair_operation" name="Роботи і розцінки" parent="repair.repair_menu_config"
+            action="l10n_ua_repair_piecework.action_ua_repair_operation" sequence="30"/>
+  <menuitem id="menu_ua_return_act_stock" name="Акти невідповідності при поверненні" parent="stock.menu_stock_inventory_control"
+            action="l10n_ua_return_act.action_ua_return_act" sequence="71"/>
+  <menuitem id="menu_ua_return_act_repair" name="Акти невідповідності" parent="repair.menu_repair_order"
+            action="l10n_ua_return_act.action_ua_return_act" sequence="12"/>
   <menuitem id="menu_ua_defect_act" name="Акти про брак" parent="mrp.menu_mrp_manufacturing"
             action="l10n_ua_defect.action_ua_defect_act" sequence="40"/>
   <menuitem id="menu_ua_cashflow_budget" name="Бюджет руху коштів" parent="account.menu_finance_payables"
