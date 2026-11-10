@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 95,
-    "models": 200,
-    "methods": 771,
-    "fields": 430
+    "modules": 96,
+    "models": 203,
+    "methods": 783,
+    "fields": 431
   },
   "areas": [
     {
@@ -1532,7 +1532,8 @@
             "l10n_ua_payroll_account",
             "l10n_ua_payroll_reports",
             "l10n_ua_payroll_rules",
-            "l10n_ua_piecework"
+            "l10n_ua_piecework",
+            "l10n_ua_project_cost"
           ],
           "methods": [
             {
@@ -4671,7 +4672,8 @@
           "model": "account.asset",
           "ours": false,
           "modules": [
-            "l10n_ua_assets"
+            "l10n_ua_assets",
+            "l10n_ua_project_cost"
           ],
           "methods": [],
           "fields": [
@@ -4697,6 +4699,14 @@
               "label": "Заводський номер",
               "module": "l10n_ua_assets",
               "file": "addons/l10n_ua_assets/models/account_asset.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_license_product_ids",
+              "type": "Many2many",
+              "label": "product.product",
+              "module": "l10n_ua_project_cost",
+              "file": "addons/l10n_ua_project_cost/models/ua_ia_license_split.py",
               "groups": ""
             },
             {
@@ -8052,6 +8062,90 @@
           "fields": []
         },
         {
+          "model": "ua.ia.capitalization",
+          "ours": true,
+          "modules": [
+            "l10n_ua_project_cost"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_project_cost",
+              "file": "addons/l10n_ua_project_cost/models/ua_ia_capitalization.py",
+              "decorators": []
+            },
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "",
+              "module": "l10n_ua_project_cost",
+              "file": "addons/l10n_ua_project_cost/models/ua_ia_capitalization.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_project_cost",
+              "file": "addons/l10n_ua_project_cost/models/ua_ia_capitalization.py",
+              "decorators": []
+            },
+            {
+              "name": "action_post",
+              "signature": "action_post()",
+              "doc": "",
+              "module": "l10n_ua_project_cost",
+              "file": "addons/l10n_ua_project_cost/models/ua_ia_capitalization.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.ia.license.split",
+          "ours": true,
+          "modules": [
+            "l10n_ua_project_cost"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_project_cost",
+              "file": "addons/l10n_ua_project_cost/models/ua_ia_license_split.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_project_cost",
+              "file": "addons/l10n_ua_project_cost/models/ua_ia_license_split.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill_from_sales",
+              "signature": "action_fill_from_sales()",
+              "doc": "Кількість ліцензій з проведених рахунків покупцям за місяць, мінус повернення.",
+              "module": "l10n_ua_project_cost",
+              "file": "addons/l10n_ua_project_cost/models/ua_ia_license_split.py",
+              "decorators": []
+            },
+            {
+              "name": "action_post",
+              "signature": "action_post()",
+              "doc": "",
+              "module": "l10n_ua_project_cost",
+              "file": "addons/l10n_ua_project_cost/models/ua_ia_license_split.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.limit.card",
           "ours": true,
           "modules": [
@@ -8530,6 +8624,48 @@
               "decorators": [
                 "api.model"
               ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.payroll.allocation",
+          "ours": true,
+          "modules": [
+            "l10n_ua_project_cost"
+          ],
+          "methods": [
+            {
+              "name": "action_confirm",
+              "signature": "action_confirm()",
+              "doc": "",
+              "module": "l10n_ua_project_cost",
+              "file": "addons/l10n_ua_project_cost/models/ua_payroll_allocation.py",
+              "decorators": []
+            },
+            {
+              "name": "action_copy_previous",
+              "signature": "action_copy_previous()",
+              "doc": "Взяти рядки попереднього місяця: ті самі люди, проєкти, рахунки і години.",
+              "module": "l10n_ua_project_cost",
+              "file": "addons/l10n_ua_project_cost/models/ua_payroll_allocation.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_project_cost",
+              "file": "addons/l10n_ua_project_cost/models/ua_payroll_allocation.py",
+              "decorators": []
+            },
+            {
+              "name": "action_fill_timesheets",
+              "signature": "action_fill_timesheets()",
+              "doc": "Години з обліку часу за проєктами (hr_timesheet), якщо він встановлений.",
+              "module": "l10n_ua_project_cost",
+              "file": "addons/l10n_ua_project_cost/models/ua_payroll_allocation.py",
+              "decorators": []
             }
           ],
           "fields": []

@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 95. Моделей: 200. Методів: 771. Збережених полів на чужих моделях: 430.
+Модулів: 96. Моделей: 203. Методів: 783. Збережених полів на чужих моделях: 431.
 
 ## Зарплата
 
@@ -319,7 +319,7 @@
 
 ### `hr.payslip`
 
-доповнена модель · `l10n_ua_average`, `l10n_ua_diia_city`, `l10n_ua_explain`, `l10n_ua_hr_docs`, `l10n_ua_index`, `l10n_ua_payroll_account`, `l10n_ua_payroll_reports`, `l10n_ua_payroll_rules`, `l10n_ua_piecework`
+доповнена модель · `l10n_ua_average`, `l10n_ua_diia_city`, `l10n_ua_explain`, `l10n_ua_hr_docs`, `l10n_ua_index`, `l10n_ua_payroll_account`, `l10n_ua_payroll_reports`, `l10n_ua_payroll_rules`, `l10n_ua_piecework`, `l10n_ua_project_cost`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1008,13 +1008,14 @@
 
 ### `account.asset`
 
-доповнена модель · `l10n_ua_assets`
+доповнена модель · `l10n_ua_assets`, `l10n_ua_project_cost`
 
 | Поле | Тип | Підпис | Модуль |
 | --- | --- | --- | --- |
 | `ua_commission` | Text | Склад комісії | `l10n_ua_assets` |
 | `ua_disposal_reason` | Text | Причина списання | `l10n_ua_assets` |
 | `ua_factory_number` | Char | Заводський номер | `l10n_ua_assets` |
+| `ua_license_product_ids` | Many2many | product.product | `l10n_ua_project_cost` |
 | `ua_location` | Char | Місцезнаходження об'єкта | `l10n_ua_assets` |
 | `ua_manufacturer` | Char | Виробник | `l10n_ua_assets` |
 | `ua_passport_number` | Char | Номер паспорта (документа) | `l10n_ua_assets` |
@@ -1782,6 +1783,28 @@
 | `action_print()` | - | `l10n_ua_headcount` |
 | `ua_number(value, digits=2)` | Число для друку: дві цифри після коми, кома як роздільник. | `l10n_ua_headcount` |
 
+### `ua.ia.capitalization`
+
+наша модель · `l10n_ua_project_cost`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | - | `l10n_ua_project_cost` |
+| `action_compute()` | - | `l10n_ua_project_cost` |
+| `action_draft()` | - | `l10n_ua_project_cost` |
+| `action_post()` | - | `l10n_ua_project_cost` |
+
+### `ua.ia.license.split`
+
+наша модель · `l10n_ua_project_cost`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | - | `l10n_ua_project_cost` |
+| `action_draft()` | - | `l10n_ua_project_cost` |
+| `action_fill_from_sales()` | Кількість ліцензій з проведених рахунків покупцям за місяць, мінус повернення. | `l10n_ua_project_cost` |
+| `action_post()` | - | `l10n_ua_project_cost` |
+
 ### `ua.limit.card`
 
 наша модель · `l10n_ua_limit_card`
@@ -1904,6 +1927,17 @@
 | `action_submit()` | - | `l10n_ua_budget` |
 | `action_submit()` | - | `l10n_ua_payment_request` |
 | `calendar_rows(date_from, date_to, company=None)` | Платіжний календар: заявки на погодженні й погоджені за датами оплати. | `l10n_ua_payment_request` |
+
+### `ua.payroll.allocation`
+
+наша модель · `l10n_ua_project_cost`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_confirm()` | - | `l10n_ua_project_cost` |
+| `action_copy_previous()` | Взяти рядки попереднього місяця: ті самі люди, проєкти, рахунки і години. | `l10n_ua_project_cost` |
+| `action_draft()` | - | `l10n_ua_project_cost` |
+| `action_fill_timesheets()` | Години з обліку часу за проєктами (hr_timesheet), якщо він встановлений. | `l10n_ua_project_cost` |
 
 ### `ua.piecework`
 

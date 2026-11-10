@@ -78,6 +78,8 @@
             action="l10n_ua_payroll_rules.action_ua_diia_city_month" sequence="45"/>
   <menuitem id="menu_ua_payroll_statement" name="Розрахункова відомість з сальдо" parent="menu_ua_payroll_docs"
             action="l10n_ua_payroll_account.action_ua_payroll_statement" sequence="50"/>
+  <menuitem id="menu_ua_payroll_allocation" name="Розподіл зарплати за проєктами" parent="menu_ua_payroll_docs"
+            action="l10n_ua_project_cost.action_ua_payroll_allocation" sequence="55"/>
 
   <menuitem id="menu_ua_payouts" name="Виплати" parent="menu_ua_payroll_root" sequence="40"/>
   <menuitem id="menu_ua_payment_orders" name="Відомості на перерахування" parent="menu_ua_payouts"
@@ -151,6 +153,12 @@
   <menuitem id="menu_ua_asset_inventory" name="Інвентаризація необоротних активів"
             parent="account_asset_management.menu_finance_assets"
             action="l10n_ua_asset_inventory.action_ua_asset_inventory" sequence="40"/>
+  <menuitem id="menu_ua_ia_capitalization" name="Введення НМА в експлуатацію"
+            parent="account_asset_management.menu_finance_assets"
+            action="l10n_ua_project_cost.action_ua_ia_capitalization" sequence="45"/>
+  <menuitem id="menu_ua_ia_license_split" name="Амортизація НМА на ліцензії"
+            parent="account_asset_management.menu_finance_assets"
+            action="l10n_ua_project_cost.action_ua_ia_license_split" sequence="46"/>
   <menuitem id="menu_ua_headcount" name="Середньооблікова кількість" parent="menu_ua_hr_root"
             action="l10n_ua_headcount.action_ua_headcount_report" sequence="64"/>
   <menuitem id="menu_ua_disability_quota" name="Норматив для осіб з інвалідністю" parent="menu_ua_hr_root"

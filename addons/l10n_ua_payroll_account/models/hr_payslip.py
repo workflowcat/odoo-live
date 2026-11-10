@@ -76,16 +76,30 @@ class HrPayslip(models.Model):
             return (emp.ua_alimony_partner_id or emp.work_contact_id).id or False
         return False
 
+    def _ua_split(self, account, amount, expense):
+        """Як розкласти один бік рядка проводки: [(рахунок, сума, аналітика)]. Типово - одним рядком.
+
+        Модулі розподілу (наприклад, зарплата за проєктами) ділять бік витрат на кілька рахунків
+        і аналітик; сума частин завжди дорівнює amount, тож проводка лишається збалансованою."""
+        return [(account, amount, False)]
+
     def _ua_create_move(self):
         self.ensure_one()
         lines = self._ua_move_lines()
         if not lines:
             return False
         vals = []
+        expense = self._ua_expense_account()
         for debit, credit, amount, name in lines:
             base = {"name": f"{self.employee_id.name} · {name}"}
-            vals.append((0, 0, {**base, "account_id": debit.id, "debit": amount, "credit": 0.0, "partner_id": self._ua_partner_for(debit)}))
-            vals.append((0, 0, {**base, "account_id": credit.id, "debit": 0.0, "credit": amount, "partner_id": self._ua_partner_for(credit)}))
+            for account, part, analytic in self._ua_split(debit, amount, expense):
+                vals.append((0, 0, {**base, "account_id": account.id, "debit": part, "credit": 0.0,
+                                    "partner_id": self._ua_partner_for(account),
+                                    **({"analytic_distribution": analytic} if analytic else {})}))
+            for account, part, analytic in self._ua_split(credit, amount, expense):
+                vals.append((0, 0, {**base, "account_id": account.id, "debit": 0.0, "credit": part,
+                                    "partner_id": self._ua_partner_for(account),
+                                    **({"analytic_distribution": analytic} if analytic else {})}))
         move = self.env["account.move"].create({
             "journal_id": self._ua_journal().id, "date": self.date_to, "ref": self.number or self.name,
             "move_type": "entry", "line_ids": vals,

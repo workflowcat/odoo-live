@@ -6,6 +6,16 @@ Notable changes for people who run or build on this code. Module-level API chang
 ## Unreleased
 
 ### Added
+- Costs of building intangible assets by project (`l10n_ua_project_cost`). «Розподіл зарплати за проєктами»:
+  hours of each employee per project (analytic account) for a month, with an expense account per row (154
+  for a project that builds software); a posted payslip splits every expense line, pay and ЄСВ, by these
+  hours with the project's analytics, the last part takes the rounding. Checks: slips with no split, slips
+  posted before the split was confirmed, hours that differ from the timesheet. «Введення НМА в
+  експлуатацію»: the project's balance on 154 becomes an intangible asset (Дт 12х Кт 154), the asset card
+  comes from OCA and is confirmed at once; cancelling reverses the entry and removes the card.
+  «Розподіл амортизації НМА на ліцензії»: the asset's depreciation for a month split between the licences
+  sold, by quantity from posted customer invoices less refunds, each with its analytics. Payslip entries
+  gained a split hook (`hr.payslip._ua_split`) other modules can use.
 - Unified report, annex Д1: marks for special seniority (column 23), new workplace (24, with an end date) and
   unfixed working hours (26) are set on the contract version. Staff on military service with the job kept
   are in Д1 as a row with zero amounts and their days in employment, and stay out of 4ДФ. A payslip has a

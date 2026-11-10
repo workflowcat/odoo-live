@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_ia_capitalization_form" model="ir.ui.view">
+    <field name="name">ua.ia.capitalization.form</field><field name="model">ua.ia.capitalization</field>
+    <field name="arch" type="xml">
+      <form string="Введення НМА в експлуатацію">
+        <header>
+          <button name="action_post" type="object" string="Провести" class="btn-primary" invisible="state != 'draft'"/>
+          <button name="action_compute" type="object" string="Порахувати" invisible="state != 'draft'"/>
+          <button name="action_cancel" type="object" string="Скасувати" invisible="state != 'posted'"
+                  confirm="Проводку буде сторновано, а картку активу видалено. Продовжити?"/>
+          <button name="action_draft" type="object" string="У чернетку" invisible="state != 'cancel'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" placeholder="Назва активу" readonly="state != 'draft'"/></h1></div>
+          <group>
+            <group>
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="analytic_account_id" readonly="state != 'draft'"/>
+              <field name="source_account_id" readonly="state != 'draft'"/>
+              <field name="profile_id" readonly="state != 'draft'"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="currency_id" invisible="1"/>
+              <field name="amount"/>
+              <field name="move_id"/>
+              <field name="asset_id"/>
+            </group>
+          </group>
+          <field name="note" placeholder="Примітка"/>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_ia_capitalization_list" model="ir.ui.view">
+    <field name="name">ua.ia.capitalization.list</field><field name="model">ua.ia.capitalization</field>
+    <field name="arch" type="xml">
+      <list string="Введення НМА в експлуатацію">
+        <field name="date"/>
+        <field name="name"/>
+        <field name="analytic_account_id"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="amount" sum="Разом"/>
+        <field name="state" widget="badge" decoration-success="state == 'posted'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_ia_capitalization" model="ir.actions.act_window">
+    <field name="name">Введення НМА в експлуатацію</field>
+    <field name="res_model">ua.ia.capitalization</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>

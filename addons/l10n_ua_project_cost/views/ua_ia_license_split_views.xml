@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_ia_license_split_form" model="ir.ui.view">
+    <field name="name">ua.ia.license.split.form</field><field name="model">ua.ia.license.split</field>
+    <field name="arch" type="xml">
+      <form string="Розподіл амортизації НМА на ліцензії">
+        <header>
+          <button name="action_post" type="object" string="Провести" class="btn-primary" invisible="state != 'draft'"/>
+          <button name="action_fill_from_sales" type="object" string="Заповнити з продажів" invisible="state != 'draft'"/>
+          <button name="action_cancel" type="object" string="Скасувати" invisible="state != 'posted'"
+                  confirm="Проводку буде сторновано. Продовжити?"/>
+          <button name="action_draft" type="object" string="У чернетку" invisible="state != 'cancel'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="asset_id" readonly="state != 'draft'"/>
+              <field name="month" readonly="state != 'draft'"/>
+              <field name="source_account_id"/>
+              <field name="target_account_id" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="currency_id" invisible="1"/>
+              <field name="amount"/>
+              <field name="quantity_total"/>
+              <field name="move_id"/>
+            </group>
+          </group>
+          <field name="line_ids" readonly="state != 'draft'">
+            <list editable="bottom">
+              <field name="product_id"/>
+              <field name="analytic_account_id"/>
+              <field name="quantity" sum="Разом"/>
+              <field name="share"/>
+              <field name="currency_id" column_invisible="1"/>
+              <field name="amount" sum="Разом"/>
+            </list>
+          </field>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_ia_license_split_list" model="ir.ui.view">
+    <field name="name">ua.ia.license.split.list</field><field name="model">ua.ia.license.split</field>
+    <field name="arch" type="xml">
+      <list string="Розподіл амортизації НМА на ліцензії">
+        <field name="name"/>
+        <field name="quantity_total"/>
+        <field name="state" widget="badge" decoration-success="state == 'posted'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_ia_license_split" model="ir.actions.act_window">
+    <field name="name">Розподіл амортизації НМА на ліцензії</field>
+    <field name="res_model">ua.ia.license.split</field>
+    <field name="view_mode">list,form</field>
+  </record>
+
+  <record id="view_account_asset_form_ua_licenses" model="ir.ui.view">
+    <field name="name">account.asset.form.ua.licenses</field><field name="model">account.asset</field>
+    <field name="inherit_id" ref="account_asset_management.account_asset_view_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//notebook" position="inside">
+        <page string="Ліцензії" name="ua_licenses" invisible="not profile_id">
+          <field name="ua_license_product_ids" widget="many2many_tags" nolabel="1"/>
+        </page>
+      </xpath>
+    </field>
+  </record>
+</odoo>

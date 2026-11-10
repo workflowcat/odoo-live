@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_payroll_allocation_payroll,ua.payroll.allocation payroll,model_ua_payroll_allocation,payroll.group_payroll_user,1,1,1,1
+access_ua_payroll_allocation_line_payroll,ua.payroll.allocation.line payroll,model_ua_payroll_allocation_line,payroll.group_payroll_user,1,1,1,1
+access_ua_payroll_allocation_account,ua.payroll.allocation account,model_ua_payroll_allocation,account.group_account_user,1,1,1,1
+access_ua_payroll_allocation_line_account,ua.payroll.allocation.line account,model_ua_payroll_allocation_line,account.group_account_user,1,1,1,1
+access_ua_ia_capitalization_account,ua.ia.capitalization account,model_ua_ia_capitalization,account.group_account_user,1,1,1,1
+access_ua_ia_license_split_account,ua.ia.license.split account,model_ua_ia_license_split,account.group_account_user,1,1,1,1
+access_ua_ia_license_split_line_account,ua.ia.license.split.line account,model_ua_ia_license_split_line,account.group_account_user,1,1,1,1
