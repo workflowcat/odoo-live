@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="ua_dunning_letter_body">
+    <div>
+      <p>Шановні партнери!</p>
+      <p t-esc="intro"/>
+      <p t-if="contract">Договір: <t t-esc="contract"/>.</p>
+      <table style="border-collapse: collapse; width: 100%;">
+        <thead>
+          <tr>
+            <th style="text-align: left; border-bottom: 1px solid #999; padding: 4px;">Рахунок</th>
+            <th style="text-align: left; border-bottom: 1px solid #999; padding: 4px;">Дата</th>
+            <th style="text-align: left; border-bottom: 1px solid #999; padding: 4px;">Оплатити до</th>
+            <th style="text-align: right; border-bottom: 1px solid #999; padding: 4px;">Днів прострочки</th>
+            <th style="text-align: right; border-bottom: 1px solid #999; padding: 4px;">Залишок, грн</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr t-foreach="letter.line_ids" t-as="line">
+            <td style="padding: 4px;" t-esc="line.move_id.name"/>
+            <td style="padding: 4px;" t-esc="line.invoice_date and line.invoice_date.strftime('%d.%m.%Y')"/>
+            <td style="padding: 4px;" t-esc="line.invoice_date_due and line.invoice_date_due.strftime('%d.%m.%Y')"/>
+            <td style="padding: 4px; text-align: right;" t-esc="line.days_overdue"/>
+            <td style="padding: 4px; text-align: right;" t-esc="uah(line.amount_residual)"/>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4" style="padding: 4px; border-top: 1px solid #999;"><strong>Разом</strong></td>
+            <td style="padding: 4px; text-align: right; border-top: 1px solid #999;">
+              <strong t-esc="uah(letter.amount_total)"/>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+      <p>Реквізити для оплати - у рахунках. Якщо суми не збігаються з вашим обліком, напишіть нам: надішлемо акт звірки.</p>
+      <p>З повагою,<br/><t t-esc="letter.company_id.name"/></p>
+    </div>
+  </template>
+
+  <template id="report_ua_dunning_letter_document">
+    <t t-call="web.external_layout">
+      <div class="page">
+        <p class="text-end">
+          <t t-esc="o.partner_id.name"/><br/>
+          <t t-if="o.partner_id.email" t-esc="o.partner_id.email"/>
+        </p>
+        <p>№ <t t-esc="o.name"/> від <t t-esc="o.date.strftime('%d.%m.%Y')"/></p>
+        <h4 t-esc="o.subject"/>
+        <div t-out="o.body_html"/>
+      </div>
+    </t>
+  </template>
+
+  <template id="report_ua_dunning_letter">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="o">
+        <t t-call="l10n_ua_dunning.report_ua_dunning_letter_document"/>
+      </t>
+    </t>
+  </template>
+
+  <record id="action_report_ua_dunning_letter" model="ir.actions.report">
+    <field name="name">Нагадування про борг</field>
+    <field name="model">ua.dunning.letter</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_dunning.report_ua_dunning_letter</field>
+    <field name="report_file">l10n_ua_dunning.report_ua_dunning_letter</field>
+    <field name="print_report_name">'Нагадування %s' % object.name</field>
+    <field name="binding_model_id" ref="model_ua_dunning_letter"/>
+    <field name="binding_type">report</field>
+  </record>
+</odoo>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+  <record id="level_3" model="ua.dunning.level">
+    <field name="name">Нагадування про оплату</field>
+    <field name="days">3</field>
+    <field name="subject">Нагадування про оплату рахунків</field>
+    <field name="intro">Нагадуємо, що строк оплати рахунків нижче минув. Просимо оплатити їх найближчим часом. Якщо оплату вже здійснено, вибачте за турботу: надішліть, будь ласка, номер платіжної інструкції.</field>
+  </record>
+  <record id="level_15" model="ua.dunning.level">
+    <field name="name">Повторне нагадування</field>
+    <field name="days">15</field>
+    <field name="subject">Повторне нагадування про заборгованість</field>
+    <field name="intro">Заборгованість за рахунками нижче досі не погашено. Просимо оплатити її протягом п'яти робочих днів або повідомити, коли плануєте оплату.</field>
+  </record>
+  <record id="level_30" model="ua.dunning.level">
+    <field name="name">Вимога про погашення</field>
+    <field name="days">30</field>
+    <field name="subject">Вимога про погашення заборгованості</field>
+    <field name="intro">Заборгованість за рахунками нижче прострочено понад 30 днів. Просимо погасити її протягом семи днів з дня отримання цього листа. Інакше ми будемо змушені звернутися до суду зі стягненням боргу, інфляційних втрат і трьох процентів річних (ст. 625 Цивільного кодексу України).</field>
+  </record>
+</odoo>

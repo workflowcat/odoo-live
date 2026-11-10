@@ -7,6 +7,10 @@
       <xpath expr="//sheet" position="before">
         <header><button name="action_fill_from_edr" type="object" string="Заповнити з ЄДР" class="btn-primary" invisible="not company_registry and not vat"/></header>
       </xpath>
+      <xpath expr="//field[@name='vat']" position="after">
+        <field name="ua_short_name" invisible="not is_company"/>
+        <field name="ua_internal_name"/>
+      </xpath>
       <notebook position="inside">
         <page string="ЄДР" name="ua_edr">
           <group>
@@ -26,11 +30,23 @@
     <field name="inherit_id" ref="base.view_partner_tree"/>
     <field name="arch" type="xml">
       <list position="inside">
+        <field name="ua_internal_name" optional="show"/>
         <header>
           <button name="action_ua_new_from_edr" type="object" display="always"
                   string="Контрагент з ЄДР" class="btn-primary"/>
         </header>
       </list>
+    </field>
+  </record>
+
+  <record id="view_partner_search_ua_names" model="ir.ui.view">
+    <field name="name">res.partner.search.ua.names</field><field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_res_partner_filter"/>
+    <field name="arch" type="xml">
+      <field name="name" position="after">
+        <field name="ua_internal_name"/>
+        <field name="ua_short_name"/>
+      </field>
     </field>
   </record>
 

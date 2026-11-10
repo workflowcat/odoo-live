@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_dunning_level_user,ua.dunning.level user,model_ua_dunning_level,account.group_account_user,1,1,1,1
+access_ua_dunning_level_invoice,ua.dunning.level invoice,model_ua_dunning_level,account.group_account_invoice,1,0,0,0
+access_ua_dunning_letter_invoice,ua.dunning.letter invoice,model_ua_dunning_letter,account.group_account_invoice,1,1,1,1
+access_ua_dunning_letter_line_invoice,ua.dunning.letter.line invoice,model_ua_dunning_letter_line,account.group_account_invoice,1,1,1,1

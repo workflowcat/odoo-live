@@ -228,6 +228,17 @@
   <menuitem id="menu_ua_local_tax_object" name="Нерухомість і земля" parent="menu_ua_reporting_local_tax"
             action="l10n_ua_local_tax.action_ua_local_tax_object" sequence="20"/>
 
+  <!-- ================================================================= нагадування про борг -->
+  <menuitem id="menu_ua_dunning_letter" name="Нагадування про борг"
+            parent="l10n_ua_contract.menu_ua_contract_root"
+            action="l10n_ua_dunning.action_ua_dunning_letter" sequence="30"/>
+  <menuitem id="menu_ua_dunning_generate" name="Підготувати нагадування"
+            parent="l10n_ua_contract.menu_ua_contract_root"
+            action="l10n_ua_dunning.action_ua_dunning_generate" sequence="31"/>
+  <menuitem id="menu_ua_dunning_level" name="Рівні нагадувань"
+            parent="l10n_ua_contract.menu_ua_contract_root"
+            action="l10n_ua_dunning.action_ua_dunning_level" sequence="32"
+            groups="account.group_account_user"/>
   <menuitem id="menu_ua_reporting_stat" name="Держстат" parent="menu_ua_reporting_root" sequence="35"/>
   <menuitem id="menu_ua_labour_report" name="Звіт із праці (1-ПВ)" parent="menu_ua_reporting_stat"
             action="l10n_ua_labour_stat.action_ua_labour_report" sequence="10"/>
@@ -272,6 +283,9 @@
   <menuitem id="menu_ua_bank_reconcile" name="Звірка виписок"
             parent="account_usability.menu_accounting_bank_and_cash"
             action="action_ua_bank_reconcile" sequence="10"/>
+  <menuitem id="menu_ua_fx_deal" name="Купівля-продаж валюти"
+            parent="account_usability.menu_accounting_bank_and_cash"
+            action="l10n_ua_fx_deal.action_ua_fx_deal" sequence="20"/>
   <menuitem id="menu_ua_bank_connect" name="Підключення банків"
             parent="account_usability.menu_accounting_bank_and_cash"
             action="l10n_ua_bank_online.action_ua_bank_connect" sequence="30"/>

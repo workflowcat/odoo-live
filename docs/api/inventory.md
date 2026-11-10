@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 97. Моделей: 205. Методів: 788. Збережених полів на чужих моделях: 433.
+Модулів: 99. Моделей: 207. Методів: 798. Збережених полів на чужих моделях: 439.
 
 ## Зарплата
 
@@ -1201,7 +1201,7 @@
 
 ### `res.partner`
 
-доповнена модель · `bp_kyc`, `bp_purchase_intake`, `l10n_ua_docs`, `l10n_ua_partner_edr`, `l10n_ua_purchase`, `l10n_ua_unit_transfer`, `l10n_ua_vat`
+доповнена модель · `bp_kyc`, `bp_purchase_intake`, `l10n_ua_docs`, `l10n_ua_dunning`, `l10n_ua_partner_edr`, `l10n_ua_purchase`, `l10n_ua_unit_transfer`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1234,6 +1234,7 @@
 | `bp_verified_by` | Many2one | res.users | `bp_purchase_intake` |
 | `kyc_case_ids` | One2many | kyc.case | `bp_kyc` |
 | `ua_actual_address` | Char | Фактична адреса | `l10n_ua_docs` |
+| `ua_dunning_excluded` | Boolean | Не нагадувати про борг | `l10n_ua_dunning` |
 | `ua_edr_capital` | Float | Статутний капітал, грн | `l10n_ua_partner_edr` |
 | `ua_edr_checks` | Text | Маркери ризику | `l10n_ua_partner_edr` |
 | `ua_edr_full_name` | Char | Повна назва (ЄДР) | `l10n_ua_partner_edr` |
@@ -1242,6 +1243,7 @@
 | `ua_edr_registration_date` | Date | Дата реєстрації | `l10n_ua_partner_edr` |
 | `ua_edr_status` | Char | Стан у ЄДР | `l10n_ua_partner_edr` |
 | `ua_edr_synced_at` | Datetime | Оновлено з ЄДР | `l10n_ua_partner_edr` |
+| `ua_internal_name` | Char | Внутрішня назва | `l10n_ua_partner_edr` |
 | `ua_kved` | Char | Основний КВЕД | `l10n_ua_partner_edr` |
 | `ua_purchase_avg_delay_days` | Integer | Середнє запізнення оплат, днів | `l10n_ua_purchase` |
 | `ua_purchase_bill_count` | Integer | Рахунків | `l10n_ua_purchase` |
@@ -1250,6 +1252,7 @@
 | `ua_purchase_open_balance` | Monetary | Заборгованість | `l10n_ua_purchase` |
 | `ua_purchase_overprice_count` | Integer | Рахунків дорожчих за замовлення | `l10n_ua_purchase` |
 | `ua_purchase_paid_total` | Monetary | Сплачено | `l10n_ua_purchase` |
+| `ua_short_name` | Char | Скорочена назва | `l10n_ua_partner_edr` |
 | `ua_signatory_basis` | Char | Діє на підставі | `l10n_ua_docs` |
 | `ua_signatory_name` | Char | Підписант (ПІБ) | `l10n_ua_docs` |
 | `ua_supplier_edr_terminated` | Boolean | У ЄДР припинено | `l10n_ua_purchase` |
@@ -1482,7 +1485,7 @@
 
 ### `ua.contract`
 
-наша модель · `l10n_ua_claim`, `l10n_ua_contract`, `l10n_ua_defense`, `l10n_ua_edo`, `l10n_ua_guarantee`
+наша модель · `l10n_ua_claim`, `l10n_ua_contract`, `l10n_ua_defense`, `l10n_ua_dunning`, `l10n_ua_edo`, `l10n_ua_guarantee`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -1491,6 +1494,7 @@
 | `action_new_plan_calculation()` | Планова калькуляція на перший виріб графіка без калькуляції. | `l10n_ua_defense` |
 | `action_new_reconciliation_act()` | Акт звірки за договором з початку року по сьогодні. | `l10n_ua_contract` |
 | `action_print_penalty()` | - | `l10n_ua_defense` |
+| `action_ua_dunning_letter()` | Лист-нагадування за договором зараз: прострочені рахунки на сьогодні, без порогу рівнів. | `l10n_ua_dunning` |
 | `action_ua_guarantees()` | - | `l10n_ua_guarantee` |
 | `action_view_moves()` | - | `l10n_ua_contract` |
 | `action_view_productions()` | - | `l10n_ua_defense` |
@@ -1604,6 +1608,18 @@
 | `ua_group(line)` | - | `l10n_ua_disability_quota` |
 | `ua_money(value)` | - | `l10n_ua_disability_quota` |
 | `ua_norm(headcount_int)` | Кількість місць за нормативом для цілої середньооблікової кількості. | `l10n_ua_disability_quota` |
+
+### `ua.dunning.letter`
+
+наша модель · `l10n_ua_dunning`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | - | `l10n_ua_dunning` |
+| `action_mark_sent()` | Лист передано інакше (друк, месенджер): позначити рахунки так само, як після пошти. | `l10n_ua_dunning` |
+| `action_print()` | - | `l10n_ua_dunning` |
+| `action_refresh()` | - | `l10n_ua_dunning` |
+| `action_send()` | - | `l10n_ua_dunning` |
 
 ### `ua.eco`
 
@@ -1728,6 +1744,17 @@
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
 | `for_date(date, company)` | - | `l10n_ua_fleet` |
+
+### `ua.fx.deal`
+
+наша модель · `l10n_ua_fx_deal`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_cancel()` | - | `l10n_ua_fx_deal` |
+| `action_draft()` | - | `l10n_ua_fx_deal` |
+| `action_post()` | - | `l10n_ua_fx_deal` |
+| `action_refresh_rate()` | - | `l10n_ua_fx_deal` |
 
 ### `ua.gig.act`
 
@@ -2290,7 +2317,7 @@
 
 ### `account.move`
 
-доповнена модель · `bp_purchase_intake`, `l10n_ua_cashflow`, `l10n_ua_close`, `l10n_ua_commission`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_edo`, `l10n_ua_equity`, `l10n_ua_grant`, `l10n_ua_prro`, `l10n_ua_tolling`, `l10n_ua_vat`
+доповнена модель · `bp_purchase_intake`, `l10n_ua_cashflow`, `l10n_ua_close`, `l10n_ua_commission`, `l10n_ua_contract`, `l10n_ua_docs`, `l10n_ua_dunning`, `l10n_ua_edo`, `l10n_ua_equity`, `l10n_ua_grant`, `l10n_ua_prro`, `l10n_ua_tolling`, `l10n_ua_vat`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -2312,6 +2339,9 @@
 | `ua_customs_entry` | Boolean | Позначка проводки митного ПДВ | `l10n_ua_vat` |
 | `ua_customs_move_id` | Many2one | account.move | `l10n_ua_vat` |
 | `ua_customs_vat` | Monetary | Митний ПДВ | `l10n_ua_vat` |
+| `ua_dunning_date` | Date | Нагадано | `l10n_ua_dunning` |
+| `ua_dunning_hold` | Boolean | Не нагадувати | `l10n_ua_dunning` |
+| `ua_dunning_level_id` | Many2one | ua.dunning.level | `l10n_ua_dunning` |
 | `ua_equity_row` | Selection | Рядок звіту про власний капітал | `l10n_ua_equity` |
 | `ua_fe_kind` | Selection | Проводка першої події | `l10n_ua_vat` |
 | `ua_grant_id` | Many2one | ua.grant | `l10n_ua_grant` |

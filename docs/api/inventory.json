@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 97,
-    "models": 205,
-    "methods": 788,
-    "fields": 433
+    "modules": 99,
+    "models": 207,
+    "methods": 798,
+    "fields": 439
   },
   "areas": [
     {
@@ -5341,6 +5341,7 @@
             "bp_kyc",
             "bp_purchase_intake",
             "l10n_ua_docs",
+            "l10n_ua_dunning",
             "l10n_ua_partner_edr",
             "l10n_ua_purchase",
             "l10n_ua_unit_transfer",
@@ -5558,6 +5559,14 @@
               "groups": ""
             },
             {
+              "name": "ua_dunning_excluded",
+              "type": "Boolean",
+              "label": "Не нагадувати про борг",
+              "module": "l10n_ua_dunning",
+              "file": "addons/l10n_ua_dunning/models/account_move.py",
+              "groups": ""
+            },
+            {
               "name": "ua_edr_capital",
               "type": "Float",
               "label": "Статутний капітал, грн",
@@ -5617,6 +5626,14 @@
               "name": "ua_edr_synced_at",
               "type": "Datetime",
               "label": "Оновлено з ЄДР",
+              "module": "l10n_ua_partner_edr",
+              "file": "addons/l10n_ua_partner_edr/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_internal_name",
+              "type": "Char",
+              "label": "Внутрішня назва",
               "module": "l10n_ua_partner_edr",
               "file": "addons/l10n_ua_partner_edr/models/res_partner.py",
               "groups": ""
@@ -5683,6 +5700,14 @@
               "label": "Сплачено",
               "module": "l10n_ua_purchase",
               "file": "addons/l10n_ua_purchase/models/res_partner.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_short_name",
+              "type": "Char",
+              "label": "Скорочена назва",
+              "module": "l10n_ua_partner_edr",
+              "file": "addons/l10n_ua_partner_edr/models/res_partner.py",
               "groups": ""
             },
             {
@@ -6721,6 +6746,7 @@
             "l10n_ua_claim",
             "l10n_ua_contract",
             "l10n_ua_defense",
+            "l10n_ua_dunning",
             "l10n_ua_edo",
             "l10n_ua_guarantee"
           ],
@@ -6763,6 +6789,14 @@
               "doc": "",
               "module": "l10n_ua_defense",
               "file": "addons/l10n_ua_defense/models/ua_defense_penalty.py",
+              "decorators": []
+            },
+            {
+              "name": "action_ua_dunning_letter",
+              "signature": "action_ua_dunning_letter()",
+              "doc": "Лист-нагадування за договором зараз: прострочені рахунки на сьогодні, без порогу рівнів.",
+              "module": "l10n_ua_dunning",
+              "file": "addons/l10n_ua_dunning/models/account_move.py",
               "decorators": []
             },
             {
@@ -7315,6 +7349,56 @@
           "fields": []
         },
         {
+          "model": "ua.dunning.letter",
+          "ours": true,
+          "modules": [
+            "l10n_ua_dunning"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_dunning",
+              "file": "addons/l10n_ua_dunning/models/ua_dunning.py",
+              "decorators": []
+            },
+            {
+              "name": "action_mark_sent",
+              "signature": "action_mark_sent()",
+              "doc": "Лист передано інакше (друк, месенджер): позначити рахунки так само, як після пошти.",
+              "module": "l10n_ua_dunning",
+              "file": "addons/l10n_ua_dunning/models/ua_dunning.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_dunning",
+              "file": "addons/l10n_ua_dunning/models/ua_dunning.py",
+              "decorators": []
+            },
+            {
+              "name": "action_refresh",
+              "signature": "action_refresh()",
+              "doc": "",
+              "module": "l10n_ua_dunning",
+              "file": "addons/l10n_ua_dunning/models/ua_dunning.py",
+              "decorators": []
+            },
+            {
+              "name": "action_send",
+              "signature": "action_send()",
+              "doc": "",
+              "module": "l10n_ua_dunning",
+              "file": "addons/l10n_ua_dunning/models/ua_dunning.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.eco",
           "ours": true,
           "modules": [
@@ -7803,6 +7887,48 @@
               "decorators": [
                 "api.model"
               ]
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.fx.deal",
+          "ours": true,
+          "modules": [
+            "l10n_ua_fx_deal"
+          ],
+          "methods": [
+            {
+              "name": "action_cancel",
+              "signature": "action_cancel()",
+              "doc": "",
+              "module": "l10n_ua_fx_deal",
+              "file": "addons/l10n_ua_fx_deal/models/ua_fx_deal.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_fx_deal",
+              "file": "addons/l10n_ua_fx_deal/models/ua_fx_deal.py",
+              "decorators": []
+            },
+            {
+              "name": "action_post",
+              "signature": "action_post()",
+              "doc": "",
+              "module": "l10n_ua_fx_deal",
+              "file": "addons/l10n_ua_fx_deal/models/ua_fx_deal.py",
+              "decorators": []
+            },
+            {
+              "name": "action_refresh_rate",
+              "signature": "action_refresh_rate()",
+              "doc": "",
+              "module": "l10n_ua_fx_deal",
+              "file": "addons/l10n_ua_fx_deal/models/ua_fx_deal.py",
+              "decorators": []
             }
           ],
           "fields": []
@@ -10138,6 +10264,7 @@
             "l10n_ua_commission",
             "l10n_ua_contract",
             "l10n_ua_docs",
+            "l10n_ua_dunning",
             "l10n_ua_edo",
             "l10n_ua_equity",
             "l10n_ua_grant",
@@ -10266,6 +10393,30 @@
               "label": "Митний ПДВ",
               "module": "l10n_ua_vat",
               "file": "addons/l10n_ua_vat/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_dunning_date",
+              "type": "Date",
+              "label": "Нагадано",
+              "module": "l10n_ua_dunning",
+              "file": "addons/l10n_ua_dunning/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_dunning_hold",
+              "type": "Boolean",
+              "label": "Не нагадувати",
+              "module": "l10n_ua_dunning",
+              "file": "addons/l10n_ua_dunning/models/account_move.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_dunning_level_id",
+              "type": "Many2one",
+              "label": "ua.dunning.level",
+              "module": "l10n_ua_dunning",
+              "file": "addons/l10n_ua_dunning/models/account_move.py",
               "groups": ""
             },
             {

@@ -6,6 +6,19 @@ Notable changes for people who run or build on this code. Module-level API chang
 ## Unreleased
 
 ### Added
+- Reminders to customers about overdue debts (`l10n_ua_dunning`). Levels by days overdue (3, 15 and 30 days by
+  default, editable) carry the subject and text of the letter and may send without review. A daily job prepares
+  one letter per customer and contract listing every overdue invoice with days overdue and the open amount; a new
+  letter appears only when an invoice reaches a level it was not reminded at, and a draft is refreshed instead of
+  duplicated. Sending by email or marking as handed over records the level and date on each invoice. A customer or
+  a disputed invoice can be left out. A button on the sales contract opens the letter for that contract; print.
+- Buying and selling currency through the bank (`l10n_ua_fx_deal`). The deal at the bank's rate against the NBU
+  rate of the deal date; a purchase above the NBU rate puts the difference on 942, below it on 711; a sale
+  books income at the deal rate (711) and the cost of the currency sold at the NBU rate (942); the bank fee goes
+  to 92. Everything runs through money in transit (333 by default), which the bank statement lines close; when
+  statements are not loaded the document posts both bank legs itself. Cancel reverses the entry.
+- Short and internal names of counterparties (`l10n_ua_partner_edr`): «Скорочена назва» filled from the state
+  register when empty and «Внутрішня назва» for the team; both found by the usual name search.
 - Labour report to the State Statistics Service, forms 1-ПВ (monthly) and 1-ПВ (quarterly) by order № 117 of
   2024-04-15 (`l10n_ua_labour_stat`). Monthly rows 1020-1070 and quarterly sections I-V from posted payslips,
   the П-5 timesheet and contract dates: wage fund of all workers and of staff, ПДФО from the fund, average

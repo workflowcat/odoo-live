@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_fx_deal_form" model="ir.ui.view">
+    <field name="name">ua.fx.deal.form</field><field name="model">ua.fx.deal</field>
+    <field name="arch" type="xml">
+      <form string="Купівля-продаж валюти">
+        <header>
+          <button name="action_post" type="object" string="Провести" class="btn-primary" invisible="state != 'draft'"/>
+          <button name="action_refresh_rate" type="object" string="Оновити курс НБУ" invisible="state != 'draft'"/>
+          <button name="action_cancel" type="object" string="Скасувати" invisible="state != 'posted'"
+                  confirm="Проводку буде сторновано. Продовжити?"/>
+          <button name="action_draft" type="object" string="У чернетку" invisible="state != 'cancel'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group string="Угода">
+              <field name="kind" widget="radio" options="{'horizontal': true}" readonly="state != 'draft'"/>
+              <field name="date" readonly="state != 'draft'"/>
+              <field name="currency_id" options="{'no_create': True}" readonly="state != 'draft'"/>
+              <field name="amount_currency" readonly="state != 'draft'"/>
+              <field name="deal_rate" readonly="state != 'draft'"/>
+              <field name="nbu_rate" readonly="state != 'draft'"/>
+              <field name="commission" readonly="state != 'draft'"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+              <field name="company_currency_id" invisible="1"/>
+            </group>
+            <group string="Суми">
+              <field name="amount_deal"/>
+              <field name="amount_nbu"/>
+              <field name="difference"/>
+              <field name="move_id"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Рахунки" name="accounts">
+              <group>
+                <group>
+                  <field name="uah_journal_id" options="{'no_create': True}" readonly="state != 'draft'"/>
+                  <field name="fx_journal_id" options="{'no_create': True}" readonly="state != 'draft'"/>
+                  <field name="post_bank_legs" readonly="state != 'draft'"/>
+                  <field name="journal_id" options="{'no_create': True}" readonly="state != 'draft'"/>
+                </group>
+                <group>
+                  <field name="transit_account_id" options="{'no_create': True}" readonly="state != 'draft'"/>
+                  <field name="income_account_id" options="{'no_create': True}" readonly="state != 'draft'"/>
+                  <field name="expense_account_id" options="{'no_create': True}" readonly="state != 'draft'"/>
+                  <field name="fee_account_id" options="{'no_create': True}" readonly="state != 'draft'"/>
+                </group>
+              </group>
+            </page>
+          </notebook>
+          <field name="note" placeholder="Примітка"/>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_fx_deal_list" model="ir.ui.view">
+    <field name="name">ua.fx.deal.list</field><field name="model">ua.fx.deal</field>
+    <field name="arch" type="xml">
+      <list string="Купівля-продаж валюти">
+        <field name="date"/>
+        <field name="name"/>
+        <field name="kind"/>
+        <field name="currency_id" column_invisible="1"/>
+        <field name="company_currency_id" column_invisible="1"/>
+        <field name="amount_currency"/>
+        <field name="deal_rate" optional="show"/>
+        <field name="nbu_rate" optional="show"/>
+        <field name="amount_deal" sum="Разом"/>
+        <field name="difference" sum="Разом" optional="show"/>
+        <field name="commission" sum="Разом" optional="hide"/>
+        <field name="state" widget="badge" decoration-success="state == 'posted'" decoration-muted="state == 'cancel'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_fx_deal_search" model="ir.ui.view">
+    <field name="name">ua.fx.deal.search</field><field name="model">ua.fx.deal</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="name"/>
+        <field name="currency_id"/>
+        <filter name="buy" string="Купівля" domain="[('kind', '=', 'buy')]"/>
+        <filter name="sell" string="Продаж" domain="[('kind', '=', 'sell')]"/>
+        <separator/>
+        <filter name="draft" string="Чернетки" domain="[('state', '=', 'draft')]"/>
+        <filter name="posted" string="Проведені" domain="[('state', '=', 'posted')]"/>
+        <group>
+          <filter name="by_currency" string="Валюта" context="{'group_by': 'currency_id'}"/>
+          <filter name="by_month" string="Місяць" context="{'group_by': 'date:month'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_fx_deal" model="ir.actions.act_window">
+    <field name="name">Купівля-продаж валюти</field>
+    <field name="res_model">ua.fx.deal</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>

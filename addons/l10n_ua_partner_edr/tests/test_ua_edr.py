@@ -175,3 +175,23 @@ class TestUaPartnerEdr(TransactionCase):
         self.assertEqual(partner.ua_edr_kind, "fop")
         self.assertEqual(partner.name, "Коваленко Іван Іванович")
         self.assertFalse(partner.child_ids)
+
+    # ------------------------------------------------------------------
+    # 8. Скорочена назва з ЄДР; пошук за скороченою і внутрішньою назвою.
+    # ------------------------------------------------------------------
+    def test_08_short_and_internal_names(self):
+        with patch(BRIDGE, self._answer(200, registry_payload())):
+            self.partner.action_fill_from_edr()
+        self.assertEqual(self.partner.ua_short_name, "ТОВ «ПРОМІНЬ»")
+        self.partner.write({"name": "Промінь", "ua_short_name": "ТОВ «ПРОМІНЬ-ЗАХІД»",
+                            "ua_internal_name": "Сонячні панелі Львів"})
+        with patch(BRIDGE, self._answer(200, registry_payload())):
+            self.partner.action_fill_from_edr()
+        self.assertEqual(self.partner.ua_short_name, "ТОВ «ПРОМІНЬ-ЗАХІД»", "вписане руками ЄДР не затирає")
+        Partner = self.env["res.partner"]
+        found = Partner.search([("display_name", "ilike", "панелі льв")])
+        self.assertIn(self.partner, found, "пошук за внутрішньою назвою")
+        found = Partner.search([("display_name", "ilike", "ПРОМІНЬ-ЗАХІД")])
+        self.assertIn(self.partner, found, "пошук за скороченою назвою")
+        ids = [row[0] for row in Partner.name_search("панелі")]
+        self.assertIn(self.partner.id, ids, "поле вибору контрагента знаходить за внутрішньою назвою")

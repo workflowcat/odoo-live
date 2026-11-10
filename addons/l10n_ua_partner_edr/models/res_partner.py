@@ -1,7 +1,8 @@
 """Картка контрагента з ЄДР. Джерело: OpenDataBot через міст odoo-live (/api/odb/screen/:code, кеш 24 години)."""
 import re
 
-from odoo import _, fields, models
+from odoo import _, api, fields, models
+from odoo.fields import Domain
 from odoo.exceptions import UserError
 
 CITY_WORDS = ("місто ", "м. ", "м.", "село ", "с. ", "селище ", "смт ", "смт.")
@@ -43,6 +44,23 @@ class ResPartner(models.Model):
         }
 
     ua_edr_kind = fields.Selection([("company", "Юрособа"), ("fop", "ФОП")], "Тип у ЄДР", readonly=True)
+    ua_short_name = fields.Char(
+        "Скорочена назва", tracking=True,
+        help="Скорочене найменування за статутом або ЄДР, напр. ТОВ «Промінь». Заповнюється з ЄДР, "
+             "якщо порожнє; можна вписати руками.")
+    ua_internal_name = fields.Char(
+        "Внутрішня назва", tracking=True,
+        help="Як контрагента називають у команді, напр. «Промінь Львів». Лише для пошуку і списків, "
+             "у документи не йде.")
+
+    @api.model
+    def _search_display_name(self, operator, value):
+        """Пошук контрагента у полях вибору - і за скороченою та внутрішньою назвою."""
+        domain = super()._search_display_name(operator, value)
+        if isinstance(value, str) and value and operator in ("ilike", "=ilike", "like", "=like", "="):
+            names = Domain.OR([Domain("ua_short_name", operator, value), Domain("ua_internal_name", operator, value)])
+            return Domain.OR([Domain(domain), names])
+        return domain
     ua_edr_full_name = fields.Char("Повна назва (ЄДР)", readonly=True)
     ua_edr_status = fields.Char("Стан у ЄДР", readonly=True)
     ua_edr_registration_date = fields.Date("Дата реєстрації", readonly=True)
@@ -86,6 +104,8 @@ class ResPartner(models.Model):
             "ua_edr_checks": "\n".join(f"{'!' if c.get('severity') == 'high' else '?' if c.get('severity') == 'warn' else '·'} {c.get('title')}: {c.get('detail')}"
                                        for c in data.get("checks", []) if c.get("present")) or "маркерів немає",
         }
+        if reg.get("short_name") and not self.ua_short_name:
+            vals["ua_short_name"] = reg["short_name"]
         if not name_now or re.fullmatch(r"\d+", name_now) or name_now == code:
             vals["name"] = reg.get("short_name") or reg.get("full_name") or name_now
         if zip_code and not self.zip:

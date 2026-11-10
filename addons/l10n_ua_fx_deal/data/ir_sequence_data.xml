@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+  <record id="seq_ua_fx_deal" model="ir.sequence">
+    <field name="name">Купівля-продаж валюти</field>
+    <field name="code">ua.fx.deal</field>
+    <field name="prefix">ВАЛ-%(year)s-</field>
+    <field name="padding">4</field>
+    <field name="company_id" eval="False"/>
+  </record>
+</odoo>
