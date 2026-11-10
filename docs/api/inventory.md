@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 95. Моделей: 199. Методів: 763. Збережених полів на чужих моделях: 424.
+Модулів: 95. Моделей: 200. Методів: 771. Збережених полів на чужих моделях: 430.
 
 ## Зарплата
 
@@ -105,7 +105,22 @@
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
+| `action_collect()` | Зібрати рядки Д1 і 4ДФ у таблиці: бухгалтер править їх, потім «Сформувати» бере рядки як є. | `l10n_ua_payroll_reports` |
+| `action_drop_lines()` | Прибрати зібрані рядки: файли знову рахуються прямо з листків. | `l10n_ua_payroll_reports` |
 | `action_generate()` | - | `l10n_ua_payroll_reports` |
+
+### `ua.payroll.statement`
+
+наша модель · `l10n_ua_payroll_account`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_compute()` | - | `l10n_ua_payroll_account` |
+| `action_print()` | - | `l10n_ua_payroll_account` |
+| `money(amount)` | - | `l10n_ua_payroll_account` |
+| `period_text()` | - | `l10n_ua_payroll_account` |
+| `signers()` | Підписи: керівник і головний бухгалтер із картки компанії, якщо модуль документів їх веде. | `l10n_ua_payroll_account` |
+| `totals()` | - | `l10n_ua_payroll_account` |
 
 ### `account.payment.line`
 
@@ -304,7 +319,7 @@
 
 ### `hr.payslip`
 
-доповнена модель · `l10n_ua_average`, `l10n_ua_diia_city`, `l10n_ua_explain`, `l10n_ua_hr_docs`, `l10n_ua_index`, `l10n_ua_payroll_account`, `l10n_ua_payroll_rules`, `l10n_ua_piecework`
+доповнена модель · `l10n_ua_average`, `l10n_ua_diia_city`, `l10n_ua_explain`, `l10n_ua_hr_docs`, `l10n_ua_index`, `l10n_ua_payroll_account`, `l10n_ua_payroll_reports`, `l10n_ua_payroll_rules`, `l10n_ua_piecework`
 
 | Метод | Що робить | Модуль |
 | --- | --- | --- |
@@ -324,6 +339,7 @@
 | --- | --- | --- | --- |
 | `move_id` | Many2one | account.move | `l10n_ua_payroll_account` |
 | `ua_diia_city` | Boolean | Ставки Дія Сіті | `l10n_ua_payroll_rules` |
+| `ua_report_month` | Date | Місяць звітності | `l10n_ua_payroll_reports` |
 
 ### `hr.version`
 
@@ -336,10 +352,15 @@
 | `ua_hour_rate` | Monetary | Ставка, грн/год | `l10n_ua_payroll_rules` |
 | `ua_internal_parttime` | Boolean | Внутрішній сумісник | `l10n_ua_payroll_reports` |
 | `ua_kp_code` | Char | Код КП | `l10n_ua_payroll_reports` |
+| `ua_new_workplace` | Boolean | Нове робоче місце | `l10n_ua_payroll_reports` |
+| `ua_new_workplace_until` | Date | Нове робоче місце до | `l10n_ua_payroll_reports` |
 | `ua_night_shifts` | Boolean | Працює в нічну зміну | `l10n_ua_payroll_rules` |
 | `ua_order_ref` | Char | Наказ про прийняття (№ і дата) | `l10n_ua_payroll_reports` |
 | `ua_pay_type` | Selection | - | `l10n_ua_payroll_rules` |
 | `ua_prof_name` | Char | Професійна назва роботи | `l10n_ua_payroll_reports` |
+| `ua_special_seniority` | Boolean | Спецстаж (пільгова пенсія) | `l10n_ua_payroll_reports` |
+| `ua_special_seniority_code` | Char | Підстава спецстажу | `l10n_ua_payroll_reports` |
+| `ua_unfixed_hours` | Boolean | Нефіксований робочий час | `l10n_ua_payroll_reports` |
 | `ua_weekly_hours` | Float | Норма годин на тиждень | `l10n_ua_payroll_rules` |
 
 ### `res.company`

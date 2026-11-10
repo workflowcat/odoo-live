@@ -1,7 +1,7 @@
 {
     "name": "Зарплата: проводки (Україна)",
-    "summary": "Проводки за розрахунковим листком: витрати за підрозділом, 661, 6411, 6415, 651, 378, 6851; журнал «Зарплата»",
-    "version": "19.0.0.2.0",
+    "summary": "Проводки за розрахунковим листком: витрати за підрозділом, 661, 6411, 6415, 651, 378, 6851; журнал «Зарплата»; розрахункова відомість з сальдо",
+    "version": "19.0.0.3.0",
     "category": "Human Resources/Payroll",
     "author": "Bot&Partners",
     "license": "LGPL-3",
@@ -14,6 +14,8 @@
         "views/ua_payroll_account_map_views.xml",
         "views/hr_department_views.xml",
         "views/hr_payslip_views.xml",
+        "views/ua_payroll_statement_views.xml",
+        "report/ua_payroll_statement_report.xml",
     ],
     "installable": True,
 }

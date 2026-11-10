@@ -1,9 +1,9 @@
 {
   "totals": {
     "modules": 95,
-    "models": 199,
-    "methods": 763,
-    "fields": 424
+    "models": 200,
+    "methods": 771,
+    "fields": 430
   },
   "areas": [
     {
@@ -297,11 +297,85 @@
           ],
           "methods": [
             {
+              "name": "action_collect",
+              "signature": "action_collect()",
+              "doc": "Зібрати рядки Д1 і 4ДФ у таблиці: бухгалтер править їх, потім «Сформувати» бере рядки як є.",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/wizards/ua_report_wizard.py",
+              "decorators": []
+            },
+            {
+              "name": "action_drop_lines",
+              "signature": "action_drop_lines()",
+              "doc": "Прибрати зібрані рядки: файли знову рахуються прямо з листків.",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/wizards/ua_report_wizard.py",
+              "decorators": []
+            },
+            {
               "name": "action_generate",
               "signature": "action_generate()",
               "doc": "",
               "module": "l10n_ua_payroll_reports",
               "file": "addons/l10n_ua_payroll_reports/wizards/ua_report_wizard.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
+          "model": "ua.payroll.statement",
+          "ours": true,
+          "modules": [
+            "l10n_ua_payroll_account"
+          ],
+          "methods": [
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "",
+              "module": "l10n_ua_payroll_account",
+              "file": "addons/l10n_ua_payroll_account/wizards/ua_payroll_statement.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_payroll_account",
+              "file": "addons/l10n_ua_payroll_account/wizards/ua_payroll_statement.py",
+              "decorators": []
+            },
+            {
+              "name": "money",
+              "signature": "money(amount)",
+              "doc": "",
+              "module": "l10n_ua_payroll_account",
+              "file": "addons/l10n_ua_payroll_account/wizards/ua_payroll_statement.py",
+              "decorators": []
+            },
+            {
+              "name": "period_text",
+              "signature": "period_text()",
+              "doc": "",
+              "module": "l10n_ua_payroll_account",
+              "file": "addons/l10n_ua_payroll_account/wizards/ua_payroll_statement.py",
+              "decorators": []
+            },
+            {
+              "name": "signers",
+              "signature": "signers()",
+              "doc": "Підписи: керівник і головний бухгалтер із картки компанії, якщо модуль документів їх веде.",
+              "module": "l10n_ua_payroll_account",
+              "file": "addons/l10n_ua_payroll_account/wizards/ua_payroll_statement.py",
+              "decorators": []
+            },
+            {
+              "name": "totals",
+              "signature": "totals()",
+              "doc": "",
+              "module": "l10n_ua_payroll_account",
+              "file": "addons/l10n_ua_payroll_account/wizards/ua_payroll_statement.py",
               "decorators": []
             }
           ],
@@ -1456,6 +1530,7 @@
             "l10n_ua_hr_docs",
             "l10n_ua_index",
             "l10n_ua_payroll_account",
+            "l10n_ua_payroll_reports",
             "l10n_ua_payroll_rules",
             "l10n_ua_piecework"
           ],
@@ -1565,6 +1640,14 @@
               "module": "l10n_ua_payroll_rules",
               "file": "addons/l10n_ua_payroll_rules/models/hr_payslip.py",
               "groups": ""
+            },
+            {
+              "name": "ua_report_month",
+              "type": "Date",
+              "label": "Місяць звітності",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/hr_payslip.py",
+              "groups": ""
             }
           ]
         },
@@ -1619,6 +1702,22 @@
               "groups": "hr.group_hr_user"
             },
             {
+              "name": "ua_new_workplace",
+              "type": "Boolean",
+              "label": "Нове робоче місце",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/hr_version.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_new_workplace_until",
+              "type": "Date",
+              "label": "Нове робоче місце до",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/hr_version.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
               "name": "ua_night_shifts",
               "type": "Boolean",
               "label": "Працює в нічну зміну",
@@ -1646,6 +1745,30 @@
               "name": "ua_prof_name",
               "type": "Char",
               "label": "Професійна назва роботи",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/hr_version.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_special_seniority",
+              "type": "Boolean",
+              "label": "Спецстаж (пільгова пенсія)",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/hr_version.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_special_seniority_code",
+              "type": "Char",
+              "label": "Підстава спецстажу",
+              "module": "l10n_ua_payroll_reports",
+              "file": "addons/l10n_ua_payroll_reports/models/hr_version.py",
+              "groups": "hr.group_hr_user"
+            },
+            {
+              "name": "ua_unfixed_hours",
+              "type": "Boolean",
+              "label": "Нефіксований робочий час",
               "module": "l10n_ua_payroll_reports",
               "file": "addons/l10n_ua_payroll_reports/models/hr_version.py",
               "groups": "hr.group_hr_user"

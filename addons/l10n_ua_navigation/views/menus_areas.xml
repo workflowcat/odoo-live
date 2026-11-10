@@ -76,6 +76,8 @@
             action="l10n_ua_diia_city.action_ua_gig_act" sequence="40"/>
   <menuitem id="menu_ua_diia_city_months" name="Дія Сіті за місяцями" parent="menu_ua_payroll_docs"
             action="l10n_ua_payroll_rules.action_ua_diia_city_month" sequence="45"/>
+  <menuitem id="menu_ua_payroll_statement" name="Розрахункова відомість з сальдо" parent="menu_ua_payroll_docs"
+            action="l10n_ua_payroll_account.action_ua_payroll_statement" sequence="50"/>
 
   <menuitem id="menu_ua_payouts" name="Виплати" parent="menu_ua_payroll_root" sequence="40"/>
   <menuitem id="menu_ua_payment_orders" name="Відомості на перерахування" parent="menu_ua_payouts"

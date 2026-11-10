@@ -43,9 +43,10 @@ Legend: **done** - covered, with tests; **part** - the basics work, named pieces
 
 | 1C/BAS feature | Here | Where / what is missing |
 | --- | --- | --- |
-| Payroll with Ukrainian rules, average earnings, indexation | done | `l10n_ua_payroll_rules`, `l10n_ua_average`, `l10n_ua_index`, 36 golden scenarios; piece-rate pay from production (`l10n_ua_piecework`) |
+| Payroll with Ukrainian rules, average earnings, indexation | done | `l10n_ua_payroll_rules`, `l10n_ua_average`, `l10n_ua_index`, 38 golden scenarios; military service with the job kept (no pay, no minimum ЄСВ in a month with nothing accrued); piece-rate pay from production (`l10n_ua_piecework`) |
 | Sick leave (employer and PFU parts), vacations, business trips | done | `l10n_ua_average` |
-| Unified tax report (ПДФО/ВЗ/ЄСВ) with annexes, XML | done | `l10n_ua_payroll_reports` |
+| Unified tax report (ПДФО/ВЗ/ЄСВ) with annexes, XML | done | `l10n_ua_payroll_reports`: Д1 marks 21-24 and 26 from the contract (special seniority, new workplace, unfixed hours), staff on military service without a payslip as zero rows, a late correction payslip reported in the current month with its sick and maternity pay as rows for their own month (code 13), rows shown and edited before the files are built. Vacation pay spread to later months (code 10) and annex Д6 are not built |
+| Payroll statement with balances per employee | done | `l10n_ua_payroll_account`: «Розрахункова відомість з сальдо» - opening balance, accrued, withheld, paid and closing balance on 661 per employee from posted entries, printed with signatures |
 | HR orders, staff list, timesheet П-5, personal card П-2 | done | `l10n_ua_hr_*` |
 | Hiring case to filed notice | done | `l10n_ua_hire` |
 | Employee documents from Diia (шеринг) instead of scans | gap | Researched in `docs/base/spec-diia.md`: one document per request is free (an ID card fills 12 hiring fields and comes as a signed PDF), each employer connects on its own, the package arrives through the bridge and is decrypted on the company's server. The check that the e-military document was formed no more than 72 hours before the first working day (from 2026-06-27) is not built yet |

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_payroll_statement" model="ir.actions.report">
+    <field name="name">Розрахункова відомість з сальдо</field>
+    <field name="model">ua.payroll.statement</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_payroll_account.report_ua_payroll_statement</field>
+    <field name="report_file">l10n_ua_payroll_account.report_ua_payroll_statement</field>
+    <field name="print_report_name">'Розрахункова відомість %s.%s' % (object.month.zfill(2), object.year)</field>
+  </record>
+  <template id="report_ua_payroll_statement">
+    <t t-call="web.basic_layout">
+      <t t-foreach="docs" t-as="doc">
+        <t t-set="totals" t-value="doc.totals()"/>
+        <div class="page" style="font-family: DejaVu Sans, sans-serif; font-size: 11px;">
+          <h3 style="margin-bottom:2px;">Розрахункова відомість з сальдо</h3>
+          <div><t t-out="doc.company_id.name"/><t t-if="doc.department_id"> · <t t-out="doc.department_id.name"/></t></div>
+          <div>Період: <t t-out="doc.period_text()"/> · рахунок 661 «Розрахунки за заробітною платою»</div>
+          <div style="color:#555;">Сальдо додатне - підприємство винне працівнику; від'ємне - працівник винен підприємству.</div>
+          <table class="table table-sm" style="font-size:11px; margin-top:10px;">
+            <thead>
+              <tr>
+                <th>№</th><th>Працівник</th>
+                <th class="text-end">Сальдо на початок</th><th class="text-end">Нараховано</th>
+                <th class="text-end">Утримано</th><th class="text-end">Виплачено</th>
+                <th class="text-end">Сальдо на кінець</th>
+              </tr>
+            </thead>
+            <tbody>
+              <t t-foreach="doc.line_ids" t-as="line">
+                <tr>
+                  <td><t t-out="line_index + 1"/></td>
+                  <td><t t-out="line.employee_id.name"/></td>
+                  <td class="text-end"><t t-out="doc.money(line.opening)"/></td>
+                  <td class="text-end"><t t-out="doc.money(line.accrued)"/></td>
+                  <td class="text-end"><t t-out="doc.money(line.withheld)"/></td>
+                  <td class="text-end"><t t-out="doc.money(line.paid)"/></td>
+                  <td class="text-end"><t t-out="doc.money(line.closing)"/></td>
+                </tr>
+              </t>
+              <tr style="font-weight:bold; border-top:2px solid #333;">
+                <td></td><td>Разом</td>
+                <td class="text-end"><t t-out="doc.money(totals['opening'])"/></td>
+                <td class="text-end"><t t-out="doc.money(totals['accrued'])"/></td>
+                <td class="text-end"><t t-out="doc.money(totals['withheld'])"/></td>
+                <td class="text-end"><t t-out="doc.money(totals['paid'])"/></td>
+                <td class="text-end"><t t-out="doc.money(totals['closing'])"/></td>
+              </tr>
+            </tbody>
+          </table>
+          <table style="width:100%; margin-top:28px; font-size:11px;">
+            <tr>
+              <t t-foreach="doc.signers()" t-as="signer">
+                <td style="width:50%; padding-right:24px;">
+                  <div><t t-out="signer[0]"/></div>
+                  <div style="border-bottom:1px solid #333; height:22px;"></div>
+                  <div style="color:#555;">підпис · <t t-out="signer[1] or 'ПІБ'"/></div>
+                </td>
+              </t>
+            </tr>
+          </table>
+        </div>
+      </t>
+    </t>
+  </template>
+</odoo>

@@ -323,7 +323,8 @@ class UaReportRun(models.Model):
         today = fields.Date.context_today(self)
         for m in self._report_months():
             md1, md2 = date(self.year, m, 1), date(self.year, m, calendar.monthrange(self.year, m)[1])
-            slips = self.env["hr.payslip"].search([("company_id", "=", c.id), ("state", "=", "done"), ("date_from", ">=", md1), ("date_to", "<=", md2)])
+            # ті самі листки, що бере майстер Д1: за місяцем звітності (коригування минулих місяців - теж)
+            slips = self.env["hr.payslip"].search([("company_id", "=", c.id), ("state", "=", "done"), ("ua_report_month", "=", md1)])
             lines = slips.mapped("line_ids")
             gross_total += sum(lines.filtered(lambda l: l.code == "GROSS").mapped("total"))
             # виплати поза зарплатою: у 4ДФ окремими ознаками, у Д1 їх немає

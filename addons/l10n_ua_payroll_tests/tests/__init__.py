@@ -17,3 +17,5 @@ from . import test_demo_costing
 from . import test_menu_documents
 from . import test_api_warehouse
 from . import test_security
+from . import test_report_d1
+from . import test_payroll_statement

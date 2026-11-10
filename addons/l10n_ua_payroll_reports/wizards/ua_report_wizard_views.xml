@@ -8,10 +8,48 @@
           <group><field name="company_id"/><field name="year" options="{'enable_formatting': False}"/><field name="month"/><field name="doc_type"/><field name="number"/></group>
           <group><field name="with_d1"/><field name="with_4df"/><field name="with_d5"/><field name="fill_date"/></group>
         </group>
+        <field name="lines_edited" invisible="1"/>
+        <div class="alert alert-info" role="status" invisible="not lines_edited">
+          Файли сформуються з рядків нижче, з вашими правками. «Рахувати з листків» прибирає правки.
+        </div>
+        <notebook invisible="not lines_edited">
+          <page string="Д1" name="d1">
+            <field name="d1_line_ids">
+              <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="employee_id" optional="show"/>
+                <field name="g7s"/><field name="g8"/><field name="g9"/><field name="g101"/><field name="g102" options="{'enable_formatting': False}"/>
+                <field name="g12" optional="show"/><field name="g13" optional="show"/><field name="g14"/><field name="g15" optional="show"/>
+                <field name="g16" sum="Разом"/><field name="g17" sum="Разом"/><field name="g18" sum="Разом" optional="show"/>
+                <field name="g19" optional="hide"/><field name="g20" sum="Разом"/>
+                <field name="g21" optional="show"/><field name="g22" optional="show"/><field name="g23" optional="show"/>
+                <field name="g24" optional="show"/><field name="g26" optional="show"/>
+                <field name="g5" optional="hide"/><field name="g6" optional="hide"/>
+                <field name="g111s" optional="hide"/><field name="g112s" optional="hide"/><field name="g113s" optional="hide"/>
+                <field name="rate" optional="hide"/>
+              </list>
+            </field>
+          </page>
+          <page string="4ДФ" name="df">
+            <field name="df_line_ids">
+              <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="employee_id" optional="show"/>
+                <field name="g02"/><field name="g05"/>
+                <field name="g03a" sum="Разом"/><field name="g03" sum="Разом"/>
+                <field name="g04a" sum="Разом"/><field name="g04" sum="Разом"/>
+                <field name="g5a" sum="Разом"/><field name="g5" sum="Разом"/>
+                <field name="g06d" optional="show"/><field name="g07d" optional="show"/><field name="g08" optional="show"/>
+              </list>
+            </field>
+          </page>
+        </notebook>
         <field name="log" invisible="not log"/>
         <field name="result_ids" invisible="not result_ids" widget="many2many_binary" readonly="1"/>
         <footer>
           <button name="action_generate" type="object" string="Сформувати" class="btn-primary"/>
+          <button name="action_collect" type="object" string="Показати рядки для правок" class="btn-secondary" invisible="lines_edited"/>
+          <button name="action_drop_lines" type="object" string="Рахувати з листків" class="btn-secondary" invisible="not lines_edited"/>
           <button string="Закрити" class="btn-secondary" special="cancel"/>
         </footer>
       </form>

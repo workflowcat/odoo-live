@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_hr_payslip_form_ua_report_month" model="ir.ui.view">
+    <field name="name">hr.payslip.form.ua.report.month</field><field name="model">hr.payslip</field>
+    <field name="inherit_id" ref="payroll.hr_payslip_view_form"/>
+    <field name="arch" type="xml">
+      <field name="credit_note" position="after">
+        <field name="ua_report_month" readonly="state == 'done'" options="{'datepicker': {'showType': 'months'}}"/>
+      </field>
+    </field>
+  </record>
+</odoo>

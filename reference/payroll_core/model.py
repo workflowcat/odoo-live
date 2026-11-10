@@ -56,6 +56,7 @@ class Leaves:
     unpaid_days: float = 0.0
     trip_days: float = 0.0
     trip_work_days: float = 0.0
+    mil_days: float = 0.0                 # військова служба: місце роботи зберігається, без зарплати
     mat_start: date = None                # межі листка непрацездатності: потрібні для
     mat_end: date = None                  # помісячного розподілу допомоги і мінімального ЄСВ
 

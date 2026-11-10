@@ -6,6 +6,19 @@ Notable changes for people who run or build on this code. Module-level API chang
 ## Unreleased
 
 ### Added
+- Unified report, annex Д1: marks for special seniority (column 23), new workplace (24, with an end date) and
+  unfixed working hours (26) are set on the contract version. Staff on military service with the job kept
+  are in Д1 as a row with zero amounts and their days in employment, and stay out of 4ДФ. A payslip has a
+  «Місяць звітності»: a correction slip for a past month, confirmed later, goes into the current month's
+  report, and its sick and maternity pay become rows for their own month with charge type code 13. Two
+  slips of one person in a month give one row. «Показати рядки для правок» lists the Д1 and 4ДФ rows
+  before the files are built; edits go into the files, and the log says when column 16 no longer matches
+  the payslips.
+- «Розрахункова відомість з сальдо»: per employee, the opening balance, accrued, withheld, paid and closing
+  balance on account 661 (or the employee's own payable account) from posted entries, with totals and a
+  print with signatures. Menu: Зарплата - Документи.
+- Absence type «Військова служба за призовом (ст. 119 КЗпП)»: no pay for those days, timesheet code «ІН».
+  Golden scenarios 37-38 (call-up month and a full month of service), not yet confirmed by an accountant.
 - Diia City payroll. A company can be marked a Diia City resident with the date it joined. From the next
   month, pay of employees and gig specialists is taxed at 5 % ПДФО and 5 % military levy, and ЄСВ is one
   minimum contribution a month (1 902,34 грн in 2026) whatever the amount or days worked. Gifts and other
@@ -438,6 +451,13 @@ Notable changes for people who run or build on this code. Module-level API chang
   language (broke for English users after the English interface was added).
 
 ### Fixed
+- Д1: the row mark «0 - ввести, 1 - вилучити» went to column 26 (unfixed working hours) instead of
+  column 25, and maternity days went to column 12 instead of 15. Corrections built from files made by
+  earlier versions still match row by row.
+- ЄСВ: a month with nothing accrued (military service or unpaid leave for the whole month) no longer gets
+  the minimum contribution.
+- Indexation is no longer added for civil-law (ЦПХ), gig and ФОП contracts: it applies to pay under a
+  labour contract only.
 - Column guessing in the component intake and price lists no longer takes a title row such as
   «Номенклатура за 2026-11-01» for the header: the row with the most column names wins.
 - CSV files split on «;» even when every row also has one comma («Ціна, грн», «396,00»): the

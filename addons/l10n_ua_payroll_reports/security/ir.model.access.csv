@@ -3,3 +3,5 @@ access_ua_report_wizard,ua.payroll.report.wizard,model_ua_payroll_report_wizard,
 access_ua_hire_notice_wizard,ua.hire.notice.wizard,model_ua_hire_notice_wizard,hr.group_hr_user,1,1,1,1
 access_ua_income_certificate,ua.income.certificate,model_ua_income_certificate,payroll.group_payroll_user,1,1,1,1
 access_ua_income_certificate_line,ua.income.certificate.line,model_ua_income_certificate_line,payroll.group_payroll_user,1,1,1,1
+access_ua_report_d1_line,ua.payroll.report.d1.line,model_ua_payroll_report_d1_line,hr.group_hr_user,1,1,1,1
+access_ua_report_df_line,ua.payroll.report.df.line,model_ua_payroll_report_df_line,hr.group_hr_user,1,1,1,1

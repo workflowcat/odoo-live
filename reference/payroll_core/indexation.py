@@ -53,7 +53,7 @@ def amount(slip, living_wage, threshold=THRESHOLD_DEFAULT, share=1.0):
     """Сума індексації за листок."""
     from .calc import _r2
     employee = slip.employee
-    if employee.index_off:
+    if employee.index_off or employee.contract_kind != "employment":   # індексують лише трудовий договір
         return 0.0
     base = base_month(slip)
     if not base:

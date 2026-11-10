@@ -18,7 +18,7 @@ from .model import CpiMonth, EarningsMonth, Employee, Leaves, Slip, WorkedTime
 
 KNOWN_SETUP = {"start", "end", "history", "leaves", "years", "rehire", "index_base", "diia_city"}
 KNOWN_EMPLOYEE = {"ua_main_job", "ua_fte", "ua_psp", "ua_esv_category", "ua_contract_kind"}
-KNOWN_LEAVES = {"VAC", "SICK", "SICK_CARE", "MAT", "STUDY", "TRIP", "CHILD_VAC"}
+KNOWN_LEAVES = {"VAC", "SICK", "SICK_CARE", "MAT", "STUDY", "TRIP", "CHILD_VAC", "MIL"}
 KNOWN_PSP = {"none", "base", "child", "child150", "s150", "s200"}
 KNOWN_KINDS = {"employment", "gph", "gig", "fop"}
 
@@ -142,6 +142,8 @@ def _leaves(scenario, month_start, month_finish, hired, fired):
             leaves.mat_cover_days += days
             leaves.mat_start = start if leaves.mat_start is None else min(leaves.mat_start, start)
             leaves.mat_end = finish if leaves.mat_end is None else max(leaves.mat_end, finish)
+        elif code == "MIL":
+            leaves.mil_days += days
         elif code == "TRIP":
             leaves.trip_days += days
             leaves.trip_work_days += cal.workdays_between(in_month, in_month_end)

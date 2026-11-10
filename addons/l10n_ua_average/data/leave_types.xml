@@ -30,5 +30,9 @@
 
     <record id="wet_vac_special" model="hr.work.entry.type"><field name="name">Додаткова відпустка за особливий характер праці</field><field name="code">VAC_SPECIAL</field><field name="is_leave">True</field><field name="sequence">31</field></record>
     <record id="lt_vac_special" model="hr.leave.type"><field name="name">Додаткова відпустка за особливий характер праці (ст. 8)</field><field name="work_entry_type_id" ref="wet_vac_special"/><field name="requires_allocation">True</field><field name="ua_alloc_basis">year</field><field name="ua_calendar_days">True</field><field name="request_unit">day</field><field name="time_type">leave</field></record>
+
+    <!-- Військова служба під час мобілізації: місце роботи і посада зберігаються, зарплата не виплачується (ст. 119 КЗпП) -->
+    <record id="wet_mil" model="hr.work.entry.type"><field name="name">Військова служба (місце роботи зберігається)</field><field name="code">MIL</field><field name="is_leave">True</field><field name="sequence">32</field></record>
+    <record id="lt_mil" model="hr.leave.type"><field name="name">Військова служба за призовом (ст. 119 КЗпП)</field><field name="work_entry_type_id" ref="wet_mil"/><field name="requires_allocation">False</field><field name="request_unit">day</field><field name="time_type">leave</field><field name="unpaid">True</field></record>
   </data>
 </odoo>

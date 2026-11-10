@@ -1,3 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_ua_payroll_account_map_user,ua.payroll.account.map user,model_ua_payroll_account_map,hr.group_hr_user,1,0,0,0
 access_ua_payroll_account_map_manager,ua.payroll.account.map manager,model_ua_payroll_account_map,account.group_account_manager,1,1,1,1
+access_ua_payroll_statement_payroll,ua.payroll.statement payroll,model_ua_payroll_statement,payroll.group_payroll_user,1,1,1,1
+access_ua_payroll_statement_line_payroll,ua.payroll.statement.line payroll,model_ua_payroll_statement_line,payroll.group_payroll_user,1,1,1,1
+access_ua_payroll_statement_account,ua.payroll.statement account,model_ua_payroll_statement,account.group_account_user,1,1,1,1
+access_ua_payroll_statement_line_account,ua.payroll.statement.line account,model_ua_payroll_statement_line,account.group_account_user,1,1,1,1

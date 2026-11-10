@@ -80,7 +80,7 @@ class HrPayslip(models.Model):
         """(сума, наростаючий відсоток, місяці без індексу) для правила і перевірок."""
         self.ensure_one()
         employee = self.employee_id.sudo()
-        if employee.ua_index_off:
+        if employee.ua_index_off or not self._ua_index_kind_applies():
             return 0.0, 0.0, []
         base = self._ua_index_base_month()
         if not base:
@@ -106,6 +106,11 @@ class HrPayslip(models.Model):
         share = self._ua_index_share()
         amount = params["living_wage"] * (percent - 100.0) / 100.0 * share
         return ua_round(amount), percent, missing
+
+    def _ua_index_kind_applies(self):
+        """Індексують оплату праці за трудовим договором; ЦПХ, гіг-контракт і ФОП - ні
+        (ст. 2 ЗУ «Про індексацію грошових доходів населення»)."""
+        return (self.employee_id.sudo().ua_contract_kind or "employment") == "employment"
 
     def _ua_index_share(self):
         """Пропорція ставки і відпрацьованого часу. Та сама, що й для окладу."""
@@ -135,6 +140,10 @@ class HrPayslip(models.Model):
         if employee.ua_index_off:
             res["index_amount"] = _entry(label, "money", "not_applicable",
                                          note="Індексацію вимкнено для працівника (ua_index_off = True).")
+            return res
+        if not self._ua_index_kind_applies():
+            res["index_amount"] = _entry(label, "money", "not_applicable",
+                                         note="Договір не трудовий (ЦПХ, гіг-контракт, ФОП): індексація не нараховується.")
             return res
 
         base = self._ua_index_base_month()

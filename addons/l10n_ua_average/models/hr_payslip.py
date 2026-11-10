@@ -56,7 +56,8 @@ class HrPayslip(models.Model):
     def _ua_leave_calendar_days(self):
         """Календарні дні відпусток і лікарняних у періоді листка, з поділом лікарняних на роботодавця (1-5) і ПФУ (6+)."""
         out = {"vac_days": 0, "sick_emp_days": 0, "sick_pfu_days": 0, "unpaid_days": 0, "mat_days": 0, "mat_cover_days": 0,
-               "study_days": 0, "child_vac_days": 0, "trip_days": 0, "trip_work_days": 0, "child3_days": 0, "sick_care_days": 0}
+               "study_days": 0, "child_vac_days": 0, "trip_days": 0, "trip_work_days": 0, "child3_days": 0, "sick_care_days": 0,
+               "mil_days": 0}
         leaves = self.env["hr.leave"].search([("employee_id", "=", self.employee_id.id), ("state", "=", "validate"),
                                               ("request_date_from", "<=", self.date_to), ("request_date_to", ">=", self.date_from)])
         for lv in leaves:
@@ -80,6 +81,9 @@ class HrPayslip(models.Model):
                 out["child_vac_days"] += (end - start).days + 1
             elif code == "CHILD3":
                 out["child3_days"] += (end - start).days + 1
+            elif code == "MIL":
+                # військова служба: трудові відносини тривають, зарплата не нараховується
+                out["mil_days"] += (end - start).days + 1
             elif code == "SICK_CARE":
                 # догляд за хворим оплачує ПФУ з першого дня, п'яти днів за рахунок роботодавця немає
                 out["sick_care_days"] += (end - start).days + 1
@@ -282,6 +286,8 @@ class HrPayslip(models.Model):
              "Заява на соціальну відпустку на дітей, затверджена HR"),
             ("child3_days", "CHILD3", "Дні відпустки для батьків трьох і більше дітей",
              "Заява на відпустку для батьків трьох і більше дітей, затверджена HR"),
+            ("mil_days", "MIL", "Дні військової служби (місце роботи зберігається)",
+             "Наказ про збереження місця роботи на час військової служби"),
             ("sick_care_days", "SICK_CARE", "Дні лікарняного по догляду за хворим",
              "Лікарняний листок по догляду за хворим, затверджений HR"),
             ("trip_days", "TRIP", "Календарні дні відрядження",

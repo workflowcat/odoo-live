@@ -27,8 +27,14 @@ GENDER = {"male": "1", "female": "0"}   # схема допускає лише 0
 D1_COLS = ["G5", "G6", "G7S", "G8", "G9", "G101", "G102", "G111S", "G112S", "G113S", "G12", "G13", "G14",
            "G15", "G16", "G17", "G18", "G19", "G20", "G21", "G22", "G23", "G24", "G25", "G26"]
 DF_COLS = ["G02", "G03A", "G03", "G04A", "G04", "G5A", "G5", "G05", "G06D", "G07D", "G08", "G09"]
-D1_FLAG, DF_FLAG = "G26", "G09"          # графа «Ознака (0, 1)»: 0 - рядок на введення, 1 - на вилучення
-D1_KEY = ("G7S", "G8", "G101", "G102")   # РНОКПП, категорія ЗО, місяць, рік
+# Графи Д1 за бланком: 12 - дні непрацездатності, 13 - дні без збереження зарплати, 14 - дні трудових
+# відносин, 15 - дні відпустки у зв'язку з вагітністю та пологами, 21 - основне місце роботи (трудова книжка),
+# 22 - неповний час, 23 - спецстаж, 24 - нове робоче місце, 25 - ознака рядка, 26 - нефіксований робочий час.
+D1_FLAG, DF_FLAG = "G25", "G09"          # графа «Ознака (0, 1)»: 0 - рядок на введення, 1 - на вилучення
+D1_KEY = ("G7S", "G8", "G9", "G101", "G102")   # РНОКПП, категорія ЗО, код типу нарахувань, місяць, рік
+D1_ADD = ("G12", "G13", "G15", "G16", "G17", "G18", "G19", "G20")   # графи, що складаються при злитті рядків
+KTN_PRIOR_BENEFIT = "13"   # код типу нарахувань: допомога по непрацездатності чи вагітності та пологах за минулі місяці
+MIL_CODE = "MIL"           # вид відсутності «військова служба»: трудові відносини тривають, зарплати немає
 DF_KEY = ("G02", "G05")                  # РНОКПП, ознака доходу
 D1_SUMS = [("R01G16", "G16"), ("R01G17", "G17"), ("R01G18", "G18"), ("R01G19", None), ("R01G20", "G20")]
 DF_SUMS = [("R01G03A", "G03A"), ("R01G03", "G03"), ("R01G04A", "G04A"), ("R01G04", "G04"),
@@ -58,6 +64,9 @@ class UaPayrollReportWizard(models.TransientModel):
         help="XML раніше поданого розрахунку за цей місяць. Для звітного нового і уточнюючого "
              "з них беруться рядки, які треба вилучити.")
     result_ids = fields.Many2many("ir.attachment", string="Файли")
+    lines_edited = fields.Boolean("Рядки зібрано для правок", readonly=True)
+    d1_line_ids = fields.One2many("ua.payroll.report.d1.line", "wizard_id", "Рядки Д1")
+    df_line_ids = fields.One2many("ua.payroll.report.df.line", "wizard_id", "Рядки 4ДФ")
     log = fields.Text("Перевірка за схемою", readonly=True)
 
     # ---- data collection ------------------------------------------------
@@ -66,9 +75,10 @@ class UaPayrollReportWizard(models.TransientModel):
         return d1, date(self.year, self.month, calendar.monthrange(self.year, self.month)[1])
 
     def _payslips(self):
-        d1, d2 = self._period()
+        """Проведені листки, що звітуються в цьому місяці: свої і коригування за минулі місяці."""
+        d1, _d2 = self._period()
         return self.env["hr.payslip"].search([("company_id", "=", self.company_id.id), ("state", "=", "done"),
-                                              ("date_from", ">=", d1), ("date_to", "<=", d2)], order="employee_id")
+                                              ("ua_report_month", "=", d1)], order="employee_id, date_from")
 
     def _line(self, slip, code):
         return sum(slip.line_ids.filtered(lambda l: l.code == code).mapped("total"))
@@ -77,11 +87,10 @@ class UaPayrollReportWizard(models.TransientModel):
         """Рядки Д1 для одного листка: основний рядок за категорією ЗО і окремий рядок 29 за лікарняні."""
         emp = slip.employee_id.sudo()
         d1, d2 = self._period()
-        hire, dism = self._employment_dates(emp, d1, d2)
-        start = max(d1, hire) if hire else d1
-        end = min(d2, dism) if dism else d2
-        days_in = max((end - start).days + 1, 0)
+        days_in, hire, dism = self._days_in(emp, d1, d2)
         kind = emp.ua_contract_kind or "employment"
+        period = slip.date_from.replace(day=1)
+        late = period < d1      # листок-коригування за минулий місяць, проведений у цьому
         disabled = emp.ua_esv_category == "disabled"
         if kind == "gig":
             cat = ESV_CAT["gig_disabled"] if disabled else ESV_CAT["gig"]
@@ -101,7 +110,8 @@ class UaPayrollReportWizard(models.TransientModel):
         # мінімальна доплата ЄСВ: різниця між МЗП і фактичним нарахуванням (лише основне місце, повний місяць)
         min_diff = 0.0
         leaves_all = slip._ua_leave_calendar_days() if hasattr(slip, "_ua_leave_calendar_days") else {}
-        if kind == "employment" and emp.ua_main_job and gross < params["min_wage"] and days_in >= (d2 - d1).days + 1 and not leaves_all.get("mat_cover_days"):
+        # без нарахувань (військова служба весь місяць) мінімальної доплати немає - як у правилі ЄСВ листка
+        if kind == "employment" and emp.ua_main_job and 0 < gross < params["min_wage"] and days_in >= (d2 - d1).days + 1 and not leaves_all.get("mat_cover_days"):
             min_diff = r2(params["min_wage"] - gross)
         base_main = r2(min(salary, remaining)); remaining = r2(remaining - base_main)
         esv_main = r2(base_main * rate / 100.0)
@@ -109,10 +119,7 @@ class UaPayrollReportWizard(models.TransientModel):
         leaves = slip._ua_leave_calendar_days() if hasattr(slip, "_ua_leave_calendar_days") else {}
         sick_days = (leaves.get("sick_emp_days", 0) + leaves.get("sick_pfu_days", 0) + leaves.get("sick_care_days", 0))
         unpaid_days = leaves.get("unpaid_days", 0)
-        part_time = (not emp.ua_full_time) or float(emp.ua_fte or "1") < 1.0
-        common = {"G5": "1", "G6": GENDER.get(getattr(emp, "sex", None) or "", None), "G7S": emp.ua_rnokpp or "", "G101": self.month, "G102": self.year,
-                  "names": emp._ua_name_parts(), "G21": "1" if (emp.ua_main_job and kind == "employment") else "0",
-                  "G22": "1" if part_time else "0", "G23": "0", "G24": "0", "G26": "0", "G14": days_in, "G13": unpaid_days or None}
+        common = {**self._row_head(emp, kind, days_in), "G13": (unpaid_days or None) if not late else None}
         rows.append({**common, "G8": cat, "G12": None, "G16": salary, "G17": base_main, "G18": min_diff or None, "G19": 0.0,
                      "G20": r2(esv_main + esv_diff), "rate": rate})
         mat = r2(self._line(slip, "MAT"))
@@ -129,15 +136,21 @@ class UaPayrollReportWizard(models.TransientModel):
                     seg_days = (seg_end - cur).days + 1
                     share = r2(mat * seg_days / total_days)
                     base_mat = r2(min(share, params["min_wage"] * params["esv_max_multiplier"]))
-                    rows.append({**common, "G101": cur.month, "G102": cur.year, "G8": ESV_CAT["mat"], "G12": seg_days, "G16": share, "G17": base_mat, "G18": None,
+                    prior = date(cur.year, cur.month, 1) < d1
+                    rows.append({**common, "G101": cur.month, "G102": cur.year, "G9": KTN_PRIOR_BENEFIT if prior else None,
+                                 "G8": ESV_CAT["mat"], "G15": seg_days, "G16": share, "G17": base_mat, "G18": None,
                                  "G19": 0.0, "G20": r2(base_mat * rate / 100.0), "rate": rate, "G14": None, "G13": None})
                     cur = seg_end + timedelta(days=1)
         sick = r2(sick_emp + sick_pfu + sick_care)
         if sick:
             base_sick = r2(min(sick, remaining)); remaining = r2(remaining - base_sick)
             esv_sick = r2(base_sick * rate / 100.0)
-            rows.append({**common, "G8": ESV_CAT["sick"], "G12": sick_days or None, "G16": sick, "G17": base_sick, "G18": None,
-                         "G19": 0.0, "G20": esv_sick, "rate": rate, "G14": None})
+            sick_row = {**common, "G8": ESV_CAT["sick"], "G12": sick_days or None, "G16": sick, "G17": base_sick, "G18": None,
+                        "G19": 0.0, "G20": esv_sick, "rate": rate, "G14": None}
+            if late:
+                # лікарняні за минулий місяць: рядок за той місяць з кодом типу нарахувань 13
+                sick_row.update({"G101": period.month, "G102": period.year, "G9": KTN_PRIOR_BENEFIT, "G13": None})
+            rows.append(sick_row)
         # копійки округлення - на основний рядок, щоб Σ рядків = ЄСВ листка
         delta = r2(esv_total - sum(r["G20"] for r in rows))
         if abs(delta) <= 0.05:
@@ -164,15 +177,95 @@ class UaPayrollReportWizard(models.TransientModel):
                       "other": other, "other_income": r2(sum(v[0] for v in other.values())),
                       "emp": emp, "hire": hire, "dism": dism}
 
+    def _row_head(self, emp, kind, days_in):
+        """Спільна частина рядків Д1 людини: особа, місяць, дні трудових відносин, ознаки."""
+        d1, d2 = self._period()
+        return {"G5": "1", "G6": GENDER.get(getattr(emp, "sex", None) or "", None), "G7S": emp.ua_rnokpp or "",
+                "G9": None, "G101": self.month, "G102": self.year, "names": emp._ua_name_parts(), "G14": days_in,
+                "employee_id": emp.id, **self._flags(emp, kind, d1, d2)}
+
+    def _flags(self, emp, kind, d1, d2):
+        """Ознаки рядка Д1 (графи 21-24, 26): стабільні на весь місяць, з картки і версії договору."""
+        version = self._version_in_month(emp, d1, d2).sudo()
+        part_time = (not emp.ua_full_time) or float(emp.ua_fte or "1") < 1.0
+        new_place = bool(version.ua_new_workplace) and (
+            not version.ua_new_workplace_until or version.ua_new_workplace_until >= d1)
+        return {"G21": "1" if (emp.ua_main_job and kind == "employment") else "0",
+                "G22": "1" if part_time else "0",
+                "G23": "1" if version.ua_special_seniority else "0",
+                "G24": "1" if new_place else "0",
+                "G26": "1" if version.ua_unfixed_hours else "0"}
+
+    @staticmethod
+    def _version_in_month(emp, d1, d2):
+        """Версія договору, що діє в місяці (остання з тих, що його перетинають), або порожній запис."""
+        versions = emp.version_ids.filtered(lambda v: v.contract_date_start and v.contract_date_start <= d2
+                                            and (not v.contract_date_end or v.contract_date_end >= d1)).sorted("contract_date_start")
+        return versions[-1:]
+
     def _employment_dates(self, emp, d1, d2):
         """Період трудових відносин у місяці з версій контракту (hr.version): одна картка, кілька періодів роботи.
         Повторне прийняття = нова версія з новою датою початку; історія не втрачається."""
-        versions = emp.version_ids.filtered(lambda v: v.contract_date_start and v.contract_date_start <= d2
-                                            and (not v.contract_date_end or v.contract_date_end >= d1)).sorted("contract_date_start")
-        if versions:
-            v = versions[-1]
-            return v.contract_date_start, v.contract_date_end
+        version = self._version_in_month(emp, d1, d2)
+        if version:
+            return version.contract_date_start, version.contract_date_end
         return emp.ua_hire_date, emp.ua_dismissal_date
+
+    def _days_in(self, emp, d1, d2):
+        """Календарні дні трудових відносин у місяці і межі цих відносин."""
+        hire, dism = self._employment_dates(emp, d1, d2)
+        start = max(d1, hire) if hire else d1
+        end = min(d2, dism) if dism else d2
+        return max((end - start).days + 1, 0), hire, dism
+
+    # ---- військова служба без листка ----------------------------------------------
+    def _idle_employees(self, slips):
+        """Працівники на військовій службі (місце роботи зберігається), за яких у місяці немає листка.
+
+        Трудові відносини тривають, тож людина є в Д1: категорія 1 (2 - з інвалідністю), дні трудових
+        відносин у графі 14, суми нульові. У 4ДФ її немає: доходу не було."""
+        d1, d2 = self._period()
+        leaves = self.env["hr.leave"].sudo().search([
+            ("employee_id.company_id", "=", self.company_id.id), ("state", "=", "validate"),
+            ("holiday_status_id.work_entry_type_id.code", "=", MIL_CODE),
+            ("request_date_from", "<=", d2), ("request_date_to", ">=", d1)])
+        people = leaves.mapped("employee_id") - slips.mapped("employee_id")
+        return people.filtered(lambda e: (e.ua_contract_kind or "employment") == "employment"
+                               and self._days_in(e, d1, d2)[0] > 0).sorted("name")
+
+    def _idle_rows(self, emp, params):
+        d1, d2 = self._period()
+        days_in, hire, dism = self._days_in(emp, d1, d2)
+        disabled = emp.ua_esv_category == "disabled"
+        cat = ESV_CAT["disabled"] if disabled else ESV_CAT["employment"]
+        row = {**self._row_head(emp, "employment", days_in), "G8": cat, "G12": None, "G13": None, "G15": None,
+               "G16": 0.0, "G17": 0.0, "G18": None, "G19": 0.0, "G20": 0.0,
+               "rate": params["esv_rate_disabled"] if disabled else params["esv_rate"]}
+        person = {"gross": 0.0, "salary": 0.0, "gph": 0.0, "sick_emp": 0.0, "sick_pfu": 0.0, "mat": 0.0, "pdfo": 0.0,
+                  "vz": 0.0, "kind": "employment", "cat": cat, "min_diff": 0.0, "other": {}, "other_income": 0.0,
+                  "emp": emp, "hire": hire, "dism": dism, "idle": True}
+        return [row], person
+
+    @staticmethod
+    def _merge_rows(rows):
+        """Рядки з тим самим ключем (особа, категорія, код типу, місяць) - один рядок із сумами.
+
+        Так буває, коли в місяці два листки людини: основний і коригування за минулий місяць."""
+        merged, order = {}, []
+        for row in rows:
+            key = tuple(row.get(col) for col in D1_KEY)
+            if key not in merged:
+                merged[key] = dict(row)
+                order.append(key)
+                continue
+            into = merged[key]
+            for col in D1_ADD:
+                if row.get(col) is not None or into.get(col) is not None:
+                    total = (into.get(col) or 0) + (row.get(col) or 0)
+                    into[col] = total if col in ("G12", "G13", "G15") else r2(total)
+            if row.get("G14") is not None:
+                into["G14"] = max(into.get("G14") or 0, row["G14"])
+        return [merged[key] for key in order]
 
     # ---- builders --------------------------------------------------------
     def _company_head(self):
@@ -276,6 +369,7 @@ class UaPayrollReportWizard(models.TransientModel):
         копійки округлення лишаються на рядку зарплати."""
         d1, d2 = self._period()
         rows = []
+        persons = [p for p in persons if self._in_4df(p)]
         for p in persons:
             other = p.get("other") or {}
             base = r2(p["gross"] + sum(taxable for _income, taxable in other.values()))
@@ -285,11 +379,11 @@ class UaPayrollReportWizard(models.TransientModel):
                 share = (taxable / base) if base else 0.0
                 pdfo_sign, vz_sign = r2(p["pdfo"] * share), r2(p["vz"] * share)
                 used_pdfo, used_vz = r2(used_pdfo + pdfo_sign), r2(used_vz + vz_sign)
-                extra_rows.append({"G02": p["emp"].ua_rnokpp or "", "G03A": income, "G03": income,
+                extra_rows.append({"employee_id": p["emp"].id, "G02": p["emp"].ua_rnokpp or "", "G03A": income, "G03": income,
                                    "G04A": pdfo_sign, "G04": pdfo_sign, "G5A": vz_sign, "G5": vz_sign, "G05": sign,
                                    "G06D": None, "G07D": None, "G08": None, "G09": None})
             main_pdfo, main_vz = r2(p["pdfo"] - used_pdfo), r2(p["vz"] - used_vz)
-            rows.append({"G02": p["emp"].ua_rnokpp or "", "G03A": p["gross"], "G03": p["gross"], "G04A": main_pdfo, "G04": main_pdfo,
+            rows.append({"employee_id": p["emp"].id, "G02": p["emp"].ua_rnokpp or "", "G03A": p["gross"], "G03": p["gross"], "G04A": main_pdfo, "G04": main_pdfo,
                          "G5A": main_vz, "G5": main_vz, "G05": INCOME_SIGN.get(p["kind"], "101"),
                          "G06D": p["hire"] if (p["hire"] and d1 <= p["hire"] <= d2) else None,
                          "G07D": p["dism"] if (p["dism"] and d1 <= p["dism"] <= d2) else None,
@@ -297,15 +391,21 @@ class UaPayrollReportWizard(models.TransientModel):
             rows += extra_rows
         for p in persons:
             if p.get("mat"):
-                rows.append({"G02": p["emp"].ua_rnokpp or "", "G03A": p["mat"], "G03": p["mat"], "G04A": 0.0, "G04": 0.0, "G5A": 0.0, "G5": 0.0, "G05": "128",
+                rows.append({"employee_id": p["emp"].id, "G02": p["emp"].ua_rnokpp or "", "G03A": p["mat"], "G03": p["mat"], "G04A": 0.0, "G04": 0.0, "G5A": 0.0, "G5": 0.0, "G05": "128",
                              "G06D": None, "G07D": None, "G08": None, "G09": None})
         return rows
+
+    @staticmethod
+    def _in_4df(person):
+        """У 4ДФ - лише ті, кому щось нараховано: людина на військовій службі без зарплати туди не йде."""
+        return not person.get("idle") and bool(person["gross"] or person.get("other") or person.get("mat"))
 
     def _build_4df(self, persons, text_rows=None):
         c = self.company_id
         rows = text_rows if text_rows is not None else [self._text_row(r, DF_COLS) for r in self._4df_rows(persons)]
         f = self._company_head() + [("HNUM", self.number), ("HNAME", c.name), ("HTIN", c.company_registry), ("HKATOTTG", c.ua_katottg or "")]
-        f += [("R00G01I", sum(1 for p in persons if p["kind"] == "employment")), ("R00G02I", sum(1 for p in persons if p["kind"] in CIVIL_KINDS))]
+        income = [p for p in persons if self._in_4df(p)]
+        f += [("R00G01I", sum(1 for p in income if p["kind"] == "employment")), ("R00G02I", sum(1 for p in income if p["kind"] in CIVIL_KINDS))]
         for col in DF_COLS:
             for i, r in enumerate(rows, 1):
                 f.append((f"T1RXXXX{col}", r.get(col) or None, {"ROWNUM": i}))
@@ -379,7 +479,7 @@ class UaPayrollReportWizard(models.TransientModel):
                 return self._rows_from_xml(base64.b64decode(attachment.datas), cols)
         return None
 
-    def _correction_rows(self, all_rows, persons):
+    def _correction_rows(self, all_rows, df_rows):
         """Рядки коригування для Д1 і 4ДФ: вилучення поданих рядків і введення виправлених."""
         if not self.base_attachment_ids:
             raise UserError("Для звітного нового і уточнюючого розрахунку додайте файли раніше поданого розрахунку: "
@@ -389,7 +489,7 @@ class UaPayrollReportWizard(models.TransientModel):
         if old_d1 is None and old_df is None:
             raise UserError("Серед доданих файлів немає ні Д1 (J0510111), ні 4ДФ (J0510411).")
         new_d1 = [self._text_row(r, D1_COLS) for r in all_rows]
-        new_df = [self._text_row(r, DF_COLS) for r in self._4df_rows(persons)]
+        new_df = [self._text_row(r, DF_COLS) for r in df_rows]
         d1_text = self._diff_rows(old_d1 or [], new_d1, D1_KEY, D1_FLAG) if old_d1 is not None else None
         df_text = self._diff_rows(old_df or [], new_df, DF_KEY, DF_FLAG) if old_df is not None else None
         if not (d1_text or df_text):
@@ -401,20 +501,27 @@ class UaPayrollReportWizard(models.TransientModel):
         c = self.company_id
         if not c.company_registry or not c.ua_sti_code:
             raise UserError("Заповніть у компанії ЄДРПОУ і код ДПІ (Налаштування → Компанії → «Україна»).")
-        slips = self._payslips()
-        if not slips:
-            raise UserError("Немає підтверджених листків за цей місяць.")
-        params = self.env["ua.payroll.param"].get_all(self._period()[1], c)
-        persons, all_rows = [], []
-        for slip in slips:
-            rows, p = self._person_rows(slip, params)
-            all_rows += rows; persons.append(p)
+        persons, all_rows, params = self._collect()
+        df_rows = self._4df_rows(persons)
+        log = []
+        if self.lines_edited:
+            # бухгалтер зібрав рядки і поправив їх: файли - з рядків як є
+            computed_g16 = r2(sum(r["G16"] or 0.0 for r in all_rows))
+            all_rows = [line._as_row() for line in self.d1_line_ids]
+            df_rows = [line._as_row() for line in self.df_line_ids]
+            edited_g16 = r2(sum(r["G16"] or 0.0 for r in all_rows))
+            log.append("Д1 і 4ДФ сформовано з рядків, поправлених вручну.")
+            if abs(edited_g16 - computed_g16) >= 0.01:
+                log.append("Увага: графа 16 Д1 після правок %.2f, за листками %.2f. Суми нарахувань головної форми "
+                           "(рядок 1.1-1.4) взято з листків - звірте їх перед поданням." % (edited_g16, computed_g16))
         X = self.env["ua.dps.xml"]
         stan = {"HZ": 1, "HZN": 1, "HZU": 3}[self.doc_type]  # STAN: 1 звітний/новий звітний, 3 уточнюючий (як у прикладах)
         d1_text = df_text = None
         if self.doc_type in ("HZN", "HZU"):
-            d1_text, df_text = self._correction_rows(all_rows, persons)
-        files, log = [], []
+            d1_text, df_text = self._correction_rows(all_rows, df_rows)
+        elif self.lines_edited:
+            df_text = [self._text_row(r, DF_COLS) for r in df_rows]
+        files = []
         main_name = X.file_name(c.company_registry, c.ua_sti_code, "J05", "001", VER, stan, 0, self.number, 1, self.month, self.year, c.ua_sti_code)
         appendices = []
         if self.with_d1:
@@ -444,4 +551,48 @@ class UaPayrollReportWizard(models.TransientModel):
                 z.writestr(fname, data)
         atts |= Att.create({"name": f"J05_{self.year}-{self.month:02d}.zip", "datas": base64.b64encode(buf.getvalue()), "mimetype": "application/zip", "res_model": self._name, "res_id": self.id})
         self.write({"result_ids": [(6, 0, atts.ids)], "log": "\n".join(log)})
+        return self._reopen()
+
+    def _reopen(self):
         return {"type": "ir.actions.act_window", "res_model": self._name, "res_id": self.id, "view_mode": "form", "target": "new"}
+
+    def _collect(self):
+        """Рядки Д1 і дані людей з проведених листків місяця плюс люди на військовій службі без листка."""
+        c = self.company_id
+        slips = self._payslips()
+        idle = self._idle_employees(slips)
+        if not slips and not idle:
+            raise UserError("Немає підтверджених листків за цей місяць.")
+        params = self.env["ua.payroll.param"].get_all(self._period()[1], c)
+        persons, all_rows = [], []
+        for slip in slips:
+            rows, person = self._person_rows(slip, params)
+            all_rows += rows
+            persons.append(person)
+        for emp in idle:
+            rows, person = self._idle_rows(emp, params)
+            all_rows += rows
+            persons.append(person)
+        return persons, self._merge_rows(all_rows), params
+
+    # ---- рядки для правок перед формуванням ---------------------------------------
+    def action_collect(self):
+        """Зібрати рядки Д1 і 4ДФ у таблиці: бухгалтер править їх, потім «Сформувати» бере рядки як є."""
+        self.ensure_one()
+        persons, all_rows, _params = self._collect()
+        D1Line, DfLine = self.env["ua.payroll.report.d1.line"], self.env["ua.payroll.report.df.line"]
+        self.d1_line_ids.unlink()
+        self.df_line_ids.unlink()
+        for index, row in enumerate(all_rows, 1):
+            D1Line.create(D1Line._vals_from_row(self, row, index))
+        for index, row in enumerate(self._4df_rows(persons), 1):
+            DfLine.create(DfLine._vals_from_row(self, row, index))
+        self.write({"lines_edited": True, "result_ids": [(5, 0, 0)], "log": False})
+        return self._reopen()
+
+    def action_drop_lines(self):
+        """Прибрати зібрані рядки: файли знову рахуються прямо з листків."""
+        self.d1_line_ids.unlink()
+        self.df_line_ids.unlink()
+        self.write({"lines_edited": False})
+        return self._reopen()

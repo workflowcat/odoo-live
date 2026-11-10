@@ -80,8 +80,8 @@ d1_file = next((f for f in base_files if "J0510111" in f["name"]), None)
 df_file = next((f for f in base_files if "J0510411" in f["name"]), None)
 check("сформовано Д1 і 4ДФ", bool(d1_file) and bool(df_file))
 d1_content = base64.b64decode(d1_file["datas"])
-base_rows = rows_of(d1_content, {"G7S", "G16", "G20", "G26"})
-check("у Д1 є рядки з ознакою 0", bool(base_rows) and all(r.get("G26") == "0" for r in base_rows.values()),
+base_rows = rows_of(d1_content, {"G7S", "G16", "G20", "G25"})
+check("у Д1 є рядки з ознакою 0", bool(base_rows) and all(r.get("G25") == "0" for r in base_rows.values()),
       f"{len(base_rows)} рядків")
 
 # 2. Підміняємо одну суму, наче її подали з помилкою
@@ -115,12 +115,12 @@ check("уточнюючий валідний за XSD", "ПОМИЛКИ" not in 
 
 corr_files = files_of(correction)
 corr_d1 = next((f for f in corr_files if "J0510111" in f["name"]), None)
-corr_rows = rows_of(base64.b64decode(corr_d1["datas"]), {"G7S", "G16", "G20", "G26"})
+corr_rows = rows_of(base64.b64decode(corr_d1["datas"]), {"G7S", "G16", "G20", "G25"})
 check("у коригуванні рівно два рядки", len(corr_rows) == 2, f"{len(corr_rows)} рядків: {list(corr_rows.values())}")
-flags = sorted(r.get("G26") for r in corr_rows.values())
+flags = sorted(r.get("G25") for r in corr_rows.values())
 check("один рядок на вилучення (1), один на введення (0)", flags == ["0", "1"], str(flags))
-removed = next((r for r in corr_rows.values() if r["G26"] == "1"), {})
-added = next((r for r in corr_rows.values() if r["G26"] == "0"), {})
+removed = next((r for r in corr_rows.values() if r["G25"] == "1"), {})
+added = next((r for r in corr_rows.values() if r["G25"] == "0"), {})
 check("вилучається саме подана (помилкова) сума", removed.get("G16") == wrong, f"{removed.get('G16')} проти {wrong}")
 check("вводиться правильна сума", added.get("G16") == original, f"{added.get('G16')} проти {original}")
 check("особа в обох рядках та сама", removed.get("G7S") == added.get("G7S"), removed.get("G7S", ""))
@@ -138,7 +138,7 @@ new_report = call("ua.payroll.report.wizard", "create",
 call("ua.payroll.report.wizard", "action_generate", [new_report])
 new_files = files_of(new_report)
 new_d1 = next((f for f in new_files if "J0510111" in f["name"]), None)
-check("звітний новий теж дає два рядки", len(rows_of(base64.b64decode(new_d1["datas"]), {"G26"})) == 2)
+check("звітний новий теж дає два рядки", len(rows_of(base64.b64decode(new_d1["datas"]), {"G25"})) == 2)
 
 print()
 if errors:

@@ -10,3 +10,20 @@ class HrVersion(models.Model):
     ua_kp_code = fields.Char("Код КП", size=10, groups="hr.group_hr_user", help="Код за Класифікатором професій ДК 003, наприклад 2411.2")
     ua_prof_name = fields.Char("Професійна назва роботи", groups="hr.group_hr_user")
     ua_internal_parttime = fields.Boolean("Внутрішній сумісник", groups="hr.group_hr_user")
+    # Ознаки рядка Д1 (графи 23, 24, 26): стабільні на весь строк умов договору, тому - на версії договору.
+    ua_special_seniority = fields.Boolean(
+        "Спецстаж (пільгова пенсія)", groups="hr.group_hr_user",
+        help="Робота дає право на пенсію на пільгових умовах або за вислугу років: графа 23 Д1 = 1. "
+             "Періоди спецстажу подаються окремо (додаток Д6).")
+    ua_special_seniority_code = fields.Char(
+        "Підстава спецстажу", groups="hr.group_hr_user",
+        help="Код підстави і номер наказу про атестацію робочого місця - для додатка Д6.")
+    ua_new_workplace = fields.Boolean(
+        "Нове робоче місце", groups="hr.group_hr_user",
+        help="Працівника прийнято на нове робоче місце, за яке роботодавець отримує компенсацію ЄСВ: графа 24 Д1 = 1.")
+    ua_new_workplace_until = fields.Date(
+        "Нове робоче місце до", groups="hr.group_hr_user",
+        help="Останній день, коли діє ознака нового робочого місця. Порожньо - поки діє версія договору.")
+    ua_unfixed_hours = fields.Boolean(
+        "Нефіксований робочий час", groups="hr.group_hr_user",
+        help="Трудовий договір з нефіксованим робочим часом (ст. 21-1 КЗпП): графа 26 Д1 = 1.")

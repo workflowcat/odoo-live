@@ -9,7 +9,8 @@ from odoo.exceptions import UserError
 from .hr_payslip_run import as_company
 
 DAY_CODES = {"VAC": "В", "SICK": "ТН", "UNPAID": "НА", "MAT": "ВП", "STUDY": "Н", "CHILD_VAC": "Д",
-             "TRIP": "ВД", "CHILD3": "ДД", "SICK_CARE": "ТН"}
+             "TRIP": "ВД", "CHILD3": "ДД", "SICK_CARE": "ТН",
+             "MIL": "ІН"}   # військова служба: «інші причини неявок, передбачені законодавством»
 STATES = [("draft", "Чернетка"), ("confirmed", "Затверджено")]
 
 

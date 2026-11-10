@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_payroll_statement_form" model="ir.ui.view">
+    <field name="name">ua.payroll.statement.form</field><field name="model">ua.payroll.statement</field>
+    <field name="arch" type="xml">
+      <form string="Розрахункова відомість з сальдо">
+        <group>
+          <group>
+            <field name="company_id" groups="base.group_multi_company"/>
+            <field name="year" options="{'enable_formatting': False}"/>
+            <field name="month"/>
+          </group>
+          <group><field name="department_id"/></group>
+        </group>
+        <field name="computed" invisible="1"/>
+        <field name="line_ids" invisible="not computed" readonly="1">
+          <list>
+            <field name="sequence"/>
+            <field name="employee_id"/>
+            <field name="currency_id" column_invisible="1"/>
+            <field name="opening" sum="Разом"/>
+            <field name="accrued" sum="Разом"/>
+            <field name="withheld" sum="Разом"/>
+            <field name="paid" sum="Разом"/>
+            <field name="closing" sum="Разом"/>
+          </list>
+        </field>
+        <footer>
+          <button name="action_compute" type="object" string="Порахувати" class="btn-primary"/>
+          <button name="action_print" type="object" string="Друкувати" class="btn-secondary"/>
+          <button string="Закрити" class="btn-secondary" special="cancel"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ua_payroll_statement" model="ir.actions.act_window">
+    <field name="name">Розрахункова відомість з сальдо</field>
+    <field name="res_model">ua.payroll.statement</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+  </record>
+</odoo>
