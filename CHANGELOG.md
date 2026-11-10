@@ -6,6 +6,15 @@ Notable changes for people who run or build on this code. Module-level API chang
 ## Unreleased
 
 ### Added
+- Labour report to the State Statistics Service, forms 1-ПВ (monthly) and 1-ПВ (quarterly) by order № 117 of
+  2024-04-15 (`l10n_ua_labour_stat`). Monthly rows 1020-1070 and quarterly sections I-V from posted payslips,
+  the П-5 timesheet and contract dates: wage fund of all workers and of staff, ПДФО from the fund, average
+  headcount with part-timers as whole units, hours worked, hires and dismissals split by the dismissal basis
+  (п. 1 ст. 40 - organisation changes; ст. 38, п. 1 ст. 36 and others - turnover), wage fund by its parts,
+  women, external part-timers, civil-law contracts, collective agreements carried from last year. Sick pay,
+  maternity, per diem and severance stay out of the fund; staff on military service count in the fund of all
+  workers but not in staff rows. Every salary rule has its wage fund row, set by default and editable. Checks
+  follow the form's own controls; print with all rows.
 - Costs of building intangible assets by project (`l10n_ua_project_cost`). «Розподіл зарплати за проєктами»:
   hours of each employee per project (analytic account) for a month, with an expense account per row (154
   for a project that builds software); a posted payslip splits every expense line, pay and ЄСВ, by these

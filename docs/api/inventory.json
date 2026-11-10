@@ -1,9 +1,9 @@
 {
   "totals": {
-    "modules": 96,
-    "models": 203,
-    "methods": 783,
-    "fields": 431
+    "modules": 97,
+    "models": 205,
+    "methods": 788,
+    "fields": 433
   },
   "areas": [
     {
@@ -8146,6 +8146,56 @@
           "fields": []
         },
         {
+          "model": "ua.labour.report",
+          "ours": true,
+          "modules": [
+            "l10n_ua_labour_stat"
+          ],
+          "methods": [
+            {
+              "name": "action_compute",
+              "signature": "action_compute()",
+              "doc": "",
+              "module": "l10n_ua_labour_stat",
+              "file": "addons/l10n_ua_labour_stat/models/ua_labour_report.py",
+              "decorators": []
+            },
+            {
+              "name": "action_done",
+              "signature": "action_done()",
+              "doc": "",
+              "module": "l10n_ua_labour_stat",
+              "file": "addons/l10n_ua_labour_stat/models/ua_labour_report.py",
+              "decorators": []
+            },
+            {
+              "name": "action_draft",
+              "signature": "action_draft()",
+              "doc": "",
+              "module": "l10n_ua_labour_stat",
+              "file": "addons/l10n_ua_labour_stat/models/ua_labour_report.py",
+              "decorators": []
+            },
+            {
+              "name": "action_print",
+              "signature": "action_print()",
+              "doc": "",
+              "module": "l10n_ua_labour_stat",
+              "file": "addons/l10n_ua_labour_stat/models/ua_labour_report.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_number",
+              "signature": "ua_number(value, digits=1)",
+              "doc": "",
+              "module": "l10n_ua_labour_stat",
+              "file": "addons/l10n_ua_labour_stat/models/ua_labour_report.py",
+              "decorators": []
+            }
+          ],
+          "fields": []
+        },
+        {
           "model": "ua.limit.card",
           "ours": true,
           "modules": [
@@ -10701,6 +10751,32 @@
               "label": "З виробітку",
               "module": "l10n_ua_piecework",
               "file": "addons/l10n_ua_piecework/models/hr_payslip.py",
+              "groups": ""
+            }
+          ]
+        },
+        {
+          "model": "hr.salary.rule",
+          "ours": false,
+          "modules": [
+            "l10n_ua_labour_stat"
+          ],
+          "methods": [],
+          "fields": [
+            {
+              "name": "ua_pv_class",
+              "type": "Selection",
+              "label": "",
+              "module": "l10n_ua_labour_stat",
+              "file": "addons/l10n_ua_labour_stat/models/hr_salary_rule.py",
+              "groups": ""
+            },
+            {
+              "name": "ua_pv_unworked",
+              "type": "Boolean",
+              "label": "Оплата за невідпрацьований час (5090)",
+              "module": "l10n_ua_labour_stat",
+              "file": "addons/l10n_ua_labour_stat/models/hr_salary_rule.py",
               "groups": ""
             }
           ]

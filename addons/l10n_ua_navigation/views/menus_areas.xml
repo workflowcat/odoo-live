@@ -228,6 +228,10 @@
   <menuitem id="menu_ua_local_tax_object" name="Нерухомість і земля" parent="menu_ua_reporting_local_tax"
             action="l10n_ua_local_tax.action_ua_local_tax_object" sequence="20"/>
 
+  <menuitem id="menu_ua_reporting_stat" name="Держстат" parent="menu_ua_reporting_root" sequence="35"/>
+  <menuitem id="menu_ua_labour_report" name="Звіт із праці (1-ПВ)" parent="menu_ua_reporting_stat"
+            action="l10n_ua_labour_stat.action_ua_labour_report" sequence="10"/>
+
   <menuitem id="menu_ua_reporting_finrep" name="Фінзвітність" parent="menu_ua_reporting_root"
             sequence="30"/>
   <menuitem id="menu_ua_reporting_f1" name="Ф1. Баланс" parent="menu_ua_reporting_finrep"

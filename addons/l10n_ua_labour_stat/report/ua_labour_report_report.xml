@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_report_ua_labour" model="ir.actions.report">
+    <field name="name">Звіт із праці (1-ПВ)</field>
+    <field name="model">ua.labour.report</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">l10n_ua_labour_stat.report_ua_labour</field>
+    <field name="report_file">l10n_ua_labour_stat.report_ua_labour</field>
+    <field name="print_report_name">object.name</field>
+    <field name="binding_model_id" ref="model_ua_labour_report"/>
+    <field name="binding_type">report</field>
+  </record>
+
+  <template id="report_ua_labour_row">
+    <tr>
+      <td t-esc="label"/>
+      <td class="text-center" t-esc="code"/>
+      <td class="text-end" t-esc="value"/>
+    </tr>
+  </template>
+
+  <template id="report_ua_labour">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="o">
+        <t t-call="web.internal_layout">
+          <div class="page">
+            <h4 class="text-center" t-esc="o.name"/>
+            <p class="text-center">
+              <span t-esc="o.company_id.name"/>, код ЄДРПОУ <span t-esc="o.company_id.company_registry or ''"/>
+            </p>
+            <t t-if="o.kind == 'month'">
+              <table class="table table-sm">
+                <thead><tr><th>Назва показника</th><th class="text-center">Код рядка</th><th class="text-end">За звітний місяць</th></tr></thead>
+                <tbody>
+                  <t t-call="l10n_ua_labour_stat.report_ua_labour_row"><t t-set="label" t-value="'Фонд оплати праці усіх працівників, тис. грн'"/><t t-set="code" t-value="'1020'"/><t t-set="value" t-value="o.ua_number(o.r1020)"/></t>
+                  <t t-call="l10n_ua_labour_stat.report_ua_labour_row"><t t-set="label" t-value="'Сума ПДФО, відрахована з фонду оплати праці усіх працівників (крім тимчасової непрацездатності), тис. грн'"/><t t-set="code" t-value="'1030'"/><t t-set="value" t-value="o.ua_number(o.r1030)"/></t>
+                  <t t-call="l10n_ua_labour_stat.report_ua_labour_row"><t t-set="label" t-value="'Середньооблікова кількість штатних працівників, осіб'"/><t t-set="code" t-value="'1040'"/><t t-set="value" t-value="o.r1040"/></t>
+                  <t t-call="l10n_ua_labour_stat.report_ua_labour_row"><t t-set="label" t-value="'Кількість відпрацьованого робочого часу штатними працівниками, люд.-год'"/><t t-set="code" t-value="'1060'"/><t t-set="value" t-value="o.r1060"/></t>
+                  <t t-call="l10n_ua_labour_stat.report_ua_labour_row"><t t-set="label" t-value="'Фонд оплати праці штатних працівників, тис. грн (із ряд. 1020)'"/><t t-set="code" t-value="'1070'"/><t t-set="value" t-value="o.ua_number(o.r1070)"/></t>
+                </tbody>
+              </table>
+            </t>
+            <t t-else="">
+              <table class="table table-sm">
+                <thead><tr><th>Назва показника</th><th class="text-center">Код рядка</th><th class="text-end">Значення</th></tr></thead>
+                <tbody>
+                  <tr><td colspan="3"><strong>I. Кількість штатних працівників</strong></td></tr>
+                  <t t-foreach="[('Прийнято', '3020', o.r3020), ('Звільнено', '3040', o.r3040), ('з них через зміни в організації виробництва і праці', '3050', o.r3050), ('з них через плинність кадрів', '3060', o.r3060), ('Облікова кількість на кінець періоду', '3070', o.r3070)]" t-as="r">
+                    <t t-call="l10n_ua_labour_stat.report_ua_labour_row"><t t-set="label" t-value="r[0]"/><t t-set="code" t-value="r[1]"/><t t-set="value" t-value="r[2]"/></t>
+                  </t>
+                  <t t-if="o.period == 4" t-foreach="[('Облікова кількість на неповному робочому часі', '3080', o.r3080), ('у відпустці у зв\'язку з вагітністю та пологами', '3090', o.r3090), ('у відпустці для догляду за дитиною', '3100', o.r3100)]" t-as="r">
+                    <t t-call="l10n_ua_labour_stat.report_ua_labour_row"><t t-set="label" t-value="r[0]"/><t t-set="code" t-value="r[1]"/><t t-set="value" t-value="r[2]"/></t>
+                  </t>
+                  <tr><td colspan="3"><strong>II. Невідпрацьований час (люд.-год / осіб)</strong></td></tr>
+                  <t t-foreach="[('Відпустки без збереження зарплати', '4080', o.r4080_hours, o.r4080_people), ('Неповний час з економічних причин', '4090', o.r4090_hours, o.r4090_people), ('Страйки', '4100', o.r4100_hours, o.r4100_people)]" t-as="r">
+                    <t t-call="l10n_ua_labour_stat.report_ua_labour_row"><t t-set="label" t-value="r[0]"/><t t-set="code" t-value="r[1]"/><t t-set="value" t-value="'%s / %s' % (r[2], r[3])"/></t>
+                  </t>
+                  <tr><td colspan="3"><strong>III. Фонд оплати праці штатних працівників, тис. грн</strong></td></tr>
+                  <t t-foreach="[('Усього', '5010', o.r5010), ('Фонд основної заробітної плати', '5020', o.r5020), ('Фонд додаткової заробітної плати', '5030', o.r5030), ('надбавки та доплати', '5040', o.r5040), ('премії систематичні', '5050', o.r5050), ('індексація', '5051', o.r5051), ('компенсація за затримку виплати', '5052', o.r5052), ('Заохочувальні та компенсаційні виплати', '5060', o.r5060), ('матеріальна допомога', '5070', o.r5070), ('соціальні пільги', '5080', o.r5080), ('Оплата за невідпрацьований час', '5090', o.r5090)]" t-as="r">
+                    <t t-call="l10n_ua_labour_stat.report_ua_labour_row"><t t-set="label" t-value="r[0]"/><t t-set="code" t-value="r[1]"/><t t-set="value" t-value="o.ua_number(r[2])"/></t>
+                  </t>
+                  <tr><td colspan="3"><strong>IV. Окремі категорії (кількість / фонд, тис. грн / люд.-год)</strong></td></tr>
+                  <t t-call="l10n_ua_labour_stat.report_ua_labour_row"><t t-set="label" t-value="'Жінки'"/><t t-set="code" t-value="'7010'"/><t t-set="value" t-value="'%s / %s / %s' % (o.r7010_1, o.ua_number(o.r7010_2), o.r7010_3)"/></t>
+                  <t t-call="l10n_ua_labour_stat.report_ua_labour_row"><t t-set="label" t-value="'Зовнішні сумісники'"/><t t-set="code" t-value="'7030'"/><t t-set="value" t-value="'%s / %s' % (o.r7030_1, o.ua_number(o.r7030_2))"/></t>
+                  <t t-call="l10n_ua_labour_stat.report_ua_labour_row"><t t-set="label" t-value="'Працюють за цивільно-правовими договорами'"/><t t-set="code" t-value="'7040'"/><t t-set="value" t-value="'%s / %s' % (o.r7040_1, o.ua_number(o.r7040_2))"/></t>
+                  <t t-if="o.period == 4">
+                    <tr><td colspan="3"><strong>V. Колективні договори (на 31 грудня)</strong></td></tr>
+                    <t t-call="l10n_ua_labour_stat.report_ua_labour_row"><t t-set="label" t-value="'Укладених і зареєстрованих колективних договорів, од.'"/><t t-set="code" t-value="'8010'"/><t t-set="value" t-value="o.r8010"/></t>
+                    <t t-call="l10n_ua_labour_stat.report_ua_labour_row"><t t-set="label" t-value="'Працівників, охоплених колективними договорами'"/><t t-set="code" t-value="'8020'"/><t t-set="value" t-value="o.r8020"/></t>
+                    <t t-call="l10n_ua_labour_stat.report_ua_labour_row"><t t-set="label" t-value="'Мінімальна місячна ставка за колективним договором, грн'"/><t t-set="code" t-value="'8030'"/><t t-set="value" t-value="o.ua_number(o.r8030, 2)"/></t>
+                    <t t-call="l10n_ua_labour_stat.report_ua_labour_row"><t t-set="label" t-value="'Мінімальна місячна ставка за галузевою угодою, грн'"/><t t-set="code" t-value="'8040'"/><t t-set="value" t-value="o.ua_number(o.r8040, 2)"/></t>
+                  </t>
+                </tbody>
+              </table>
+            </t>
+            <p t-if="o.note"><strong>Пояснення:</strong> <span t-esc="o.note"/></p>
+            <p class="mt-5">
+              Керівник (власник) або особа, відповідальна за достовірність інформації:
+              <span t-esc="o.company_id.ua_director_name or '______________________'"/>
+            </p>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>

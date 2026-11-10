@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ua_labour_report_payroll,ua.labour.report payroll,model_ua_labour_report,payroll.group_payroll_user,1,1,1,1
+access_ua_labour_report_hr,ua.labour.report hr,model_ua_labour_report,hr.group_hr_user,1,1,1,1

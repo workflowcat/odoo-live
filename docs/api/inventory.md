@@ -5,7 +5,7 @@
 Як цим користуватися - `docs/api/README.md`, приклади викликів - `docs/api/screens.md`,
 прибрані й перейменовані методи - `docs/api/CHANGELOG.md`.
 
-Модулів: 96. Моделей: 203. Методів: 783. Збережених полів на чужих моделях: 431.
+Модулів: 97. Моделей: 205. Методів: 788. Збережених полів на чужих моделях: 433.
 
 ## Зарплата
 
@@ -1805,6 +1805,18 @@
 | `action_fill_from_sales()` | Кількість ліцензій з проведених рахунків покупцям за місяць, мінус повернення. | `l10n_ua_project_cost` |
 | `action_post()` | - | `l10n_ua_project_cost` |
 
+### `ua.labour.report`
+
+наша модель · `l10n_ua_labour_stat`
+
+| Метод | Що робить | Модуль |
+| --- | --- | --- |
+| `action_compute()` | - | `l10n_ua_labour_stat` |
+| `action_done()` | - | `l10n_ua_labour_stat` |
+| `action_draft()` | - | `l10n_ua_labour_stat` |
+| `action_print()` | - | `l10n_ua_labour_stat` |
+| `ua_number(value, digits=1)` | - | `l10n_ua_labour_stat` |
+
 ### `ua.limit.card`
 
 наша модель · `l10n_ua_limit_card`
@@ -2405,6 +2417,15 @@
 | --- | --- | --- | --- |
 | `ua_gig_auto` | Boolean | З акта гіг-спеціаліста | `l10n_ua_diia_city` |
 | `ua_piecework_auto` | Boolean | З виробітку | `l10n_ua_piecework` |
+
+### `hr.salary.rule`
+
+доповнена модель · `l10n_ua_labour_stat`
+
+| Поле | Тип | Підпис | Модуль |
+| --- | --- | --- | --- |
+| `ua_pv_class` | Selection | - | `l10n_ua_labour_stat` |
+| `ua_pv_unworked` | Boolean | Оплата за невідпрацьований час (5090) | `l10n_ua_labour_stat` |
 
 ### `maintenance.equipment`
 

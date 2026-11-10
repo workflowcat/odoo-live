@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_labour_report_form" model="ir.ui.view">
+    <field name="name">ua.labour.report.form</field><field name="model">ua.labour.report</field>
+    <field name="arch" type="xml">
+      <form string="Звіт із праці">
+        <header>
+          <button name="action_compute" type="object" string="Порахувати" class="btn-primary" invisible="state != 'draft'"/>
+          <button name="action_print" type="object" string="Друкувати" invisible="not computed_at"/>
+          <button name="action_done" type="object" string="Затвердити" invisible="state != 'draft' or not computed_at"/>
+          <button name="action_draft" type="object" string="У чернетку" invisible="state != 'done'"/>
+          <field name="state" widget="statusbar"/>
+        </header>
+        <sheet>
+          <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+          <group>
+            <group>
+              <field name="kind" readonly="state != 'draft'"/>
+              <field name="year" options="{'enable_formatting': False}" readonly="state != 'draft'"/>
+              <field name="period" readonly="state != 'draft'"/>
+              <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+            </group>
+            <group>
+              <field name="date_from"/>
+              <field name="date_to"/>
+              <field name="computed_at"/>
+            </group>
+          </group>
+          <notebook>
+            <page string="Показники" name="month" invisible="kind != 'month'">
+              <group>
+                <field name="r1020" readonly="state != 'draft'"/>
+                <field name="r1030" readonly="state != 'draft'"/>
+                <field name="r1040" readonly="state != 'draft'"/>
+                <field name="r1060" readonly="state != 'draft'"/>
+                <field name="r1070" readonly="state != 'draft'"/>
+              </group>
+            </page>
+            <page string="I. Кількість працівників" name="q1" invisible="kind != 'quarter'">
+              <group>
+                <field name="r3020" readonly="state != 'draft'"/>
+                <field name="r3040" readonly="state != 'draft'"/>
+                <field name="r3050" readonly="state != 'draft'"/>
+                <field name="r3060" readonly="state != 'draft'"/>
+                <field name="r3070" readonly="state != 'draft'"/>
+                <field name="r3080" readonly="state != 'draft'" invisible="period != 4"/>
+                <field name="r3090" readonly="state != 'draft'" invisible="period != 4"/>
+                <field name="r3100" readonly="state != 'draft'" invisible="period != 4"/>
+              </group>
+            </page>
+            <page string="II. Невідпрацьований час" name="q2" invisible="kind != 'quarter'">
+              <group>
+                <group string="Людино-години">
+                  <field name="r4080_hours" readonly="state != 'draft'"/>
+                  <field name="r4090_hours" readonly="state != 'draft'"/>
+                  <field name="r4100_hours" readonly="state != 'draft'"/>
+                </group>
+                <group string="Осіб">
+                  <field name="r4080_people" readonly="state != 'draft'"/>
+                  <field name="r4090_people" readonly="state != 'draft'"/>
+                  <field name="r4100_people" readonly="state != 'draft'"/>
+                </group>
+              </group>
+            </page>
+            <page string="III. Фонд оплати праці" name="q3" invisible="kind != 'quarter'">
+              <group>
+                <field name="r5010" readonly="state != 'draft'"/>
+                <field name="r5020" readonly="state != 'draft'"/>
+                <field name="r5030" readonly="state != 'draft'"/>
+                <field name="r5040" readonly="state != 'draft'"/>
+                <field name="r5050" readonly="state != 'draft'"/>
+                <field name="r5051" readonly="state != 'draft'"/>
+                <field name="r5052" readonly="state != 'draft'"/>
+                <field name="r5060" readonly="state != 'draft'"/>
+                <field name="r5070" readonly="state != 'draft'"/>
+                <field name="r5080" readonly="state != 'draft'"/>
+                <field name="r5090" readonly="state != 'draft'"/>
+              </group>
+            </page>
+            <page string="IV. Окремі категорії" name="q4" invisible="kind != 'quarter'">
+              <group>
+                <group string="Жінки">
+                  <field name="r7010_1" readonly="state != 'draft'"/>
+                  <field name="r7010_2" readonly="state != 'draft'"/>
+                  <field name="r7010_3" readonly="state != 'draft'"/>
+                </group>
+                <group string="Позаштатні">
+                  <field name="r7030_1" readonly="state != 'draft'"/>
+                  <field name="r7030_2" readonly="state != 'draft'"/>
+                  <field name="r7040_1" readonly="state != 'draft'"/>
+                  <field name="r7040_2" readonly="state != 'draft'"/>
+                </group>
+              </group>
+            </page>
+            <page string="V. Колективні договори" name="q5" invisible="kind != 'quarter' or period != 4">
+              <group>
+                <field name="r8010" readonly="state != 'draft'"/>
+                <field name="r8020" readonly="state != 'draft'"/>
+                <field name="r8030" readonly="state != 'draft'"/>
+                <field name="r8040" readonly="state != 'draft'"/>
+              </group>
+            </page>
+            <page string="Перевірки" name="ua_checks">
+              <field name="checks_html" readonly="1" nolabel="1"/>
+            </page>
+            <page string="Пояснення" name="note"><field name="note" nolabel="1"/></page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_labour_report_list" model="ir.ui.view">
+    <field name="name">ua.labour.report.list</field><field name="model">ua.labour.report</field>
+    <field name="arch" type="xml">
+      <list string="Звіт із праці">
+        <field name="name"/>
+        <field name="company_id" groups="base.group_multi_company"/>
+        <field name="computed_at"/>
+        <field name="state" widget="badge" decoration-success="state == 'done'"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="action_ua_labour_report" model="ir.actions.act_window">
+    <field name="name">Звіт із праці (1-ПВ)</field>
+    <field name="res_model">ua.labour.report</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>
