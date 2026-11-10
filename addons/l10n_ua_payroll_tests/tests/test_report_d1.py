@@ -29,7 +29,8 @@ class TestUaReportD1(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.company = cls.env.company
-        cls.company.write({"company_registry": "12345678", "ua_sti_code": "2650"})
+        cls.company.write({"company_registry": "12345678", "ua_sti_code": "2650",
+                           "ua_director_rnokpp": "3000000001", "ua_director_name": "Директор Тестовий"})
         cls.structure = cls.env["hr.payroll.structure"].search([("code", "=", "UA_SALARY")], limit=1)
         cls.calendar = cls.company.resource_calendar_id
         cls.rnokpp = 3000000100
