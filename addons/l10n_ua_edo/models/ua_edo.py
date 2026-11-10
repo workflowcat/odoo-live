@@ -372,6 +372,10 @@ class UaEdoDocument(models.Model):
         source = self._source()
         if not source or not hasattr(source, "message_post"):
             return
+        if self.direction == "in":
+            source.message_post(body=_("ЕДО: вхідний %s підписано.") % self.name if self.state == "signed"
+                                else _("ЕДО: вхідний %s відхилено.") % self.name)
+            return
         if self.state == "signed":
             body = _("ЕДО: %s підписано контрагентом.") % self.name
         else:
@@ -391,8 +395,9 @@ class UaEdoDocument(models.Model):
         companies = self.env["res.company"].search([("ua_edo_mode", "=", "bridge")])
         if not companies:
             return
-        documents = self.search([("company_id", "in", companies.ids), ("direction", "=", "out"),
-                                 ("state", "in", OPEN_OUT), ("provider_id", "!=", False)],
+        documents = self.search([("company_id", "in", companies.ids), ("provider_id", "!=", False),
+                                 "|", "&", ("direction", "=", "out"), ("state", "in", OPEN_OUT),
+                                 "&", ("direction", "=", "in"), ("state", "=", "received")],
                                 order="date_refreshed asc nulls first, id", limit=REFRESH_BATCH)
         for document in documents:
             document._refresh()
@@ -485,6 +490,13 @@ class UaEdoDocument(models.Model):
                 ok, data = document._bridge("POST", document._path("sign"), {})
                 if not ok:
                     raise UserError(_("Сервіс не прийняв підпис: %s") % data["error"])
+                if data.get("status") not in (None, "signed"):
+                    # Сервіс підписує КЕП у себе (Вчасно): документ чекає підпису, стан прийде з оновленням.
+                    document.write({"provider_status": data["status"], "error": False,
+                                    "provider_url": data.get("url") or document.provider_url})
+                    document.message_post(body=_("Документ передано на підпис КЕП у сервісі: стан оновиться "
+                                                 "після підпису."))
+                    continue
             document.write({"state": "signed", "signed_how": "edo",
                             "date_signed": fields.Datetime.now(), "error": False})
             source = document._source()

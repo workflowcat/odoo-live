@@ -280,6 +280,8 @@
             action="l10n_ua_return_act.action_ua_return_act" sequence="71"/>
   <menuitem id="menu_ua_return_act_repair" name="Акти невідповідності" parent="repair.menu_repair_order"
             action="l10n_ua_return_act.action_ua_return_act" sequence="12"/>
+  <menuitem id="menu_ua_hr_order_template" name="Шаблони наказів" parent="menu_ua_hr_refs"
+            action="l10n_ua_hr_order_template.action_ua_hr_order_template" sequence="15" groups="hr.group_hr_user"/>
   <menuitem id="menu_ua_defect_act" name="Акти про брак" parent="mrp.menu_mrp_manufacturing"
             action="l10n_ua_defect.action_ua_defect_act" sequence="40"/>
   <menuitem id="menu_ua_cashflow_budget" name="Бюджет руху коштів" parent="account.menu_finance_payables"

@@ -1,8 +1,8 @@
 {
   "totals": {
-    "modules": 104,
+    "modules": 105,
     "models": 212,
-    "methods": 814,
+    "methods": 815,
     "fields": 445
   },
   "areas": [
@@ -2554,6 +2554,7 @@
           "model": "ua.hr.order",
           "ours": true,
           "modules": [
+            "l10n_ua_hr_order_template",
             "l10n_ua_hr_orders"
           ],
           "methods": [
@@ -2643,6 +2644,14 @@
               "doc": "Короткий однорядковий зміст наказу - для журналу реєстрації.",
               "module": "l10n_ua_hr_orders",
               "file": "addons/l10n_ua_hr_orders/models/ua_hr_order.py",
+              "decorators": []
+            },
+            {
+              "name": "ua_template_body",
+              "signature": "ua_template_body()",
+              "doc": "Текст наказу за шаблоном для друку.",
+              "module": "l10n_ua_hr_order_template",
+              "file": "addons/l10n_ua_hr_order_template/models/ua_hr_order_template.py",
               "decorators": []
             }
           ],

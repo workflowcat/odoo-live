@@ -281,6 +281,32 @@ class TestUaEdo(TransactionCase):
                          [{"reason": "Договору з вами немає"}])
         self.assertTrue(bill.message_ids.filtered(lambda m: "підписано" in m.body))
 
+    def test_07b_sign_in_service(self):
+        """Вчасно підписує КЕП у сервісі: «Підписати» передає документ на підпис, стан приходить з оновленням."""
+        self._bridge_mode()
+        bill = self.env["account.move"].create({
+            "move_type": "in_invoice", "partner_id": self.vendor.id, "ref": "ВН-18",
+            "invoice_date": date(2026, 10, 31),
+            "invoice_line_ids": [Command.create({"name": "Ремонт", "quantity": 1, "price_unit": 900.0,
+                                                 "tax_ids": [Command.clear()]})]})
+        bridge = FakeBridge()
+        bridge.routes[("POST", "/api/edo/inbox")] = (200, {"documents": [
+            {"id": "vchasno:12345678:IN-9", "kind": "act", "number": "ВН-18", "date": "2026-10-31",
+             "amount": 900, "currency": "UAH", "status": "sent",
+             "sender": {"code": "22223333", "name": "ТОВ Постачальник ЕДО"}}], "cursor": "2026-11-01T09:00"})
+        path = "/api/edo/documents/vchasno%3A12345678%3AIN-9"
+        bridge.routes[("POST", path + "/sign")] = (200, {"status": "to_sign", "url": "https://edo.example/d/IN-9"})
+        with bridge.patch():
+            document = self.Document._fetch_inbox(self.company)
+            document.action_sign()
+        self.assertEqual((document.state, document.provider_status, document.provider_url),
+                         ("received", "to_sign", "https://edo.example/d/IN-9"), "чекає підпису в сервісі")
+        bridge.routes[("GET", path)] = (200, {"status": "signed", "signed_at": "2026-11-02T10:00:00+02:00"})
+        with bridge.patch():
+            self.Document._cron_refresh()
+        self.assertEqual((document.state, document.signed_how), ("signed", "edo"))
+        self.assertTrue(bill.message_ids.filtered(lambda m: "вхідний" in m.body and "підписано" in m.body))
+
     def test_08_revoke_paper_and_delete(self):
         sent = self._send(self._invoice())
         with self.assertRaises(UserError):

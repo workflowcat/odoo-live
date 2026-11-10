@@ -4,9 +4,11 @@
 //   GET  /api/odb/screen/:code        registry + risk markers, normalized (OpenDataBot v2, cached 24h in D1)
 //   GET  /api/odb/court?text=&offset= court decisions search, passthrough (billable, on demand)
 //   ANY  /api/kyc/*                   forward to Squibkit with its key (POST /subjects, PATCH /subjects/:id, ...)
+//   *    /api/edo/*                   electronic documents with counterparties (src/edo.js; adapter: Vchasno)
 //   *                                 Odoo container when attached (see container.js); otherwise the status page
 import { OdooContainer, routeToOdoo } from "./container.js";
 import { authorize } from "./auth.js";
+import { edoRoute } from "./edo.js";
 export { OdooContainer };
 
 const ODB = "https://opendatabot.ua/api/v2";
@@ -99,7 +101,7 @@ function statusPage(env) {
   return new Response(`<!doctype html><html lang="uk"><meta charset="utf-8"><title>odoo-live</title>
 <style>body{font:15px/1.5 ui-monospace,Menlo,monospace;background:#f6f1e7;color:#1d1b18;max-width:640px;margin:8vh auto;padding:0 20px}h1{font:600 24px Georgia,serif}code{background:#eee6d6;padding:1px 6px}p{margin:8px 0}</style>
 <h1>odoo-live</h1>
-<p>Міст інтеграцій працює: <code>/api/odb/*</code> (OpenDataBot), <code>/api/kyc/*</code> (Squibkit).</p>
+<p>Міст інтеграцій працює: <code>/api/odb/*</code> (OpenDataBot), <code>/api/kyc/*</code> (Squibkit), <code>/api/edo/*</code> (Вчасно).</p>
 <p>Odoo на цьому домені не підключено.</p>
 <p><code>GET /health</code></p></html>`, { headers: { "content-type": "text/html; charset=utf-8" } });
 }
@@ -119,6 +121,7 @@ export default {
         if (p.startsWith("/api/odb/screen/")) { const code = p.split("/")[4].replace(/\D/g, ""); res = json(await screen(env, code)); }
         else if (p === "/api/odb/court") { res = json(await odbGet(env, "court", { text: url.searchParams.get("text"), offset: url.searchParams.get("offset") || 0 })); }
         else if (p.startsWith("/api/kyc/")) { res = await kycForward(env, req, p.slice("/api/kyc".length)); }
+        else if (p.startsWith("/api/edo/")) { const [status, data] = await edoRoute(env, req, p); res = json(data, status); }
         else res = json({ error: "no such route" }, 404);
         log(res.status); return res;
       } catch (e) { log(502); return json({ error: String(e.message || e) }, 502); }

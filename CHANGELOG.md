@@ -6,6 +6,15 @@ Notable changes for people who run or build on this code. Module-level API chang
 ## Unreleased
 
 ### Added
+- Company templates for HR orders (`l10n_ua_hr_order_template`): the order's title and text with
+  placeholders such as {{працівник}}, {{посада}}, {{з_дати}}, {{оклад}}; a new order takes its company's
+  template for its kind, and the print uses it instead of the standard text. Three samples (hire, leave,
+  dismissal) ship archived, so prints change only when HR turns a template on. Values are escaped; an unknown
+  placeholder prints as is and is listed on the template; preview on a real order.
+- Vchasno adapter in the bridge Worker (`worker/src/vchasno.js`): send with parameters and Vchasno's file name,
+  one document per id, statuses with the rejection reason and the signed `.p7s`, revoke, reject, inbox with
+  originals. Signing an incoming document in Odoo hands it to the company's signers in Vchasno; Odoo learns
+  «signed» from the status check, which now covers incoming documents too (`l10n_ua_edo` 19.0.1.1.0).
 - Piece-rate plan and fact by month (`l10n_ua_piecework`): a plan per employee in hryvnias and, if wanted, in
   standard hours; the fact comes from confirmed piece-rate documents of the month - amount, standard hours of the
   work done (quantity × time per unit of the operation) and hours worked from the operation time log. Plan

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Наказ із шаблоном друкує назву і текст шаблону замість типового тексту. -->
+  <template id="report_ua_hr_order_template" inherit_id="l10n_ua_hr_orders.report_ua_hr_order">
+    <xpath expr="//t[@t-call='l10n_ua_hr_docs.ua_order_head']" position="after">
+      <t t-if="o.template_id">
+        <p style="text-align:center;"><b><t t-out="o.template_id.title"/></b></p>
+        <div class="ua-order-template"><t t-out="o.ua_template_body()"/></div>
+      </t>
+    </xpath>
+    <xpath expr="//t[@t-if=&quot;o.order_type == 'hire'&quot;]" position="attributes">
+      <attribute name="t-if">o.order_type == 'hire' and not o.template_id</attribute>
+    </xpath>
+    <xpath expr="//t[@t-if=&quot;o.order_type == 'wage'&quot;]" position="attributes">
+      <attribute name="t-if">o.order_type == 'wage' and not o.template_id</attribute>
+    </xpath>
+    <xpath expr="//t[@t-if=&quot;o.order_type == 'transfer'&quot;]" position="attributes">
+      <attribute name="t-if">o.order_type == 'transfer' and not o.template_id</attribute>
+    </xpath>
+    <xpath expr="//t[@t-if=&quot;o.order_type == 'leave'&quot;]" position="attributes">
+      <attribute name="t-if">o.order_type == 'leave' and not o.template_id</attribute>
+    </xpath>
+    <xpath expr="//t[@t-if=&quot;o.order_type == 'dismissal'&quot;]" position="attributes">
+      <attribute name="t-if">o.order_type == 'dismissal' and not o.template_id</attribute>
+    </xpath>
+    <xpath expr="//t[@t-if=&quot;o.order_type == 'trip'&quot;]" position="attributes">
+      <attribute name="t-if">o.order_type == 'trip' and not o.template_id</attribute>
+    </xpath>
+  </template>
+</odoo>

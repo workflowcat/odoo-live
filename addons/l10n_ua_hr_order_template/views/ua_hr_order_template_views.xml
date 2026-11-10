@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_ua_hr_order_template_form" model="ir.ui.view">
+    <field name="name">ua.hr.order.template.form</field>
+    <field name="model">ua.hr.order.template</field>
+    <field name="arch" type="xml">
+      <form string="Шаблон наказу">
+        <sheet>
+          <widget name="web_ribbon" title="В архіві" bg_color="text-bg-secondary" invisible="active"/>
+          <div class="oe_title"><h1><field name="name" placeholder="Наприклад: Прийняття (сумісники)"/></h1></div>
+          <group>
+            <group>
+              <field name="order_type"/>
+              <field name="title"/>
+            </group>
+            <group>
+              <field name="company_id" groups="base.group_multi_company"/>
+              <field name="sequence"/>
+              <field name="active" invisible="1"/>
+            </group>
+          </group>
+          <div class="alert alert-warning" role="alert" invisible="not unknown">
+            Невідомі підстановки друкуються як є: <field name="unknown" class="oe_inline"/>
+          </div>
+          <notebook>
+            <page string="Текст" name="body">
+              <field name="body" options="{'codeview': true}"
+                     placeholder="Прийняти {{працівник}} на посаду {{посада}} з {{з_дати}} ..."/>
+            </page>
+            <page string="Перегляд" name="preview">
+              <group><field name="preview_order_id" options="{'no_create': true}"/></group>
+              <field name="preview_html" readonly="1" invisible="not preview_order_id"/>
+            </page>
+            <page string="Підстановки" name="placeholders">
+              <field name="placeholders_html" readonly="1"/>
+            </page>
+          </notebook>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_ua_hr_order_template_list" model="ir.ui.view">
+    <field name="name">ua.hr.order.template.list</field>
+    <field name="model">ua.hr.order.template</field>
+    <field name="arch" type="xml">
+      <list string="Шаблони наказів">
+        <field name="sequence" widget="handle"/>
+        <field name="name"/>
+        <field name="order_type"/>
+        <field name="title"/>
+        <field name="company_id" groups="base.group_multi_company" optional="show"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_ua_hr_order_template_search" model="ir.ui.view">
+    <field name="name">ua.hr.order.template.search</field>
+    <field name="model">ua.hr.order.template</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="name"/>
+        <field name="order_type"/>
+        <filter name="archived" string="В архіві" domain="[('active', '=', False)]"/>
+        <group>
+          <filter name="by_type" string="Вид наказу" context="{'group_by': 'order_type'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_ua_hr_order_template" model="ir.actions.act_window">
+    <field name="name">Шаблони наказів</field>
+    <field name="res_model">ua.hr.order.template</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Свій текст наказу</p>
+      <p>Шаблон замінює типовий текст наказу свого виду. Підстановки - на вкладці «Підстановки».</p>
+    </field>
+  </record>
+
+  <record id="view_ua_hr_order_form_template" model="ir.ui.view">
+    <field name="name">ua.hr.order.form.template</field>
+    <field name="model">ua.hr.order</field>
+    <field name="inherit_id" ref="l10n_ua_hr_orders.view_ua_hr_order_form"/>
+    <field name="arch" type="xml">
+      <field name="basis" position="after">
+        <field name="template_id" readonly="state != 'draft'" options="{'no_create': true}"
+               placeholder="Типовий текст"/>
+      </field>
+    </field>
+  </record>
+</odoo>

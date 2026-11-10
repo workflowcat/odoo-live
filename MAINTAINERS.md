@@ -38,3 +38,11 @@ set it still takes the old shared `BRIDGE_TOKEN`. To switch:
 3. Give each Odoo its own token as `BP_BRIDGE_TOKEN` in `deploy/env.<env>` and set `BP_BRIDGE_URL`
    there explicitly (the server compose file no longer has a default); redeploy staging, then prod.
 4. Rotate: add the new entry, deploy, switch Odoo, remove the old entry, deploy.
+
+## Turning on Vchasno for a company
+
+1. The company creates an API token in Vchasno.EDO (a user with the right to upload and sign).
+2. Put it into the Worker secret `VCHASNO_TOKENS` as `{"<company ЄДРПОУ>": "<token>"}`; optionally
+   `VCHASNO_SIGNERS` as `{"<company ЄДРПОУ>": ["<signer role id>"]}`. Deploy the Worker.
+3. Add the rule `"* /api/edo/"` to that Odoo's bridge token (step 1 above) and set the company's EDO mode to
+   «Через міст» with service `vchasno`. Routes and status mapping: `docs/base/spec-edo.md`.
